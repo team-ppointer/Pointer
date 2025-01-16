@@ -1,0 +1,32 @@
+name: Synchronize to forked repo
+on:
+  push:
+    branches:
+      - pre-production
+
+jobs:
+  sync:
+    name: Sync forked repo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout pre-production
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.FORKED_REPO_TOKEN }}
+          fetch-depth: 0
+          ref: pre-production
+
+      - name: Add remote-url
+        run: |
+          git remote add forked-repo https://gudusol:${{ secrets.FORKED_REPO_TOKEN }}@github.com/gudusol/mopl
+          git config user.name gudusol
+          git config user.email ${{ secrets.EMAIL }}
+
+      - name: Push changes to forked-repo
+        run: |
+          git push -f forked-repo pre-production
+
+      - name: Clean up
+        run: |
+          git remote remove forked-repo
