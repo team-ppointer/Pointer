@@ -53,7 +53,37 @@
 /*      TYPOGRAPHY STYLES    */
 /* ========================= */
 @layer components {
-  .font-body1_b_11 {
-    @apply font-pretendard text-[11px] font-bold leading-[145%];
+  /* Bold font styles */
+  .font-bold-32 {
+    @apply font-pretendard text-[32px] font-bold leading-[150%];
+  }
+  .font-bold-24 {
+    @apply font-pretendard text-[24px] font-bold leading-[150%];
+  }
+  .font-bold-20 {
+    @apply font-pretendard text-[20px] font-bold leading-[150%];
+  }
+  .font-bold-18 {
+    @apply font-pretendard text-[18px] font-bold leading-[150%];
+  }
+  .font-bold-14 {
+    @apply font-pretendard text-[14px] font-bold leading-[150%];
+  }
+
+  /* Medium font styles */
+  .font-medium-24 {
+    @apply font-pretendard text-[24px] font-medium leading-[150%];
+  }
+  .font-medium-18 {
+    @apply font-pretendard text-[18px] font-medium leading-[150%];
+  }
+  .font-medium-16 {
+    @apply font-pretendard text-[16px] font-medium leading-[150%];
+  }
+  .font-medium-14 {
+    @apply font-pretendard text-[14px] font-medium leading-[150%];
+  }
+  .font-medium-12 {
+    @apply font-pretendard text-[12px] font-medium leading-[150%];
   }
 }
