@@ -35,15 +35,11 @@
 
 ## 💡 New Insights & Learnings
 
--
-
----
+- ***
 
 ## 📢 To Reviewers
 
--
-
----
+- ***
 
 ## 📸 Screenshot or Video (Optional)
 

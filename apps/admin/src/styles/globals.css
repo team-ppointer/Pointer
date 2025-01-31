@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================= */
+/*        BASE STYLES        */
+/* ========================= */
+@layer base {
+  @font-face {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 100 900;
+    src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
+  }
+
+  html {
+    font-size: 62.5%;
+    font-family: var(--font-pretendard), sans-serif;
+    overscroll-behavior: none;
+  }
+
+  body {
+    width: 100%;
+    min-height: 100dvh;
+    font-family: var(--font-pretendard), Arial, Helvetica, sans-serif;
+    scroll-behavior: smooth;
+    overflow-x: auto;
+  }
+
+  p {
+    word-break: keep-all;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  select {
+    background: #fff;
+  }
+
+  .suit {
+    font-family: var(--font-suit), sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ========================= */
+/*      TYPOGRAPHY STYLES    */
+/* ========================= */
+@layer components {
+  .font-body1_b_11 {
+    @apply font-pretendard text-[11px] font-bold leading-[145%];
+  }
+}
