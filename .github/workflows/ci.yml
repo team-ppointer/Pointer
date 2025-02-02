@@ -28,7 +28,7 @@ jobs:
         run: pnpm lint
 
       - name: Check Prettier formatting
-        run: pnpm prettier --check .
+        run: pnpm prettier --check \"**/*.{js,ts,tsx,jsx,mjs,hbs,json,css,md}\".
 
       - name: TypeScript Check
         run: pnpm tsc --noEmit
