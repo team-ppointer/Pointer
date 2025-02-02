@@ -4,7 +4,7 @@ export const Route = createFileRoute('/')({
   component: HomeComponent,
 });
 
-function HomeComponent() {
+function HomeComponent({ num }: { num: any }) {
   return (
     <div className='p-2'>
       <h3 className='font-bold-32'>Welcome Home!</h3>
