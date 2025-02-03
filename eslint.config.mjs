@@ -18,12 +18,6 @@ export default [
       parser: tsParser,
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: {
-        React: 'readonly',
-        document: 'readonly',
-        window: 'readonly',
-        process: 'readonly',
-      },
     },
     plugins: {
       '@typescript-eslint': ts,
@@ -33,9 +27,7 @@ export default [
       prettier,
     },
     rules: {
-      ...js.configs.recommended.rules,
       ...ts.configs.recommended.rules,
-      ...react.configs.recommended.rules,
       ...prettierConfig.rules,
 
       'prettier/prettier': 'error',
