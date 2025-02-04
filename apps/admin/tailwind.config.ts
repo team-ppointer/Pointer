@@ -26,6 +26,7 @@ export default {
 
         // Colors
         green: '#0F7B0D',
+        lightgreen: '#E7F6E5',
         red: '#D20000',
         lightred: '#FCE4E4',
         blue: '#5A67EE',
