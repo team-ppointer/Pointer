@@ -1,1 +1,1 @@
-export { default as IcSignOut } from './IcSignOut'
+export { default as IcSignOut } from './IcSignOut';

@@ -9,8 +9,8 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{js,ts,tsx,jsx,mjs,hbs,json,css,md}\"",
     "svgr": "pnpm svgr:admin && pnpm svgr:service",
-    "svgr:admin": "pnpm dlx @svgr/cli apps/admin/public/svg --out-dir apps/admin/src/assets/svg --no-prettier && prettier --write \"apps/admin/src/assets/svg/**/*.tsx\"",
-    "svgr:service": "pnpm dlx @svgr/cli apps/service/public/svg --out-dir apps/service/src/assets/svg --no-prettier && prettier --write \"apps/service/src/assets/svg/**/*.tsx\""
+    "svgr:admin": "pnpm dlx @svgr/cli apps/admin/public/svg --out-dir apps/admin/src/assets/svg --no-prettier && prettier --write \"apps/admin/src/assets/svg/**/*.{ts,tsx}\"",
+    "svgr:service": "pnpm dlx @svgr/cli apps/service/public/svg --out-dir apps/service/src/assets/svg --no-prettier && prettier --write \"apps/service/src/assets/svg/**/*.{ts,tsx}\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.22.0",
