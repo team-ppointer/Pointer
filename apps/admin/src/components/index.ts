@@ -1,4 +1,5 @@
-import Button from './Button';
-import IconButton from './IconButton';
+import Button from './Buttons/Button';
+import IconButton from './Buttons/IconButton';
+import PrevPageButton from './Buttons/PrevPageButton';
 
-export { Button, IconButton };
+export { Button, IconButton, PrevPageButton };

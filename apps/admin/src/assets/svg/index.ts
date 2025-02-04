@@ -1,4 +1,5 @@
 export { default as IcDelete } from './IcDelete';
+export { default as IcLeftSm } from './IcLeftSm';
 export { default as IcLeft } from './IcLeft';
 export { default as IcModify } from './IcModify';
 export { default as IcPreview } from './IcPreview';
