@@ -24,7 +24,7 @@ const Button = ({
   const variantStyles = {
     blue: 'bg-blue text-white',
     dark: 'bg-darkgray100 text-white',
-    light: 'bg-white text-black',
+    light: 'bg-white text-black border border-lightgray500',
     dimmed: 'bg-transparent text-lightgray5',
   };
 
