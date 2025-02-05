@@ -5,5 +5,6 @@ import PlusButton from './Buttons/PlusButton';
 import GNBMenu from './GNBMenu';
 import StatusToggle from './StatusToggle';
 import Modal from './Modal';
+import Tag from './Tag';
 
-export { Button, IconButton, PrevPageButton, PlusButton, GNBMenu, StatusToggle, Modal };
+export { Button, IconButton, PrevPageButton, PlusButton, GNBMenu, StatusToggle, Modal, Tag };

@@ -1,3 +1,4 @@
+export { default as IcCloseSmall } from './IcCloseSmall';
 export { default as IcDelete } from './IcDelete';
 export { default as IcFolder } from './IcFolder';
 export { default as IcLeftSm } from './IcLeftSm';
