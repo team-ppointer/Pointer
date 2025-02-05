@@ -2,6 +2,7 @@ export { default as IcDelete } from './IcDelete';
 export { default as IcLeftSm } from './IcLeftSm';
 export { default as IcLeft } from './IcLeft';
 export { default as IcModify } from './IcModify';
+export { default as IcPlus } from './IcPlus';
 export { default as IcPreview } from './IcPreview';
 export { default as IcRight } from './IcRight';
 export { default as IcSelect } from './IcSelect';
