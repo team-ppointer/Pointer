@@ -1,11 +1,13 @@
 export { default as IcDelete } from './IcDelete';
+export { default as IcFolder } from './IcFolder';
 export { default as IcLeftSm } from './IcLeftSm';
 export { default as IcLeft } from './IcLeft';
+export { default as IcList } from './IcList';
 export { default as IcModify } from './IcModify';
 export { default as IcPlus } from './IcPlus';
 export { default as IcPreview } from './IcPreview';
+export { default as IcPublish } from './IcPublish';
 export { default as IcRight } from './IcRight';
 export { default as IcSelect } from './IcSelect';
-export { default as IcSignOut } from './IcSignOut';
 export { default as IcUnselected } from './IcUnselected';
 export { default as IcView } from './IcView';

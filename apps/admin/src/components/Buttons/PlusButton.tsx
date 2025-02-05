@@ -1,7 +1,7 @@
 import { IcPlus } from '@svg';
 import { ButtonHTMLAttributes } from 'react';
 
-export interface PlusButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface PlusButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'dark' | 'light';
 }
 

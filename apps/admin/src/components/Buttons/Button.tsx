@@ -1,7 +1,7 @@
 import React from 'react';
 import { ButtonHTMLAttributes } from 'react';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'blue' | 'dark' | 'light' | 'dimmed';
   size?: 'short' | 'long';
   children: React.ReactNode;

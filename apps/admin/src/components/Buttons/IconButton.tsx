@@ -12,7 +12,7 @@ import {
   IcUnselected,
 } from '@svg';
 
-export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: 'left' | 'right' | 'view' | 'preview' | 'modify' | 'delete' | 'select' | 'unselected';
 }
 
