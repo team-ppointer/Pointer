@@ -2,7 +2,7 @@ import { IcCloseSmall } from '@svg';
 
 interface TagProps {
   label: string;
-  onClick: () => void;
+  onClick?: () => void;
   onClickRemove?: () => void;
   removable?: boolean;
 }
