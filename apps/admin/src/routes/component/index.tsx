@@ -10,8 +10,9 @@ import {
   SearchInput,
   StatusToggle,
   Tag,
+  TagSelect,
 } from '@components';
-import { useModal } from '@hooks';
+import { useModal, useSelectTag } from '@hooks';
 import { IcFolder, IcList, IcPublish } from '@svg';
 import { createFileRoute } from '@tanstack/react-router';
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute('/component/')({
 
 function RouteComponent() {
   const { isOpen, closeModal } = useModal();
+  const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
 
   return (
     <div className='bg-background flex min-h-[100dvh] pb-96 pt-3'>
@@ -70,8 +72,8 @@ function RouteComponent() {
             </div>
           </Modal>
           <div>
-            <Tag label='태그명' onClick={() => {}} onClickRemove={() => {}} removable={false} />
-            <Tag label='태그명' onClick={() => {}} onClickRemove={() => {}} removable={true} />
+            <Tag label='태그명' onClick={() => {}} removable={false} />
+            <Tag label='태그명' onClick={() => {}} removable={true} />
           </div>
         </div>
         <div className='flex gap-4'>
@@ -123,6 +125,21 @@ function RouteComponent() {
         <div>
           <SearchInput label='검색' placeholder='검색어를 입력해주세요' />
           <SearchInput label='검색' placeholder='검색어를 입력해주세요' sizeType='long' />
+        </div>
+        <div className='flex gap-4'>
+          <TagSelect
+            selectedList={selectedList}
+            unselectedList={unselectedList}
+            onClickSelectTag={onClickSelectTag}
+            onClickRemoveTag={onClickRemoveTag}
+          />
+          <TagSelect
+            sizeType='long'
+            selectedList={selectedList}
+            unselectedList={unselectedList}
+            onClickSelectTag={onClickSelectTag}
+            onClickRemoveTag={onClickRemoveTag}
+          />
         </div>
       </div>
     </div>
