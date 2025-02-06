@@ -7,6 +7,7 @@ import StatusToggle from './StatusToggle';
 import Modal from './Modal';
 import Tag from './Tag';
 import ProblemCard from './ProblemCard';
+import Input from './Inputs/Input';
 
 export {
   Button,
@@ -18,4 +19,5 @@ export {
   Modal,
   Tag,
   ProblemCard,
+  Input,
 };

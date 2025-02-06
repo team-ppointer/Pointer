@@ -2,6 +2,7 @@ import {
   Button,
   GNBMenu,
   IconButton,
+  Input,
   Modal,
   PlusButton,
   PrevPageButton,
@@ -21,8 +22,8 @@ function RouteComponent() {
   const { isOpen, closeModal } = useModal();
 
   return (
-    <div className='bg-background flex h-[100dvh] pt-3'>
-      <div className='bg-darkgray100 fixed top-0 h-[100dvh] w-[20rem]'>
+    <div className='bg-background flex min-h-[100dvh] pb-96 pt-3'>
+      <div className='bg-darkgray100 fixed top-0 min-h-[100dvh] w-[20rem]'>
         <GNBMenu isSelected={true}>
           <IcPublish width={24} height={24} />
           <span>발행</span>
@@ -36,7 +37,7 @@ function RouteComponent() {
           <span>문제</span>
         </GNBMenu>
       </div>
-      <div className='pl-[22rem]'>
+      <div className='flex flex-col gap-4 pl-[22rem]'>
         <div className='flex gap-4'>
           <Button size='long' variant='dark'>
             버튼
@@ -114,6 +115,9 @@ function RouteComponent() {
               <Tag label='태그명' />
             </ProblemCard.TagSection>
           </ProblemCard>
+        </div>
+        <div className='flex gap-4'>
+          <Input placeholder='입력해주세요' />
         </div>
       </div>
     </div>
