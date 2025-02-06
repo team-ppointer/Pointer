@@ -21,7 +21,22 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "baseUrl": "./",
+    "paths": {
+      "@": ["src"],
+      "@apis/*": ["src/apis/*"],
+      "@svg": ["src/assets/svg"],
+      "@image": ["public/image"],
+      "@components": ["src/components"],
+      "@constants": ["src/constants"],
+      "@hooks": ["src/hooks"],
+      "@schema": ["src/types/api/schema"],
+      "@styles/*": ["src/styles/*"],
+      "@types": ["src/types"],
+      "@utils": ["src/utils"]
+    }
   },
   "include": ["src"]
 }

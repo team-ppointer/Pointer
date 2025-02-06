@@ -15,6 +15,7 @@ import { Route as IndexImport } from './routes/index';
 import { Route as PublishIndexImport } from './routes/publish/index';
 import { Route as ProblemIndexImport } from './routes/problem/index';
 import { Route as ProblemSetIndexImport } from './routes/problem-set/index';
+import { Route as ComponentIndexImport } from './routes/component/index';
 import { Route as PublishSearchIndexImport } from './routes/publish/search/index';
 import { Route as ProblemRegisterIndexImport } from './routes/problem/register/index';
 import { Route as ProblemProblemIdIndexImport } from './routes/problem/$problemId/index';
@@ -43,6 +44,12 @@ const ProblemIndexRoute = ProblemIndexImport.update({
 const ProblemSetIndexRoute = ProblemSetIndexImport.update({
   id: '/problem-set/',
   path: '/problem-set/',
+  getParentRoute: () => rootRoute,
+} as any);
+
+const ComponentIndexRoute = ComponentIndexImport.update({
+  id: '/component/',
+  path: '/component/',
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -79,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/';
       fullPath: '/';
       preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    '/component/': {
+      id: '/component/';
+      path: '/component';
+      fullPath: '/component';
+      preLoaderRoute: typeof ComponentIndexImport;
       parentRoute: typeof rootRoute;
     };
     '/problem-set/': {
@@ -137,6 +151,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
+  '/component': typeof ComponentIndexRoute;
   '/problem-set': typeof ProblemSetIndexRoute;
   '/problem': typeof ProblemIndexRoute;
   '/publish': typeof PublishIndexRoute;
@@ -148,6 +163,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
+  '/component': typeof ComponentIndexRoute;
   '/problem-set': typeof ProblemSetIndexRoute;
   '/problem': typeof ProblemIndexRoute;
   '/publish': typeof PublishIndexRoute;
@@ -160,6 +176,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute;
   '/': typeof IndexRoute;
+  '/component/': typeof ComponentIndexRoute;
   '/problem-set/': typeof ProblemSetIndexRoute;
   '/problem/': typeof ProblemIndexRoute;
   '/publish/': typeof PublishIndexRoute;
@@ -173,6 +190,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
+    | '/component'
     | '/problem-set'
     | '/problem'
     | '/publish'
@@ -183,6 +201,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
+    | '/component'
     | '/problem-set'
     | '/problem'
     | '/publish'
@@ -193,6 +212,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/component/'
     | '/problem-set/'
     | '/problem/'
     | '/publish/'
@@ -205,6 +225,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  ComponentIndexRoute: typeof ComponentIndexRoute;
   ProblemSetIndexRoute: typeof ProblemSetIndexRoute;
   ProblemIndexRoute: typeof ProblemIndexRoute;
   PublishIndexRoute: typeof PublishIndexRoute;
@@ -216,6 +237,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ComponentIndexRoute: ComponentIndexRoute,
   ProblemSetIndexRoute: ProblemSetIndexRoute,
   ProblemIndexRoute: ProblemIndexRoute,
   PublishIndexRoute: PublishIndexRoute,
@@ -236,6 +258,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/component/",
         "/problem-set/",
         "/problem/",
         "/publish/",
@@ -247,6 +270,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/component/": {
+      "filePath": "component/index.tsx"
     },
     "/problem-set/": {
       "filePath": "problem-set/index.tsx"
