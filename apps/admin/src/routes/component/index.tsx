@@ -18,7 +18,7 @@ export const Route = createFileRoute('/component/')({
 });
 
 function RouteComponent() {
-  const { isOpen, openModal, closeModal } = useModal();
+  const { isOpen, closeModal } = useModal();
 
   return (
     <div className='bg-background flex h-[100dvh] pt-3'>
