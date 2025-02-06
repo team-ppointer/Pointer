@@ -39,7 +39,7 @@ function RouteComponent() {
       </div>
       <div className='flex flex-col gap-4 pl-[22rem]'>
         <div className='flex gap-4'>
-          <Button size='long' variant='dark'>
+          <Button sizeType='long' variant='dark'>
             버튼
           </Button>
           <div>

@@ -3,13 +3,13 @@ import { ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'blue' | 'dark' | 'light' | 'dimmed';
-  size?: 'short' | 'long';
+  sizeType?: 'short' | 'long';
   children: React.ReactNode;
 }
 
 const Button = ({
   variant = 'blue',
-  size = 'short',
+  sizeType = 'short',
   children,
   className,
   ...props
@@ -30,7 +30,7 @@ const Button = ({
 
   return (
     <button
-      className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`${baseStyles} ${sizeStyles[sizeType]} ${variantStyles[variant]} ${className}`}
       {...props}>
       {children}
     </button>
