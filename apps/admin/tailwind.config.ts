@@ -16,7 +16,7 @@ export default {
         lightgray200: '#F3F5F8',
         lightgray100: '#F8F9FC',
 
-        midgray200: '#B6B7B7',
+        midgray200: '#6B6F77',
         midgray100: '#9FA4AE',
 
         darkgray200: '#222324',
