@@ -10,16 +10,16 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
-import { Route as PublishIndexImport } from './routes/publish/index'
-import { Route as ProblemIndexImport } from './routes/problem/index'
-import { Route as ProblemSetIndexImport } from './routes/problem-set/index'
-import { Route as ComponentIndexImport } from './routes/component/index'
-import { Route as PublishSearchIndexImport } from './routes/publish/search/index'
-import { Route as ProblemRegisterIndexImport } from './routes/problem/register/index'
-import { Route as ProblemProblemIdIndexImport } from './routes/problem/$problemId/index'
-import { Route as ProblemSetRegisterIndexImport } from './routes/problem-set/register/index'
+import { Route as rootRoute } from './routes/__root';
+import { Route as IndexImport } from './routes/index';
+import { Route as PublishIndexImport } from './routes/publish/index';
+import { Route as ProblemIndexImport } from './routes/problem/index';
+import { Route as ProblemSetIndexImport } from './routes/problem-set/index';
+import { Route as ComponentIndexImport } from './routes/component/index';
+import { Route as PublishSearchIndexImport } from './routes/publish/search/index';
+import { Route as ProblemRegisterIndexImport } from './routes/problem/register/index';
+import { Route as ProblemProblemIdIndexImport } from './routes/problem/$problemId/index';
+import { Route as ProblemSetRegisterIndexImport } from './routes/problem-set/register/index';
 
 // Create/Update Routes
 
@@ -27,167 +27,167 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const PublishIndexRoute = PublishIndexImport.update({
   id: '/publish/',
   path: '/publish/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const ProblemIndexRoute = ProblemIndexImport.update({
   id: '/problem/',
   path: '/problem/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const ProblemSetIndexRoute = ProblemSetIndexImport.update({
   id: '/problem-set/',
   path: '/problem-set/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const ComponentIndexRoute = ComponentIndexImport.update({
   id: '/component/',
   path: '/component/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const PublishSearchIndexRoute = PublishSearchIndexImport.update({
   id: '/publish/search/',
   path: '/publish/search/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const ProblemRegisterIndexRoute = ProblemRegisterIndexImport.update({
   id: '/problem/register/',
   path: '/problem/register/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const ProblemProblemIdIndexRoute = ProblemProblemIdIndexImport.update({
   id: '/problem/$problemId/',
   path: '/problem/$problemId/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const ProblemSetRegisterIndexRoute = ProblemSetRegisterIndexImport.update({
   id: '/problem-set/register/',
   path: '/problem-set/register/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/component/': {
-      id: '/component/'
-      path: '/component'
-      fullPath: '/component'
-      preLoaderRoute: typeof ComponentIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/component/';
+      path: '/component';
+      fullPath: '/component';
+      preLoaderRoute: typeof ComponentIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/problem-set/': {
-      id: '/problem-set/'
-      path: '/problem-set'
-      fullPath: '/problem-set'
-      preLoaderRoute: typeof ProblemSetIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/problem-set/';
+      path: '/problem-set';
+      fullPath: '/problem-set';
+      preLoaderRoute: typeof ProblemSetIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/problem/': {
-      id: '/problem/'
-      path: '/problem'
-      fullPath: '/problem'
-      preLoaderRoute: typeof ProblemIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/problem/';
+      path: '/problem';
+      fullPath: '/problem';
+      preLoaderRoute: typeof ProblemIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/publish/': {
-      id: '/publish/'
-      path: '/publish'
-      fullPath: '/publish'
-      preLoaderRoute: typeof PublishIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/publish/';
+      path: '/publish';
+      fullPath: '/publish';
+      preLoaderRoute: typeof PublishIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/problem-set/register/': {
-      id: '/problem-set/register/'
-      path: '/problem-set/register'
-      fullPath: '/problem-set/register'
-      preLoaderRoute: typeof ProblemSetRegisterIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/problem-set/register/';
+      path: '/problem-set/register';
+      fullPath: '/problem-set/register';
+      preLoaderRoute: typeof ProblemSetRegisterIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/problem/$problemId/': {
-      id: '/problem/$problemId/'
-      path: '/problem/$problemId'
-      fullPath: '/problem/$problemId'
-      preLoaderRoute: typeof ProblemProblemIdIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/problem/$problemId/';
+      path: '/problem/$problemId';
+      fullPath: '/problem/$problemId';
+      preLoaderRoute: typeof ProblemProblemIdIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/problem/register/': {
-      id: '/problem/register/'
-      path: '/problem/register'
-      fullPath: '/problem/register'
-      preLoaderRoute: typeof ProblemRegisterIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/problem/register/';
+      path: '/problem/register';
+      fullPath: '/problem/register';
+      preLoaderRoute: typeof ProblemRegisterIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/publish/search/': {
-      id: '/publish/search/'
-      path: '/publish/search'
-      fullPath: '/publish/search'
-      preLoaderRoute: typeof PublishSearchIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/publish/search/';
+      path: '/publish/search';
+      fullPath: '/publish/search';
+      preLoaderRoute: typeof PublishSearchIndexImport;
+      parentRoute: typeof rootRoute;
+    };
   }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/component': typeof ComponentIndexRoute
-  '/problem-set': typeof ProblemSetIndexRoute
-  '/problem': typeof ProblemIndexRoute
-  '/publish': typeof PublishIndexRoute
-  '/problem-set/register': typeof ProblemSetRegisterIndexRoute
-  '/problem/$problemId': typeof ProblemProblemIdIndexRoute
-  '/problem/register': typeof ProblemRegisterIndexRoute
-  '/publish/search': typeof PublishSearchIndexRoute
+  '/': typeof IndexRoute;
+  '/component': typeof ComponentIndexRoute;
+  '/problem-set': typeof ProblemSetIndexRoute;
+  '/problem': typeof ProblemIndexRoute;
+  '/publish': typeof PublishIndexRoute;
+  '/problem-set/register': typeof ProblemSetRegisterIndexRoute;
+  '/problem/$problemId': typeof ProblemProblemIdIndexRoute;
+  '/problem/register': typeof ProblemRegisterIndexRoute;
+  '/publish/search': typeof PublishSearchIndexRoute;
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/component': typeof ComponentIndexRoute
-  '/problem-set': typeof ProblemSetIndexRoute
-  '/problem': typeof ProblemIndexRoute
-  '/publish': typeof PublishIndexRoute
-  '/problem-set/register': typeof ProblemSetRegisterIndexRoute
-  '/problem/$problemId': typeof ProblemProblemIdIndexRoute
-  '/problem/register': typeof ProblemRegisterIndexRoute
-  '/publish/search': typeof PublishSearchIndexRoute
+  '/': typeof IndexRoute;
+  '/component': typeof ComponentIndexRoute;
+  '/problem-set': typeof ProblemSetIndexRoute;
+  '/problem': typeof ProblemIndexRoute;
+  '/publish': typeof PublishIndexRoute;
+  '/problem-set/register': typeof ProblemSetRegisterIndexRoute;
+  '/problem/$problemId': typeof ProblemProblemIdIndexRoute;
+  '/problem/register': typeof ProblemRegisterIndexRoute;
+  '/publish/search': typeof PublishSearchIndexRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/component/': typeof ComponentIndexRoute
-  '/problem-set/': typeof ProblemSetIndexRoute
-  '/problem/': typeof ProblemIndexRoute
-  '/publish/': typeof PublishIndexRoute
-  '/problem-set/register/': typeof ProblemSetRegisterIndexRoute
-  '/problem/$problemId/': typeof ProblemProblemIdIndexRoute
-  '/problem/register/': typeof ProblemRegisterIndexRoute
-  '/publish/search/': typeof PublishSearchIndexRoute
+  __root__: typeof rootRoute;
+  '/': typeof IndexRoute;
+  '/component/': typeof ComponentIndexRoute;
+  '/problem-set/': typeof ProblemSetIndexRoute;
+  '/problem/': typeof ProblemIndexRoute;
+  '/publish/': typeof PublishIndexRoute;
+  '/problem-set/register/': typeof ProblemSetRegisterIndexRoute;
+  '/problem/$problemId/': typeof ProblemProblemIdIndexRoute;
+  '/problem/register/': typeof ProblemRegisterIndexRoute;
+  '/publish/search/': typeof PublishSearchIndexRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
     | '/component'
@@ -197,8 +197,8 @@ export interface FileRouteTypes {
     | '/problem-set/register'
     | '/problem/$problemId'
     | '/problem/register'
-    | '/publish/search'
-  fileRoutesByTo: FileRoutesByTo
+    | '/publish/search';
+  fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
     | '/component'
@@ -208,7 +208,7 @@ export interface FileRouteTypes {
     | '/problem-set/register'
     | '/problem/$problemId'
     | '/problem/register'
-    | '/publish/search'
+    | '/publish/search';
   id:
     | '__root__'
     | '/'
@@ -219,20 +219,20 @@ export interface FileRouteTypes {
     | '/problem-set/register/'
     | '/problem/$problemId/'
     | '/problem/register/'
-    | '/publish/search/'
-  fileRoutesById: FileRoutesById
+    | '/publish/search/';
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ComponentIndexRoute: typeof ComponentIndexRoute
-  ProblemSetIndexRoute: typeof ProblemSetIndexRoute
-  ProblemIndexRoute: typeof ProblemIndexRoute
-  PublishIndexRoute: typeof PublishIndexRoute
-  ProblemSetRegisterIndexRoute: typeof ProblemSetRegisterIndexRoute
-  ProblemProblemIdIndexRoute: typeof ProblemProblemIdIndexRoute
-  ProblemRegisterIndexRoute: typeof ProblemRegisterIndexRoute
-  PublishSearchIndexRoute: typeof PublishSearchIndexRoute
+  IndexRoute: typeof IndexRoute;
+  ComponentIndexRoute: typeof ComponentIndexRoute;
+  ProblemSetIndexRoute: typeof ProblemSetIndexRoute;
+  ProblemIndexRoute: typeof ProblemIndexRoute;
+  PublishIndexRoute: typeof PublishIndexRoute;
+  ProblemSetRegisterIndexRoute: typeof ProblemSetRegisterIndexRoute;
+  ProblemProblemIdIndexRoute: typeof ProblemProblemIdIndexRoute;
+  ProblemRegisterIndexRoute: typeof ProblemRegisterIndexRoute;
+  PublishSearchIndexRoute: typeof PublishSearchIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -245,11 +245,11 @@ const rootRouteChildren: RootRouteChildren = {
   ProblemProblemIdIndexRoute: ProblemProblemIdIndexRoute,
   ProblemRegisterIndexRoute: ProblemRegisterIndexRoute,
   PublishSearchIndexRoute: PublishSearchIndexRoute,
-}
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {
