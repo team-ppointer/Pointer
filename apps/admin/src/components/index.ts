@@ -8,6 +8,7 @@ import Modal from './Modal';
 import Tag from './Tag';
 import ProblemCard from './ProblemCard';
 import Input from './Inputs/Input';
+import SearchInput from './Inputs/SearchInput';
 
 export {
   Button,
@@ -20,4 +21,5 @@ export {
   Tag,
   ProblemCard,
   Input,
+  SearchInput,
 };

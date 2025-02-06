@@ -7,6 +7,7 @@ import {
   PlusButton,
   PrevPageButton,
   ProblemCard,
+  SearchInput,
   StatusToggle,
   Tag,
 } from '@components';
@@ -118,6 +119,10 @@ function RouteComponent() {
         </div>
         <div className='flex gap-4'>
           <Input placeholder='입력해주세요' />
+        </div>
+        <div>
+          <SearchInput label='검색' placeholder='검색어를 입력해주세요' />
+          <SearchInput label='검색' placeholder='검색어를 입력해주세요' sizeType='long' />
         </div>
       </div>
     </div>

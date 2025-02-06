@@ -9,6 +9,7 @@ export { default as IcPlus } from './IcPlus';
 export { default as IcPreview } from './IcPreview';
 export { default as IcPublish } from './IcPublish';
 export { default as IcRight } from './IcRight';
+export { default as IcSearch } from './IcSearch';
 export { default as IcSelect } from './IcSelect';
 export { default as IcUnselected } from './IcUnselected';
 export { default as IcView } from './IcView';
