@@ -42,11 +42,22 @@ const CardTagSection = ({ children }: { children: React.ReactNode }) => {
   return <div className='flex gap-[0.8rem]'>{children}</div>;
 };
 
+const CardEmptyView = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <div
+      className='flex h-[60.6rem] w-full cursor-pointer items-center justify-center'
+      onClick={onClick}>
+      <span className='font-bold-24 text-lightgray500 whitespace-pre-line text-center'>{`여기를 클릭해\n문항을 추가해주세요.`}</span>
+    </div>
+  );
+};
+
 ProblemCard.TextSection = CardTextSection;
 ProblemCard.Title = CardTitle;
 ProblemCard.ButtonSection = CardButtonSection;
 ProblemCard.Info = CardInfo;
 ProblemCard.CardImage = CardImage;
 ProblemCard.TagSection = CardTagSection;
+ProblemCard.EmptyView = CardEmptyView;
 
 export default ProblemCard;
