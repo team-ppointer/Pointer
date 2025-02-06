@@ -10,6 +10,7 @@ import ProblemCard from './ProblemCard';
 import Input from './Inputs/Input';
 import SearchInput from './Inputs/SearchInput';
 import TagSelect from './Inputs/TagSelect';
+import AnswerInput from './Inputs/AnswerInput';
 
 export {
   Button,
@@ -24,4 +25,5 @@ export {
   Input,
   SearchInput,
   TagSelect,
+  AnswerInput,
 };

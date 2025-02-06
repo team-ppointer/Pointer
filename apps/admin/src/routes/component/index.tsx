@@ -1,4 +1,5 @@
 import {
+  AnswerInput,
   Button,
   GNBMenu,
   IconButton,
@@ -12,7 +13,7 @@ import {
   Tag,
   TagSelect,
 } from '@components';
-import { useModal, useSelectTag } from '@hooks';
+import { useAnswerInput, useModal, useSelectTag } from '@hooks';
 import { IcFolder, IcList, IcPublish } from '@svg';
 import { createFileRoute } from '@tanstack/react-router';
 
@@ -23,7 +24,7 @@ export const Route = createFileRoute('/component/')({
 function RouteComponent() {
   const { isOpen, closeModal } = useModal();
   const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
-
+  const { problemType, answer, handleClickProblemType, handleChangeAnswer } = useAnswerInput();
   return (
     <div className='bg-background flex min-h-[100dvh] pb-96 pt-3'>
       <div className='bg-darkgray100 fixed top-0 min-h-[100dvh] w-[20rem]'>
@@ -139,6 +140,14 @@ function RouteComponent() {
             unselectedList={unselectedList}
             onClickSelectTag={onClickSelectTag}
             onClickRemoveTag={onClickRemoveTag}
+          />
+        </div>
+        <div className='w-[50rem]'>
+          <AnswerInput
+            problemType={problemType}
+            answer={answer}
+            handleClickProblemType={handleClickProblemType}
+            handleChangeAnswer={handleChangeAnswer}
           />
         </div>
       </div>
