@@ -18,6 +18,7 @@ import Modal from './Modal';
 import Tag from './Tag';
 import ProblemCard from './ProblemCard';
 import Calendar from './Calandar';
+import ProblemPreview from './ProblemPreview';
 
 export {
   Button,
@@ -40,4 +41,5 @@ export {
   ErrorModalTemplate,
   OneButtonModalTemplate,
   TwoButtonModalTemplate,
+  ProblemPreview,
 };

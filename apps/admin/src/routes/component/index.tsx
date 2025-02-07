@@ -13,6 +13,7 @@ import {
   PlusButton,
   PrevPageButton,
   ProblemCard,
+  ProblemPreview,
   SearchInput,
   StatusToggle,
   Tag,
@@ -171,6 +172,13 @@ function RouteComponent() {
         </div>
         <div className='w-[150rem]'>
           <Calendar />
+        </div>
+        <div>
+          <ProblemPreview
+            title='점과 직선 사이의 거리'
+            memo='이런이런 내용 메모할거임 이런이런저런'
+            imgSrc='/images/image-placeholder.svg'
+          />
         </div>
       </div>
       <FloatingButton onClick={() => {}}>저장하기</FloatingButton>
