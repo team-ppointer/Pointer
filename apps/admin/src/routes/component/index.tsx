@@ -2,6 +2,7 @@ import {
   AnswerInput,
   Button,
   Calendar,
+  FloatingButton,
   GNBMenu,
   IconButton,
   Input,
@@ -155,6 +156,7 @@ function RouteComponent() {
           <Calendar />
         </div>
       </div>
+      <FloatingButton onClick={() => {}}>저장하기</FloatingButton>
     </div>
   );
 }
