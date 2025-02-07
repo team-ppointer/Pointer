@@ -12,6 +12,7 @@ import Input from './Inputs/Input';
 import SearchInput from './Inputs/SearchInput';
 import TagSelect from './Inputs/TagSelect';
 import AnswerInput from './Inputs/AnswerInput';
+import LevelSelect from './Inputs/LevelSelect';
 import Calendar from './Calandar';
 
 export {
@@ -29,5 +30,6 @@ export {
   SearchInput,
   TagSelect,
   AnswerInput,
+  LevelSelect,
   Calendar,
 };

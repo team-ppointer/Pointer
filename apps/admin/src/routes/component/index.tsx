@@ -6,6 +6,7 @@ import {
   GNBMenu,
   IconButton,
   Input,
+  LevelSelect,
   Modal,
   PlusButton,
   PrevPageButton,
@@ -18,6 +19,8 @@ import {
 import { useAnswerInput, useModal, useSelectTag } from '@hooks';
 import { IcFolder, IcList, IcPublish } from '@svg';
 import { createFileRoute } from '@tanstack/react-router';
+import { LevelType } from '@types';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/component/')({
   component: RouteComponent,
@@ -27,6 +30,8 @@ function RouteComponent() {
   const { isOpen, closeModal } = useModal();
   const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
   const { problemType, answer, handleClickProblemType, handleChangeAnswer } = useAnswerInput();
+  const [level, setLevel] = useState<LevelType | undefined>();
+
   return (
     <div className='bg-background flex min-h-[100dvh] pb-96 pt-3'>
       <div className='bg-darkgray100 fixed top-0 min-h-[100dvh] w-[20rem]'>
@@ -150,6 +155,14 @@ function RouteComponent() {
             answer={answer}
             handleClickProblemType={handleClickProblemType}
             handleChangeAnswer={handleChangeAnswer}
+          />
+        </div>
+        <div>
+          <LevelSelect
+            level={level}
+            handleClickLevel={(level) => {
+              setLevel(level);
+            }}
           />
         </div>
         <div className='w-[150rem]'>
