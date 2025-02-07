@@ -18,14 +18,26 @@ interface DayProps extends HTMLAttributes<HTMLDivElement> {
 const Day = ({ variant = 'thisMonth', fullDate, day, dayOfWeek, event }: DayProps) => {
   const today = dayjs().startOf('day');
   const isPast = dayjs(fullDate).isBefore(today, 'day');
+  const isToday = dayjs(fullDate).isSame(today, 'day');
+  const isSunday = dayOfWeek === 0;
+  const isSaturday = dayOfWeek === 6;
 
-  const dayOfWeekStyle = dayOfWeek === 0 ? 'text-red' : dayOfWeek === 6 ? 'text-blue' : 'black';
+  const dayOfWeekStyle = isSunday ? 'text-red' : isSaturday ? 'text-blue' : 'black';
+
+  const bgStyle =
+    isToday && variant === 'thisMonth'
+      ? isSunday
+        ? 'bg-lightred'
+        : isSaturday
+          ? 'bg-lightblue'
+          : 'bg-lightgray500'
+      : 'bg-white';
 
   return (
     <div
-      className={`flex h-[15rem] flex-col items-center gap-[0.4rem] border bg-white px-[2.4rem] py-[1.6rem] ${dayOfWeekStyle} `}>
+      className={`flex h-[15rem] flex-col items-end gap-[0.4rem] border bg-white px-[2.4rem] py-[1.6rem] text-black`}>
       <div
-        className={`font-medium-16 flex w-full items-center justify-end ${variant === 'anotherMonth' && 'text-lightgray500'}`}>
+        className={`font-medium-16 h-[2.4rem] rounded-[0.4rem] px-[0.6rem] text-end ${dayOfWeekStyle} ${variant === 'anotherMonth' && 'text-lightgray500'} ${bgStyle}`}>
         {day}
       </div>
       {event ? (
