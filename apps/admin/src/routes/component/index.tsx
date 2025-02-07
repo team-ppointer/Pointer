@@ -1,6 +1,7 @@
 import {
   AnswerInput,
   Button,
+  Calendar,
   GNBMenu,
   IconButton,
   Input,
@@ -149,6 +150,9 @@ function RouteComponent() {
             handleClickProblemType={handleClickProblemType}
             handleChangeAnswer={handleChangeAnswer}
           />
+        </div>
+        <div className='w-[150rem]'>
+          <Calendar />
         </div>
       </div>
     </div>

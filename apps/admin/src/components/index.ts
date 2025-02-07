@@ -11,6 +11,7 @@ import Input from './Inputs/Input';
 import SearchInput from './Inputs/SearchInput';
 import TagSelect from './Inputs/TagSelect';
 import AnswerInput from './Inputs/AnswerInput';
+import Calendar from './Calandar';
 
 export {
   Button,
@@ -26,4 +27,5 @@ export {
   SearchInput,
   TagSelect,
   AnswerInput,
+  Calendar,
 };
