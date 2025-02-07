@@ -2,6 +2,7 @@ import {
   AnswerInput,
   Button,
   Calendar,
+  DeleteButton,
   FloatingButton,
   GNBMenu,
   IconButton,
@@ -53,6 +54,7 @@ function RouteComponent() {
           <Button sizeType='long' variant='dark'>
             버튼
           </Button>
+          <DeleteButton label='세트 삭제' />
           <div>
             <IconButton variant='left' />
             <IconButton variant='right' />

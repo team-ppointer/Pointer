@@ -3,6 +3,7 @@ import IconButton from './Buttons/IconButton';
 import PrevPageButton from './Buttons/PrevPageButton';
 import PlusButton from './Buttons/PlusButton';
 import FloatingButton from './Buttons/FloatingButton';
+import DeleteButton from './Buttons/DeleteButton';
 import GNBMenu from './GNBMenu';
 import StatusToggle from './StatusToggle';
 import Modal from './Modal';
@@ -21,6 +22,7 @@ export {
   PrevPageButton,
   PlusButton,
   FloatingButton,
+  DeleteButton,
   GNBMenu,
   StatusToggle,
   Modal,
