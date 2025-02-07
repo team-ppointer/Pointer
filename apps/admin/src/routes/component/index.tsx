@@ -1,28 +1,43 @@
 import {
+  AnswerInput,
   Button,
+  Calendar,
+  DeleteButton,
+  ErrorModalTemplate,
+  FloatingButton,
   GNBMenu,
   IconButton,
+  Input,
+  LevelSelect,
   Modal,
   PlusButton,
   PrevPageButton,
   ProblemCard,
+  ProblemPreview,
+  SearchInput,
   StatusToggle,
   Tag,
+  TagSelect,
 } from '@components';
-import { useModal } from '@hooks';
+import { useAnswerInput, useModal, useSelectTag } from '@hooks';
 import { IcFolder, IcList, IcPublish } from '@svg';
 import { createFileRoute } from '@tanstack/react-router';
+import { LevelType } from '@types';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/component/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { isOpen, closeModal } = useModal();
+  const { isOpen, openModal, closeModal } = useModal();
+  const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
+  const { problemType, answer, handleClickProblemType, handleChangeAnswer } = useAnswerInput();
+  const [level, setLevel] = useState<LevelType | undefined>();
 
   return (
-    <div className='bg-background flex h-[100dvh] pt-3'>
-      <div className='bg-darkgray100 fixed top-0 h-[100dvh] w-[20rem]'>
+    <div className='bg-background flex min-h-[100dvh] pb-96 pt-3'>
+      <div className='bg-darkgray100 fixed top-0 min-h-[100dvh] w-[20rem]'>
         <GNBMenu isSelected={true}>
           <IcPublish width={24} height={24} />
           <span>발행</span>
@@ -36,11 +51,12 @@ function RouteComponent() {
           <span>문제</span>
         </GNBMenu>
       </div>
-      <div className='pl-[22rem]'>
+      <div className='flex flex-col gap-4 pl-[22rem]'>
         <div className='flex gap-4'>
-          <Button size='long' variant='dark'>
+          <Button sizeType='long' variant='dark'>
             버튼
           </Button>
+          <DeleteButton label='세트 삭제' />
           <div>
             <IconButton variant='left' />
             <IconButton variant='right' />
@@ -58,18 +74,19 @@ function RouteComponent() {
             <StatusToggle selectedStatus={'작업중'} onSelect={() => {}} />
             <StatusToggle selectedStatus={'컨펌 완료'} onSelect={() => {}} />
           </div>
+          <div>
+            <Button onClick={openModal}>모달 열기</Button>
+          </div>
           <Modal isOpen={isOpen} onClose={closeModal}>
-            <div className='font-medium-18 flex h-[21.1rem] w-[38.4rem] flex-col items-center justify-center gap-[3.2rem]'>
-              <h1>세트를 삭제할까요?</h1>
-              <div className='flex items-center justify-center gap-[1.6rem]'>
-                <Button variant='light'>아니오</Button>
-                <Button variant='dark'>예</Button>
-              </div>
-            </div>
+            <ErrorModalTemplate
+              text='추가된 문항이 없어요'
+              buttonText='닫기'
+              handleClickButton={closeModal}
+            />
           </Modal>
           <div>
-            <Tag label='태그명' onClick={() => {}} onClickRemove={() => {}} removable={false} />
-            <Tag label='태그명' onClick={() => {}} onClickRemove={() => {}} removable={true} />
+            <Tag label='태그명' onClick={() => {}} removable={false} />
+            <Tag label='태그명' onClick={() => {}} removable={true} />
           </div>
         </div>
         <div className='flex gap-4'>
@@ -115,7 +132,56 @@ function RouteComponent() {
             </ProblemCard.TagSection>
           </ProblemCard>
         </div>
+        <div className='flex gap-4'>
+          <Input placeholder='입력해주세요' />
+        </div>
+        <div>
+          <SearchInput label='검색' placeholder='검색어를 입력해주세요' />
+          <SearchInput label='검색' placeholder='검색어를 입력해주세요' sizeType='long' />
+        </div>
+        <div className='flex gap-4'>
+          <TagSelect
+            selectedList={selectedList}
+            unselectedList={unselectedList}
+            onClickSelectTag={onClickSelectTag}
+            onClickRemoveTag={onClickRemoveTag}
+          />
+          <TagSelect
+            sizeType='long'
+            selectedList={selectedList}
+            unselectedList={unselectedList}
+            onClickSelectTag={onClickSelectTag}
+            onClickRemoveTag={onClickRemoveTag}
+          />
+        </div>
+        <div className='w-[50rem]'>
+          <AnswerInput
+            problemType={problemType}
+            answer={answer}
+            handleClickProblemType={handleClickProblemType}
+            handleChangeAnswer={handleChangeAnswer}
+          />
+        </div>
+        <div>
+          <LevelSelect
+            level={level}
+            handleClickLevel={(level) => {
+              setLevel(level);
+            }}
+          />
+        </div>
+        <div className='w-[150rem]'>
+          <Calendar />
+        </div>
+        <div>
+          <ProblemPreview
+            title='점과 직선 사이의 거리'
+            memo='이런이런 내용 메모할거임 이런이런저런'
+            imgSrc='/images/image-placeholder.svg'
+          />
+        </div>
       </div>
+      <FloatingButton onClick={() => {}}>저장하기</FloatingButton>
     </div>
   );
 }
