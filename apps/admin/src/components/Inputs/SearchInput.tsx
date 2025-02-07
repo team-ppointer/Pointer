@@ -1,4 +1,3 @@
-import { IcSearch } from '@svg';
 import { InputHTMLAttributes, forwardRef } from 'react';
 
 interface SearchInputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -16,16 +15,11 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     return (
       <div className='flex flex-col gap-[1.2rem]'>
         <label className='font-medium-18 text-black'>{label}</label>
-        <div className={`relative ${sizeStyles[sizeType]}`}>
+        <div className={` ${sizeStyles[sizeType]}`}>
           <input
             ref={ref}
-            className='font-medium-18 placeholder:text-lightgray500 border-lightgray500 h-full w-full rounded-[16px] border bg-white px-[1.6rem] pr-[4.8rem] text-black'
+            className='font-medium-18 placeholder:text-lightgray500 border-lightgray500 h-full w-full rounded-[16px] border bg-white px-[1.6rem] text-black'
             {...props}
-          />
-          <IcSearch
-            className='absolute right-[1.6rem] top-1/2 -translate-y-1/2'
-            width={24}
-            height={24}
           />
         </div>
       </div>
