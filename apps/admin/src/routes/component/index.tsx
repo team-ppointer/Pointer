@@ -3,6 +3,7 @@ import {
   Button,
   Calendar,
   DeleteButton,
+  ErrorModalTemplate,
   FloatingButton,
   GNBMenu,
   IconButton,
@@ -28,7 +29,7 @@ export const Route = createFileRoute('/component/')({
 });
 
 function RouteComponent() {
-  const { isOpen, closeModal } = useModal();
+  const { isOpen, openModal, closeModal } = useModal();
   const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
   const { problemType, answer, handleClickProblemType, handleChangeAnswer } = useAnswerInput();
   const [level, setLevel] = useState<LevelType | undefined>();
@@ -72,14 +73,15 @@ function RouteComponent() {
             <StatusToggle selectedStatus={'작업중'} onSelect={() => {}} />
             <StatusToggle selectedStatus={'컨펌 완료'} onSelect={() => {}} />
           </div>
+          <div>
+            <Button onClick={openModal}>모달 열기</Button>
+          </div>
           <Modal isOpen={isOpen} onClose={closeModal}>
-            <div className='font-medium-18 flex h-[21.1rem] w-[38.4rem] flex-col items-center justify-center gap-[3.2rem]'>
-              <h1>세트를 삭제할까요?</h1>
-              <div className='flex items-center justify-center gap-[1.6rem]'>
-                <Button variant='light'>아니오</Button>
-                <Button variant='dark'>예</Button>
-              </div>
-            </div>
+            <ErrorModalTemplate
+              text='추가된 문항이 없어요'
+              buttonText='닫기'
+              handleClickButton={closeModal}
+            />
           </Modal>
           <div>
             <Tag label='태그명' onClick={() => {}} removable={false} />

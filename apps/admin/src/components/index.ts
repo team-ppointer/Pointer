@@ -7,6 +7,11 @@ import {
   PrevPageButton,
 } from './Buttons';
 import { AnswerInput, Input, LevelSelect, SearchInput, TagSelect } from './Inputs';
+import {
+  ErrorModalTemplate,
+  OneButtonModalTemplate,
+  TwoButtonModalTemplate,
+} from './ModalTemplates';
 import GNBMenu from './GNBMenu';
 import StatusToggle from './StatusToggle';
 import Modal from './Modal';
@@ -32,4 +37,7 @@ export {
   AnswerInput,
   LevelSelect,
   Calendar,
+  ErrorModalTemplate,
+  OneButtonModalTemplate,
+  TwoButtonModalTemplate,
 };
