@@ -14,7 +14,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
   ({ sizeType = 'short', label, ...props }, ref) => {
     return (
       <div className='flex flex-col gap-[1.2rem]'>
-        <label className='font-medium-18 text-black'>{label}</label>
+        <span className='font-medium-18 text-black'>{label}</span>
         <div className={` ${sizeStyles[sizeType]}`}>
           <input
             ref={ref}
