@@ -22,6 +22,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+
+    "types": ["vite/client"],
 
     "baseUrl": "./",
     "paths": {
@@ -32,7 +35,7 @@
       "@components": ["src/components"],
       "@constants": ["src/constants"],
       "@hooks": ["src/hooks"],
-      "@schema": ["src/types/api/schema"],
+      "@schema": ["src/types/api/schema.d.ts"],
       "@styles/*": ["src/styles/*"],
       "@types": ["src/types"],
       "@utils": ["src/utils"]

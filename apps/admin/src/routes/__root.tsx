@@ -1,5 +1,6 @@
 import { Link, Outlet, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -42,7 +43,8 @@ function RootComponent() {
       <hr />
       <Outlet />
       <div className='text-[16px]'>
-        <TanStackRouterDevtools position='bottom-right' />
+        <ReactQueryDevtools />
+        <TanStackRouterDevtools />
       </div>
     </>
   );

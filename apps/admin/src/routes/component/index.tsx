@@ -36,7 +36,7 @@ function RouteComponent() {
   const [level, setLevel] = useState<LevelType | undefined>();
 
   return (
-    <div className='bg-background flex min-h-[100dvh] pb-96 pt-3'>
+    <div className='bg-background flex min-h-[100dvh] pt-3 pb-96'>
       <div className='bg-darkgray100 fixed top-0 min-h-[100dvh] w-[20rem]'>
         <GNBMenu isSelected={true}>
           <IcPublish width={24} height={24} />
