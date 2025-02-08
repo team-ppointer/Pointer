@@ -37,7 +37,7 @@ const Day = ({ variant = 'thisMonth', fullDate, day, dayOfWeek, title }: DayProp
 
   return (
     <div
-      className={`flex h-[15rem] flex-col items-end gap-[0.4rem] border bg-white px-[2.4rem] py-[1.6rem]`}>
+      className={`flex h-[15rem] flex-col items-end gap-[0.4rem] rounded-[4px] bg-white px-[2.4rem] py-[1.6rem]`}>
       <div
         className={`font-medium-16 h-[2.4rem] rounded-[0.4rem] px-[0.6rem] text-end ${dayOfWeekStyle} ${textStyle} ${todayBgStyle}`}>
         {day}
