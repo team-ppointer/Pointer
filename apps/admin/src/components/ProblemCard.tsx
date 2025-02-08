@@ -15,7 +15,7 @@ const CardTitle = ({ title }: { title: string }) => {
 };
 
 const CardButtonSection = ({ children }: { children: React.ReactNode }) => {
-  return <div className='absolute right-[3.2rem] top-[3.2rem] flex gap-[0.6rem]'>{children}</div>;
+  return <div className='absolute top-[3.2rem] right-[3.2rem] flex gap-[0.6rem]'>{children}</div>;
 };
 
 const CardInfo = ({ label, content }: { label: string; content: string }) => {
@@ -47,7 +47,7 @@ const CardEmptyView = ({ onClick }: { onClick: () => void }) => {
     <div
       className='flex h-[60.6rem] w-full cursor-pointer items-center justify-center'
       onClick={onClick}>
-      <span className='font-bold-24 text-lightgray500 whitespace-pre-line text-center'>{`여기를 클릭해\n문항을 추가해주세요.`}</span>
+      <span className='font-bold-24 text-lightgray500 text-center whitespace-pre-line'>{`여기를 클릭해\n문항을 추가해주세요.`}</span>
     </div>
   );
 };
