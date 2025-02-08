@@ -141,6 +141,7 @@ function RouteComponent() {
         </div>
         <div className='flex gap-4'>
           <TagSelect
+            label='태그 선택'
             selectedList={selectedList}
             unselectedList={unselectedList}
             onClickSelectTag={onClickSelectTag}

@@ -7,7 +7,9 @@ const RootLayout = () => {
   return (
     <>
       <GNB />
-      <Outlet />
+      <main className='ml-[24rem] p-[6rem]'>
+        <Outlet />
+      </main>
       <div className='text-[16px]'>
         <ReactQueryDevtools />
         <TanStackRouterDevtools />
