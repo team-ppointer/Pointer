@@ -50,6 +50,7 @@
     font-family: var(--font-pretendard), sans-serif;
     overscroll-behavior: none;
     background-color: var(--color-background);
+    min-width: 144rem;
   }
 
   body {
