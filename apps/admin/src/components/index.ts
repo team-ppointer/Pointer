@@ -19,6 +19,7 @@ import Tag from './Tag';
 import ProblemCard from './ProblemCard';
 import Calendar from './Calandar';
 import ProblemPreview from './ProblemPreview';
+import GNB from './GNB';
 
 export {
   Button,
@@ -42,4 +43,5 @@ export {
   OneButtonModalTemplate,
   TwoButtonModalTemplate,
   ProblemPreview,
+  GNB,
 };

@@ -35,6 +35,7 @@
       "@components": ["src/components"],
       "@constants": ["src/constants"],
       "@hooks": ["src/hooks"],
+      "@layouts": ["src/layouts"],
       "@schema": ["src/types/api/schema.d.ts"],
       "@styles/*": ["src/styles/*"],
       "@types": ["src/types"],

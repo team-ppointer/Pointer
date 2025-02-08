@@ -6,11 +6,11 @@ interface GNBMenuProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const GNBMenu = ({ isSelected, children, ...props }: GNBMenuProps) => {
-  const bgStyles = isSelected ? 'bg-darkgray200' : 'bg-transparent';
+  const bgStyles = isSelected ? 'bg-darkgray200' : '';
 
   return (
     <div
-      className={`font-medium-18 flex h-[4.8rem] w-full items-center justify-start gap-[1.6rem] ${bgStyles} bg-transparent px-[1.6rem] py-[1.2rem] text-white`}
+      className={`font-medium-18 flex h-[4.8rem] w-full items-center justify-start gap-[1.6rem] ${bgStyles} rounded-[8px] px-[1.6rem] py-[1.2rem] text-white`}
       {...props}>
       {children}
     </div>

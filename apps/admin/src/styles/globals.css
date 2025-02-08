@@ -49,6 +49,7 @@
     font-size: 62.5%;
     font-family: var(--font-pretendard), sans-serif;
     overscroll-behavior: none;
+    background-color: var(--color-background);
   }
 
   body {
