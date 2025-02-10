@@ -14,7 +14,7 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: 'left' | 'right' | 'view' | 'preview' | 'modify' | 'delete' | 'select' | 'unselected';
 }
 
-const IconButton = ({ variant, className, onClick, ...props }: IconButtonProps) => {
+const IconButton = ({ variant, onClick, ...props }: IconButtonProps) => {
   const icons = {
     left: <IcLeftButton width={36} height={36} />,
     right: <IcRightButton width={36} height={36} />,
@@ -27,7 +27,7 @@ const IconButton = ({ variant, className, onClick, ...props }: IconButtonProps) 
   };
 
   return (
-    <button className={`${className}`} onClick={onClick} {...props}>
+    <button onClick={onClick} {...props}>
       {icons[variant]}
     </button>
   );
