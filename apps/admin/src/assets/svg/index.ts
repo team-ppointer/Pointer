@@ -16,4 +16,5 @@ export { default as IcSearch } from './IcSearch';
 export { default as IcSelectButton } from './IcSelectButton';
 export { default as IcUnselectedButton } from './IcUnselectedButton';
 export { default as IcUp } from './IcUp';
+export { default as IcUpload } from './IcUpload';
 export { default as IcViewButton } from './IcViewButton';

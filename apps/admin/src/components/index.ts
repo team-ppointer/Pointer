@@ -20,6 +20,7 @@ import ProblemCard from './ProblemCard';
 import Calendar from './Calandar';
 import ProblemPreview from './ProblemPreview';
 import GNB from './GNB';
+import ImageUpload from './ImageUpload';
 
 export {
   Button,
@@ -44,4 +45,5 @@ export {
   TwoButtonModalTemplate,
   ProblemPreview,
   GNB,
+  ImageUpload,
 };

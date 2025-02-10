@@ -5,8 +5,8 @@ import {
   DeleteButton,
   ErrorModalTemplate,
   FloatingButton,
-  GNBMenu,
   IconButton,
+  ImageUpload,
   Input,
   LevelSelect,
   Modal,
@@ -20,7 +20,6 @@ import {
   TagSelect,
 } from '@components';
 import { useAnswerInput, useModal, useSelectTag } from '@hooks';
-import { IcFolder, IcList, IcPublish } from '@svg';
 import { createFileRoute } from '@tanstack/react-router';
 import { LevelType } from '@types';
 import { useState } from 'react';
@@ -36,8 +35,8 @@ function RouteComponent() {
   const [level, setLevel] = useState<LevelType | undefined>();
 
   return (
-    <div className='bg-background flex min-h-[100dvh] pt-3 pb-96'>
-      <div className='bg-darkgray100 fixed top-0 min-h-[100dvh] w-[20rem]'>
+    <div className='flex min-h-[100dvh] pt-3 pb-96'>
+      {/* <div className='bg-darkgray100 fixed top-0 min-h-[100dvh] w-[20rem]'>
         <GNBMenu isSelected={true}>
           <IcPublish width={24} height={24} />
           <span>발행</span>
@@ -50,8 +49,8 @@ function RouteComponent() {
           <IcList width={24} height={24} />
           <span>문제</span>
         </GNBMenu>
-      </div>
-      <div className='flex flex-col gap-4 pl-[22rem]'>
+      </div> */}
+      <div className='flex flex-col gap-4'>
         <div className='flex gap-4'>
           <Button sizeType='long' variant='dark'>
             버튼
@@ -180,6 +179,9 @@ function RouteComponent() {
             memo='이런이런 내용 메모할거임 이런이런저런'
             imgSrc='/images/image-placeholder.svg'
           />
+        </div>
+        <div>
+          <ImageUpload label='메인 문항 선택' />
         </div>
       </div>
       <FloatingButton onClick={() => {}}>저장하기</FloatingButton>
