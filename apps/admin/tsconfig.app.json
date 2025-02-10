@@ -29,7 +29,7 @@
     "baseUrl": "./",
     "paths": {
       "@": ["src"],
-      "@apis/*": ["src/apis/*"],
+      "@apis": ["src/apis"],
       "@svg": ["src/assets/svg"],
       "@image": ["public/image"],
       "@components": ["src/components"],
