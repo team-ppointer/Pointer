@@ -11,7 +11,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /**
+     * 문항세트 개별 조회
+     * @description 문항세트를 조회합니다.
+     */
+    get: operations['getProblemSet'];
     /**
      * 문항세트 수정
      * @description 문항세트의 이름 및 문항 리스트를 수정합니다.
@@ -23,26 +27,6 @@ export interface paths {
      * @description 문항세트를 삭제합니다. (soft delete)
      */
     delete: operations['deleteProblemSet'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/problemSet/{problemSetId}/sequence': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /**
-     * 세트 문항순서 변경
-     * @description 문항세트 내의 문항 리스트의 순서를 변경합니다.
-     */
-    put: operations['reorderProblems'];
-    post?: never;
-    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -165,6 +149,26 @@ export interface paths {
      * @description 문항 ID, 문제명, 개념 태그리스트로 문제를 검색합니다. 개념 태그리스트는 OR 조건으로 검색하며 값이 없으면 쿼리파라미터에서 빼주세요
      */
     get: operations['search'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/problemSet/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 문항세트 검색
+     * @description 문항세트 타이틀, 문항세트 내 포함된 개념태그, 문항세트 내 포함된 문항 타이틀로 검색합니다.
+     */
+    get: operations['search_1'];
     put?: never;
     post?: never;
     delete?: never;
@@ -306,11 +310,8 @@ export interface components {
         | '511 NETWORK_AUTHENTICATION_REQUIRED';
     };
     ProblemSetUpdateRequest: {
-      problemSetName?: string;
+      problemSetTitle?: string;
       problems?: string[];
-    };
-    ProblemReorderRequest: {
-      newProblems?: string[];
     };
     ChildProblemPostRequest: {
       imageUrl?: string;
@@ -389,7 +390,7 @@ export interface components {
       childProblems?: components['schemas']['ChildProblemGetResponse'][];
     };
     ProblemSetPostRequest: {
-      problemSetName?: string;
+      problemSetTitle?: string;
       problems?: string[];
     };
     AdminLoginRequest: {
@@ -406,6 +407,30 @@ export interface components {
       comment?: string;
       mainProblemImageUrl?: string;
       conceptTagResponses?: components['schemas']['ConceptTagSearchResponse'][];
+    };
+    ProblemSetGetResponse: {
+      /** Format: int64 */
+      id?: number;
+      title?: string;
+      /** @enum {string} */
+      confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
+      problemSummaries?: components['schemas']['ProblemSummaryResponse'][];
+    };
+    ProblemSummaryResponse: {
+      problemId?: string;
+      /** Format: int32 */
+      number?: number;
+      practiceTestName?: string;
+      comment?: string;
+      mainProblemImageUrl?: string;
+      tagNames?: string[];
+    };
+    ProblemSetSearchGetResponse: {
+      problemSetTitle?: string;
+      problemThumbnailResponses?: components['schemas']['ProblemThumbnailResponse'][];
+    };
+    ProblemThumbnailResponse: {
+      mainProblemImageUrl?: string;
     };
     PracticeTestTagResponse: {
       /** Format: int64 */
@@ -432,6 +457,37 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  getProblemSet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemSetId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemSetGetResponse'];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
   updateProblemSet: {
     parameters: {
       query?: never;
@@ -475,39 +531,6 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Internal Server Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['ErrorResponse'];
-        };
-      };
-    };
-  };
-  reorderProblems: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        problemSetId: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProblemReorderRequest'];
-      };
-    };
     responses: {
       /** @description OK */
       200: {
@@ -790,6 +813,39 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ProblemSearchGetResponse'][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  search_1: {
+    parameters: {
+      query?: {
+        problemSetTitle?: string;
+        problemTitle?: string;
+        conceptTagNames?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemSetSearchGetResponse'][];
         };
       };
       /** @description Internal Server Error */

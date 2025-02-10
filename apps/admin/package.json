@@ -10,7 +10,7 @@
     "serve": "vite preview",
     "start": "vite",
     "lint": "eslint .",
-    "openapi": "pnpm dlx openapi-typescript ./src/types/api-docs.yaml --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
+    "openapi": "pnpm dlx openapi-typescript https://dev.mopl.kr/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.66.0",
