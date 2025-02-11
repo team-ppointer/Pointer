@@ -1,5 +1,6 @@
 import { postLogin } from '@apis';
 import { Button, Input } from '@components';
+import { useNavigation } from '@hooks';
 import { createFileRoute } from '@tanstack/react-router';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -14,6 +15,7 @@ interface LoginType {
 
 function RouteComponent() {
   const { mutate } = postLogin();
+  const { goPublish } = useNavigation();
 
   const {
     register,
@@ -33,6 +35,7 @@ function RouteComponent() {
           if (data) {
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('refreshToken', data.accessToken);
+            goPublish();
           }
         },
       }
