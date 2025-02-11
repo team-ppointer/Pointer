@@ -21,6 +21,7 @@ import Calendar from './Calandar';
 import ProblemPreview from './ProblemPreview';
 import GNB from './GNB';
 import ImageUpload from './ImageUpload';
+import Header from './Header';
 
 export {
   Button,
@@ -46,4 +47,5 @@ export {
   ProblemPreview,
   GNB,
   ImageUpload,
+  Header,
 };
