@@ -3,7 +3,6 @@ import {
   FloatingButton,
   Header,
   IconButton,
-  PrevPageButton,
   ProblemCard,
   SearchInput,
   Tag,
