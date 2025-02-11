@@ -1,7 +1,7 @@
 import Button from './Button';
 
 interface FloatingButtonProps {
-  onClick: () => void;
+  onClick?: () => void;
   children: React.ReactNode;
 }
 
