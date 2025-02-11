@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as GNBLayoutImport } from './routes/_GNBLayout'
+import { Route as IndexImport } from './routes/index'
 import { Route as LoginIndexImport } from './routes/login/index'
 import { Route as GNBLayoutPublishIndexImport } from './routes/_GNBLayout/publish/index'
 import { Route as GNBLayoutProblemIndexImport } from './routes/_GNBLayout/problem/index'
@@ -26,6 +27,12 @@ import { Route as GNBLayoutProblemSetRegisterIndexImport } from './routes/_GNBLa
 
 const GNBLayoutRoute = GNBLayoutImport.update({
   id: '/_GNBLayout',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const IndexRoute = IndexImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -91,6 +98,13 @@ const GNBLayoutProblemSetRegisterIndexRoute =
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
     '/_GNBLayout': {
       id: '/_GNBLayout'
       path: ''
@@ -193,6 +207,7 @@ const GNBLayoutRouteWithChildren = GNBLayoutRoute._addFileChildren(
 )
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '': typeof GNBLayoutRouteWithChildren
   '/login': typeof LoginIndexRoute
   '/component': typeof GNBLayoutComponentIndexRoute
@@ -206,6 +221,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '': typeof GNBLayoutRouteWithChildren
   '/login': typeof LoginIndexRoute
   '/component': typeof GNBLayoutComponentIndexRoute
@@ -220,6 +236,7 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/': typeof IndexRoute
   '/_GNBLayout': typeof GNBLayoutRouteWithChildren
   '/login/': typeof LoginIndexRoute
   '/_GNBLayout/component/': typeof GNBLayoutComponentIndexRoute
@@ -235,6 +252,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | ''
     | '/login'
     | '/component'
@@ -247,6 +265,7 @@ export interface FileRouteTypes {
     | '/publish/search'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | ''
     | '/login'
     | '/component'
@@ -259,6 +278,7 @@ export interface FileRouteTypes {
     | '/publish/search'
   id:
     | '__root__'
+    | '/'
     | '/_GNBLayout'
     | '/login/'
     | '/_GNBLayout/component/'
@@ -273,11 +293,13 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   GNBLayoutRoute: typeof GNBLayoutRouteWithChildren
   LoginIndexRoute: typeof LoginIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   GNBLayoutRoute: GNBLayoutRouteWithChildren,
   LoginIndexRoute: LoginIndexRoute,
 }
@@ -292,9 +314,13 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/",
         "/_GNBLayout",
         "/login/"
       ]
+    },
+    "/": {
+      "filePath": "index.ts"
     },
     "/_GNBLayout": {
       "filePath": "_GNBLayout.tsx",

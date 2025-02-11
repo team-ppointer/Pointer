@@ -5,11 +5,38 @@ import {
   UseQueryOptions as RQUseQueryOptions,
   useQuery,
 } from '@tanstack/react-query';
-import createClient from 'openapi-fetch';
+import createClient, { Middleware } from 'openapi-fetch';
 import { HttpMethod, PathsWithMethod } from 'openapi-typescript-helpers';
 import { FetchOptions } from 'openapi-fetch';
 
+const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login'];
+let accessToken: string | null = localStorage.getItem('accessToken');
+
+const authMiddleware: Middleware = {
+  async onRequest({ schemaPath, request }: { schemaPath: string; request: Request }) {
+    if (UNPROTECTED_ROUTES.some((pathname) => schemaPath.startsWith(pathname))) {
+      return undefined;
+    }
+
+    if (!accessToken) {
+      const localStorageAccessToken = localStorage.getItem('accessToken');
+      if (localStorageAccessToken) {
+        accessToken = localStorageAccessToken;
+      } else {
+        // handle auth error
+      }
+    }
+
+    // (optional) add logic here to refresh token when it expires
+
+    // add Authorization header to every request
+    request.headers.set('Authorization', `Bearer ${accessToken}`);
+    return request;
+  },
+};
+
 export const client = createClient<paths>({ baseUrl: import.meta.env.VITE_API_BASE_URL });
+client.use(authMiddleware);
 
 // useQuery type
 type UseQueryOptions = RQUseQueryOptions<unknown, Error, unknown, readonly unknown[]>; // Add more options as needed
