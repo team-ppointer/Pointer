@@ -20,6 +20,7 @@
     "dayjs": "^1.11.13",
     "lodash": "^4.17.21",
     "openapi-fetch": "^0.13.4",
+    "openapi-react-query": "^0.3.0",
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^14.3.5",

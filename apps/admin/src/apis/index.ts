@@ -1,5 +1,5 @@
 // client.tsx
-export { client, get, post, put, patch, del } from './client';
+export { $api } from './client';
 
 // controllers
 export * from './controller/auth';

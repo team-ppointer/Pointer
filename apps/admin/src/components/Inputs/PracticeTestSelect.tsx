@@ -19,7 +19,7 @@ const PracticeTestSelect = ({
   const { data: practiceTestList } = getPracticeTestTags();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [filteredResult, setFilteredResult] = useState(practiceTestList as ExamType[]);
+  const [filteredResult, setFilteredResult] = useState(practiceTestList);
 
   const { register, watch } = useForm({ defaultValues: { search: '' } });
   const searchValue = watch('search');
@@ -31,9 +31,7 @@ const PracticeTestSelect = ({
 
   useEffect(() => {
     const debouncedFilter = debounce((value) => {
-      setFilteredResult(
-        (practiceTestList as ExamType[])?.filter((exam) => exam.name.includes(value))
-      );
+      setFilteredResult(practiceTestList?.filter((exam) => exam.name.includes(value)));
     }, 300);
 
     debouncedFilter(searchValue);
@@ -86,7 +84,7 @@ const PracticeTestSelect = ({
             <div className='bg-lightgray500 my-[1rem] h-[1px] w-full' />
             <div>
               <div className='flex flex-col gap-[1.2rem]'>
-                {filteredResult?.map((exam: ExamType) => (
+                {filteredResult?.map((exam) => (
                   <div
                     key={exam.id}
                     className='font-medium-14 cursor-pointer text-black'

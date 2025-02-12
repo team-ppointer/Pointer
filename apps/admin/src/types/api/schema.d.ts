@@ -26,7 +26,7 @@ export interface paths {
      * 문항세트 삭제
      * @description 문항세트를 삭제합니다. (soft delete)
      */
-    delete: operations['deleteProblemSet'];
+    delete: operations['deleteProblemSet_1'];
     options?: never;
     head?: never;
     patch?: never;
@@ -46,6 +46,26 @@ export interface paths {
      */
     put: operations['toggleConfirmProblemSet'];
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/publish': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * 발행 생성하기
+     * @description 특정 날짜에 문항세트를 발행합니다.
+     */
+    post: operations['postPublish'];
     delete?: never;
     options?: never;
     head?: never;
@@ -137,6 +157,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/publish/{year}/{month}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 연월별 발행 조회
+     * @description 연월별로 발행된 세트들을 조회합니다.
+     */
+    get: operations['getPublishMonth'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/problems/search': {
     parameters: {
       query?: never;
@@ -166,9 +206,29 @@ export interface paths {
     };
     /**
      * 문항세트 검색
-     * @description 문항세트 타이틀, 문항세트 내 포함된 개념태그, 문항세트 내 포함된 문항 타이틀로 검색합니다.
+     * @description 문항세트 타이틀, 문항세트 내 포함된 개념태그, 문항세트 내 포함된 문항 타이틀로 검색합니다. 발행상태는 발행이면 CONFIRMED, 아니면 NOT_CONFIRMED 입니다.
      */
     get: operations['search_1'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/problemSet/confirm/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 발행용 문항세트 검색
+     * @description 문항세트 타이틀, 문항세트 내 포함된 개념태그, 문항세트 내 포함된 문항 타이틀로 검색합니다. 발행상태가 CONFIRMED 문항세트만 조회됩니다..
+     */
+    get: operations['confirmSearch'];
     put?: never;
     post?: never;
     delete?: never;
@@ -226,6 +286,26 @@ export interface paths {
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/publish/{publishId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * 발행 삭제
+     * @description 발행을 삭제합니다.
+     */
+    delete: operations['deleteProblemSet'];
     options?: never;
     head?: never;
     patch?: never;
@@ -313,6 +393,12 @@ export interface components {
       problemSetTitle?: string;
       problems?: string[];
     };
+    PublishPostRequest: {
+      /** Format: date */
+      publishedDate?: string;
+      /** Format: int64 */
+      problemSetId?: number;
+    };
     ChildProblemPostRequest: {
       imageUrl?: string;
       /** @enum {string} */
@@ -397,6 +483,16 @@ export interface components {
       email?: string;
       password?: string;
     };
+    PublishMonthGetResponse: {
+      /** Format: int32 */
+      day?: number;
+      problemSetInfo?: components['schemas']['PublishProblemSetResponse'];
+    };
+    PublishProblemSetResponse: {
+      /** Format: int64 */
+      id?: number;
+      title?: string;
+    };
     ConceptTagSearchResponse: {
       /** Format: int64 */
       id?: number;
@@ -414,6 +510,8 @@ export interface components {
       title?: string;
       /** @enum {string} */
       confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
+      /** Format: date */
+      publishedDate?: string;
       problemSummaries?: components['schemas']['ProblemSummaryResponse'][];
     };
     ProblemSummaryResponse: {
@@ -427,6 +525,10 @@ export interface components {
     };
     ProblemSetSearchGetResponse: {
       problemSetTitle?: string;
+      /** @enum {string} */
+      confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
+      /** Format: date */
+      publishedDate?: string;
       problemThumbnailResponses?: components['schemas']['ProblemThumbnailResponse'][];
     };
     ProblemThumbnailResponse: {
@@ -434,8 +536,8 @@ export interface components {
     };
     PracticeTestTagResponse: {
       /** Format: int64 */
-      id?: number;
-      name?: string;
+      id: number;
+      name: string;
     };
     MemberGetResponse: {
       /** Format: int64 */
@@ -521,7 +623,7 @@ export interface operations {
       };
     };
   };
-  deleteProblemSet: {
+  deleteProblemSet_1: {
     parameters: {
       query?: never;
       header?: never;
@@ -568,6 +670,39 @@ export interface operations {
         };
         content: {
           '*/*': 'CONFIRMED' | 'NOT_CONFIRMED';
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  postPublish: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PublishPostRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': number;
         };
       };
       /** @description Internal Server Error */
@@ -793,6 +928,38 @@ export interface operations {
       };
     };
   };
+  getPublishMonth: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        year: number;
+        month: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PublishMonthGetResponse'][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
   search: {
     parameters: {
       query?: {
@@ -827,6 +994,39 @@ export interface operations {
     };
   };
   search_1: {
+    parameters: {
+      query?: {
+        problemSetTitle?: string;
+        problemTitle?: string;
+        conceptTagNames?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemSetSearchGetResponse'][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  confirmSearch: {
     parameters: {
       query?: {
         problemSetTitle?: string;
@@ -934,6 +1134,35 @@ export interface operations {
         content: {
           '*/*': components['schemas']['ConceptTagResponse'][];
         };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  deleteProblemSet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Internal Server Error */
       500: {
