@@ -1,21 +1,16 @@
 import { IcCloseCircle, IcDown, IcUp } from '@svg';
 import { useEffect, useState } from 'react';
 import { getPracticeTestTags } from '@apis';
-import { ExamType, ProblemTypeType } from '@types';
+import { ExamType } from '@types';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
 
 interface PracticeTestSelectProps {
-  problemType: ProblemTypeType;
   practiceTest: ExamType | null;
   handlePracticeTest: (exam: ExamType | null) => void;
 }
 
-const PracticeTestSelect = ({
-  problemType,
-  practiceTest,
-  handlePracticeTest,
-}: PracticeTestSelectProps) => {
+const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSelectProps) => {
   const { data: practiceTestList } = getPracticeTestTags();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +20,6 @@ const PracticeTestSelect = ({
   const searchValue = watch('search');
 
   const toggleOpen = () => {
-    if (problemType === '창작 문제') return;
     setIsOpen((prev) => !prev);
   };
 
@@ -38,10 +32,6 @@ const PracticeTestSelect = ({
 
     return () => debouncedFilter.cancel();
   }, [searchValue, practiceTestList]);
-
-  useEffect(() => {
-    if (problemType === '창작 문제') setIsOpen(false);
-  }, [problemType]);
 
   const handleSelectPracticeTest = (e: React.MouseEvent<HTMLDivElement>, exam: ExamType | null) => {
     e.stopPropagation();
@@ -60,9 +50,8 @@ const PracticeTestSelect = ({
             <input
               {...register('search')}
               className='font-bold-24 w-full outline-none'
-              placeholder={problemType === '창작 문제' ? '해당 없음' : '입력해주세요'}
+              placeholder={'입력해주세요'}
               onFocus={() => setIsOpen(true)}
-              disabled={problemType === '창작 문제'}
             />
           )}
 

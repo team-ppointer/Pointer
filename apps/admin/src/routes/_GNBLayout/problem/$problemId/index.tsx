@@ -25,27 +25,6 @@ const SectionLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// const InputWithLabel = ({
-//   label,
-//   direction = 'row',
-//   children,
-// }: {
-//   label: string;
-//   direction?: 'row' | 'column';
-//   children: ReactNode;
-// }) => {
-//   const directionStyle = {
-//     row: 'flex-row items-center',
-//     column: 'flex-col',
-//   };
-//   return (
-//     <div className={`flex ${directionStyle[direction]} gap-[2.4rem]`}>
-//       <h6 className='font-medium-24 text-black'>{label}</h6>
-//       {children}
-//     </div>
-//   );
-// };
-
 function RouteComponent() {
   const { problemId } = Route.useParams();
   const [selectedPracticeTest, setSelectedPracticeTest] = useState<ExamType | null>(null);
