@@ -38,7 +38,7 @@ const TagSelect = ({
   };
 
   return (
-    <div className='relative z-30'>
+    <div className={`relative ${isOpen && 'z-30'}`}>
       <div className='absolute flex flex-col gap-[1.2rem]'>
         <div
           className={`border-lightgray500 ${sizeStyles[sizeType]} rounded-[16px] border bg-white px-[1.6rem] py-[1rem]`}>
