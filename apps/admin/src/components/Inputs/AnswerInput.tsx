@@ -78,7 +78,7 @@ const AnswerInput = ({
       </div>
       {problemType === 'SINGLE_CHOICE' && <Input />}
       {problemType === 'MULTIPLE_CHOICE' && (
-        <div className='flex w-full items-center justify-between gap-[0.4rem]'>
+        <div className='flex items-center justify-between gap-[1.6rem]'>
           {[1, 2, 3, 4, 5].map((num) => (
             <Number
               key={num}
