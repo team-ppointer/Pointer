@@ -3,11 +3,7 @@ import { IcUpload } from '@svg';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-interface ImageUploadProps {
-  label: string;
-}
-
-const ImageUpload = ({ label }: ImageUploadProps) => {
+const ImageUpload = () => {
   const [imageUrl, setImageUrl] = useState('');
 
   const onDrop = async (acceptedFiles: File[]) => {
@@ -30,8 +26,7 @@ const ImageUpload = ({ label }: ImageUploadProps) => {
   });
 
   return (
-    <div>
-      <h3 className='font-medium-24 text-black'>{label}</h3>
+    <div className='gap[2.4rem flex flex-col'>
       {imageUrl ? (
         <div className='relative h-[54.3rem] w-full overflow-hidden rounded-[1.6rem]'>
           <img src={imageUrl} alt='upload-image' className='h-full w-full object-cover' />
@@ -43,7 +38,7 @@ const ImageUpload = ({ label }: ImageUploadProps) => {
       ) : (
         <div
           {...getRootProps()}
-          className={`dropzone bg-background mt-[2.4rem] flex h-[54.3rem] min-w-[72.4rem] cursor-pointer items-center justify-center rounded-[1.6rem] ${isDragActive ? 'active-dropzone' : ''}`}>
+          className={`dropzone bg-background flex h-[54.3rem] cursor-pointer items-center justify-center rounded-[1.6rem] ${isDragActive ? 'active-dropzone' : ''}`}>
           <input {...getInputProps()} />
           <div
             className={`flex h-full w-full flex-col items-center justify-center gap-[1.2rem] rounded-[1.6rem] ${isDragActive && 'outline-darkgray100 border-[0.4rem] border-dashed'}`}>

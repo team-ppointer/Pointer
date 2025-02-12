@@ -4,7 +4,6 @@ import { TagType } from '@types';
 import { Tag } from '@components';
 
 interface TagSelectProps {
-  label?: string;
   sizeType?: 'short' | 'long';
   selectedList: TagType[];
   unselectedList: TagType[];
@@ -13,7 +12,6 @@ interface TagSelectProps {
 }
 
 const TagSelect = ({
-  label,
   sizeType = 'short',
   selectedList,
   unselectedList,
@@ -42,7 +40,6 @@ const TagSelect = ({
   return (
     <div className='relative z-30'>
       <div className='absolute flex flex-col gap-[1.2rem]'>
-        <span className='font-medium-18 text-black'>{label}</span>
         <div
           className={`border-lightgray500 ${sizeStyles[sizeType]} rounded-[16px] border bg-white px-[1.6rem] py-[1rem]`}>
           <div
