@@ -46,6 +46,7 @@ function RouteComponent() {
           <div className='flex items-center gap-[0.8rem]'>
             {ProblemTypeList.map((type) => (
               <Button
+                key={type}
                 type='button'
                 variant={problemType === type ? 'light' : 'dimmed'}
                 onClick={() => handleChangeType(type)}>
