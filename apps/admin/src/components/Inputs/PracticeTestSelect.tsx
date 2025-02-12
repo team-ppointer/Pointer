@@ -1,19 +1,20 @@
 import { IcCloseCircle, IcDown, IcUp } from '@svg';
 import { useEffect, useState } from 'react';
-import { Input } from '@components';
 import { getPracticeTestTags } from '@apis';
-import { ExamType } from '@types';
+import { ExamType, ProblemTypeType } from '@types';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
 
 interface PracticeTestSelectProps {
-  selectedPracticeTest: ExamType | null;
-  handleSelectPracticeTest: (exam: ExamType | null) => void;
+  problemType: ProblemTypeType;
+  practiceTest: ExamType | null;
+  handlePracticeTest: (exam: ExamType | null) => void;
 }
 
 const PracticeTestSelect = ({
-  selectedPracticeTest,
-  handleSelectPracticeTest,
+  problemType,
+  practiceTest,
+  handlePracticeTest,
 }: PracticeTestSelectProps) => {
   const { data: practiceTestList } = getPracticeTestTags();
 
@@ -23,16 +24,9 @@ const PracticeTestSelect = ({
   const { register, watch } = useForm({ defaultValues: { search: '' } });
   const searchValue = watch('search');
 
-  const toggleOpen = () => setIsOpen((prev) => !prev);
-
-  const handleClickSelect = (e: React.MouseEvent<HTMLDivElement>, exam: ExamType) => {
-    e.stopPropagation();
-    handleSelectPracticeTest(exam);
-    setIsOpen(false);
-  };
-
-  const handleClickRemove = () => {
-    handleSelectPracticeTest(null);
+  const toggleOpen = () => {
+    if (problemType === '창작 문제') return;
+    setIsOpen((prev) => !prev);
   };
 
   useEffect(() => {
@@ -47,52 +41,63 @@ const PracticeTestSelect = ({
     return () => debouncedFilter.cancel();
   }, [searchValue, practiceTestList]);
 
-  return (
-    <div className={`relative ${isOpen && 'z-30'}`}>
-      <div className='absolute'>
-        <div
-          className={`border-lightgray500 min-w-[50rem] rounded-[16px] border bg-white px-[1.6rem] py-[1rem]`}>
-          <div className='flex min-h-[3.6rem] cursor-pointer items-start justify-between gap-[0.9rem]'>
-            {selectedPracticeTest ? (
-              <div className='font-bold-24 w-full'>{selectedPracticeTest.name}</div>
-            ) : (
-              <Input
-                {...register('search')}
-                className='font-bold-24 w-full outline-none'
-                placeholder='입력해주세요'
-                onFocus={() => setIsOpen(true)}
-              />
-            )}
+  useEffect(() => {
+    if (problemType === '창작 문제') setIsOpen(false);
+  }, [problemType]);
 
-            <div className='flex items-center gap-[0.8rem]'>
-              {selectedPracticeTest && (
-                <IcCloseCircle width={24} height={24} onClick={handleClickRemove} />
-              )}
-              {isOpen ? (
-                <IcUp className='mt-[0.6rem]' width={24} height={24} onClick={toggleOpen} />
-              ) : (
-                <IcDown className='mt-[0.6rem]' width={24} height={24} onClick={toggleOpen} />
-              )}
-            </div>
-          </div>
-          {isOpen && (
-            <>
-              <div className='bg-lightgray500 my-[1rem] h-[1px] w-full' />
-              <div>
-                <div className='flex flex-col gap-[1.2rem]'>
-                  {filteredResult?.map((exam: ExamType) => (
-                    <div
-                      key={exam.id}
-                      className='font-medium-14 cursor-pointer text-black'
-                      onClick={(e) => handleClickSelect(e, exam)}>
-                      {exam.name}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
+  const handleSelectPracticeTest = (e: React.MouseEvent<HTMLDivElement>, exam: ExamType | null) => {
+    e.stopPropagation();
+    handlePracticeTest(exam);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className='h-[5.6rem] w-[70rem]'>
+      <div
+        className={`border-lightgray500 absolute z-30 min-h-[5.6rem] w-[70rem] rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]`}>
+        <div className='flex justify-between gap-[0.9rem]'>
+          {practiceTest ? (
+            <div className='font-bold-24 w-full'>{practiceTest.name}</div>
+          ) : (
+            <input
+              {...register('search')}
+              className='font-bold-24 w-full outline-none'
+              placeholder={problemType === '창작 문제' ? '해당 없음' : '입력해주세요'}
+              onFocus={() => setIsOpen(true)}
+              disabled={problemType === '창작 문제'}
+            />
           )}
+
+          <div className='flex items-center gap-[0.8rem]'>
+            {practiceTest && (
+              <div onClick={(e) => handleSelectPracticeTest(e, null)}>
+                <IcCloseCircle width={24} height={24} />
+              </div>
+            )}
+            {isOpen ? (
+              <IcUp className='mt-[0.6rem]' width={24} height={24} onClick={toggleOpen} />
+            ) : (
+              <IcDown className='mt-[0.6rem]' width={24} height={24} onClick={toggleOpen} />
+            )}
+          </div>
         </div>
+        {isOpen && (
+          <>
+            <div className='bg-lightgray500 my-[1rem] h-[1px] w-full' />
+            <div>
+              <div className='flex flex-col gap-[1.2rem]'>
+                {filteredResult?.map((exam: ExamType) => (
+                  <div
+                    key={exam.id}
+                    className='font-medium-14 cursor-pointer text-black'
+                    onClick={(e) => handleSelectPracticeTest(e, exam)}>
+                    {exam.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

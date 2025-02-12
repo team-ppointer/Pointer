@@ -8,6 +8,7 @@ import ProblemPreview from './ProblemPreview';
 import GNB from './GNB';
 import ImageUpload from './ImageUpload';
 import Header from './Header';
+import ComponentWithLabel from './ComponentWithLabel';
 
 export * from './Buttons';
 export * from './Inputs';
@@ -23,4 +24,5 @@ export {
   GNB,
   ImageUpload,
   Header,
+  ComponentWithLabel,
 };
