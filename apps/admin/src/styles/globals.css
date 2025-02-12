@@ -73,6 +73,10 @@
     cursor: pointer;
   }
 
+  input:disabled {
+    cursor: not-allowed;
+  }
+
   select {
     background: #fff;
   }
