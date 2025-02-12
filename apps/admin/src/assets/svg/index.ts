@@ -1,3 +1,4 @@
+export { default as IcCloseCircle } from './IcCloseCircle';
 export { default as IcCloseSmall } from './IcCloseSmall';
 export { default as IcDeleteButton } from './IcDeleteButton';
 export { default as IcDelete } from './IcDelete';

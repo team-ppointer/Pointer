@@ -1,6 +1,6 @@
 // client.tsx
-import { client, get, post, put, patch, del } from './client';
-// controllers
-import { postLogin } from './controller/auth';
+export { client, get, post, put, patch, del } from './client';
 
-export { client, get, post, put, patch, del, postLogin };
+// controllers
+export * from './controller/auth';
+export * from './controller/practice-test-tag';
