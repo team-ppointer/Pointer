@@ -140,7 +140,6 @@ function RouteComponent() {
         </div>
         <div className='flex gap-4'>
           <TagSelect
-            label='태그 선택'
             selectedList={selectedList}
             unselectedList={unselectedList}
             onClickSelectTag={onClickSelectTag}
@@ -181,7 +180,7 @@ function RouteComponent() {
           />
         </div>
         <div>
-          <ImageUpload label='메인 문항 선택' />
+          <ImageUpload />
         </div>
       </div>
       <FloatingButton onClick={() => {}}>저장하기</FloatingButton>

@@ -49,7 +49,7 @@ const PracticeTestSelect = ({
 
   return (
     <div className={`relative ${isOpen && 'z-30'}`}>
-      <div className='absolute flex flex-col gap-[1.2rem]'>
+      <div className='absolute'>
         <div
           className={`border-lightgray500 min-w-[50rem] rounded-[16px] border bg-white px-[1.6rem] py-[1rem]`}>
           <div className='flex min-h-[3.6rem] cursor-pointer items-start justify-between gap-[0.9rem]'>
