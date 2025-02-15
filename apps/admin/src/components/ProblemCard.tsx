@@ -1,6 +1,6 @@
 const ProblemCard = ({ children }: { children: React.ReactNode }) => {
   return (
-    <section className='relative flex h-fit w-full min-w-[48rem] flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
+    <section className='relative flex h-fit w-full flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
       {children}
     </section>
   );
@@ -18,7 +18,7 @@ const CardButtonSection = ({ children }: { children: React.ReactNode }) => {
   return <div className='absolute top-[3.2rem] right-[3.2rem] flex gap-[0.6rem]'>{children}</div>;
 };
 
-const CardInfo = ({ label, content }: { label: string; content: string }) => {
+const CardInfo = ({ label, content }: { label: string; content?: string }) => {
   return (
     <div className='flex gap-[1.6rem]'>
       <span className='font-medium-18 text-midgray200 min-w-[6.7rem]'>{label}</span>
@@ -27,7 +27,7 @@ const CardInfo = ({ label, content }: { label: string; content: string }) => {
   );
 };
 
-const CardImage = ({ src, height }: { src: string; height: string }) => {
+const CardImage = ({ src, height }: { src?: string; height: string }) => {
   return (
     <img
       src={src ? src : '/images/image-placeholder.svg'}
