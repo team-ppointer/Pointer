@@ -1,6 +1,6 @@
 import { postLogin } from '@apis';
 import { Button, Input } from '@components';
-import { useNavigation } from '@hooks';
+import { useAuth, useNavigation } from '@hooks';
 import { createFileRoute } from '@tanstack/react-router';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -14,6 +14,7 @@ interface LoginType {
 }
 
 function RouteComponent() {
+  const { setAccessToken } = useAuth();
   const { mutate } = postLogin();
   const { goPublish } = useNavigation();
 
@@ -29,12 +30,16 @@ function RouteComponent() {
         body: {
           ...formData,
         },
+        credentials: 'include', // 쿠키 포함 요청
       },
       {
         onSuccess: (data) => {
-          if (data) {
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.accessToken);
+          const { accessToken } = data;
+          if (accessToken) {
+            setAccessToken(accessToken);
+
+            // 삭제 예정
+            localStorage.setItem('accessToken', accessToken);
             goPublish();
           }
         },

@@ -33,6 +33,7 @@
       "@svg": ["src/assets/svg"],
       "@image": ["public/image"],
       "@components": ["src/components"],
+      "@contexts/*": ["src/contexts/*"],
       "@constants": ["src/constants"],
       "@hooks": ["src/hooks"],
       "@layouts": ["src/layouts"],

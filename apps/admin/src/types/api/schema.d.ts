@@ -148,7 +148,7 @@ export interface paths {
     put?: never;
     /**
      * 어드민 로그인
-     * @description 아아디 패스워드 로그인 후 토큰 발급합니다.
+     * @description 이메일과 비밀번호로 로그인하여 액세스 토큰을 발급받고 리프레시 토큰을 쿠키에 설정합니다.
      */
     post: operations['adminLogin'];
     delete?: never;
@@ -274,6 +274,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/images/{fileName}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 이미지 업로드 완료 후 URL 조회 */
+    get: operations['getImageUrl'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/images/problem/{problemId}/presigned-url': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 이미지 업로드를 위한 presigned URL 발급 */
+    get: operations['getProblemImagePresignedUrl'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/conceptTags': {
     parameters: {
       query?: never;
@@ -283,6 +317,26 @@ export interface paths {
     };
     /** 모든 개념 태그 리스트 조회 */
     get: operations['getConceptTags'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/auth/reissue': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 토큰 재발급
+     * @description 리프레시 토큰을 통해 새로운 액세스 토큰을 발급하고 새로운 리프레시 토큰을 쿠키에 설정합니다.
+     */
+    get: operations['reissueToken'];
     put?: never;
     post?: never;
     delete?: never;
@@ -391,7 +445,7 @@ export interface components {
     };
     ProblemSetUpdateRequest: {
       problemSetTitle?: string;
-      problems?: string[];
+      problemIds?: number[];
     };
     PublishPostRequest: {
       /** Format: date */
@@ -399,29 +453,13 @@ export interface components {
       /** Format: int64 */
       problemSetId?: number;
     };
-    ChildProblemPostRequest: {
-      imageUrl?: string;
-      /** @enum {string} */
-      problemType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
-      answer?: string;
-      conceptTagIds?: number[];
-      /** Format: int32 */
-      sequence?: number;
-    };
     ProblemPostRequest: {
-      conceptTagIds?: number[];
+      /** @enum {string} */
+      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       /** Format: int64 */
       practiceTestId?: number;
       /** Format: int32 */
       number?: number;
-      answer?: string;
-      comment?: string;
-      mainProblemImageUrl?: string;
-      mainAnalysisImageUrl?: string;
-      readingTipImageUrl?: string;
-      seniorTipImageUrl?: string;
-      prescriptionImageUrl?: string;
-      childProblems?: components['schemas']['ChildProblemPostRequest'][];
     };
     ChildProblemUpdateRequest: {
       /**
@@ -431,57 +469,79 @@ export interface components {
       id?: number;
       imageUrl?: string;
       /** @enum {string} */
-      problemType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
       answer?: string;
       conceptTagIds?: number[];
       /** Format: int32 */
       sequence?: number;
     };
     ProblemUpdateRequest: {
-      conceptTagIds?: number[];
+      /** @enum {string} */
+      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      /** Format: int64 */
+      practiceTestId?: number;
       /** Format: int32 */
-      answer?: number;
-      comment?: string;
+      number?: number;
+      conceptTagIds?: number[];
+      answer?: string;
+      title?: string;
+      /** Format: int32 */
+      difficulty?: number;
+      memo?: string;
       mainProblemImageUrl?: string;
       mainAnalysisImageUrl?: string;
+      mainHandwritingExplanationImageUrl?: string;
       readingTipImageUrl?: string;
       seniorTipImageUrl?: string;
-      prescriptionImageUrl?: string;
+      prescriptionImageUrls?: string[];
+      /** @enum {string} */
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
       updateChildProblems?: components['schemas']['ChildProblemUpdateRequest'][];
       deleteChildProblems?: number[];
     };
     ChildProblemGetResponse: {
       /** Format: int64 */
-      childProblemId?: number;
+      childProblemId: number;
       imageUrl?: string;
       /** @enum {string} */
-      problemType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
       answer?: string;
       conceptTagIds?: number[];
     };
     ProblemGetResponse: {
-      problemId?: string;
+      problemId: string;
       conceptTagIds?: number[];
       /** Format: int64 */
       practiceTestId?: number;
       /** Format: int32 */
       number?: number;
+      /** Format: int32 */
+      difficulty?: number;
+      title?: string;
       answer?: string;
-      comment?: string;
+      memo?: string;
+      /** @enum {string} */
+      problemType?: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      /** @enum {string} */
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
       mainProblemImageUrl?: string;
+      mainHandwritingExplanationImageUrl?: string;
       mainAnalysisImageUrl?: string;
       readingTipImageUrl?: string;
       seniorTipImageUrl?: string;
-      prescriptionImageUrl?: string;
+      prescriptionImageUrls?: string[];
       childProblems?: components['schemas']['ChildProblemGetResponse'][];
     };
     ProblemSetPostRequest: {
       problemSetTitle?: string;
-      problems?: string[];
+      problems?: number[];
+    };
+    AccessTokenResponse: {
+      accessToken?: string;
     };
     AdminLoginRequest: {
-      email?: string;
-      password?: string;
+      email: string;
+      password: string;
     };
     PublishMonthGetResponse: {
       /** Format: int32 */
@@ -495,12 +555,12 @@ export interface components {
     };
     ConceptTagSearchResponse: {
       /** Format: int64 */
-      id?: number;
-      name?: string;
+      id: number;
+      name: string;
     };
     ProblemSearchGetResponse: {
-      problemId?: string;
-      comment?: string;
+      problemId: string;
+      memo?: string;
       mainProblemImageUrl?: string;
       conceptTagResponses?: components['schemas']['ConceptTagSearchResponse'][];
     };
@@ -519,7 +579,7 @@ export interface components {
       /** Format: int32 */
       number?: number;
       practiceTestName?: string;
-      comment?: string;
+      memo?: string;
       mainProblemImageUrl?: string;
       tagNames?: string[];
     };
@@ -547,8 +607,8 @@ export interface components {
     };
     ConceptTagResponse: {
       /** Format: int64 */
-      id?: number;
-      name?: string;
+      id: number;
+      name: string;
     };
   };
   responses: never;
@@ -735,7 +795,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': string;
+          '*/*': number;
         };
       };
       /** @description Internal Server Error */
@@ -754,7 +814,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: string;
+        id: number;
       };
       cookie?: never;
     };
@@ -785,7 +845,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: string;
+        id: number;
       };
       cookie?: never;
     };
@@ -820,7 +880,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: string;
+        id: number;
       };
       cookie?: never;
     };
@@ -831,9 +891,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          '*/*': components['schemas']['ProblemGetResponse'];
-        };
+        content?: never;
       };
       /** @description Internal Server Error */
       500: {
@@ -895,27 +953,22 @@ export interface operations {
       /** @description 로그인 성공 */
       200: {
         headers: {
-          /** @description Access Token */
-          Authorization?: string;
-          /** @description Refresh Token */
-          RefreshToken?: string;
+          /** @description 리프레시 토큰이 담긴 HTTP Only 쿠키 */
+          'Set-Cookie'?: string;
           [name: string]: unknown;
         };
-        content?: never;
-      };
-      /** @description 잘못된 요청 */
-      400: {
-        headers: {
-          [name: string]: unknown;
+        content: {
+          'application/json': components['schemas']['AccessTokenResponse'];
         };
-        content?: never;
       };
-      /** @description 인증 실패 */
+      /** @description 인증 실패 (잘못된 이메일 또는 비밀번호) */
       401: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
       };
       /** @description Internal Server Error */
       500: {
@@ -1117,6 +1170,77 @@ export interface operations {
       };
     };
   };
+  getImageUrl: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        fileName: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': string;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  getProblemImagePresignedUrl: {
+    parameters: {
+      query: {
+        'image-type':
+          | 'MAIN_PROBLEM'
+          | 'MAIN_ANALYSIS'
+          | 'MAIN_HANDWRITING_EXPLANATION'
+          | 'READING_TIP'
+          | 'SENIOR_TIP'
+          | 'PRESCRIPTION'
+          | 'CHILD_PROBLEM';
+      };
+      header?: never;
+      path: {
+        problemId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': string;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
   getConceptTags: {
     parameters: {
       query?: never;
@@ -1133,6 +1257,55 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ConceptTagResponse'][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  reissueToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 토큰 재발급 성공 */
+      200: {
+        headers: {
+          /** @description 새로운 리프레시 토큰이 담긴 HTTP Only 쿠키 */
+          'Set-Cookie'?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AccessTokenResponse'];
+        };
+      };
+      /** @description 유효하지 않은 리프레시 토큰 */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+      /** @description 리프레시 토큰 쿠키 없음 */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
         };
       };
       /** @description Internal Server Error */
