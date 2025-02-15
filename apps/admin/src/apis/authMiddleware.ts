@@ -1,4 +1,4 @@
-import { getAccessToken, setAccessToken } from '@contexts/AuthContext';
+import { setAccessToken } from '@contexts/AuthContext';
 import { Middleware } from 'openapi-fetch';
 
 const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login'];

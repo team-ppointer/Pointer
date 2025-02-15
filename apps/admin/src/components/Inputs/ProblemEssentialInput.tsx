@@ -10,7 +10,13 @@ interface Props {
   handleChangeNumber: (num: number) => void;
 }
 
-const ProblemTypeList: ProblemTypeType[] = ['기출 문제', '변형 문제', '창작 문제'];
+const ProblemTypeName = {
+  GICHUL_PROBLEM: '기출 문제',
+  VARIANT_PROBLEM: '변형 문제',
+  CREATION_PROBLEM: '창작 문제',
+};
+
+const ProblemTypeList: ProblemTypeType[] = Object.keys(ProblemTypeName) as ProblemTypeType[];
 
 const ProblemEssentialInput = ({
   problemType,
@@ -31,12 +37,12 @@ const ProblemEssentialInput = ({
               type='button'
               variant={problemType === type ? 'light' : 'dimmed'}
               onClick={() => handleChangeType(type)}>
-              {type}
+              {ProblemTypeName[type]}
             </Button>
           ))}
         </div>
       </div>
-      {problemType !== '창작 문제' && (
+      {problemType !== 'CREATION_PROBLEM' && (
         <div className='mt-[3.2rem]'>
           <div className='flex h-fit w-full items-center gap-[4.8rem]'>
             <ComponentWithLabel label='메인 문항 모의고사 '>

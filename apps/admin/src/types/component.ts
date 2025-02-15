@@ -2,7 +2,7 @@ export type TagType = { id: number; name: string };
 
 export type ExamType = { id: number; name: string };
 
-export type ProblemTypeType = '기출 문제' | '변형 문제' | '창작 문제';
+export type ProblemTypeType = 'CREATION_PROBLEM' | 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM';
 
 export type ProblemType = 'MULTIPLE_CHOICE' | 'SINGLE_CHOICE';
 
