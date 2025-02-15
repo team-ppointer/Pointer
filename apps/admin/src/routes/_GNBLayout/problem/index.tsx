@@ -1,4 +1,4 @@
-import { getProblemsSearch } from '@apis';
+import { $api, deleteProblems, getProblemsSearch } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -10,8 +10,9 @@ import {
   TagSelect,
 } from '@components';
 import { useSelectTag } from '@hooks';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { getProblemsSearchParamsType } from '@types';
+import { useQueryClient } from '@tanstack/react-query';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
+import { getProblemsSearchParamsType, TagType } from '@types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -20,13 +21,52 @@ export const Route = createFileRoute('/_GNBLayout/problem/')({
 });
 
 function RouteComponent() {
+  const queryClient = useQueryClient();
+  const { navigate } = useRouter();
+
   const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
   const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
   const { register, handleSubmit, reset } = useForm<getProblemsSearchParamsType>();
   const { data: problemList } = getProblemsSearch(searchQuery);
+  const { mutate } = deleteProblems();
+
+  const handleClickCard = (problemId: string) => {
+    navigate({ to: `/problem/${problemId}` });
+  };
+
+  const handleClickDelete = (e: React.MouseEvent<HTMLButtonElement>, problemId: string) => {
+    e.stopPropagation();
+
+    mutate(
+      {
+        params: {
+          path: {
+            id: Number(problemId),
+          },
+        },
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: $api.queryOptions('get', '/api/v1/problems/search').queryKey,
+          });
+        },
+      }
+    );
+  };
+
+  const tagToQueryParams = (tags: TagType[]) => {
+    if (!tags.length) return {};
+    return { conceptTagIds: tags.map((tag) => tag.id) };
+  };
 
   const handleClickSearch = (data: getProblemsSearchParamsType) => {
-    const newQuery = { ...data, conceptTagIds: selectedList.map((tag) => tag.id) };
+    const filteredData = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => Boolean(value))
+    );
+    const tagData = tagToQueryParams(selectedList);
+
+    const newQuery = { ...filteredData, ...tagData };
     setSearchQuery(newQuery);
   };
 
@@ -71,7 +111,7 @@ function RouteComponent() {
       </form>
       <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
         {(problemList || []).map((problem, index) => (
-          <ProblemCard key={index}>
+          <ProblemCard key={index} onClick={() => handleClickCard(problem.problemId)}>
             <ProblemCard.TextSection>
               <ProblemCard.Title title='문제 제목' />
               <ProblemCard.Info label='문제 번호' content={problem.problemId} />
@@ -80,7 +120,10 @@ function RouteComponent() {
             </ProblemCard.TextSection>
 
             <ProblemCard.ButtonSection>
-              <IconButton variant='delete' />
+              <IconButton
+                variant='delete'
+                onClick={(e) => handleClickDelete(e, problem.problemId)}
+              />
             </ProblemCard.ButtonSection>
 
             <ProblemCard.CardImage src={problem.mainProblemImageUrl} height={'34.4rem'} />
