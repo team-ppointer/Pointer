@@ -4,13 +4,12 @@ import {
   ImageUpload,
   LevelSelect,
   PlusButton,
-  PracticeTestSelect,
-  SearchInput,
+  ProblemEssentialInput,
   TagSelect,
 } from '@components';
-import { useAnswerInput, useSelectTag } from '@hooks';
+import { useAnswerInput, useProblemEssentialInput, useSelectTag } from '@hooks';
 import { createFileRoute } from '@tanstack/react-router';
-import { ExamType, LevelType } from '@types';
+import { LevelType } from '@types';
 import { ReactNode, useState } from 'react';
 
 export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
@@ -27,31 +26,36 @@ const SectionLayout = ({ children }: { children: ReactNode }) => {
 
 function RouteComponent() {
   const { problemId } = Route.useParams();
-  const [selectedPracticeTest, setSelectedPracticeTest] = useState<ExamType | null>(null);
+
+  const {
+    problemType,
+    practiceTest,
+    practiceTestNumber,
+    handleChangeType,
+    handlePracticeTest,
+    handleChangeNumber,
+  } = useProblemEssentialInput();
 
   const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
-  const { problemType, answer, handleClickProblemType, handleChangeAnswer } = useAnswerInput();
+  const { problemAnswerType, answer, handleClickProblemAnswerType, handleChangeAnswer } =
+    useAnswerInput();
   const [level, setLevel] = useState<LevelType | undefined>();
 
-  const handleClickPracticeTest = (exam: ExamType | null) => {
-    setSelectedPracticeTest(exam);
-  };
   return (
     <>
       <Header title={`문항 ID : ${problemId}`} />
+      <ProblemEssentialInput
+        problemType={problemType}
+        practiceTest={practiceTest}
+        practiceTestNumber={practiceTestNumber}
+        handleChangeType={handleChangeType}
+        handlePracticeTest={handlePracticeTest}
+        handleChangeNumber={handleChangeNumber}
+      />
       <div className='mt-[4.8rem] flex flex-col gap-[4.8rem]'>
         <SectionLayout>
           <div className='flex flex-col gap-[1.6rem]'>
             <h3 className='font-bold-32 text-black'>메인 문제</h3>
-            <div className='flex'>
-              <h6 className='font-medium-24 text-black'>메인 문항 모의고사</h6>
-              <PracticeTestSelect
-                selectedPracticeTest={selectedPracticeTest}
-                handleSelectPracticeTest={handleClickPracticeTest}
-              />
-            </div>
-            <h6 className='font-medium-24 text-black'>메인 문항 번호 입력</h6>
-            <SearchInput />
             <div className='flex'>
               <h6 className='font-medium-24 text-black'>메인 문항 개념 태그</h6>
               <TagSelect
@@ -71,9 +75,9 @@ function RouteComponent() {
             />
             <h6 className='font-medium-24 text-black'>메인 문항 답 입력</h6>
             <AnswerInput
-              problemType={problemType}
+              problemAnswerType={problemAnswerType}
               answer={answer}
-              handleClickProblemType={handleClickProblemType}
+              handleClickProblemAnswerType={handleClickProblemAnswerType}
               handleChangeAnswer={handleChangeAnswer}
             />
             <h6 className='font-medium-24 text-black'>메인 문항 선택</h6>
@@ -100,14 +104,6 @@ function RouteComponent() {
               <h6 className='font-medium-24 text-black'>새끼 문항 답 입력</h6>
               <AnswerInput />
             </div>
-            <div className='mt-[3.2rem] flex flex-col gap-[3.2rem]'>
-              <h6 className='font-medium-24 text-black'>새끼 문항 개념 태그</h6>
-              <TagSelect sizeType='long' />
-              <h6 className='font-medium-24 text-black'>새끼 문항 선택</h6>
-              <ImageUpload />
-              <h6 className='font-medium-24 text-black'>새끼 문항 답 입력</h6>
-              <AnswerInput />
-            </div>
           </div>
         </SectionLayout>
         <SectionLayout>
@@ -124,8 +120,6 @@ function RouteComponent() {
           </div>
           <h6 className='font-medium-24 mt-[3.2rem] text-black'>진단 및 처방</h6>
           <div className='mt-[2.4rem] grid grid-cols-2 gap-x-[4.8rem] gap-y-[2.4rem]'>
-            <ImageUpload />
-            <ImageUpload />
             <ImageUpload />
             <ImageUpload />
             <div className='flex h-full items-center'>

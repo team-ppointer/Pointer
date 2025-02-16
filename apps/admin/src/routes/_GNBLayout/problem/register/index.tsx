@@ -1,33 +1,24 @@
 import { postProblems } from '@apis';
 import { Button, Header, ProblemEssentialInput } from '@components';
+import { useProblemEssentialInput } from '@hooks';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { ExamType, ProblemTypeType } from '@types';
-import { useState } from 'react';
 
 export const Route = createFileRoute('/_GNBLayout/problem/register/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [problemType, setProblemType] = useState<ProblemTypeType>('GICHUL_PROBLEM');
-  const [practiceTest, setPracticeTest] = useState<ExamType | null>(null);
-  const [practiceTestNumber, setPracticeTestNumber] = useState<number>();
-
   const { navigate } = useRouter();
+  const {
+    problemType,
+    practiceTest,
+    practiceTestNumber,
+    handleChangeType,
+    handlePracticeTest,
+    handleChangeNumber,
+  } = useProblemEssentialInput();
 
   const { mutate } = postProblems();
-
-  const handleChangeType = (type: ProblemTypeType) => {
-    setProblemType(type);
-  };
-
-  const handlePracticeTest = (exam: ExamType | null) => {
-    setPracticeTest(exam);
-  };
-
-  const handleChangeNumber = (num: number) => {
-    setPracticeTestNumber(num);
-  };
 
   const handleClickRegister = () => {
     const requestBody =

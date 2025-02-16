@@ -1,11 +1,11 @@
 import { Button, ComponentWithLabel, Input, PracticeTestSelect } from '@components';
-import { ExamType, ProblemTypeType } from '@types';
+import { ExamType, ProblemType } from '@types';
 
 interface Props {
-  problemType: ProblemTypeType;
+  problemType: ProblemType;
   practiceTest: ExamType | null;
   practiceTestNumber: number | undefined;
-  handleChangeType: (type: ProblemTypeType) => void;
+  handleChangeType: (type: ProblemType) => void;
   handlePracticeTest: (exam: ExamType | null) => void;
   handleChangeNumber: (num: number) => void;
 }
@@ -16,7 +16,7 @@ const ProblemTypeName = {
   CREATION_PROBLEM: '창작 문제',
 };
 
-const ProblemTypeList: ProblemTypeType[] = Object.keys(ProblemTypeName) as ProblemTypeType[];
+const ProblemTypeList: ProblemType[] = Object.keys(ProblemTypeName) as ProblemType[];
 
 const ProblemEssentialInput = ({
   problemType,

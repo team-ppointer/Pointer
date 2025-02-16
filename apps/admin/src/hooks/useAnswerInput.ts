@@ -1,15 +1,15 @@
-import { ProblemType } from '@types';
+import { ProblemAnswerType } from '@types';
 import { useState } from 'react';
 
 const useAnswerInput = () => {
-  const [problemType, setProblemType] = useState<ProblemType>('MULTIPLE_CHOICE');
+  const [problemAnswerType, setProblemAnswerType] = useState<ProblemAnswerType>('MULTIPLE_CHOICE');
   const [answer, setAnswer] = useState<string | null>(null);
 
-  const handleClickProblemType = (type: ProblemType) => {
-    if (problemType === type) return;
+  const handleClickProblemAnswerType = (type: ProblemAnswerType) => {
+    if (problemAnswerType === type) return;
 
     setAnswer(null);
-    setProblemType(type);
+    setProblemAnswerType(type);
   };
 
   const handleChangeAnswer = (value: string) => {
@@ -17,9 +17,9 @@ const useAnswerInput = () => {
   };
 
   return {
-    problemType,
+    problemAnswerType,
     answer,
-    handleClickProblemType,
+    handleClickProblemAnswerType,
     handleChangeAnswer,
   };
 };

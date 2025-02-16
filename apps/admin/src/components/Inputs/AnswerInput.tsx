@@ -1,6 +1,6 @@
-import { ProblemType } from '@types';
+import { ProblemAnswerType } from '@types';
 
-interface ProblemTypeButtonProps {
+interface ProblemAnswerTypeButtonProps {
   label: string;
   isSelected: boolean;
   onClick: () => void;
@@ -13,13 +13,13 @@ interface NumberProps {
 }
 
 interface AnswerInputProps {
-  problemType: ProblemType;
+  problemAnswerType: ProblemAnswerType;
   answer: string | null;
-  handleClickProblemType: (type: ProblemType) => void;
+  handleClickProblemAnswerType: (type: ProblemAnswerType) => void;
   handleChangeAnswer: (value: string) => void;
 }
 
-const ProblemTypeButton = ({ label, isSelected, onClick }: ProblemTypeButtonProps) => {
+const ProblemAnswerTypeButton = ({ label, isSelected, onClick }: ProblemAnswerTypeButtonProps) => {
   const selectedStyle = isSelected
     ? 'bg-midgray200 text-white'
     : 'bg-lightgray300 text-lightgray500';
@@ -57,27 +57,27 @@ const Number = ({ label, isSelected, onClick }: NumberProps) => {
 };
 
 const AnswerInput = ({
-  problemType,
+  problemAnswerType,
   answer,
-  handleClickProblemType,
+  handleClickProblemAnswerType,
   handleChangeAnswer,
 }: AnswerInputProps) => {
   return (
     <div className='flex min-w-[44rem] gap-[2.4rem]'>
       <div className='flex gap-[0.8rem]'>
-        <ProblemTypeButton
+        <ProblemAnswerTypeButton
           label='객'
-          isSelected={problemType === 'MULTIPLE_CHOICE'}
-          onClick={() => handleClickProblemType('MULTIPLE_CHOICE')}
+          isSelected={problemAnswerType === 'MULTIPLE_CHOICE'}
+          onClick={() => handleClickProblemAnswerType('MULTIPLE_CHOICE')}
         />
-        <ProblemTypeButton
+        <ProblemAnswerTypeButton
           label='주'
-          isSelected={problemType === 'SINGLE_CHOICE'}
-          onClick={() => handleClickProblemType('SINGLE_CHOICE')}
+          isSelected={problemAnswerType === 'SINGLE_CHOICE'}
+          onClick={() => handleClickProblemAnswerType('SINGLE_CHOICE')}
         />
       </div>
-      {problemType === 'SINGLE_CHOICE' && <Input />}
-      {problemType === 'MULTIPLE_CHOICE' && (
+      {problemAnswerType === 'SINGLE_CHOICE' && <Input />}
+      {problemAnswerType === 'MULTIPLE_CHOICE' && (
         <div className='flex items-center justify-between gap-[1.6rem]'>
           {[1, 2, 3, 4, 5].map((num) => (
             <Number
