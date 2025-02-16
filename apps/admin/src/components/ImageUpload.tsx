@@ -1,23 +1,56 @@
+import { getPresignedUrl } from '@apis';
 import { IconButton } from '@components';
 import { IcUpload } from '@svg';
+import { ImageType } from '@types';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-const ImageUpload = () => {
+interface ImageUploadProps {
+  problemId: string;
+  imageType: ImageType;
+}
+
+const ImageUpload = ({ problemId, imageType }: ImageUploadProps) => {
   const [imageUrl, setImageUrl] = useState('');
+  const { refetch } = getPresignedUrl({ problemId, imageType });
 
   const onDrop = async (acceptedFiles: File[]) => {
-    // const newPhotos = acceptedFiles.map((file) => URL.createObjectURL(file));
-    setImageUrl(
-      'https://pickple-bucket.s3.ap-northeast-2.amazonaws.com/moim/659607c8-91f9-4be2-b5ad-b7c9ddf157f1.jpg'
-    );
-
-    for (const file of acceptedFiles) {
-      try {
-      } catch (error) {
-        console.error(`Error uploading ${file.name}:`, error);
-      }
-    }
+    // try {
+    //   const res = await client.GET('/api/v1/images/problem/{problemId}/presigned-url', {
+    //     params: {
+    //       path: {
+    //         problemId: problemId,
+    //       },
+    //       query: {
+    //         'image-type': imageType,
+    //       },
+    //     },
+    //   });
+    //   console.log('res', res);
+    // } catch (error) {
+    //   console.error('Error fetching presigned url:', error);
+    // }
+    // try {
+    //   const response = await refetch();
+    //   console.log('response', response);
+    // } catch (error) {
+    //   console.error('Error fetching presigned url:', error);
+    // }
+    // if (presignedUrl && acceptedFiles[0]) {
+    //   const s3Response = await putS3Upload({ url: presignedUrl, file: acceptedFiles[0] });
+    //   console.log('s3Response', s3Response);
+    // }
+    // const imageUrl = presignedUrl?.split('?')[0]; //최종 파일 경로
+    // setImageUrl(imageUrl);
+    // setImageUrl(
+    //   'https://pickple-bucket.s3.ap-northeast-2.amazonaws.com/moim/659607c8-91f9-4be2-b5ad-b7c9ddf157f1.jpg'
+    // );
+    // for (const file of acceptedFiles) {
+    //   try {
+    //   } catch (error) {
+    //     console.error(`Error uploading ${file.name}:`, error);
+    //   }
+    // }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

@@ -36,7 +36,7 @@ function RouteComponent() {
     handleChangeNumber,
   } = useProblemEssentialInput();
 
-  const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
+  // const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
   const { problemAnswerType, answer, handleClickProblemAnswerType, handleChangeAnswer } =
     useAnswerInput();
   const [level, setLevel] = useState<LevelType | undefined>();
@@ -58,13 +58,13 @@ function RouteComponent() {
             <h3 className='font-bold-32 text-black'>메인 문제</h3>
             <div className='flex'>
               <h6 className='font-medium-24 text-black'>메인 문항 개념 태그</h6>
-              <TagSelect
+              {/* <TagSelect
                 sizeType='long'
                 selectedList={selectedList}
                 unselectedList={unselectedList}
                 onClickSelectTag={onClickSelectTag}
                 onClickRemoveTag={onClickRemoveTag}
-              />
+              /> */}
             </div>
             <h6 className='font-medium-24 text-black'>난이도 선택</h6>
             <LevelSelect
@@ -81,14 +81,14 @@ function RouteComponent() {
               handleChangeAnswer={handleChangeAnswer}
             />
             <h6 className='font-medium-24 text-black'>메인 문항 선택</h6>
-            <ImageUpload />
-            <h6 className='font-medium-24 text-black'>메인 문항 분석 선택</h6>
+            <ImageUpload problemId={problemId} imageType='MAIN_PROBLEM' />
+            {/* <h6 className='font-medium-24 text-black'>메인 문항 분석 선택</h6>
             <ImageUpload />
             <h6 className='font-medium-24 text-black'>메인 문항 손해설</h6>
-            <ImageUpload />
+            <ImageUpload /> */}
           </div>
         </SectionLayout>
-        <SectionLayout>
+        {/* <SectionLayout>
           <div className='flex items-baseline gap-[1.6rem]'>
             <h3 className='font-bold-32 text-black'>새끼 문제 등록</h3>
             <p className='font-medium-14 text-lightgray500'>
@@ -126,7 +126,7 @@ function RouteComponent() {
               <PlusButton />
             </div>
           </div>
-        </SectionLayout>
+        </SectionLayout> */}
       </div>
     </>
   );
