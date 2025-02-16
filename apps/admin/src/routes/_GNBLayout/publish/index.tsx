@@ -1,3 +1,4 @@
+import { Calendar } from '@components';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_GNBLayout/publish/')({
@@ -5,5 +6,5 @@ export const Route = createFileRoute('/_GNBLayout/publish/')({
 });
 
 function RouteComponent() {
-  return <div>{`Hello "/publish/"!`}</div>;
+  return <Calendar />;
 }

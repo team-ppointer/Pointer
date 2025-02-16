@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 
 import IconButton from './Buttons/IconButton';
 import PlusButton from './Buttons/PlusButton';
+import { IcDeleteSm } from '@svg';
 
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -38,10 +39,16 @@ const Day = ({ variant = 'thisMonth', fullDate, day, dayOfWeek, title }: DayProp
   return (
     <div
       className={`flex h-[15rem] flex-col items-end gap-[0.4rem] rounded-[4px] bg-white px-[2.4rem] py-[1.6rem]`}>
-      <div
-        className={`font-medium-16 h-[2.4rem] rounded-[0.4rem] px-[0.6rem] text-end ${dayOfWeekStyle} ${textStyle} ${todayBgStyle}`}>
-        {day}
+      <div className='flex w-full items-center justify-between'>
+        <div
+          className={`font-medium-16 h-[2.4rem] rounded-[0.4rem] px-[0.6rem] ${dayOfWeekStyle} ${textStyle} ${todayBgStyle}`}>
+          {day}
+        </div>
+        <div>
+          {title && !isPast && <IcDeleteSm width={24} height={24} className='cursor-pointer' />}
+        </div>
       </div>
+      
       {title ? (
         <p className={`font-bold-18 h-full w-full overflow-auto ${textStyle}`}>{title}</p>
       ) : (
