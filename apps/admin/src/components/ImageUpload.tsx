@@ -59,7 +59,7 @@ const ImageUpload = ({ problemId, imageType }: ImageUploadProps) => {
   });
 
   return (
-    <div className='gap[2.4rem flex flex-col'>
+    <div className='gap[2.4rem] flex w-full flex-col'>
       {imageUrl ? (
         <div className='relative h-[54.3rem] w-full overflow-hidden rounded-[1.6rem]'>
           <img src={imageUrl} alt='upload-image' className='h-full w-full object-cover' />

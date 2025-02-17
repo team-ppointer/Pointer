@@ -23,7 +23,7 @@ function RouteComponent() {
   const handleClickRegister = () => {
     const requestBody =
       problemType === 'CREATION_PROBLEM'
-        ? { problemType, practiceTestId: 0, number: 0 }
+        ? { problemType, practiceTestId: undefined, number: undefined }
         : { problemType, practiceTestId: practiceTest?.id, number: practiceTestNumber };
 
     mutate(
