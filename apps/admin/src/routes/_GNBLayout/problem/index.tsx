@@ -13,6 +13,7 @@ import { useSelectTag } from '@hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { getProblemsSearchParamsType, TagType } from '@types';
+import { tagToQueryParams } from '@utils';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -53,11 +54,6 @@ function RouteComponent() {
         },
       }
     );
-  };
-
-  const tagToQueryParams = (tags: TagType[]) => {
-    if (!tags.length) return {};
-    return { conceptTagIds: tags.map((tag) => tag.id) };
   };
 
   const handleClickSearch = (data: getProblemsSearchParamsType) => {

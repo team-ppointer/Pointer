@@ -9,6 +9,7 @@ import GNB from './GNB';
 import ImageUpload from './ImageUpload';
 import Header from './Header';
 import ComponentWithLabel from './ComponentWithLabel';
+import SectionCard from './SectionCard';
 
 export * from './Buttons';
 export * from './Inputs';
@@ -25,4 +26,5 @@ export {
   ImageUpload,
   Header,
   ComponentWithLabel,
+  SectionCard,
 };

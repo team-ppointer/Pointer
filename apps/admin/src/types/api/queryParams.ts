@@ -3,3 +3,9 @@ export interface getProblemsSearchParamsType {
   comment?: string;
   conceptTagIds?: number[];
 }
+
+export interface getProblemSetSearchParamsType {
+  problemSetTitle?: string;
+  problemTitle?: string;
+  conceptTagIds?: number[];
+}

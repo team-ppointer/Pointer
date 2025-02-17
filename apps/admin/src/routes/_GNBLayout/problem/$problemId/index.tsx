@@ -5,24 +5,17 @@ import {
   LevelSelect,
   PlusButton,
   ProblemEssentialInput,
+  SectionCard,
   TagSelect,
 } from '@components';
 import { useAnswerInput, useProblemEssentialInput, useSelectTag } from '@hooks';
 import { createFileRoute } from '@tanstack/react-router';
 import { LevelType } from '@types';
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
   component: RouteComponent,
 });
-
-const SectionLayout = ({ children }: { children: ReactNode }) => {
-  return (
-    <section className='border-lightgray500 w-full rounded-[1.6rem] border bg-white p-[3.2rem]'>
-      {children}
-    </section>
-  );
-};
 
 function RouteComponent() {
   const { problemId } = Route.useParams();
@@ -53,7 +46,7 @@ function RouteComponent() {
         handleChangeNumber={handleChangeNumber}
       />
       <div className='mt-[4.8rem] flex flex-col gap-[4.8rem]'>
-        <SectionLayout>
+        <SectionCard>
           <div className='flex flex-col gap-[1.6rem]'>
             <h3 className='font-bold-32 text-black'>메인 문제</h3>
             <div className='flex'>
@@ -87,8 +80,8 @@ function RouteComponent() {
             <h6 className='font-medium-24 text-black'>메인 문항 손해설</h6>
             <ImageUpload /> */}
           </div>
-        </SectionLayout>
-        {/* <SectionLayout>
+        </SectionCard>
+        {/* <SectionCard>
           <div className='flex items-baseline gap-[1.6rem]'>
             <h3 className='font-bold-32 text-black'>새끼 문제 등록</h3>
             <p className='font-medium-14 text-lightgray500'>
@@ -105,8 +98,8 @@ function RouteComponent() {
               <AnswerInput />
             </div>
           </div>
-        </SectionLayout>
-        <SectionLayout>
+        </SectionCard>
+        <SectionCard>
           <h6 className='font-medium-24 text-black'>TIP</h6>
           <div className='mt-[3.2rem] grid grid-cols-2 gap-[4.8rem]'>
             <div>
@@ -126,7 +119,7 @@ function RouteComponent() {
               <PlusButton />
             </div>
           </div>
-        </SectionLayout> */}
+        </SectionCard> */}
       </div>
     </>
   );
