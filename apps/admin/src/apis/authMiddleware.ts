@@ -59,7 +59,8 @@ const authMiddleware: Middleware = {
       request.headers.set('Authorization', `Bearer ${newAccessToken}`);
       return fetch(request);
     }
-    return response;
+    const cloneJson = await response.clone().json();
+    return cloneJson.data ? new Response(JSON.stringify(cloneJson.data)) : response;
   },
 };
 
