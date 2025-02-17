@@ -449,9 +449,9 @@ export interface components {
     };
     PublishPostRequest: {
       /** Format: date */
-      publishedDate?: string;
+      publishedDate: string;
       /** Format: int64 */
-      problemSetId?: number;
+      problemSetId: number;
     };
     ProblemPostRequest: {
       /** @enum {string} */
@@ -592,6 +592,8 @@ export interface components {
       problemThumbnailResponses?: components['schemas']['ProblemThumbnailResponse'][];
     };
     ProblemThumbnailResponse: {
+      problemTitle?: string;
+      problemMemo?: string;
       mainProblemImageUrl?: string;
     };
     PracticeTestTagResponse: {
@@ -1051,7 +1053,6 @@ export interface operations {
       query?: {
         problemSetTitle?: string;
         problemTitle?: string;
-        conceptTagNames?: string[];
       };
       header?: never;
       path?: never;
@@ -1084,7 +1085,6 @@ export interface operations {
       query?: {
         problemSetTitle?: string;
         problemTitle?: string;
-        conceptTagNames?: string[];
       };
       header?: never;
       path?: never;
