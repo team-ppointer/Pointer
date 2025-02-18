@@ -5,6 +5,7 @@ import SearchInput from './SearchInput';
 import TagSelect from './TagSelect';
 import PracticeTestSelect from './PracticeTestSelect';
 import ProblemEssentialInput from './ProblemEssentialInput';
+import TextArea from './TextArea';
 
 export {
   AnswerInput,
@@ -14,4 +15,5 @@ export {
   TagSelect,
   PracticeTestSelect,
   ProblemEssentialInput,
+  TextArea,
 };
