@@ -6,8 +6,6 @@ interface LevelSelectProps {
 }
 
 const LevelSelect = ({ selectedLevel, onChange }: LevelSelectProps) => {
-  console.log('selectedLevel', selectedLevel);
-
   return (
     <div className='flex items-center gap-[1.6rem]'>
       {Array.from({ length: 10 }, (_, i) => (i + 1) as LevelType).map((num) => (
