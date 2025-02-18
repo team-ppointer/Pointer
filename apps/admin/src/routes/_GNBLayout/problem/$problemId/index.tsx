@@ -10,6 +10,7 @@ import {
   ProblemEssentialInput,
   SectionCard,
   TagSelect,
+  TextArea,
 } from '@components';
 import { useAnswerInput, useProblemEssentialInput, useSelectTag } from '@hooks';
 import { components } from '@schema';
@@ -51,7 +52,7 @@ const initialData = {
   readingTipImageUrl: 'string',
   seniorTipImageUrl: 'string',
   prescriptionImageUrls: ['string'],
-};
+} as ProblemUpdateRequest;
 
 function RouteComponent() {
   const { problemId } = Route.useParams();
@@ -60,7 +61,8 @@ function RouteComponent() {
     defaultValues: initialData,
   });
 
-  const selectedLevel = watch('difficulty');
+  const selectedAnswerType = watch('answerType');
+  const selectedAnswer = watch('answer');
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -133,12 +135,27 @@ function RouteComponent() {
                 />
               </ComponentWithLabel>
               <ComponentWithLabel label='메인 문항 답 입력' labelWidth='15.4rem'>
-                <AnswerInput
+                {/* <AnswerInput
+                  selectedAnswerType={selectedAnswerType}
                   problemAnswerType={problemAnswerType}
                   answer={answer}
                   handleClickProblemAnswerType={handleClickProblemAnswerType}
                   handleChangeAnswer={handleChangeAnswer}
-                />
+                /> */}
+                <AnswerInput>
+                  <AnswerInput.AnswerTypeSection
+                    selectedAnswerType={selectedAnswerType}
+                    {...register('answerType')}
+                  />
+                  <AnswerInput.AnswerInputSection
+                    selectedAnswerType={selectedAnswerType}
+                    selectedAnswer={selectedAnswer}
+                    {...register('answer')}
+                  />
+                </AnswerInput>
+              </ComponentWithLabel>
+              <ComponentWithLabel label='문항 메모' labelWidth='15.4rem'>
+                <TextArea placeholder={'여기에 메모를 작성해주세요.'} {...register('memo')} />
               </ComponentWithLabel>
               <ComponentWithLabel label='메인 문항 선택' labelWidth='15.4rem'>
                 <ImageUpload problemId={problemId} imageType='MAIN_PROBLEM' />
