@@ -1,7 +1,7 @@
 import { LevelType } from '@types';
 
 interface LevelSelectProps {
-  selectedLevel: number;
+  selectedLevel: number | undefined;
   onChange: (e: number) => void;
 }
 
