@@ -1,56 +1,74 @@
-import { getPresignedUrl } from '@apis';
+import { getPresignedUrl, putS3Upload } from '@apis';
 import { IconButton } from '@components';
 import { IcUpload } from '@svg';
 import { ImageType } from '@types';
-import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 interface ImageUploadProps {
   problemId: string;
   imageType: ImageType;
+  imageUrl: string | undefined;
+  handleChangeImageUrl: (imageUrl: string) => void;
+  handleClickDelete?: () => void;
 }
 
-const ImageUpload = ({ problemId, imageType }: ImageUploadProps) => {
-  const [imageUrl, setImageUrl] = useState('');
+const ImageUpload = ({
+  problemId,
+  imageType,
+  imageUrl,
+  handleChangeImageUrl,
+  handleClickDelete = () => {
+    handleChangeImageUrl('');
+  },
+}: ImageUploadProps) => {
   const { refetch } = getPresignedUrl({ problemId, imageType });
 
+  const uploadFileToS3 = async (presignedUrl: string, file: File) => {
+    try {
+      const s3Response = await putS3Upload({ url: presignedUrl, file });
+      if (!s3Response) return null;
+      if (!s3Response.ok) {
+        console.error(
+          `S3 Upload Failed for ${file.name}:`,
+          s3Response.status,
+          s3Response.statusText
+        );
+        return null;
+      }
+
+      return presignedUrl.split('?')[0]; // ✅ 최종 파일 경로 반환
+    } catch (error) {
+      console.error(`Error uploading ${file.name}:`, error);
+      return null;
+    }
+  };
+
   const onDrop = async (acceptedFiles: File[]) => {
-    // try {
-    //   const res = await client.GET('/api/v1/images/problem/{problemId}/presigned-url', {
-    //     params: {
-    //       path: {
-    //         problemId: problemId,
-    //       },
-    //       query: {
-    //         'image-type': imageType,
-    //       },
-    //     },
-    //   });
-    //   console.log('res', res);
-    // } catch (error) {
-    //   console.error('Error fetching presigned url:', error);
-    // }
-    // try {
-    //   const response = await refetch();
-    //   console.log('response', response);
-    // } catch (error) {
-    //   console.error('Error fetching presigned url:', error);
-    // }
-    // if (presignedUrl && acceptedFiles[0]) {
-    //   const s3Response = await putS3Upload({ url: presignedUrl, file: acceptedFiles[0] });
-    //   console.log('s3Response', s3Response);
-    // }
-    // const imageUrl = presignedUrl?.split('?')[0]; //최종 파일 경로
-    // setImageUrl(imageUrl);
-    // setImageUrl(
-    //   'https://pickple-bucket.s3.ap-northeast-2.amazonaws.com/moim/659607c8-91f9-4be2-b5ad-b7c9ddf157f1.jpg'
-    // );
-    // for (const file of acceptedFiles) {
-    //   try {
-    //   } catch (error) {
-    //     console.error(`Error uploading ${file.name}:`, error);
-    //   }
-    // }
+    if (acceptedFiles.length === 0) {
+      console.warn('No files to upload.');
+      return;
+    }
+
+    try {
+      const { data } = await refetch();
+      const presignedUrl = data?.data.presignedUrl;
+
+      if (!presignedUrl) {
+        console.error('Failed to fetch presigned URL.');
+        return;
+      }
+
+      const file = acceptedFiles[0];
+      if (!file) return;
+
+      const imageUrl = await uploadFileToS3(presignedUrl, file);
+
+      if (imageUrl) {
+        handleChangeImageUrl(imageUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching presigned url:', error);
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -65,7 +83,7 @@ const ImageUpload = ({ problemId, imageType }: ImageUploadProps) => {
           <img src={imageUrl} alt='upload-image' className='h-full w-full object-cover' />
           <div className='absolute right-[1.6rem] bottom-[1.6rem] z-30 flex items-center gap-[1rem]'>
             <IconButton variant='view' />
-            <IconButton variant='delete' />
+            <IconButton variant='delete' onClick={handleClickDelete} />
           </div>
         </div>
       ) : (

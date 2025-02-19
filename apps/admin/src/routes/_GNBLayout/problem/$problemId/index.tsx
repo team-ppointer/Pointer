@@ -31,10 +31,12 @@ const initialData = {
   answerType: 'MULTIPLE_CHOICE',
   answer: 'answer',
   difficulty: 1,
+  recommendedMinute: 0,
+  recommendedSecond: 0,
+  mainProblemImageUrl: '',
+  mainAnalysisImageUrl: '',
+  mainHandwritingExplanationImageUrl: '',
   memo: 'memo',
-  mainProblemImageUrl: 'string',
-  mainAnalysisImageUrl: 'string',
-  mainHandwritingExplanationImageUrl: 'string',
 
   childProblems: [
     {
@@ -45,9 +47,9 @@ const initialData = {
     },
   ],
 
-  readingTipImageUrl: 'string',
-  seniorTipImageUrl: 'string',
-  prescriptionImageUrls: ['string'],
+  readingTipImageUrl: '',
+  seniorTipImageUrl: '',
+  prescriptionImageUrls: [''],
 } as ProblemUpdateRequest;
 
 function RouteComponent() {
@@ -60,6 +62,8 @@ function RouteComponent() {
   const problemType = watch('problemType');
   const selectedAnswerType = watch('answerType');
   const selectedAnswer = watch('answer');
+  const prescriptionImageUrls = watch('prescriptionImageUrls');
+  console.log('prescriptionImageUrls', prescriptionImageUrls);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -70,6 +74,24 @@ function RouteComponent() {
   // const { problemAnswerType, answer, handleClickProblemAnswerType, handleChangeAnswer } =
   //   useAnswerInput();
   // const [level, setLevel] = useState<LevelType | undefined>();
+
+  const handleAddPrescription = () => {
+    const newPrescriptionImageUrls = [...(prescriptionImageUrls || [])];
+    newPrescriptionImageUrls.push('');
+    setValue('prescriptionImageUrls', newPrescriptionImageUrls);
+  };
+
+  const handleChangePrescriptionImageUrl = (imageUrl: string, index: number) => {
+    const updatedUrls = [...(prescriptionImageUrls || [])];
+    updatedUrls[index] = imageUrl;
+    setValue('prescriptionImageUrls', updatedUrls);
+  };
+
+  const handleDeletePrescription = (index: number) => {
+    const updatedUrls = [...(prescriptionImageUrls || [])];
+    updatedUrls.splice(index, 1);
+    setValue('prescriptionImageUrls', updatedUrls);
+  };
 
   return (
     <>
@@ -134,7 +156,7 @@ function RouteComponent() {
         </ProblemEssentialInput>
         <div className='mt-[4.8rem] flex flex-col gap-[4.8rem]'>
           <SectionCard>
-            <div className='flex flex-col gap-[1.6rem]'>
+            <div className='flex flex-col gap-[3.2rem]'>
               <ComponentWithLabel label='메인 문항 타이틀 입력' labelWidth='15.4rem'>
                 <Input {...register('title')} />
               </ComponentWithLabel>
@@ -157,13 +179,6 @@ function RouteComponent() {
                 />
               </ComponentWithLabel>
               <ComponentWithLabel label='메인 문항 답 입력' labelWidth='15.4rem'>
-                {/* <AnswerInput
-                  selectedAnswerType={selectedAnswerType}
-                  problemAnswerType={problemAnswerType}
-                  answer={answer}
-                  handleClickProblemAnswerType={handleClickProblemAnswerType}
-                  handleChangeAnswer={handleChangeAnswer}
-                /> */}
                 <AnswerInput>
                   <AnswerInput.AnswerTypeSection
                     selectedAnswerType={selectedAnswerType}
@@ -176,17 +191,59 @@ function RouteComponent() {
                   />
                 </AnswerInput>
               </ComponentWithLabel>
-              <ComponentWithLabel label='문항 메모' labelWidth='15.4rem'>
+              <div className='grid grid-cols-3 gap-x-[4.8rem]'>
+                <div>
+                  <ComponentWithLabel label='메인 문항 선택' direction='column'>
+                    <Controller
+                      control={control}
+                      name='mainProblemImageUrl'
+                      render={({ field }) => (
+                        <ImageUpload
+                          problemId={problemId}
+                          imageType='MAIN_PROBLEM'
+                          imageUrl={field.value}
+                          handleChangeImageUrl={field.onChange}
+                        />
+                      )}
+                    />
+                  </ComponentWithLabel>
+                </div>
+                <div>
+                  <ComponentWithLabel label='메인 문항 분석 선택' direction='column'>
+                    <Controller
+                      control={control}
+                      name='mainAnalysisImageUrl'
+                      render={({ field }) => (
+                        <ImageUpload
+                          problemId={problemId}
+                          imageType='MAIN_ANALYSIS'
+                          imageUrl={field.value}
+                          handleChangeImageUrl={field.onChange}
+                        />
+                      )}
+                    />
+                  </ComponentWithLabel>
+                </div>
+                <div>
+                  <ComponentWithLabel label='메인 문항 손해설 선택' direction='column'>
+                    <Controller
+                      control={control}
+                      name='mainHandwritingExplanationImageUrl'
+                      render={({ field }) => (
+                        <ImageUpload
+                          problemId={problemId}
+                          imageType='MAIN_HANDWRITING_EXPLANATION'
+                          imageUrl={field.value}
+                          handleChangeImageUrl={field.onChange}
+                        />
+                      )}
+                    />
+                  </ComponentWithLabel>
+                </div>
+              </div>
+
+              <ComponentWithLabel label='문항 메모' direction='column'>
                 <TextArea placeholder={'여기에 메모를 작성해주세요.'} {...register('memo')} />
-              </ComponentWithLabel>
-              <ComponentWithLabel label='메인 문항 선택' labelWidth='15.4rem'>
-                <ImageUpload problemId={problemId} imageType='MAIN_PROBLEM' />
-              </ComponentWithLabel>
-              <ComponentWithLabel label='메인 문항 분석 선택' labelWidth='15.4rem'>
-                <ImageUpload problemId={problemId} imageType='MAIN_ANALYSIS' />
-              </ComponentWithLabel>
-              <ComponentWithLabel label='메인 문항 손해설' labelWidth='15.4rem'>
-                <ImageUpload problemId={problemId} imageType='MAIN_HANDWRITING_EXPLANATION' />
               </ComponentWithLabel>
             </div>
           </SectionCard>
@@ -209,23 +266,60 @@ function RouteComponent() {
             </div>
           </SectionCard>
           <SectionCard>
-            <h6 className='font-medium-24 text-black'>TIP</h6>
-            <div className='mt-[3.2rem] grid grid-cols-2 gap-[4.8rem]'>
+            <h6 className='font-bold-32 text-black'>TIP</h6>
+            <div className='mt-[4.8rem] grid grid-cols-2 gap-[4.8rem]'>
               <div>
-                <h6 className='font-medium-24 text-black'>문항을 읽어내려갈 때</h6>
-                <ImageUpload />
+                <ComponentWithLabel label='문항을 읽어내려갈 때' direction='column'>
+                  <Controller
+                    control={control}
+                    name='readingTipImageUrl'
+                    render={({ field }) => (
+                      <ImageUpload
+                        problemId={problemId}
+                        imageType='READING_TIP'
+                        imageUrl={field.value}
+                        handleChangeImageUrl={field.onChange}
+                      />
+                    )}
+                  />
+                </ComponentWithLabel>
               </div>
               <div>
-                <h6 className='font-medium-24 text-black'>1등급 선배가 해주는 조언</h6>
-                <ImageUpload />
+                <ComponentWithLabel label='1등급 선배가 해주는 조언' direction='column'>
+                  <Controller
+                    control={control}
+                    name='seniorTipImageUrl'
+                    render={({ field }) => (
+                      <ImageUpload
+                        problemId={problemId}
+                        imageType='SENIOR_TIP'
+                        imageUrl={field.value}
+                        handleChangeImageUrl={field.onChange}
+                      />
+                    )}
+                  />
+                </ComponentWithLabel>
               </div>
             </div>
-            <h6 className='font-medium-24 mt-[3.2rem] text-black'>진단 및 처방</h6>
+            <div className='bg-lightgray300 my-[4.8rem] h-[2px] w-full' />
+            <h6 className='font-medium-18 mt-[3.2rem] text-black'>진단 및 처방</h6>
             <div className='mt-[2.4rem] grid grid-cols-2 gap-x-[4.8rem] gap-y-[2.4rem]'>
-              <ImageUpload />
-              <ImageUpload />
-              <div className='flex h-full items-center'>
-                <PlusButton />
+              {prescriptionImageUrls?.map((url, index) => {
+                return (
+                  <ImageUpload
+                    key={`prescription-${index}`}
+                    problemId={problemId}
+                    imageType='PRESCRIPTION'
+                    imageUrl={url}
+                    handleChangeImageUrl={(imageUrl: string) =>
+                      handleChangePrescriptionImageUrl(imageUrl, index)
+                    }
+                    handleClickDelete={() => handleDeletePrescription(index)}
+                  />
+                );
+              })}
+              <div className='flex items-center'>
+                <PlusButton onClick={handleAddPrescription} />
               </div>
             </div>
           </SectionCard>
