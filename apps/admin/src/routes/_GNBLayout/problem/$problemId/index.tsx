@@ -57,16 +57,20 @@ const initialData = {
 } as ProblemUpdateRequest;
 
 function RouteComponent() {
+  // hooks
   const { problemId } = Route.useParams();
 
+  // api
   const { mutate: mutateAddChildProblem } = postChildProblem();
   const { mutate: mutateDeleteChildProblem } = deleteChildProblem();
 
+  // RHF
   const { register, handleSubmit, control, watch, setValue } = useForm({
     defaultValues: initialData,
   });
 
   const problemType = watch('problemType');
+  const conceptTagIds = watch('conceptTagIds');
   const selectedAnswerType = watch('answerType');
   const selectedAnswer = watch('answer');
   const prescriptionImageUrls = watch('prescriptionImageUrls');
@@ -81,12 +85,7 @@ function RouteComponent() {
     name: 'updateChildProblems',
   });
 
-  const handleAddPrescription = () => {
-    const newPrescriptionImageUrls = [...(prescriptionImageUrls || [])];
-    newPrescriptionImageUrls.push('');
-    setValue('prescriptionImageUrls', newPrescriptionImageUrls);
-  };
-
+  // api call functions
   const handleAddChildProblem = () => {
     mutateAddChildProblem(
       {
@@ -128,7 +127,39 @@ function RouteComponent() {
     );
   };
 
-  const handleChangeChildProblemImage = (index: number, newImageUrl: string) => {
+  // functions
+  const handleSelectTag = (tagId: number) => {
+    const newTagList = [...conceptTagIds, tagId];
+    setValue('conceptTagIds', newTagList);
+  };
+
+  const handleRemoveTag = (tagId: number) => {
+    const newTagList = conceptTagIds.filter((tag) => tag !== tagId);
+    setValue('conceptTagIds', newTagList);
+  };
+
+  const handleSelectChildTag = (tagId: number, index: number) => {
+    const newChildProblem = produce(childProblems[index], (draft) => {
+      if (draft) {
+        draft.conceptTagIds.push(tagId);
+      }
+    });
+    if (newChildProblem) {
+      update(index, newChildProblem);
+    }
+  };
+  const handleRemoveChildTag = (tagId: number, index: number) => {
+    const newChildProblem = produce(childProblems[index], (draft) => {
+      if (draft) {
+        draft.conceptTagIds = draft.conceptTagIds.filter((tag) => tag !== tagId);
+      }
+    });
+    if (newChildProblem) {
+      update(index, newChildProblem);
+    }
+  };
+
+  const handleChangeChildProblemImage = (newImageUrl: string, index: number) => {
     const newChildProblem = produce(childProblems[index], (draft) => {
       if (draft) {
         draft.imageUrl = newImageUrl;
@@ -137,6 +168,12 @@ function RouteComponent() {
     if (newChildProblem) {
       update(index, newChildProblem);
     }
+  };
+
+  const handleAddPrescription = () => {
+    const newPrescriptionImageUrls = [...(prescriptionImageUrls || [])];
+    newPrescriptionImageUrls.push('');
+    setValue('prescriptionImageUrls', newPrescriptionImageUrls);
   };
 
   const handleChangePrescriptionImageUrl = (imageUrl: string, index: number) => {
@@ -198,15 +235,14 @@ function RouteComponent() {
             <ComponentWithLabel label='메인 문항 타이틀 입력' labelWidth='15.4rem'>
               <Input {...register('title')} />
             </ComponentWithLabel>
-            {/* <ComponentWithLabel label='메인 문항 개념 태그' labelWidth='15.4rem'>
+            <ComponentWithLabel label='메인 문항 개념 태그' labelWidth='15.4rem'>
               <TagSelect
                 sizeType='long'
-                selectedList={selectedList}
-                unselectedList={unselectedList}
-                onClickSelectTag={onClickSelectTag}
-                onClickRemoveTag={onClickRemoveTag}
+                selectedList={conceptTagIds}
+                handleSelectTag={handleSelectTag}
+                handleRemoveTag={handleRemoveTag}
               />
-            </ComponentWithLabel> */}
+            </ComponentWithLabel>
             <ComponentWithLabel label='메인 문항 답 입력' labelWidth='15.4rem'>
               <AnswerInput>
                 <AnswerInput.AnswerTypeSection
@@ -321,6 +357,7 @@ function RouteComponent() {
           </div>
           <div className='grid grid-cols-2 gap-x-[4.8rem] gap-y-[6.4rem]'>
             {childProblems.map((childProblem, index) => {
+              const watchedConceptTagIds = watch(`updateChildProblems.${index}.conceptTagIds`);
               const watchedAnswerType = watch(`updateChildProblems.${index}.answerType`);
               const watchedAnswer = watch(`updateChildProblems.${index}.answer`);
               return (
@@ -329,16 +366,21 @@ function RouteComponent() {
                     onClick={() => handleDeleteChildProblem(childProblem.childProblemId, index)}>
                     삭제하기
                   </Button>
-                  {/* <ComponentWithLabel label='새끼 문항 개념 태그'>
-                      <TagSelect sizeType='long' />
-                    </ComponentWithLabel> */}
+                  <ComponentWithLabel label='새끼 문항 개념 태그'>
+                    <TagSelect
+                      sizeType='long'
+                      selectedList={watchedConceptTagIds}
+                      handleSelectTag={(tagId) => handleSelectChildTag(tagId, index)}
+                      handleRemoveTag={(tagId) => handleRemoveChildTag(tagId, index)}
+                    />
+                  </ComponentWithLabel>
                   <ComponentWithLabel label='새끼 문항 선택' direction='column'>
                     <ImageUpload
                       problemId={problemId}
                       imageType='CHILD_PROBLEM'
                       imageUrl={childProblem.imageUrl}
                       handleChangeImageUrl={(newImageUrl) =>
-                        handleChangeChildProblemImage(index, newImageUrl)
+                        handleChangeChildProblemImage(newImageUrl, index)
                       }
                     />
                   </ComponentWithLabel>

@@ -1,24 +1,27 @@
 import { IcDown, IcUp } from '@svg';
 import { useState } from 'react';
-import { TagType } from '@types';
 import { Tag } from '@components';
+import { getConceptTags } from '@apis';
 
 interface TagSelectProps {
   sizeType?: 'short' | 'long';
-  selectedList: TagType[];
-  unselectedList: TagType[];
-  onClickSelectTag: (tag: TagType) => void;
-  onClickRemoveTag: (tag: TagType) => void;
+  selectedList: number[];
+  handleSelectTag: (tagId: number) => void;
+  handleRemoveTag: (tagId: number) => void;
 }
 
 const TagSelect = ({
   sizeType = 'short',
   selectedList,
-  unselectedList,
-  onClickSelectTag,
-  onClickRemoveTag,
+  handleSelectTag,
+  handleRemoveTag,
 }: TagSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: tagsData } = getConceptTags();
+  const allTagList = tagsData?.data;
+
+  const selectedTagList = allTagList?.filter((tag) => selectedList.includes(tag.id));
+  const unselectedList = allTagList?.filter((tag) => !selectedList.includes(tag.id));
 
   const sizeStyles = {
     short: 'w-[27.5rem]',
@@ -27,14 +30,16 @@ const TagSelect = ({
 
   const toggleOpen = () => setIsOpen((prev) => !prev);
 
-  const handleClickSelect = (e: React.MouseEvent<HTMLDivElement>, tag: TagType) => {
+  const handleClickSelect = (e: React.MouseEvent<HTMLDivElement>, tagId: number) => {
     e.stopPropagation();
-    onClickSelectTag(tag);
+    e.preventDefault();
+    handleSelectTag(tagId);
   };
 
-  const handleClickRemove = (e: React.MouseEvent<HTMLDivElement>, tag: TagType) => {
+  const handleClickRemove = (e: React.MouseEvent<HTMLDivElement>, tagId: number) => {
     e.stopPropagation();
-    onClickRemoveTag(tag);
+    e.preventDefault();
+    handleRemoveTag(tagId);
   };
 
   return (
@@ -45,16 +50,16 @@ const TagSelect = ({
           <div
             className='flex min-h-[2.4rem] cursor-pointer items-center justify-between gap-[0.9rem]'
             onClick={toggleOpen}>
-            {selectedList?.length === 0 ? (
+            {selectedTagList?.length === 0 ? (
               <span className='font-medium-18 text-lightgray500'>선택해주세요</span>
             ) : (
               <div className='flex flex-1 flex-wrap items-center gap-[1.2rem]'>
-                {selectedList?.map((tag) => (
+                {selectedTagList?.map((tag) => (
                   <Tag
                     key={tag.id}
                     label={tag.name}
                     removable
-                    onClick={(e) => handleClickRemove(e, tag)}
+                    onClick={(e) => handleClickRemove(e, tag.id)}
                   />
                 ))}
               </div>
@@ -67,7 +72,11 @@ const TagSelect = ({
               <div>
                 <div className='flex flex-1 flex-wrap items-center gap-[1.2rem]'>
                   {unselectedList?.map((tag) => (
-                    <Tag key={tag.id} label={tag.name} onClick={(e) => handleClickSelect(e, tag)} />
+                    <Tag
+                      key={tag.id}
+                      label={tag.name}
+                      onClick={(e) => handleClickSelect(e, tag.id)}
+                    />
                   ))}
                 </div>
               </div>
