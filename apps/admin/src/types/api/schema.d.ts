@@ -410,9 +410,9 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     ErrorResponse: {
-      message?: string;
+      message: string;
       /** @enum {string} */
-      status?:
+      status:
         | '100 CONTINUE'
         | '101 SWITCHING_PROTOCOLS'
         | '102 PROCESSING'
@@ -695,11 +695,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['ProblemGetResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['ProblemGetResponse'];
           };
         };
       };
@@ -736,11 +732,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['ProblemGetResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['ProblemGetResponse'];
           };
         };
       };
@@ -802,11 +794,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['ProblemSetGetResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['ProblemSetGetResponse'];
           };
         };
       };
@@ -902,11 +890,7 @@ export interface operations {
         content: {
           '*/*': {
             /** @enum {string} */
-            data?: 'CONFIRMED' | 'NOT_CONFIRMED';
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: 'CONFIRMED' | 'NOT_CONFIRMED';
           };
         };
       };
@@ -941,11 +925,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['IdResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['IdResponse'];
           };
         };
       };
@@ -980,11 +960,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['ProblemPostResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['ProblemPostResponse'];
           };
         };
       };
@@ -1017,11 +993,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['IdResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['IdResponse'];
           };
         };
       };
@@ -1056,11 +1028,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['IdResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['IdResponse'];
           };
         };
       };
@@ -1097,11 +1065,7 @@ export interface operations {
         };
         content: {
           'application/json': {
-            data?: components['schemas']['AccessTokenResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['AccessTokenResponse'];
           };
         };
       };
@@ -1144,11 +1108,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['PublishMonthGetResponse'][];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['PublishMonthGetResponse'][];
           };
         };
       };
@@ -1183,11 +1143,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['ProblemSearchGetResponse'][];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['ProblemSearchGetResponse'][];
           };
         };
       };
@@ -1221,11 +1177,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['ProblemSetSearchGetResponse'][];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['ProblemSetSearchGetResponse'][];
           };
         };
       };
@@ -1259,11 +1211,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['ProblemSetSearchGetResponse'][];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['ProblemSetSearchGetResponse'][];
           };
         };
       };
@@ -1294,11 +1242,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['PracticeTestTagResponse'][];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['PracticeTestTagResponse'][];
           };
         };
       };
@@ -1329,11 +1273,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['MemberGetResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['MemberGetResponse'];
           };
         };
       };
@@ -1366,11 +1306,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: string;
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: string;
           };
         };
       };
@@ -1412,11 +1348,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['PresignedUrlResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['PresignedUrlResponse'];
           };
         };
       };
@@ -1447,11 +1379,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            data?: components['schemas']['ConceptTagResponse'][];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['ConceptTagResponse'][];
           };
         };
       };
@@ -1484,11 +1412,7 @@ export interface operations {
         };
         content: {
           'application/json': {
-            data?: components['schemas']['AccessTokenResponse'];
-            /** @example 오류 메세지 */
-            message?: string;
-            /** @example NOT_FOUND */
-            status?: string;
+            data: components['schemas']['AccessTokenResponse'];
           };
         };
       };
