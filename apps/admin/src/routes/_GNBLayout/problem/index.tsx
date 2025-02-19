@@ -31,10 +31,6 @@ function RouteComponent() {
   const { data: problemList } = getProblemsSearch(searchQuery);
   const { mutate } = deleteProblems();
 
-  const handleClickCard = (problemId: string) => {
-    navigate({ to: `/problem/${problemId}` });
-  };
-
   const handleClickDelete = (e: React.MouseEvent<HTMLButtonElement>, problemId: string) => {
     e.stopPropagation();
 
@@ -106,30 +102,28 @@ function RouteComponent() {
         </div>
       </form>
       <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
-        {(problemList || []).map((problem, index) => (
-          <ProblemCard key={index} onClick={() => handleClickCard(problem.problemId)}>
-            <ProblemCard.TextSection>
-              <ProblemCard.Title title='문제 제목' />
-              <ProblemCard.Info label='문제 번호' content={problem.problemId} />
-              <ProblemCard.Info label='문제 연도' content='2021학년도 고1 3월 학력평가' />
-              <ProblemCard.Info label='코멘트' content={problem.memo} />
-            </ProblemCard.TextSection>
+        {problemList?.data.map(({ problemId, memo, mainProblemImageUrl, conceptTagResponses }) => (
+          <Link key={problemId} to={`/problem/$problemId`} params={{ problemId: problemId }}>
+            <ProblemCard>
+              <ProblemCard.TextSection>
+                <ProblemCard.Info label='문항 ID' content={problemId} />
+                <ProblemCard.Info label='문항 타이틀' content={problemId} />
+                <ProblemCard.Info label='문항 메모' content={memo} />
+              </ProblemCard.TextSection>
 
-            <ProblemCard.ButtonSection>
-              <IconButton
-                variant='delete'
-                onClick={(e) => handleClickDelete(e, problem.problemId)}
-              />
-            </ProblemCard.ButtonSection>
+              <ProblemCard.ButtonSection>
+                <IconButton variant='delete' onClick={(e) => handleClickDelete(e, problemId)} />
+              </ProblemCard.ButtonSection>
 
-            <ProblemCard.CardImage src={problem.mainProblemImageUrl} height={'34.4rem'} />
+              <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
 
-            <ProblemCard.TagSection>
-              {(problem.conceptTagResponses || []).map((tag) => {
-                return <Tag key={tag.id} label={tag.name} />;
-              })}
-            </ProblemCard.TagSection>
-          </ProblemCard>
+              <ProblemCard.TagSection>
+                {(conceptTagResponses || []).map((tag) => {
+                  return <Tag key={tag.id} label={tag.name} />;
+                })}
+              </ProblemCard.TagSection>
+            </ProblemCard>
+          </Link>
         ))}
       </section>
       <FloatingButton>

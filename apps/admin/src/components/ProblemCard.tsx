@@ -1,14 +1,6 @@
-const ProblemCard = ({
-  onClick,
-  children,
-}: {
-  onClick: (e: React.MouseEvent<HTMLElement>) => void;
-  children: React.ReactNode;
-}) => {
+const ProblemCard = ({ children }: { children: React.ReactNode }) => {
   return (
-    <section
-      className='relative flex h-fit w-full cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'
-      onClick={onClick}>
+    <section className='relative flex h-fit w-full cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
       {children}
     </section>
   );
