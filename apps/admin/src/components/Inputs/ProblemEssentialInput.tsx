@@ -1,5 +1,6 @@
 import { Button, ComponentWithLabel, Input, PracticeTestSelect, SectionCard } from '@components';
 import { ProblemType } from '@types';
+import { forwardRef } from 'react';
 
 interface ProblemTypeSectionProps {
   problemType: ProblemType;
@@ -9,11 +10,6 @@ interface ProblemTypeSectionProps {
 interface PracticeTestProps {
   practiceTest: number | undefined;
   handlePracticeTest: (exam: number | undefined) => void;
-}
-
-interface PraticeTestNumberProps {
-  practiceTestNumber: number | undefined;
-  handleChangeNumber: (num: number) => void;
 }
 
 const ProblemTypeName = {
@@ -67,20 +63,13 @@ const PracticeTest = ({ practiceTest, handlePracticeTest }: PracticeTestProps) =
   );
 };
 
-const PraticeTestNumber = ({ practiceTestNumber, handleChangeNumber }: PraticeTestNumberProps) => {
+const PraticeTestNumber = forwardRef<HTMLInputElement>(({ ...props }, ref) => {
   return (
     <ComponentWithLabel label='메인 문항 번호 입력'>
-      <Input
-        type='number'
-        placeholder={'입력해주세요'}
-        value={practiceTestNumber ? practiceTestNumber.toString() : ''}
-        onChange={(e) => {
-          handleChangeNumber(Number(e.target.value));
-        }}
-      />
+      <Input ref={ref} placeholder={'입력해주세요'} {...props} />
     </ComponentWithLabel>
   );
-};
+});
 
 ProblemEssentialInput.ProblemTypeSection = ProblemTypeSection;
 ProblemEssentialInput.PracticeTestSection = PracticeTestSection;

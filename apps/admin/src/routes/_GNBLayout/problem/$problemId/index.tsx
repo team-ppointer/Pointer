@@ -142,15 +142,8 @@ function RouteComponent() {
                   />
                 )}
               />
-              <Controller
-                control={control}
-                name='number'
-                render={({ field }) => (
-                  <ProblemEssentialInput.PraticeTestNumber
-                    practiceTestNumber={field.value}
-                    handleChangeNumber={field.onChange}
-                  />
-                )}
+              <ProblemEssentialInput.PraticeTestNumber
+                {...register('number', { valueAsNumber: true })}
               />
             </ProblemEssentialInput.PracticeTestSection>
           )}
