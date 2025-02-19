@@ -34,7 +34,7 @@ function RouteComponent() {
       },
       {
         onSuccess: (data) => {
-          const { accessToken } = data;
+          const { accessToken } = data.data;
           if (accessToken) {
             setAccessToken(accessToken);
             goPublish();
