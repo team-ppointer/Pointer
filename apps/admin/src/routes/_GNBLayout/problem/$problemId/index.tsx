@@ -12,12 +12,8 @@ import {
   TagSelect,
   TextArea,
 } from '@components';
-import { useAnswerInput, useProblemEssentialInput, useSelectTag } from '@hooks';
 import { components } from '@schema';
 import { createFileRoute } from '@tanstack/react-router';
-import { LevelType } from '@types';
-import { useState } from 'react';
-import { produce } from 'immer';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
 export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
@@ -28,7 +24,7 @@ type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 
 const initialData = {
   problemType: 'GICHUL_PROBLEM',
-  practiceTestId: 2,
+  practiceTestId: undefined,
   number: 30,
   title: 'title',
   conceptTagIds: [2, 3, 4, 5],
@@ -61,6 +57,7 @@ function RouteComponent() {
     defaultValues: initialData,
   });
 
+  const problemType = watch('problemType');
   const selectedAnswerType = watch('answerType');
   const selectedAnswer = watch('answer');
 
@@ -69,19 +66,10 @@ function RouteComponent() {
     name: 'childProblems',
   });
 
-  const {
-    problemType,
-    practiceTest,
-    practiceTestNumber,
-    handleChangeType,
-    handlePracticeTest,
-    handleChangeNumber,
-  } = useProblemEssentialInput();
-
   // const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
-  const { problemAnswerType, answer, handleClickProblemAnswerType, handleChangeAnswer } =
-    useAnswerInput();
-  const [level, setLevel] = useState<LevelType | undefined>();
+  // const { problemAnswerType, answer, handleClickProblemAnswerType, handleChangeAnswer } =
+  //   useAnswerInput();
+  // const [level, setLevel] = useState<LevelType | undefined>();
 
   return (
     <>
@@ -102,14 +90,48 @@ function RouteComponent() {
         })}>
         <Button type='submit'>저장</Button>
         <Header title={`문항 ID : ${problemId}`} />
-        <ProblemEssentialInput
-          problemType={problemType}
-          practiceTest={practiceTest}
-          practiceTestNumber={practiceTestNumber}
-          handleChangeType={handleChangeType}
-          handlePracticeTest={handlePracticeTest}
-          handleChangeNumber={handleChangeNumber}
-        />
+        <ProblemEssentialInput>
+          <Controller
+            control={control}
+            name='problemType'
+            render={({ field }) => (
+              <ProblemEssentialInput.ProblemTypeSection
+                problemType={field.value}
+                handleChangeType={(type) => {
+                  if (type === 'CREATION_PROBLEM') {
+                    setValue('practiceTestId', undefined);
+                    setValue('number', undefined);
+                  }
+                  field.onChange(type);
+                }}
+              />
+            )}
+          />
+          {problemType !== 'CREATION_PROBLEM' && (
+            <ProblemEssentialInput.PracticeTestSection>
+              <Controller
+                control={control}
+                name='practiceTestId'
+                render={({ field }) => (
+                  <ProblemEssentialInput.PracticeTest
+                    practiceTest={field.value}
+                    handlePracticeTest={field.onChange}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name='number'
+                render={({ field }) => (
+                  <ProblemEssentialInput.PraticeTestNumber
+                    practiceTestNumber={field.value}
+                    handleChangeNumber={field.onChange}
+                  />
+                )}
+              />
+            </ProblemEssentialInput.PracticeTestSection>
+          )}
+        </ProblemEssentialInput>
         <div className='mt-[4.8rem] flex flex-col gap-[4.8rem]'>
           <SectionCard>
             <div className='flex flex-col gap-[1.6rem]'>
