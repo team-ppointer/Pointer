@@ -4,11 +4,21 @@ interface ComponentWithLabelProps {
   label: string;
   labelWidth?: string;
   children: ReactNode;
+  direction?: 'row' | 'column';
 }
 
-const ComponentWithLabel = ({ label, labelWidth, children }: ComponentWithLabelProps) => {
+const ComponentWithLabel = ({
+  label,
+  labelWidth,
+  children,
+  direction = 'row',
+}: ComponentWithLabelProps) => {
+  const directionStyle = {
+    row: 'flex items-center',
+    column: 'flex-col items-start',
+  };
   return (
-    <div className='flex w-full items-center gap-[2.4rem]'>
+    <div className={`flex w-full gap-[2.4rem] ${directionStyle[direction]}`}>
       <h6
         className='font-medium-18 whitespace-nowrap'
         style={{ width: labelWidth, minWidth: labelWidth }}>
