@@ -28,8 +28,6 @@ function RouteComponent() {
   const problemType = watch('problemType');
 
   const handleClickRegister = (data: EssentialInput) => {
-    console.log('EssentialInput', data);
-
     mutate(
       {
         body: data,
