@@ -62,8 +62,9 @@ function RouteComponent() {
   const problemType = watch('problemType');
   const selectedAnswerType = watch('answerType');
   const selectedAnswer = watch('answer');
+  const selectedLevel = watch('difficulty');
   const prescriptionImageUrls = watch('prescriptionImageUrls');
-  console.log('prescriptionImageUrls', prescriptionImageUrls);
+  console.log('selectedLevel', selectedLevel);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -169,15 +170,6 @@ function RouteComponent() {
                 onClickRemoveTag={onClickRemoveTag}
               />
             </ComponentWithLabel> */}
-              <ComponentWithLabel label='난이도 선택' labelWidth='15.4rem'>
-                <Controller
-                  control={control}
-                  name='difficulty'
-                  render={({ field }) => (
-                    <LevelSelect selectedLevel={field.value} onChange={field.onChange} />
-                  )}
-                />
-              </ComponentWithLabel>
               <ComponentWithLabel label='메인 문항 답 입력' labelWidth='15.4rem'>
                 <AnswerInput>
                   <AnswerInput.AnswerTypeSection
@@ -191,6 +183,42 @@ function RouteComponent() {
                   />
                 </AnswerInput>
               </ComponentWithLabel>
+              <div className='flex w-full items-center justify-between'>
+                <ComponentWithLabel label='난이도 선택' labelWidth='15.4rem'>
+                  <Controller
+                    control={control}
+                    name='difficulty'
+                    render={({ field }) => (
+                      <LevelSelect selectedLevel={field.value} onChange={field.onChange} />
+                    )}
+                  />
+                </ComponentWithLabel>
+                <div>
+                  <ComponentWithLabel label='권장 시간 입력'>
+                    <div className='flex gap-[2.4rem]'>
+                      <div className='flex items-center gap-[1.6rem]'>
+                        <input
+                          className='font-bold-18 border-lightgray500 h-[5.6rem] w-[5.6rem] rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]'
+                          {...register('recommendedMinute', {
+                            valueAsNumber: true,
+                          })}
+                        />
+                        <span className='font-medium-18 text-black'>분</span>
+                      </div>
+                      <div className='flex items-center gap-[1.6rem]'>
+                        <input
+                          className='font-bold-18 border-lightgray500 h-[5.6rem] w-[5.6rem] rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]'
+                          {...register('recommendedSecond', {
+                            valueAsNumber: true,
+                          })}
+                        />
+                        <span className='font-medium-18 text-black'>초</span>
+                      </div>
+                    </div>
+                  </ComponentWithLabel>
+                </div>
+              </div>
+
               <div className='grid grid-cols-3 gap-x-[4.8rem]'>
                 <div>
                   <ComponentWithLabel label='메인 문항 선택' direction='column'>
