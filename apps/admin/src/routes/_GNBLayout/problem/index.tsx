@@ -4,16 +4,17 @@ import {
   FloatingButton,
   Header,
   IconButton,
+  Modal,
   ProblemCard,
   SearchInput,
   Tag,
-  TagSelect,
+  TagSelectModal,
 } from '@components';
-import { useSelectTag } from '@hooks';
+import { useModal } from '@hooks';
+import { IcDown } from '@svg';
 import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
-import { getProblemsSearchParamsType } from '@types';
-import { tagToQueryParams } from '@utils';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { getProblemsSearchParamsType, TagType } from '@types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -23,16 +24,19 @@ export const Route = createFileRoute('/_GNBLayout/problem/')({
 
 function RouteComponent() {
   const queryClient = useQueryClient();
-  const { navigate } = useRouter();
+
+  const { isOpen, openModal, closeModal } = useModal();
 
   const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
-  const { selectedList, unselectedList, onClickSelectTag, onClickRemoveTag } = useSelectTag();
+  const [selectedTagList, setSelectedTagList] = useState<TagType[]>([]);
+
   const { register, handleSubmit, reset } = useForm<getProblemsSearchParamsType>();
   const { data: problemList } = getProblemsSearch(searchQuery);
   const { mutate } = deleteProblems();
 
   const handleClickDelete = (e: React.MouseEvent<HTMLButtonElement>, problemId: string) => {
     e.stopPropagation();
+    e.preventDefault();
 
     mutate(
       {
@@ -56,15 +60,25 @@ function RouteComponent() {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );
-    const tagData = tagToQueryParams(selectedList);
 
-    const newQuery = { ...filteredData, ...tagData };
+    const conceptTagIds = selectedTagList.map((tag) => tag.id);
+
+    const newQuery = { ...filteredData, conceptTagIds };
     setSearchQuery(newQuery);
   };
 
   const handleResetQuery = () => {
     reset();
+    setSelectedTagList([]);
     setSearchQuery({});
+  };
+
+  const handleRemoveTag = (tag: TagType) => {
+    setSelectedTagList((prev) => prev.filter((selectedTag) => selectedTag.id !== tag.id));
+  };
+
+  const handleChangeTagList = (tagList: TagType[]) => {
+    setSelectedTagList(tagList);
   };
 
   return (
@@ -77,21 +91,24 @@ function RouteComponent() {
           <SearchInput
             label='문항 ID'
             placeholder='입력해주세요.'
-            {...register('problemId', { required: false })}
+            {...register('problemCustomId', { required: false })}
           />
           <SearchInput
-            label='문항 이름'
+            label='문항 타이틀'
+            sizeType='long'
             placeholder='입력해주세요.'
-            {...register('comment', { required: false })}
+            {...register('problemTitle', { required: false })}
           />
           <div className='flex flex-col gap-[1.2rem]'>
             <span className='font-medium-18 text-black'>문항 개념 태그</span>
-            <TagSelect
-              selectedList={selectedList}
-              unselectedList={unselectedList}
-              onClickSelectTag={onClickSelectTag}
-              onClickRemoveTag={onClickRemoveTag}
-            />
+            <div
+              className='border-lightgray500 flex h-[5.6rem] w-[42.4rem] cursor-pointer items-center justify-between rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]'
+              onClick={() => {
+                openModal();
+              }}>
+              <span className='text-lightgray500 font-medium-18'>선택해주세요</span>
+              <IcDown width={24} height={24} />
+            </div>
           </div>
         </div>
         <div className='flex gap-[1.6rem]'>
@@ -101,6 +118,20 @@ function RouteComponent() {
           <Button variant='dark'>검색</Button>
         </div>
       </form>
+      {selectedTagList.length > 0 && (
+        <div className='mt-[4.8rem] flex gap-[0.8rem]'>
+          {selectedTagList.map((tag) => (
+            <Tag
+              key={tag.id}
+              label={tag.name}
+              removable
+              color='dark'
+              onClick={() => handleRemoveTag(tag)}
+            />
+          ))}
+        </div>
+      )}
+
       <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
         {problemList?.data.map(({ problemId, memo, mainProblemImageUrl, conceptTagResponses }) => (
           <Link key={problemId} to={`/problem/$problemId`} params={{ problemId: problemId }}>
@@ -131,6 +162,13 @@ function RouteComponent() {
           새로운 문항 등록하기
         </Link>
       </FloatingButton>
+      <Modal isOpen={isOpen} onClose={closeModal}>
+        <TagSelectModal
+          onClose={closeModal}
+          selectedTagList={selectedTagList}
+          handleChangeTagList={handleChangeTagList}
+        />
+      </Modal>
     </>
   );
 }

@@ -1,6 +1,5 @@
 import GNBMenu from './GNBMenu';
 import StatusToggle from './StatusToggle';
-import Modal from './Modal';
 import Tag from './Tag';
 import ProblemCard from './ProblemCard';
 import Calendar from './Calandar';
@@ -13,11 +12,10 @@ import SectionCard from './SectionCard';
 
 export * from './Buttons';
 export * from './Inputs';
-export * from './ModalTemplates';
+export * from './Modals';
 export {
   GNBMenu,
   StatusToggle,
-  Modal,
   Tag,
   ProblemCard,
   Calendar,

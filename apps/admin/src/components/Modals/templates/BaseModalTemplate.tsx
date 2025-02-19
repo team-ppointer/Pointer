@@ -1,6 +1,5 @@
 import { ButtonHTMLAttributes } from 'react';
-
-import { Button } from '../Buttons';
+import { Button } from 'src/components/Buttons';
 
 interface ModalButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'blue' | 'dark' | 'light' | 'dimmed';
