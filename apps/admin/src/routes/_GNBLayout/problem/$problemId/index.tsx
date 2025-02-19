@@ -17,7 +17,7 @@ import { components } from '@schema';
 import { createFileRoute } from '@tanstack/react-router';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { produce } from 'immer';
-import { postChildProblem } from '@apis';
+import { deleteChildProblem, postChildProblem } from '@apis';
 
 export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
   component: RouteComponent,
@@ -43,6 +43,7 @@ const initialData = {
 
   updateChildProblems: [
     {
+      childProblemId: 0,
       conceptTagIds: [0],
       imageUrl: '',
       answerType: 'MULTIPLE_CHOICE',
@@ -58,26 +59,22 @@ const initialData = {
 function RouteComponent() {
   const { problemId } = Route.useParams();
 
-  const { mutate: mutateChildProblem } = postChildProblem();
+  const { mutate: mutateAddChildProblem } = postChildProblem();
+  const { mutate: mutateDeleteChildProblem } = deleteChildProblem();
 
-  const { register, handleSubmit, reset, control, watch, setValue } = useForm({
+  const { register, handleSubmit, control, watch, setValue } = useForm({
     defaultValues: initialData,
   });
 
   const problemType = watch('problemType');
   const selectedAnswerType = watch('answerType');
   const selectedAnswer = watch('answer');
-  const selectedLevel = watch('difficulty');
   const prescriptionImageUrls = watch('prescriptionImageUrls');
 
   const {
     fields: childProblems,
     append,
-    prepend,
     remove,
-    swap,
-    move,
-    insert,
     update,
   } = useFieldArray({
     control,
@@ -91,7 +88,7 @@ function RouteComponent() {
   };
 
   const handleAddChildProblem = () => {
-    mutateChildProblem(
+    mutateAddChildProblem(
       {
         params: {
           path: {
@@ -102,12 +99,30 @@ function RouteComponent() {
       {
         onSuccess: (data) => {
           append({
-            id: data.data.id,
+            childProblemId: data.data.id,
             conceptTagIds: [],
             imageUrl: '',
             answerType: 'MULTIPLE_CHOICE',
             answer: '',
           });
+        },
+      }
+    );
+  };
+
+  const handleDeleteChildProblem = (childProblemId: number, index: number) => {
+    mutateDeleteChildProblem(
+      {
+        params: {
+          path: {
+            problemId: Number(problemId),
+            childProblemId: childProblemId,
+          },
+        },
+      },
+      {
+        onSuccess: () => {
+          remove(index);
         },
       }
     );
@@ -310,6 +325,10 @@ function RouteComponent() {
               const watchedAnswer = watch(`updateChildProblems.${index}.answer`);
               return (
                 <div key={childProblem.id} className='mt-[3.2rem] flex flex-col gap-[3.2rem]'>
+                  <Button
+                    onClick={() => handleDeleteChildProblem(childProblem.childProblemId, index)}>
+                    삭제하기
+                  </Button>
                   {/* <ComponentWithLabel label='새끼 문항 개념 태그'>
                       <TagSelect sizeType='long' />
                     </ComponentWithLabel> */}

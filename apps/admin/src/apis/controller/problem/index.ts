@@ -4,6 +4,7 @@ import getProblemsSearch from './getProblemsSearch';
 import deleteProblems from './deleteProblems';
 import getConceptTags from './getConceptTags';
 import postChildProblem from './postChildProblem';
+import deleteChildProblem from './deleteChildProblem';
 
 export {
   getPracticeTestTags,
@@ -12,4 +13,5 @@ export {
   deleteProblems,
   getConceptTags,
   postChildProblem,
+  deleteChildProblem,
 };
