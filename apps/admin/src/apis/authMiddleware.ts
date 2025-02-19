@@ -1,4 +1,4 @@
-import { setAccessToken } from '@contexts/AuthContext';
+import { getAccessToken, setAccessToken } from '@contexts/AuthContext';
 import { Middleware } from 'openapi-fetch';
 
 const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login'];
@@ -13,8 +13,9 @@ const reissueToken = async () => {
     if (!response.ok) throw new Error('Token reissue failed');
 
     const data = await response.json();
-    setAccessToken(data.accessToken);
-    return data.accessToken;
+    const accessToken = data.data.accessToken;
+    setAccessToken(accessToken);
+    return accessToken;
   } catch (error) {
     console.error('Reissue failed:', error);
     setAccessToken(null);
@@ -29,8 +30,7 @@ const authMiddleware: Middleware = {
       return undefined;
     }
 
-    // let accessToken = getAccessToken();
-    let accessToken = localStorage.getItem('accessToken');
+    let accessToken = getAccessToken();
 
     if (!accessToken) {
       accessToken = await reissueToken();

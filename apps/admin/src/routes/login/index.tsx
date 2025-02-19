@@ -37,9 +37,6 @@ function RouteComponent() {
           const { accessToken } = data;
           if (accessToken) {
             setAccessToken(accessToken);
-
-            // 삭제 예정
-            localStorage.setItem('accessToken', accessToken);
             goPublish();
           }
         },
