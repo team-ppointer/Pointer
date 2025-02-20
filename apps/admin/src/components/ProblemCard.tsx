@@ -39,7 +39,7 @@ const CardImage = ({ src, height }: { src?: string; height: string }) => {
 };
 
 const CardTagSection = ({ children }: { children: React.ReactNode }) => {
-  return <div className='flex gap-[0.8rem]'>{children}</div>;
+  return <div className='flex flex-wrap gap-[0.8rem]'>{children}</div>;
 };
 
 const CardEmptyView = ({ onClick }: { onClick: () => void }) => {
