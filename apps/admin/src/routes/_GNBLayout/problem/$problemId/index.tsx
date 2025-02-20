@@ -86,7 +86,7 @@ function RouteComponent() {
     defaultValues: transformToProblemUpdateRequest({} as ProblemGetResponse),
   });
 
-  const problemCustomId = fetchedProblemData?.data.problemCustomId;
+  const problemCustomId = fetchedProblemData?.data.problemCustomId ?? '';
   const problemType = watch('problemType');
   const conceptTagIds = watch('conceptTagIds');
   const selectedAnswerType = watch('answerType');

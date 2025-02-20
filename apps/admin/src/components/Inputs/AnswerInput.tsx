@@ -22,7 +22,7 @@ const AnswerInput = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AnswerTypeSection = forwardRef<HTMLInputElement, AnswerTypeSectionProps>(
-  ({ selectedAnswerType = 'MULTIPLE_CHOICE', ...props }, ref) => {
+  ({ selectedAnswerType, ...props }, ref) => {
     return (
       <div className='flex gap-[0.8rem]'>
         {AnswerTypeList.map((answerType) => (
