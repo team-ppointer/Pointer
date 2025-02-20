@@ -1,4 +1,4 @@
-import { $api, deleteProblems, getProblemsSearch } from '@apis';
+import { $api, deleteProblems, getConceptTags, getProblemsSearch } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -37,11 +37,15 @@ function RouteComponent() {
   const deleteProblemId = useRef<number | null>(null);
 
   const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
-  const [selectedTagList, setSelectedTagList] = useState<TagType[]>([]);
+  const [selectedTagList, setSelectedTagList] = useState<number[]>([]);
 
   const { register, handleSubmit, reset } = useForm<getProblemsSearchParamsType>();
+
   const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
   const { mutate: mutateDeleteProblem } = deleteProblems();
+  const { data: tagsData } = getConceptTags();
+  const allTagList = tagsData?.data || [];
+  const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
 
   const handleClickDelete = (e: React.MouseEvent<HTMLButtonElement>, problemId: string) => {
     e.stopPropagation();
@@ -77,11 +81,7 @@ function RouteComponent() {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );
-
-    const conceptTagIds = selectedTagList.map((tag) => tag.id);
-
-    const newQuery = { ...filteredData, conceptTagIds };
-    setSearchQuery(newQuery);
+    setSearchQuery({ ...filteredData });
   };
 
   const handleResetQuery = () => {
@@ -90,11 +90,11 @@ function RouteComponent() {
     setSearchQuery({});
   };
 
-  const handleRemoveTag = (tag: TagType) => {
-    setSelectedTagList((prev) => prev.filter((selectedTag) => selectedTag.id !== tag.id));
+  const handleRemoveTag = (tag: number) => {
+    setSelectedTagList((prev) => prev.filter((selectedTag) => selectedTag !== tag));
   };
 
-  const handleChangeTagList = (tagList: TagType[]) => {
+  const handleChangeTagList = (tagList: number[]) => {
     setSelectedTagList(tagList);
   };
 
@@ -139,8 +139,8 @@ function RouteComponent() {
         <div className='mt-[4.8rem] flex gap-[0.8rem]'>
           {selectedTagList.map((tag) => (
             <Tag
-              key={tag.id}
-              label={tag.name}
+              key={tag}
+              label={tagsNameMap[tag] || ''}
               removable
               color='dark'
               onClick={() => handleRemoveTag(tag)}

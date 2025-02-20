@@ -2,7 +2,7 @@ import { IcCloseSmall, IcCloseSmallWhite } from '@svg';
 
 interface TagProps {
   label: string;
-  color?: 'light' | 'dark';
+  color?: 'light' | 'dark' | 'lightgray';
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   removable?: boolean;
 }
@@ -11,6 +11,7 @@ const Tag = ({ label, color = 'light', onClick, removable = false }: TagProps) =
   const colorStyle = {
     light: 'bg-lightgray400 text-black',
     dark: 'bg-darkgray100 text-white',
+    lightgray: 'bg-lightgray300 text-lightgray500',
   };
   return (
     <div

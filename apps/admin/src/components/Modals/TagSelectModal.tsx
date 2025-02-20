@@ -1,18 +1,17 @@
 import { getConceptTags } from '@apis';
 import { Button, Input, Tag } from '@components';
-import { TagType } from '@types';
 import { debounce } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface TagSelectModalProps {
   onClose: () => void;
-  selectedTagList: TagType[];
-  handleChangeTagList: (tagList: TagType[]) => void;
+  selectedTagList: number[];
+  handleChangeTagList: (tagList: number[]) => void;
 }
 
 const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSelectModalProps) => {
-  const [modalSelectedTag, setModalSelectedTag] = useState<TagType[]>(selectedTagList);
+  const [modalSelectedTag, setModalSelectedTag] = useState<number[]>(selectedTagList);
   const { data: tagsData } = getConceptTags();
   const [searchValue, setSearchValue] = useState('');
 
@@ -20,7 +19,9 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
   const searchInput = watch('searchInput');
 
   const allTagList = tagsData?.data || [];
-  const unselectedTagList = allTagList.filter((tag) => !modalSelectedTag.includes(tag));
+  const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
+
+  const unselectedTagList = allTagList.filter((tag) => !modalSelectedTag.includes(tag.id));
   const searchedTagList = unselectedTagList.filter((tag) => tag.name.includes(searchValue));
 
   const handleClickApply = () => {
@@ -58,14 +59,12 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
         <div className='flex flex-wrap gap-[0.8rem]'>
           {modalSelectedTag?.map((tag) => (
             <Tag
-              key={tag.id}
-              label={tag.name}
+              key={tag}
+              label={tagsNameMap[tag] || ''}
               color='dark'
               removable
               onClick={() => {
-                setModalSelectedTag((prev) =>
-                  prev.filter((selectedTag) => selectedTag.id !== tag.id)
-                );
+                setModalSelectedTag((prev) => prev.filter((selectedTag) => selectedTag !== tag));
               }}
             />
           ))}
@@ -77,7 +76,7 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
             key={tag.id}
             label={tag.name}
             onClick={() => {
-              setModalSelectedTag((prev) => [...prev, tag]);
+              setModalSelectedTag((prev) => [...prev, tag.id]);
             }}
           />
         ))}

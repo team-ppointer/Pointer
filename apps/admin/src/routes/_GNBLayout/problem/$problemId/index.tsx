@@ -1,6 +1,5 @@
 import {
   AnswerInput,
-  Button,
   ComponentWithLabel,
   DeleteButton,
   FloatingButton,
@@ -12,7 +11,8 @@ import {
   PlusButton,
   ProblemEssentialInput,
   SectionCard,
-  TagSelect,
+  Tag,
+  TagSelectModal,
   TextArea,
   TwoButtonModalTemplate,
 } from '@components';
@@ -24,11 +24,12 @@ import {
   $api,
   deleteChildProblem,
   deleteProblems,
+  getConceptTags,
   getProblemById,
   postChildProblem,
   putProblemById,
 } from '@apis';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { transformToProblemUpdateRequest } from '@utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { useModal } from '@hooks';
@@ -46,7 +47,20 @@ function RouteComponent() {
   const queryClient = useQueryClient();
   const { navigate } = useRouter();
   const { problemId } = Route.useParams();
-  const { isOpen, openModal, closeModal } = useModal();
+  const { isOpen: isTagModalOpen, openModal: openTagModal, closeModal: closeTagModal } = useModal();
+  const {
+    isOpen: isChildTagModalOpen,
+    openModal: openChildTagModal,
+    closeModal: closeChildTagModal,
+  } = useModal();
+  const {
+    isOpen: isDeleteModalOpen,
+    openModal: openDeleteModal,
+    closeModal: closeDeleteModal,
+  } = useModal();
+
+  const [currentChildTagList, setCurrentChildTagList] = useState<number[]>([]);
+  const [currentChildIndex, setCurrentChildIndex] = useState<number>();
 
   // api
   const { data: fetchedProblemData } = getProblemById(Number(problemId));
@@ -54,6 +68,9 @@ function RouteComponent() {
   const { mutate: mutateAddChildProblem } = postChildProblem();
   const { mutate: mutateDeleteChildProblem } = deleteChildProblem();
   const { mutate: mutateDeleteProblem } = deleteProblems();
+  const { data: tagsData } = getConceptTags();
+  const allTagList = tagsData?.data || [];
+  const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
 
   // RHF
   const {
@@ -176,22 +193,24 @@ function RouteComponent() {
     );
   };
 
-  const handleSelectTag = (tagId: number) => {
-    const newTagList = [...conceptTagIds, tagId];
+  const handleChangeTagList = (tagList: number[]) => {
+    const newTagList = tagList.map((tag) => tag);
     setValue('conceptTagIds', newTagList);
   };
 
-  const handleRemoveTag = (tagId: number) => {
-    const newTagList = conceptTagIds.filter((tag) => tag !== tagId);
+  const handleRemoveTag = (tag: number) => {
+    const newTagList = conceptTagIds.filter((t) => t !== tag);
     setValue('conceptTagIds', newTagList);
   };
 
-  const handleSelectChildTag = (tagId: number, index: number) => {
+  const handleChangeChildTagList = (tagList: number[], index: number | undefined) => {
+    if (index === undefined) return;
     const newChildProblem = produce(childProblems[index], (draft) => {
       if (draft) {
-        draft.conceptTagIds.push(tagId);
+        draft.conceptTagIds = [...tagList];
       }
     });
+
     if (newChildProblem) {
       update(index, newChildProblem);
     }
@@ -264,7 +283,7 @@ function RouteComponent() {
         <Header
           title={`문항 ID : ${problemCustomId}`}
           deleteButton='문항 삭제'
-          onClickDelete={openModal}
+          onClickDelete={openDeleteModal}
         />
         <ProblemEssentialInput>
           <Controller
@@ -319,11 +338,19 @@ function RouteComponent() {
                 <Input {...register('title')} />
               </ComponentWithLabel>
               <ComponentWithLabel label='메인 문항 개념 태그' labelWidth='15.4rem'>
-                <TagSelect
-                  selectedList={conceptTagIds}
-                  handleSelectTag={handleSelectTag}
-                  handleRemoveTag={handleRemoveTag}
-                />
+                <div className='flex flex-wrap gap-[0.8rem]'>
+                  {conceptTagIds.length > 0 &&
+                    conceptTagIds.map((tag) => (
+                      <Tag
+                        key={tag}
+                        label={tagsNameMap[tag] ?? ''}
+                        removable
+                        color='dark'
+                        onClick={() => handleRemoveTag(tag)}
+                      />
+                    ))}
+                  <Tag label='태그 추가하기' onClick={openTagModal} color='lightgray' />
+                </div>
               </ComponentWithLabel>
               <ComponentWithLabel label='메인 문항 답 입력' labelWidth='15.4rem'>
                 <AnswerInput>
@@ -445,11 +472,27 @@ function RouteComponent() {
                 return (
                   <div key={childProblem.id} className='flex flex-col gap-[3.2rem]'>
                     <ComponentWithLabel label='새끼 문항 개념 태그'>
-                      <TagSelect
-                        selectedList={watchedConceptTagIds}
-                        handleSelectTag={(tagId) => handleSelectChildTag(tagId, index)}
-                        handleRemoveTag={(tagId) => handleRemoveChildTag(tagId, index)}
-                      />
+                      <div className='flex flex-1 flex-wrap gap-[0.8rem]'>
+                        {watchedConceptTagIds.length > 0 &&
+                          watchedConceptTagIds.map((tag, tagIndex) => (
+                            <Tag
+                              key={tag}
+                              label={tagsNameMap[tag] ?? ''}
+                              removable
+                              color='dark'
+                              onClick={() => handleRemoveChildTag(tag, tagIndex)}
+                            />
+                          ))}
+                        <Tag
+                          label='태그 추가하기'
+                          onClick={() => {
+                            setCurrentChildIndex(index);
+                            setCurrentChildTagList(watchedConceptTagIds);
+                            openChildTagModal();
+                          }}
+                          color='lightgray'
+                        />
+                      </div>
                       <DeleteButton
                         type='button'
                         label='문항 삭제'
@@ -548,12 +591,26 @@ function RouteComponent() {
         </div>
         <FloatingButton>저장하기</FloatingButton>
       </form>
-      <Modal isOpen={isOpen} onClose={closeModal}>
+      <Modal isOpen={isTagModalOpen} onClose={closeTagModal}>
+        <TagSelectModal
+          onClose={closeTagModal}
+          selectedTagList={conceptTagIds}
+          handleChangeTagList={handleChangeTagList}
+        />
+      </Modal>
+      <Modal isOpen={isChildTagModalOpen} onClose={closeChildTagModal}>
+        <TagSelectModal
+          onClose={closeChildTagModal}
+          selectedTagList={currentChildTagList}
+          handleChangeTagList={(tagList) => handleChangeChildTagList(tagList, currentChildIndex)}
+        />
+      </Modal>
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
         <TwoButtonModalTemplate
           text='문항을 삭제할까요?'
           leftButtonText='아니오'
           rightButtonText='예'
-          handleClickLeftButton={closeModal}
+          handleClickLeftButton={closeDeleteModal}
           handleClickRightButton={handleMutateDelete}
         />
       </Modal>
