@@ -1,9 +1,9 @@
 import { HTMLAttributes, useState } from 'react';
 import dayjs from 'dayjs';
+import { IcDeleteSm } from '@svg';
 
 import IconButton from './Buttons/IconButton';
 import PlusButton from './Buttons/PlusButton';
-import { IcDeleteSm } from '@svg';
 
 import 'dayjs/locale/ko';
 dayjs.locale('ko');

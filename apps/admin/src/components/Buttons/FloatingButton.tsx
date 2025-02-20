@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes } from 'react';
+
 import Button from './Button';
 
 interface FloatingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

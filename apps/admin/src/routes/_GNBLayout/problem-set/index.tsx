@@ -1,4 +1,4 @@
-import { Button, Header, SearchInput, SectionCard, TagSelect } from '@components';
+import { Button, Header, SearchInput, SectionCard } from '@components';
 import { createFileRoute } from '@tanstack/react-router';
 import { getProblemSetSearchParamsType } from '@types';
 import { useState } from 'react';
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_GNBLayout/problem-set/')({
 });
 
 function RouteComponent() {
-  const [searchQuery, setSearchQuery] = useState<getProblemSetSearchParamsType>({});
+  const [, setSearchQuery] = useState<getProblemSetSearchParamsType>({});
   const { register, handleSubmit, reset } = useForm<getProblemSetSearchParamsType>();
 
   const handleClickSearch = (data: getProblemSetSearchParamsType) => {
