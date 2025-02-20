@@ -6,6 +6,7 @@ const PrevPageButton = ({ ...props }: ButtonHTMLAttributes<HTMLButtonElement>) =
   const { goBack } = useNavigation();
   return (
     <button
+      type='button'
       className='bg-darkgray100 flex h-[3.6rem] w-[15rem] items-center justify-center gap-[1.2rem] rounded-[4px] text-white'
       onClick={goBack}
       {...props}>

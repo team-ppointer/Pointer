@@ -27,7 +27,7 @@ const IconButton = ({ variant, onClick, ...props }: IconButtonProps) => {
   };
 
   return (
-    <button onClick={onClick} {...props}>
+    <button type='button' onClick={onClick} {...props}>
       {icons[variant]}
     </button>
   );
