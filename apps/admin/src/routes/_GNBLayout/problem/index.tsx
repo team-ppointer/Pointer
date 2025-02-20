@@ -18,6 +18,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { getProblemsSearchParamsType, TagType } from '@types';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import PulseLoader from 'react-spinners/PulseLoader';
 
 export const Route = createFileRoute('/_GNBLayout/problem/')({
   component: RouteComponent,
@@ -39,8 +40,8 @@ function RouteComponent() {
   const [selectedTagList, setSelectedTagList] = useState<TagType[]>([]);
 
   const { register, handleSubmit, reset } = useForm<getProblemsSearchParamsType>();
-  const { data: problemList } = getProblemsSearch(searchQuery);
-  const { mutate } = deleteProblems();
+  const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
+  const { mutate: mutateDeleteProblem } = deleteProblems();
 
   const handleClickDelete = (e: React.MouseEvent<HTMLButtonElement>, problemId: string) => {
     e.stopPropagation();
@@ -53,7 +54,7 @@ function RouteComponent() {
   const handleMutateDelete = () => {
     if (!deleteProblemId.current) return;
 
-    mutate(
+    mutateDeleteProblem(
       {
         params: {
           path: {
@@ -147,39 +148,46 @@ function RouteComponent() {
         </div>
       )}
 
-      <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
-        {problemList?.data.map(
-          ({ problemCustomId, memo, mainProblemImageUrl, conceptTagResponses }) => (
-            <Link
-              key={problemCustomId}
-              to={`/problem/$problemId`}
-              params={{ problemId: problemCustomId }}>
-              <ProblemCard>
-                <ProblemCard.TextSection>
-                  <ProblemCard.Info label='문항 ID' content={problemCustomId} />
-                  <ProblemCard.Info label='문항 타이틀' content={problemCustomId} />
-                  <ProblemCard.Info label='문항 메모' content={memo} />
-                </ProblemCard.TextSection>
+      {isLoading ? (
+        <div className='mt-[6.4rem] flex w-full items-center justify-center'>
+          <PulseLoader color='#222324' aria-label='Loading Spinner' />
+        </div>
+      ) : (
+        <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
+          {problemList?.data.map(
+            ({ id, problemCustomId, memo, mainProblemImageUrl, conceptTagResponses }) => (
+              <Link
+                key={problemCustomId}
+                to={`/problem/$problemId`}
+                params={{ problemId: id.toString() }}>
+                <ProblemCard>
+                  <ProblemCard.TextSection>
+                    <ProblemCard.Info label='문항 ID' content={problemCustomId} />
+                    <ProblemCard.Info label='문항 타이틀' content={problemCustomId} />
+                    <ProblemCard.Info label='문항 메모' content={memo} />
+                  </ProblemCard.TextSection>
 
-                <ProblemCard.ButtonSection>
-                  <IconButton
-                    variant='delete'
-                    onClick={(e) => handleClickDelete(e, problemCustomId)}
-                  />
-                </ProblemCard.ButtonSection>
+                  <ProblemCard.ButtonSection>
+                    <IconButton
+                      variant='delete'
+                      onClick={(e) => handleClickDelete(e, problemCustomId)}
+                    />
+                  </ProblemCard.ButtonSection>
 
-                <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
+                  <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
 
-                <ProblemCard.TagSection>
-                  {(conceptTagResponses || []).map((tag) => {
-                    return <Tag key={tag.id} label={tag.name} />;
-                  })}
-                </ProblemCard.TagSection>
-              </ProblemCard>
-            </Link>
-          )
-        )}
-      </section>
+                  <ProblemCard.TagSection>
+                    {(conceptTagResponses || []).map((tag) => {
+                      return <Tag key={tag.id} label={tag.name} />;
+                    })}
+                  </ProblemCard.TagSection>
+                </ProblemCard>
+              </Link>
+            )
+          )}
+        </section>
+      )}
+
       <FloatingButton>
         <Link to='/problem/register' className='flex h-full w-full items-center justify-center'>
           새로운 문항 등록하기
