@@ -15,7 +15,7 @@ import { useModal } from '@hooks';
 import { IcDown } from '@svg';
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { getProblemsSearchParamsType, TagType } from '@types';
+import { getProblemsSearchParamsType } from '@types';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
@@ -156,7 +156,7 @@ function RouteComponent() {
       ) : (
         <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
           {problemList?.data.map(
-            ({ id, problemCustomId, memo, mainProblemImageUrl, conceptTagResponses }) => (
+            ({ id, problemCustomId, title, mainProblemImageUrl, conceptTagResponses }) => (
               <Link
                 key={problemCustomId}
                 to={`/problem/$problemId`}
@@ -164,8 +164,8 @@ function RouteComponent() {
                 <ProblemCard>
                   <ProblemCard.TextSection>
                     <ProblemCard.Info label='문항 ID' content={problemCustomId} />
-                    <ProblemCard.Info label='문항 타이틀' content={problemCustomId} />
-                    <ProblemCard.Info label='문항 메모' content={memo} />
+                    <ProblemCard.Info label='문항 타이틀' content={title} />
+                    <ProblemCard.Info label='문항 메모' content={title} />
                   </ProblemCard.TextSection>
 
                   <ProblemCard.ButtonSection>
