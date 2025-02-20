@@ -9,3 +9,8 @@ export interface getProblemSetSearchParamsType {
   problemTitle?: string;
   conceptTagIds?: number[];
 }
+
+export interface getSearchProblemSetParamsType {
+  problemSetTitle?: string;
+  problemTitle?: string;
+}
