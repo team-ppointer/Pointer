@@ -64,6 +64,7 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
+          closeDeleteModal();
           queryClient.invalidateQueries({
             queryKey: $api.queryOptions('get', '/api/v1/problems/search').queryKey,
           });
@@ -170,7 +171,7 @@ function RouteComponent() {
                   <ProblemCard.ButtonSection>
                     <IconButton
                       variant='delete'
-                      onClick={(e) => handleClickDelete(e, problemCustomId)}
+                      onClick={(e) => handleClickDelete(e, id.toString())}
                     />
                   </ProblemCard.ButtonSection>
 
