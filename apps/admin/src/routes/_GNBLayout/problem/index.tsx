@@ -9,13 +9,14 @@ import {
   SearchInput,
   Tag,
   TagSelectModal,
+  TwoButtonModalTemplate,
 } from '@components';
 import { useModal } from '@hooks';
 import { IcDown } from '@svg';
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { getProblemsSearchParamsType, TagType } from '@types';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 export const Route = createFileRoute('/_GNBLayout/problem/')({
@@ -26,6 +27,13 @@ function RouteComponent() {
   const queryClient = useQueryClient();
 
   const { isOpen, openModal, closeModal } = useModal();
+  const {
+    isOpen: isDeleteModalOpen,
+    openModal: openDeleteModal,
+    closeModal: closeDeleteModal,
+  } = useModal();
+
+  const deleteProblemId = useRef<number | null>(null);
 
   const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
   const [selectedTagList, setSelectedTagList] = useState<TagType[]>([]);
@@ -38,11 +46,18 @@ function RouteComponent() {
     e.stopPropagation();
     e.preventDefault();
 
+    deleteProblemId.current = Number(problemId);
+    openDeleteModal();
+  };
+
+  const handleMutateDelete = () => {
+    if (!deleteProblemId.current) return;
+
     mutate(
       {
         params: {
           path: {
-            id: Number(problemId),
+            id: deleteProblemId.current,
           },
         },
       },
@@ -133,29 +148,37 @@ function RouteComponent() {
       )}
 
       <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
-        {problemList?.data.map(({ problemId, memo, mainProblemImageUrl, conceptTagResponses }) => (
-          <Link key={problemId} to={`/problem/$problemId`} params={{ problemId: problemId }}>
-            <ProblemCard>
-              <ProblemCard.TextSection>
-                <ProblemCard.Info label='문항 ID' content={problemId} />
-                <ProblemCard.Info label='문항 타이틀' content={problemId} />
-                <ProblemCard.Info label='문항 메모' content={memo} />
-              </ProblemCard.TextSection>
+        {problemList?.data.map(
+          ({ problemCustomId, memo, mainProblemImageUrl, conceptTagResponses }) => (
+            <Link
+              key={problemCustomId}
+              to={`/problem/$problemId`}
+              params={{ problemId: problemCustomId }}>
+              <ProblemCard>
+                <ProblemCard.TextSection>
+                  <ProblemCard.Info label='문항 ID' content={problemCustomId} />
+                  <ProblemCard.Info label='문항 타이틀' content={problemCustomId} />
+                  <ProblemCard.Info label='문항 메모' content={memo} />
+                </ProblemCard.TextSection>
 
-              <ProblemCard.ButtonSection>
-                <IconButton variant='delete' onClick={(e) => handleClickDelete(e, problemId)} />
-              </ProblemCard.ButtonSection>
+                <ProblemCard.ButtonSection>
+                  <IconButton
+                    variant='delete'
+                    onClick={(e) => handleClickDelete(e, problemCustomId)}
+                  />
+                </ProblemCard.ButtonSection>
 
-              <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
+                <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
 
-              <ProblemCard.TagSection>
-                {(conceptTagResponses || []).map((tag) => {
-                  return <Tag key={tag.id} label={tag.name} />;
-                })}
-              </ProblemCard.TagSection>
-            </ProblemCard>
-          </Link>
-        ))}
+                <ProblemCard.TagSection>
+                  {(conceptTagResponses || []).map((tag) => {
+                    return <Tag key={tag.id} label={tag.name} />;
+                  })}
+                </ProblemCard.TagSection>
+              </ProblemCard>
+            </Link>
+          )
+        )}
       </section>
       <FloatingButton>
         <Link to='/problem/register' className='flex h-full w-full items-center justify-center'>
@@ -167,6 +190,15 @@ function RouteComponent() {
           onClose={closeModal}
           selectedTagList={selectedTagList}
           handleChangeTagList={handleChangeTagList}
+        />
+      </Modal>
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
+        <TwoButtonModalTemplate
+          text='문항을 삭제할까요?'
+          leftButtonText='아니오'
+          rightButtonText='예'
+          handleClickLeftButton={closeDeleteModal}
+          handleClickRightButton={handleMutateDelete}
         />
       </Modal>
     </>
