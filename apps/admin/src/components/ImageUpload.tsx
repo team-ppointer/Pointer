@@ -1,5 +1,6 @@
 import { getPresignedUrl, putS3Upload } from '@apis';
-import { IconButton } from '@components';
+import { IconButton, Modal, TwoButtonModalTemplate } from '@components';
+import { useModal } from '@hooks';
 import { IcUpload } from '@svg';
 import { ImageType } from '@types';
 import { useDropzone } from 'react-dropzone';
@@ -22,6 +23,12 @@ const ImageUpload = ({
   },
 }: ImageUploadProps) => {
   const { refetch } = getPresignedUrl({ problemId, imageType });
+
+  const {
+    isOpen: isDeleteModalOpen,
+    openModal: openDeleteModal,
+    closeModal: closeDeleteModal,
+  } = useModal();
 
   const uploadFileToS3 = async (presignedUrl: string, file: File) => {
     try {
@@ -83,7 +90,7 @@ const ImageUpload = ({
           <img src={imageUrl} alt='upload-image' className='h-full w-full object-cover' />
           <div className='absolute right-[1.6rem] bottom-[1.6rem] z-30 flex items-center gap-[1rem]'>
             <IconButton variant='view' />
-            <IconButton variant='delete' onClick={handleClickDelete} />
+            <IconButton variant='delete' onClick={openDeleteModal} />
           </div>
         </div>
       ) : (
@@ -100,6 +107,18 @@ const ImageUpload = ({
           </div>
         </div>
       )}
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
+        <TwoButtonModalTemplate
+          text='이미지를 삭제할까요?'
+          leftButtonText='아니오'
+          rightButtonText='예'
+          handleClickLeftButton={closeDeleteModal}
+          handleClickRightButton={() => {
+            closeDeleteModal();
+            handleClickDelete();
+          }}
+        />
+      </Modal>
     </div>
   );
 };
