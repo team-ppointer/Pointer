@@ -48,7 +48,7 @@ const Day = ({ variant = 'thisMonth', fullDate, day, dayOfWeek, title }: DayProp
           {title && !isPast && <IcDeleteSm width={24} height={24} className='cursor-pointer' />}
         </div>
       </div>
-      
+
       {title ? (
         <p className={`font-bold-18 h-full w-full overflow-auto ${textStyle}`}>{title}</p>
       ) : (

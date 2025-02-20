@@ -33,7 +33,7 @@ export const transformToProblemUpdateRequest = (
     recommendedSecond: serverData.recommendedSecond,
 
     updateChildProblems: (serverData.childProblems || []).map((child) => ({
-      childProblemId: child.childProblemId, 
+      childProblemId: child.childProblemId,
       conceptTagIds: [...child.conceptTagIds],
       imageUrl: child.imageUrl ?? '',
       answerType: child.answerType,
