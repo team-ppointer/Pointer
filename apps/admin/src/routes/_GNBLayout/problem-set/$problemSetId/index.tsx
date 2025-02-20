@@ -1,27 +1,33 @@
-import { postProblemSet } from '@apis';
+import { deleteProblemSet, getProblemSetById, putConfirmProblemSet } from '@apis';
 import {
   Button,
   ComponentWithLabel,
   Header,
   IconButton,
   Input,
+  Modal,
   PlusButton,
   ProblemCard,
+  StatusToggle,
   Tag,
 } from '@components';
 import { components } from '@schema';
 import { createFileRoute } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 
-export const Route = createFileRoute('/_GNBLayout/problem-set/register/')({
+export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
   component: RouteComponent,
 });
 
 type ProblemSetPostRequest = components['schemas']['ProblemSetPostRequest'];
 
 function RouteComponent() {
+  const { problemSetId } = Route.useParams();
+
   // api
-  const { mutate: mutateProblemSet } = postProblemSet();
+  const { data: problemSetData } = getProblemSetById(Number(problemSetId));
+  const { mutate: mutateConfirmProblemSet } = putConfirmProblemSet();
+  const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
 
   // RHF
   const { register, handleSubmit, watch } = useForm<ProblemSetPostRequest>({
@@ -32,19 +38,33 @@ function RouteComponent() {
   });
   const problemList = watch('problems');
 
-  const handleClickRegister = handleSubmit((data: ProblemSetPostRequest) => {
-    mutateProblemSet({
-      body: {
-        ...data,
+  const handleClickConfirm = () => {
+    mutateConfirmProblemSet({
+      params: {
+        path: {
+          problemSetId: Number(problemSetId),
+        },
       },
     });
-  });
+  };
+
+  const handleClickDelete = () => {
+    mutateDeleteProblemSet({
+      params: {
+        path: {
+          problemSetId: Number(problemSetId),
+        },
+      },
+    });
+  };
 
   return (
     <>
       <Header
         title='새로운 세트 등록하기'
         description='문항을 잡고 드래그해서 순서를 바꿀 수 있어요'
+        deleteButton='세트 삭제'
+        onClickDelete={handleClickDelete}
       />
       <div className='mt-[6.4rem] flex justify-between'>
         <div className='w-[81.5rem]'>
@@ -52,9 +72,19 @@ function RouteComponent() {
             <Input placeholder='입력해주세요' {...register('problemSetTitle')} />
           </ComponentWithLabel>
         </div>
-        <Button variant='dark' onClick={handleClickRegister}>
-          저장하기
-        </Button>
+
+        <div className='flex items-center gap-[2.4rem]'>
+          <StatusToggle
+            selectedStatus={problemSetData?.data.confirmStatus ?? 'NOT_CONFIRMED'}
+            onSelect={handleClickConfirm}
+          />
+          <div className='flex items-center gap-[0.8rem]'>
+            <Button variant='light'>미리보기</Button>
+            <Button variant='dark' onClick={() => {}}>
+              저장하기
+            </Button>
+          </div>
+        </div>
       </div>
       <div className='mt-[4.8rem] flex gap-[3.2rem]'>
         {problemList.length === 0 ? (
