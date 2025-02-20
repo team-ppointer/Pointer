@@ -31,6 +31,7 @@ import { useEffect } from 'react';
 import { transformToProblemUpdateRequest } from '@utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { useModal } from '@hooks';
+import { Slide, ToastContainer, toast } from 'react-toastify';
 
 export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
   component: RouteComponent,
@@ -139,6 +140,7 @@ function RouteComponent() {
               },
             }).queryKey,
           });
+          toast.success('저장이 완료되었습니다');
         },
       }
     );
@@ -233,6 +235,21 @@ function RouteComponent() {
 
   return (
     <>
+      <ToastContainer
+        position='top-center'
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        draggable
+        pauseOnHover
+        theme='dark'
+        transition={Slide}
+        style={{
+          fontSize: '1.6rem',
+        }}
+      />
       <form onSubmit={handleSubmit(handleSubmitUpdate)}>
         <Header
           title={`문항 ID : ${problemCustomId}`}
@@ -400,14 +417,15 @@ function RouteComponent() {
                 새끼 문항은 저장 후 항목 추가가 불가능해요
               </p>
             </div>
-            <div className='grid grid-cols-2 gap-x-[4.8rem] gap-y-[6.4rem]'>
+            <div className='mt-[3.2rem] grid grid-cols-2 gap-x-[4.8rem] gap-y-[6.4rem]'>
               {childProblems.map((childProblem, index) => {
                 const watchedConceptTagIds = watch(`updateChildProblems.${index}.conceptTagIds`);
                 const watchedAnswerType = watch(`updateChildProblems.${index}.answerType`);
                 const watchedAnswer = watch(`updateChildProblems.${index}.answer`);
                 return (
-                  <div key={childProblem.id} className='mt-[3.2rem] flex flex-col gap-[3.2rem]'>
+                  <div key={childProblem.id} className='flex flex-col gap-[3.2rem]'>
                     <Button
+                      type='button'
                       onClick={() => handleDeleteChildProblem(childProblem.childProblemId, index)}>
                       삭제하기
                     </Button>
@@ -445,7 +463,6 @@ function RouteComponent() {
                   </div>
                 );
               })}
-
               <div className='flex items-center'>
                 <PlusButton onClick={handleAddChildProblem} />
               </div>
