@@ -485,12 +485,12 @@ export interface components {
     };
     ChildProblemUpdateRequest: {
       /** Format: int64 */
-      id?: number;
+      childProblemId: number;
       imageUrl?: string;
       /** @enum {string} */
-      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       answer?: string;
-      conceptTagIds?: number[];
+      conceptTagIds: number[];
     };
     ProblemUpdateRequest: {
       /** @enum {string} */
@@ -499,7 +499,7 @@ export interface components {
       practiceTestId?: number;
       /** Format: int32 */
       number?: number;
-      conceptTagIds?: number[];
+      conceptTagIds: number[];
       answer?: string;
       title?: string;
       /** Format: int32 */
@@ -512,8 +512,8 @@ export interface components {
       seniorTipImageUrl?: string;
       prescriptionImageUrls?: string[];
       /** @enum {string} */
-      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
-      updateChildProblems?: components['schemas']['ChildProblemUpdateRequest'][];
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      updateChildProblems: components['schemas']['ChildProblemUpdateRequest'][];
       /** Format: int32 */
       recommendedMinute?: number;
       /** Format: int32 */
@@ -524,15 +524,15 @@ export interface components {
       childProblemId: number;
       imageUrl?: string;
       /** @enum {string} */
-      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       answer?: string;
-      conceptTagIds?: number[];
+      conceptTagIds: number[];
     };
     ProblemGetResponse: {
       /** Format: int64 */
       id: number;
       problemCustomId: string;
-      conceptTagIds?: number[];
+      conceptTagIds: number[];
       /** Format: int64 */
       practiceTestId?: number;
       /** Format: int32 */
@@ -545,14 +545,14 @@ export interface components {
       /** @enum {string} */
       problemType?: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       /** @enum {string} */
-      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       mainProblemImageUrl?: string;
       mainHandwritingExplanationImageUrl?: string;
       mainAnalysisImageUrl?: string;
       readingTipImageUrl?: string;
       seniorTipImageUrl?: string;
-      prescriptionImageUrls?: string[];
-      childProblems?: components['schemas']['ChildProblemGetResponse'][];
+      prescriptionImageUrls: string[];
+      childProblems: components['schemas']['ChildProblemGetResponse'][];
       /** Format: int32 */
       recommendedMinute?: number;
       /** Format: int32 */
@@ -560,7 +560,7 @@ export interface components {
     };
     ProblemSetUpdateRequest: {
       problemSetTitle?: string;
-      problemIds?: number[];
+      problemIds: number[];
     };
     PublishPostRequest: {
       /** Format: date */
@@ -570,7 +570,7 @@ export interface components {
     };
     IdResponse: {
       /** Format: int64 */
-      id?: number;
+      id: number;
     };
     ProblemPostRequest: {
       /** @enum {string} */
@@ -587,7 +587,7 @@ export interface components {
     };
     ProblemSetPostRequest: {
       problemSetTitle?: string;
-      problems?: number[];
+      problems: number[];
     };
     AccessTokenResponse: {
       accessToken: string;
@@ -612,10 +612,12 @@ export interface components {
       name: string;
     };
     ProblemSearchGetResponse: {
-      problemId: string;
+      /** Format: int64 */
+      id: number;
+      problemCustomId: string;
       memo?: string;
       mainProblemImageUrl?: string;
-      conceptTagResponses?: components['schemas']['ConceptTagSearchResponse'][];
+      conceptTagResponses: components['schemas']['ConceptTagSearchResponse'][];
     };
     ProblemSetGetResponse: {
       /** Format: int64 */
@@ -625,7 +627,7 @@ export interface components {
       confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
       /** Format: date */
       publishedDate?: string;
-      problemSummaries?: components['schemas']['ProblemSummaryResponse'][];
+      problemSummaries: components['schemas']['ProblemSummaryResponse'][];
     };
     ProblemSummaryResponse: {
       problemId?: string;
@@ -634,7 +636,7 @@ export interface components {
       practiceTestName?: string;
       memo?: string;
       mainProblemImageUrl?: string;
-      tagNames?: string[];
+      tagNames: string[];
     };
     ProblemSetSearchGetResponse: {
       problemSetTitle?: string;
@@ -642,7 +644,7 @@ export interface components {
       confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
       /** Format: date */
       publishedDate?: string;
-      problemThumbnailResponses?: components['schemas']['ProblemThumbnailResponse'][];
+      problemThumbnailResponses: components['schemas']['ProblemThumbnailResponse'][];
     };
     ProblemThumbnailResponse: {
       problemTitle?: string;
@@ -661,7 +663,7 @@ export interface components {
       email?: string;
     };
     PresignedUrlResponse: {
-      presignedUrl?: string;
+      presignedUrl: string;
     };
     ConceptTagResponse: {
       /** Format: int64 */
@@ -1335,7 +1337,7 @@ export interface operations {
       };
       header?: never;
       path: {
-        problemId: string;
+        problemId: number;
       };
       cookie?: never;
     };
