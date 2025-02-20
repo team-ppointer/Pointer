@@ -2,6 +2,7 @@ import {
   AnswerInput,
   Button,
   ComponentWithLabel,
+  DeleteButton,
   FloatingButton,
   Header,
   ImageUpload,
@@ -319,7 +320,6 @@ function RouteComponent() {
               </ComponentWithLabel>
               <ComponentWithLabel label='메인 문항 개념 태그' labelWidth='15.4rem'>
                 <TagSelect
-                  sizeType='long'
                   selectedList={conceptTagIds}
                   handleSelectTag={handleSelectTag}
                   handleRemoveTag={handleRemoveTag}
@@ -444,17 +444,16 @@ function RouteComponent() {
                 const watchedAnswer = watch(`updateChildProblems.${index}.answer`);
                 return (
                   <div key={childProblem.id} className='flex flex-col gap-[3.2rem]'>
-                    <Button
-                      type='button'
-                      onClick={() => handleDeleteChildProblem(childProblem.childProblemId, index)}>
-                      삭제하기
-                    </Button>
                     <ComponentWithLabel label='새끼 문항 개념 태그'>
                       <TagSelect
-                        sizeType='long'
                         selectedList={watchedConceptTagIds}
                         handleSelectTag={(tagId) => handleSelectChildTag(tagId, index)}
                         handleRemoveTag={(tagId) => handleRemoveChildTag(tagId, index)}
+                      />
+                      <DeleteButton
+                        type='button'
+                        label='문항 삭제'
+                        onClick={() => handleDeleteChildProblem(childProblem.childProblemId, index)}
                       />
                     </ComponentWithLabel>
                     <ComponentWithLabel label='새끼 문항 선택' direction='column'>
