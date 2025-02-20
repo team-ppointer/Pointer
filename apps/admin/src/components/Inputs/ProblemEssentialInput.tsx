@@ -70,10 +70,19 @@ const PraticeTestNumber = forwardRef<HTMLInputElement>(({ ...props }, ref) => {
     </ComponentWithLabel>
   );
 });
+interface ProblemErrorProps {
+  isError: boolean;
+  errorMessage: string;
+}
+
+const ProblemError = ({ isError, errorMessage }: ProblemErrorProps) => {
+  return isError && <p className='text-red font-medium-18 mt-[2rem]'>{errorMessage}</p>;
+};
 
 ProblemEssentialInput.ProblemTypeSection = ProblemTypeSection;
 ProblemEssentialInput.PracticeTestSection = PracticeTestSection;
 ProblemEssentialInput.PracticeTest = PracticeTest;
 ProblemEssentialInput.PraticeTestNumber = PraticeTestNumber;
+ProblemEssentialInput.ProblemError = ProblemError;
 
 export default ProblemEssentialInput;

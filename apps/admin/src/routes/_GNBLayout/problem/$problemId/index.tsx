@@ -55,7 +55,16 @@ function RouteComponent() {
   const { mutate: mutateDeleteProblem } = deleteProblems();
 
   // RHF
-  const { register, handleSubmit, control, watch, setValue, reset } = useForm({
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    reset,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
     defaultValues: transformToProblemUpdateRequest({} as ProblemGetResponse),
   });
 
@@ -264,6 +273,7 @@ function RouteComponent() {
               <ProblemEssentialInput.ProblemTypeSection
                 problemType={field.value}
                 handleChangeType={(type) => {
+                  clearErrors();
                   if (type === 'CREATION_PROBLEM') {
                     setValue('practiceTestId', undefined);
                     setValue('number', undefined);
@@ -278,6 +288,9 @@ function RouteComponent() {
               <Controller
                 control={control}
                 name='practiceTestId'
+                rules={{
+                  required: '모의고사와 문항 번호는 필수 입력 항목입니다.',
+                }}
                 render={({ field }) => (
                   <ProblemEssentialInput.PracticeTest
                     practiceTest={field.value}
@@ -286,10 +299,17 @@ function RouteComponent() {
                 )}
               />
               <ProblemEssentialInput.PraticeTestNumber
-                {...register('number', { valueAsNumber: true })}
+                {...register('number', {
+                  valueAsNumber: true,
+                  required: '모의고사와 문항 번호는 필수 입력 항목입니다.',
+                })}
               />
             </ProblemEssentialInput.PracticeTestSection>
           )}
+          <ProblemEssentialInput.ProblemError
+            isError={Boolean(errors.practiceTestId || errors.number)}
+            errorMessage='모의고사와 문항 번호는 필수 입력 항목입니다.'
+          />
         </ProblemEssentialInput>
         <div className='mt-[4.8rem] flex flex-col gap-[4.8rem]'>
           <SectionCard>

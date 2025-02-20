@@ -1,11 +1,8 @@
-import { z } from 'zod';
-
 export type TagType = { id: number; name: string };
 
 export type ExamType = { id: number; name: string };
 
-export const problemTypeSchema = z.enum(['CREATION_PROBLEM', 'GICHUL_PROBLEM', 'VARIANT_PROBLEM']);
-export type ProblemType = z.infer<typeof problemTypeSchema>;
+export type ProblemType = 'CREATION_PROBLEM' | 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM';
 
 export type ProblemAnswerType = 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
 
