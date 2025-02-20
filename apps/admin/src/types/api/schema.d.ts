@@ -485,7 +485,7 @@ export interface components {
     };
     ChildProblemUpdateRequest: {
       /** Format: int64 */
-      childProblemId: number;
+      childProblemId?: number;
       imageUrl?: string;
       /** @enum {string} */
       answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
@@ -533,6 +533,7 @@ export interface components {
       id: number;
       problemCustomId: string;
       conceptTagIds: number[];
+      isConfirmed?: boolean;
       /** Format: int64 */
       practiceTestId?: number;
       /** Format: int32 */
@@ -597,6 +598,8 @@ export interface components {
       password: string;
     };
     PublishMonthGetResponse: {
+      /** Format: int64 */
+      publishId?: number;
       /** Format: int32 */
       day?: number;
       problemSetInfo?: components['schemas']['PublishProblemSetResponse'];
@@ -615,7 +618,7 @@ export interface components {
       /** Format: int64 */
       id: number;
       problemCustomId: string;
-      memo?: string;
+      title?: string;
       mainProblemImageUrl?: string;
       conceptTagResponses: components['schemas']['ConceptTagSearchResponse'][];
     };
@@ -625,12 +628,13 @@ export interface components {
       title?: string;
       /** @enum {string} */
       confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
-      /** Format: date */
-      publishedDate?: string;
+      publishedDates: string[];
       problemSummaries: components['schemas']['ProblemSummaryResponse'][];
     };
     ProblemSummaryResponse: {
-      problemId?: string;
+      /** Format: int64 */
+      problemId: number;
+      problemCustomId: string;
       /** Format: int32 */
       number?: number;
       practiceTestName?: string;
@@ -639,6 +643,8 @@ export interface components {
       tagNames: string[];
     };
     ProblemSetSearchGetResponse: {
+      /** Format: int64 */
+      id: number;
       problemSetTitle?: string;
       /** @enum {string} */
       confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
@@ -1129,7 +1135,7 @@ export interface operations {
     parameters: {
       query?: {
         problemCustomId?: string;
-        memo?: string;
+        title?: string;
         conceptTagIds?: number[];
       };
       header?: never;
