@@ -1,5 +1,8 @@
+export { default as IcCloseCircle } from './IcCloseCircle';
+export { default as IcCloseSmallWhite } from './IcCloseSmallWhite';
 export { default as IcCloseSmall } from './IcCloseSmall';
 export { default as IcDeleteButton } from './IcDeleteButton';
+export { default as IcDeleteSm } from './IcDeleteSm';
 export { default as IcDelete } from './IcDelete';
 export { default as IcDown } from './IcDown';
 export { default as IcError } from './IcError';
@@ -16,4 +19,5 @@ export { default as IcSearch } from './IcSearch';
 export { default as IcSelectButton } from './IcSelectButton';
 export { default as IcUnselectedButton } from './IcUnselectedButton';
 export { default as IcUp } from './IcUp';
+export { default as IcUpload } from './IcUpload';
 export { default as IcViewButton } from './IcViewButton';

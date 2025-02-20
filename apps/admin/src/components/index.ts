@@ -1,45 +1,28 @@
-import {
-  Button,
-  DeleteButton,
-  FloatingButton,
-  IconButton,
-  PlusButton,
-  PrevPageButton,
-} from './Buttons';
-import { AnswerInput, Input, LevelSelect, SearchInput, TagSelect } from './Inputs';
-import {
-  ErrorModalTemplate,
-  OneButtonModalTemplate,
-  TwoButtonModalTemplate,
-} from './ModalTemplates';
 import GNBMenu from './GNBMenu';
 import StatusToggle from './StatusToggle';
-import Modal from './Modal';
 import Tag from './Tag';
 import ProblemCard from './ProblemCard';
 import Calendar from './Calandar';
 import ProblemPreview from './ProblemPreview';
+import GNB from './GNB';
+import ImageUpload from './ImageUpload';
+import Header from './Header';
+import ComponentWithLabel from './ComponentWithLabel';
+import SectionCard from './SectionCard';
 
+export * from './Buttons';
+export * from './Inputs';
+export * from './Modals';
 export {
-  Button,
-  IconButton,
-  PrevPageButton,
-  PlusButton,
-  FloatingButton,
-  DeleteButton,
   GNBMenu,
   StatusToggle,
-  Modal,
   Tag,
   ProblemCard,
-  Input,
-  SearchInput,
-  TagSelect,
-  AnswerInput,
-  LevelSelect,
   Calendar,
-  ErrorModalTemplate,
-  OneButtonModalTemplate,
-  TwoButtonModalTemplate,
   ProblemPreview,
+  GNB,
+  ImageUpload,
+  Header,
+  ComponentWithLabel,
+  SectionCard,
 };

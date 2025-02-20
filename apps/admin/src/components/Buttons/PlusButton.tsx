@@ -13,7 +13,8 @@ const PlusButton = ({ variant = 'dark', ...props }: PlusButtonProps) => {
 
   return (
     <button
-      className={`${variantStyles[variant]} flex h-[6rem] w-[6rem] items-center justify-center rounded-full`}
+      type='button'
+      className={`${variantStyles[variant]} flex h-[6rem] w-[6rem] min-w-[6rem] items-center justify-center rounded-full`}
       {...props}>
       <IcPlus width={24} height={24} />
     </button>

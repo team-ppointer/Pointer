@@ -4,6 +4,31 @@
  */
 
 export interface paths {
+  '/api/v1/problems/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 문항 조회
+     * @description 문항를 조회합니다.
+     */
+    get: operations['getProblem'];
+    /**
+     * 문항 업데이트
+     * @description 문제를 업데이트합니다. 새끼문항은 들어온 list의 순서로 저장됩니다.
+     */
+    put: operations['updateProblem'];
+    post?: never;
+    /** 문항 삭제 */
+    delete: operations['updateProblem_1'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/problemSet/{problemSetId}': {
     parameters: {
       query?: never;
@@ -11,7 +36,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /**
+     * 문항세트 개별 조회
+     * @description 문항세트를 조회합니다.
+     */
+    get: operations['getProblemSet'];
     /**
      * 문항세트 수정
      * @description 문항세트의 이름 및 문항 리스트를 수정합니다.
@@ -22,27 +51,7 @@ export interface paths {
      * 문항세트 삭제
      * @description 문항세트를 삭제합니다. (soft delete)
      */
-    delete: operations['deleteProblemSet'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/problemSet/{problemSetId}/sequence': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /**
-     * 세트 문항순서 변경
-     * @description 문항세트 내의 문항 리스트의 순서를 변경합니다.
-     */
-    put: operations['reorderProblems'];
-    post?: never;
-    delete?: never;
+    delete: operations['deleteProblemSet_1'];
     options?: never;
     head?: never;
     patch?: never;
@@ -68,6 +77,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/publish': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * 발행 생성하기
+     * @description 특정 날짜에 문항세트를 발행합니다.
+     */
+    post: operations['postPublish'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/problems': {
     parameters: {
       query?: never;
@@ -79,7 +108,7 @@ export interface paths {
     put?: never;
     /**
      * 문항 생성
-     * @description 문제를 생성합니다. 새끼 문항은 list 순서대로 sequence를 저장합니다.
+     * @description 문제를 생성합니다. 기출/변형 문제는 모든 값이 필수이며 창작 문제는 문항 타입만 필수 입니다.
      */
     post: operations['createProblem'];
     delete?: never;
@@ -88,26 +117,21 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/v1/problems/{id}': {
+  '/api/v1/problems/{problemId}/child-problems': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /**
-     * 문항 조회
-     * @description 문항를 조회합니다.
-     */
-    get: operations['getProblem'];
+    get?: never;
     put?: never;
     /**
-     * 문항 업데이트
-     * @description 문제를 업데이트합니다. 문항 번호, 모의고사는 수정할 수 없습니다. 새로 추가되는 새끼문항 id는 빈 값입니다.
+     * 새끼문항 추가
+     * @description 추가되는 새끼 문항의 id를 반환합니다. 컨펌 이후에는 새끼 문항 추가가 불가능합니다.
      */
-    post: operations['updateProblem'];
-    /** 문항 삭제 */
-    delete: operations['updateProblem_1'];
+    post: operations['createChildProblem'];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -144,9 +168,29 @@ export interface paths {
     put?: never;
     /**
      * 어드민 로그인
-     * @description 아아디 패스워드 로그인 후 토큰 발급합니다.
+     * @description 이메일과 비밀번호로 로그인하여 액세스 토큰을 발급받고 리프레시 토큰을 쿠키에 설정합니다.
      */
     post: operations['adminLogin'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/publish/{year}/{month}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 연월별 발행 조회
+     * @description 연월별로 발행된 세트들을 조회합니다.
+     */
+    get: operations['getPublishMonth'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -165,6 +209,46 @@ export interface paths {
      * @description 문항 ID, 문제명, 개념 태그리스트로 문제를 검색합니다. 개념 태그리스트는 OR 조건으로 검색하며 값이 없으면 쿼리파라미터에서 빼주세요
      */
     get: operations['search'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/problemSet/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 문항세트 검색
+     * @description 문항세트 타이틀, 문항세트 내 포함된 개념태그, 문항세트 내 포함된 문항 타이틀로 검색합니다. 발행상태는 발행이면 CONFIRMED, 아니면 NOT_CONFIRMED 입니다.
+     */
+    get: operations['search_1'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/problemSet/confirm/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 발행용 문항세트 검색
+     * @description 문항세트 타이틀, 문항세트 내 포함된 개념태그, 문항세트 내 포함된 문항 타이틀로 검색합니다. 발행상태가 CONFIRMED 문항세트만 조회됩니다..
+     */
+    get: operations['confirmSearch'];
     put?: never;
     post?: never;
     delete?: never;
@@ -210,6 +294,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/images/{fileName}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 이미지 업로드 완료 후 URL 조회 */
+    get: operations['getImageUrl'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/images/problem/{problemId}/presigned-url': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 이미지 업로드를 위한 presigned URL 발급 */
+    get: operations['getProblemImagePresignedUrl'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/conceptTags': {
     parameters: {
       query?: never;
@@ -227,14 +345,74 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/auth/reissue': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 토큰 재발급
+     * @description 리프레시 토큰을 통해 새로운 액세스 토큰을 발급하고 새로운 리프레시 토큰을 쿠키에 설정합니다.
+     */
+    get: operations['reissueToken'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/publish/{publishId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * 발행 삭제
+     * @description 발행을 삭제합니다.
+     */
+    delete: operations['deleteProblemSet'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/problems/{problemId}/child-problems/{childProblemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * 새끼 문항 삭제
+     * @description 컨펌 이후에는 새끼 문항 삭제가 불가능합니다.
+     */
+    delete: operations['deleteChildProblem'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     ErrorResponse: {
-      message?: string;
+      message: string;
       /** @enum {string} */
-      status?:
+      status:
         | '100 CONTINUE'
         | '101 SWITCHING_PROTOCOLS'
         | '102 PROCESSING'
@@ -305,112 +483,178 @@ export interface components {
         | '510 NOT_EXTENDED'
         | '511 NETWORK_AUTHENTICATION_REQUIRED';
     };
-    ProblemSetUpdateRequest: {
-      problemSetName?: string;
-      problems?: string[];
-    };
-    ProblemReorderRequest: {
-      newProblems?: string[];
-    };
-    ChildProblemPostRequest: {
+    ChildProblemUpdateRequest: {
+      /** Format: int64 */
+      childProblemId: number;
       imageUrl?: string;
       /** @enum {string} */
-      problemType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       answer?: string;
-      conceptTagIds?: number[];
-      /** Format: int32 */
-      sequence?: number;
+      conceptTagIds: number[];
     };
-    ProblemPostRequest: {
-      conceptTagIds?: number[];
+    ProblemUpdateRequest: {
+      /** @enum {string} */
+      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       /** Format: int64 */
       practiceTestId?: number;
       /** Format: int32 */
       number?: number;
+      conceptTagIds: number[];
       answer?: string;
-      comment?: string;
+      title?: string;
+      /** Format: int32 */
+      difficulty?: number;
+      memo?: string;
       mainProblemImageUrl?: string;
       mainAnalysisImageUrl?: string;
+      mainHandwritingExplanationImageUrl?: string;
       readingTipImageUrl?: string;
       seniorTipImageUrl?: string;
-      prescriptionImageUrl?: string;
-      childProblems?: components['schemas']['ChildProblemPostRequest'][];
-    };
-    ChildProblemUpdateRequest: {
-      /**
-       * Format: int64
-       * @description 새로 생성되는 새끼문항은 빈 값입니다.
-       */
-      id?: number;
-      imageUrl?: string;
+      prescriptionImageUrls?: string[];
       /** @enum {string} */
-      problemType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
-      answer?: string;
-      conceptTagIds?: number[];
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      updateChildProblems: components['schemas']['ChildProblemUpdateRequest'][];
       /** Format: int32 */
-      sequence?: number;
-    };
-    ProblemUpdateRequest: {
-      conceptTagIds?: number[];
+      recommendedMinute?: number;
       /** Format: int32 */
-      answer?: number;
-      comment?: string;
-      mainProblemImageUrl?: string;
-      mainAnalysisImageUrl?: string;
-      readingTipImageUrl?: string;
-      seniorTipImageUrl?: string;
-      prescriptionImageUrl?: string;
-      updateChildProblems?: components['schemas']['ChildProblemUpdateRequest'][];
-      deleteChildProblems?: number[];
+      recommendedSecond?: number;
     };
     ChildProblemGetResponse: {
       /** Format: int64 */
-      childProblemId?: number;
+      childProblemId: number;
       imageUrl?: string;
       /** @enum {string} */
-      problemType?: 'MULTIPLE_CHOICE' | 'SHORT_NUMBER_ANSWER' | 'SHORT_STRING_ANSWER';
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       answer?: string;
-      conceptTagIds?: number[];
+      conceptTagIds: number[];
     };
     ProblemGetResponse: {
-      problemId?: string;
-      conceptTagIds?: number[];
+      /** Format: int64 */
+      id: number;
+      problemCustomId: string;
+      conceptTagIds: number[];
       /** Format: int64 */
       practiceTestId?: number;
       /** Format: int32 */
       number?: number;
+      /** Format: int32 */
+      difficulty?: number;
+      title?: string;
       answer?: string;
-      comment?: string;
+      memo?: string;
+      /** @enum {string} */
+      problemType?: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      /** @enum {string} */
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       mainProblemImageUrl?: string;
+      mainHandwritingExplanationImageUrl?: string;
       mainAnalysisImageUrl?: string;
       readingTipImageUrl?: string;
       seniorTipImageUrl?: string;
-      prescriptionImageUrl?: string;
-      childProblems?: components['schemas']['ChildProblemGetResponse'][];
+      prescriptionImageUrls: string[];
+      childProblems: components['schemas']['ChildProblemGetResponse'][];
+      /** Format: int32 */
+      recommendedMinute?: number;
+      /** Format: int32 */
+      recommendedSecond?: number;
+    };
+    ProblemSetUpdateRequest: {
+      problemSetTitle?: string;
+      problemIds: number[];
+    };
+    PublishPostRequest: {
+      /** Format: date */
+      publishedDate: string;
+      /** Format: int64 */
+      problemSetId: number;
+    };
+    IdResponse: {
+      /** Format: int64 */
+      id: number;
+    };
+    ProblemPostRequest: {
+      /** @enum {string} */
+      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      /** Format: int64 */
+      practiceTestId?: number;
+      /** Format: int32 */
+      number?: number;
+    };
+    ProblemPostResponse: {
+      /** Format: int64 */
+      id: number;
+      problemCustomId: string;
     };
     ProblemSetPostRequest: {
-      problemSetName?: string;
-      problems?: string[];
+      problemSetTitle?: string;
+      problems: number[];
+    };
+    AccessTokenResponse: {
+      accessToken: string;
     };
     AdminLoginRequest: {
-      email?: string;
-      password?: string;
+      email: string;
+      password: string;
+    };
+    PublishMonthGetResponse: {
+      /** Format: int32 */
+      day?: number;
+      problemSetInfo?: components['schemas']['PublishProblemSetResponse'];
+    };
+    PublishProblemSetResponse: {
+      /** Format: int64 */
+      id?: number;
+      title?: string;
     };
     ConceptTagSearchResponse: {
       /** Format: int64 */
-      id?: number;
-      name?: string;
+      id: number;
+      name: string;
     };
     ProblemSearchGetResponse: {
-      problemId?: string;
-      comment?: string;
+      /** Format: int64 */
+      id: number;
+      problemCustomId: string;
+      memo?: string;
       mainProblemImageUrl?: string;
-      conceptTagResponses?: components['schemas']['ConceptTagSearchResponse'][];
+      conceptTagResponses: components['schemas']['ConceptTagSearchResponse'][];
+    };
+    ProblemSetGetResponse: {
+      /** Format: int64 */
+      id?: number;
+      title?: string;
+      /** @enum {string} */
+      confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
+      /** Format: date */
+      publishedDate?: string;
+      problemSummaries: components['schemas']['ProblemSummaryResponse'][];
+    };
+    ProblemSummaryResponse: {
+      problemId?: string;
+      /** Format: int32 */
+      number?: number;
+      practiceTestName?: string;
+      memo?: string;
+      mainProblemImageUrl?: string;
+      tagNames: string[];
+    };
+    ProblemSetSearchGetResponse: {
+      problemSetTitle?: string;
+      /** @enum {string} */
+      confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
+      /** Format: date */
+      publishedDate?: string;
+      problemThumbnailResponses: components['schemas']['ProblemThumbnailResponse'][];
+    };
+    ProblemThumbnailResponse: {
+      problemTitle?: string;
+      problemMemo?: string;
+      mainProblemImageUrl?: string;
     };
     PracticeTestTagResponse: {
       /** Format: int64 */
-      id?: number;
-      name?: string;
+      id: number;
+      name: string;
     };
     MemberGetResponse: {
       /** Format: int64 */
@@ -418,10 +662,13 @@ export interface components {
       name?: string;
       email?: string;
     };
+    PresignedUrlResponse: {
+      presignedUrl: string;
+    };
     ConceptTagResponse: {
       /** Format: int64 */
-      id?: number;
-      name?: string;
+      id: number;
+      name: string;
     };
   };
   responses: never;
@@ -432,6 +679,138 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  getProblem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['ProblemGetResponse'];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  updateProblem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ProblemUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['ProblemGetResponse'];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  updateProblem_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  getProblemSet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemSetId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['ProblemSetGetResponse'];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
   updateProblemSet: {
     parameters: {
       query?: never;
@@ -465,7 +844,7 @@ export interface operations {
       };
     };
   };
-  deleteProblemSet: {
+  deleteProblemSet_1: {
     parameters: {
       query?: never;
       header?: never;
@@ -475,39 +854,6 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Internal Server Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['ErrorResponse'];
-        };
-      };
-    };
-  };
-  reorderProblems: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        problemSetId: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProblemReorderRequest'];
-      };
-    };
     responses: {
       /** @description OK */
       200: {
@@ -544,7 +890,45 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': 'CONFIRMED' | 'NOT_CONFIRMED';
+          '*/*': {
+            /** @enum {string} */
+            data: 'CONFIRMED' | 'NOT_CONFIRMED';
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  postPublish: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PublishPostRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['IdResponse'];
+          };
         };
       };
       /** @description Internal Server Error */
@@ -577,7 +961,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': string;
+          '*/*': {
+            data: components['schemas']['ProblemPostResponse'];
+          };
         };
       };
       /** @description Internal Server Error */
@@ -591,12 +977,12 @@ export interface operations {
       };
     };
   };
-  getProblem: {
+  createChildProblem: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        id: string;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -608,73 +994,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ProblemGetResponse'];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['ErrorResponse'];
-        };
-      };
-    };
-  };
-  updateProblem: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProblemUpdateRequest'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['ProblemGetResponse'];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['ErrorResponse'];
-        };
-      };
-    };
-  };
-  updateProblem_1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['ProblemGetResponse'];
+          '*/*': {
+            data: components['schemas']['IdResponse'];
+          };
         };
       };
       /** @description Internal Server Error */
@@ -707,7 +1029,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': number;
+          '*/*': {
+            data: components['schemas']['IdResponse'];
+          };
         };
       };
       /** @description Internal Server Error */
@@ -737,27 +1061,58 @@ export interface operations {
       /** @description 로그인 성공 */
       200: {
         headers: {
-          /** @description Access Token */
-          Authorization?: string;
-          /** @description Refresh Token */
-          RefreshToken?: string;
+          /** @description 리프레시 토큰이 담긴 HTTP Only 쿠키 */
+          'Set-Cookie'?: string;
           [name: string]: unknown;
         };
-        content?: never;
-      };
-      /** @description 잘못된 요청 */
-      400: {
-        headers: {
-          [name: string]: unknown;
+        content: {
+          'application/json': {
+            data: components['schemas']['AccessTokenResponse'];
+          };
         };
-        content?: never;
       };
-      /** @description 인증 실패 */
+      /** @description 인증 실패 (잘못된 이메일 또는 비밀번호) */
       401: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  getPublishMonth: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        year: number;
+        month: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['PublishMonthGetResponse'][];
+          };
+        };
       };
       /** @description Internal Server Error */
       500: {
@@ -773,8 +1128,8 @@ export interface operations {
   search: {
     parameters: {
       query?: {
-        problemId?: string;
-        comment?: string;
+        problemCustomId?: string;
+        memo?: string;
         conceptTagIds?: number[];
       };
       header?: never;
@@ -789,7 +1144,77 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ProblemSearchGetResponse'][];
+          '*/*': {
+            data: components['schemas']['ProblemSearchGetResponse'][];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  search_1: {
+    parameters: {
+      query?: {
+        problemSetTitle?: string;
+        problemTitle?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['ProblemSetSearchGetResponse'][];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  confirmSearch: {
+    parameters: {
+      query?: {
+        problemSetTitle?: string;
+        problemTitle?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['ProblemSetSearchGetResponse'][];
+          };
         };
       };
       /** @description Internal Server Error */
@@ -818,7 +1243,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['PracticeTestTagResponse'][];
+          '*/*': {
+            data: components['schemas']['PracticeTestTagResponse'][];
+          };
         };
       };
       /** @description Internal Server Error */
@@ -847,7 +1274,84 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['MemberGetResponse'];
+          '*/*': {
+            data: components['schemas']['MemberGetResponse'];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  getImageUrl: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        fileName: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  getProblemImagePresignedUrl: {
+    parameters: {
+      query: {
+        'image-type':
+          | 'MAIN_PROBLEM'
+          | 'MAIN_ANALYSIS'
+          | 'MAIN_HANDWRITING_EXPLANATION'
+          | 'READING_TIP'
+          | 'SENIOR_TIP'
+          | 'PRESCRIPTION'
+          | 'CHILD_PROBLEM';
+      };
+      header?: never;
+      path: {
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['PresignedUrlResponse'];
+          };
         };
       };
       /** @description Internal Server Error */
@@ -876,8 +1380,120 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ConceptTagResponse'][];
+          '*/*': {
+            data: components['schemas']['ConceptTagResponse'][];
+          };
         };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  reissueToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 토큰 재발급 성공 */
+      200: {
+        headers: {
+          /** @description 새로운 리프레시 토큰이 담긴 HTTP Only 쿠키 */
+          'Set-Cookie'?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['AccessTokenResponse'];
+          };
+        };
+      };
+      /** @description 유효하지 않은 리프레시 토큰 */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+      /** @description 리프레시 토큰 쿠키 없음 */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  deleteProblemSet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  deleteChildProblem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemId: number;
+        childProblemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Internal Server Error */
       500: {
