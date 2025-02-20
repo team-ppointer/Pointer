@@ -1,10 +1,13 @@
+import { z } from 'zod';
+
 export type TagType = { id: number; name: string };
 
 export type ExamType = { id: number; name: string };
 
-export type ProblemType = 'CREATION_PROBLEM' | 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM';
+export const problemTypeSchema = z.enum(['CREATION_PROBLEM', 'GICHUL_PROBLEM', 'VARIANT_PROBLEM']);
+export type ProblemType = z.infer<typeof problemTypeSchema>;
 
-export type ProblemAnswerType = 'MULTIPLE_CHOICE' | 'SHORT_STRING_ANSWER';
+export type ProblemAnswerType = 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
 
 export type LevelType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 

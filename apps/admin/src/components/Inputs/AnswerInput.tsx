@@ -2,10 +2,10 @@ import { Input } from '@components';
 import { ProblemAnswerType } from '@types';
 import { forwardRef } from 'react';
 
-const AnswerTypeList = ['MULTIPLE_CHOICE', 'SHORT_STRING_ANSWER'];
+const AnswerTypeList = ['MULTIPLE_CHOICE', 'SHORT_ANSWER'];
 const AnswerTypeName = {
   MULTIPLE_CHOICE: '객',
-  SHORT_STRING_ANSWER: '주',
+  SHORT_ANSWER: '주',
 };
 
 interface AnswerTypeSectionProps {
@@ -45,7 +45,7 @@ const AnswerInputSection = forwardRef<HTMLInputElement, AnswerInputSectionProps>
   ({ selectedAnswerType, selectedAnswer, ...props }, ref) => {
     return (
       <>
-        {selectedAnswerType === 'SHORT_STRING_ANSWER' && <Input ref={ref} {...props} />}
+        {selectedAnswerType === 'SHORT_ANSWER' && <Input ref={ref} {...props} />}
         {selectedAnswerType === 'MULTIPLE_CHOICE' && (
           <div className='flex items-center justify-between gap-[1.6rem]'>
             {Array.from({ length: 5 }, (_, i) => (i + 1).toString()).map((num) => (
