@@ -136,7 +136,7 @@ function RouteComponent() {
         </div>
       </form>
       {selectedTagList.length > 0 && (
-        <div className='mt-[4.8rem] flex gap-[0.8rem]'>
+        <div className='mt-[4.8rem] flex flex-wrap gap-[0.8rem]'>
           {selectedTagList.map((tag) => (
             <Tag
               key={tag}
