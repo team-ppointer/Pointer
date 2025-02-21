@@ -114,7 +114,7 @@ function RouteComponent() {
             label='문항 타이틀'
             sizeType='long'
             placeholder='입력해주세요.'
-            {...register('problemTitle', { required: false })}
+            {...register('title', { required: false })}
           />
           <div className='flex flex-col gap-[1.2rem]'>
             <span className='font-medium-18 text-black'>문항 개념 태그</span>
@@ -156,30 +156,30 @@ function RouteComponent() {
       ) : (
         <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
           {problemList?.data.map(
-            ({ id, problemCustomId, title, mainProblemImageUrl, conceptTagResponses }) => (
+            ({ problemId, problemCustomId, problemTitle, memo, mainProblemImageUrl, tagNames }) => (
               <Link
                 key={problemCustomId}
                 to={`/problem/$problemId`}
-                params={{ problemId: id.toString() }}>
+                params={{ problemId: problemId.toString() }}>
                 <ProblemCard>
                   <ProblemCard.TextSection>
                     <ProblemCard.Info label='문항 ID' content={problemCustomId} />
-                    <ProblemCard.Info label='문항 타이틀' content={title} />
-                    <ProblemCard.Info label='문항 메모' content={title} />
+                    <ProblemCard.Info label='문항 타이틀' content={problemTitle} />
+                    <ProblemCard.Info label='문항 메모' content={memo} />
                   </ProblemCard.TextSection>
 
                   <ProblemCard.ButtonSection>
                     <IconButton
                       variant='delete'
-                      onClick={(e) => handleClickDelete(e, id.toString())}
+                      onClick={(e) => handleClickDelete(e, problemId.toString())}
                     />
                   </ProblemCard.ButtonSection>
 
                   <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
 
                   <ProblemCard.TagSection>
-                    {(conceptTagResponses || []).map((tag) => {
-                      return <Tag key={tag.id} label={tag.name} />;
+                    {(tagNames || []).map((tag, tagIndex) => {
+                      return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
                     })}
                   </ProblemCard.TagSection>
                 </ProblemCard>

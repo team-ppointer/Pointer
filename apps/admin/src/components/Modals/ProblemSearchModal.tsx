@@ -1,13 +1,18 @@
 import { getConceptTags, getProblemsSearch } from '@apis';
 import { Button, ProblemCard, SearchInput, Tag } from '@components';
+import { components } from '@schema';
 import { getProblemsSearchParamsType } from '@types';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
 
-interface ProblemSearchModalProps {}
+type ProblemSearchGetResponse = components['schemas']['ProblemSearchGetResponse'];
 
-const ProblemSearchModal = ({}: ProblemSearchModalProps) => {
+interface ProblemSearchModalProps {
+  onClickCard(problem: ProblemSearchGetResponse): void;
+}
+
+const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
   const deleteProblemId = useRef<number | null>(null);
 
   const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
@@ -65,7 +70,7 @@ const ProblemSearchModal = ({}: ProblemSearchModalProps) => {
             label='문항 타이틀'
             sizeType='long'
             placeholder='입력해주세요.'
-            {...register('problemTitle', { required: false })}
+            {...register('title', { required: false })}
           />
           {/* <div className='flex flex-col gap-[1.2rem]'>
             <span className='font-medium-18 text-black'>문항 개념 태그</span>
@@ -91,27 +96,30 @@ const ProblemSearchModal = ({}: ProblemSearchModalProps) => {
         </div>
       ) : (
         <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem] pb-[4.8rem]'>
-          {problemList?.data.map(
-            ({ id, problemCustomId, title, mainProblemImageUrl, conceptTagResponses }) => (
-              <div className='border-lightgray500 rounded-[16px] border'>
+          {problemList?.data.map((problem) => {
+            const { problemCustomId, problemTitle, memo, mainProblemImageUrl, tagNames } = problem;
+            return (
+              <div
+                className='border-lightgray500 rounded-[16px] border'
+                onClick={() => onClickCard(problem)}>
                 <ProblemCard>
                   <ProblemCard.TextSection>
                     <ProblemCard.Info label='문항 ID' content={problemCustomId} />
-                    <ProblemCard.Info label='문항 타이틀' content={title} />
-                    <ProblemCard.Info label='문항 메모' content={title} />
+                    <ProblemCard.Info label='문항 타이틀' content={problemTitle} />
+                    <ProblemCard.Info label='문항 메모' content={memo} />
                   </ProblemCard.TextSection>
 
                   <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
 
                   <ProblemCard.TagSection>
-                    {(conceptTagResponses || []).map((tag) => {
-                      return <Tag key={tag.id} label={tag.name} />;
+                    {(tagNames || []).map((tag, tagIndex) => {
+                      return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
                     })}
                   </ProblemCard.TagSection>
                 </ProblemCard>
               </div>
-            )
-          )}
+            );
+          })}
         </section>
       )}
     </div>

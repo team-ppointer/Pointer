@@ -1,4 +1,4 @@
-import { $api, deleteProblemSet, getSearchProblemSet } from '@apis';
+import { $api, deleteProblemSet, getSearchProblemSet, postProblemSet } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -12,7 +12,7 @@ import {
 } from '@components';
 import { useModal } from '@hooks';
 import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { getSearchProblemSetParamsType } from '@types';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -23,6 +23,8 @@ export const Route = createFileRoute('/_GNBLayout/problem-set/')({
 
 function RouteComponent() {
   const queryClient = useQueryClient();
+  const { navigate } = useRouter();
+
   const [searchQuery, setSearchQuery] = useState<getSearchProblemSetParamsType>({});
   const { register, handleSubmit, reset } = useForm<getSearchProblemSetParamsType>();
   const {
@@ -34,6 +36,7 @@ function RouteComponent() {
   const deleteProblemSetId = useRef<number | null>(null);
 
   const { data: problemSetList } = getSearchProblemSet(searchQuery);
+  const { mutate: mutatePostProblemSet } = postProblemSet();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
 
   const handleClickSearch = (data: getSearchProblemSetParamsType) => {
@@ -71,6 +74,22 @@ function RouteComponent() {
             queryKey: $api.queryOptions('get', '/api/v1/problemSet/search').queryKey,
           });
           closeDeleteModal();
+        },
+      }
+    );
+  };
+
+  const handleClickRegister = () => {
+    mutatePostProblemSet(
+      {},
+      {
+        onSuccess: (data) => {
+          navigate({
+            to: '/problem-set/$problemSetId',
+            params: {
+              problemSetId: data.data.id.toString(),
+            },
+          });
         },
       }
     );
@@ -131,11 +150,7 @@ function RouteComponent() {
           </SectionCard>
         ))}
       </div>
-      <FloatingButton>
-        <Link to='/problem-set/register' className='flex h-full w-full items-center justify-center'>
-          새로운 세트 등록하기
-        </Link>
-      </FloatingButton>
+      <FloatingButton onClick={handleClickRegister}>새로운 세트 등록하기</FloatingButton>
       <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
         <TwoButtonModalTemplate
           text='세트를 삭제할까요?'

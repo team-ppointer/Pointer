@@ -485,7 +485,7 @@ export interface components {
     };
     ChildProblemUpdateRequest: {
       /** Format: int64 */
-      childProblemId?: number;
+      childProblemId: number;
       imageUrl?: string;
       /** @enum {string} */
       answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
@@ -586,10 +586,6 @@ export interface components {
       id: number;
       problemCustomId: string;
     };
-    ProblemSetPostRequest: {
-      problemSetTitle?: string;
-      problems: number[];
-    };
     AccessTokenResponse: {
       accessToken: string;
     };
@@ -609,18 +605,14 @@ export interface components {
       id?: number;
       title?: string;
     };
-    ConceptTagSearchResponse: {
-      /** Format: int64 */
-      id: number;
-      name: string;
-    };
     ProblemSearchGetResponse: {
       /** Format: int64 */
-      id: number;
+      problemId: number;
       problemCustomId: string;
-      title?: string;
+      problemTitle?: string;
+      memo?: string;
       mainProblemImageUrl?: string;
-      conceptTagResponses: components['schemas']['ConceptTagSearchResponse'][];
+      tagNames: string[];
     };
     ProblemSetGetResponse: {
       /** Format: int64 */
@@ -635,9 +627,7 @@ export interface components {
       /** Format: int64 */
       problemId: number;
       problemCustomId: string;
-      /** Format: int32 */
-      number?: number;
-      practiceTestName?: string;
+      problemTitle?: string;
       memo?: string;
       mainProblemImageUrl?: string;
       tagNames: string[];
@@ -648,8 +638,6 @@ export interface components {
       problemSetTitle?: string;
       /** @enum {string} */
       confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
-      /** Format: date */
-      publishedDate?: string;
       problemThumbnailResponses: components['schemas']['ProblemThumbnailResponse'][];
     };
     ProblemThumbnailResponse: {
@@ -1023,11 +1011,7 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProblemSetPostRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
       /** @description OK */
       200: {

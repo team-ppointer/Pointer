@@ -1,6 +1,6 @@
 const ProblemCard = ({ children }: { children: React.ReactNode }) => {
   return (
-    <section className='relative flex h-fit w-full min-w-[48rem] cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
+    <section className='relative flex min-h-[67rem] w-full min-w-[48rem] cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
       {children}
     </section>
   );
@@ -50,7 +50,7 @@ const CardTagSection = ({ children }: { children: React.ReactNode }) => {
 const CardEmptyView = ({ onClick }: { onClick: () => void }) => {
   return (
     <div
-      className='flex h-[60.6rem] w-full cursor-pointer items-center justify-center'
+      className='flex h-full w-full cursor-pointer items-center justify-center'
       onClick={onClick}>
       <span className='font-bold-24 text-lightgray500 text-center whitespace-pre-line'>{`여기를 클릭해\n문항을 추가해주세요.`}</span>
     </div>

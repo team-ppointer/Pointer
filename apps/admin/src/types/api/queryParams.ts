@@ -1,6 +1,6 @@
 export interface getProblemsSearchParamsType {
   problemCustomId?: string;
-  problemTitle?: string;
+  title?: string;
   conceptTagIds?: number[];
 }
 
