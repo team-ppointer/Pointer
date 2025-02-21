@@ -87,7 +87,7 @@ const ImageUpload = ({
     <div className='gap[2.4rem] flex w-full flex-col'>
       {imageUrl ? (
         <div className='relative h-[54.3rem] w-full overflow-hidden rounded-[1.6rem]'>
-          <img src={imageUrl} alt='upload-image' className='h-full w-full object-cover' />
+          <img src={imageUrl} alt='upload-image' className='h-full w-full object-contain' />
           <div className='absolute right-[1.6rem] bottom-[1.6rem] z-30 flex items-center gap-[1rem]'>
             <IconButton variant='view' />
             <IconButton variant='delete' onClick={openDeleteModal} />
