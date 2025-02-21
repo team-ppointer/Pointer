@@ -1,29 +1,53 @@
 {
   "name": "admin",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "serve": "vite preview",
+    "start": "vite",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "openapi": "pnpm dlx openapi-typescript https://dev.mopl.kr/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@hookform/resolvers": "^4.1.0",
+    "@tanstack/react-query": "^5.66.0",
+    "@tanstack/react-query-devtools": "^5.66.0",
+    "@tanstack/react-router": "^1.98.4",
+    "@tanstack/router-devtools": "^1.98.4",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
+    "immer": "^10.1.1",
+    "lodash": "^4.17.21",
+    "openapi-fetch": "^0.13.4",
+    "openapi-react-query": "^0.3.0",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-dropzone": "^14.3.5",
+    "react-hook-form": "^7.54.2",
+    "react-spinners": "^0.15.0",
+    "react-toastify": "^11.0.3",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@tailwindcss/postcss": "^4.0.4",
+    "@tanstack/eslint-plugin-query": "^5.66.0",
+    "@tanstack/router-plugin": "^1.98.6",
+    "@types/lodash": "^4.17.15",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "eslint": "^9.17.0",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
-    "typescript": "~5.6.2",
+    "openapi-typescript": "^7.6.1",
+    "openapi-typescript-helpers": "^0.0.15",
+    "typescript": "~5.6.3",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vite-plugin-svgr": "^4.3.0",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

@@ -1,16 +1,12 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import baseConfig from '../../eslint.config.mjs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+/** @type {import("eslint").FlatConfig[]} */
+export default [
+  ...baseConfig,
+  {
+    rules: {
+      'react/react-in-jsx-scope': 'off', // Next.js에서는 불필요
+      'react/jsx-props-no-spreading': 'off', // Next.js에서 Prop Spreading 허용
+    },
+  },
 ];
-
-export default eslintConfig;

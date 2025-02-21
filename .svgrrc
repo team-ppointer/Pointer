@@ -1,0 +1,17 @@
+{
+  "typescript": true,
+  "jsxRuntime": "automatic",
+  "dimensions": false,
+  "memo": true,
+  "svgo": true,
+  "svgoConfig": {
+    "plugins": [
+      {
+        "name": "removeViewBox",
+        "active": false
+      }
+    ]
+  },
+  "titleProp": true,
+  "icon": true
+}

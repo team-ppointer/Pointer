@@ -7,12 +7,25 @@
     "dev:service": "turbo dev --filter=service",
     "dev:admin": "turbo dev --filter=admin",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{js,ts,tsx,jsx,mjs,hbs,json,css,md}\"",
+    "svgr": "pnpm svgr:admin && pnpm svgr:service",
+    "svgr:admin": "pnpm dlx @svgr/cli apps/admin/public/svg --out-dir apps/admin/src/assets/svg --no-prettier && prettier --write \"apps/admin/src/assets/svg/**/*.{ts,tsx}\"",
+    "svgr:service": "pnpm dlx @svgr/cli apps/service/public/svg --out-dir apps/service/src/assets/svg --no-prettier && prettier --write \"apps/service/src/assets/svg/**/*.{ts,tsx}\""
   },
   "devDependencies": {
-    "prettier": "^3.2.5",
-    "turbo": "^2.3.3",
-    "typescript": "5.5.4"
+    "@typescript-eslint/eslint-plugin": "^8.23.0",
+    "@typescript-eslint/parser": "^8.23.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "postcss": "^8.5.1",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "tailwindcss": "^4.0.4",
+    "turbo": "^2.4.0",
+    "typescript": "5.7.3"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
