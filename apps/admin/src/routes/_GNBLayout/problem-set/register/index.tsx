@@ -56,8 +56,8 @@ function RouteComponent() {
           저장하기
         </Button>
       </div>
-      <div className='mt-[4.8rem] flex gap-[3.2rem]'>
-        {problemList.length === 0 ? (
+      <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
+        {problemList.length == 0 ? (
           <ProblemCard>
             <ProblemCard.EmptyView onClick={() => {}} />
           </ProblemCard>
