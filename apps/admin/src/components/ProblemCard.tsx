@@ -1,6 +1,6 @@
 const ProblemCard = ({ children }: { children: React.ReactNode }) => {
   return (
-    <section className='relative flex h-fit w-[48rem] cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
+    <section className='relative flex h-fit w-full min-w-[48rem] cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
       {children}
     </section>
   );
