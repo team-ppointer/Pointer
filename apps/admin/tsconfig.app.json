@@ -21,7 +21,27 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+
+    "types": ["vite/client"],
+
+    "baseUrl": "./",
+    "paths": {
+      "@": ["src"],
+      "@apis": ["src/apis"],
+      "@svg": ["src/assets/svg"],
+      "@image": ["public/image"],
+      "@components": ["src/components"],
+      "@contexts/*": ["src/contexts/*"],
+      "@constants": ["src/constants"],
+      "@hooks": ["src/hooks"],
+      "@layouts": ["src/layouts"],
+      "@schema": ["src/types/api/schema.d.ts"],
+      "@styles/*": ["src/styles/*"],
+      "@types": ["src/types"],
+      "@utils": ["src/utils"]
+    }
   },
   "include": ["src"]
 }
