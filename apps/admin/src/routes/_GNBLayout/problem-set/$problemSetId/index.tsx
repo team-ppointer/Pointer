@@ -38,7 +38,7 @@ function RouteComponent() {
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
 
   // RHF
-  const { register, handleSubmit, watch, reset } = useForm<ProblemSetPostRequest>({
+  const { register, handleSubmit, watch, reset, setValue } = useForm<ProblemSetPostRequest>({
     defaultValues: {
       problemSetTitle: '',
       problems: [],
@@ -66,12 +66,20 @@ function RouteComponent() {
     });
   };
 
-  // // useEffect
-  // useEffect(() => {
-  //   if (problemSetData) {
-  //     reset(problemSetData.data);
-  //   }
-  // }, [problemSetData]);
+  // useEffect
+  useEffect(() => {
+    if (problemSetData) {
+      setValue('problemSetTitle', problemSetData.data.title ?? '');
+      if (problemSetData.data.problemSummaries.length === 0) {
+        setValue('problems', []);
+      } else {
+        setValue(
+          'problems',
+          problemSetData.data.problemSummaries.map((problem) => problem.problemId)
+        );
+      }
+    }
+  }, [problemSetData]);
 
   return (
     <>
@@ -102,33 +110,27 @@ function RouteComponent() {
         </div>
       </div>
       <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
-        {problemList.length === 0 ? (
+        {problemList.map((problem) => (
           <ProblemCard>
-            <ProblemCard.EmptyView onClick={openSearchModal} />
+            <ProblemCard.TextSection>
+              <ProblemCard.Title title='문항 제목' />
+              <ProblemCard.Info label='문항 ID' content='00' />
+              <ProblemCard.Info label='문항 타이틀' content='타이틀' />
+              <ProblemCard.Info label='문항 메모' content='메모' />
+              <ProblemCard.TagSection>
+                <Tag label='태그명' />
+                <Tag label='태그명' />
+              </ProblemCard.TagSection>
+            </ProblemCard.TextSection>
+
+            <ProblemCard.ButtonSection>
+              <IconButton variant='modify' />
+              <IconButton variant='delete' />
+            </ProblemCard.ButtonSection>
+
+            <ProblemCard.CardImage src='' height={'34.4rem'} />
           </ProblemCard>
-        ) : (
-          problemList.map((problem) => (
-            <ProblemCard>
-              <ProblemCard.TextSection>
-                <ProblemCard.Title title='문항 제목' />
-                <ProblemCard.Info label='문항 ID' content='00' />
-                <ProblemCard.Info label='문항 타이틀' content='타이틀' />
-                <ProblemCard.Info label='문항 메모' content='메모' />
-                <ProblemCard.TagSection>
-                  <Tag label='태그명' />
-                  <Tag label='태그명' />
-                </ProblemCard.TagSection>
-              </ProblemCard.TextSection>
-
-              <ProblemCard.ButtonSection>
-                <IconButton variant='modify' />
-                <IconButton variant='delete' />
-              </ProblemCard.ButtonSection>
-
-              <ProblemCard.CardImage src='' height={'34.4rem'} />
-            </ProblemCard>
-          ))
-        )}
+        ))}
         <div className='flex items-center'>
           <PlusButton onClick={openSearchModal} />
         </div>
