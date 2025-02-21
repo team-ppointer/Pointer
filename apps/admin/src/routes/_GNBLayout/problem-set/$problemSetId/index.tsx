@@ -8,11 +8,14 @@ import {
   Modal,
   PlusButton,
   ProblemCard,
+  ProblemSearchModal,
   StatusToggle,
   Tag,
 } from '@components';
+import { useModal } from '@hooks';
 import { components } from '@schema';
 import { createFileRoute } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
@@ -23,6 +26,11 @@ type ProblemSetPostRequest = components['schemas']['ProblemSetPostRequest'];
 
 function RouteComponent() {
   const { problemSetId } = Route.useParams();
+  const {
+    isOpen: isSearchModalOpen,
+    openModal: openSearchModal,
+    closeModal: closeSearchModal,
+  } = useModal();
 
   // api
   const { data: problemSetData } = getProblemSetById(Number(problemSetId));
@@ -30,7 +38,7 @@ function RouteComponent() {
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
 
   // RHF
-  const { register, handleSubmit, watch } = useForm<ProblemSetPostRequest>({
+  const { register, handleSubmit, watch, reset } = useForm<ProblemSetPostRequest>({
     defaultValues: {
       problemSetTitle: '',
       problems: [],
@@ -57,6 +65,13 @@ function RouteComponent() {
       },
     });
   };
+
+  // // useEffect
+  // useEffect(() => {
+  //   if (problemSetData) {
+  //     reset(problemSetData.data);
+  //   }
+  // }, [problemSetData]);
 
   return (
     <>
@@ -86,10 +101,10 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <div className='mt-[4.8rem] flex gap-[3.2rem]'>
+      <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
         {problemList.length === 0 ? (
           <ProblemCard>
-            <ProblemCard.EmptyView onClick={() => {}} />
+            <ProblemCard.EmptyView onClick={openSearchModal} />
           </ProblemCard>
         ) : (
           problemList.map((problem) => (
@@ -115,9 +130,12 @@ function RouteComponent() {
           ))
         )}
         <div className='flex items-center'>
-          <PlusButton onClick={() => {}} />
+          <PlusButton onClick={openSearchModal} />
         </div>
       </div>
+      <Modal isOpen={isSearchModalOpen} onClose={closeSearchModal}>
+        <ProblemSearchModal />
+      </Modal>
     </>
   );
 }
