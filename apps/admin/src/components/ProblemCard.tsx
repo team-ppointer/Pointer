@@ -1,6 +1,6 @@
 const ProblemCard = ({ children }: { children: React.ReactNode }) => {
   return (
-    <section className='relative flex h-fit w-full cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
+    <section className='relative flex min-h-[67rem] w-full min-w-[48rem] cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
       {children}
     </section>
   );
@@ -15,7 +15,7 @@ const CardTitle = ({ title }: { title: string }) => {
 };
 
 const CardButtonSection = ({ children }: { children: React.ReactNode }) => {
-  return <div className='absolute top-[3.2rem] right-[3.2rem] flex gap-[0.6rem]'>{children}</div>;
+  return <div className='absolute top-[3.2rem] right-[3.2rem] flex gap-[1.6rem]'>{children}</div>;
 };
 
 const CardInfo = ({ label, content }: { label: string; content?: string }) => {
@@ -39,13 +39,18 @@ const CardImage = ({ src, height }: { src?: string; height: string }) => {
 };
 
 const CardTagSection = ({ children }: { children: React.ReactNode }) => {
-  return <div className='flex flex-wrap gap-[0.8rem]'>{children}</div>;
+  return (
+    <div className='flex gap-[1.6rem]'>
+      <span className='font-medium-18 text-midgray200 min-w-[6.7rem]'>개념 태그</span>
+      <div className='flex flex-wrap gap-[0.8rem]'>{children}</div>
+    </div>
+  );
 };
 
 const CardEmptyView = ({ onClick }: { onClick: () => void }) => {
   return (
     <div
-      className='flex h-[60.6rem] w-full cursor-pointer items-center justify-center'
+      className='flex h-full w-full cursor-pointer items-center justify-center'
       onClick={onClick}>
       <span className='font-bold-24 text-lightgray500 text-center whitespace-pre-line'>{`여기를 클릭해\n문항을 추가해주세요.`}</span>
     </div>

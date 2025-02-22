@@ -1,43 +1,38 @@
-import { $api, deleteProblemSet, getSearchProblemSet, postProblemSet } from '@apis';
+import { getConfirmProblemSet, postPublish } from '@apis';
 import {
   Button,
   FloatingButton,
   Header,
   IconButton,
-  Modal,
   ProblemPreview,
   SearchInput,
   SectionCard,
-  TwoButtonModalTemplate,
 } from '@components';
-import { useModal } from '@hooks';
-import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { getSearchProblemSetParamsType } from '@types';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-export const Route = createFileRoute('/_GNBLayout/problem-set/')({
+export const Route = createFileRoute('/_GNBLayout/publish/register/$publishDate/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const queryClient = useQueryClient();
-  const { navigate } = useRouter();
+  const { publishDate } = Route.useParams();
+  const dateArr = publishDate.split('-');
+  const year = dateArr[0];
+  const month = dateArr[1];
+  const day = dateArr[2];
 
+  // state
+  const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState<getSearchProblemSetParamsType>({});
+
+  // api
+  const { data: problemSetList } = getConfirmProblemSet(searchQuery);
+  const { mutate: mutatePostPublish } = postPublish();
+
   const { register, handleSubmit, reset } = useForm<getSearchProblemSetParamsType>();
-  const {
-    isOpen: isDeleteModalOpen,
-    openModal: openDeleteModal,
-    closeModal: closeDeleteModal,
-  } = useModal();
-
-  const deleteProblemSetId = useRef<number | null>(null);
-
-  const { data: problemSetList } = getSearchProblemSet(searchQuery);
-  const { mutate: mutatePostProblemSet } = postProblemSet();
-  const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
 
   const handleClickSearch = (data: getSearchProblemSetParamsType) => {
     const filteredData = Object.fromEntries(
@@ -52,52 +47,20 @@ function RouteComponent() {
     setSearchQuery({});
   };
 
-  const handleClickDelete = (problemSetId: number) => {
-    deleteProblemSetId.current = problemSetId;
-    openDeleteModal();
-  };
+  const handleClickPublish = () => {
+    if (!selectedSetId) return;
 
-  const handleMutateDelete = () => {
-    if (!deleteProblemSetId.current) return;
-
-    mutateDeleteProblemSet(
-      {
-        params: {
-          path: {
-            problemSetId: deleteProblemSetId.current,
-          },
-        },
+    mutatePostPublish({
+      body: {
+        publishedDate: publishDate,
+        problemSetId: selectedSetId,
       },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/problemSet/search').queryKey,
-          });
-          closeDeleteModal();
-        },
-      }
-    );
-  };
-
-  const handleClickRegister = () => {
-    mutatePostProblemSet(
-      {},
-      {
-        onSuccess: (data) => {
-          navigate({
-            to: '/problem-set/$problemSetId',
-            params: {
-              problemSetId: data.data.id.toString(),
-            },
-          });
-        },
-      }
-    );
+    });
   };
 
   return (
     <>
-      <Header title='세트 목록' />
+      <Header title='세트 목록' description={`${year}/${month}/${day} 발행`} />
       <form
         className='mt-[4.8rem] flex items-end justify-between'
         onSubmit={handleSubmit(handleClickSearch)}>
@@ -124,11 +87,16 @@ function RouteComponent() {
       </form>
       <div className='mt-[6.4rem] flex flex-col gap-[4.8rem]'>
         {problemSetList?.data.map((problemSet) => (
-          <SectionCard>
+          <SectionCard key={problemSet.id} isSelected={selectedSetId === problemSet.id}>
             <div className='flex items-center justify-between'>
               <h2 className='font-bold-24 text-black'>{problemSet.problemSetTitle}</h2>
               <div className='flex gap-[1.6rem]'>
-                <IconButton variant='delete' onClick={() => handleClickDelete(problemSet.id)} />
+                <IconButton
+                  variant={selectedSetId === problemSet.id ? 'select' : 'unselected'}
+                  onClick={() => {
+                    setSelectedSetId(problemSet.id);
+                  }}
+                />
                 <Link
                   to={'/problem-set/$problemSetId'}
                   params={{
@@ -139,8 +107,9 @@ function RouteComponent() {
               </div>
             </div>
             <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
-              {problemSet.problemThumbnailResponses.map((problem) => (
+              {problemSet.problemThumbnailResponses.map((problem, index) => (
                 <ProblemPreview
+                  key={`문항-${index}`}
                   title={problem.problemTitle ?? ''}
                   memo={problem.problemMemo ?? ''}
                   imgSrc={problem.mainProblemImageUrl ?? ''}
@@ -150,16 +119,9 @@ function RouteComponent() {
           </SectionCard>
         ))}
       </div>
-      <FloatingButton onClick={handleClickRegister}>새로운 세트 등록하기</FloatingButton>
-      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
-        <TwoButtonModalTemplate
-          text='세트를 삭제할까요?'
-          leftButtonText='아니오'
-          rightButtonText='예'
-          handleClickLeftButton={closeDeleteModal}
-          handleClickRightButton={handleMutateDelete}
-        />
-      </Modal>
+      <FloatingButton disabled={!selectedSetId} onClick={handleClickPublish}>
+        해당 날짜에 발행하기
+      </FloatingButton>
     </>
   );
 }
