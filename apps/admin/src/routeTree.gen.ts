@@ -22,6 +22,7 @@ import { Route as GNBLayoutPublishSearchIndexImport } from './routes/_GNBLayout/
 import { Route as GNBLayoutProblemRegisterIndexImport } from './routes/_GNBLayout/problem/register/index'
 import { Route as GNBLayoutProblemProblemIdIndexImport } from './routes/_GNBLayout/problem/$problemId/index'
 import { Route as GNBLayoutProblemSetProblemSetIdIndexImport } from './routes/_GNBLayout/problem-set/$problemSetId/index'
+import { Route as GNBLayoutPublishRegisterPublishDateIndexImport } from './routes/_GNBLayout/publish/register/$publishDate/index'
 
 // Create/Update Routes
 
@@ -91,6 +92,13 @@ const GNBLayoutProblemSetProblemSetIdIndexRoute =
   GNBLayoutProblemSetProblemSetIdIndexImport.update({
     id: '/problem-set/$problemSetId/',
     path: '/problem-set/$problemSetId/',
+    getParentRoute: () => GNBLayoutRoute,
+  } as any)
+
+const GNBLayoutPublishRegisterPublishDateIndexRoute =
+  GNBLayoutPublishRegisterPublishDateIndexImport.update({
+    id: '/publish/register/$publishDate/',
+    path: '/publish/register/$publishDate/',
     getParentRoute: () => GNBLayoutRoute,
   } as any)
 
@@ -175,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GNBLayoutPublishSearchIndexImport
       parentRoute: typeof GNBLayoutImport
     }
+    '/_GNBLayout/publish/register/$publishDate/': {
+      id: '/_GNBLayout/publish/register/$publishDate/'
+      path: '/publish/register/$publishDate'
+      fullPath: '/publish/register/$publishDate'
+      preLoaderRoute: typeof GNBLayoutPublishRegisterPublishDateIndexImport
+      parentRoute: typeof GNBLayoutImport
+    }
   }
 }
 
@@ -189,6 +204,7 @@ interface GNBLayoutRouteChildren {
   GNBLayoutProblemProblemIdIndexRoute: typeof GNBLayoutProblemProblemIdIndexRoute
   GNBLayoutProblemRegisterIndexRoute: typeof GNBLayoutProblemRegisterIndexRoute
   GNBLayoutPublishSearchIndexRoute: typeof GNBLayoutPublishSearchIndexRoute
+  GNBLayoutPublishRegisterPublishDateIndexRoute: typeof GNBLayoutPublishRegisterPublishDateIndexRoute
 }
 
 const GNBLayoutRouteChildren: GNBLayoutRouteChildren = {
@@ -201,6 +217,8 @@ const GNBLayoutRouteChildren: GNBLayoutRouteChildren = {
   GNBLayoutProblemProblemIdIndexRoute: GNBLayoutProblemProblemIdIndexRoute,
   GNBLayoutProblemRegisterIndexRoute: GNBLayoutProblemRegisterIndexRoute,
   GNBLayoutPublishSearchIndexRoute: GNBLayoutPublishSearchIndexRoute,
+  GNBLayoutPublishRegisterPublishDateIndexRoute:
+    GNBLayoutPublishRegisterPublishDateIndexRoute,
 }
 
 const GNBLayoutRouteWithChildren = GNBLayoutRoute._addFileChildren(
@@ -219,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/problem/$problemId': typeof GNBLayoutProblemProblemIdIndexRoute
   '/problem/register': typeof GNBLayoutProblemRegisterIndexRoute
   '/publish/search': typeof GNBLayoutPublishSearchIndexRoute
+  '/publish/register/$publishDate': typeof GNBLayoutPublishRegisterPublishDateIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -233,6 +252,7 @@ export interface FileRoutesByTo {
   '/problem/$problemId': typeof GNBLayoutProblemProblemIdIndexRoute
   '/problem/register': typeof GNBLayoutProblemRegisterIndexRoute
   '/publish/search': typeof GNBLayoutPublishSearchIndexRoute
+  '/publish/register/$publishDate': typeof GNBLayoutPublishRegisterPublishDateIndexRoute
 }
 
 export interface FileRoutesById {
@@ -248,6 +268,7 @@ export interface FileRoutesById {
   '/_GNBLayout/problem/$problemId/': typeof GNBLayoutProblemProblemIdIndexRoute
   '/_GNBLayout/problem/register/': typeof GNBLayoutProblemRegisterIndexRoute
   '/_GNBLayout/publish/search/': typeof GNBLayoutPublishSearchIndexRoute
+  '/_GNBLayout/publish/register/$publishDate/': typeof GNBLayoutPublishRegisterPublishDateIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -264,6 +285,7 @@ export interface FileRouteTypes {
     | '/problem/$problemId'
     | '/problem/register'
     | '/publish/search'
+    | '/publish/register/$publishDate'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -277,6 +299,7 @@ export interface FileRouteTypes {
     | '/problem/$problemId'
     | '/problem/register'
     | '/publish/search'
+    | '/publish/register/$publishDate'
   id:
     | '__root__'
     | '/'
@@ -290,6 +313,7 @@ export interface FileRouteTypes {
     | '/_GNBLayout/problem/$problemId/'
     | '/_GNBLayout/problem/register/'
     | '/_GNBLayout/publish/search/'
+    | '/_GNBLayout/publish/register/$publishDate/'
   fileRoutesById: FileRoutesById
 }
 
@@ -333,7 +357,8 @@ export const routeTree = rootRoute
         "/_GNBLayout/problem-set/$problemSetId/",
         "/_GNBLayout/problem/$problemId/",
         "/_GNBLayout/problem/register/",
-        "/_GNBLayout/publish/search/"
+        "/_GNBLayout/publish/search/",
+        "/_GNBLayout/publish/register/$publishDate/"
       ]
     },
     "/login/": {
@@ -369,6 +394,10 @@ export const routeTree = rootRoute
     },
     "/_GNBLayout/publish/search/": {
       "filePath": "_GNBLayout/publish/search/index.tsx",
+      "parent": "/_GNBLayout"
+    },
+    "/_GNBLayout/publish/register/$publishDate/": {
+      "filePath": "_GNBLayout/publish/register/$publishDate/index.tsx",
       "parent": "/_GNBLayout"
     }
   }
