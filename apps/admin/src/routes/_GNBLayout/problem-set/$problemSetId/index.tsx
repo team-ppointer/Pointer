@@ -8,6 +8,7 @@ import {
 import {
   Button,
   ComponentWithLabel,
+  ErrorModalTemplate,
   Header,
   IconButton,
   Input,
@@ -60,6 +61,12 @@ function RouteComponent() {
     isOpen: isSearchModalOpen,
     openModal: openSearchModal,
     closeModal: closeSearchModal,
+  } = useModal();
+
+  const {
+    isOpen: isErrorModalOpen,
+    openModal: openErrorModal,
+    closeModal: closeErrorModal,
   } = useModal();
 
   // api
@@ -181,9 +188,14 @@ function RouteComponent() {
   };
 
   const handleClickSave = (data: ProblemSetUpdateRequest) => {
+    const filteredProblemIds = data.problemIds.filter((problemId) => problemId !== 0);
+    if (filteredProblemIds.length === 0) {
+      openErrorModal();
+      return;
+    }
     const filteredData = {
       ...data,
-      problemIds: data.problemIds.filter((problemId) => problemId !== 0),
+      problemIds: filteredProblemIds,
     };
     mutatePutProblemSet(
       {
@@ -338,6 +350,13 @@ function RouteComponent() {
           onClickCard={(problem: ProblemSearchGetResponse) => {
             handleAddProblemSummary(currentProblemIndex, problem);
           }}
+        />
+      </Modal>
+      <Modal isOpen={isErrorModalOpen} onClose={closeErrorModal}>
+        <ErrorModalTemplate
+          text='추가된 문항이 없어요'
+          buttonText='닫기'
+          handleClickButton={closeErrorModal}
         />
       </Modal>
     </>
