@@ -494,6 +494,7 @@ function RouteComponent() {
                         />
                       </div>
                       <DeleteButton
+                        size='small'
                         type='button'
                         label='문항 삭제'
                         onClick={() => handleDeleteChildProblem(childProblem.childProblemId, index)}

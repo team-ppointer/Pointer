@@ -533,6 +533,7 @@ export interface components {
       id: number;
       problemCustomId: string;
       conceptTagIds: number[];
+      isConfirmed?: boolean;
       /** Format: int64 */
       practiceTestId?: number;
       /** Format: int32 */
@@ -585,10 +586,6 @@ export interface components {
       id: number;
       problemCustomId: string;
     };
-    ProblemSetPostRequest: {
-      problemSetTitle?: string;
-      problems: number[];
-    };
     AccessTokenResponse: {
       accessToken: string;
     };
@@ -597,6 +594,8 @@ export interface components {
       password: string;
     };
     PublishMonthGetResponse: {
+      /** Format: int64 */
+      publishId?: number;
       /** Format: int32 */
       day?: number;
       problemSetInfo?: components['schemas']['PublishProblemSetResponse'];
@@ -606,18 +605,14 @@ export interface components {
       id?: number;
       title?: string;
     };
-    ConceptTagSearchResponse: {
-      /** Format: int64 */
-      id: number;
-      name: string;
-    };
     ProblemSearchGetResponse: {
       /** Format: int64 */
-      id: number;
+      problemId: number;
       problemCustomId: string;
+      problemTitle?: string;
       memo?: string;
       mainProblemImageUrl?: string;
-      conceptTagResponses: components['schemas']['ConceptTagSearchResponse'][];
+      tagNames: string[];
     };
     ProblemSetGetResponse: {
       /** Format: int64 */
@@ -625,25 +620,24 @@ export interface components {
       title?: string;
       /** @enum {string} */
       confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
-      /** Format: date */
-      publishedDate?: string;
+      publishedDates: string[];
       problemSummaries: components['schemas']['ProblemSummaryResponse'][];
     };
     ProblemSummaryResponse: {
-      problemId?: string;
-      /** Format: int32 */
-      number?: number;
-      practiceTestName?: string;
+      /** Format: int64 */
+      problemId: number;
+      problemCustomId: string;
+      problemTitle?: string;
       memo?: string;
       mainProblemImageUrl?: string;
       tagNames: string[];
     };
     ProblemSetSearchGetResponse: {
+      /** Format: int64 */
+      id: number;
       problemSetTitle?: string;
       /** @enum {string} */
       confirmStatus?: 'CONFIRMED' | 'NOT_CONFIRMED';
-      /** Format: date */
-      publishedDate?: string;
       problemThumbnailResponses: components['schemas']['ProblemThumbnailResponse'][];
     };
     ProblemThumbnailResponse: {
@@ -1017,11 +1011,7 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProblemSetPostRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
       /** @description OK */
       200: {
@@ -1129,7 +1119,7 @@ export interface operations {
     parameters: {
       query?: {
         problemCustomId?: string;
-        memo?: string;
+        title?: string;
         conceptTagIds?: number[];
       };
       header?: never;

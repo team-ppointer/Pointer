@@ -4,6 +4,7 @@ import ErrorModalTemplate from './templates/ErrorModalTemplate';
 import OneButtonModalTemplate from './templates/OneButtonModalTemplate';
 import TwoButtonModalTemplate from './templates/TwoButtonModalTemplate';
 import TagSelectModal from './TagSelectModal';
+import ProblemSearchModal from './ProblemSearchModal';
 
 export {
   Modal,
@@ -12,4 +13,5 @@ export {
   OneButtonModalTemplate,
   TwoButtonModalTemplate,
   TagSelectModal,
+  ProblemSearchModal,
 };
