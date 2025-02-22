@@ -22,7 +22,7 @@ const LabelAndText = ({ label, text }: LabelAndText) => {
 
 const ProblemPreview = ({ title, memo, imgSrc }: ProblemPreviewProps) => {
   return (
-    <div className='flex h-[29.6rem] w-[28rem] flex-col gap-[1.6rem]'>
+    <div className='flex w-[28rem] min-w-[28rem] flex-col gap-[1.6rem]'>
       <div className='flex flex-col gap-[0.8rem]'>
         <LabelAndText label='문항 타이틀' text={title} />
         <LabelAndText label='문항 메모' text={memo} />

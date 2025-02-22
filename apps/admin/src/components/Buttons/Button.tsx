@@ -4,12 +4,14 @@ import { ButtonHTMLAttributes } from 'react';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'blue' | 'dark' | 'light' | 'dimmed';
   sizeType?: 'short' | 'long';
+  disabled?: boolean;
   children: React.ReactNode;
 }
 
 const Button = ({
   variant = 'blue',
   sizeType = 'short',
+  disabled = false,
   children,
   className,
   ...props
@@ -26,11 +28,12 @@ const Button = ({
     dark: 'bg-darkgray100 text-white',
     light: 'bg-white text-black border border-lightgray500',
     dimmed: 'bg-transparent text-lightgray500',
+    disabled: 'bg-lightgray300 text-lightgray500',
   };
 
   return (
     <button
-      className={`${baseStyles} ${sizeStyles[sizeType]} ${variantStyles[variant]} ${className}`}
+      className={`${baseStyles} ${sizeStyles[sizeType]} ${variantStyles[disabled ? 'disabled' : variant]} ${className}`}
       {...props}>
       {children}
     </button>

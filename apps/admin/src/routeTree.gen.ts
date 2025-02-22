@@ -21,7 +21,8 @@ import { Route as GNBLayoutComponentIndexImport } from './routes/_GNBLayout/comp
 import { Route as GNBLayoutPublishSearchIndexImport } from './routes/_GNBLayout/publish/search/index';
 import { Route as GNBLayoutProblemRegisterIndexImport } from './routes/_GNBLayout/problem/register/index';
 import { Route as GNBLayoutProblemProblemIdIndexImport } from './routes/_GNBLayout/problem/$problemId/index';
-import { Route as GNBLayoutProblemSetRegisterIndexImport } from './routes/_GNBLayout/problem-set/register/index';
+import { Route as GNBLayoutProblemSetProblemSetIdIndexImport } from './routes/_GNBLayout/problem-set/$problemSetId/index';
+import { Route as GNBLayoutPublishRegisterPublishDateIndexImport } from './routes/_GNBLayout/publish/register/$publishDate/index';
 
 // Create/Update Routes
 
@@ -84,11 +85,20 @@ const GNBLayoutProblemProblemIdIndexRoute = GNBLayoutProblemProblemIdIndexImport
   getParentRoute: () => GNBLayoutRoute,
 } as any);
 
-const GNBLayoutProblemSetRegisterIndexRoute = GNBLayoutProblemSetRegisterIndexImport.update({
-  id: '/problem-set/register/',
-  path: '/problem-set/register/',
-  getParentRoute: () => GNBLayoutRoute,
-} as any);
+const GNBLayoutProblemSetProblemSetIdIndexRoute = GNBLayoutProblemSetProblemSetIdIndexImport.update(
+  {
+    id: '/problem-set/$problemSetId/',
+    path: '/problem-set/$problemSetId/',
+    getParentRoute: () => GNBLayoutRoute,
+  } as any
+);
+
+const GNBLayoutPublishRegisterPublishDateIndexRoute =
+  GNBLayoutPublishRegisterPublishDateIndexImport.update({
+    id: '/publish/register/$publishDate/',
+    path: '/publish/register/$publishDate/',
+    getParentRoute: () => GNBLayoutRoute,
+  } as any);
 
 // Populate the FileRoutesByPath interface
 
@@ -143,11 +153,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GNBLayoutPublishIndexImport;
       parentRoute: typeof GNBLayoutImport;
     };
-    '/_GNBLayout/problem-set/register/': {
-      id: '/_GNBLayout/problem-set/register/';
-      path: '/problem-set/register';
-      fullPath: '/problem-set/register';
-      preLoaderRoute: typeof GNBLayoutProblemSetRegisterIndexImport;
+    '/_GNBLayout/problem-set/$problemSetId/': {
+      id: '/_GNBLayout/problem-set/$problemSetId/';
+      path: '/problem-set/$problemSetId';
+      fullPath: '/problem-set/$problemSetId';
+      preLoaderRoute: typeof GNBLayoutProblemSetProblemSetIdIndexImport;
       parentRoute: typeof GNBLayoutImport;
     };
     '/_GNBLayout/problem/$problemId/': {
@@ -171,6 +181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GNBLayoutPublishSearchIndexImport;
       parentRoute: typeof GNBLayoutImport;
     };
+    '/_GNBLayout/publish/register/$publishDate/': {
+      id: '/_GNBLayout/publish/register/$publishDate/';
+      path: '/publish/register/$publishDate';
+      fullPath: '/publish/register/$publishDate';
+      preLoaderRoute: typeof GNBLayoutPublishRegisterPublishDateIndexImport;
+      parentRoute: typeof GNBLayoutImport;
+    };
   }
 }
 
@@ -181,10 +198,11 @@ interface GNBLayoutRouteChildren {
   GNBLayoutProblemSetIndexRoute: typeof GNBLayoutProblemSetIndexRoute;
   GNBLayoutProblemIndexRoute: typeof GNBLayoutProblemIndexRoute;
   GNBLayoutPublishIndexRoute: typeof GNBLayoutPublishIndexRoute;
-  GNBLayoutProblemSetRegisterIndexRoute: typeof GNBLayoutProblemSetRegisterIndexRoute;
+  GNBLayoutProblemSetProblemSetIdIndexRoute: typeof GNBLayoutProblemSetProblemSetIdIndexRoute;
   GNBLayoutProblemProblemIdIndexRoute: typeof GNBLayoutProblemProblemIdIndexRoute;
   GNBLayoutProblemRegisterIndexRoute: typeof GNBLayoutProblemRegisterIndexRoute;
   GNBLayoutPublishSearchIndexRoute: typeof GNBLayoutPublishSearchIndexRoute;
+  GNBLayoutPublishRegisterPublishDateIndexRoute: typeof GNBLayoutPublishRegisterPublishDateIndexRoute;
 }
 
 const GNBLayoutRouteChildren: GNBLayoutRouteChildren = {
@@ -192,10 +210,11 @@ const GNBLayoutRouteChildren: GNBLayoutRouteChildren = {
   GNBLayoutProblemSetIndexRoute: GNBLayoutProblemSetIndexRoute,
   GNBLayoutProblemIndexRoute: GNBLayoutProblemIndexRoute,
   GNBLayoutPublishIndexRoute: GNBLayoutPublishIndexRoute,
-  GNBLayoutProblemSetRegisterIndexRoute: GNBLayoutProblemSetRegisterIndexRoute,
+  GNBLayoutProblemSetProblemSetIdIndexRoute: GNBLayoutProblemSetProblemSetIdIndexRoute,
   GNBLayoutProblemProblemIdIndexRoute: GNBLayoutProblemProblemIdIndexRoute,
   GNBLayoutProblemRegisterIndexRoute: GNBLayoutProblemRegisterIndexRoute,
   GNBLayoutPublishSearchIndexRoute: GNBLayoutPublishSearchIndexRoute,
+  GNBLayoutPublishRegisterPublishDateIndexRoute: GNBLayoutPublishRegisterPublishDateIndexRoute,
 };
 
 const GNBLayoutRouteWithChildren = GNBLayoutRoute._addFileChildren(GNBLayoutRouteChildren);
@@ -208,10 +227,11 @@ export interface FileRoutesByFullPath {
   '/problem-set': typeof GNBLayoutProblemSetIndexRoute;
   '/problem': typeof GNBLayoutProblemIndexRoute;
   '/publish': typeof GNBLayoutPublishIndexRoute;
-  '/problem-set/register': typeof GNBLayoutProblemSetRegisterIndexRoute;
+  '/problem-set/$problemSetId': typeof GNBLayoutProblemSetProblemSetIdIndexRoute;
   '/problem/$problemId': typeof GNBLayoutProblemProblemIdIndexRoute;
   '/problem/register': typeof GNBLayoutProblemRegisterIndexRoute;
   '/publish/search': typeof GNBLayoutPublishSearchIndexRoute;
+  '/publish/register/$publishDate': typeof GNBLayoutPublishRegisterPublishDateIndexRoute;
 }
 
 export interface FileRoutesByTo {
@@ -222,10 +242,11 @@ export interface FileRoutesByTo {
   '/problem-set': typeof GNBLayoutProblemSetIndexRoute;
   '/problem': typeof GNBLayoutProblemIndexRoute;
   '/publish': typeof GNBLayoutPublishIndexRoute;
-  '/problem-set/register': typeof GNBLayoutProblemSetRegisterIndexRoute;
+  '/problem-set/$problemSetId': typeof GNBLayoutProblemSetProblemSetIdIndexRoute;
   '/problem/$problemId': typeof GNBLayoutProblemProblemIdIndexRoute;
   '/problem/register': typeof GNBLayoutProblemRegisterIndexRoute;
   '/publish/search': typeof GNBLayoutPublishSearchIndexRoute;
+  '/publish/register/$publishDate': typeof GNBLayoutPublishRegisterPublishDateIndexRoute;
 }
 
 export interface FileRoutesById {
@@ -237,10 +258,11 @@ export interface FileRoutesById {
   '/_GNBLayout/problem-set/': typeof GNBLayoutProblemSetIndexRoute;
   '/_GNBLayout/problem/': typeof GNBLayoutProblemIndexRoute;
   '/_GNBLayout/publish/': typeof GNBLayoutPublishIndexRoute;
-  '/_GNBLayout/problem-set/register/': typeof GNBLayoutProblemSetRegisterIndexRoute;
+  '/_GNBLayout/problem-set/$problemSetId/': typeof GNBLayoutProblemSetProblemSetIdIndexRoute;
   '/_GNBLayout/problem/$problemId/': typeof GNBLayoutProblemProblemIdIndexRoute;
   '/_GNBLayout/problem/register/': typeof GNBLayoutProblemRegisterIndexRoute;
   '/_GNBLayout/publish/search/': typeof GNBLayoutPublishSearchIndexRoute;
+  '/_GNBLayout/publish/register/$publishDate/': typeof GNBLayoutPublishRegisterPublishDateIndexRoute;
 }
 
 export interface FileRouteTypes {
@@ -253,10 +275,11 @@ export interface FileRouteTypes {
     | '/problem-set'
     | '/problem'
     | '/publish'
-    | '/problem-set/register'
+    | '/problem-set/$problemSetId'
     | '/problem/$problemId'
     | '/problem/register'
-    | '/publish/search';
+    | '/publish/search'
+    | '/publish/register/$publishDate';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
@@ -266,10 +289,11 @@ export interface FileRouteTypes {
     | '/problem-set'
     | '/problem'
     | '/publish'
-    | '/problem-set/register'
+    | '/problem-set/$problemSetId'
     | '/problem/$problemId'
     | '/problem/register'
-    | '/publish/search';
+    | '/publish/search'
+    | '/publish/register/$publishDate';
   id:
     | '__root__'
     | '/'
@@ -279,10 +303,11 @@ export interface FileRouteTypes {
     | '/_GNBLayout/problem-set/'
     | '/_GNBLayout/problem/'
     | '/_GNBLayout/publish/'
-    | '/_GNBLayout/problem-set/register/'
+    | '/_GNBLayout/problem-set/$problemSetId/'
     | '/_GNBLayout/problem/$problemId/'
     | '/_GNBLayout/problem/register/'
-    | '/_GNBLayout/publish/search/';
+    | '/_GNBLayout/publish/search/'
+    | '/_GNBLayout/publish/register/$publishDate/';
   fileRoutesById: FileRoutesById;
 }
 
@@ -323,10 +348,11 @@ export const routeTree = rootRoute
         "/_GNBLayout/problem-set/",
         "/_GNBLayout/problem/",
         "/_GNBLayout/publish/",
-        "/_GNBLayout/problem-set/register/",
+        "/_GNBLayout/problem-set/$problemSetId/",
         "/_GNBLayout/problem/$problemId/",
         "/_GNBLayout/problem/register/",
-        "/_GNBLayout/publish/search/"
+        "/_GNBLayout/publish/search/",
+        "/_GNBLayout/publish/register/$publishDate/"
       ]
     },
     "/login/": {
@@ -348,8 +374,8 @@ export const routeTree = rootRoute
       "filePath": "_GNBLayout/publish/index.tsx",
       "parent": "/_GNBLayout"
     },
-    "/_GNBLayout/problem-set/register/": {
-      "filePath": "_GNBLayout/problem-set/register/index.tsx",
+    "/_GNBLayout/problem-set/$problemSetId/": {
+      "filePath": "_GNBLayout/problem-set/$problemSetId/index.tsx",
       "parent": "/_GNBLayout"
     },
     "/_GNBLayout/problem/$problemId/": {
@@ -362,6 +388,10 @@ export const routeTree = rootRoute
     },
     "/_GNBLayout/publish/search/": {
       "filePath": "_GNBLayout/publish/search/index.tsx",
+      "parent": "/_GNBLayout"
+    },
+    "/_GNBLayout/publish/register/$publishDate/": {
+      "filePath": "_GNBLayout/publish/register/$publishDate/index.tsx",
       "parent": "/_GNBLayout"
     }
   }
