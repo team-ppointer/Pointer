@@ -1,6 +1,7 @@
 import { HTMLAttributes, useState } from 'react';
 import dayjs from 'dayjs';
 import { IcDeleteSm } from '@svg';
+import { Link } from '@tanstack/react-router';
 
 import IconButton from './Buttons/IconButton';
 import PlusButton from './Buttons/PlusButton';
@@ -53,9 +54,12 @@ const Day = ({ variant = 'thisMonth', fullDate, day, dayOfWeek, title }: DayProp
         <p className={`font-bold-18 h-full w-full overflow-auto ${textStyle}`}>{title}</p>
       ) : (
         !isPast && (
-          <div className='flex h-full w-full flex-col items-center justify-center'>
+          <Link
+            to={`/publish/register/$publishDate`}
+            params={{ publishDate: fullDate }}
+            className='flex h-full w-full flex-col items-center justify-center'>
             <PlusButton variant={variant === 'anotherMonth' ? 'light' : 'dark'} />
-          </div>
+          </Link>
         )
       )}
     </div>

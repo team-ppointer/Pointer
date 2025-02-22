@@ -17,6 +17,7 @@ export { default as IcPublish } from './IcPublish';
 export { default as IcRightButton } from './IcRightButton';
 export { default as IcSearch } from './IcSearch';
 export { default as IcSelectButton } from './IcSelectButton';
+export { default as IcTrash16 } from './IcTrash16';
 export { default as IcUnselectedButton } from './IcUnselectedButton';
 export { default as IcUp } from './IcUp';
 export { default as IcUpload } from './IcUpload';
