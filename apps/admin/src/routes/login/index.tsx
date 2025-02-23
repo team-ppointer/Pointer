@@ -1,5 +1,5 @@
 import { postLogin } from '@apis';
-import { Button, Input } from '@components';
+import { Button, ComponentWithLabel, Input, SearchInput } from '@components';
 import { useAuth, useNavigation } from '@hooks';
 import { createFileRoute } from '@tanstack/react-router';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -45,37 +45,46 @@ function RouteComponent() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmitLogin)}
-      className='mt-[20rem] flex flex-col items-center justify-center gap-[1rem]'>
-      <h1 className='font-bold-24'>관리자 로그인</h1>
-      <Input
-        placeholder='이메일을 입력해주세요'
-        type='email'
-        autoComplete='username'
-        {...register('email', {
-          required: true,
-        })}
-      />
-      <Input
-        placeholder='비밀번호를 입력해주세요'
-        type='password'
-        autoComplete='current-password'
-        {...register('password', {
-          required: true,
-          pattern: {
-            value: /^[A-Za-z0-9]*$/,
-            message: '비밀번호는 영문자와 숫자만 입력 가능합니다.',
-          },
-        })}
-      />
-      {errors.password && (
-        <p className='font-medium-16 text-red' role='alert'>
-          {errors.password.message}
-        </p>
-      )}
-
-      <Button sizeType='long'>로그인</Button>
-    </form>
+    <div className='flex h-[100dvh] flex-col items-center justify-center'>
+      <img src='/images/logo.jpeg' alt='로고이미지' className='h-[10rem]' />
+      <form
+        onSubmit={handleSubmit(onSubmitLogin)}
+        className='mt-[4.8rem] flex w-[42.4rem] flex-col items-start justify-center gap-[4.8rem]'>
+        <SearchInput
+          label='아이디'
+          sizeType='long'
+          placeholder='이메일을 입력해주세요'
+          type='email'
+          autoComplete='username'
+          {...register('email', {
+            required: true,
+          })}
+        />
+        <div>
+          <SearchInput
+            label='비밀번호'
+            sizeType='long'
+            placeholder='비밀번호를 입력해주세요'
+            type='password'
+            autoComplete='current-password'
+            {...register('password', {
+              required: true,
+              pattern: {
+                value: /^[A-Za-z0-9]*$/,
+                message: '비밀번호는 영문자와 숫자만 입력 가능합니다.',
+              },
+            })}
+          />
+          {errors.password && (
+            <p className='font-medium-16 text-red mt-[1.2rem]' role='alert'>
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+        <Button sizeType='full' variant='dark'>
+          로그인
+        </Button>
+      </form>
+    </div>
   );
 }
