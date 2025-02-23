@@ -1,4 +1,4 @@
-import { getConfirmProblemSet, postPublish } from '@apis';
+import { $api, getConfirmProblemSet, postPublish } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -8,7 +8,8 @@ import {
   SearchInput,
   SectionCard,
 } from '@components';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { getSearchProblemSetParamsType } from '@types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,6 +19,8 @@ export const Route = createFileRoute('/_GNBLayout/publish/register/$publishDate/
 });
 
 function RouteComponent() {
+  const queryClient = useQueryClient();
+  const { navigate } = useRouter();
   const { publishDate } = Route.useParams();
   const dateArr = publishDate.split('-');
   const year = dateArr[0];
@@ -50,17 +53,34 @@ function RouteComponent() {
   const handleClickPublish = () => {
     if (!selectedSetId) return;
 
-    mutatePostPublish({
-      body: {
-        publishedDate: publishDate,
-        problemSetId: selectedSetId,
+    mutatePostPublish(
+      {
+        body: {
+          publishedDate: publishDate,
+          problemSetId: selectedSetId,
+        },
       },
-    });
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: $api.queryOptions('get', '/api/v1/publish/{year}/{month}', {
+              params: {
+                path: {
+                  year: Number(year),
+                  month: Number(month),
+                },
+              },
+            }).queryKey,
+          });
+          navigate({ to: '/publish' });
+        },
+      }
+    );
   };
 
   return (
     <>
-      <Header title='세트 목록' description={`${year}/${month}/${day} 발행`} />
+      <Header title='세트 검색' description={`${year}/${month}/${day} 발행`} />
       <form
         className='mt-[4.8rem] flex items-end justify-between'
         onSubmit={handleSubmit(handleClickSearch)}>
