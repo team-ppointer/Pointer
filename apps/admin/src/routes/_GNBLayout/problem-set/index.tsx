@@ -124,7 +124,7 @@ function RouteComponent() {
       </form>
       <div className='mt-[6.4rem] flex flex-col gap-[4.8rem]'>
         {problemSetList?.data.map((problemSet) => (
-          <SectionCard>
+          <SectionCard key={problemSet.id}>
             <div className='flex items-center justify-between'>
               <h2 className='font-bold-24 text-black'>{problemSet.problemSetTitle}</h2>
               <div className='flex gap-[1.6rem]'>
@@ -139,8 +139,9 @@ function RouteComponent() {
               </div>
             </div>
             <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
-              {problemSet.problemThumbnailResponses.map((problem) => (
+              {problemSet.problemThumbnailResponses.map((problem, index) => (
                 <ProblemPreview
+                  key={`problem-${index}`}
                   title={problem.problemTitle ?? ''}
                   memo={problem.problemMemo ?? ''}
                   imgSrc={problem.mainProblemImageUrl ?? ''}
