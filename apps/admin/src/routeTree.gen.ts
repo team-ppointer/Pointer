@@ -174,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GNBLayoutPublishRegisterPublishDateIndexImport;
       parentRoute: typeof GNBLayoutImport;
     };
+    '/_GNBLayout/publish/register/$publishDate/': {
+      id: '/_GNBLayout/publish/register/$publishDate/';
+      path: '/publish/register/$publishDate';
+      fullPath: '/publish/register/$publishDate';
+      preLoaderRoute: typeof GNBLayoutPublishRegisterPublishDateIndexImport;
+      parentRoute: typeof GNBLayoutImport;
+    };
   }
 }
 
@@ -361,6 +368,10 @@ export const routeTree = rootRoute
     },
     "/_GNBLayout/problem/register/": {
       "filePath": "_GNBLayout/problem/register/index.tsx",
+      "parent": "/_GNBLayout"
+    },
+    "/_GNBLayout/publish/register/$publishDate/": {
+      "filePath": "_GNBLayout/publish/register/$publishDate/index.tsx",
       "parent": "/_GNBLayout"
     },
     "/_GNBLayout/publish/register/$publishDate/": {
