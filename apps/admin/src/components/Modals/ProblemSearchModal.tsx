@@ -111,6 +111,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
                 problem;
               return (
                 <div
+                  key={problem.problemId}
                   className='border-lightgray500 rounded-[16px] border'
                   onClick={() => onClickCard(problem)}>
                   <ProblemCard>
