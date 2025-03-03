@@ -35,6 +35,7 @@ export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
 type ProblemSetUpdateRequest = components['schemas']['ProblemSetUpdateRequest'];
 type ProblemSummaryResponse = components['schemas']['ProblemSummaryResponse'];
 type ProblemSearchGetResponse = components['schemas']['ProblemSearchGetResponse'];
+type ErrorResponse = components['schemas']['ErrorResponse'];
 
 function RouteComponent() {
   const { problemSetId } = Route.useParams();
@@ -44,6 +45,8 @@ function RouteComponent() {
   const [problemSummaries, setProblemSummaries] = useState<ProblemSummaryResponse[]>([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState<number>(0);
   const [deleteProblemIndex, setDeleteProblemIndex] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isSaved, setIsSaved] = useState<boolean>(true);
 
   const {
     isOpen: isSetDeleteModalOpen,
@@ -85,6 +88,12 @@ function RouteComponent() {
   const problemList = watch('problemIds');
 
   const handleClickConfirm = () => {
+    if (!isSaved) {
+      setErrorMessage(`저장되지 않은 내용이 있어요.\n저장 후 다시 시도해주세요.`);
+      openErrorModal();
+      return;
+    }
+
     mutateConfirmProblemSet(
       {
         params: {
@@ -94,7 +103,7 @@ function RouteComponent() {
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           queryClient.invalidateQueries({
             queryKey: $api.queryOptions('get', '/api/v1/problemSet/{problemSetId}', {
               params: {
@@ -104,6 +113,15 @@ function RouteComponent() {
               },
             }).queryKey,
           });
+          if (data.data === 'CONFIRMED') {
+            toast.success('컨펌이 완료되었습니다');
+          } else {
+            toast.info('컨펌이 취소되었습니다');
+          }
+        },
+        onError: (error: ErrorResponse) => {
+          setErrorMessage(error.message);
+          openErrorModal();
         },
       }
     );
@@ -161,6 +179,7 @@ function RouteComponent() {
     setProblemSummaries(newProblemSummaries);
 
     closeProblemDeleteModal();
+    setIsSaved(false);
   };
 
   const resetProblemSummaries = () => {
@@ -185,18 +204,22 @@ function RouteComponent() {
     setProblemSummaries(newProblemSummaries);
 
     closeSearchModal();
+    setIsSaved(false);
   };
 
   const handleClickSave = (data: ProblemSetUpdateRequest) => {
     const filteredProblemIds = data.problemIds.filter((problemId) => problemId !== 0);
     if (filteredProblemIds.length === 0) {
+      setErrorMessage('추가된 문항이 없어요');
       openErrorModal();
       return;
     }
+
     const filteredData = {
       ...data,
       problemIds: filteredProblemIds,
     };
+
     mutatePutProblemSet(
       {
         body: {
@@ -220,6 +243,7 @@ function RouteComponent() {
             }).queryKey,
           });
           toast.success('저장이 완료되었습니다');
+          setIsSaved(true);
         },
       }
     );
@@ -268,14 +292,22 @@ function RouteComponent() {
       <div className='mt-[6.4rem] flex justify-between'>
         <div className='w-[81.5rem]'>
           <ComponentWithLabel label='세트 제목'>
-            <Input placeholder='입력해주세요' {...register('problemSetTitle')} />
+            <Input
+              placeholder='입력해주세요'
+              {...register('problemSetTitle', {
+                onChange: () => setIsSaved(false),
+              })}
+            />
           </ComponentWithLabel>
         </div>
 
         <div className='flex items-center gap-[2.4rem]'>
           <StatusToggle
             selectedStatus={problemSetData?.data.confirmStatus ?? 'NOT_CONFIRMED'}
-            onSelect={handleClickConfirm}
+            onSelect={() => {
+              handleSubmit(handleClickSave);
+              handleClickConfirm();
+            }}
           />
           <div className='flex items-center gap-[0.8rem]'>
             <Button variant='light'>미리보기</Button>
@@ -362,7 +394,7 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isErrorModalOpen} onClose={closeErrorModal}>
         <ErrorModalTemplate
-          text='추가된 문항이 없어요'
+          text={errorMessage}
           buttonText='닫기'
           handleClickButton={closeErrorModal}
         />
