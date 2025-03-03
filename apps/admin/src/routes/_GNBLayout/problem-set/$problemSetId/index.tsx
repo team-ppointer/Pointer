@@ -77,6 +77,7 @@ function RouteComponent() {
   const { mutate: mutatePutProblemSet } = putProblemSet();
   const { mutate: mutateConfirmProblemSet } = putConfirmProblemSet();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
+  const confirmStatus = problemSetData?.data.confirmStatus;
 
   // RHF
   const { register, handleSubmit, watch, setValue } = useForm<ProblemSetUpdateRequest>({
@@ -89,7 +90,7 @@ function RouteComponent() {
 
   const handleClickConfirm = () => {
     if (!isSaved) {
-      setErrorMessage(`저장되지 않은 내용이 있어요.\n저장 후 다시 시도해주세요.`);
+      setErrorMessage(`저장되지 않은 내용이 있어요\n저장 후 다시 시도해주세요`);
       openErrorModal();
       return;
     }
@@ -127,7 +128,7 @@ function RouteComponent() {
     );
   };
 
-  const handleClickSetDelete = () => {
+  const handleMutateSetDelete = () => {
     mutateDeleteProblemSet(
       {
         params: {
@@ -148,7 +149,26 @@ function RouteComponent() {
   };
 
   // functions
+  const handleClickSetDelete = () => {
+    if (problemSetData?.data.publishedDates && problemSetData?.data.publishedDates.length > 0) {
+      setErrorMessage('발행된 세트는 삭제할 수 없어요');
+      openErrorModal();
+      return;
+    }
+    openSetDeleteModal();
+  };
+
+  const createModifyError = () => {
+    setErrorMessage('컨펌된 세트는 문항을 수정할 수 없어요');
+    openErrorModal();
+  };
+
   const handleClickAdd = () => {
+    if (confirmStatus === 'CONFIRMED') {
+      createModifyError();
+      return;
+    }
+
     setValue('problemIds', [...problemList, 0]);
   };
 
@@ -158,11 +178,17 @@ function RouteComponent() {
   };
 
   const handleClickDeleteProblem = (index: number) => {
+    if (confirmStatus === 'CONFIRMED') {
+      createModifyError();
+      return;
+    }
+
     setDeleteProblemIndex(index);
     openProblemDeleteModal();
   };
 
   const handleDeleteProblem = (index: number) => {
+    setIsSaved(false);
     if (problemList.length === 1) {
       resetProblemSummaries();
       setValue('problemIds', [0]);
@@ -179,7 +205,6 @@ function RouteComponent() {
     setProblemSummaries(newProblemSummaries);
 
     closeProblemDeleteModal();
-    setIsSaved(false);
   };
 
   const resetProblemSummaries = () => {
@@ -209,6 +234,7 @@ function RouteComponent() {
 
   const handleClickSave = (data: ProblemSetUpdateRequest) => {
     const filteredProblemIds = data.problemIds.filter((problemId) => problemId !== 0);
+
     if (filteredProblemIds.length === 0) {
       setErrorMessage('추가된 문항이 없어요');
       openErrorModal();
@@ -285,9 +311,9 @@ function RouteComponent() {
       />
       <Header
         title='세트 수정하기'
-        description='문항을 잡고 드래그해서 순서를 바꿀 수 있어요'
+        description={`문항을 잡고 드래그해서 순서를 바꿀 수 있어요\n컨펌된 세트도 타이틀 수정이 가능해요`}
         deleteButton='세트 삭제'
-        onClickDelete={openSetDeleteModal}
+        onClickDelete={handleClickSetDelete}
       />
       <div className='mt-[6.4rem] flex justify-between'>
         <div className='w-[81.5rem]'>
@@ -303,7 +329,7 @@ function RouteComponent() {
 
         <div className='flex items-center gap-[2.4rem]'>
           <StatusToggle
-            selectedStatus={problemSetData?.data.confirmStatus ?? 'NOT_CONFIRMED'}
+            selectedStatus={confirmStatus ?? 'NOT_CONFIRMED'}
             onSelect={() => {
               handleSubmit(handleClickSave);
               handleClickConfirm();
@@ -373,7 +399,7 @@ function RouteComponent() {
           leftButtonText='아니오'
           rightButtonText='예'
           handleClickLeftButton={closeSetDeleteModal}
-          handleClickRightButton={handleClickSetDelete}
+          handleClickRightButton={handleMutateSetDelete}
         />
       </Modal>
       <Modal isOpen={isProblemDeleteModalOpen} onClose={closeProblemDeleteModal}>
