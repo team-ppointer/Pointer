@@ -163,8 +163,8 @@ function RouteComponent() {
         </div>
 
         <div className='grid grid-cols-7 gap-[0.8rem]'>
-          {Array.from({ length: firstDayOfMonth }).map((_) => {
-            return <div className='h-[15rem] rounded-[4px] bg-white'></div>;
+          {Array.from({ length: firstDayOfMonth }).map((_, index) => {
+            return <div key={index} className='h-[15rem] rounded-[4px] bg-white'></div>;
           })}
 
           {daysArray.map((day) => {
@@ -186,8 +186,8 @@ function RouteComponent() {
             );
           })}
 
-          {Array.from({ length: 6 - lastDayOfMonth }).map((_) => {
-            return <div className='h-[15rem] rounded-[4px] bg-white'></div>;
+          {Array.from({ length: 6 - lastDayOfMonth }).map((_, index) => {
+            return <div key={index} className='h-[15rem] rounded-[4px] bg-white'></div>;
           })}
         </div>
       </div>
