@@ -485,7 +485,7 @@ export interface components {
     };
     ChildProblemUpdateRequest: {
       /** Format: int64 */
-      childProblemId: number;
+      childProblemId?: number;
       imageUrl?: string;
       /** @enum {string} */
       answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
@@ -596,8 +596,8 @@ export interface components {
     PublishMonthGetResponse: {
       /** Format: int64 */
       publishId?: number;
-      /** Format: int32 */
-      day?: number;
+      /** Format: date */
+      date?: string;
       problemSetInfo?: components['schemas']['PublishProblemSetResponse'];
     };
     PublishProblemSetResponse: {
