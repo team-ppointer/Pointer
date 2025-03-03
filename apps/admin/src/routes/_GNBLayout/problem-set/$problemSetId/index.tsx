@@ -80,13 +80,12 @@ function RouteComponent() {
   const confirmStatus = problemSetData?.data.confirmStatus;
 
   // RHF
-  const { register, handleSubmit, watch, setValue } = useForm<ProblemSetUpdateRequest>({
+  const { register, handleSubmit, setValue } = useForm<ProblemSetUpdateRequest>({
     defaultValues: {
       problemSetTitle: '',
       problemIds: [],
     },
   });
-  const problemList = watch('problemIds');
 
   const handleClickConfirm = () => {
     if (!isSaved) {
@@ -169,7 +168,18 @@ function RouteComponent() {
       return;
     }
 
-    setValue('problemIds', [...problemList, 0]);
+    setProblemSummaries((prev) => {
+      return [
+        ...prev,
+        {
+          problemId: 0,
+          problemCustomId: '',
+          memo: '',
+          mainProblemImageUrl: undefined,
+          tagNames: [],
+        },
+      ];
+    });
   };
 
   const handleAddProblem = (index: number) => {
@@ -189,16 +199,12 @@ function RouteComponent() {
 
   const handleDeleteProblem = (index: number) => {
     setIsSaved(false);
-    if (problemList.length === 1) {
+
+    if (problemSummaries.length === 1) {
       resetProblemSummaries();
-      setValue('problemIds', [0]);
       closeProblemDeleteModal();
       return;
     }
-
-    const newProblemList = [...problemList];
-    newProblemList.splice(index, 1);
-    setValue('problemIds', newProblemList);
 
     const newProblemSummaries = [...problemSummaries];
     newProblemSummaries.splice(index, 1);
@@ -220,15 +226,15 @@ function RouteComponent() {
   };
 
   const handleAddProblemSummary = (index: number, problemSummary: ProblemSearchGetResponse) => {
-    if (problemList.includes(problemSummary.problemId)) {
+    if (
+      problemSummaries
+        .map((problemSummary) => problemSummary.problemId)
+        .includes(problemSummary.problemId)
+    ) {
       setErrorMessage('이미 추가된 문항이에요');
       openErrorModal();
       return;
     }
-
-    const newProblemList = [...problemList];
-    newProblemList[index] = problemSummary.problemId;
-    setValue('problemIds', newProblemList);
 
     const newProblemSummaries = [...problemSummaries];
     newProblemSummaries[index] = problemSummary;
@@ -239,17 +245,18 @@ function RouteComponent() {
   };
 
   const handleClickSave = (data: ProblemSetUpdateRequest) => {
-    const filteredProblemIds = data.problemIds.filter((problemId) => problemId !== 0);
-
-    if (filteredProblemIds.length === 0) {
-      setErrorMessage('추가된 문항이 없어요');
+    const filteredProblemSummaries = problemSummaries.filter(
+      (problemSummary) => problemSummary.problemId !== 0
+    );
+    if (filteredProblemSummaries.length === 0) {
+      setErrorMessage('적어도 1개의 문항을 등록해주세요');
       openErrorModal();
       return;
     }
 
     const filteredData = {
       ...data,
-      problemIds: filteredProblemIds,
+      problemIds: filteredProblemSummaries.map((problemSummary) => problemSummary.problemId),
     };
 
     mutatePutProblemSet(
@@ -350,10 +357,10 @@ function RouteComponent() {
         </div>
       </div>
       <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
-        {problemList.map((problemId: number, index: number) => {
+        {problemSummaries.map((problemSummary: ProblemSummaryResponse, index: number) => {
           return (
-            <ProblemCard key={`${problemId}-${index}`}>
-              {problemId === 0 ? (
+            <ProblemCard key={`${problemSummary.problemId}-${index}`}>
+              {problemSummary.problemId === 0 ? (
                 <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
               ) : (
                 <>
@@ -380,7 +387,7 @@ function RouteComponent() {
                       onClick={() =>
                         navigate({
                           to: '/problem/$problemId',
-                          params: { problemId: problemId.toString() },
+                          params: { problemId: problemSummary.problemId.toString() },
                         })
                       }
                     />
