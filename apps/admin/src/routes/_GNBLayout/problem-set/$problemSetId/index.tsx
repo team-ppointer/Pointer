@@ -27,6 +27,16 @@ import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Slide, toast, ToastContainer } from 'react-toastify';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { SortableContext, arrayMove, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 
 export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
   component: RouteComponent,
@@ -71,6 +81,8 @@ function RouteComponent() {
     openModal: openErrorModal,
     closeModal: closeErrorModal,
   } = useModal();
+
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
   // api
   const { data: problemSetData } = getProblemSetById(Number(problemSetId));
@@ -198,7 +210,7 @@ function RouteComponent() {
   };
 
   const handleDeleteProblem = (index: number) => {
-    setIsSaved(false);
+    if (isSaved) setIsSaved(false);
 
     if (problemSummaries.length === 1) {
       resetProblemSummaries();
@@ -241,7 +253,7 @@ function RouteComponent() {
     setProblemSummaries(newProblemSummaries);
 
     closeSearchModal();
-    setIsSaved(false);
+    if (isSaved) setIsSaved(false);
   };
 
   const handleClickSave = (data: ProblemSetUpdateRequest) => {
@@ -286,6 +298,21 @@ function RouteComponent() {
         },
       }
     );
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const currentSequence = problemSummaries.findIndex(
+        (problemSummary) => problemSummary.problemId === active.id
+      );
+      const newSequence = problemSummaries.findIndex(
+        (problemSummary) => problemSummary.problemId === over.id
+      );
+
+      setProblemSummaries((prevList) => arrayMove(prevList, currentSequence, newSequence));
+      if (isSaved) setIsSaved(false);
+    }
   };
 
   // useEffect
@@ -334,7 +361,7 @@ function RouteComponent() {
             <Input
               placeholder='입력해주세요'
               {...register('problemSetTitle', {
-                onChange: () => setIsSaved(false),
+                onChange: () => isSaved && setIsSaved(false),
               })}
             />
           </ComponentWithLabel>
@@ -357,51 +384,70 @@ function RouteComponent() {
         </div>
       </div>
       <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
-        {problemSummaries.map((problemSummary: ProblemSummaryResponse, index: number) => {
-          return (
-            <ProblemCard key={`${problemSummary.problemId}-${index}`}>
-              {problemSummary.problemId === 0 ? (
-                <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
-              ) : (
-                <>
-                  <ProblemCard.TextSection>
-                    <ProblemCard.Title title={`문항 ${index + 1}`} />
-                    <ProblemCard.Info
-                      label='문항 ID'
-                      content={problemSummaries[index]?.problemCustomId.toString()}
-                    />
-                    <ProblemCard.Info
-                      label='문항 타이틀'
-                      content={problemSummaries[index]?.problemTitle}
-                    />
-                    <ProblemCard.Info label='문항 메모' content={problemSummaries[index]?.memo} />
-                    <ProblemCard.TagSection>
-                      {problemSummaries[index]?.tagNames.map((tag, tagIndex) => {
-                        return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
-                      })}
-                    </ProblemCard.TagSection>
-                  </ProblemCard.TextSection>
-                  <ProblemCard.ButtonSection>
-                    <IconButton
-                      variant='modify'
-                      onClick={() =>
-                        navigate({
-                          to: '/problem/$problemId',
-                          params: { problemId: problemSummary.problemId.toString() },
-                        })
-                      }
-                    />
-                    <IconButton variant='delete' onClick={() => handleClickDeleteProblem(index)} />
-                  </ProblemCard.ButtonSection>
-                  <ProblemCard.CardImage
-                    src={problemSummaries[index]?.mainProblemImageUrl}
-                    height={'34.4rem'}
-                  />
-                </>
-              )}
-            </ProblemCard>
-          );
-        })}
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext
+            items={problemSummaries.map((problemSummary) => problemSummary.problemId)}
+            strategy={horizontalListSortingStrategy}>
+            {problemSummaries.map((problemSummary: ProblemSummaryResponse, index: number) => {
+              const handlePointerDown = (event: React.PointerEvent) => {
+                event.stopPropagation(); // 이벤트가 상위로 전파되지 않도록 차단
+              };
+              return (
+                <ProblemCard
+                  key={`${problemSummary.problemId}-${index}`}
+                  problemId={problemSummary.problemId}>
+                  {problemSummary.problemId === 0 ? (
+                    <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
+                  ) : (
+                    <>
+                      <ProblemCard.TextSection>
+                        <ProblemCard.Title title={`문항 ${index + 1}`} />
+                        <ProblemCard.Info
+                          label='문항 ID'
+                          content={problemSummaries[index]?.problemCustomId.toString()}
+                        />
+                        <ProblemCard.Info
+                          label='문항 타이틀'
+                          content={problemSummaries[index]?.problemTitle}
+                        />
+                        <ProblemCard.Info
+                          label='문항 메모'
+                          content={problemSummaries[index]?.memo}
+                        />
+                        <ProblemCard.TagSection>
+                          {problemSummaries[index]?.tagNames.map((tag, tagIndex) => {
+                            return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
+                          })}
+                        </ProblemCard.TagSection>
+                      </ProblemCard.TextSection>
+                      <ProblemCard.ButtonSection>
+                        <IconButton
+                          variant='modify'
+                          onClick={() =>
+                            navigate({
+                              to: '/problem/$problemId',
+                              params: { problemId: problemSummary.problemId.toString() },
+                            })
+                          }
+                          onPointerDown={handlePointerDown}
+                        />
+                        <IconButton
+                          variant='delete'
+                          onClick={() => handleClickDeleteProblem(index)}
+                          onPointerDown={handlePointerDown}
+                        />
+                      </ProblemCard.ButtonSection>
+                      <ProblemCard.CardImage
+                        src={problemSummaries[index]?.mainProblemImageUrl}
+                        height={'34.4rem'}
+                      />
+                    </>
+                  )}
+                </ProblemCard>
+              );
+            })}
+          </SortableContext>
+        </DndContext>
         <div className='flex items-center'>
           <PlusButton onClick={handleClickAdd} />
         </div>
