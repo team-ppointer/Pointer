@@ -107,36 +107,38 @@ function RouteComponent() {
       </form>
       <div className='mt-[6.4rem] flex flex-col gap-[4.8rem]'>
         {problemSetList?.data.map((problemSet) => (
-          <SectionCard key={problemSet.id} isSelected={selectedSetId === problemSet.id}>
-            <div className='flex items-center justify-between'>
-              <h2 className='font-bold-24 text-black'>{problemSet.problemSetTitle}</h2>
-              <div className='flex gap-[1.6rem]'>
-                <IconButton
-                  variant={selectedSetId === problemSet.id ? 'select' : 'unselected'}
-                  onClick={() => {
-                    setSelectedSetId(problemSet.id);
-                  }}
-                />
-                <Link
-                  to={'/problem-set/$problemSetId'}
-                  params={{
-                    problemSetId: problemSet.id?.toString(),
-                  }}>
+          <Link
+            key={problemSet.id}
+            to={'/problem-set/$problemSetId'}
+            params={{
+              problemSetId: problemSet.id?.toString(),
+            }}>
+            <SectionCard isSelected={selectedSetId === problemSet.id}>
+              <div className='flex items-center justify-between'>
+                <h2 className='font-bold-24 text-black'>{problemSet.problemSetTitle}</h2>
+                <div className='flex gap-[1.6rem]'>
+                  <IconButton
+                    variant={selectedSetId === problemSet.id ? 'select' : 'unselected'}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setSelectedSetId(problemSet.id);
+                    }}
+                  />
                   <IconButton variant='right' />
-                </Link>
+                </div>
               </div>
-            </div>
-            <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
-              {problemSet.problemThumbnailResponses.map((problem, index) => (
-                <ProblemPreview
-                  key={`문항-${index}`}
-                  title={problem.problemTitle ?? ''}
-                  memo={problem.problemMemo ?? ''}
-                  imgSrc={problem.mainProblemImageUrl ?? ''}
-                />
-              ))}
-            </div>
-          </SectionCard>
+              <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
+                {problemSet.problemThumbnailResponses.map((problem, index) => (
+                  <ProblemPreview
+                    key={`문항-${index}`}
+                    title={problem.problemTitle ?? ''}
+                    memo={problem.problemMemo ?? ''}
+                    imgSrc={problem.mainProblemImageUrl ?? ''}
+                  />
+                ))}
+              </div>
+            </SectionCard>
+          </Link>
         ))}
       </div>
       <FloatingButton disabled={!selectedSetId} onClick={handleClickPublish}>
