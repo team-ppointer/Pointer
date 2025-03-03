@@ -220,6 +220,12 @@ function RouteComponent() {
   };
 
   const handleAddProblemSummary = (index: number, problemSummary: ProblemSearchGetResponse) => {
+    if (problemList.includes(problemSummary.problemId)) {
+      setErrorMessage('이미 추가된 문항이에요');
+      openErrorModal();
+      return;
+    }
+
     const newProblemList = [...problemList];
     newProblemList[index] = problemSummary.problemId;
     setValue('problemIds', newProblemList);
