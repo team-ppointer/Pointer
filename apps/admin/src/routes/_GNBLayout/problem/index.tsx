@@ -81,7 +81,7 @@ function RouteComponent() {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );
-    setSearchQuery({ ...filteredData });
+    setSearchQuery({ ...filteredData, conceptTagIds: selectedTagList });
   };
 
   const handleResetQuery = () => {
