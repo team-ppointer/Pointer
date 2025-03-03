@@ -311,7 +311,15 @@ function RouteComponent() {
                     </ProblemCard.TagSection>
                   </ProblemCard.TextSection>
                   <ProblemCard.ButtonSection>
-                    <IconButton variant='modify' />
+                    <IconButton
+                      variant='modify'
+                      onClick={() =>
+                        navigate({
+                          to: '/problem/$problemId',
+                          params: { problemId: problemId.toString() },
+                        })
+                      }
+                    />
                     <IconButton variant='delete' onClick={() => handleClickDeleteProblem(index)} />
                   </ProblemCard.ButtonSection>
                   <ProblemCard.CardImage
