@@ -25,6 +25,12 @@ const ImageUpload = ({
   const { refetch } = getPresignedUrl({ problemId, imageType });
 
   const {
+    isOpen: isViewModalOpen,
+    openModal: openViewModal,
+    closeModal: closeViewModal,
+  } = useModal();
+
+  const {
     isOpen: isDeleteModalOpen,
     openModal: openDeleteModal,
     closeModal: closeDeleteModal,
@@ -89,7 +95,7 @@ const ImageUpload = ({
         <div className='relative h-[54.3rem] w-full overflow-hidden rounded-[1.6rem]'>
           <img src={imageUrl} alt='upload-image' className='h-full w-full object-contain' />
           <div className='absolute right-[1.6rem] bottom-[1.6rem] z-30 flex items-center gap-[1rem]'>
-            <IconButton variant='view' />
+            <IconButton variant='view' onClick={openViewModal} />
             <IconButton variant='delete' onClick={openDeleteModal} />
           </div>
         </div>
@@ -107,6 +113,15 @@ const ImageUpload = ({
           </div>
         </div>
       )}
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal}>
+        <div className='scrollbar-thin flex max-h-[95dvh] max-w-[95dvw] min-w-[50dvw] items-start justify-start'>
+          <img
+            src={imageUrl}
+            alt={`${imageType} full image`}
+            className='h-full w-full object-contain'
+          />
+        </div>
+      </Modal>
       <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
         <TwoButtonModalTemplate
           text='이미지를 삭제할까요?'
