@@ -55,7 +55,7 @@ const CardImage = ({ src, height }: { src?: string; height: string }) => {
     <img
       src={src ? src : '/images/image-placeholder.svg'}
       alt='problem-thumbnail'
-      className='w-full object-cover'
+      className='w-full object-contain'
       style={{ height }}
     />
   );

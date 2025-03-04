@@ -144,7 +144,7 @@ function RouteComponent() {
                   <IconButton variant='right' />
                 </div>
               </div>
-              <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
+              <div className='mt-[3.2rem] flex gap-[3.2rem] overflow-auto'>
                 {problemSet.problemThumbnailResponses.map((problem, index) => (
                   <ProblemPreview
                     key={`problem-${index}`}
