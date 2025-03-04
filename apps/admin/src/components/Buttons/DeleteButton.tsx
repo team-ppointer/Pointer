@@ -1,4 +1,4 @@
-import { IcDelete, IcDeleteSm, IcTrash16 } from '@svg';
+import { IcDelete, IcTrash16 } from '@svg';
 import { ButtonHTMLAttributes } from 'react';
 
 interface DeleteButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

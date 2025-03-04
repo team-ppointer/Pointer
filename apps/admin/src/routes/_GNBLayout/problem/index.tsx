@@ -81,7 +81,7 @@ function RouteComponent() {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );
-    setSearchQuery({ ...filteredData });
+    setSearchQuery({ ...filteredData, conceptTagIds: selectedTagList });
   };
 
   const handleResetQuery = () => {
@@ -92,10 +92,22 @@ function RouteComponent() {
 
   const handleRemoveTag = (tag: number) => {
     setSelectedTagList((prev) => prev.filter((selectedTag) => selectedTag !== tag));
+    setSearchQuery((prev) => {
+      return {
+        ...prev,
+        conceptTagIds: prev.conceptTagIds?.filter((selectedTag) => selectedTag !== tag),
+      };
+    });
   };
 
   const handleChangeTagList = (tagList: number[]) => {
     setSelectedTagList(tagList);
+    setSearchQuery((prev) => {
+      return {
+        ...prev,
+        conceptTagIds: tagList,
+      };
+    });
   };
 
   return (

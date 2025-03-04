@@ -124,31 +124,38 @@ function RouteComponent() {
       </form>
       <div className='mt-[6.4rem] flex flex-col gap-[4.8rem]'>
         {problemSetList?.data.map((problemSet) => (
-          <SectionCard key={problemSet.id}>
-            <div className='flex items-center justify-between'>
-              <h2 className='font-bold-24 text-black'>{problemSet.problemSetTitle}</h2>
-              <div className='flex gap-[1.6rem]'>
-                <IconButton variant='delete' onClick={() => handleClickDelete(problemSet.id)} />
-                <Link
-                  to={'/problem-set/$problemSetId'}
-                  params={{
-                    problemSetId: problemSet.id?.toString(),
-                  }}>
+          <Link
+            key={problemSet.id}
+            to={'/problem-set/$problemSetId'}
+            params={{
+              problemSetId: problemSet.id?.toString(),
+            }}>
+            <SectionCard>
+              <div className='flex items-center justify-between'>
+                <h2 className='font-bold-24 text-black'>{problemSet.problemSetTitle}</h2>
+                <div className='flex gap-[1.6rem]'>
+                  <IconButton
+                    variant='delete'
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleClickDelete(problemSet.id);
+                    }}
+                  />
                   <IconButton variant='right' />
-                </Link>
+                </div>
               </div>
-            </div>
-            <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
-              {problemSet.problemThumbnailResponses.map((problem, index) => (
-                <ProblemPreview
-                  key={`problem-${index}`}
-                  title={problem.problemTitle ?? ''}
-                  memo={problem.problemMemo ?? ''}
-                  imgSrc={problem.mainProblemImageUrl ?? ''}
-                />
-              ))}
-            </div>
-          </SectionCard>
+              <div className='mt-[3.2rem] flex gap-[3.2rem] overflow-auto'>
+                {problemSet.problemThumbnailResponses.map((problem, index) => (
+                  <ProblemPreview
+                    key={`problem-${index}`}
+                    title={problem.problemTitle ?? ''}
+                    memo={problem.problemMemo ?? ''}
+                    imgSrc={problem.mainProblemImageUrl ?? ''}
+                  />
+                ))}
+              </div>
+            </SectionCard>
+          </Link>
         ))}
       </div>
       <FloatingButton onClick={handleClickRegister}>새로운 세트 등록하기</FloatingButton>

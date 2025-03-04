@@ -23,7 +23,7 @@ export interface paths {
     put: operations['updateProblem'];
     post?: never;
     /** 문항 삭제 */
-    delete: operations['updateProblem_1'];
+    delete: operations['deleteProblem'];
     options?: never;
     head?: never;
     patch?: never;
@@ -491,6 +491,7 @@ export interface components {
       answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       answer?: string;
       conceptTagIds: number[];
+      prescriptionImageUrls: string[];
     };
     ProblemUpdateRequest: {
       /** @enum {string} */
@@ -527,6 +528,7 @@ export interface components {
       answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       answer?: string;
       conceptTagIds: number[];
+      prescriptionImageUrls: string[];
     };
     ProblemGetResponse: {
       /** Format: int64 */
@@ -596,8 +598,8 @@ export interface components {
     PublishMonthGetResponse: {
       /** Format: int64 */
       publishId?: number;
-      /** Format: int32 */
-      day?: number;
+      /** Format: date */
+      date?: string;
       problemSetInfo?: components['schemas']['PublishProblemSetResponse'];
     };
     PublishProblemSetResponse: {
@@ -743,7 +745,7 @@ export interface operations {
       };
     };
   };
-  updateProblem_1: {
+  deleteProblem: {
     parameters: {
       query?: never;
       header?: never;
@@ -1322,8 +1324,9 @@ export interface operations {
           | 'MAIN_HANDWRITING_EXPLANATION'
           | 'READING_TIP'
           | 'SENIOR_TIP'
-          | 'PRESCRIPTION'
-          | 'CHILD_PROBLEM';
+          | 'MAIN_PRESCRIPTION'
+          | 'CHILD_PROBLEM'
+          | 'CHILD_PRESCRIPTION';
       };
       header?: never;
       path: {
