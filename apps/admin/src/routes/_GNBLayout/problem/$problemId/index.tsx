@@ -121,6 +121,7 @@ function RouteComponent() {
             imageUrl: '',
             answerType: 'MULTIPLE_CHOICE',
             answer: '',
+            prescriptionImageUrls: [''],
           });
         },
       }
@@ -215,6 +216,7 @@ function RouteComponent() {
       update(index, newChildProblem);
     }
   };
+
   const handleRemoveChildTag = (tagId: number, index: number) => {
     const newChildProblem = produce(childProblems[index], (draft) => {
       if (draft) {
@@ -230,6 +232,18 @@ function RouteComponent() {
     const newChildProblem = produce(childProblems[index], (draft) => {
       if (draft) {
         draft.imageUrl = newImageUrl;
+      }
+    });
+    if (newChildProblem) {
+      update(index, newChildProblem);
+    }
+  };
+
+  const handleChangeChildPrescriptionImage = (newImageUrl: string, index: number) => {
+    const newChildProblem = produce(childProblems[index], (draft) => {
+      if (draft) {
+        // 추후 확장성을 고려해 배열로 관리되지만, 현재는 1개만 저장
+        draft.prescriptionImageUrls = [newImageUrl];
       }
     });
     if (newChildProblem) {
@@ -522,6 +536,16 @@ function RouteComponent() {
                           {...register(`updateChildProblems.${index}.answer`)}
                         />
                       </AnswerInput>
+                    </ComponentWithLabel>
+                    <ComponentWithLabel label='새끼 문제 진단 및 처방 선택' direction='column'>
+                      <ImageUpload
+                        problemId={problemId}
+                        imageType='CHILD_PRESCRIPTION'
+                        imageUrl={childProblem.prescriptionImageUrls[0]}
+                        handleChangeImageUrl={(newImageUrl) =>
+                          handleChangeChildPrescriptionImage(newImageUrl, index)
+                        }
+                      />
                     </ComponentWithLabel>
                   </div>
                 );
