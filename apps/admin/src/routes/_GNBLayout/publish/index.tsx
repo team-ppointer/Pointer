@@ -4,14 +4,14 @@ import { HTMLAttributes, useState } from 'react';
 import { IcDeleteSm } from '@svg';
 import { Link } from '@tanstack/react-router';
 import { $api, deletePublish, getPublish } from '@apis';
-import dayjs from 'dayjs';
-import 'dayjs/locale/ko';
 import { useModal } from '@hooks';
 import { useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+
+import 'dayjs/locale/ko';
 dayjs.locale('ko');
 
 interface DayProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'thisMonth' | 'anotherMonth';
   fullDate: string;
   day: number;
   dayOfWeek?: number; // 요일 - 0: Sunday ~ 6: Saturday
@@ -20,15 +20,7 @@ interface DayProps extends HTMLAttributes<HTMLDivElement> {
   setId?: number;
 }
 
-const Day = ({
-  variant = 'thisMonth',
-  fullDate,
-  day,
-  dayOfWeek,
-  publishId,
-  title,
-  setId,
-}: DayProps) => {
+const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) => {
   const queryClient = useQueryClient();
   const {
     isOpen: isDeleteModalOpen,
@@ -45,16 +37,13 @@ const Day = ({
 
   const dayOfWeekStyle = isSunday ? 'text-red' : isSaturday ? 'text-blue' : 'black';
 
-  const textStyle = variant === 'thisMonth' ? 'text-black' : 'text-lightgray500';
-
-  const todayBgStyle =
-    isToday && variant === 'thisMonth'
-      ? isSunday
-        ? 'bg-lightred'
-        : isSaturday
-          ? 'bg-lightblue'
-          : 'bg-lightgray500'
-      : 'bg-white';
+  const todayBgStyle = isToday
+    ? isSunday
+      ? 'bg-lightred'
+      : isSaturday
+        ? 'bg-lightblue'
+        : 'bg-lightgray500'
+    : 'bg-white';
 
   const handleMutateDelete = () => {
     if (!publishId) return;
@@ -90,7 +79,7 @@ const Day = ({
         className={`flex h-[15rem] flex-col items-end gap-[0.4rem] rounded-[4px] bg-white px-[2.4rem] py-[1.6rem]`}>
         <div className='flex w-full items-center justify-between'>
           <div
-            className={`font-medium-16 h-[2.4rem] rounded-[0.4rem] px-[0.6rem] ${dayOfWeekStyle} ${textStyle} ${todayBgStyle}`}>
+            className={`font-medium-16 h-[2.4rem] rounded-[0.4rem] px-[0.6rem] text-black ${dayOfWeekStyle} ${todayBgStyle}`}>
             {day}
           </div>
           <div>
@@ -107,7 +96,7 @@ const Day = ({
             to={'/problem-set/$problemSetId'}
             params={{ problemSetId: setId.toString() }}
             className='w-full overflow-auto'>
-            <p className={`font-bold-18 h-full w-full ${textStyle}`}>{title}</p>
+            <p className={`font-bold-18 h-full w-full text-black`}>{title}</p>
           </Link>
         ) : (
           !isPast && (
@@ -115,7 +104,7 @@ const Day = ({
               to={`/publish/register/$publishDate`}
               params={{ publishDate: fullDate }}
               className='flex h-full w-full flex-col items-center justify-center'>
-              <PlusButton variant={variant === 'anotherMonth' ? 'light' : 'dark'} />
+              <PlusButton variant='dark' />
             </Link>
           )
         )}
@@ -149,10 +138,6 @@ function RouteComponent() {
   const lastDayOfMonth = currentMonth.endOf('month').day(); // 마지막날 요일, 0: Sunday ~ 6: Saturday
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  const prevMonth = currentMonth.subtract(1, 'month');
-  const nextMonth = currentMonth.add(1, 'month');
-  const daysInPrevMonth = prevMonth.daysInMonth();
-
   const { data: publishDataResponse } = getPublish(currentMonth.year(), currentMonth.month() + 1);
   const publishData = publishDataResponse?.data ?? [];
 
@@ -178,31 +163,15 @@ function RouteComponent() {
         </div>
 
         <div className='grid grid-cols-7 gap-[0.8rem]'>
-          {Array.from({ length: firstDayOfMonth }).map((_, i) => {
-            const currentDate = prevMonth.date(daysInPrevMonth - firstDayOfMonth + i + 1);
-            const fullDate = currentDate.format('YYYY-MM-DD');
-            const currentDay = currentDate.day();
-            const setData = publishData.find((e) => e.day === currentDay);
-
-            return (
-              <Day
-                key={`prev-${i}`}
-                variant='anotherMonth'
-                day={daysInPrevMonth - firstDayOfMonth + i + 1}
-                fullDate={fullDate}
-                publishId={setData?.publishId}
-                title={setData?.problemSetInfo?.title}
-                setId={setData?.problemSetInfo?.id}
-              />
-            );
+          {Array.from({ length: firstDayOfMonth }).map((_, index) => {
+            return <div key={index} className='h-[15rem] rounded-[4px] bg-white'></div>;
           })}
 
           {daysArray.map((day) => {
             const currentDate = currentMonth.date(day);
             const fullDate = currentDate.format('YYYY-MM-DD');
-            const currentDay = currentDate.date();
             const dayOfWeek = currentDate.day();
-            const setData = publishData.find((e) => e.day === currentDay);
+            const setData = publishData.find((e) => e.date === fullDate);
 
             return (
               <Day
@@ -217,23 +186,8 @@ function RouteComponent() {
             );
           })}
 
-          {Array.from({ length: 6 - lastDayOfMonth }).map((_, i) => {
-            const currentDate = nextMonth.date(i + 1);
-            const fullDate = currentDate.format('YYYY-MM-DD');
-            const currentDay = currentDate.day();
-            const setData = publishData.find((e) => e.day === currentDay);
-
-            return (
-              <Day
-                key={`next-${i}`}
-                variant='anotherMonth'
-                day={i + 1}
-                fullDate={fullDate}
-                publishId={setData?.publishId}
-                title={setData?.problemSetInfo?.title}
-                setId={setData?.problemSetInfo?.id}
-              />
-            );
+          {Array.from({ length: 6 - lastDayOfMonth }).map((_, index) => {
+            return <div key={index} className='h-[15rem] rounded-[4px] bg-white'></div>;
           })}
         </div>
       </div>

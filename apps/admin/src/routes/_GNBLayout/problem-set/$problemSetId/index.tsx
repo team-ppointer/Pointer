@@ -27,6 +27,16 @@ import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Slide, toast, ToastContainer } from 'react-toastify';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { SortableContext, arrayMove, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 
 export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
   component: RouteComponent,
@@ -35,6 +45,7 @@ export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
 type ProblemSetUpdateRequest = components['schemas']['ProblemSetUpdateRequest'];
 type ProblemSummaryResponse = components['schemas']['ProblemSummaryResponse'];
 type ProblemSearchGetResponse = components['schemas']['ProblemSearchGetResponse'];
+type ErrorResponse = components['schemas']['ErrorResponse'];
 
 function RouteComponent() {
   const { problemSetId } = Route.useParams();
@@ -44,6 +55,8 @@ function RouteComponent() {
   const [problemSummaries, setProblemSummaries] = useState<ProblemSummaryResponse[]>([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState<number>(0);
   const [deleteProblemIndex, setDeleteProblemIndex] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isSaved, setIsSaved] = useState<boolean>(true);
 
   const {
     isOpen: isSetDeleteModalOpen,
@@ -69,22 +82,30 @@ function RouteComponent() {
     closeModal: closeErrorModal,
   } = useModal();
 
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+
   // api
   const { data: problemSetData } = getProblemSetById(Number(problemSetId));
   const { mutate: mutatePutProblemSet } = putProblemSet();
   const { mutate: mutateConfirmProblemSet } = putConfirmProblemSet();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
+  const confirmStatus = problemSetData?.data.confirmStatus;
 
   // RHF
-  const { register, handleSubmit, watch, setValue } = useForm<ProblemSetUpdateRequest>({
+  const { register, handleSubmit, setValue } = useForm<ProblemSetUpdateRequest>({
     defaultValues: {
       problemSetTitle: '',
       problemIds: [],
     },
   });
-  const problemList = watch('problemIds');
 
   const handleClickConfirm = () => {
+    if (!isSaved) {
+      setErrorMessage(`저장되지 않은 내용이 있어요\n저장 후 다시 시도해주세요`);
+      openErrorModal();
+      return;
+    }
+
     mutateConfirmProblemSet(
       {
         params: {
@@ -94,7 +115,7 @@ function RouteComponent() {
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           queryClient.invalidateQueries({
             queryKey: $api.queryOptions('get', '/api/v1/problemSet/{problemSetId}', {
               params: {
@@ -104,12 +125,21 @@ function RouteComponent() {
               },
             }).queryKey,
           });
+          if (data.data === 'CONFIRMED') {
+            toast.success('컨펌이 완료되었습니다');
+          } else {
+            toast.info('컨펌이 취소되었습니다');
+          }
+        },
+        onError: (error: ErrorResponse) => {
+          setErrorMessage(error.message);
+          openErrorModal();
         },
       }
     );
   };
 
-  const handleClickSetDelete = () => {
+  const handleMutateSetDelete = () => {
     mutateDeleteProblemSet(
       {
         params: {
@@ -130,8 +160,38 @@ function RouteComponent() {
   };
 
   // functions
+  const handleClickSetDelete = () => {
+    if (problemSetData?.data.publishedDates && problemSetData?.data.publishedDates.length > 0) {
+      setErrorMessage('발행된 세트는 삭제할 수 없어요');
+      openErrorModal();
+      return;
+    }
+    openSetDeleteModal();
+  };
+
+  const createModifyError = () => {
+    setErrorMessage('컨펌된 세트는 문항을 수정할 수 없어요');
+    openErrorModal();
+  };
+
   const handleClickAdd = () => {
-    setValue('problemIds', [...problemList, 0]);
+    if (confirmStatus === 'CONFIRMED') {
+      createModifyError();
+      return;
+    }
+
+    setProblemSummaries((prev) => {
+      return [
+        ...prev,
+        {
+          problemId: 0,
+          problemCustomId: '',
+          memo: '',
+          mainProblemImageUrl: undefined,
+          tagNames: [],
+        },
+      ];
+    });
   };
 
   const handleAddProblem = (index: number) => {
@@ -140,21 +200,23 @@ function RouteComponent() {
   };
 
   const handleClickDeleteProblem = (index: number) => {
+    if (confirmStatus === 'CONFIRMED') {
+      createModifyError();
+      return;
+    }
+
     setDeleteProblemIndex(index);
     openProblemDeleteModal();
   };
 
   const handleDeleteProblem = (index: number) => {
-    if (problemList.length === 1) {
+    if (isSaved) setIsSaved(false);
+
+    if (problemSummaries.length === 1) {
       resetProblemSummaries();
-      setValue('problemIds', [0]);
       closeProblemDeleteModal();
       return;
     }
-
-    const newProblemList = [...problemList];
-    newProblemList.splice(index, 1);
-    setValue('problemIds', newProblemList);
 
     const newProblemSummaries = [...problemSummaries];
     newProblemSummaries.splice(index, 1);
@@ -176,27 +238,39 @@ function RouteComponent() {
   };
 
   const handleAddProblemSummary = (index: number, problemSummary: ProblemSearchGetResponse) => {
-    const newProblemList = [...problemList];
-    newProblemList[index] = problemSummary.problemId;
-    setValue('problemIds', newProblemList);
+    if (
+      problemSummaries
+        .map((problemSummary) => problemSummary.problemId)
+        .includes(problemSummary.problemId)
+    ) {
+      setErrorMessage('이미 추가된 문항이에요');
+      openErrorModal();
+      return;
+    }
 
     const newProblemSummaries = [...problemSummaries];
     newProblemSummaries[index] = problemSummary;
     setProblemSummaries(newProblemSummaries);
 
     closeSearchModal();
+    if (isSaved) setIsSaved(false);
   };
 
   const handleClickSave = (data: ProblemSetUpdateRequest) => {
-    const filteredProblemIds = data.problemIds.filter((problemId) => problemId !== 0);
-    if (filteredProblemIds.length === 0) {
+    const filteredProblemSummaries = problemSummaries.filter(
+      (problemSummary) => problemSummary.problemId !== 0
+    );
+    if (filteredProblemSummaries.length === 0) {
+      setErrorMessage('적어도 1개의 문항을 등록해주세요');
       openErrorModal();
       return;
     }
+
     const filteredData = {
       ...data,
-      problemIds: filteredProblemIds,
+      problemIds: filteredProblemSummaries.map((problemSummary) => problemSummary.problemId),
     };
+
     mutatePutProblemSet(
       {
         body: {
@@ -220,9 +294,25 @@ function RouteComponent() {
             }).queryKey,
           });
           toast.success('저장이 완료되었습니다');
+          setIsSaved(true);
         },
       }
     );
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const currentSequence = problemSummaries.findIndex(
+        (problemSummary) => problemSummary.problemId === active.id
+      );
+      const newSequence = problemSummaries.findIndex(
+        (problemSummary) => problemSummary.problemId === over.id
+      );
+
+      setProblemSummaries((prevList) => arrayMove(prevList, currentSequence, newSequence));
+      if (isSaved) setIsSaved(false);
+    }
   };
 
   // useEffect
@@ -261,21 +351,29 @@ function RouteComponent() {
       />
       <Header
         title='세트 수정하기'
-        description='문항을 잡고 드래그해서 순서를 바꿀 수 있어요'
+        description={`문항을 잡고 드래그해서 순서를 바꿀 수 있어요\n컨펌된 세트도 타이틀 수정이 가능해요`}
         deleteButton='세트 삭제'
-        onClickDelete={openSetDeleteModal}
+        onClickDelete={handleClickSetDelete}
       />
       <div className='mt-[6.4rem] flex justify-between'>
         <div className='w-[81.5rem]'>
           <ComponentWithLabel label='세트 제목'>
-            <Input placeholder='입력해주세요' {...register('problemSetTitle')} />
+            <Input
+              placeholder='입력해주세요'
+              {...register('problemSetTitle', {
+                onChange: () => isSaved && setIsSaved(false),
+              })}
+            />
           </ComponentWithLabel>
         </div>
 
         <div className='flex items-center gap-[2.4rem]'>
           <StatusToggle
-            selectedStatus={problemSetData?.data.confirmStatus ?? 'NOT_CONFIRMED'}
-            onSelect={handleClickConfirm}
+            selectedStatus={confirmStatus ?? 'NOT_CONFIRMED'}
+            onSelect={() => {
+              handleSubmit(handleClickSave);
+              handleClickConfirm();
+            }}
           />
           <div className='flex items-center gap-[0.8rem]'>
             <Button variant='light'>미리보기</Button>
@@ -286,43 +384,70 @@ function RouteComponent() {
         </div>
       </div>
       <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
-        {problemList.map((problemId: number, index: number) => {
-          return (
-            <ProblemCard key={`${problemId}-${index}`}>
-              {problemId === 0 ? (
-                <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
-              ) : (
-                <>
-                  <ProblemCard.TextSection>
-                    <ProblemCard.Title title={`문항 ${index + 1}`} />
-                    <ProblemCard.Info
-                      label='문항 ID'
-                      content={problemSummaries[index]?.problemCustomId.toString()}
-                    />
-                    <ProblemCard.Info
-                      label='문항 타이틀'
-                      content={problemSummaries[index]?.problemTitle}
-                    />
-                    <ProblemCard.Info label='문항 메모' content={problemSummaries[index]?.memo} />
-                    <ProblemCard.TagSection>
-                      {problemSummaries[index]?.tagNames.map((tag, tagIndex) => {
-                        return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
-                      })}
-                    </ProblemCard.TagSection>
-                  </ProblemCard.TextSection>
-                  <ProblemCard.ButtonSection>
-                    <IconButton variant='modify' />
-                    <IconButton variant='delete' onClick={() => handleClickDeleteProblem(index)} />
-                  </ProblemCard.ButtonSection>
-                  <ProblemCard.CardImage
-                    src={problemSummaries[index]?.mainProblemImageUrl}
-                    height={'34.4rem'}
-                  />
-                </>
-              )}
-            </ProblemCard>
-          );
-        })}
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext
+            items={problemSummaries.map((problemSummary) => problemSummary.problemId)}
+            strategy={horizontalListSortingStrategy}>
+            {problemSummaries.map((problemSummary: ProblemSummaryResponse, index: number) => {
+              const handlePointerDown = (event: React.PointerEvent) => {
+                event.stopPropagation(); // 이벤트가 상위로 전파되지 않도록 차단
+              };
+              return (
+                <ProblemCard
+                  key={`${problemSummary.problemId}-${index}`}
+                  problemId={problemSummary.problemId}>
+                  {problemSummary.problemId === 0 ? (
+                    <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
+                  ) : (
+                    <>
+                      <ProblemCard.TextSection>
+                        <ProblemCard.Title title={`문항 ${index + 1}`} />
+                        <ProblemCard.Info
+                          label='문항 ID'
+                          content={problemSummaries[index]?.problemCustomId.toString()}
+                        />
+                        <ProblemCard.Info
+                          label='문항 타이틀'
+                          content={problemSummaries[index]?.problemTitle}
+                        />
+                        <ProblemCard.Info
+                          label='문항 메모'
+                          content={problemSummaries[index]?.memo}
+                        />
+                        <ProblemCard.TagSection>
+                          {problemSummaries[index]?.tagNames.map((tag, tagIndex) => {
+                            return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
+                          })}
+                        </ProblemCard.TagSection>
+                      </ProblemCard.TextSection>
+                      <ProblemCard.ButtonSection>
+                        <IconButton
+                          variant='modify'
+                          onClick={() =>
+                            navigate({
+                              to: '/problem/$problemId',
+                              params: { problemId: problemSummary.problemId.toString() },
+                            })
+                          }
+                          onPointerDown={handlePointerDown}
+                        />
+                        <IconButton
+                          variant='delete'
+                          onClick={() => handleClickDeleteProblem(index)}
+                          onPointerDown={handlePointerDown}
+                        />
+                      </ProblemCard.ButtonSection>
+                      <ProblemCard.CardImage
+                        src={problemSummaries[index]?.mainProblemImageUrl}
+                        height={'34.4rem'}
+                      />
+                    </>
+                  )}
+                </ProblemCard>
+              );
+            })}
+          </SortableContext>
+        </DndContext>
         <div className='flex items-center'>
           <PlusButton onClick={handleClickAdd} />
         </div>
@@ -333,7 +458,7 @@ function RouteComponent() {
           leftButtonText='아니오'
           rightButtonText='예'
           handleClickLeftButton={closeSetDeleteModal}
-          handleClickRightButton={handleClickSetDelete}
+          handleClickRightButton={handleMutateSetDelete}
         />
       </Modal>
       <Modal isOpen={isProblemDeleteModalOpen} onClose={closeProblemDeleteModal}>
@@ -354,7 +479,7 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isErrorModalOpen} onClose={closeErrorModal}>
         <ErrorModalTemplate
-          text='추가된 문항이 없어요'
+          text={errorMessage}
           buttonText='닫기'
           handleClickButton={closeErrorModal}
         />

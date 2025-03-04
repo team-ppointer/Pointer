@@ -22,7 +22,7 @@ const LabelAndText = ({ label, text }: LabelAndText) => {
 
 const ProblemPreview = ({ title, memo, imgSrc }: ProblemPreviewProps) => {
   return (
-    <div className='flex w-[28rem] min-w-[28rem] flex-col gap-[1.6rem]'>
+    <div className='flex w-[48rem] min-w-[28rem] flex-col gap-[1.6rem]'>
       <div className='flex flex-col gap-[0.8rem]'>
         <LabelAndText label='문항 타이틀' text={title} />
         <LabelAndText label='문항 메모' text={memo} />
@@ -31,7 +31,7 @@ const ProblemPreview = ({ title, memo, imgSrc }: ProblemPreviewProps) => {
         <img
           src={imgSrc ? imgSrc : '/images/image-placeholder.svg'}
           alt='problem-thumbnail'
-          className='h-[23rem] w-full object-cover'
+          className='h-[23rem] w-full object-contain'
         />
       </div>
     </div>

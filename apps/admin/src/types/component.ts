@@ -15,4 +15,5 @@ export type ImageType =
   | 'READING_TIP'
   | 'SENIOR_TIP'
   | 'PRESCRIPTION'
-  | 'CHILD_PROBLEM';
+  | 'CHILD_PROBLEM'
+  | 'CHILD_PRESCRIPTION';
