@@ -1,6 +1,29 @@
-const ProblemCard = ({ children }: { children: React.ReactNode }) => {
+import { CSS } from '@dnd-kit/utilities';
+import { useSortable } from '@dnd-kit/sortable';
+
+interface ProblemCardProps {
+  children: React.ReactNode;
+  problemId?: number;
+}
+
+const ProblemCard = ({ children, problemId }: ProblemCardProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: problemId ?? 0,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    cursor: 'grab',
+  };
+
   return (
-    <section className='relative flex min-h-[67rem] w-full min-w-[48rem] cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
+    <section
+      className='relative flex min-h-[67rem] w-full min-w-[48rem] cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}>
       {children}
     </section>
   );
@@ -32,7 +55,7 @@ const CardImage = ({ src, height }: { src?: string; height: string }) => {
     <img
       src={src ? src : '/images/image-placeholder.svg'}
       alt='problem-thumbnail'
-      className='w-full object-cover'
+      className='w-full object-contain'
       style={{ height }}
     />
   );
@@ -51,7 +74,8 @@ const CardEmptyView = ({ onClick }: { onClick: () => void }) => {
   return (
     <div
       className='flex h-full w-full cursor-pointer items-center justify-center'
-      onClick={onClick}>
+      onClick={onClick}
+      onPointerDown={(e) => e.stopPropagation()}>
       <span className='font-bold-24 text-lightgray500 text-center whitespace-pre-line'>{`여기를 클릭해\n문항을 추가해주세요.`}</span>
     </div>
   );

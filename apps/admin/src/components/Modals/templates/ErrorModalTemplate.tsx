@@ -13,7 +13,7 @@ const ErrorModalTemplate = ({ text, buttonText, handleClickButton }: ErrorModalT
     <BaseModalTemplate>
       <BaseModalTemplate.Content>
         <IcError width={50} height={50} />
-        <p>{text}</p>
+        <p className='text-center'>{text}</p>
       </BaseModalTemplate.Content>
       <BaseModalTemplate.ButtonSection>
         <BaseModalTemplate.Button onClick={handleClickButton}>

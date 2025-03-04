@@ -63,6 +63,7 @@
 
   p {
     word-break: keep-all;
+    white-space: pre-line;
   }
 
   a {

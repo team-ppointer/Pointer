@@ -4,9 +4,6 @@ import { TagType } from '@types';
 type ProblemGetResponse = components['schemas']['ProblemGetResponse'];
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 
-type ProblemSetGetResponse = components['schemas']['ProblemSetGetResponse'];
-type ProblemSetUpdateRequest = components['schemas']['ProblemSetUpdateRequest'];
-
 export const tagToQueryParams = (tags: TagType[]) => {
   if (!tags.length) return {};
   return { conceptTagIds: tags.map((tag) => tag.id) };
@@ -41,6 +38,7 @@ export const transformToProblemUpdateRequest = (
       imageUrl: child.imageUrl ?? '',
       answerType: child.answerType,
       answer: child.answer,
+      prescriptionImageUrls: child.prescriptionImageUrls ?? [''],
     })),
   };
 };
