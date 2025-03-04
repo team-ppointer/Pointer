@@ -92,10 +92,22 @@ function RouteComponent() {
 
   const handleRemoveTag = (tag: number) => {
     setSelectedTagList((prev) => prev.filter((selectedTag) => selectedTag !== tag));
+    setSearchQuery((prev) => {
+      return {
+        ...prev,
+        conceptTagIds: prev.conceptTagIds?.filter((selectedTag) => selectedTag !== tag),
+      };
+    });
   };
 
   const handleChangeTagList = (tagList: number[]) => {
     setSelectedTagList(tagList);
+    setSearchQuery((prev) => {
+      return {
+        ...prev,
+        conceptTagIds: tagList,
+      };
+    });
   };
 
   return (
