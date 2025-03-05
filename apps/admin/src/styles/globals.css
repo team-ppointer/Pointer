@@ -1,10 +1,17 @@
 @import 'tailwindcss';
 
-@theme {
-  --font-pretendard: Pretendard, sans-serif;
+@font-face {
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
 }
 
 @theme {
+  /* fonts */
+  --font-pretendard: Pretendard, sans-serif;
+
   /* Black & White */
   --color-black: #000000;
   --color-white: #ffffff;
@@ -37,17 +44,9 @@
 /*        BASE STYLES        */
 /* ========================= */
 @layer base {
-  @font-face {
-    font-family: 'Pretendard';
-    font-style: normal;
-    font-display: swap;
-    font-weight: 100 900;
-    src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
-  }
-
   html {
     font-size: 62.5%;
-    font-family: var(--font-pretendard), sans-serif;
+    font-family: var(--font-pretendard);
     overscroll-behavior: none;
     background-color: var(--color-background);
     min-width: 144rem;
@@ -56,7 +55,7 @@
   body {
     width: 100%;
     min-height: 100dvh;
-    font-family: var(--font-pretendard), Arial, Helvetica, sans-serif;
+    font-family: var(--font-pretendard);
     scroll-behavior: smooth;
     overflow-x: auto;
   }

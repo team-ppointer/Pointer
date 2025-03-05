@@ -1,0 +1,75 @@
+@import 'tailwindcss';
+
+/* ========================= */
+/*        FONT STYLES        */
+/* ========================= */
+@font-face {
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
+}
+
+/* ========================= */
+/*        THEME STYLES       */
+/* ========================= */
+@theme {
+  /* fonts */
+  --font-pretendard: Pretendard, snas-serif;
+
+  /* Black & White */
+  --color-black: #000000;
+  --color-white: #ffffff;
+}
+
+/* ========================= */
+/*        BASE STYLES        */
+/* ========================= */
+@layer base {
+  html {
+    font-size: 62.5%;
+    font-family: var(--font-pretendard);
+    overscroll-behavior: none;
+    background-color: var(--color-background);
+  }
+
+  body {
+    width: 100%;
+    min-height: 100dvh;
+    font-family: var(--font-pretendard);
+    scroll-behavior: smooth;
+    overflow-x: auto;
+  }
+
+  p {
+    word-break: keep-all;
+    white-space: pre-line;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  select {
+    background: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ========================= */
+/*      TYPOGRAPHY STYLES    */
+/* ========================= */
+@layer components {
+}
