@@ -16,11 +16,37 @@
 /* ========================= */
 @theme {
   /* fonts */
-  --font-pretendard: Pretendard, snas-serif;
+  --font-pretendard: Pretendard, sans-serif;
 
   /* Black & White */
   --color-black: #000000;
   --color-white: #ffffff;
+
+  /* Gray Scale */
+  --color-lightgray500: #c6cad4;
+  --color-lightgray400: #dfe2e7;
+  --color-lightgray300: #edeef2;
+  --color-lightgray200: #f3f5fb;
+  --color-lightgray100: #f8f9fc;
+
+  --color-midgray200: #6b6f77;
+  --color-midgray100: #9fa4ae;
+
+  --color-darkgray200: #222224;
+  --color-darkgray100: #3e3f45;
+
+  --color-background: #f7f7f7;
+
+  /* Colors */
+  --color-green: #0fb700;
+  --color-lightgreen: #e7f6e5;
+  --color-red: #d20000;
+  --color-lightred: #fce4e4;
+  --color-blue: #3a67ee;
+  --color-lightblue: #ecf0fb;
+  --color-main: #617af9;
+  --color-sub: #e9ebf8;
+  --color-yellow: #fce4e4;
 }
 
 /* ========================= */
@@ -72,4 +98,40 @@
 /*      TYPOGRAPHY STYLES    */
 /* ========================= */
 @layer components {
+  /* Bold font styles */
+  .font-bold-32 {
+    @apply font-pretendard text-[3.2rem] leading-[150%] font-bold;
+  }
+  .font-bold-24 {
+    @apply font-pretendard text-[2.4rem] leading-[150%] font-bold;
+  }
+  .font-bold-20 {
+    @apply font-pretendard text-[2.0rem] leading-[150%] font-bold;
+  }
+  .font-bold-18 {
+    @apply font-pretendard text-[1.8rem] leading-[150%] font-bold;
+  }
+  .font-bold-16 {
+    @apply font-pretendard text-[1.6rem] leading-[150%] font-bold;
+  }
+  .font-bold-14 {
+    @apply font-pretendard text-[1.4rem] leading-[150%] font-bold;
+  }
+
+  /* Medium font styles */
+  .font-medium-24 {
+    @apply font-pretendard text-[2.4rem] leading-[150%] font-medium;
+  }
+  .font-medium-18 {
+    @apply font-pretendard text-[1.8rem] leading-[150%] font-medium;
+  }
+  .font-medium-16 {
+    @apply font-pretendard text-[1.6rem] leading-[150%] font-medium;
+  }
+  .font-medium-14 {
+    @apply font-pretendard text-[1.4rem] leading-[150%] font-medium;
+  }
+  .font-medium-12 {
+    @apply font-pretendard text-[1.2rem] leading-[150%] font-medium;
+  }
 }
