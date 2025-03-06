@@ -1,5 +1,5 @@
 <!-- PR의 제목은 다음과 같은 규칙으로 작성해주세요 -->
-<!-- Feature -> main: "[Feat/#1] 로그인 기능 추가" -->
+<!-- Feature -> main: "[Feat/Service/#1] 로그인 기능 추가" -->
 <!-- main -> pre-production: "[Deploy] v1.0.0 - 2025-01-05 QA" -->
 <!-- pre-production -> production: "[Release] v1.0.0 - 2025-01-05 Production" -->
 
