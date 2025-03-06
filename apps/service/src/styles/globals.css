@@ -23,7 +23,7 @@
   --color-white: #ffffff;
 
   /* Gray Scale */
-  --color-lightgray500: #c8cad4;
+  --color-lightgray500: #c6cad4;
   --color-lightgray400: #dfe2e7;
   --color-lightgray300: #edeef2;
   --color-lightgray200: #f3f5fb;
@@ -44,6 +44,9 @@
   --color-lightred: #fce4e4;
   --color-blue: #3a67ee;
   --color-lightblue: #ecf0fb;
+  --color-main: #617af9;
+  --color-sub: #e9ebf8;
+  --color-yellow: #fce4e4;
 }
 
 /* ========================= */
@@ -55,7 +58,6 @@
     font-family: var(--font-pretendard);
     overscroll-behavior: none;
     background-color: var(--color-background);
-    min-width: 144rem;
   }
 
   body {
@@ -108,6 +110,9 @@
   }
   .font-bold-18 {
     @apply font-pretendard text-[1.8rem] leading-[150%] font-bold;
+  }
+  .font-bold-16 {
+    @apply font-pretendard text-[1.6rem] leading-[150%] font-bold;
   }
   .font-bold-14 {
     @apply font-pretendard text-[1.4rem] leading-[150%] font-bold;
