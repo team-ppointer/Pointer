@@ -20,7 +20,6 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
       "@apis": ["./src/apis"],
       "@svg": ["./src/assets/svg"],
       "@image": ["./public/image"],
@@ -32,7 +31,8 @@
       "@schema": ["./src/types/api/schema.d.ts"],
       "@styles/*": ["./src/styles/*"],
       "@types": ["./src/types"],
-      "@utils": ["./src/utils"]
+      "@utils": ["./src/utils"],
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
