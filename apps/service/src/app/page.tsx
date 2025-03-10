@@ -1,4 +1,4 @@
-import { Button, SolveButton } from '@components';
+import { Button, SmallButton, SolveButton } from '@components';
 
 import { IcSolve } from '@/assets/svg';
 
@@ -11,6 +11,13 @@ export default function Home() {
       </Button>
       <SolveButton variant='direct' />
       <SolveButton variant='step' />
+      <SmallButton>해설 보기</SmallButton>
+      <SmallButton sizeType='small'>해설 보기</SmallButton>
+      <SmallButton variant='underline'>btn</SmallButton>
+      <SmallButton variant='underline' sizeType='small'>
+        btn
+      </SmallButton>
+      <SmallButton variant='disabled'>해설 보기</SmallButton>
     </div>
   );
 }
