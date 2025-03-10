@@ -23,7 +23,7 @@ const SolveButton = ({ variant = 'direct' }: SolveButtonProps) => {
         <span className='font-medium-16'>
           {variant === 'direct' ? '바로 풀어보기' : '단계별로 풀어보기'}
         </span>
-        <span className='font-medium-12 text-lightgray500'>
+        <span className='font-medium-12 text-sub1'>
           {variant === 'direct' ? '바로 메인 문제를 풀어요' : '작은 개념부터 풀어요'}
         </span>
       </div>
