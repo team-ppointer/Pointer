@@ -10,6 +10,7 @@ import {
   NavigationButton,
   CopyButton,
   TimeTag,
+  ProgressBox,
 } from '@/components/common';
 import { IcSolve } from '@/assets/svg';
 
@@ -56,6 +57,12 @@ export default function Home() {
 
       <CopyButton onClick={() => {}} />
       <TimeTag minutes={1} seconds={30} />
+
+      <div className='flex gap-[0.4rem]'>
+        <ProgressBox progress='notStarted' />
+        <ProgressBox progress='inProgress' />
+        <ProgressBox progress='completed' />
+      </div>
     </div>
   );
 }
