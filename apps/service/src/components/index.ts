@@ -1,4 +1,5 @@
 import Tag from './Tag';
+import TabMenu from './TabMenu';
 
 export * from './Buttons';
-export { Tag };
+export { Tag, TabMenu };

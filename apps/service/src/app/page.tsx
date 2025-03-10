@@ -1,8 +1,12 @@
-import { Button, SmallButton, SolveButton, Tag } from '@components';
+'use client';
+
+import { Button, SmallButton, SolveButton, Tag, TabMenu } from '@components';
+import { useState } from 'react';
 
 import { IcSolve } from '@/assets/svg';
 
 export default function Home() {
+  const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
   return (
     <div className='flex w-[40rem] flex-col gap-2'>
       <Button>
@@ -31,6 +35,12 @@ export default function Home() {
       <Tag variant='gray' sizeType='small'>
         미완료
       </Tag>
+      <TabMenu
+        leftMenu='분석'
+        rightMenu='손해설'
+        selectedTab={selectedTab}
+        onTabChange={(tab) => setSelectedTab(tab)}
+      />
     </div>
   );
 }
