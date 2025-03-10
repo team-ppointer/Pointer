@@ -9,6 +9,7 @@ import {
   TabMenu,
   NavigationButton,
   CopyButton,
+  TimeTag,
 } from '@/components/common';
 import { IcSolve } from '@/assets/svg';
 
@@ -54,6 +55,7 @@ export default function Home() {
       </div>
 
       <CopyButton onClick={() => {}} />
+      <TimeTag minutes={1} seconds={30} />
     </div>
   );
 }
