@@ -12,6 +12,7 @@ import {
   TimeTag,
   ProgressBox,
   GuideButton,
+  AnswerInput,
 } from '@/components/common';
 import { IcSolve } from '@/assets/svg';
 
@@ -65,6 +66,7 @@ export default function Home() {
         <ProgressBox progress='completed' />
       </div>
       <GuideButton />
+      <AnswerInput answerType='SHORT_ANSWER' selectedAnswer='1' />
     </div>
   );
 }
