@@ -1,13 +1,12 @@
 import { IcNext, IcPrev } from '@svg';
-import React from 'react';
+import React, { ButtonHTMLAttributes } from 'react';
 
-type Props = {
+interface NavigationButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: 'next' | 'prev';
   label: string;
-  onClick: () => void;
-};
+}
 
-const NavigationButton = ({ variant, label, onClick }: Props) => {
+const NavigationButton = ({ variant, label, onClick }: NavigationButtonProps) => {
   return (
     <button
       className='font-medium-14 flex h-[4.8rem] w-fit items-center justify-center gap-[1.6rem] p-[1.6rem] text-black'

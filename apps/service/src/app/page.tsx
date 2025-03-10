@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 
 import {
@@ -9,6 +8,7 @@ import {
   Tag,
   TabMenu,
   NavigationButton,
+  CopyButton,
 } from '@/components/common';
 import { IcSolve } from '@/assets/svg';
 
@@ -52,6 +52,8 @@ export default function Home() {
         <NavigationButton variant='prev' label='이전' onClick={() => {}} />
         <NavigationButton variant='next' label='다음' onClick={() => {}} />
       </div>
+
+      <CopyButton onClick={() => {}} />
     </div>
   );
 }
