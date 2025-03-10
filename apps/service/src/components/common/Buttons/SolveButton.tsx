@@ -13,7 +13,7 @@ const SolveButton = ({ variant = 'direct' }: SolveButtonProps) => {
   };
 
   return (
-    <button className={`${baseStyles} ${variantStyles[variant]}`}>
+    <button type='button' className={`${baseStyles} ${variantStyles[variant]}`}>
       {variant === 'direct' ? (
         <IcDirect width={24} height={24} />
       ) : (

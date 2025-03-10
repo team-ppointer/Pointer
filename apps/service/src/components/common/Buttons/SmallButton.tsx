@@ -29,6 +29,7 @@ const SmallButton = ({
 
   return (
     <button
+      type='button'
       className={`${baseStyles} ${variantStyles[variant]} ${sizeTypeStyles[sizeType]} ${className || ''}`}
       disabled={variant === 'disabled'}
       {...props}>

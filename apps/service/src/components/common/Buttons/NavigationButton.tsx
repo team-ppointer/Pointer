@@ -9,6 +9,7 @@ interface NavigationButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> 
 const NavigationButton = ({ variant, label, onClick }: NavigationButtonProps) => {
   return (
     <button
+      type='button'
       className='font-medium-14 flex h-[4.8rem] w-fit items-center justify-center gap-[1.6rem] p-[1.6rem] text-black'
       onClick={onClick}>
       {variant === 'prev' && <IcPrev width={10.76} height={21} />}
