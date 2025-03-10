@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, SmallButton, SolveButton, Tag, TabMenu } from '@components';
+import { Button, SmallButton, SolveButton, Tag, TabMenu, NavigationButton } from '@components';
 import { useState } from 'react';
 
 import { IcSolve } from '@/assets/svg';
@@ -41,6 +41,10 @@ export default function Home() {
         selectedTab={selectedTab}
         onTabChange={(tab) => setSelectedTab(tab)}
       />
+      <div className='flex gap-[1.6rem]'>
+        <NavigationButton variant='prev' label='이전' onClick={() => {}} />
+        <NavigationButton variant='next' label='다음' onClick={() => {}} />
+      </div>
     </div>
   );
 }
