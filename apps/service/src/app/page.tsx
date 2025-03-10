@@ -11,6 +11,7 @@ import {
   CopyButton,
   TimeTag,
   ProgressBox,
+  GuideButton,
 } from '@/components/common';
 import { IcSolve } from '@/assets/svg';
 
@@ -63,6 +64,7 @@ export default function Home() {
         <ProgressBox progress='inProgress' />
         <ProgressBox progress='completed' />
       </div>
+      <GuideButton />
     </div>
   );
 }
