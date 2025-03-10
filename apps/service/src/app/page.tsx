@@ -1,8 +1,15 @@
 'use client';
 
-import { Button, SmallButton, SolveButton, Tag, TabMenu, NavigationButton } from '@components';
 import { useState } from 'react';
 
+import {
+  Button,
+  SmallButton,
+  SolveButton,
+  Tag,
+  TabMenu,
+  NavigationButton,
+} from '@/components/common';
 import { IcSolve } from '@/assets/svg';
 
 export default function Home() {

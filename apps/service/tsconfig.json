@@ -23,7 +23,7 @@
       "@apis": ["./src/apis"],
       "@svg": ["./src/assets/svg"],
       "@image": ["./public/image"],
-      "@components": ["./src/components"],
+      "@components": ["./src/components/common"],
       "@contexts/*": ["./src/contexts/*"],
       "@constants": ["./src/constants"],
       "@hooks": ["./src/hooks"],
