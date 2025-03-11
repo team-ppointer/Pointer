@@ -599,7 +599,7 @@ function RouteComponent() {
                   <ImageUpload
                     key={`prescription-${index}`}
                     problemId={problemId}
-                    imageType='PRESCRIPTION'
+                    imageType='MAIN_PRESCRIPTION'
                     imageUrl={url}
                     handleChangeImageUrl={(imageUrl: string) =>
                       handleChangePrescriptionImageUrl(imageUrl, index)
