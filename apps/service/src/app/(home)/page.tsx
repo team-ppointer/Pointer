@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-
 import {
   Button,
   SmallButton,
@@ -13,11 +12,13 @@ import {
   ProgressBox,
   GuideButton,
   AnswerInput,
-} from '@/components/common';
+} from '@components';
+
 import { IcSolve } from '@/assets/svg';
 
 export default function Home() {
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
+
   return (
     <div className='flex w-[40rem] flex-col gap-2'>
       <Button>
