@@ -1,7 +1,7 @@
-import { Button, GuideButton } from '@components';
+import { Button } from '@components';
 import { IcSearch } from '@svg';
 
-import { Header, NoticeButton, WeekProgress } from '@/components/home';
+import { GuideButton, Header, NoticeButton, WeekProgress } from '@/components/home';
 
 const Page = () => {
   return (
