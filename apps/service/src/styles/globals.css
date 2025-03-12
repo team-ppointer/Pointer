@@ -65,6 +65,7 @@
     font-family: var(--font-pretendard);
     overscroll-behavior: none;
     background-color: var(--color-background);
+    min-width: 37.5rem;
   }
 
   body {
@@ -72,7 +73,6 @@
     min-height: 100dvh;
     font-family: var(--font-pretendard);
     scroll-behavior: smooth;
-    overflow-x: auto;
   }
 
   p {
