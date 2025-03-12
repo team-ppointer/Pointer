@@ -1,6 +1,6 @@
 type Props = {
   variant?: 'green' | 'red' | 'gray';
-  sizeType?: 'small' | 'medium';
+  sizeType?: 'small' | 'medium'; // small은 고정 너비, medium은 가변 너비
   children: React.ReactNode;
 };
 
@@ -15,7 +15,7 @@ const Tag = ({ variant = 'gray', sizeType = 'medium', children }: Props) => {
 
   const sizeTypeStyles = {
     small: 'h-[2.4rem] w-[6.2rem]',
-    medium: 'h-[3.2rem] w-[6rem]',
+    medium: 'h-[2.5rem] w-fit px-[1rem]',
   };
 
   return (
