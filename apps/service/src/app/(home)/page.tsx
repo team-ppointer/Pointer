@@ -12,6 +12,8 @@ import {
   ProgressBox,
   GuideButton,
   AnswerInput,
+  StatusTag,
+  StatusIcon,
 } from '@components';
 
 import { IcSolve } from '@/assets/svg';
@@ -68,6 +70,19 @@ export default function Home() {
       </div>
       <GuideButton />
       <AnswerInput answerType='SHORT_ANSWER' selectedAnswer='1' />
+
+      <StatusTag status='correct' />
+      <StatusTag status='incorrect' />
+      <StatusTag status='retried' />
+      <StatusTag status='inProgress' />
+      <StatusTag status='notStarted' />
+
+      <div className='flex gap-[0.4rem]'>
+        <StatusIcon status='correct' />
+        <StatusIcon status='incorrect' />
+        <StatusIcon status='retried' />
+        <StatusIcon status='notStarted' />
+      </div>
     </div>
   );
 }
