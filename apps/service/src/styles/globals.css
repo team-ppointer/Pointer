@@ -15,6 +15,11 @@
 /*        THEME STYLES       */
 /* ========================= */
 @theme {
+  /* breakpoints */
+  --breakpoint-sm: 43.1rem;
+  --breakpoint-md: 76.9rem;
+  --breakpoint-lg: 136.7rem;
+
   /* fonts */
   --font-pretendard: Pretendard, sans-serif;
 
