@@ -1,17 +1,17 @@
 import { IcGuide } from '@svg';
+import Link from 'next/link';
 
 const GuideButton = () => {
   return (
-    <button
-      type='button'
-      className='flex min-w-[12rem] flex-col items-start gap-[0.8rem] rounded-[16px] bg-white px-[2.4rem] py-[2rem]'
-      onClick={() => {}}>
-      <IcGuide width={24} height={24} />
-      <div className='flex flex-col items-start'>
-        <span className='font-bold-16'>포인터</span>
-        <span className='font-bold-16'>사용설명서</span>
+    <Link href='https://naver.com' target='_blank'>
+      <div className='flex min-w-[12rem] flex-col items-start gap-[0.8rem] rounded-[16px] bg-white px-[2.4rem] py-[2rem]'>
+        <IcGuide width={24} height={24} />
+        <div className='flex flex-col items-start'>
+          <span className='font-bold-16'>포인터</span>
+          <span className='font-bold-16'>사용설명서</span>
+        </div>
       </div>
-    </button>
+    </Link>
   );
 };
 
