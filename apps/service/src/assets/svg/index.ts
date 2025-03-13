@@ -5,6 +5,7 @@ export { default as IcDown } from './IcDown';
 export { default as IcGuide } from './IcGuide';
 export { default as IcHome } from './IcHome';
 export { default as IcIncorrect } from './IcIncorrect';
+export { default as IcKakao } from './IcKakao';
 export { default as IcNextBlack } from './IcNextBlack';
 export { default as IcNext } from './IcNext';
 export { default as IcNotice } from './IcNotice';
