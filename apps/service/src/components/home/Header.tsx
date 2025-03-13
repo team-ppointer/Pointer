@@ -10,7 +10,7 @@ interface HeaderProps {
 
 const Header = ({ grade, name }: HeaderProps) => {
   return (
-    <header className='fixed inset-0 flex h-[6rem] items-center justify-between px-[2rem]'>
+    <header className='bg-background fixed inset-0 z-40 flex h-[6rem] items-center justify-between px-[2rem]'>
       <Link href='/'>
         <LogoHeader width={106} height={24} />
       </Link>
@@ -22,7 +22,7 @@ const Header = ({ grade, name }: HeaderProps) => {
           <span className='text-main mr-[0.4rem]'>{name}</span>님
         </div>
         <Link href='/my-page'>
-          <IcSetting width={36} height={36} />
+          <IcSetting width={24} height={24} />
         </Link>
       </div>
     </header>
