@@ -1,5 +1,6 @@
 import { Button } from '@components';
 import { IcSearch } from '@svg';
+import Link from 'next/link';
 
 import {
   GuideButton,
@@ -27,10 +28,12 @@ const Page = () => {
         <ProblemSwiper />
       </div>
       <footer className='bg-background mt-[2.4rem] px-[2rem] pb-[3.3rem]'>
-        <Button variant='light'>
-          <IcSearch width={24} height={24} />
-          전체 문제 보기
-        </Button>
+        <Link href='/problem/calandar'>
+          <Button variant='light'>
+            <IcSearch width={24} height={24} />
+            전체 문제 보기
+          </Button>
+        </Link>
       </footer>
     </>
   );
