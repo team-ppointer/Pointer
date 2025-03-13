@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const GuideButton = () => {
   return (
-    <Link href='https://naver.com' target='_blank' className='w-full min-w-[12rem]'>
+    <Link href='https://naver.com' target='_blank' className='min-w-[12rem] flex-1'>
       <div className='flex w-full flex-col items-start gap-[0.8rem] rounded-[16px] bg-white px-[2.4rem] py-[2rem]'>
         <IcGuide width={24} height={24} />
         <div className='flex flex-col items-start'>
