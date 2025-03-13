@@ -1,3 +1,4 @@
 import NameCard from './NameCard';
+import SettingList from './SettingList';
 
-export { NameCard };
+export { NameCard, SettingList };

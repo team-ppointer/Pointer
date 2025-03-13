@@ -1,6 +1,6 @@
 import { Header } from '@components';
 
-import { NameCard } from '@/components/my-page';
+import { NameCard, SettingList } from '@/components/my-page';
 
 const Page = () => {
   return (
@@ -8,6 +8,7 @@ const Page = () => {
       <Header title='설정' />
       <main className='px-[2rem] pt-[6rem]'>
         <NameCard name='홍길동' grade={2} />
+        <SettingList />
       </main>
     </>
   );
