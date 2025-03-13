@@ -10,12 +10,13 @@ import {
   CopyButton,
   TimeTag,
   ProgressBox,
-  GuideButton,
   AnswerInput,
   StatusTag,
   StatusIcon,
 } from '@components';
 import { IcSolve } from '@svg';
+
+import { GuideButton } from '@/components/home';
 
 const Page = () => {
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
