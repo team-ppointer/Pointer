@@ -11,6 +11,7 @@ export { default as IcNotice } from './IcNotice';
 export { default as IcPrevBlack } from './IcPrevBlack';
 export { default as IcPrev } from './IcPrev';
 export { default as IcSearch } from './IcSearch';
+export { default as IcSecret } from './IcSecret';
 export { default as IcSetting } from './IcSetting';
 export { default as IcSolve } from './IcSolve';
 export { default as IcStatusCorrect } from './IcStatusCorrect';

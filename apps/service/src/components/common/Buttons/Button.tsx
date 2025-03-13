@@ -20,7 +20,7 @@ const Button = ({
   const variantStyles = {
     blue: 'bg-main text-white',
     light: 'bg-white text-main border border-main',
-    disabled: 'bg-lightgray500 text-lightgray500',
+    disabled: 'bg-lightgray500 text-white',
   };
 
   return (
