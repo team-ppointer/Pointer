@@ -3,12 +3,12 @@ import { IcSetting } from '@svg';
 
 import { LogoHeader } from '@/assets/svg/logo';
 
-interface HeaderProps {
+interface HomeHeaderProps {
   grade: number;
   name: string;
 }
 
-const Header = ({ grade, name }: HeaderProps) => {
+const HomeHeader = ({ grade, name }: HomeHeaderProps) => {
   return (
     <header className='bg-background fixed inset-0 z-40 flex h-[6rem] items-center justify-between px-[2rem]'>
       <Link href='/'>
@@ -29,4 +29,4 @@ const Header = ({ grade, name }: HeaderProps) => {
   );
 };
 
-export default Header;
+export default HomeHeader;

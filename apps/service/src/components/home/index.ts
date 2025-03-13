@@ -1,4 +1,4 @@
-import Header from './Header';
+import HomeHeader from './HomeHeader';
 import NoticeButton from './NoticeButton';
 import WeekProgress from './WeekProgress';
 import GuideButton from './GuideButton';
@@ -7,7 +7,7 @@ import ProblemCard from './ProblemCard/ProblemCard';
 import ProblemSecretCard from './ProblemCard/ProblemSecretCard';
 
 export {
-  Header,
+  HomeHeader,
   NoticeButton,
   WeekProgress,
   GuideButton,
