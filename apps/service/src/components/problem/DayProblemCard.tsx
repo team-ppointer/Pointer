@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
-import { Button, SolveButton, Tag } from '@components';
+import { Button, Tag } from '@components';
 import { IcSolve } from '@svg';
 
 dayjs.locale('ko');
