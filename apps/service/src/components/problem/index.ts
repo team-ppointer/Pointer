@@ -1,3 +1,4 @@
 import ProblemCalandar from './ProblemCalandar';
+import DayProblemCard from './DayProblemCard';
 
-export { ProblemCalandar };
+export { DayProblemCard, ProblemCalandar };
