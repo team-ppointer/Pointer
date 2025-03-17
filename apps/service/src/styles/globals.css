@@ -16,9 +16,9 @@
 /* ========================= */
 @theme {
   /* breakpoints */
-  --breakpoint-sm: 43.1rem;
-  --breakpoint-md: 76.9rem;
-  --breakpoint-lg: 136.7rem;
+  --breakpoint-sm: 431px;
+  --breakpoint-md: 769px;
+  --breakpoint-lg: 1367px;
 
   /* fonts */
   --font-pretendard: Pretendard, sans-serif;
