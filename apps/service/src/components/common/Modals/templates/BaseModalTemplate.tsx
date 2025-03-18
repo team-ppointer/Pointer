@@ -8,14 +8,18 @@ interface ModalButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const BaseModalTemplate = ({ children }: { children: React.ReactNode }) => {
   return (
-    <article className='font-medium-16 flex max-w-[50dvw] min-w-[38.4rem] flex-col items-center justify-center gap-[2rem] p-[2rem] pt-[3.2rem]'>
+    <article className='font-medium-16 flex max-w-[50dvw] min-w-[30rem] flex-col items-center justify-center gap-[2rem] px-[3rem] pt-[3.2rem] pb-[2.4rem]'>
       {children}
     </article>
   );
 };
 
 const ModalContent = ({ children }: { children: React.ReactNode }) => {
-  return <div className='flex flex-col items-center justify-between gap-[1.6rem]'>{children}</div>;
+  return (
+    <div className='flex flex-col items-center justify-between gap-[1.6rem] text-center'>
+      {children}
+    </div>
+  );
 };
 
 const ModalText = ({ text }: { text: string }) => {

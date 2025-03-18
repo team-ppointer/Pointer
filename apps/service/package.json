@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "dayjs": "^1.11.13",
     "next": "15.1.4",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "swiper": "^11.2.5"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",

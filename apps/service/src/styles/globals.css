@@ -15,6 +15,11 @@
 /*        THEME STYLES       */
 /* ========================= */
 @theme {
+  /* breakpoints */
+  --breakpoint-sm: 431px;
+  --breakpoint-md: 769px;
+  --breakpoint-lg: 1367px;
+
   /* fonts */
   --font-pretendard: Pretendard, sans-serif;
 
@@ -60,6 +65,7 @@
     font-family: var(--font-pretendard);
     overscroll-behavior: none;
     background-color: var(--color-background);
+    min-width: 37.5rem;
   }
 
   body {
@@ -67,7 +73,6 @@
     min-height: 100dvh;
     font-family: var(--font-pretendard);
     scroll-behavior: smooth;
-    overflow-x: auto;
   }
 
   p {

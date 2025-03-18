@@ -1,0 +1,17 @@
+@import 'swiper/css';
+@import 'swiper/css/pagination';
+
+.swiper-slide {
+  width: 31.2rem;
+  height: 43.1rem;
+}
+
+.swiper-pagination {
+  position: unset;
+  margin-top: 1rem;
+}
+
+.swiper-pagination-bullet {
+  width: 4px;
+  height: 4px;
+}

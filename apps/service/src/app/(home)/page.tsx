@@ -1,88 +1,42 @@
-'use client';
-import { useState } from 'react';
+import { Button } from '@components';
+import { IcSearch } from '@svg';
+import Link from 'next/link';
+
 import {
-  Button,
-  SmallButton,
-  SolveButton,
-  Tag,
-  TabMenu,
-  NavigationButton,
-  CopyButton,
-  TimeTag,
-  ProgressBox,
   GuideButton,
-  AnswerInput,
-  StatusTag,
-  StatusIcon,
-} from '@components';
+  HomeHeader,
+  NoticeButton,
+  ProblemSwiper,
+  WeekProgress,
+} from '@/components/home';
 
-import { IcSolve } from '@/assets/svg';
-
-export default function Home() {
-  const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
-
+const Page = () => {
   return (
-    <div className='flex w-[40rem] flex-col gap-2'>
-      <Button>
-        <IcSolve width={24} height={24} />
-        오늘 문제 풀기
-      </Button>
-      <SolveButton variant='direct' />
-      <SolveButton variant='step' />
-      <SmallButton>해설 보기</SmallButton>
-      <SmallButton sizeType='small'>해설 보기</SmallButton>
-      <SmallButton variant='underline'>btn</SmallButton>
-      <SmallButton variant='underline' sizeType='small'>
-        btn
-      </SmallButton>
-      <SmallButton variant='disabled'>해설 보기</SmallButton>
-
-      <Tag variant='green'>완료</Tag>
-      <Tag variant='red'>진행중</Tag>
-      <Tag variant='gray'>시작전</Tag>
-      <Tag variant='green' sizeType='small'>
-        정답
-      </Tag>
-      <Tag variant='red' sizeType='small'>
-        오답
-      </Tag>
-      <Tag variant='gray' sizeType='small'>
-        미완료
-      </Tag>
-      <TabMenu
-        leftMenu='분석'
-        rightMenu='손해설'
-        selectedTab={selectedTab}
-        onTabChange={(tab) => setSelectedTab(tab)}
-      />
-      <div className='flex gap-[1.6rem]'>
-        <NavigationButton variant='prev' label='이전' onClick={() => {}} />
-        <NavigationButton variant='next' label='다음' onClick={() => {}} />
+    <>
+      <HomeHeader grade={2} name='홍길동' />
+      <main className='flex flex-col px-[2rem] pt-[6rem]'>
+        <p className='font-medium-12 text-lightgray500 pt-[1.6rem]'>
+          아직은 고등학교 2학년 대상으로만 서비스를 하고 있어요!
+        </p>
+        {false && <NoticeButton count={1} />}
+        <div className='flex w-full items-center gap-[1.2rem] pt-[1.6rem]'>
+          <GuideButton />
+          <WeekProgress startDate='03/10' endDate='14' />
+        </div>
+      </main>
+      <div className='mt-[2.4rem]'>
+        <ProblemSwiper />
       </div>
-
-      <CopyButton onClick={() => {}} />
-      <TimeTag minutes={1} seconds={30} />
-
-      <div className='flex gap-[0.4rem]'>
-        <ProgressBox progress='notStarted' />
-        <ProgressBox progress='inProgress' />
-        <ProgressBox progress='completed' />
-      </div>
-      <GuideButton />
-      <AnswerInput answerType='SHORT_ANSWER' selectedAnswer='1' />
-
-      <StatusTag status='correct' />
-      <StatusTag status='incorrect' />
-      <StatusTag status='retried' />
-      <StatusTag status='inProgress' />
-      <StatusTag status='notStarted' />
-
-      <div className='flex gap-[0.4rem]'>
-        <StatusIcon status='correct' />
-        <StatusIcon status='incorrect' />
-        <StatusIcon status='retried' />
-        <StatusIcon status='notStarted' />
-      </div>
-    </div>
+      <footer className='bg-background mt-[2.4rem] px-[2rem] pb-[3.3rem]'>
+        <Link href='/problem/calandar'>
+          <Button variant='light'>
+            <IcSearch width={24} height={24} />
+            전체 문제 보기
+          </Button>
+        </Link>
+      </footer>
+    </>
   );
-}
+};
+
+export default Page;
