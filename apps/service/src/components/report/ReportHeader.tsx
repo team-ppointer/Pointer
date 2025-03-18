@@ -1,13 +1,17 @@
 import { ProgressBar } from '@components';
 import { IcList } from '@svg';
 
-const ReportHeader = () => {
+interface ReportHeaderProps {
+  progress?: number;
+}
+
+const ReportHeader = ({ progress }: ReportHeaderProps) => {
   return (
-    <header className='fixed inset-0 z-40'>
+    <header className='bg-background fixed inset-0 z-40 h-fit'>
       <div className='flex h-[6rem] items-center px-[2rem]'>
         <IcList width={24} height={24} />
       </div>
-      <ProgressBar progress={50} />
+      {progress && <ProgressBar progress={progress} />}
     </header>
   );
 };
