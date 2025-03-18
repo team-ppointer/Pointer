@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
-import { Button, Tag } from '@components';
+import { Button, Divider, Tag } from '@components';
 import { IcSolve } from '@svg';
 
 dayjs.locale('ko');
@@ -17,14 +17,14 @@ const DayProblemCard = ({ date, selectedDay }: DayProblemCardProps) => {
 
   return (
     <div className='flex max-h-full w-full flex-col justify-between rounded-[16px] bg-white px-[3.2rem] py-[2.4rem]'>
-      <div>
+      <div className='flex flex-col gap-[1.6rem]'>
         <div className='flex items-center justify-between gap-[1.2rem]'>
           <p className='font-medium-16 text-main'>{`${month}월 ${day}일 ${dayOfWeek}요일`}</p>
           <Tag variant='red' sizeType='small'>
             진행중
           </Tag>
         </div>
-        <div className='bg-lightgray300 my-[1.6rem] h-[2px] w-full' />
+        <Divider />
         <div className='flex gap-[2.4rem]'>
           <ul className='flex h-full flex-col gap-[1.6rem]'>
             {[
@@ -55,7 +55,7 @@ const DayProblemCard = ({ date, selectedDay }: DayProblemCardProps) => {
             <img
               src={'https://placehold.co/100x100'}
               alt='문제 이미지'
-              className='max-w-[24rem] object-contain md:w-full'
+              className='w-full max-w-[10rem] object-contain md:w-full md:max-w-[20rem]'
             />
           </div>
         </div>
