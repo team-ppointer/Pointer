@@ -5,7 +5,6 @@ import {
   SmallButton,
   SolveButton,
   Tag,
-  TabMenu,
   NavigationButton,
   CopyButton,
   TimeTag,
@@ -17,6 +16,7 @@ import {
 import { IcSolve } from '@svg';
 
 import { GuideButton } from '@/components/home';
+import { TabMenu } from '@/components/report';
 
 const Page = () => {
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');

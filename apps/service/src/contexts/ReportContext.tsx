@@ -23,7 +23,7 @@ export const ReportContext = createContext<ReportContextType | null>(null);
 export const ReportProvider = ({ children }: { children: React.ReactNode }) => {
   const imageData = {
     analysis: 'https://placehold.co/600x400',
-    handWriting: 'https://placehold.co/600x400',
+    handWriting: 'https://placehold.co/400',
     readingTip: 'https://placehold.co/600x400',
     advanced: 'https://placehold.co/600x400',
     prescription: {
