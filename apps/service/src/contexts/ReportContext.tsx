@@ -24,7 +24,7 @@ export const ReportProvider = ({ children }: { children: React.ReactNode }) => {
   const imageData = {
     analysis: 'https://placehold.co/600x400',
     handWriting: 'https://placehold.co/400',
-    readingTip: 'https://placehold.co/600x400',
+    readingTip: 'https://placehold.co/400x600',
     advanced: 'https://placehold.co/600x400',
     prescription: {
       childProblem: [
