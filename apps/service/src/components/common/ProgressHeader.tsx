@@ -4,11 +4,11 @@ import { ProgressBar } from '@components';
 import { IcList } from '@svg';
 import { useParams, useRouter } from 'next/navigation';
 
-interface ReportHeaderProps {
+interface ProgressHeaderProps {
   progress?: number;
 }
 
-const ReportHeader = ({ progress }: ReportHeaderProps) => {
+const ProgressHeader = ({ progress }: ProgressHeaderProps) => {
   const router = useRouter();
   const { publishId } = useParams();
 
@@ -22,4 +22,4 @@ const ReportHeader = ({ progress }: ReportHeaderProps) => {
   );
 };
 
-export default ReportHeader;
+export default ProgressHeader;
