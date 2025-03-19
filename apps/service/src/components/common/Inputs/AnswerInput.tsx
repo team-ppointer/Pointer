@@ -13,7 +13,7 @@ const AnswerInput = forwardRef<HTMLInputElement, AnswerInputProps>(
       <>
         {answerType === 'SHORT_ANSWER' && <Input ref={ref} placeholder='입력해주세요' {...props} />}
         {answerType === 'MULTIPLE_CHOICE' && (
-          <div className='flex items-center justify-between'>
+          <div className='flex items-center justify-between gap-[1rem]'>
             {Array.from({ length: 5 }, (_, i) => (i + 1).toString()).map((num) => (
               <label key={num}>
                 <input type='radio' className='hidden' value={num} ref={ref} {...props} />
