@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import '../styles/globals.css';
 
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang='ko'>
       <body className={`antialiased`}>
         <div>{children}</div>
-        <div>{modal}</div>
+        <Suspense fallback={<></>}>
+          <div>{modal}</div>
+        </Suspense>
       </body>
     </html>
   );
