@@ -15,7 +15,7 @@ const ProgressHeader = ({ progress }: ProgressHeaderProps) => {
   return (
     <header className='bg-background fixed inset-0 z-40 h-fit'>
       <div className='flex h-[6rem] items-center px-[2rem]'>
-        <IcList width={24} height={24} onClick={() => router.push(`/problem/${publishId}`)} />
+        <IcList width={24} height={24} onClick={() => router.push(`/problem/list/${publishId}`)} />
       </div>
       {progress && <ProgressBar progress={progress} />}
     </header>
