@@ -11,6 +11,7 @@ const Page = () => {
 
   const { problemNumber, prescription } = useReport();
   const childProblems = prescription?.childProblem ?? [];
+  const mainProblem = prescription?.mainProblem ?? {};
 
   return (
     <>
@@ -23,7 +24,7 @@ const Page = () => {
             return (
               <PrescriptionCard
                 key={childProblemIndex}
-                status='진단 완료'
+                status={childProblem.submitStatus}
                 title={`새끼 문항 ${problemNumber}-${childProblemIndex + 1}번`}
                 onClick={() =>
                   router.push(
@@ -36,7 +37,7 @@ const Page = () => {
 
           <Divider />
           <PrescriptionCard
-            status='진단 완료'
+            status={mainProblem.submitStatus}
             title={`메인 문항 ${problemNumber}번`}
             onClick={() =>
               router.push(`/report/${publishId}/${problemId}/prescription/detail?type=main`)
