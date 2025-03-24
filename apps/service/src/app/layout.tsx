@@ -1,8 +1,6 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 
-import Providers from './providers';
-
 import '../styles/globals.css';
 
 export const metadata: Metadata = {
@@ -20,12 +18,10 @@ export default function RootLayout({
   return (
     <html lang='ko'>
       <body className={`antialiased`}>
-        <Providers>
-          <div>{children}</div>
-          <Suspense fallback={<></>}>
-            <div>{modal}</div>
-          </Suspense>
-        </Providers>
+        <div>{children}</div>
+        <Suspense fallback={<></>}>
+          <div>{modal}</div>
+        </Suspense>
       </body>
     </html>
   );

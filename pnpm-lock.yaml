@@ -162,12 +162,6 @@ importers:
 
   apps/service:
     dependencies:
-      '@tanstack/react-query':
-        specifier: ^5.66.0
-        version: 5.66.0(react@19.0.0)
-      '@tanstack/react-query-devtools':
-        specifier: ^5.66.0
-        version: 5.66.0(@tanstack/react-query@5.66.0(react@19.0.0))(react@19.0.0)
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -177,9 +171,6 @@ importers:
       openapi-fetch:
         specifier: ^0.13.4
         version: 0.13.4
-      openapi-react-query:
-        specifier: ^0.3.0
-        version: 0.3.0(@tanstack/react-query@5.66.0(react@19.0.0))(openapi-fetch@0.13.4)
       react:
         specifier: ^19
         version: 19.0.0
@@ -193,9 +184,6 @@ importers:
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.7.3)
-      '@tanstack/eslint-plugin-query':
-        specifier: ^5.66.0
-        version: 5.66.0(eslint@9.19.0(jiti@2.4.2))(typescript@5.7.3)
       '@types/node':
         specifier: ^20
         version: 20.17.16
@@ -5820,14 +5808,6 @@ snapshots:
   '@tanstack/eslint-plugin-query@5.66.0(eslint@9.19.0(jiti@2.4.2))(typescript@5.6.3)':
     dependencies:
       '@typescript-eslint/utils': 8.23.0(eslint@9.19.0(jiti@2.4.2))(typescript@5.6.3)
-      eslint: 9.19.0(jiti@2.4.2)
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-
-  '@tanstack/eslint-plugin-query@5.66.0(eslint@9.19.0(jiti@2.4.2))(typescript@5.7.3)':
-    dependencies:
-      '@typescript-eslint/utils': 8.23.0(eslint@9.19.0(jiti@2.4.2))(typescript@5.7.3)
       eslint: 9.19.0(jiti@2.4.2)
     transitivePeerDependencies:
       - supports-color
