@@ -1,5 +1,4 @@
-'use client';
-
+import { getProblemById } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -7,18 +6,42 @@ import {
   ProgressHeader,
   SmallButton,
   Tag,
+  TimeTag,
 } from '@components';
 
-const Page = () => {
+const statusLabel: Record<string, string> = {
+  CORRECT: '정답',
+  INCORRECT: '오답',
+  RETRY_CORRECT: '정답',
+  NOT_STARTED: '시작전',
+};
+
+const statusColor: Record<string, 'green' | 'red' | 'gray'> = {
+  CORRECT: 'green',
+  INCORRECT: 'red',
+  RETRY_CORRECT: 'green',
+  NOT_STARTED: 'gray',
+};
+
+const Page = async ({ params }: { params: Promise<{ publishId: string; problemId: string }> }) => {
+  const { publishId, problemId } = await params;
+  const mainProblem = await getProblemById(publishId, problemId);
+
   return (
     <>
       <ProgressHeader progress={10} />
       <main className='flex flex-col px-[2rem] py-[8rem] md:flex-row md:gap-[4rem]'>
         <div className='w-full'>
-          <h1 className='font-bold-18 text-main'>문제 1번</h1>
+          <div className='flex items-center justify-between'>
+            <h1 className='font-bold-18 text-main'>메인 문제 {mainProblem?.number}번</h1>
+            <TimeTag
+              minutes={mainProblem?.recommendedMinute}
+              seconds={mainProblem?.recommendedSecond}
+            />
+          </div>
           <img
-            src='https://placehold.co/600x400'
-            alt='문제 1'
+            src={mainProblem?.imageUrl}
+            alt={`메인 문제 ${mainProblem?.number}번`}
             className='mt-[1.2rem] w-full object-contain'
           />
 
@@ -32,14 +55,16 @@ const Page = () => {
         <div className='mt-[2.4rem] w-full'>
           <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
           <div className='mt-[1.2rem] flex gap-[1.6rem]'>
-            <div className='flex items-center gap-[0.6rem]'>
-              <span className='font-medium-16 text-black'>1-1번</span>
-              <Tag variant='green'>정답</Tag>
-            </div>
-            <div className='flex items-center gap-[0.6rem]'>
-              <span className='font-medium-16 text-black'>1-2번</span>
-              <Tag variant='red'>오답</Tag>
-            </div>
+            {mainProblem?.childProblemStatuses?.map((childProblemStatus, index) => (
+              <div key={index} className='flex items-center gap-[0.6rem]'>
+                <span className='font-medium-16 text-black'>
+                  {mainProblem.number}-{index + 1}번
+                </span>
+                <Tag variant={statusColor[childProblemStatus]}>
+                  {statusLabel[childProblemStatus]}
+                </Tag>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -51,12 +76,7 @@ const Page = () => {
           </div>
         </div>
       </main>
-      <NavigationFooter
-        prevLabel='이전'
-        nextLabel='다음'
-        onClickPrev={() => {}}
-        onClickNext={() => {}}
-      />
+      <NavigationFooter prevLabel='이전' nextLabel='다음' />
     </>
   );
 };
