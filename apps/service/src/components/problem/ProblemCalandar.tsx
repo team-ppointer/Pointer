@@ -1,3 +1,4 @@
+'use client';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { IcNextBlack, IcPrevBlack } from '@svg';
