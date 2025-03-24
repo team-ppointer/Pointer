@@ -34,7 +34,7 @@ const Page = () => {
         </div>
         <NavigationFooter
           prevLabel='해설'
-          nextLabel='진단 및 분석'
+          nextLabel='포인팅'
           onClickPrev={() => router.push(`/report/${publishId}/${problemId}/analysis`)}
           onClickNext={() => router.push(`/report/${publishId}/${problemId}/prescription`)}
         />
