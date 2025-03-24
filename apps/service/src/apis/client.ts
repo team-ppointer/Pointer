@@ -1,9 +1,12 @@
 import { paths } from '@schema';
 import createFetchClient from 'openapi-fetch';
+import createClient from 'openapi-react-query';
 
-const client = createFetchClient<paths>({
+export const client = createFetchClient<paths>({
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
-  headers: {},
+  headers: {
+    Authorization: `Bearer ${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
+  },
 });
 
-export default client;
+export const TanstackQueryClient = createClient(client);
