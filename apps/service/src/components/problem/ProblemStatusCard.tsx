@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, StatusIcon, StatusTag } from '@components';
 import { IcDown, IcUp } from '@svg';
 import React, { useState } from 'react';
