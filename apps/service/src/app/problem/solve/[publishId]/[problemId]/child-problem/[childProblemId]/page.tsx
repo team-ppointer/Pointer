@@ -25,7 +25,7 @@ const Page = () => {
         <div className='w-full'>
           <h1 className='font-bold-16 text-black'>정답 선택</h1>
 
-          <div className='mt-[1.2rem] flex flex-col gap-[2rem] md:flex-row'>
+          <div className='mt-[1.2rem] flex flex-col gap-[2rem] lg:flex-row'>
             <AnswerInput answerType='MULTIPLE_CHOICE' selectedAnswer='' />
             <Button>제출하기</Button>
           </div>
