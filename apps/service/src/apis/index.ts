@@ -4,3 +4,4 @@ export { client, TanstackQueryClient };
 
 // controllers
 export * from './controller/problem';
+export * from './controller/commentary';
