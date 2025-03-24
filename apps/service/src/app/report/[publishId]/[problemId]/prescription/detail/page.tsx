@@ -12,15 +12,16 @@ const Page = () => {
 
   const { problemNumber, prescription } = useReport();
 
+  const childProblems = prescription?.childProblem ?? [];
+  const mainProblem = prescription?.mainProblem ?? {};
+
   const problemImageUrl =
-    type === 'child'
-      ? prescription.childProblem[Number(childNumber) - 1]?.problem
-      : prescription.mainProblem.problem;
+    type === 'child' ? childProblems[Number(childNumber) - 1]?.imageUrl : mainProblem.imageUrl;
 
   const solutionImageUrls =
     type === 'child'
-      ? prescription.childProblem[Number(childNumber) - 1]?.solution
-      : prescription.mainProblem.solution;
+      ? childProblems[Number(childNumber) - 1]?.prescriptionImageUrls
+      : mainProblem.prescriptionImageUrls;
 
   const title = `${type === 'child' ? '새끼' : '메인'} 문제 ${problemNumber}${
     type === 'child' ? `-${childNumber}` : ''

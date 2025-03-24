@@ -10,6 +10,7 @@ const Page = () => {
   const { publishId, problemId } = useParams();
 
   const { problemNumber, prescription } = useReport();
+  const childProblems = prescription?.childProblem ?? [];
 
   return (
     <>
@@ -18,15 +19,15 @@ const Page = () => {
         <h1 className='font-bold-18 text-main my-[0.8rem]'>포인팅</h1>
 
         <ul className='flex flex-col gap-[1.6rem] pt-[1.2rem]'>
-          {prescription.childProblem.map((childProblem) => {
+          {childProblems.map((childProblem, childProblemIndex) => {
             return (
               <PrescriptionCard
-                key={childProblem.childProblemNumber}
+                key={childProblemIndex}
                 status='진단 완료'
-                title={`새끼 문항 ${problemNumber}-${childProblem.childProblemNumber}번`}
+                title={`새끼 문항 ${problemNumber}-${childProblemIndex + 1}번`}
                 onClick={() =>
                   router.push(
-                    `/report/${publishId}/${problemId}/prescription/detail?type=child&childNumber=${childProblem.childProblemNumber}`
+                    `/report/${publishId}/${problemId}/prescription/detail?type=child&childNumber=${childProblemIndex + 1}`
                   )
                 }
               />
@@ -46,8 +47,8 @@ const Page = () => {
         <NavigationFooter
           prevLabel='한 걸음 더'
           nextLabel='리스트로'
-          onClickPrev={() => router.back()}
-          onClickNext={() => router.push(`/problem/${publishId}`)}
+          onClickPrev={() => router.push(`/report/${publishId}/${problemId}/advanced`)}
+          onClickNext={() => router.push(`/problem/list/${publishId}`)}
         />
       </main>
     </>
