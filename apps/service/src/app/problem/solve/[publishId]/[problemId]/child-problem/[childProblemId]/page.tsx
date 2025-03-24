@@ -23,7 +23,7 @@ const Page = () => {
         </div>
 
         <div className='w-full'>
-          <h1 className='font-bold-16 text-black'>정답 선택</h1>
+          <h3 className='font-bold-16 text-black'>정답 선택</h3>
 
           <div className='mt-[1.2rem] flex flex-col gap-[2rem] lg:flex-row'>
             <AnswerInput answerType='MULTIPLE_CHOICE' selectedAnswer='' />
