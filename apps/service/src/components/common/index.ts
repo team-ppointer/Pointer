@@ -7,6 +7,7 @@ import Header from './Header';
 import ProgressBar from './ProgressBar';
 import NavigationFooter from './NavigationFooter';
 import Divider from './Divider';
+import ProgressHeader from './ProgressHeader';
 
 export * from './Buttons';
 export * from './Inputs';
@@ -22,4 +23,5 @@ export {
   ProgressBar,
   NavigationFooter,
   Divider,
+  ProgressHeader,
 };

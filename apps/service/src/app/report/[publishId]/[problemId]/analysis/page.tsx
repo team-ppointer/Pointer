@@ -3,10 +3,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { IcRight, IcThumbtack } from '@svg';
-import { NavigationFooter } from '@components';
+import { NavigationFooter, ProgressHeader } from '@components';
 
 import { useReport } from '@/hooks/report';
-import { ReportHeader, TabMenu } from '@/components/report';
+import { TabMenu } from '@/components/report';
 
 const Page = () => {
   const router = useRouter();
@@ -15,7 +15,7 @@ const Page = () => {
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
   return (
     <>
-      <ReportHeader progress={33} />
+      <ProgressHeader progress={33} />
       <main className='px-[2rem] py-[8rem]'>
         <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 1번</h1>
         <div className='mt-[2.4rem] flex flex-col gap-[1.6rem]'>

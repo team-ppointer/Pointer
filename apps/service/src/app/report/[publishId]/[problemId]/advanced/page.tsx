@@ -1,8 +1,7 @@
 'use client';
-import { NavigationFooter, SmallButton } from '@components';
+import { NavigationFooter, SmallButton, ProgressHeader } from '@components';
 import { useParams, useRouter } from 'next/navigation';
 
-import { ReportHeader } from '@/components/report';
 import { useReport } from '@/hooks/report';
 
 const Page = () => {
@@ -13,7 +12,7 @@ const Page = () => {
 
   return (
     <>
-      <ReportHeader progress={66} />
+      <ProgressHeader progress={66} />
       <main className='px-[2rem] py-[8rem]'>
         <div className='flex items-center justify-between'>
           <h1 className='font-bold-18 text-main my-[0.8rem]'>한 걸음 더</h1>

@@ -1,8 +1,8 @@
 'use client';
-import { Divider, NavigationFooter } from '@components';
+import { Divider, NavigationFooter, ProgressHeader } from '@components';
 import { useParams, useRouter } from 'next/navigation';
 
-import { PrescriptionCard, ReportHeader } from '@/components/report';
+import { PrescriptionCard } from '@/components/report';
 import { useReport } from '@/hooks/report';
 
 const Page = () => {
@@ -13,7 +13,7 @@ const Page = () => {
 
   return (
     <>
-      <ReportHeader progress={100} />
+      <ProgressHeader progress={100} />
       <main className='px-[2rem] py-[8rem]'>
         <h1 className='font-bold-18 text-main my-[0.8rem]'>포인팅</h1>
 
