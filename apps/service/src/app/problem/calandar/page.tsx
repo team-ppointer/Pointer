@@ -1,11 +1,10 @@
-'use client';
 import { Header } from '@components';
 import { getProblemAll } from '@apis';
 
 import { ProblemCalandar } from '@/components/problem';
-const Page = () => {
-  const { data } = getProblemAll({ year: 2025, month: 3 });
-  console.log(data);
+
+const Page = async () => {
+  const data = await getProblemAll({ year: 2025, month: 3 });
 
   return (
     <>
