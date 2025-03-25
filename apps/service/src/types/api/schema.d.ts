@@ -413,6 +413,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/client/problem/{publishId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 특정 발행 속 문항들 조회
+     * @description 사용자에게 보여지는 특정 발행에 속한 문항을 조회합니다.
+     */
+    get: operations['getProblemsInPublish'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/client/problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
@@ -453,6 +473,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/client/problem/thumbnail/{publishId}/{problemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 문항 썸네일 조회
+     * @description 바로 풀어보기/단계별로 풀어보기 화면에서 필요한 문항을 조회합니다.
+     */
+    get: operations['getProblemThumbnail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/client/problem/all/{year}/{month}': {
     parameters: {
       query?: never;
@@ -465,6 +505,26 @@ export interface paths {
      * @description 월별 문제들에 대한 진행도와 정보들을 조회합니다.
      */
     get: operations['getAllProblem'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/client/home-feed': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 홈 피드 조회
+     * @description 회원의 홈 피드 정보를 조회합니다.
+     */
+    get: operations['getHomeFeed'];
     put?: never;
     post?: never;
     delete?: never;
@@ -846,17 +906,34 @@ export interface components {
       id: number;
       name: string;
     };
+    ProblemFeedProgressesGetResponse: {
+      /** Format: int64 */
+      problemId?: number;
+      /** @enum {string} */
+      status?: 'CORRECT' | 'INCORRECT' | 'IN_PROGRESS' | 'RETRY_CORRECT' | 'NOT_STARTED';
+      childProblemStatuses?: ('CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED')[];
+    };
+    PublishClientGetResponse: {
+      /** Format: int64 */
+      publishId?: number;
+      /** Format: date */
+      date?: string;
+      title?: string;
+      problems?: components['schemas']['ProblemFeedProgressesGetResponse'][];
+    };
     ProblemClientGetResponse: {
       /** Format: int32 */
-      number?: number;
-      imageUrl?: string;
+      number: number;
+      imageUrl: string;
       /** Format: int32 */
-      recommendedMinute?: number;
+      recommendedMinute: number;
       /** Format: int32 */
-      recommendedSecond?: number;
+      recommendedSecond: number;
       /** @enum {string} */
-      status?: 'CORRECT' | 'INCORRECT' | 'IN_PROGRESS' | 'RETRY_CORRECT';
-      childProblemStatuses?: ('CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED')[];
+      status: 'CORRECT' | 'INCORRECT' | 'IN_PROGRESS' | 'RETRY_CORRECT' | 'NOT_STARTED';
+      childProblemStatuses: ('CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED')[];
+      /** @enum {string} */
+      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
     };
     ChildProblemClientGetResponse: {
       /** Format: int32 */
@@ -867,6 +944,15 @@ export interface components {
       /** @enum {string} */
       status?: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED';
     };
+    ProblemClientThumbnailResponse: {
+      /** Format: int32 */
+      number?: number;
+      imageUrl?: string;
+      /** Format: int32 */
+      recommendedMinute?: number;
+      /** Format: int32 */
+      recommendedSecond?: number;
+    };
     AllProblemGetResponse: {
       /** Format: int64 */
       publishId?: number;
@@ -874,8 +960,39 @@ export interface components {
       date?: string;
       /** @enum {string} */
       progress?: 'COMPLETE' | 'INCOMPLETE' | 'IN_PROGRESS';
-      problemStatuses?: ('CORRECT' | 'INCORRECT' | 'IN_PROGRESS' | 'RETRY_CORRECT')[];
+      problemStatuses?: (
+        | 'CORRECT'
+        | 'INCORRECT'
+        | 'IN_PROGRESS'
+        | 'RETRY_CORRECT'
+        | 'NOT_STARTED'
+      )[];
       mainProblemImageUrl?: string;
+    };
+    DailyProgressResponse: {
+      /** Format: date */
+      date?: string;
+      /** @enum {string} */
+      progressStatus?: 'COMPLETED' | 'IN_PROGRESS' | 'NOT_STARTED';
+    };
+    HomeFeedResponse: {
+      dailyProgresses?: components['schemas']['DailyProgressResponse'][];
+      problemSets?: components['schemas']['ProblemSetHomeFeedResponse'][];
+    };
+    ProblemHomeFeedResponse: {
+      /** Format: int64 */
+      problemId?: number;
+      mainProblemImageUrl?: string;
+    };
+    ProblemSetHomeFeedResponse: {
+      /** Format: date */
+      date?: string;
+      /** Format: int64 */
+      problemSetId?: number;
+      title?: string;
+      /** Format: int64 */
+      submitCount?: number;
+      problemHomeFeedResponse?: components['schemas']['ProblemHomeFeedResponse'];
     };
     ChildProblemDetailResponse: {
       imageUrl?: string;
@@ -891,6 +1008,8 @@ export interface components {
       mainHandwritingExplanationImageUrl?: string;
       readingTipImageUrl?: string;
       seniorTipImageUrl?: string;
+      /** @enum {string} */
+      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       prescription?: components['schemas']['PrescriptionResponse'];
     };
     PrescriptionResponse: {
@@ -901,7 +1020,7 @@ export interface components {
       imageUrl?: string;
       prescriptionImageUrls?: string[];
       /** @enum {string} */
-      submitStatus?: 'CORRECT' | 'INCORRECT' | 'IN_PROGRESS' | 'RETRY_CORRECT';
+      submitStatus?: 'CORRECT' | 'INCORRECT' | 'IN_PROGRESS' | 'RETRY_CORRECT' | 'NOT_STARTED';
     };
   };
   responses: never;
@@ -1161,7 +1280,7 @@ export interface operations {
         content: {
           '*/*': {
             /** @enum {string} */
-            data: 'CORRECT' | 'INCORRECT' | 'IN_PROGRESS' | 'RETRY_CORRECT';
+            data: 'CORRECT' | 'INCORRECT' | 'IN_PROGRESS' | 'RETRY_CORRECT' | 'NOT_STARTED';
           };
         };
       };
@@ -1791,6 +1910,39 @@ export interface operations {
       };
     };
   };
+  getProblemsInPublish: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['PublishClientGetResponse'];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
   getProblem_1: {
     parameters: {
       query?: never;
@@ -1860,6 +2012,40 @@ export interface operations {
       };
     };
   };
+  getProblemThumbnail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['ProblemClientThumbnailResponse'];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
   getAllProblem: {
     parameters: {
       query?: never;
@@ -1880,6 +2066,37 @@ export interface operations {
         content: {
           '*/*': {
             data: components['schemas']['AllProblemGetResponse'][];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  getHomeFeed: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['HomeFeedResponse'];
           };
         };
       };
