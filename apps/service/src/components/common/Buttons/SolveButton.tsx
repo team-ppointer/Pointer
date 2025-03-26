@@ -2,9 +2,10 @@ import { IcDirect, IcStepByStep } from '@svg';
 
 interface SolveButtonProps {
   variant: 'direct' | 'step';
+  onClick: () => void;
 }
 
-const SolveButton = ({ variant = 'direct' }: SolveButtonProps) => {
+const SolveButton = ({ variant = 'direct', onClick }: SolveButtonProps) => {
   const baseStyles = 'w-full h-[7.6rem] rounded-[16px] flex items-center justify-center gap-[2rem]';
 
   const variantStyles = {
@@ -13,7 +14,7 @@ const SolveButton = ({ variant = 'direct' }: SolveButtonProps) => {
   };
 
   return (
-    <button type='button' className={`${baseStyles} ${variantStyles[variant]}`}>
+    <button type='button' className={`${baseStyles} ${variantStyles[variant]}`} onClick={onClick}>
       {variant === 'direct' ? (
         <IcDirect width={24} height={24} />
       ) : (
