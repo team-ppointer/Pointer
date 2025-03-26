@@ -9,7 +9,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools />
+      <div style={{ fontSize: '16px' }}>
+        <ReactQueryDevtools />
+      </div>
     </QueryClientProvider>
   );
 }
