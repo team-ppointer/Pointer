@@ -1,5 +1,7 @@
+'use client';
 import { getProblemById } from '@apis';
 import { NavigationFooter, ProgressHeader, SmallButton, Tag, TimeTag } from '@components';
+import { useParams } from 'next/navigation';
 
 import { AnswerInputForm } from '@/components/problem';
 
@@ -17,9 +19,10 @@ const statusColor: Record<string, 'green' | 'red' | 'gray'> = {
   NOT_STARTED: 'gray',
 };
 
-const Page = async ({ params }: { params: Promise<{ publishId: string; problemId: string }> }) => {
-  const { publishId, problemId } = await params;
-  const mainProblem = await getProblemById(publishId, problemId);
+const Page = () => {
+  const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
+  const { data } = getProblemById(publishId, problemId);
+  const mainProblem = data?.data;
 
   const childProblemStatusArray = mainProblem?.childProblemStatuses ?? [];
 
