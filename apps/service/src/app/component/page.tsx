@@ -27,8 +27,8 @@ const Page = () => {
         <IcSolve width={24} height={24} />
         오늘 문제 풀기
       </Button>
-      <SolveButton variant='direct' />
-      <SolveButton variant='step' />
+      <SolveButton variant='direct' onClick={() => {}} />
+      <SolveButton variant='step' onClick={() => {}} />
       <SmallButton>해설 보기</SmallButton>
       <SmallButton sizeType='small'>해설 보기</SmallButton>
       <SmallButton variant='underline'>btn</SmallButton>
@@ -71,17 +71,17 @@ const Page = () => {
       <GuideButton />
       <AnswerInput answerType='SHORT_ANSWER' selectedAnswer='1' />
 
-      <StatusTag status='correct' />
-      <StatusTag status='incorrect' />
-      <StatusTag status='retried' />
-      <StatusTag status='inProgress' />
-      <StatusTag status='notStarted' />
+      <StatusTag status='CORRECT' />
+      <StatusTag status='INCORRECT' />
+      <StatusTag status='RETRY_CORRECT' />
+      <StatusTag status='IN_PROGRESS' />
+      <StatusTag status='NOT_STARTED' />
 
       <div className='flex gap-[0.4rem]'>
-        <StatusIcon status='correct' />
-        <StatusIcon status='incorrect' />
-        <StatusIcon status='retried' />
-        <StatusIcon status='notStarted' />
+        <StatusIcon status='CORRECT' />
+        <StatusIcon status='INCORRECT' />
+        <StatusIcon status='RETRY_CORRECT' />
+        <StatusIcon status='NOT_STARTED' />
       </div>
     </div>
   );
