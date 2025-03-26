@@ -30,7 +30,6 @@ const AnswerInputForm = ({
 
   const onSubmitAnswer: SubmitHandler<AnswerType> = async (data) => {
     if (childProblemId) {
-      console.log(data);
     } else {
       const { data: resultData } = await putProblemSubmit(publishId, problemId, data.answer);
       setResult(resultData?.data);
