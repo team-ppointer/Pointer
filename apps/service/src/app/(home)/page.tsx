@@ -38,7 +38,7 @@ const Page = async () => {
         </div>
       </main>
       <div className='mt-[2.4rem]'>
-        <ProblemSwiper />
+        <ProblemSwiper problemSets={problemSets ?? []} />
       </div>
       <footer className='bg-background mt-[2.4rem] px-[2rem] pb-[3.3rem]'>
         <Link href='/problem/calandar'>
