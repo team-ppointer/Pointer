@@ -1,12 +1,11 @@
 'use client';
-
 import { useRouter } from 'next/navigation';
 
-interface ModalProps {
+interface RouteModalProps {
   children: React.ReactNode;
 }
 
-const Modal = ({ children }: ModalProps) => {
+const RouteModal = ({ children }: RouteModalProps) => {
   const router = useRouter();
 
   return (
@@ -23,4 +22,4 @@ const Modal = ({ children }: ModalProps) => {
   );
 };
 
-export default Modal;
+export default RouteModal;

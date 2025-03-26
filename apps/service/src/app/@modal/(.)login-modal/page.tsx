@@ -1,12 +1,12 @@
 'use client';
-import { Modal, TwoButtonModalTemplate } from '@components';
+import { RouteModal, TwoButtonModalTemplate } from '@components';
 import { useRouter } from 'next/navigation';
 
 const page = () => {
   const router = useRouter();
 
   return (
-    <Modal>
+    <RouteModal>
       <TwoButtonModalTemplate
         text={`로그인을 하면\n이용할 수 있는 기능이에요!`}
         topButtonText='로그인하기'
@@ -18,7 +18,7 @@ const page = () => {
           router.back();
         }}
       />
-    </Modal>
+    </RouteModal>
   );
 };
 

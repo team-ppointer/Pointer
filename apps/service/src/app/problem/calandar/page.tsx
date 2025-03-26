@@ -2,7 +2,7 @@ import { Header } from '@components';
 
 import { ProblemCalandar } from '@/components/problem';
 
-const Page = async () => {
+const Page = () => {
   return (
     <>
       <Header title='전체 문제' />

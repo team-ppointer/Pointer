@@ -24,6 +24,7 @@ export default function RootLayout({
           <Suspense fallback={<></>}>
             <div>{modal}</div>
           </Suspense>
+          <div id='modal'></div>
         </Providers>
       </body>
     </html>
