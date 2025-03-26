@@ -1,6 +1,9 @@
+import Link from 'next/link';
 import { Button } from '@components';
 import { IcSearch } from '@svg';
-import Link from 'next/link';
+import { getHomeFeed } from '@apis';
+import dayjs from 'dayjs';
+import { DailyProgress } from '@types';
 
 import {
   GuideButton,
@@ -10,7 +13,17 @@ import {
   WeekProgress,
 } from '@/components/home';
 
-const Page = () => {
+const Page = async () => {
+  const homeFeedData = await getHomeFeed();
+
+  const dailyProgresses = homeFeedData?.dailyProgresses;
+  const problemSets = homeFeedData?.problemSets;
+
+  const startDate = dayjs(dailyProgresses?.[0]?.date).format('MM/DD');
+  const endDate = dayjs(dailyProgresses?.[dailyProgresses.length - 1]?.date).format('DD');
+  const progress: DailyProgress[] =
+    dailyProgresses?.map((progress) => progress.progressStatus ?? 'NOT_STARTED') ?? [];
+
   return (
     <>
       <HomeHeader grade={2} name='홍길동' />
@@ -21,7 +34,7 @@ const Page = () => {
         {false && <NoticeButton count={1} />}
         <div className='flex w-full items-center gap-[1.2rem] pt-[1.6rem]'>
           <GuideButton />
-          <WeekProgress startDate='03/10' endDate='14' />
+          <WeekProgress startDate={startDate} endDate={endDate} progress={progress} />
         </div>
       </main>
       <div className='mt-[2.4rem]'>
