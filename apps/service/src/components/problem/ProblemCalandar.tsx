@@ -1,7 +1,7 @@
 'use client';
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import { IcNextBlack, IcPrevBlack } from '@svg';
+import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
 import { components } from '@schema';
 import { getProblemAll } from '@apis';
 
@@ -19,7 +19,7 @@ const ProblemCalandar = () => {
   // apis
   const { data: publishedData } = getProblemAll({ year, month });
 
-  const publishedDataArray: AllProblemGetResponse[] = Array.from({ length: 31 }).map(() => ({}));
+  const publishedDataArray: AllProblemGetResponse[] = Array.from({ length: 32 }).map(() => ({}));
   (publishedData?.data ?? []).forEach((data) => {
     const date = dayjs(data.date);
     const day = date.date();
@@ -28,11 +28,11 @@ const ProblemCalandar = () => {
 
   const progressColor = (day: number) => {
     const data = publishedDataArray[day];
-    if (!data) return 'bg-lightgray300';
+    if (Object.keys(data).length === 0) return 'bg-white border border-[2px] border-lightgray300';
     if (data.progress === 'COMPLETE') return 'bg-main';
     else if (data.progress === 'IN_PROGRESS') return 'bg-sub1';
     else if (data.progress === 'INCOMPLETE') return 'bg-lightgray300';
-    return 'bg-lightgray300';
+    return 'bg-white border border-[2px] border-lightgray300';
   };
 
   const handleClickPrevMonth = () => setCurrentDay(currentDay.subtract(1, 'month'));
@@ -85,7 +85,11 @@ const ProblemCalandar = () => {
                   key={day}
                   className={`font-medium-16 flex h-[4.4rem] w-[4.4rem] items-center justify-center rounded-[16px] text-white ${progressColor(day)}`}
                   onClick={() => setSelectedDay(day)}>
-                  {day}
+                  {Object.keys(publishedDataArray[day]).length === 0 ? (
+                    <IcMinus width={24} height={24} />
+                  ) : (
+                    <span>{day}</span>
+                  )}
                 </div>
               );
             })}
@@ -102,6 +106,12 @@ const ProblemCalandar = () => {
             <div className='flex items-center gap-[0.6rem]'>
               <div className='bg-lightgray300 h-[1.4rem] w-[1.4rem] rounded-[5px]' />
               <p className='font-medium-12 text-midgray100'>미완료</p>
+            </div>
+            <div className='flex items-center gap-[0.6rem]'>
+              <div className='border-lightgray300 flex h-[1.4rem] w-[1.4rem] items-center justify-center rounded-[5px] border bg-white'>
+                <IcMinusSmall width={7.6} height={7.6} />
+              </div>
+              <p className='font-medium-12 text-midgray100'>미출제</p>
             </div>
           </div>
         </div>
