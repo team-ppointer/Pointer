@@ -29,7 +29,7 @@ const Page = async ({ params }: { params: Promise<{ publishId: string; problemId
 
   return (
     <>
-      <ProgressHeader progress={10} />
+      <ProgressHeader progress={100} />
       <main className='flex flex-col px-[2rem] py-[8rem] md:flex-row md:gap-[4rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
