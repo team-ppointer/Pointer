@@ -1,4 +1,4 @@
-import { client } from '@/apis/client';
+import { client } from '@apis';
 
 const getProblemsByPublishId = async (publishId: string) => {
   const { data } = await client.GET('/api/v1/client/problem/{publishId}', {

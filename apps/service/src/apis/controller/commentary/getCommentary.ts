@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@/apis/client';
+import { TanstackQueryClient } from '@apis';
 
 type GetCommentaryProps = {
   publishId: string;
