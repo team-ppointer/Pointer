@@ -1,8 +1,6 @@
 import { IcCorrect, IcIncorrect } from '@svg';
 import { ProblemStatus } from '@types';
 
-import { SmallButton } from '../../Buttons';
-
 import BaseModalTemplate from './BaseModalTemplate';
 
 interface MainAnswerCheckModalTemplateProps {
