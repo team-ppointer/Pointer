@@ -11,9 +11,11 @@ const answerStatusLabel = (status: string) => {
   switch (status) {
     case 'CORRECT':
     case 'RETRY_CORRECT':
-      return '완료';
     case 'INCORRECT':
+      return '완료';
+    case 'IN_PROGRESS':
       return '진행중';
+    case 'NOT_STARTED':
     default:
       return '미완료';
   }
@@ -22,9 +24,11 @@ const answerStatusColor = (status: string) => {
   switch (status) {
     case 'CORRECT':
     case 'RETRY_CORRECT':
-      return 'green';
     case 'INCORRECT':
+      return 'green';
+    case 'IN_PROGRESS':
       return 'red';
+    case 'NOT_STARTED':
     default:
       return 'gray';
   }
