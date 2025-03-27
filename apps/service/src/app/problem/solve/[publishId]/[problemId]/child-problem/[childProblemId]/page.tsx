@@ -1,9 +1,21 @@
 'use client';
-import { NavigationFooter, ProgressHeader, SmallButton } from '@components';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { getChildProblemById } from '@apis';
+import { putChildProblemSubmit, putChildProblemSkip } from '@apis';
+import {
+  AnswerInput,
+  Button,
+  PortalModal,
+  NavigationFooter,
+  ProgressHeader,
+  SmallButton,
+  ChildAnswerCheckModalTemplate,
+} from '@components';
+import { useModal } from '@hooks';
+import { ProblemStatus } from '@types';
 
-import { AnswerInputForm } from '@/components/problem';
 import { useChildProblemContext } from '@/hooks/problem';
 
 const Page = () => {
@@ -15,13 +27,19 @@ const Page = () => {
   const router = useRouter();
   const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
 
+  const { isOpen, openModal, closeModal } = useModal();
+  const [result, setResult] = useState<ProblemStatus | undefined>();
+  const { register, handleSubmit, watch } = useForm<{ answer: string }>();
+  const selectedAnswer = watch('answer');
+
+  // apis
   const { data } = getChildProblemById(publishId, problemId, childProblemId);
   const {
     problemNumber,
     childProblemNumber = 1,
     imageUrl,
     status,
-    answerType,
+    answerType = 'MULTIPLE_CHOICE',
     answer,
   } = data?.data ?? {};
 
@@ -36,6 +54,16 @@ const Page = () => {
       : `새끼 문제 ${problemNumber}-${childProblemNumber + 1}번`;
 
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
+
+  const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
+    const { data } = await putChildProblemSubmit(publishId, childProblemId, answer);
+    const resultData = data?.data;
+
+    setResult(resultData);
+    if (resultData) {
+      openModal();
+    }
+  };
 
   return (
     <>
@@ -62,14 +90,18 @@ const Page = () => {
         </div>
 
         <div className='w-full'>
-          <AnswerInputForm
-            publishId={publishId}
-            problemId={problemId}
-            childProblemId={childProblemId}
-            answerType={answerType}
-            isSolved={isSolved}
-            answer={answer}
-          />
+          <form onSubmit={handleSubmit(handleSubmitAnswer)}>
+            <h3 className='font-bold-16 text-black'>정답 선택</h3>
+            <div className='mt-[1.2rem] flex flex-col gap-[2rem] lg:flex-row'>
+              <AnswerInput
+                answerType={answerType}
+                selectedAnswer={isSolved && answer ? answer : selectedAnswer}
+                disabled={isSolved}
+                {...register('answer')}
+              />
+              <Button disabled={isSolved}>제출하기</Button>
+            </div>
+          </form>
         </div>
       </main>
 
@@ -79,6 +111,14 @@ const Page = () => {
         onClickPrev={onPrev}
         onClickNext={onNext}
       />
+
+      <PortalModal isOpen={isOpen} onClose={closeModal}>
+        <ChildAnswerCheckModalTemplate
+          result={result}
+          onClose={closeModal}
+          handleClickButton={onNext}
+        />
+      </PortalModal>
     </>
   );
 };
