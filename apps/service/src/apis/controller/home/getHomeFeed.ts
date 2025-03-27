@@ -1,8 +1,7 @@
-import { client } from '@/apis/client';
+import { TanstackQueryClient } from '@apis';
 
-const getHomeFeed = async () => {
-  const { data } = await client.GET('/api/v1/client/home-feed');
-  return data?.data;
+const getHomeFeed = () => {
+  return TanstackQueryClient.useQuery('get', '/api/v1/client/home-feed');
 };
 
 export default getHomeFeed;

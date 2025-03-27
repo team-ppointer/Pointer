@@ -1,12 +1,16 @@
+'use client';
 import { Header } from '@components';
 import { getProblemsByPublishId } from '@apis';
 import dayjs from 'dayjs';
+import { useParams } from 'next/navigation';
 
 import { ProblemStatusCard } from '@/components/problem';
 
-const Page = async ({ params }: { params: Promise<{ publishId: string }> }) => {
-  const { publishId } = await params;
-  const { date, problems, title } = await getProblemsByPublishId(publishId);
+const Page = () => {
+  const { publishId } = useParams<{ publishId: string }>();
+
+  const { data } = getProblemsByPublishId(publishId);
+  const { date, problems, title } = data?.data ?? {};
   const publishDate = dayjs(date).format('MM월 DD일');
 
   return (

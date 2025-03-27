@@ -6,6 +6,7 @@ const postLogin = async (email: string, password: string) => {
       email,
       password,
     },
+    credentials: 'include',
   });
 };
 

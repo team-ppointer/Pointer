@@ -1,3 +1,4 @@
+'use client';
 import Link from 'next/link';
 import { Button } from '@components';
 import { IcSearch } from '@svg';
@@ -13,8 +14,9 @@ import {
   WeekProgress,
 } from '@/components/home';
 
-const Page = async () => {
-  const homeFeedData = await getHomeFeed();
+const Page = () => {
+  const { data } = getHomeFeed();
+  const homeFeedData = data?.data;
 
   const dailyProgresses = homeFeedData?.dailyProgresses;
   const problemSets = homeFeedData?.problemSets;
