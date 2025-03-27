@@ -4,9 +4,6 @@ import createClient from 'openapi-react-query';
 
 export const client = createFetchClient<paths>({
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
-  headers: {
-    Authorization: `Bearer ${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
-  },
 });
 
 export const TanstackQueryClient = createClient(client);
