@@ -73,28 +73,10 @@ const Page = () => {
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
   const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
 
-  const handleInvalidateQuery = () => {
-    queryClient.invalidateQueries({
-      queryKey: TanstackQueryClient.queryOptions(
-        'get',
-        '/api/v1/client/problem/{publishId}/{problemId}/{childProblemId}',
-        {
-          params: {
-            path: {
-              publishId: Number(publishId),
-              problemId: Number(problemId),
-              childProblemId: Number(childProblemId),
-            },
-          },
-        }
-      ).queryKey,
-    });
-  };
-
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putChildProblemSubmit(publishId, childProblemId, answer);
     const resultData = data?.data;
-    handleInvalidateQuery();
+    queryClient.invalidateQueries();
 
     setResult(resultData);
     if (resultData) {
@@ -109,7 +91,7 @@ const Page = () => {
 
   const handleSkip = async () => {
     await putChildProblemSkip(publishId, childProblemId);
-    handleInvalidateQuery();
+    queryClient.invalidateQueries();
     onNext();
   };
 

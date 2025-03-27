@@ -11,6 +11,10 @@ const getProblemThumbnail = (publishId: string, problemId: string) => {
           problemId: Number(problemId),
         },
       },
+    },
+    {
+      staleTime: Infinity,
+      gcTime: Infinity,
     }
   );
 };
