@@ -15,6 +15,11 @@
 /*        THEME STYLES       */
 /* ========================= */
 @theme {
+  /* breakpoints */
+  --breakpoint-sm: 431px;
+  --breakpoint-md: 769px;
+  --breakpoint-lg: 1367px;
+
   /* fonts */
   --font-pretendard: Pretendard, sans-serif;
 
@@ -38,15 +43,17 @@
   --color-background: #f7f7f7;
 
   /* Colors */
+  --color-main: #617af9;
+  --color-sub1: #c5ceff;
+  --color-sub2: #e9ebf8;
   --color-green: #0fb700;
   --color-lightgreen: #e7f6e5;
   --color-red: #d20000;
   --color-lightred: #fce4e4;
   --color-blue: #3a67ee;
   --color-lightblue: #ecf0fb;
-  --color-main: #617af9;
-  --color-sub: #e9ebf8;
-  --color-yellow: #fce4e4;
+  --color-yellow: #e59c00;
+  --color-lightyellow: #fff4cc;
 }
 
 /* ========================= */
@@ -58,6 +65,7 @@
     font-family: var(--font-pretendard);
     overscroll-behavior: none;
     background-color: var(--color-background);
+    min-width: 37.5rem;
   }
 
   body {
@@ -65,7 +73,6 @@
     min-height: 100dvh;
     font-family: var(--font-pretendard);
     scroll-behavior: smooth;
-    overflow-x: auto;
   }
 
   p {
