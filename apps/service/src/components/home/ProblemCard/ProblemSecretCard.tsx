@@ -26,7 +26,7 @@ const ProblemSecretCard = ({ dateString }: Props) => {
       </div>
       <div className='flex flex-col gap-[1.2rem]'>
         <p className='font-medium-12 h-[1.8rem] text-center text-black'></p>
-        <Button disabled={true}>
+        <Button disabled={true} className='bg-lightgray500 text-white'>
           <IcSolve width={24} height={24} />
           문제 풀러 가기
         </Button>
