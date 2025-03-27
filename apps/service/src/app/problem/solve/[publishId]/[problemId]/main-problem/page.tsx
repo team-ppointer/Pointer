@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { getProblemById, putProblemSubmit } from '@apis';
+import { getProblemById, putProblemSubmit, TanstackQueryClient } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -16,6 +16,7 @@ import {
 } from '@components';
 import { useModal } from '@hooks';
 import { ProblemStatus } from '@types';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useChildProblemContext } from '@/hooks/problem';
 
@@ -37,6 +38,7 @@ const Page = () => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
   const router = useRouter();
   const { childProblemLength } = useChildProblemContext();
+  const queryClient = useQueryClient();
 
   const { isOpen, openModal, closeModal } = useModal();
   const [result, setResult] = useState<ProblemStatus | undefined>();
@@ -68,10 +70,27 @@ const Page = () => {
     : `새끼 문제 ${number}-${childProblemLength}번`;
   const nextButtonLabel = '해설 보기';
 
+  const handleInvalidateQuery = () => {
+    queryClient.invalidateQueries({
+      queryKey: TanstackQueryClient.queryOptions(
+        'get',
+        '/api/v1/client/problem/{publishId}/{problemId}',
+        {
+          params: {
+            path: {
+              publishId: Number(publishId),
+              problemId: Number(problemId),
+            },
+          },
+        }
+      ).queryKey,
+    });
+  };
+
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putProblemSubmit(publishId, problemId, answer);
     const resultData = data?.data;
-
+    handleInvalidateQuery();
     setResult(resultData);
     if (resultData) {
       openModal();

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { getChildProblemById } from '@apis';
+import { getChildProblemById, TanstackQueryClient } from '@apis';
 import { putChildProblemSubmit, putChildProblemSkip } from '@apis';
 import {
   AnswerInput,
@@ -17,6 +17,7 @@ import {
 } from '@components';
 import { useModal } from '@hooks';
 import { components } from '@schema';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useChildProblemContext } from '@/hooks/problem';
 
@@ -30,6 +31,7 @@ const Page = () => {
   }>();
   const router = useRouter();
   const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
+  const queryClient = useQueryClient();
 
   const { isOpen, openModal, closeModal } = useModal();
   const {
@@ -71,9 +73,28 @@ const Page = () => {
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
   const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
 
+  const handleInvalidateQuery = () => {
+    queryClient.invalidateQueries({
+      queryKey: TanstackQueryClient.queryOptions(
+        'get',
+        '/api/v1/client/problem/{publishId}/{problemId}/{childProblemId}',
+        {
+          params: {
+            path: {
+              publishId: Number(publishId),
+              problemId: Number(problemId),
+              childProblemId: Number(childProblemId),
+            },
+          },
+        }
+      ).queryKey,
+    });
+  };
+
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putChildProblemSubmit(publishId, childProblemId, answer);
     const resultData = data?.data;
+    handleInvalidateQuery();
 
     setResult(resultData);
     if (resultData) {
@@ -88,6 +109,7 @@ const Page = () => {
 
   const handleSkip = async () => {
     await putChildProblemSkip(publishId, childProblemId);
+    handleInvalidateQuery();
     onNext();
   };
 
