@@ -1,23 +1,28 @@
 import { IcCorrect, IcIncorrect } from '@svg';
-import { ProblemStatus } from '@types';
+import { components } from '@schema';
 
 import { SmallButton } from '../../Buttons';
 
 import BaseModalTemplate from './BaseModalTemplate';
 
+type ChildProblemSubmitUpdateResponse = components['schemas']['ChildProblemSubmitUpdateResponse'];
 interface ChildAnswerCheckModalTemplateProps {
   handleClickButton?: () => void;
   onClose: () => void;
-  result: ProblemStatus | undefined;
+  result: ChildProblemSubmitUpdateResponse | undefined;
+  handleClickShowAnswer?: () => void;
 }
 
 const ChildAnswerCheckModalTemplate = ({
   handleClickButton,
   result,
   onClose,
+  handleClickShowAnswer,
 }: ChildAnswerCheckModalTemplateProps) => {
   if (!result) return null;
-  const isCorrect = result === 'CORRECT' || result === 'RETRY_CORRECT';
+
+  const { status } = result;
+  const isCorrect = status === 'CORRECT' || status === 'RETRY_CORRECT';
 
   return (
     <BaseModalTemplate>
@@ -30,8 +35,8 @@ const ChildAnswerCheckModalTemplate = ({
         <BaseModalTemplate.Button onClick={handleClickButton} variant='light'>
           다음 문제로 넘어가기
         </BaseModalTemplate.Button>
-        {result === 'INCORRECT' && (
-          <SmallButton variant='underline' sizeType='small'>
+        {status === 'INCORRECT' && (
+          <SmallButton variant='underline' sizeType='small' onClick={handleClickShowAnswer}>
             정답 확인하기
           </SmallButton>
         )}

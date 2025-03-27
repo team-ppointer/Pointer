@@ -13,11 +13,14 @@ import {
   SmallButton,
   ChildAnswerCheckModalTemplate,
   TwoButtonModalTemplate,
+  AnswerModalTemplate,
 } from '@components';
 import { useModal } from '@hooks';
-import { ProblemStatus } from '@types';
+import { components } from '@schema';
 
 import { useChildProblemContext } from '@/hooks/problem';
+
+type ChildProblemSubmitUpdateResponse = components['schemas']['ChildProblemSubmitUpdateResponse'];
 
 const Page = () => {
   const { publishId, problemId, childProblemId } = useParams<{
@@ -30,12 +33,17 @@ const Page = () => {
 
   const { isOpen, openModal, closeModal } = useModal();
   const {
+    isOpen: isAnswerModalOpen,
+    openModal: openAnswerModal,
+    closeModal: closeAnswerModal,
+  } = useModal();
+  const {
     isOpen: isSkipModalOpen,
     openModal: openSkipModal,
     closeModal: closeSkipModal,
   } = useModal();
 
-  const [result, setResult] = useState<ProblemStatus | undefined>();
+  const [result, setResult] = useState<ChildProblemSubmitUpdateResponse | undefined>();
   const { register, handleSubmit, watch } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
 
@@ -71,6 +79,11 @@ const Page = () => {
     if (resultData) {
       openModal();
     }
+  };
+
+  const handleClickShowAnswer = () => {
+    closeModal();
+    openAnswerModal();
   };
 
   const handleSkip = async () => {
@@ -130,6 +143,13 @@ const Page = () => {
           result={result}
           onClose={closeModal}
           handleClickButton={onNext}
+          handleClickShowAnswer={handleClickShowAnswer}
+        />
+      </PortalModal>
+      <PortalModal isOpen={isAnswerModalOpen} onClose={closeAnswerModal}>
+        <AnswerModalTemplate
+          answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' && '번'}`}
+          handleClickButton={closeAnswerModal}
         />
       </PortalModal>
       <PortalModal isOpen={isSkipModalOpen} onClose={closeSkipModal}>
