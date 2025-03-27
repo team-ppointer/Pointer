@@ -1,8 +1,9 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 
-import '../styles/globals.css';
 import Providers from './providers';
+
+import '../styles/globals.css';
 
 export const metadata: Metadata = {
   title: '포인터',

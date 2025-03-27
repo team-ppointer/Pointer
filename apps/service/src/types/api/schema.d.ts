@@ -493,6 +493,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/client/problem/child/{publishId}/{problemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 문항에 포함된 새끼문항 정보 조회
+     * @description 단계별로 풀어보기 이후 화면들에서 필요한 정보들을 조회합니다.
+     */
+    get: operations['getChildProblems'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/client/problem/all/{year}/{month}': {
     parameters: {
       query?: never;
@@ -787,6 +807,11 @@ export interface components {
       childProblemId: number;
       answer?: string;
     };
+    ChildProblemSubmitUpdateResponse: {
+      /** @enum {string} */
+      status: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED';
+      answer: string;
+    };
     ChildProblemSubmitUpdateIncorrectRequest: {
       /** Format: int64 */
       publishId: number;
@@ -934,15 +959,19 @@ export interface components {
       childProblemStatuses: ('CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED')[];
       /** @enum {string} */
       answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      answer: string;
     };
     ChildProblemClientGetResponse: {
       /** Format: int32 */
-      problemNumber?: number;
+      problemNumber: number;
       /** Format: int32 */
-      childProblemNumber?: number;
-      imageUrl?: string;
+      childProblemNumber: number;
+      imageUrl: string;
       /** @enum {string} */
-      status?: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED';
+      status: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED';
+      /** @enum {string} */
+      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      answer: string;
     };
     ProblemClientThumbnailResponse: {
       /** Format: int32 */
@@ -952,6 +981,10 @@ export interface components {
       recommendedMinute?: number;
       /** Format: int32 */
       recommendedSecond?: number;
+    };
+    ChildProblemsClientGetResponse: {
+      mainProblemImageUrl: string;
+      childProblemIds: number[];
     };
     AllProblemGetResponse: {
       /** Format: int64 */
@@ -988,7 +1021,7 @@ export interface components {
       /** Format: date */
       date?: string;
       /** Format: int64 */
-      problemSetId?: number;
+      publishId?: number;
       title?: string;
       /** Format: int64 */
       submitCount?: number;
@@ -1346,8 +1379,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            /** @enum {string} */
-            data: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED';
+            data: components['schemas']['ChildProblemSubmitUpdateResponse'];
           };
         };
       };
@@ -2032,6 +2064,40 @@ export interface operations {
         content: {
           '*/*': {
             data: components['schemas']['ProblemClientThumbnailResponse'];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  getChildProblems: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': {
+            data: components['schemas']['ChildProblemsClientGetResponse'];
           };
         };
       };

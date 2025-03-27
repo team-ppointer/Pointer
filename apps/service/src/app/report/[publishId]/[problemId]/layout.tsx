@@ -1,4 +1,4 @@
-import { ReportProvider } from '@contexts/ReportContext';
+import { ReportProvider } from '@contexts';
 
 const ReportLayout = ({
   children,

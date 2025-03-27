@@ -20,12 +20,13 @@ const Button = ({
   const variantStyles = {
     blue: 'bg-main text-white',
     light: 'bg-white text-main border border-main',
-    disabled: 'bg-lightgray500 text-white',
+    disabled: 'bg-lightgray300 text-lightgray500',
   };
 
   return (
     <button
       className={`${baseStyles} ${variantStyles[disabled ? 'disabled' : variant]} ${className} `}
+      disabled={disabled}
       {...props}>
       {children}
     </button>

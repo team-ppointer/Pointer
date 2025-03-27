@@ -1,9 +1,9 @@
 'use client';
 import { Header } from '@/components/common';
-import { useReport } from '@/hooks/report';
+import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
-  const { problemNumber, mainAnalysisImageUrl, readingTipImageUrl } = useReport();
+  const { problemNumber, mainAnalysisImageUrl, readingTipImageUrl } = useReportContext();
 
   return (
     <>

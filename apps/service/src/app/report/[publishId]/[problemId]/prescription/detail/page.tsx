@@ -3,14 +3,14 @@
 import { Header } from '@components';
 import { useSearchParams } from 'next/navigation';
 
-import { useReport } from '@/hooks/report';
+import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
   const searchParams = useSearchParams();
   const type = searchParams.get('type');
   const childNumber = searchParams.get('childNumber');
 
-  const { problemNumber, prescription } = useReport();
+  const { problemNumber, prescription } = useReportContext();
 
   const childProblems = prescription?.childProblem ?? [];
   const mainProblem = prescription?.mainProblem ?? {};
