@@ -3,13 +3,13 @@ import { Divider, NavigationFooter, ProgressHeader } from '@components';
 import { useParams, useRouter } from 'next/navigation';
 
 import { PrescriptionCard } from '@/components/report';
-import { useReport } from '@/hooks/report';
+import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
 
-  const { problemNumber, prescription } = useReport();
+  const { problemNumber, prescription } = useReportContext();
   const childProblems = prescription?.childProblem ?? [];
   const mainProblem = prescription?.mainProblem ?? {};
 

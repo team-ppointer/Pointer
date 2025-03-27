@@ -2,13 +2,13 @@
 import { NavigationFooter, SmallButton, ProgressHeader } from '@components';
 import { useParams, useRouter } from 'next/navigation';
 
-import { useReport } from '@/hooks/report';
+import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
   const { publishId, problemId } = useParams();
   const router = useRouter();
 
-  const { problemNumber, seniorTipImageUrl, prescription } = useReport();
+  const { problemNumber, seniorTipImageUrl, prescription } = useReportContext();
 
   const mainImageUrl = prescription?.mainProblem?.imageUrl;
 

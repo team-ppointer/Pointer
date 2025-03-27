@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { ReportContext } from '@contexts';
 
-const useReport = () => {
+const useReportContext = () => {
   const context = useContext(ReportContext);
   if (!context) {
     throw new Error('ReportContext is not found');
@@ -9,4 +9,4 @@ const useReport = () => {
   return context;
 };
 
-export default useReport;
+export default useReportContext;

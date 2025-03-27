@@ -5,14 +5,14 @@ import { useParams, useRouter } from 'next/navigation';
 import { IcRight, IcThumbtack } from '@svg';
 import { NavigationFooter, ProgressHeader } from '@components';
 
-import { useReport } from '@/hooks/report';
+import { useReportContext } from '@/hooks/report';
 import { TabMenu } from '@/components/report';
 
 const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
   const { problemNumber, answer, mainAnalysisImageUrl, mainHandwritingExplanationImageUrl } =
-    useReport();
+    useReportContext();
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
   return (
     <>
