@@ -6,14 +6,22 @@ type GetProblemAllProps = {
 };
 
 const getProblemAll = ({ year, month }: GetProblemAllProps) => {
-  return TanstackQueryClient.useQuery('get', '/api/v1/client/problem/all/{year}/{month}', {
-    params: {
-      path: {
-        year,
-        month,
+  return TanstackQueryClient.useQuery(
+    'get',
+    '/api/v1/client/problem/all/{year}/{month}',
+    {
+      params: {
+        path: {
+          year,
+          month,
+        },
       },
     },
-  });
+    {
+      staleTime: Infinity,
+      gcTime: Infinity,
+    }
+  );
 };
 
 export default getProblemAll;

@@ -70,27 +70,11 @@ const Page = () => {
     : `새끼 문제 ${number}-${childProblemLength}번`;
   const nextButtonLabel = '해설 보기';
 
-  const handleInvalidateQuery = () => {
-    queryClient.invalidateQueries({
-      queryKey: TanstackQueryClient.queryOptions(
-        'get',
-        '/api/v1/client/problem/{publishId}/{problemId}',
-        {
-          params: {
-            path: {
-              publishId: Number(publishId),
-              problemId: Number(problemId),
-            },
-          },
-        }
-      ).queryKey,
-    });
-  };
-
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putProblemSubmit(publishId, problemId, answer);
     const resultData = data?.data;
-    handleInvalidateQuery();
+    queryClient.invalidateQueries();
+
     setResult(resultData);
     if (resultData) {
       openModal();

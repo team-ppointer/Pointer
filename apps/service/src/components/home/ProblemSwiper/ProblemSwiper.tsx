@@ -45,10 +45,15 @@ const ProblemSwiper = ({ problemSets }: ProblemSwiperProps) => {
   const initialSlide = problemSets.findIndex(
     (problem) => problem.date === dayjs().format('YYYY-MM-DD')
   );
+
+  if (initialSlide === -1) {
+    return null;
+  }
+
   return (
     <Swiper
       slidesPerView={'auto'}
-      initialSlide={initialSlide ?? 0}
+      initialSlide={initialSlide}
       spaceBetween={12}
       centeredSlides={true}
       pagination={{

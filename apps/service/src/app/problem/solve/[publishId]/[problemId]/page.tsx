@@ -1,15 +1,15 @@
+'use client';
 import { getProblemThumbnail } from '@apis';
 import { ProgressHeader, TimeTag } from '@components';
+import { useParams } from 'next/navigation';
 
 import SolveButtonsClient from './SolveButtonsClient';
 
-const Page = async ({ params }: { params: Promise<{ publishId: string; problemId: string }> }) => {
-  const { publishId, problemId } = await params;
+const Page = () => {
+  const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
 
-  const { number, imageUrl, recommendedMinute, recommendedSecond } = await getProblemThumbnail(
-    publishId,
-    problemId
-  );
+  const { data } = getProblemThumbnail(publishId, problemId);
+  const { number, imageUrl, recommendedMinute, recommendedSecond } = data?.data ?? {};
 
   return (
     <>

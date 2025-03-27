@@ -1,14 +1,21 @@
-import { client } from '@apis';
+import { TanstackQueryClient } from '@apis';
 
-const getProblemsByPublishId = async (publishId: string) => {
-  const { data } = await client.GET('/api/v1/client/problem/{publishId}', {
-    params: {
-      path: {
-        publishId: Number(publishId),
+const getProblemsByPublishId = (publishId: string) => {
+  return TanstackQueryClient.useQuery(
+    'get',
+    '/api/v1/client/problem/{publishId}',
+    {
+      params: {
+        path: {
+          publishId: Number(publishId),
+        },
       },
     },
-  });
-  return data?.data ?? {};
+    {
+      staleTime: Infinity,
+      gcTime: Infinity,
+    }
+  );
 };
 
 export default getProblemsByPublishId;

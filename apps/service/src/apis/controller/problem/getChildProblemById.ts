@@ -12,6 +12,10 @@ const getChildProblemById = (publishId: string, problemId: string, childProblemI
           childProblemId: Number(childProblemId),
         },
       },
+    },
+    {
+      staleTime: Infinity,
+      gcTime: Infinity,
     }
   );
 };
