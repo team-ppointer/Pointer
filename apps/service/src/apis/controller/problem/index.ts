@@ -3,6 +3,7 @@ import getProblemById from './getProblemById';
 import getProblemsByPublishId from './getProblemsByPublishId';
 import getProblemThumbnail from './getProblemThumbnail';
 import getChildProblemById from './getChildProblemById';
+import getChildData from './getChildData';
 
 export {
   getProblemAll,
@@ -10,4 +11,5 @@ export {
   getProblemsByPublishId,
   getProblemThumbnail,
   getChildProblemById,
+  getChildData,
 };

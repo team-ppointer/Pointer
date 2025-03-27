@@ -12,6 +12,7 @@ interface AnswerInputFormProps {
   childProblemId?: string;
   answerType?: ProblemAnswerType;
   isSolved: boolean;
+  answer?: string;
 }
 
 interface AnswerType {
@@ -24,6 +25,7 @@ const AnswerInputForm = ({
   answerType = 'MULTIPLE_CHOICE',
   childProblemId,
   isSolved,
+  answer,
 }: AnswerInputFormProps) => {
   const { isOpen, openModal, closeModal } = useModal();
   const [result, setResult] = useState<ProblemStatus | undefined>();
@@ -48,7 +50,7 @@ const AnswerInputForm = ({
         <div className='mt-[1.2rem] flex flex-col gap-[2rem] lg:flex-row'>
           <AnswerInput
             answerType={answerType}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={isSolved && answer ? answer : selectedAnswer}
             disabled={isSolved}
             {...register('answer')}
           />

@@ -16,7 +16,14 @@ const Page = () => {
   const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
 
   const { data } = getChildProblemById(publishId, problemId, childProblemId);
-  const { problemNumber, childProblemNumber = 1, imageUrl, status } = data?.data ?? {};
+  const {
+    problemNumber,
+    childProblemNumber = 1,
+    imageUrl,
+    status,
+    answerType,
+    answer,
+  } = data?.data ?? {};
 
   const prevButtonLabel =
     childProblemNumber === 1
@@ -32,7 +39,7 @@ const Page = () => {
 
   return (
     <>
-      <ProgressHeader progress={10} />
+      <ProgressHeader progress={(childProblemNumber / (childProblemLength + 1)) * 100} />
       <main className='flex flex-col px-[2rem] py-[8rem] md:flex-row md:gap-[4rem]'>
         <div className='w-full'>
           <h1 className='font-bold-18 text-main'>
@@ -59,8 +66,9 @@ const Page = () => {
             publishId={publishId}
             problemId={problemId}
             childProblemId={childProblemId}
-            answerType={'SHORT_ANSWER'}
+            answerType={answerType}
             isSolved={isSolved}
+            answer={answer}
           />
         </div>
       </main>

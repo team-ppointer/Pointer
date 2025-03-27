@@ -1,6 +1,6 @@
 'use client';
 import { SolveButton } from '@components';
-import { postChildProblemSubmit, postProblemSubmit } from '@apis';
+import { getChildData, postChildProblemSubmit, postProblemSubmit } from '@apis';
 import { useRouter } from 'next/navigation';
 
 interface SolveButtonsClientProps {
@@ -10,6 +10,8 @@ interface SolveButtonsClientProps {
 
 const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) => {
   const router = useRouter();
+  const { data } = getChildData(publishId, problemId);
+  const childProblemId = data?.data?.childProblemIds[0].toString();
 
   const handleClickDirect = async () => {
     await postProblemSubmit(publishId, problemId);
@@ -18,7 +20,7 @@ const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) =
 
   const handleClickStep = async () => {
     await postChildProblemSubmit(publishId, problemId);
-    // router.push(`/problem/solve/${publishId}/${problemId}/child-problem`);
+    router.push(`/problem/solve/${publishId}/${problemId}/child-problem/${childProblemId}`);
   };
 
   return (

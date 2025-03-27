@@ -1,7 +1,7 @@
+'use client';
 import { createContext, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-
-const childProblemIds: string[] = ['9', '10', '11'];
+import { getChildData } from '@apis';
 
 export interface ChildProblemContextType {
   childProblemLength: number;
@@ -16,6 +16,11 @@ export const ChildProblemProvider = ({ children }: { children: React.ReactNode }
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
   const router = useRouter();
   const [step, setStep] = useState<number>(0);
+
+  // api
+  const { data } = getChildData(publishId, problemId);
+  const childData = data?.data;
+  const { mainProblemImageUrl = '', childProblemIds = [] } = childData ?? {};
 
   const baseUrl = `/problem/solve/${publishId}/${problemId}`;
 
@@ -39,7 +44,7 @@ export const ChildProblemProvider = ({ children }: { children: React.ReactNode }
 
   const contextValue: ChildProblemContextType = {
     childProblemLength: childProblemIds.length,
-    mainProblemImageUrl: '',
+    mainProblemImageUrl: mainProblemImageUrl,
     onPrev,
     onNext,
   };
