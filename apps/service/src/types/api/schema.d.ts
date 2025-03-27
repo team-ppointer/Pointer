@@ -1021,7 +1021,7 @@ export interface components {
       /** Format: date */
       date?: string;
       /** Format: int64 */
-      problemSetId?: number;
+      publishId?: number;
       title?: string;
       /** Format: int64 */
       submitCount?: number;
