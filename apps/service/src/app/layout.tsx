@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 
 import '../styles/globals.css';
+import Providers from './providers';
 
 export const metadata: Metadata = {
   title: '포인터',
@@ -18,10 +19,13 @@ export default function RootLayout({
   return (
     <html lang='ko'>
       <body className={`antialiased`}>
-        <div>{children}</div>
-        <Suspense fallback={<></>}>
-          <div>{modal}</div>
-        </Suspense>
+        <Providers>
+          <div>{children}</div>
+          <Suspense fallback={<></>}>
+            <div>{modal}</div>
+          </Suspense>
+          <div id='modal'></div>
+        </Providers>
       </body>
     </html>
   );

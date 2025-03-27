@@ -1,22 +1,31 @@
-'use client';
-
 import { Header } from '@components';
+import { getProblemsByPublishId } from '@apis';
+import dayjs from 'dayjs';
 
 import { ProblemStatusCard } from '@/components/problem';
 
-const Page = () => {
+const Page = async ({ params }: { params: Promise<{ publishId: string }> }) => {
+  const { publishId } = await params;
+  const { date, problems, title } = await getProblemsByPublishId(publishId);
+  const publishDate = dayjs(date).format('MM월 DD일');
+
   return (
     <>
       <Header title='문제 리스트' />
       <main className='px-[2rem] pt-[6rem]'>
-        <p className='font-medium-16 mt-[3.2rem] text-black'>03월 21일 문제</p>
-        <h1 className='font-bold-18 text-main mt-[0.8rem]'>
-          점과 직선 사이의 거리 톺아보기 어쩌고 두줄짜리 제목목목모곰목
-        </h1>
+        <p className='font-medium-16 mt-[3.2rem] text-black'>{publishDate} 문제</p>
+        <h1 className='font-bold-18 text-main mt-[0.8rem]'>{title}</h1>
         <div className='mt-[3.2rem] flex flex-col gap-[1.6rem]'>
-          <ProblemStatusCard title='메인 문제 1번' />
-          <ProblemStatusCard title='메인 문제 2번' />
-          <ProblemStatusCard title='메인 문제 3번' />
+          {problems?.map((problem, index) => {
+            return (
+              <ProblemStatusCard
+                key={problem.problemId}
+                mainProblemNumber={index + 1}
+                publishId={publishId}
+                problemData={problem}
+              />
+            );
+          })}
         </div>
       </main>
     </>

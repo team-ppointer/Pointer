@@ -1,6 +1,13 @@
-import Modal from './Modal';
+import PortalModal from './PortalModal';
+import RouteModal from './RouteModal';
 import BaseModalTemplate from './templates/BaseModalTemplate';
-import CorrectModalTemplate from './templates/CorrectModalTemplate';
+import AnswerCheckModalTemplate from './templates/AnswerCheckModalTemplate';
 import TwoButtonModalTemplate from './templates/TwoButtonModalTemplate';
 
-export { Modal, BaseModalTemplate, CorrectModalTemplate, TwoButtonModalTemplate };
+export {
+  PortalModal,
+  RouteModal,
+  BaseModalTemplate,
+  AnswerCheckModalTemplate,
+  TwoButtonModalTemplate,
+};

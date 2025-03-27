@@ -2,58 +2,75 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import { Button, Divider, Tag } from '@components';
 import { IcSolve } from '@svg';
+import { components } from '@schema';
+import Link from 'next/link';
 
 dayjs.locale('ko');
 
+const answerStatusLabel = (status: string) => {
+  switch (status) {
+    case 'CORRECT':
+    case 'RETRY_CORRECT':
+      return '완료';
+    case 'INCORRECT':
+      return '진행중';
+    default:
+      return '미완료';
+  }
+};
+const answerStatusColor = (status: string) => {
+  switch (status) {
+    case 'CORRECT':
+    case 'RETRY_CORRECT':
+      return 'green';
+    case 'INCORRECT':
+      return 'red';
+    default:
+      return 'gray';
+  }
+};
+
+type AllProblemGetResponse = components['schemas']['AllProblemGetResponse'];
 interface DayProblemCardProps {
-  date: dayjs.Dayjs;
-  selectedDay: number;
+  dayProblemData: AllProblemGetResponse;
 }
 
-const DayProblemCard = ({ date, selectedDay }: DayProblemCardProps) => {
-  const month = date.month() + 1;
-  const day = selectedDay;
-  const dayOfWeek = date.date(day).format('dd');
+const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
+  const { publishId, date, progress, problemStatuses, mainProblemImageUrl } = dayProblemData;
+  const progressLabel =
+    progress === 'COMPLETE' ? '완료' : progress === 'IN_PROGRESS' ? '진행중' : '미완료';
+  const progressColor =
+    progress === 'COMPLETE' ? 'green' : progress === 'IN_PROGRESS' ? 'red' : 'gray';
+
+  const dayOfWeek = dayjs(date).format('ddd요일');
+  const dateFormatted = dayjs(date).format('M월 DD일');
 
   return (
     <div className='flex max-h-full w-full flex-col justify-between rounded-[16px] bg-white px-[3.2rem] py-[2.4rem]'>
       <div className='flex flex-col gap-[1.6rem]'>
         <div className='flex items-center justify-between gap-[1.2rem]'>
-          <p className='font-medium-16 text-main'>{`${month}월 ${day}일 ${dayOfWeek}요일`}</p>
-          <Tag variant='red' sizeType='small'>
-            진행중
+          <p className='font-medium-16 text-main'>{`${dateFormatted} ${dayOfWeek}`}</p>
+          <Tag variant={progressColor} sizeType='small'>
+            {progressLabel}
           </Tag>
         </div>
         <Divider />
         <div className='flex gap-[2.4rem]'>
           <ul className='flex h-full flex-col gap-[1.6rem]'>
-            {[
-              {
-                num: 1,
-                status: '완료',
-              },
-              {
-                num: 2,
-                status: '진행중',
-              },
-              {
-                num: 3,
-                status: '미완료',
-              },
-            ].map((problem, index) => (
+            {(problemStatuses ?? []).map((problem, index) => (
               <li
                 key={index}
                 className='flex w-[15.7rem] items-center justify-between gap-[0.8rem]'>
-                <p className='font-medium-16 text-black'>{`메인문제 ${problem.num}번`}</p>
-                <Tag variant={problem.status === '완료' ? 'green' : 'red'} sizeType='small'>
-                  {problem.status}
+                <p className='font-medium-16 text-black'>{`메인문제 ${index + 1}번`}</p>
+                <Tag variant={answerStatusColor(problem)} sizeType='small'>
+                  {answerStatusLabel(problem)}
                 </Tag>
               </li>
             ))}
           </ul>
           <div className='flex flex-1 items-start justify-center'>
             <img
-              src={'https://placehold.co/100x100'}
+              src={mainProblemImageUrl}
               alt='문제 이미지'
               className='w-full max-w-[10rem] object-contain md:w-full md:max-w-[20rem]'
             />
@@ -61,10 +78,12 @@ const DayProblemCard = ({ date, selectedDay }: DayProblemCardProps) => {
         </div>
       </div>
 
-      <Button className='mt-[2.4rem]'>
-        <IcSolve width={24} height={24} />
-        문제 풀러 가기
-      </Button>
+      <Link href={`/problem/list/${publishId}`}>
+        <Button className='mt-[2.4rem]'>
+          <IcSolve width={24} height={24} />
+          문제 풀러 가기
+        </Button>
+      </Link>
     </div>
   );
 };

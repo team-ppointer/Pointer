@@ -5,6 +5,7 @@ import GuideButton from './GuideButton';
 import ProblemSwiper from './ProblemSwiper/ProblemSwiper';
 import ProblemCard from './ProblemCard/ProblemCard';
 import ProblemSecretCard from './ProblemCard/ProblemSecretCard';
+import ProblemEmptyCard from './ProblemCard/ProblemEmptyCard';
 
 export {
   HomeHeader,
@@ -14,4 +15,5 @@ export {
   ProblemSwiper,
   ProblemCard,
   ProblemSecretCard,
+  ProblemEmptyCard,
 };

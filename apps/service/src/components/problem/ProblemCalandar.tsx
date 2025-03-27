@@ -1,26 +1,52 @@
 'use client';
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import { IcNextBlack, IcPrevBlack } from '@svg';
+import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
+import { components } from '@schema';
+import { getProblemAll } from '@apis';
 
 import DayProblemCard from './DayProblemCard';
 
+type AllProblemGetResponse = components['schemas']['AllProblemGetResponse'];
+
 const ProblemCalandar = () => {
-  const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
+  const [currentDay, setCurrentDay] = useState(dayjs());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
-  const handleClickPrevMonth = () => setCurrentMonth(currentMonth.subtract(1, 'month'));
-  const handleClickNextMonth = () => setCurrentMonth(currentMonth.add(1, 'month'));
-  const handleClickCurrentMonth = () => setCurrentMonth(dayjs().startOf('month'));
+  const year = currentDay.year();
+  const month = currentDay.month() + 1;
 
-  const firstDayOfMonth = currentMonth.startOf('month').day(); // 1일 요일, 0: Sunday ~ 6: Saturday
+  // apis
+  const { data: publishedData } = getProblemAll({ year, month });
+
+  const publishedDataArray: AllProblemGetResponse[] = Array.from({ length: 32 }).map(() => ({}));
+  (publishedData?.data ?? []).forEach((data) => {
+    const date = dayjs(data.date);
+    const day = date.date();
+    publishedDataArray[day] = data;
+  });
+
+  const progressColor = (day: number) => {
+    const data = publishedDataArray[day];
+    if (Object.keys(data).length === 0) return 'bg-white border border-[2px] border-lightgray300';
+    if (data.progress === 'COMPLETE') return 'bg-main';
+    else if (data.progress === 'IN_PROGRESS') return 'bg-sub1';
+    else if (data.progress === 'INCOMPLETE') return 'bg-lightgray300';
+    return 'bg-white border border-[2px] border-lightgray300';
+  };
+
+  const handleClickPrevMonth = () => setCurrentDay(currentDay.subtract(1, 'month'));
+  const handleClickNextMonth = () => setCurrentDay(currentDay.add(1, 'month'));
+  const handleClickCurrentMonth = () => setCurrentDay(dayjs().startOf('month'));
+
+  const firstDayOfMonth = currentDay.startOf('month').day(); // 1일 요일, 0: Sunday ~ 6: Saturday
   const firstWeekdayOfMonth = firstDayOfMonth === 0 || firstDayOfMonth === 6 ? 1 : firstDayOfMonth;
 
-  const daysInMonth = currentMonth.daysInMonth();
+  const daysInMonth = currentDay.daysInMonth();
 
   const weekdaysArray: number[] = Array.from({ length: daysInMonth }, (_, i) => i + 1)
     .map((day) => {
-      const date = currentMonth.date(day);
+      const date = currentDay.date(day);
       const dayOfWeek = date.day(); // 0: 일요일, 6: 토요일
       if (dayOfWeek !== 0 && dayOfWeek !== 6) {
         return day;
@@ -28,12 +54,13 @@ const ProblemCalandar = () => {
       return null;
     })
     .filter((day) => day !== null);
+
   return (
     <div className='flex flex-col gap-[2.4rem] pt-[2rem]'>
       <div className='flex items-center justify-between'>
         <IcPrevBlack width={24} height={24} onClick={handleClickPrevMonth} />
         <p className='font-bold-18 text-main' onClick={handleClickCurrentMonth}>
-          {currentMonth.format('M월')} 진행도
+          {`${month}월`} 진행도
         </p>
         <IcNextBlack width={24} height={24} onClick={handleClickNextMonth} />
       </div>
@@ -56,9 +83,13 @@ const ProblemCalandar = () => {
               return (
                 <div
                   key={day}
-                  className='bg-main font-medium-16 flex h-[4.4rem] w-[4.4rem] items-center justify-center rounded-[16px] text-white'
+                  className={`font-medium-16 flex h-[4.4rem] w-[4.4rem] items-center justify-center rounded-[16px] text-white ${progressColor(day)}`}
                   onClick={() => setSelectedDay(day)}>
-                  {day}
+                  {Object.keys(publishedDataArray[day]).length === 0 ? (
+                    <IcMinus width={24} height={24} />
+                  ) : (
+                    <span>{day}</span>
+                  )}
                 </div>
               );
             })}
@@ -76,9 +107,17 @@ const ProblemCalandar = () => {
               <div className='bg-lightgray300 h-[1.4rem] w-[1.4rem] rounded-[5px]' />
               <p className='font-medium-12 text-midgray100'>미완료</p>
             </div>
+            <div className='flex items-center gap-[0.6rem]'>
+              <div className='border-lightgray300 flex h-[1.4rem] w-[1.4rem] items-center justify-center rounded-[5px] border bg-white'>
+                <IcMinusSmall width={7.6} height={7.6} />
+              </div>
+              <p className='font-medium-12 text-midgray100'>미출제</p>
+            </div>
           </div>
         </div>
-        {selectedDay && <DayProblemCard date={currentMonth} selectedDay={selectedDay} />}
+        {selectedDay && publishedDataArray[selectedDay].publishId && (
+          <DayProblemCard dayProblemData={publishedDataArray[selectedDay]} />
+        )}
       </div>
     </div>
   );

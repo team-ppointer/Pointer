@@ -1,24 +1,31 @@
-import { ProgressHeader, SolveButton, TimeTag } from '@components';
+import { getProblemThumbnail } from '@apis';
+import { ProgressHeader, TimeTag } from '@components';
 
-const Page = () => {
+import SolveButtonsClient from './SolveButtonsClient';
+
+const Page = async ({ params }: { params: Promise<{ publishId: string; problemId: string }> }) => {
+  const { publishId, problemId } = await params;
+
+  const { number, imageUrl, recommendedMinute, recommendedSecond } = await getProblemThumbnail(
+    publishId,
+    problemId
+  );
+
   return (
     <>
-      <ProgressHeader progress={10} />
+      <ProgressHeader progress={0} />
       <main className='p-[2rem] pt-[8rem]'>
         <div className='flex items-center justify-between'>
-          <h1 className='font-bold-18 text-main'>문제 1번</h1>
-          <TimeTag minutes={1} seconds={30} />
+          <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
+          <TimeTag minutes={recommendedMinute} seconds={recommendedSecond} />
         </div>
         <img
-          src='https://placehold.co/600x400'
-          alt='문제 1'
+          src={imageUrl}
+          alt={`메인 문제 ${number}번`}
           className='mt-[1.2rem] w-full object-contain'
         />
 
-        <div className='mt-[2rem] flex flex-col gap-[1.6rem] sm:flex-row'>
-          <SolveButton variant='direct' />
-          <SolveButton variant='step' />
-        </div>
+        <SolveButtonsClient publishId={publishId} problemId={problemId} />
       </main>
     </>
   );

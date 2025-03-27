@@ -11,13 +11,20 @@ import { TabMenu } from '@/components/report';
 const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
-  const { analysis, handWriting } = useReport();
+  const { problemNumber, answer, mainAnalysisImageUrl, mainHandwritingExplanationImageUrl } =
+    useReport();
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
   return (
     <>
       <ProgressHeader progress={33} />
       <main className='px-[2rem] py-[8rem]'>
-        <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 1번</h1>
+        <header className='flex items-center justify-between'>
+          <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {problemNumber}번</h1>
+          <div className='flex items-center gap-[0.8rem]'>
+            <span className='font-medium-16 text-black'>정답</span>
+            <span className='font-medium-16 text-main'>{answer}번</span>
+          </div>
+        </header>
         <div className='mt-[2.4rem] flex flex-col gap-[1.6rem]'>
           <TabMenu
             leftMenu='분석'
@@ -26,12 +33,12 @@ const Page = () => {
             onTabChange={(tab) => setSelectedTab(tab)}
           />
           <img
-            src={analysis}
+            src={mainAnalysisImageUrl}
             alt='analysis'
             className={`w-full rounded-[1.6rem] object-contain ${selectedTab === '분석' ? 'block' : 'hidden'}`}
           />
           <img
-            src={handWriting}
+            src={mainHandwritingExplanationImageUrl}
             alt='handWriting'
             className={`w-full rounded-[1.6rem] object-contain ${selectedTab === '손해설' ? 'block' : 'hidden'}`}
           />

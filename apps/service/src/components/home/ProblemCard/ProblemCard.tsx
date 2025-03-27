@@ -2,21 +2,18 @@ import { Button } from '@components';
 import { IcSolve } from '@svg';
 
 interface Props {
-  month: number;
-  day: number;
+  dateString: string;
   title: string;
   image: string;
   solvedCount: number;
 }
 
-const ProblemCard = ({ month, day, title, image, solvedCount }: Props) => {
+const ProblemCard = ({ dateString, title, image, solvedCount }: Props) => {
   return (
     <article
       className={`bg-sub2 flex h-full w-full flex-col justify-between rounded-[16px] p-[2.4rem]`}>
       <div className='flex flex-col items-start gap-[0.8rem]'>
-        <p className={`font-medium-16 text-black`}>
-          {month}월 {day}일 문제
-        </p>
+        <p className={`font-medium-16 text-black`}>{dateString} 문제</p>
         <h3 className={`font-bold-20 text-main line-clamp-2 h-[6rem]`}>{title}</h3>
       </div>
       <div className='relative'>

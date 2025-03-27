@@ -1,32 +1,32 @@
 import { IcTagCorrect, IcTagIncorrect, IcTagRetried, IcTagInprogress } from '@svg';
 
 interface Props {
-  status: 'correct' | 'incorrect' | 'retried' | 'inProgress' | 'notStarted';
+  status: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'IN_PROGRESS' | 'NOT_STARTED';
 }
 
 const StatusTag = ({ status }: Props) => {
   const statusIcon = {
-    correct: <IcTagCorrect width={16} height={16} />,
-    incorrect: <IcTagIncorrect width={16} height={16} />,
-    retried: <IcTagRetried width={16} height={16} />,
-    inProgress: <IcTagInprogress width={16} height={16} />,
-    notStarted: <></>,
+    CORRECT: <IcTagCorrect width={16} height={16} />,
+    INCORRECT: <IcTagIncorrect width={16} height={16} />,
+    RETRY_CORRECT: <IcTagRetried width={16} height={16} />,
+    IN_PROGRESS: <IcTagInprogress width={16} height={16} />,
+    NOT_STARTED: <></>,
   };
 
   const statusLabel = {
-    correct: '정답',
-    incorrect: '오답',
-    retried: '정답',
-    inProgress: '진행중',
-    notStarted: '시작전',
+    CORRECT: '정답',
+    INCORRECT: '오답',
+    RETRY_CORRECT: '정답',
+    IN_PROGRESS: '진행중',
+    NOT_STARTED: '시작전',
   };
 
   const statusColor = {
-    correct: 'bg-sub2 text-blue',
-    incorrect: 'bg-lightred text-red',
-    retried: 'bg-lightyellow text-yellow',
-    inProgress: 'bg-lightgreen text-green',
-    notStarted: 'bg-lightgray300 text-lightgray500',
+    CORRECT: 'bg-sub2 text-blue',
+    INCORRECT: 'bg-lightred text-red',
+    RETRY_CORRECT: 'bg-lightyellow text-yellow',
+    IN_PROGRESS: 'bg-lightgreen text-green',
+    NOT_STARTED: 'bg-lightgray300 text-lightgray500',
   };
 
   return (

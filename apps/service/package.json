@@ -10,15 +10,20 @@
     "openapi": "pnpm dlx openapi-typescript https://dev.math-pointer.com/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.66.0",
+    "@tanstack/react-query-devtools": "^5.66.0",
     "dayjs": "^1.11.13",
     "next": "15.1.4",
     "openapi-fetch": "^0.13.4",
+    "openapi-react-query": "^0.3.0",
     "react": "^19",
     "react-dom": "^19",
+    "react-hook-form": "^7.54.2",
     "swiper": "^11.2.5"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@tanstack/eslint-plugin-query": "^5.66.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

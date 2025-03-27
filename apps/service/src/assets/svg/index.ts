@@ -8,6 +8,8 @@ export { default as IcIncorrect } from './IcIncorrect';
 export { default as IcKakao } from './IcKakao';
 export { default as IcLeft } from './IcLeft';
 export { default as IcList } from './IcList';
+export { default as IcMinusSmall } from './IcMinusSmall';
+export { default as IcMinus } from './IcMinus';
 export { default as IcNextBlack } from './IcNextBlack';
 export { default as IcNext } from './IcNext';
 export { default as IcNotice } from './IcNotice';

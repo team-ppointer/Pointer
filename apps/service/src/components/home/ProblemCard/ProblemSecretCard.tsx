@@ -3,18 +3,15 @@ import { IcSolve } from '@svg';
 import { IcSecret } from '@svg';
 
 interface Props {
-  month: number;
-  day: number;
+  dateString: string;
 }
 
-const ProblemSecretCard = ({ month, day }: Props) => {
+const ProblemSecretCard = ({ dateString }: Props) => {
   return (
     <article
       className={`bg-lightgray300 flex h-full w-full flex-col justify-between rounded-[16px] p-[2.4rem]`}>
       <div className='flex flex-col items-start gap-[0.8rem]'>
-        <p className={`font-medium-16 text-lightgray500`}>
-          {month}월 {day}일 문제
-        </p>
+        <p className={`font-medium-16 text-lightgray500`}>{dateString} 문제</p>
         <h3 className={`font-bold-20 text-lightgray500 line-clamp-2 h-[6rem]`}>
           아직 미공개 문제예요
         </h3>

@@ -1,8 +1,18 @@
 'use client';
 
-import { AnswerInput, Button, NavigationFooter, ProgressHeader, SmallButton } from '@components';
+import { NavigationFooter, ProgressHeader, SmallButton } from '@components';
 
-const Page = () => {
+import { AnswerInputForm } from '@/components/problem';
+
+type Params = {
+  publishId: string;
+  problemId: string;
+  childProblemId: string;
+};
+
+const Page = async ({ params }: { params: Promise<Params> }) => {
+  const { publishId, problemId, childProblemId } = await params;
+
   return (
     <>
       <ProgressHeader progress={10} />
@@ -23,14 +33,15 @@ const Page = () => {
         </div>
 
         <div className='w-full'>
-          <h3 className='font-bold-16 text-black'>정답 선택</h3>
-
-          <div className='mt-[1.2rem] flex flex-col gap-[2rem] lg:flex-row'>
-            <AnswerInput answerType='MULTIPLE_CHOICE' selectedAnswer='' />
-            <Button>제출하기</Button>
-          </div>
+          <AnswerInputForm
+            publishId={publishId}
+            problemId={problemId}
+            childProblemId={childProblemId}
+            answerType={'SHORT_ANSWER'}
+          />
         </div>
       </main>
+
       <NavigationFooter
         prevLabel='이전'
         nextLabel='다음'
