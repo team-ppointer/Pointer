@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 const childProblemIds: string[] = ['9', '10', '11'];
 
 export interface ChildProblemContextType {
+  childProblemLength: number;
   mainProblemImageUrl: string;
   onPrev: () => void;
   onNext: () => void;
@@ -37,6 +38,7 @@ export const ChildProblemProvider = ({ children }: { children: React.ReactNode }
   };
 
   const contextValue: ChildProblemContextType = {
+    childProblemLength: childProblemIds.length,
     mainProblemImageUrl: '',
     onPrev,
     onNext,
