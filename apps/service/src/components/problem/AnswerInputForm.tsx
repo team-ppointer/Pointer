@@ -11,6 +11,7 @@ interface AnswerInputFormProps {
   problemId: string;
   childProblemId?: string;
   answerType?: ProblemAnswerType;
+  isSolved: boolean;
 }
 
 interface AnswerType {
@@ -22,6 +23,7 @@ const AnswerInputForm = ({
   problemId,
   answerType = 'MULTIPLE_CHOICE',
   childProblemId,
+  isSolved,
 }: AnswerInputFormProps) => {
   const { isOpen, openModal, closeModal } = useModal();
   const [result, setResult] = useState<ProblemStatus | undefined>();
@@ -47,9 +49,10 @@ const AnswerInputForm = ({
           <AnswerInput
             answerType={answerType}
             selectedAnswer={selectedAnswer}
+            disabled={isSolved}
             {...register('answer')}
           />
-          <Button>제출하기</Button>
+          <Button disabled={isSolved}>제출하기</Button>
         </div>
       </form>
       <PortalModal isOpen={isOpen} onClose={closeModal}>
