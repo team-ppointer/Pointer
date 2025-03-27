@@ -45,7 +45,6 @@ const ProblemSwiper = ({ problemSets }: ProblemSwiperProps) => {
   const initialSlide = problemSets.findIndex(
     (problem) => problem.date === dayjs().format('YYYY-MM-DD')
   );
-  console.log(initialSlide);
 
   if (initialSlide === -1) {
     return null;
