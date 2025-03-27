@@ -12,6 +12,7 @@ import {
   ProgressHeader,
   SmallButton,
   ChildAnswerCheckModalTemplate,
+  TwoButtonModalTemplate,
 } from '@components';
 import { useModal } from '@hooks';
 import { ProblemStatus } from '@types';
@@ -28,6 +29,12 @@ const Page = () => {
   const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
 
   const { isOpen, openModal, closeModal } = useModal();
+  const {
+    isOpen: isSkipModalOpen,
+    openModal: openSkipModal,
+    closeModal: closeSkipModal,
+  } = useModal();
+
   const [result, setResult] = useState<ProblemStatus | undefined>();
   const { register, handleSubmit, watch } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
@@ -54,6 +61,7 @@ const Page = () => {
       : `새끼 문제 ${problemNumber}-${childProblemNumber + 1}번`;
 
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
+  const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putChildProblemSubmit(publishId, childProblemId, answer);
@@ -63,6 +71,11 @@ const Page = () => {
     if (resultData) {
       openModal();
     }
+  };
+
+  const handleSkip = async () => {
+    await putChildProblemSkip(publishId, childProblemId);
+    onNext();
   };
 
   return (
@@ -109,7 +122,7 @@ const Page = () => {
         prevLabel={prevButtonLabel}
         nextLabel={nextButtonLabel}
         onClickPrev={onPrev}
-        onClickNext={onNext}
+        onClickNext={isSubmitted ? onNext : () => openSkipModal()}
       />
 
       <PortalModal isOpen={isOpen} onClose={closeModal}>
@@ -117,6 +130,15 @@ const Page = () => {
           result={result}
           onClose={closeModal}
           handleClickButton={onNext}
+        />
+      </PortalModal>
+      <PortalModal isOpen={isSkipModalOpen} onClose={closeSkipModal}>
+        <TwoButtonModalTemplate
+          text={`제출하지 않은 새끼 문제는\n오답 처리 돼요!`}
+          topButtonText='다시 풀어보기'
+          bottomButtonText='오답 처리 하고 넘어가기'
+          handleClickTopButton={closeSkipModal}
+          handleClickBottomButton={handleSkip}
         />
       </PortalModal>
     </>
