@@ -3,16 +3,16 @@ import { createContext, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getChildData } from '@apis';
 
-export interface ChildProblemContextType {
+export interface ProblemContextType {
   childProblemLength: number;
   mainProblemImageUrl: string;
   onPrev: () => void;
   onNext: () => void;
 }
 
-export const ChildProblemContext = createContext<ChildProblemContextType | null>(null);
+export const ProblemContext = createContext<ProblemContextType | null>(null);
 
-export const ChildProblemProvider = ({ children }: { children: React.ReactNode }) => {
+export const ProblemProvider = ({ children }: { children: React.ReactNode }) => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
   const router = useRouter();
   const [step, setStep] = useState<number>(0);
@@ -42,14 +42,12 @@ export const ChildProblemProvider = ({ children }: { children: React.ReactNode }
     }
   };
 
-  const contextValue: ChildProblemContextType = {
+  const contextValue: ProblemContextType = {
     childProblemLength: childProblemIds.length,
     mainProblemImageUrl: mainProblemImageUrl,
     onPrev,
     onNext,
   };
 
-  return (
-    <ChildProblemContext.Provider value={contextValue}>{children}</ChildProblemContext.Provider>
-  );
+  return <ProblemContext.Provider value={contextValue}>{children}</ProblemContext.Provider>;
 };

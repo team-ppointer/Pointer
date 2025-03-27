@@ -1,13 +1,11 @@
-'use client';
-
-import { ChildProblemProvider } from '@contexts';
+import { ProblemProvider } from '@contexts';
 
 const ChildProblemLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  return <ChildProblemProvider>{children}</ChildProblemProvider>;
+  return <ProblemProvider>{children}</ProblemProvider>;
 };
 
 export default ChildProblemLayout;

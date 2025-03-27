@@ -1,3 +1,3 @@
-import useChildProblemContext from './useChildProblemContext';
+import useChildProblemContext from './useProblemContext';
 
 export { useChildProblemContext };
