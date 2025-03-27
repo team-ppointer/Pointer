@@ -807,6 +807,11 @@ export interface components {
       childProblemId: number;
       answer?: string;
     };
+    ChildProblemSubmitUpdateResponse: {
+      /** @enum {string} */
+      status: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED';
+      answer: string;
+    };
     ChildProblemSubmitUpdateIncorrectRequest: {
       /** Format: int64 */
       publishId: number;
@@ -1374,8 +1379,7 @@ export interface operations {
         };
         content: {
           '*/*': {
-            /** @enum {string} */
-            data: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED';
+            data: components['schemas']['ChildProblemSubmitUpdateResponse'];
           };
         };
       };
