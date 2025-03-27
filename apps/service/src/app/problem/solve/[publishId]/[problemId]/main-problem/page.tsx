@@ -168,7 +168,11 @@ const Page = () => {
       />
 
       <PortalModal isOpen={isOpen} onClose={closeModal}>
-        <MainAnswerCheckModalTemplate result={result} onClose={closeModal} />
+        <MainAnswerCheckModalTemplate
+          result={result}
+          onClose={closeModal}
+          handleClickButton={() => router.push(`/report/${publishId}/${problemId}/analysis`)}
+        />
       </PortalModal>
     </>
   );
