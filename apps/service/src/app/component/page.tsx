@@ -64,9 +64,9 @@ const Page = () => {
       <TimeTag minutes={1} seconds={30} />
 
       <div className='flex gap-[0.4rem]'>
-        <ProgressBox progress='notStarted' />
-        <ProgressBox progress='inProgress' />
-        <ProgressBox progress='completed' />
+        <ProgressBox progress='NOT_STARTED' />
+        <ProgressBox progress='IN_PROGRESS' />
+        <ProgressBox progress='COMPLETED' />
       </div>
       <GuideButton />
       <AnswerInput answerType='SHORT_ANSWER' selectedAnswer='1' />
