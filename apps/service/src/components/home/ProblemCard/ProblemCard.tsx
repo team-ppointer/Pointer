@@ -1,14 +1,16 @@
 import { Button } from '@components';
 import { IcSolve } from '@svg';
+import Link from 'next/link';
 
 interface Props {
+  publishId: number;
   dateString: string;
   title: string;
   image: string;
   solvedCount: number;
 }
 
-const ProblemCard = ({ dateString, title, image, solvedCount }: Props) => {
+const ProblemCard = ({ publishId, dateString, title, image, solvedCount }: Props) => {
   return (
     <article
       className={`bg-sub2 flex h-full w-full flex-col justify-between rounded-[16px] p-[2.4rem]`}>
@@ -33,10 +35,12 @@ const ProblemCard = ({ dateString, title, image, solvedCount }: Props) => {
             <strong className='text-main'>{solvedCount}명</strong>이 문제를 풀었어요!
           </span>
         </p>
-        <Button>
-          <IcSolve width={24} height={24} />
-          문제 풀러 가기
-        </Button>
+        <Link href={`/problem/list/${publishId}`}>
+          <Button>
+            <IcSolve width={24} height={24} />
+            문제 풀러 가기
+          </Button>
+        </Link>
       </div>
     </article>
   );

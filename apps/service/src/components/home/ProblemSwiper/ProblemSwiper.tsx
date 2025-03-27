@@ -16,7 +16,7 @@ interface ProblemSwiperProps {
 
 const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: string) => {
   // 문제가 없는 경우
-  if (problem.problemSetId === null || problem.problemSetId === undefined) {
+  if (problem.publishId === null || problem.publishId === undefined) {
     return <ProblemEmptyCard dateString={dateString} />;
   }
 
@@ -32,6 +32,7 @@ const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: stri
   // 공개된 일반 문제인 경우
   return (
     <ProblemCard
+      publishId={problem.publishId}
       dateString={dateString}
       title={problem.title ?? ''}
       image={problem.problemHomeFeedResponse?.mainProblemImageUrl ?? ''}
