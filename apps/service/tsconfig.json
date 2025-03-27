@@ -24,13 +24,10 @@
       "@svg": ["./src/assets/svg"],
       "@image": ["./public/image"],
       "@components": ["./src/components/common"],
-      "@contexts/*": ["./src/contexts/*"],
-      "@constants": ["./src/constants"],
-      "@hooks": ["./src/hooks"],
-      "@layouts": ["./src/layouts"],
-      "@schema": ["./src/types/api/schema.d.ts"],
-      "@styles/*": ["./src/styles/*"],
+      "@contexts": ["./src/contexts"],
+      "@hooks": ["./src/hooks/common"],
       "@types": ["./src/types"],
+      "@schema": ["./src/types/api/schema.d.ts"],
       "@utils": ["./src/utils"],
       "@/*": ["./src/*"]
     }
