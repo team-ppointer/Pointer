@@ -1,0 +1,43 @@
+import { IcCorrect, IcIncorrect } from '@svg';
+import { ProblemStatus } from '@types';
+
+import { SmallButton } from '../../Buttons';
+
+import BaseModalTemplate from './BaseModalTemplate';
+
+interface ChildAnswerCheckModalTemplateProps {
+  handleClickButton?: () => void;
+  onClose: () => void;
+  result: ProblemStatus | undefined;
+}
+
+const ChildAnswerCheckModalTemplate = ({
+  handleClickButton,
+  result,
+  onClose,
+}: ChildAnswerCheckModalTemplateProps) => {
+  if (!result) return null;
+  const isCorrect = result === 'CORRECT' || result === 'RETRY_CORRECT';
+
+  return (
+    <BaseModalTemplate>
+      <BaseModalTemplate.Content>
+        {isCorrect ? <IcCorrect width={48} height={48} /> : <IcIncorrect width={48} height={48} />}
+      </BaseModalTemplate.Content>
+      <BaseModalTemplate.Text text={isCorrect ? '정답이에요' : '오답이에요'} />
+      <BaseModalTemplate.ButtonSection>
+        <BaseModalTemplate.Button onClick={onClose}>다시 풀어보기</BaseModalTemplate.Button>
+        <BaseModalTemplate.Button onClick={handleClickButton} variant='light'>
+          다음 문제로 넘어가기
+        </BaseModalTemplate.Button>
+        {result === 'INCORRECT' && (
+          <SmallButton variant='underline' sizeType='small'>
+            정답 확인하기
+          </SmallButton>
+        )}
+      </BaseModalTemplate.ButtonSection>
+    </BaseModalTemplate>
+  );
+};
+
+export default ChildAnswerCheckModalTemplate;

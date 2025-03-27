@@ -5,17 +5,17 @@ import { SmallButton } from '../../Buttons';
 
 import BaseModalTemplate from './BaseModalTemplate';
 
-interface AnswerCheckModalTemplateProps {
+interface MainAnswerCheckModalTemplateProps {
   handleClickButton?: () => void;
   onClose: () => void;
   result: ProblemStatus | undefined;
 }
 
-const AnswerCheckModalTemplate = ({
+const MainAnswerCheckModalTemplate = ({
   handleClickButton,
   result,
   onClose,
-}: AnswerCheckModalTemplateProps) => {
+}: MainAnswerCheckModalTemplateProps) => {
   if (!result) return null;
   const isCorrect = result === 'CORRECT' || result === 'RETRY_CORRECT';
 
@@ -28,16 +28,11 @@ const AnswerCheckModalTemplate = ({
       <BaseModalTemplate.ButtonSection>
         <BaseModalTemplate.Button onClick={onClose}>다시 풀어보기</BaseModalTemplate.Button>
         <BaseModalTemplate.Button onClick={handleClickButton} variant='light'>
-          다음 문제로 넘어가기
+          해설 보기
         </BaseModalTemplate.Button>
-        {result === 'INCORRECT' && (
-          <SmallButton variant='underline' sizeType='small'>
-            정답 확인하기
-          </SmallButton>
-        )}
       </BaseModalTemplate.ButtonSection>
     </BaseModalTemplate>
   );
 };
 
-export default AnswerCheckModalTemplate;
+export default MainAnswerCheckModalTemplate;
