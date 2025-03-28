@@ -1,13 +1,12 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  // 환경 확인
   const isDevelopment =
     process.env.NODE_ENV === 'development' ||
     process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' ||
     process.env.NEXT_PUBLIC_VERCEL_ENV === 'development';
 
-  // 개발 환경에서는 모든 로봇 접근 차단
+  // 개발 환경이나 도메인이 dev를 포함하는 경우 크롤링 차단
   if (isDevelopment) {
     return {
       rules: {
@@ -17,7 +16,6 @@ export default function robots(): MetadataRoute.Robots {
     };
   }
 
-  // 상용 환경에서는 접근 허용 및 사이트맵 제공
   return {
     rules: {
       userAgent: '*',
