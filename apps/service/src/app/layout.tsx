@@ -8,6 +8,14 @@ import '../styles/globals.css';
 export const metadata: Metadata = {
   title: '포인터',
   description: '포인터',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 export const viewport: Viewport = {
