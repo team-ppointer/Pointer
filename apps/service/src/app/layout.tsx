@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 import Providers from './providers';
 
@@ -8,6 +8,13 @@ import '../styles/globals.css';
 export const metadata: Metadata = {
   title: '포인터',
   description: '포인터',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
