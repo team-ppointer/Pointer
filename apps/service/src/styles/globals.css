@@ -65,7 +65,7 @@
     font-family: var(--font-pretendard);
     overscroll-behavior: none;
     background-color: var(--color-background);
-    min-width: 37.5rem;
+    min-width: 375px;
   }
 
   body {
