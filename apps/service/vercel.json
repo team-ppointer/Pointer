@@ -1,8 +1,13 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "headers": [
     {
       "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.dev.math-pointer.com"
+        }
+      ],
       "headers": [
         {
           "key": "X-Robots-Tag",
