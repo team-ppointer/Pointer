@@ -31,14 +31,6 @@ export const metadata: Metadata = {
           follow: true,
         },
       },
-  openGraph: {
-    title: '포인터',
-    description: '포인터 - 여러분의 디지털 가이드',
-    url: 'https://www.math-pointer.com',
-    siteName: '포인터',
-    locale: 'ko_KR',
-    type: 'website',
-  },
 };
 
 export const viewport: Viewport = {
