@@ -1,4 +1,4 @@
-import { $api, deleteProblems, getConceptTags, getProblemsSearch } from '@apis';
+import { deleteProblems, getConceptTags, getProblemsSearch } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -11,9 +11,8 @@ import {
   TagSelectModal,
   TwoButtonModalTemplate,
 } from '@components';
-import { useModal } from '@hooks';
+import { useInvalidate, useModal } from '@hooks';
 import { IcDown } from '@svg';
-import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { getProblemsSearchParamsType } from '@types';
 import { useRef, useState } from 'react';
@@ -25,7 +24,7 @@ export const Route = createFileRoute('/_GNBLayout/problem/')({
 });
 
 function RouteComponent() {
-  const queryClient = useQueryClient();
+  const { invalidateAll } = useInvalidate();
 
   const { isOpen, openModal, closeModal } = useModal();
   const {
@@ -69,9 +68,7 @@ function RouteComponent() {
       {
         onSuccess: () => {
           closeDeleteModal();
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/problems/search').queryKey,
-          });
+          invalidateAll();
         },
       }
     );

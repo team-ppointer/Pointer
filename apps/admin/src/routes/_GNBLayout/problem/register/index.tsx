@@ -1,9 +1,9 @@
-import { $api, postProblems } from '@apis';
+import { postProblems } from '@apis';
 import { Button, Header, ProblemEssentialInput } from '@components';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Controller, useForm } from 'react-hook-form';
 import { components } from '@schema';
-import { useQueryClient } from '@tanstack/react-query';
+import { useInvalidate } from '@hooks';
 
 export const Route = createFileRoute('/_GNBLayout/problem/register/')({
   component: RouteComponent,
@@ -13,7 +13,7 @@ type ProblemPostRequest = components['schemas']['ProblemPostRequest'];
 
 function RouteComponent() {
   const { navigate } = useRouter();
-  const queryClient = useQueryClient();
+  const { invalidateAll } = useInvalidate();
 
   const { mutate } = postProblems();
   const {
@@ -40,9 +40,7 @@ function RouteComponent() {
       },
       {
         onSuccess: (data) => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/problems/search').queryKey,
-          });
+          invalidateAll();
           const { id } = data.data;
           navigate({ to: `/problem/${id}` });
         },

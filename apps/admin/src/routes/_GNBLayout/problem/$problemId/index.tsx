@@ -21,7 +21,6 @@ import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Controller, SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { produce } from 'immer';
 import {
-  $api,
   deleteChildProblem,
   deleteProblems,
   getConceptTags,
@@ -31,8 +30,7 @@ import {
 } from '@apis';
 import { useEffect, useState } from 'react';
 import { transformToProblemUpdateRequest } from '@utils';
-import { useQueryClient } from '@tanstack/react-query';
-import { useModal } from '@hooks';
+import { useInvalidate, useModal } from '@hooks';
 import { Slide, ToastContainer, toast } from 'react-toastify';
 
 export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
@@ -44,7 +42,7 @@ type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 
 function RouteComponent() {
   // hooks
-  const queryClient = useQueryClient();
+  const { invalidateAll } = useInvalidate();
   const { navigate } = useRouter();
   const { problemId } = Route.useParams();
   const { isOpen: isTagModalOpen, openModal: openTagModal, closeModal: closeTagModal } = useModal();
@@ -161,13 +159,7 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', `/api/v1/problems/{id}`, {
-              params: {
-                path: { id: Number(problemId) },
-              },
-            }).queryKey,
-          });
+          invalidateAll();
           toast.success('저장이 완료되었습니다');
         },
       }
@@ -185,9 +177,7 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/problems/search').queryKey,
-          });
+          invalidateAll();
           navigate({ to: '/problem' });
         },
       }

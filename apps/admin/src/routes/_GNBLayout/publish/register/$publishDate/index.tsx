@@ -1,4 +1,4 @@
-import { $api, getConfirmProblemSet, postPublish } from '@apis';
+import { getConfirmProblemSet, postPublish } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -8,7 +8,7 @@ import {
   SearchInput,
   SectionCard,
 } from '@components';
-import { useQueryClient } from '@tanstack/react-query';
+import { useInvalidate } from '@hooks';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { getSearchProblemSetParamsType } from '@types';
 import { useState } from 'react';
@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_GNBLayout/publish/register/$publishDate/
 });
 
 function RouteComponent() {
-  const queryClient = useQueryClient();
+  const { invalidatePublish } = useInvalidate();
   const { navigate } = useRouter();
   const { publishDate } = Route.useParams();
   const dateArr = publishDate.split('-');
@@ -62,16 +62,7 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/publish/{year}/{month}', {
-              params: {
-                path: {
-                  year: Number(year),
-                  month: Number(month),
-                },
-              },
-            }).queryKey,
-          });
+          invalidatePublish(Number(year), Number(month));
           navigate({ to: '/publish' });
         },
       }

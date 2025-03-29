@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { getProblemById, putProblemSubmit, TanstackQueryClient } from '@apis';
+import { getProblemById, putProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -14,9 +14,8 @@ import {
   SmallButton,
   NavigationFooter,
 } from '@components';
-import { useModal } from '@hooks';
+import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { useChildProblemContext } from '@/hooks/problem';
 
@@ -38,7 +37,7 @@ const Page = () => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
   const router = useRouter();
   const { childProblemLength } = useChildProblemContext();
-  const queryClient = useQueryClient();
+  const { invalidateAll } = useInvalidate();
 
   const { isOpen, openModal, closeModal } = useModal();
   const [result, setResult] = useState<ProblemStatus | undefined>();
@@ -73,7 +72,7 @@ const Page = () => {
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putProblemSubmit(publishId, problemId, answer);
     const resultData = data?.data;
-    queryClient.invalidateQueries();
+    invalidateAll();
 
     setResult(resultData);
     if (resultData) {
