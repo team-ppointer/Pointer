@@ -1,4 +1,4 @@
-import { $api, deleteProblemSet, getSearchProblemSet, postProblemSet } from '@apis';
+import { deleteProblemSet, getSearchProblemSet, postProblemSet } from '@apis';
 import {
   Button,
   FloatingButton,
