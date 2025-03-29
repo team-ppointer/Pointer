@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import type { Metadata, Viewport } from 'next';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 import Providers from './providers';
 
@@ -57,6 +58,7 @@ export default function RootLayout({
           </Suspense>
           <div id='modal'></div>
         </Providers>
+        <GoogleAnalytics gaId='G-7C9ETDHB0G' />
       </body>
     </html>
   );
