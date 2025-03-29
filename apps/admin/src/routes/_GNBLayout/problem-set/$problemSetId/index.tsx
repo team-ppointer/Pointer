@@ -1,10 +1,4 @@
-import {
-  $api,
-  deleteProblemSet,
-  getProblemSetById,
-  putConfirmProblemSet,
-  putProblemSet,
-} from '@apis';
+import { deleteProblemSet, getProblemSetById, putConfirmProblemSet, putProblemSet } from '@apis';
 import {
   Button,
   ComponentWithLabel,
@@ -20,9 +14,8 @@ import {
   Tag,
   TwoButtonModalTemplate,
 } from '@components';
-import { useModal } from '@hooks';
+import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
-import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -50,7 +43,7 @@ type ErrorResponse = components['schemas']['ErrorResponse'];
 function RouteComponent() {
   const { problemSetId } = Route.useParams();
   const { navigate } = useRouter();
-  const queryClient = useQueryClient();
+  const { invalidateProblemSet } = useInvalidate();
 
   const [problemSummaries, setProblemSummaries] = useState<ProblemSummaryResponse[]>([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState<number>(0);
@@ -116,15 +109,7 @@ function RouteComponent() {
       },
       {
         onSuccess: (data) => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/problemSet/{problemSetId}', {
-              params: {
-                path: {
-                  problemSetId: Number(problemSetId),
-                },
-              },
-            }).queryKey,
-          });
+          invalidateProblemSet(Number(problemSetId));
           if (data.data === 'CONFIRMED') {
             toast.success('컨펌이 완료되었습니다');
           } else {
@@ -150,9 +135,7 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/problemSet/search').queryKey,
-          });
+          invalidateProblemSet(Number(problemSetId));
           navigate({ to: '/problem-set' });
         },
       }
@@ -284,15 +267,7 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/problemSet/{problemSetId}', {
-              params: {
-                path: {
-                  problemSetId: Number(problemSetId),
-                },
-              },
-            }).queryKey,
-          });
+          invalidateProblemSet(Number(problemSetId));
           toast.success('저장이 완료되었습니다');
           setIsSaved(true);
         },

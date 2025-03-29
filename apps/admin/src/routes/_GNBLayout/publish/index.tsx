@@ -3,9 +3,8 @@ import { IconButton, Modal, PlusButton, TwoButtonModalTemplate } from '@componen
 import { HTMLAttributes, useState } from 'react';
 import { IcDeleteSm } from '@svg';
 import { Link } from '@tanstack/react-router';
-import { $api, deletePublish, getPublish } from '@apis';
-import { useModal } from '@hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { deletePublish, getPublish } from '@apis';
+import { useInvalidate, useModal } from '@hooks';
 import dayjs from 'dayjs';
 
 import 'dayjs/locale/ko';
@@ -21,7 +20,7 @@ interface DayProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) => {
-  const queryClient = useQueryClient();
+  const { invalidatePublish } = useInvalidate();
   const {
     isOpen: isDeleteModalOpen,
     openModal: openDeleteModal,
@@ -57,16 +56,7 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) =>
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/publish/{year}/{month}', {
-              params: {
-                path: {
-                  year: dayjs(fullDate).year(),
-                  month: dayjs(fullDate).month() + 1,
-                },
-              },
-            }).queryKey,
-          });
+          invalidatePublish(dayjs(fullDate).year(), dayjs(fullDate).month() + 1);
           closeDeleteModal();
         },
       }

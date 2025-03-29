@@ -10,8 +10,7 @@ import {
   SectionCard,
   TwoButtonModalTemplate,
 } from '@components';
-import { useModal } from '@hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { useInvalidate, useModal } from '@hooks';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { getSearchProblemSetParamsType } from '@types';
 import { useRef, useState } from 'react';
@@ -22,7 +21,7 @@ export const Route = createFileRoute('/_GNBLayout/problem-set/')({
 });
 
 function RouteComponent() {
-  const queryClient = useQueryClient();
+  const { invalidateProblemSet } = useInvalidate();
   const { navigate } = useRouter();
 
   const [searchQuery, setSearchQuery] = useState<getSearchProblemSetParamsType>({});
@@ -70,9 +69,7 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: $api.queryOptions('get', '/api/v1/problemSet/search').queryKey,
-          });
+          invalidateProblemSet(deleteProblemSetId.current ?? 0);
           closeDeleteModal();
         },
       }
