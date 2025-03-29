@@ -9,19 +9,23 @@ const useInvalidate = () => {
   };
 
   const invalidateProblemSet = (problemSetId: number) => {
-    queryClient.invalidateQueries({
-      queryKey: [
-        $api.queryOptions('get', '/api/v1/problemSet/{problemSetId}', {
+    return Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/v1/problemSet/{problemSetId}', {
           params: {
             path: {
               problemSetId,
             },
           },
         }).queryKey,
-        $api.queryOptions('get', '/api/v1/problemSet/search').queryKey,
-        $api.queryOptions('get', '/api/v1/problemSet/confirm/search').queryKey,
-      ],
-    });
+      }),
+      queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/v1/problemSet/search').queryKey,
+      }),
+      queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/v1/problemSet/confirm/search').queryKey,
+      }),
+    ]);
   };
 
   const invalidatePublish = (year: number, month: number) => {
