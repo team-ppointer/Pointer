@@ -86,7 +86,7 @@ const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
       </div>
 
       <Link href={`/problem/list/${publishId}`}>
-        <Button className='mt-[2.4rem]'>
+        <Button className='mt-[3.2rem]'>
           <IcSolve width={24} height={24} />
           문제 풀러 가기
         </Button>
