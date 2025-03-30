@@ -57,7 +57,7 @@ const Page = () => {
               <PrescriptionCard
                 key={childProblemIndex}
                 status={childProblem.submitStatus}
-                title={`새끼 문항 ${problemNumber}-${childProblemIndex + 1}번`}
+                title={`새끼 문제 ${problemNumber}-${childProblemIndex + 1}번`}
                 onClick={() => handleClickChildPrescription(childProblemIndex)}
               />
             );
@@ -66,7 +66,7 @@ const Page = () => {
           <Divider />
           <PrescriptionCard
             status={mainProblem.submitStatus}
-            title={`메인 문항 ${problemNumber}번`}
+            title={`메인 문제 ${problemNumber}번`}
             onClick={handleClickMainPrescription}
           />
         </ul>
