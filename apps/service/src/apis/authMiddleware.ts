@@ -1,9 +1,8 @@
 'use client';
+import { getAccessToken, setAccessToken } from '@utils';
 import { Middleware } from 'openapi-fetch';
 
-import { getAccessToken, setAccessToken } from '@/contexts/AuthContext';
-
-const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login'];
+const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login', '/api/v1/auth/oauth/social-login'];
 
 const reissueToken = async () => {
   try {
@@ -20,7 +19,7 @@ const reissueToken = async () => {
     return accessToken;
   } catch (error) {
     console.error('Reissue failed:', error);
-    setAccessToken(null);
+    localStorage.removeItem('accessToken');
     window.location.href = '/login';
     return null;
   }

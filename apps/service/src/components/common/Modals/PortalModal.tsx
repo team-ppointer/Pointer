@@ -11,7 +11,7 @@ interface PortalModalProps {
 const potalElement =
   typeof window !== 'undefined' && (document.getElementById('modal') as HTMLElement);
 
-const PortalModal = ({ isOpen, onClose, children }: PortalModalProps) => {
+const PortalModal = ({ isOpen, onClose, children = null }: PortalModalProps) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';

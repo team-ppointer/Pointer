@@ -1,12 +1,15 @@
 'use client';
 import { useTrackEvent } from '@hooks';
+import { getAccessToken } from '@utils';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { LogoLogin } from '@/assets/svg/logo';
 import { KakaoButton } from '@/components/login';
 
 const Page = () => {
   const { trackEvent } = useTrackEvent();
-
+  const router = useRouter();
   const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${
     process.env.NEXT_PUBLIC_REST_API_KEY
   }&redirect_uri=${process.env.NEXT_PUBLIC_REDIRECT_URI}&response_type=code`;
@@ -15,6 +18,13 @@ const Page = () => {
     trackEvent('kakao_login_click');
     window.location.replace(kakaoLoginUrl);
   };
+
+  useEffect(() => {
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      router.replace('/');
+    }
+  }, []);
 
   return (
     <div className='mx-auto flex h-[100dvh] w-[33.5rem] flex-col pb-[2rem]'>
