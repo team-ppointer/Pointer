@@ -54,7 +54,7 @@ const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
     <div className='flex max-h-full w-full flex-col justify-between rounded-[16px] bg-white px-[3.2rem] py-[2.4rem]'>
       <div className='flex flex-col gap-[1.6rem]'>
         <div className='flex items-center justify-between gap-[1.2rem]'>
-          <p className='font-medium-16 text-main'>{`${dateFormatted} ${dayOfWeek}`}</p>
+          <p className='font-bold-18 text-main'>{`${dateFormatted} ${dayOfWeek}`}</p>
           <Tag variant={progressColor} sizeType='small'>
             {progressLabel}
           </Tag>
