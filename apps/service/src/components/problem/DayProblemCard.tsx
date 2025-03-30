@@ -1,10 +1,12 @@
 import dayjs from 'dayjs';
-import 'dayjs/locale/ko';
+import Link from 'next/link';
+import Image from 'next/image';
+
 import { Button, Divider, Tag } from '@components';
 import { IcSolve } from '@svg';
 import { components } from '@schema';
-import Link from 'next/link';
 
+import 'dayjs/locale/ko';
 dayjs.locale('ko');
 
 const answerStatusLabel = (status: string) => {
@@ -53,7 +55,7 @@ const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
     <div className='flex max-h-full w-full flex-col justify-between rounded-[16px] bg-white px-[3.2rem] py-[2.4rem]'>
       <div className='flex flex-col gap-[1.6rem]'>
         <div className='flex items-center justify-between gap-[1.2rem]'>
-          <p className='font-medium-16 text-main'>{`${dateFormatted} ${dayOfWeek}`}</p>
+          <p className='font-bold-18 text-main'>{`${dateFormatted} ${dayOfWeek}`}</p>
           <Tag variant={progressColor} sizeType='small'>
             {progressLabel}
           </Tag>
@@ -73,17 +75,19 @@ const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
             ))}
           </ul>
           <div className='flex flex-1 items-start justify-center'>
-            <img
-              src={mainProblemImageUrl}
+            <Image
+              src={mainProblemImageUrl ?? ''}
               alt='문제 이미지'
-              className='w-full max-w-[10rem] object-contain md:w-full md:max-w-[20rem]'
+              className='w-full max-w-[20rem] object-contain md:w-full md:max-w-[20rem]'
+              width={200}
+              height={100}
             />
           </div>
         </div>
       </div>
 
       <Link href={`/problem/list/${publishId}`}>
-        <Button className='mt-[2.4rem]'>
+        <Button className='mt-[3.2rem]'>
           <IcSolve width={24} height={24} />
           문제 풀러 가기
         </Button>

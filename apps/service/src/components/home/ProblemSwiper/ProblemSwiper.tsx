@@ -1,9 +1,9 @@
 'use client';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
-import { components } from '@schema';
 import dayjs from 'dayjs';
 
+import { components } from '@schema';
 import { ProblemCard, ProblemSecretCard, ProblemEmptyCard } from '@/components/home';
 
 import './ProblemSwiper.css';

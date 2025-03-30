@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { IcSetting } from '@svg';
 import { useEffect, useState } from 'react';
-import { getName } from '@utils';
 
+import { IcSetting } from '@svg';
+import { getName } from '@utils';
 import { LogoHeader } from '@/assets/svg/logo';
 
 const HomeHeader = () => {

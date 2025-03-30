@@ -1,17 +1,12 @@
 import { TanstackQueryClient } from '@apis';
 
-type GetCommentaryProps = {
-  publishId: string;
-  problemId: string;
-};
-
-const getCommentary = ({ publishId, problemId }: GetCommentaryProps) => {
+const useGetProblemById = (publishId: string, problemId: string) => {
   return TanstackQueryClient.useQuery(
     'get',
-    '/api/v1/client/commentary',
+    '/api/v1/client/problem/{publishId}/{problemId}',
     {
       params: {
-        query: {
+        path: {
           publishId: Number(publishId),
           problemId: Number(problemId),
         },
@@ -24,4 +19,4 @@ const getCommentary = ({ publishId, problemId }: GetCommentaryProps) => {
   );
 };
 
-export default getCommentary;
+export default useGetProblemById;

@@ -8,6 +8,7 @@ import ProgressBar from './ProgressBar';
 import NavigationFooter from './NavigationFooter';
 import Divider from './Divider';
 import ProgressHeader from './ProgressHeader';
+import ImageContainer from './ImageContainer';
 
 export * from './Buttons';
 export * from './Inputs';
@@ -24,4 +25,5 @@ export {
   NavigationFooter,
   Divider,
   ProgressHeader,
+  ImageContainer,
 };

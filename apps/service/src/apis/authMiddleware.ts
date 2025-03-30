@@ -1,6 +1,7 @@
 'use client';
-import { getAccessToken, setAccessToken } from '@utils';
 import { Middleware } from 'openapi-fetch';
+
+import { getAccessToken, setAccessToken } from '@utils';
 
 const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login', '/api/v1/auth/oauth/social-login'];
 
