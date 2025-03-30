@@ -1,14 +1,18 @@
+'use client';
+
 import Link from 'next/link';
 import { IcSetting } from '@svg';
+import { useEffect, useState } from 'react';
 
 import { LogoHeader } from '@/assets/svg/logo';
 
-interface HomeHeaderProps {
-  grade: number;
-  name: string;
-}
+const HomeHeader = () => {
+  const [name, setName] = useState<string | null>(null);
 
-const HomeHeader = ({ name }: HomeHeaderProps) => {
+  useEffect(() => {
+    setName(localStorage.getItem('name'));
+  }, []);
+
   return (
     <header className='bg-background fixed inset-0 z-40 flex h-[6rem] items-center justify-between px-[2rem]'>
       <Link href='/'>
@@ -19,7 +23,11 @@ const HomeHeader = ({ name }: HomeHeaderProps) => {
           {grade}학년
         </div> */}
         <div className='font-medium-14 text-black'>
-          <span className='text-main mr-[0.4rem]'>{name}</span>님
+          {name && (
+            <>
+              <span className='text-main mr-[0.4rem]'>{name}</span>님
+            </>
+          )}
         </div>
         <Link href='/my-page'>
           <IcSetting width={24} height={24} />
