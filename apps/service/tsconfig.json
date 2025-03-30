@@ -28,7 +28,7 @@
       "@hooks": ["./src/hooks/common"],
       "@types": ["./src/types"],
       "@schema": ["./src/types/api/schema.d.ts"],
-      "@utils": ["./src/utils"],
+      "@utils": ["./src/utils/common"],
       "@/*": ["./src/*"]
     }
   },

@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, StatusIcon, StatusTag } from '@components';
+import { useTrackEvent } from '@hooks';
 import { components } from '@schema';
 import { IcDown, IcUp } from '@svg';
 import { useRouter } from 'next/navigation';
@@ -21,11 +22,26 @@ const ProblemStatusCard = ({
 }: ProblemStatusCardProps) => {
   const { problemId, status, childProblemStatuses } = problemData;
   const router = useRouter();
+  const { trackEvent } = useTrackEvent();
   const [isOpen, setIsOpen] = useState(
     !childProblemStatuses?.every((childStatus) => childStatus === 'NOT_STARTED')
   );
 
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
+
+  const handleClickSolveButton = () => {
+    trackEvent('problem_list_card_solve_button_click', {
+      problemId: problemId ?? '',
+    });
+    router.push(`/problem/solve/${publishId}/${problemId}`);
+  };
+
+  const handleClickReportButton = () => {
+    trackEvent('problem_list_card_report_button_click', {
+      problemId: problemId ?? '',
+    });
+    router.push(`/report/${publishId}/${problemId}/analysis`);
+  };
 
   return (
     <article className='rounded-[16px] bg-white p-[2rem]'>
@@ -34,11 +50,9 @@ const ProblemStatusCard = ({
           <h2 className='font-bold-16 text-main w-[10rem]'>메인 문제 {mainProblemNumber}번</h2>
           <StatusTag status={status ?? 'NOT_STARTED'} />
         </div>
-        {isOpen ? (
-          <IcUp width={24} height={24} onClick={() => setIsOpen((prev) => !prev)} />
-        ) : (
-          <IcDown width={24} height={24} onClick={() => setIsOpen((prev) => !prev)} />
-        )}
+        <div className='cursor-pointer' onClick={() => setIsOpen((prev) => !prev)}>
+          {isOpen ? <IcUp width={24} height={24} /> : <IcDown width={24} height={24} />}
+        </div>
       </header>
 
       {isOpen && (
@@ -55,16 +69,10 @@ const ProblemStatusCard = ({
       )}
 
       <div className='mt-[1.6rem] flex gap-[0.8rem]'>
-        <Button
-          variant={isSolved ? 'light' : 'blue'}
-          onClick={() => router.push(`/problem/solve/${publishId}/${problemId}`)}>
+        <Button variant={isSolved ? 'light' : 'blue'} onClick={handleClickSolveButton}>
           문제 풀러 가기
         </Button>
-        {isSolved && (
-          <Button onClick={() => router.push(`/report/${publishId}/${problemId}/analysis`)}>
-            해설 보기
-          </Button>
-        )}
+        {isSolved && <Button onClick={handleClickReportButton}>해설 보기</Button>}
       </div>
     </article>
   );

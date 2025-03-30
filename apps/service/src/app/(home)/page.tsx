@@ -1,10 +1,11 @@
 'use client';
-import Link from 'next/link';
 import { Button } from '@components';
-import { IcSearch } from '@svg';
+import { IcCalendar } from '@svg';
 import { getHomeFeed } from '@apis';
 import dayjs from 'dayjs';
 import { DailyProgress } from '@types';
+import { useTrackEvent } from '@hooks';
+import { useRouter } from 'next/navigation';
 
 import {
   GuideButton,
@@ -15,6 +16,8 @@ import {
 } from '@/components/home';
 
 const Page = () => {
+  const router = useRouter();
+  const { trackEvent } = useTrackEvent();
   const { data } = getHomeFeed();
   const homeFeedData = data?.data;
 
@@ -25,6 +28,11 @@ const Page = () => {
   const endDate = dayjs(dailyProgresses?.[dailyProgresses.length - 1]?.date).format('DD');
   const progress: DailyProgress[] =
     dailyProgresses?.map((progress) => progress.progressStatus ?? 'NOT_STARTED') ?? [];
+
+  const handleClickAllProblem = () => {
+    trackEvent('home_all_problem_button_click');
+    router.push('/problem/calandar');
+  };
 
   return (
     <>
@@ -43,12 +51,10 @@ const Page = () => {
         <ProblemSwiper problemSets={problemSets ?? []} />
       </div>
       <footer className='bg-background mt-[2.4rem] px-[2rem] pb-[3.3rem]'>
-        <Link href='/problem/calandar'>
-          <Button variant='light'>
-            <IcSearch width={24} height={24} />
-            전체 문제 보기
-          </Button>
-        </Link>
+        <Button variant='light' onClick={handleClickAllProblem}>
+          <IcCalendar width={24} height={24} />
+          날짜별로 보기
+        </Button>
       </footer>
     </>
   );

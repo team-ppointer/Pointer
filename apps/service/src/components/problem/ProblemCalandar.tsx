@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
 import { components } from '@schema';
 import { getProblemAll } from '@apis';
+import { useTrackEvent } from '@hooks';
 
 import DayProblemCard from './DayProblemCard';
 
@@ -12,7 +13,7 @@ type AllProblemGetResponse = components['schemas']['AllProblemGetResponse'];
 const ProblemCalandar = () => {
   const [currentDay, setCurrentDay] = useState(dayjs());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-
+  const { trackEvent } = useTrackEvent();
   const year = currentDay.year();
   const month = currentDay.month() + 1;
 
@@ -35,9 +36,18 @@ const ProblemCalandar = () => {
     return 'bg-white border border-[2px] border-lightgray300';
   };
 
-  const handleClickPrevMonth = () => setCurrentDay(currentDay.subtract(1, 'month'));
-  const handleClickNextMonth = () => setCurrentDay(currentDay.add(1, 'month'));
-  const handleClickCurrentMonth = () => setCurrentDay(dayjs().startOf('month'));
+  const handleClickPrevMonth = () => {
+    trackEvent('problem_calandar_prev_month');
+    setCurrentDay(currentDay.subtract(1, 'month'));
+  };
+  const handleClickNextMonth = () => {
+    trackEvent('problem_calandar_next_month');
+    setCurrentDay(currentDay.add(1, 'month'));
+  };
+  const handleClickCurrentMonth = () => {
+    trackEvent('problem_calandar_current_month');
+    setCurrentDay(dayjs().startOf('month'));
+  };
 
   const firstDayOfMonth = currentDay.startOf('month').day(); // 1일 요일, 0: Sunday ~ 6: Saturday
   const firstWeekdayOfMonth = firstDayOfMonth === 0 || firstDayOfMonth === 6 ? 1 : firstDayOfMonth;
@@ -55,11 +65,19 @@ const ProblemCalandar = () => {
     })
     .filter((day) => day !== null);
 
+  const handleClickDay = (day: number) => {
+    trackEvent('problem_calandar_day_click', {
+      today: dayjs().format('YYYY-MM-DD'),
+      day,
+    });
+    setSelectedDay(day);
+  };
+
   return (
     <div className='flex flex-col gap-[2.4rem] pt-[2rem]'>
       <div className='flex items-center justify-between'>
         <IcPrevBlack width={24} height={24} onClick={handleClickPrevMonth} />
-        <p className='font-bold-18 text-main' onClick={handleClickCurrentMonth}>
+        <p className='font-bold-18 text-main cursor-pointer' onClick={handleClickCurrentMonth}>
           {`${month}월`} 진행도
         </p>
         <IcNextBlack width={24} height={24} onClick={handleClickNextMonth} />
@@ -84,7 +102,7 @@ const ProblemCalandar = () => {
                 <div
                   key={day}
                   className={`font-medium-16 flex h-[4.4rem] w-[4.4rem] items-center justify-center rounded-[16px] text-white ${progressColor(day)}`}
-                  onClick={() => setSelectedDay(day)}>
+                  onClick={() => handleClickDay(day)}>
                   {Object.keys(publishedDataArray[day]).length === 0 ? (
                     <IcMinus width={24} height={24} />
                   ) : (

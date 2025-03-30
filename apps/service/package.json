@@ -10,6 +10,7 @@
     "openapi": "pnpm dlx openapi-typescript https://dev.math-pointer.com/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
   },
   "dependencies": {
+    "@next/third-parties": "^15.2.4",
     "@tanstack/react-query": "^5.66.0",
     "@tanstack/react-query-devtools": "^5.66.0",
     "dayjs": "^1.11.13",

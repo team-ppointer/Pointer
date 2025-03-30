@@ -42,13 +42,9 @@ const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: stri
 };
 
 const ProblemSwiper = ({ problemSets }: ProblemSwiperProps) => {
-  const initialSlide = problemSets.findIndex(
-    (problem) => problem.date === dayjs().format('YYYY-MM-DD')
-  );
+  const dayOfWeek = dayjs().day();
 
-  if (initialSlide === -1) {
-    return null;
-  }
+  const initialSlide = dayOfWeek === 0 || dayOfWeek === 6 ? 4 : dayOfWeek - 1;
 
   return (
     <Swiper
