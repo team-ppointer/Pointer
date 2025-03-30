@@ -2,6 +2,7 @@
 import { SolveButton } from '@components';
 import { getChildData, postChildProblemSubmit, postProblemSubmit } from '@apis';
 import { useRouter } from 'next/navigation';
+import { useTrackEvent } from '@hooks';
 
 interface SolveButtonsClientProps {
   publishId: string;
@@ -10,15 +11,18 @@ interface SolveButtonsClientProps {
 
 const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) => {
   const router = useRouter();
+  const { trackEvent } = useTrackEvent();
   const { data } = getChildData(publishId, problemId);
   const childProblemId = data?.data?.childProblemIds[0].toString();
 
   const handleClickDirect = async () => {
+    trackEvent('problem_solve_direct_button_click');
     await postProblemSubmit(publishId, problemId);
     router.push(`/problem/solve/${publishId}/${problemId}/main-problem`);
   };
 
   const handleClickStep = async () => {
+    trackEvent('problem_solve_step_button_click');
     await postChildProblemSubmit(publishId, problemId);
     router.push(`/problem/solve/${publishId}/${problemId}/child-problem/${childProblemId}`);
   };

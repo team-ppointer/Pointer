@@ -1,4 +1,5 @@
 'use client';
+import { useTrackEvent } from '@hooks';
 import { IcHome, IcLeft } from '@svg';
 import { useRouter } from 'next/navigation';
 
@@ -9,10 +10,17 @@ interface HeaderProps {
 
 const Header = ({ title, iconType = 'home' }: HeaderProps) => {
   const router = useRouter();
+  const { trackEvent } = useTrackEvent();
+
+  const handleClickHome = () => {
+    trackEvent('header_home_button_click');
+    router.push('/');
+  };
+
   return (
     <header className='bg-background fixed inset-0 z-40 flex h-[6rem] items-center justify-between px-[2rem]'>
-      <div className='flex w-1/6 items-center'>
-        {iconType === 'home' && <IcHome width={24} height={24} onClick={() => router.push('/')} />}
+      <div className='flex w-1/6 cursor-pointer items-center'>
+        {iconType === 'home' && <IcHome width={24} height={24} onClick={handleClickHome} />}
         {iconType === 'back' && <IcLeft width={24} height={24} onClick={() => router.back()} />}
       </div>
 

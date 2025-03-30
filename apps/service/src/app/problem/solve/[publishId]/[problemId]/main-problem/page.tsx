@@ -14,7 +14,7 @@ import {
   SmallButton,
   NavigationFooter,
 } from '@components';
-import { useInvalidate, useModal } from '@hooks';
+import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { ProblemStatus } from '@types';
 
 import { useChildProblemContext } from '@/hooks/problem';
@@ -36,6 +36,7 @@ const statusColor: Record<string, 'green' | 'red' | 'gray'> = {
 const Page = () => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
   const router = useRouter();
+  const { trackEvent } = useTrackEvent();
   const { childProblemLength } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
 
@@ -78,6 +79,28 @@ const Page = () => {
     if (resultData) {
       openModal();
     }
+  };
+
+  const handleClickPrev = () => {
+    trackEvent('problem_main_solve_footer_prev_button_click', {
+      buttonLabel: prevButtonLabel,
+    });
+    router.back();
+  };
+
+  const handleClickNext = () => {
+    trackEvent('problem_main_solve_footer_show_commentary_button_click');
+    router.push(`/report/${publishId}/${problemId}/analysis`);
+  };
+
+  const handleClickSolveAgain = () => {
+    trackEvent('problem_main_solve_check_modal_solve_again_button_click');
+    closeModal();
+  };
+
+  const handleClickShowReport = () => {
+    trackEvent('problem_main_solve_check_modal_commentary_button_click');
+    router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
   return (
@@ -144,17 +167,15 @@ const Page = () => {
       <NavigationFooter
         prevLabel={prevButtonLabel}
         nextLabel={isSubmitted ? nextButtonLabel : undefined}
-        onClickPrev={() => router.back()}
-        onClickNext={
-          isSubmitted ? () => router.push(`/report/${publishId}/${problemId}/analysis`) : undefined
-        }
+        onClickPrev={handleClickPrev}
+        onClickNext={isSubmitted ? handleClickNext : undefined}
       />
 
       <PortalModal isOpen={isOpen} onClose={closeModal}>
         <MainAnswerCheckModalTemplate
           result={result}
-          onClose={closeModal}
-          handleClickButton={() => router.push(`/report/${publishId}/${problemId}/analysis`)}
+          onClose={handleClickSolveAgain}
+          handleClickButton={handleClickShowReport}
         />
       </PortalModal>
     </>
