@@ -13,6 +13,7 @@ import {
   SmallButton,
   NavigationFooter,
   TimeTag,
+  ImageContainer,
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { ProblemStatus } from '@types';
@@ -135,7 +136,7 @@ const Page = () => {
               </Tag>
             )}
           </div>
-          <div className='mt-[1.2rem] rounded-[1.6rem] bg-white p-[1.6rem]'>
+          <ImageContainer className='mt-[1.2rem]'>
             <Image
               src={imageUrl ?? ''}
               alt={`메인 문제 ${number}번`}
@@ -144,7 +145,7 @@ const Page = () => {
               height={200}
               priority
             />
-          </div>
+          </ImageContainer>
 
           {isDirect && (
             <div className='mt-[0.6rem] flex items-center justify-end'>

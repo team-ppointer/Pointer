@@ -1,7 +1,7 @@
 'use client';
 
 import { getProblemThumbnail } from '@apis';
-import { ProgressHeader, TimeTag } from '@components';
+import { ImageContainer, ProgressHeader, TimeTag } from '@components';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 
@@ -25,7 +25,7 @@ const Page = () => {
           <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
           <TimeTag minutes={recommendedMinute} seconds={recommendedSecond} />
         </div>
-        <div className='mt-[1.2rem] rounded-[1.6rem] bg-white p-[1.6rem]'>
+        <ImageContainer className='mt-[1.2rem]'>
           <Image
             src={imageUrl ?? ''}
             alt={`메인 문제 ${number}번`}
@@ -34,7 +34,7 @@ const Page = () => {
             height={200}
             priority
           />
-        </div>
+        </ImageContainer>
 
         <SolveButtonsClient publishId={publishId} problemId={problemId} />
       </main>

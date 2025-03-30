@@ -15,6 +15,7 @@ import {
   TwoButtonModalTemplate,
   AnswerModalTemplate,
   Tag,
+  ImageContainer,
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { components } from '@schema';
@@ -163,7 +164,7 @@ const Page = () => {
               </Tag>
             )}
           </div>
-          <div className='mt-[1.2rem] rounded-[1.6rem] bg-white p-[1.6rem]'>
+          <ImageContainer className='mt-[1.2rem]'>
             <Image
               src={imageUrl ?? ''}
               alt={`새끼 문제 ${problemNumber}-${childProblemNumber}번`}
@@ -171,7 +172,7 @@ const Page = () => {
               width={700}
               height={200}
             />
-          </div>
+          </ImageContainer>
 
           <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end'>
             <SmallButton variant='underline' sizeType='small' onClick={handleClickShowMainProblem}>
