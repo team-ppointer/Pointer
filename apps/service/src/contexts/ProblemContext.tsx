@@ -2,7 +2,7 @@
 import { createContext, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-import { getChildData } from '@apis';
+import { useGetChildData } from '@apis';
 
 export interface ProblemContextType {
   childProblemLength: number;
@@ -19,7 +19,7 @@ export const ProblemProvider = ({ children }: { children: React.ReactNode }) => 
   const [step, setStep] = useState<number>(0);
 
   // api
-  const { data } = getChildData(publishId, problemId);
+  const { data } = useGetChildData(publishId, problemId);
   const childData = data?.data;
   const { mainProblemImageUrl = '', childProblemIds = [] } = childData ?? {};
 

@@ -1,9 +1,9 @@
-import useGetProblemAll from './getProblemAll';
-import useGetProblemById from './getProblemById';
-import useGetProblemsByPublishId from './getProblemsByPublishId';
-import useGetProblemThumbnail from './getProblemThumbnail';
-import useGetChildProblemById from './getChildProblemById';
-import useGetChildData from './getChildData';
+import useGetProblemAll from './useGetProblemAll';
+import useGetProblemById from './useGetProblemById';
+import useGetProblemsByPublishId from './useGetProblemsByPublishId';
+import useGetProblemThumbnail from './useGetProblemThumbnail';
+import useGetChildProblemById from './useGetChildProblemById';
+import useGetChildData from './useGetChildData';
 
 export {
   useGetProblemAll,

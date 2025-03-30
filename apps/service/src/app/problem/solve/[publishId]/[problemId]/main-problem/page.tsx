@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Image from 'next/image';
 
-import { getProblemById, putProblemSubmit } from '@apis';
+import { useGetProblemById, putProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -48,7 +48,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data, isLoading } = getProblemById(publishId, problemId);
+  const { data, isLoading } = useGetProblemById(publishId, problemId);
 
   const {
     number,

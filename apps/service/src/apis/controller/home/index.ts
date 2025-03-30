@@ -1,3 +1,3 @@
-import useGetHomeFeed from './getHomeFeed';
+import useGetHomeFeed from './useGetHomeFeed';
 
 export { useGetHomeFeed };
