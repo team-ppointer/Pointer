@@ -204,7 +204,7 @@ const Page = () => {
       </PortalModal>
       <PortalModal isOpen={isAnswerModalOpen} onClose={closeAnswerModal}>
         <AnswerModalTemplate
-          answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' && '번'}`}
+          answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' ? '번' : ''}`}
           handleClickButton={closeAnswerModal}
         />
       </PortalModal>
