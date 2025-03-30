@@ -14,8 +14,9 @@ import {
   ChildAnswerCheckModalTemplate,
   TwoButtonModalTemplate,
   AnswerModalTemplate,
+  Tag,
 } from '@components';
-import { useInvalidate, useModal } from '@hooks';
+import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { components } from '@schema';
 
 import { useChildProblemContext } from '@/hooks/problem';
@@ -29,6 +30,7 @@ const Page = () => {
     childProblemId: string;
   }>();
   const router = useRouter();
+  const { trackEvent } = useTrackEvent();
   const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
 
@@ -72,6 +74,11 @@ const Page = () => {
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
   const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
 
+  const handleClickShowMainProblem = () => {
+    trackEvent('problem_child_solve_show_main_problem_modal_button_click');
+    router.push(`/image-modal?imageUrl=${mainProblemImageUrl}`);
+  };
+
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putChildProblemSubmit(publishId, childProblemId, answer);
     const resultData = data?.data;
@@ -83,12 +90,49 @@ const Page = () => {
     }
   };
 
+  const handleClickPrev = () => {
+    trackEvent('problem_child_solve_footer_prev_button_click', {
+      buttonLabel: prevButtonLabel,
+    });
+    onPrev();
+  };
+
+  const handleClickNext = () => {
+    trackEvent('problem_child_solve_footer_next_button_click', {
+      buttonLabel: nextButtonLabel,
+    });
+    onNext();
+  };
+
+  const handleClickFooterSkipButton = () => {
+    trackEvent('problem_child_solve_footer_skip_button_click', {
+      buttonLabel: nextButtonLabel,
+    });
+    openSkipModal();
+  };
+
+  const handleClickCloseCheckModal = () => {
+    trackEvent('problem_child_solve_check_modal_close_button_click');
+    closeModal();
+  };
+
+  const handleClickNextProblemButton = () => {
+    trackEvent('problem_child_solve_check_modal_next_problem_button_click');
+    onNext();
+  };
+
   const handleClickShowAnswer = () => {
+    trackEvent('problem_child_solve_check_modal_show_answer_button_click');
     closeModal();
     openAnswerModal();
   };
+  const handleClickCloseSkipModal = () => {
+    trackEvent('problem_child_solve_skip_modal_close_button_click');
+    closeSkipModal();
+  };
 
-  const handleSkip = async () => {
+  const handleClickSkipButton = async () => {
+    trackEvent('problem_child_solve_modal_skip_button_click');
     await putChildProblemSkip(publishId, childProblemId);
     invalidateAll();
     onNext();
@@ -99,9 +143,21 @@ const Page = () => {
       <ProgressHeader progress={(childProblemNumber / (childProblemLength + 1)) * 100} />
       <main className='flex flex-col px-[2rem] py-[8rem] md:flex-row md:gap-[4rem]'>
         <div className='w-full'>
-          <h1 className='font-bold-18 text-main'>
-            새끼 문제 {problemNumber}-{childProblemNumber}번
-          </h1>
+          <div className='flex items-center justify-between'>
+            <h1 className='font-bold-18 text-main'>
+              새끼 문제 {problemNumber}-{childProblemNumber}번
+            </h1>
+            {isSolved && (
+              <Tag variant='green' sizeType='small'>
+                정답
+              </Tag>
+            )}
+            {status === 'INCORRECT' && (
+              <Tag variant='red' sizeType='small'>
+                오답
+              </Tag>
+            )}
+          </div>
           <img
             src={imageUrl}
             alt={`새끼 문제 ${problemNumber}-${childProblemNumber}번`}
@@ -109,10 +165,7 @@ const Page = () => {
           />
 
           <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end'>
-            <SmallButton
-              variant='underline'
-              sizeType='small'
-              onClick={() => router.push(`/image-modal?imageUrl=${mainProblemImageUrl}`)}>
+            <SmallButton variant='underline' sizeType='small' onClick={handleClickShowMainProblem}>
               메인 문제 다시보기
             </SmallButton>
           </div>
@@ -137,21 +190,21 @@ const Page = () => {
       <NavigationFooter
         prevLabel={prevButtonLabel}
         nextLabel={nextButtonLabel}
-        onClickPrev={onPrev}
-        onClickNext={isSubmitted ? onNext : () => openSkipModal()}
+        onClickPrev={handleClickPrev}
+        onClickNext={isSubmitted ? handleClickNext : handleClickFooterSkipButton}
       />
 
       <PortalModal isOpen={isOpen} onClose={closeModal}>
         <ChildAnswerCheckModalTemplate
           result={result}
-          onClose={closeModal}
-          handleClickButton={onNext}
+          onClose={handleClickCloseCheckModal}
+          handleClickButton={handleClickNextProblemButton}
           handleClickShowAnswer={handleClickShowAnswer}
         />
       </PortalModal>
       <PortalModal isOpen={isAnswerModalOpen} onClose={closeAnswerModal}>
         <AnswerModalTemplate
-          answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' && '번'}`}
+          answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' ? '번' : ''}`}
           handleClickButton={closeAnswerModal}
         />
       </PortalModal>
@@ -160,8 +213,8 @@ const Page = () => {
           text={`제출하지 않은 새끼 문제는\n오답 처리 돼요!`}
           topButtonText='다시 풀어보기'
           bottomButtonText='오답 처리 하고 넘어가기'
-          handleClickTopButton={closeSkipModal}
-          handleClickBottomButton={handleSkip}
+          handleClickTopButton={handleClickCloseSkipModal}
+          handleClickBottomButton={handleClickSkipButton}
         />
       </PortalModal>
     </>
