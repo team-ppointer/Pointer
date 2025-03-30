@@ -1,7 +1,7 @@
 'use client';
 
 import { client } from '@/apis/client';
-import { setAccessToken, setName } from '@/contexts/AuthContext';
+import { setAccessToken } from '@/contexts/AuthContext';
 
 const postKakaoAccessToken = async (code: string) => {
   const response = await fetch(`https://kauth.kakao.com/oauth/token`, {
@@ -33,12 +33,12 @@ const postKakaoLogin = async (code: string) => {
       response &&
       response.data &&
       response.data.data &&
-      // response.data.data.name &&
+      response.data.data.name &&
       response.data.data.accessToken
     ) {
       const { accessToken, name } = response.data.data;
       setAccessToken(accessToken);
-      setName(name || '');
+      localStorage.setItem('name', name);
 
       window.location.href = '/';
     } else {
