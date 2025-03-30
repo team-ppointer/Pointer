@@ -1,6 +1,6 @@
 import { TanstackQueryClient } from '@apis';
 
-const getProblemsByPublishId = (publishId: string) => {
+const useGetProblemsByPublishId = (publishId: string) => {
   return TanstackQueryClient.useQuery(
     'get',
     '/api/v1/client/problem/{publishId}',
@@ -18,4 +18,4 @@ const getProblemsByPublishId = (publishId: string) => {
   );
 };
 
-export default getProblemsByPublishId;
+export default useGetProblemsByPublishId;

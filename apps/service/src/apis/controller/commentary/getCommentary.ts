@@ -1,11 +1,11 @@
 import { TanstackQueryClient } from '@apis';
 
-type GetCommentaryProps = {
+type UseGetCommentaryProps = {
   publishId: string;
   problemId: string;
 };
 
-const getCommentary = ({ publishId, problemId }: GetCommentaryProps) => {
+const useGetCommentary = ({ publishId, problemId }: UseGetCommentaryProps) => {
   return TanstackQueryClient.useQuery(
     'get',
     '/api/v1/client/commentary',
@@ -24,4 +24,4 @@ const getCommentary = ({ publishId, problemId }: GetCommentaryProps) => {
   );
 };
 
-export default getCommentary;
+export default useGetCommentary;

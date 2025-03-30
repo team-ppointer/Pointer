@@ -1,3 +1,3 @@
-import getCommentary from './getCommentary';
+import useGetCommentary from './getCommentary';
 
-export { getCommentary };
+export { useGetCommentary };

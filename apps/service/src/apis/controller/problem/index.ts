@@ -1,15 +1,15 @@
-import getProblemAll from './getProblemAll';
-import getProblemById from './getProblemById';
-import getProblemsByPublishId from './getProblemsByPublishId';
-import getProblemThumbnail from './getProblemThumbnail';
-import getChildProblemById from './getChildProblemById';
-import getChildData from './getChildData';
+import useGetProblemAll from './getProblemAll';
+import useGetProblemById from './getProblemById';
+import useGetProblemsByPublishId from './getProblemsByPublishId';
+import useGetProblemThumbnail from './getProblemThumbnail';
+import useGetChildProblemById from './getChildProblemById';
+import useGetChildData from './getChildData';
 
 export {
-  getProblemAll,
-  getProblemById,
-  getProblemsByPublishId,
-  getProblemThumbnail,
-  getChildProblemById,
-  getChildData,
+  useGetProblemAll,
+  useGetProblemById,
+  useGetProblemsByPublishId,
+  useGetProblemThumbnail,
+  useGetChildProblemById,
+  useGetChildData,
 };
