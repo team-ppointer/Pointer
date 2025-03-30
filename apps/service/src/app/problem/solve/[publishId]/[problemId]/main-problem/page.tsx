@@ -142,25 +142,25 @@ const Page = () => {
               </SmallButton>
             </div>
           )}
-        </div>
 
-        {!isDirect && childProblemStatuses.length > 0 && (
-          <div className='mt-[2.4rem] w-full'>
-            <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
-            <div className='mt-[1.2rem] flex gap-[1.6rem]'>
-              {childProblemStatuses.map((childProblemStatus, index) => (
-                <div key={index} className='flex items-center gap-[0.6rem]'>
-                  <span className='font-medium-16 text-black'>
-                    {number}-{index + 1}번
-                  </span>
-                  <Tag variant={statusColor[childProblemStatus]}>
-                    {statusLabel[childProblemStatus]}
-                  </Tag>
-                </div>
-              ))}
+          {!isDirect && childProblemStatuses.length > 0 && (
+            <div className='mt-[2.4rem] w-full'>
+              <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
+              <div className='mt-[1.2rem] flex gap-[1.6rem]'>
+                {childProblemStatuses.map((childProblemStatus, index) => (
+                  <div key={index} className='flex items-center gap-[0.6rem]'>
+                    <span className='font-medium-16 text-black'>
+                      {number}-{index + 1}번
+                    </span>
+                    <Tag variant={statusColor[childProblemStatus]}>
+                      {statusLabel[childProblemStatus]}
+                    </Tag>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className='mt-[2.8rem] w-full'>
           <form onSubmit={handleSubmit(handleSubmitAnswer)}>
