@@ -876,6 +876,7 @@ export interface components {
     LoginResponse: {
       /** Format: int64 */
       memberId?: number;
+      name?: string;
       email?: string;
       accessToken?: string;
       refreshToken?: string;
