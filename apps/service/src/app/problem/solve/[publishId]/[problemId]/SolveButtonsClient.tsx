@@ -2,7 +2,7 @@
 import { SolveButton } from '@components';
 import { getChildData, postChildProblemSubmit, postProblemSubmit } from '@apis';
 import { useRouter } from 'next/navigation';
-import { useTrackEvent } from '@hooks';
+import { useInvalidate, useTrackEvent } from '@hooks';
 
 interface SolveButtonsClientProps {
   publishId: string;
@@ -11,26 +11,29 @@ interface SolveButtonsClientProps {
 
 const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) => {
   const router = useRouter();
+  const { invalidateAll } = useInvalidate();
   const { trackEvent } = useTrackEvent();
   const { data } = getChildData(publishId, problemId);
-  const childProblemId = data?.data?.childProblemIds[0].toString();
+  const childProblemId = data?.data?.childProblemIds[0];
 
   const handleClickDirect = async () => {
     trackEvent('problem_solve_direct_button_click');
     await postProblemSubmit(publishId, problemId);
+    invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}/main-problem`);
   };
 
   const handleClickStep = async () => {
     trackEvent('problem_solve_step_button_click');
     await postChildProblemSubmit(publishId, problemId);
+    invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}/child-problem/${childProblemId}`);
   };
 
   return (
     <div className='mt-[2rem] flex flex-col gap-[1.6rem] sm:flex-row'>
       <SolveButton variant='direct' onClick={handleClickDirect} />
-      <SolveButton variant='step' onClick={handleClickStep} />
+      {childProblemId && <SolveButton variant='step' onClick={handleClickStep} />}
     </div>
   );
 };

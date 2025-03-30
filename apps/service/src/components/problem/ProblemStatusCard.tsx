@@ -33,11 +33,7 @@ const ProblemStatusCard = ({
     trackEvent('problem_list_card_solve_button_click', {
       problemId: problemId ?? '',
     });
-    if (childProblemStatuses?.length === 0) {
-      router.push(`/problem/solve/${publishId}/${problemId}/main-problem`);
-    } else {
-      router.push(`/problem/solve/${publishId}/${problemId}`);
-    }
+    router.push(`/problem/solve/${publishId}/${problemId}`);
   };
 
   const handleClickReportButton = () => {

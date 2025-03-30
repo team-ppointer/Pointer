@@ -61,7 +61,7 @@ const Page = () => {
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
   const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
   const isDirect =
-    childProblemStatuses.length === 0 ||
+    childProblemStatuses.length > 0 &&
     childProblemStatuses[childProblemStatuses.length - 1] === 'NOT_STARTED';
 
   const prevButtonLabel = isDirect
