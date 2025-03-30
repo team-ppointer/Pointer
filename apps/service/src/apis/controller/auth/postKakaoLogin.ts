@@ -1,7 +1,5 @@
 'use client';
 
-import { redirect } from 'next/navigation';
-
 import { client } from '@/apis/client';
 import { setAccessToken, setName } from '@/contexts/AuthContext';
 
