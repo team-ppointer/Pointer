@@ -18,6 +18,7 @@ import {
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { components } from '@schema';
+import Image from 'next/image';
 
 import { useChildProblemContext } from '@/hooks/problem';
 
@@ -51,7 +52,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data } = getChildProblemById(publishId, problemId, childProblemId);
+  const { data, isLoading } = getChildProblemById(publishId, problemId, childProblemId);
   const {
     problemNumber,
     childProblemNumber = 1,
@@ -138,6 +139,10 @@ const Page = () => {
     onNext();
   };
 
+  if (isLoading) {
+    return <></>;
+  }
+
   return (
     <>
       <ProgressHeader progress={(childProblemNumber / (childProblemLength + 1)) * 100} />
@@ -158,11 +163,15 @@ const Page = () => {
               </Tag>
             )}
           </div>
-          <img
-            src={imageUrl}
-            alt={`새끼 문제 ${problemNumber}-${childProblemNumber}번`}
-            className='mt-[1.2rem] w-full object-contain'
-          />
+          <div className='mt-[1.2rem] rounded-[1.6rem] bg-white p-[1.6rem]'>
+            <Image
+              src={imageUrl ?? ''}
+              alt={`새끼 문제 ${problemNumber}-${childProblemNumber}번`}
+              className='w-full object-contain'
+              width={700}
+              height={200}
+            />
+          </div>
 
           <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end'>
             <SmallButton variant='underline' sizeType='small' onClick={handleClickShowMainProblem}>

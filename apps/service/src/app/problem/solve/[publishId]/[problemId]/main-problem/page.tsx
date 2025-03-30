@@ -16,6 +16,7 @@ import {
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { ProblemStatus } from '@types';
+import Image from 'next/image';
 
 import { useChildProblemContext } from '@/hooks/problem';
 
@@ -46,7 +47,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data } = getProblemById(publishId, problemId);
+  const { data, isLoading } = getProblemById(publishId, problemId);
 
   const {
     number,
@@ -109,6 +110,10 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
+  if (isLoading) {
+    return <></>;
+  }
+
   return (
     <>
       <ProgressHeader progress={100} />
@@ -130,11 +135,16 @@ const Page = () => {
               </Tag>
             )}
           </div>
-          <img
-            src={imageUrl}
-            alt={`메인 문제 ${number}번`}
-            className='mt-[1.2rem] w-full object-contain'
-          />
+          <div className='mt-[1.2rem] rounded-[1.6rem] bg-white p-[1.6rem]'>
+            <Image
+              src={imageUrl ?? ''}
+              alt={`메인 문제 ${number}번`}
+              className='w-full object-contain'
+              width={700}
+              height={200}
+              priority
+            />
+          </div>
 
           {isDirect && (
             <div className='mt-[0.6rem] flex items-center justify-end'>
