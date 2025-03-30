@@ -1,3 +1,4 @@
+export { default as IcCalendar } from './IcCalendar';
 export { default as IcCopy } from './IcCopy';
 export { default as IcCorrect } from './IcCorrect';
 export { default as IcDirect } from './IcDirect';
