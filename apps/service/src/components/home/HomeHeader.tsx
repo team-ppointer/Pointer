@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { IcSetting } from '@svg';
 import { useEffect, useState } from 'react';
+import { getName } from '@utils';
 
 import { LogoHeader } from '@/assets/svg/logo';
 
@@ -10,7 +11,7 @@ const HomeHeader = () => {
   const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
-    setName(localStorage.getItem('name'));
+    setName(getName());
   }, []);
 
   return (
