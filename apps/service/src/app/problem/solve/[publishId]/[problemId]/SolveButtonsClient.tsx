@@ -1,7 +1,8 @@
 'use client';
-import { SolveButton } from '@components';
-import { getChildData, postChildProblemSubmit, postProblemSubmit } from '@apis';
 import { useRouter } from 'next/navigation';
+
+import { SolveButton } from '@components';
+import { useGetChildData, postChildProblemSubmit, postProblemSubmit } from '@apis';
 import { useInvalidate, useTrackEvent } from '@hooks';
 
 interface SolveButtonsClientProps {
@@ -13,7 +14,7 @@ const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) =
   const router = useRouter();
   const { invalidateAll } = useInvalidate();
   const { trackEvent } = useTrackEvent();
-  const { data } = getChildData(publishId, problemId);
+  const { data } = useGetChildData(publishId, problemId);
   const childProblemId = data?.data?.childProblemIds[0];
 
   const handleClickDirect = async () => {

@@ -1,16 +1,17 @@
 'use client';
 
-import { getProblemThumbnail } from '@apis';
-import { ImageContainer, ProgressHeader, TimeTag } from '@components';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
+
+import { useGetProblemThumbnail } from '@apis';
+import { ImageContainer, ProgressHeader, TimeTag } from '@components';
 
 import SolveButtonsClient from './SolveButtonsClient';
 
 const Page = () => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
 
-  const { data, isLoading } = getProblemThumbnail(publishId, problemId);
+  const { data, isLoading } = useGetProblemThumbnail(publishId, problemId);
   const { number, imageUrl, recommendedMinute, recommendedSecond } = data?.data ?? {};
 
   if (isLoading) {

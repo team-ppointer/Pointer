@@ -1,5 +1,6 @@
-import { IcGuide } from '@svg';
 import Link from 'next/link';
+
+import { IcGuide } from '@svg';
 
 const GuideButton = () => {
   return (

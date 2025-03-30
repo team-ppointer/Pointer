@@ -1,9 +1,9 @@
 'use client';
 
-import { Header, ImageContainer } from '@components';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
+import { Header, ImageContainer } from '@components';
 import { useReportContext } from '@/hooks/report';
 
 const Page = () => {

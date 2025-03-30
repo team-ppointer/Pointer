@@ -1,6 +1,6 @@
 import { TanstackQueryClient } from '@apis';
 
-const getHomeFeed = () => {
+const useGetHomeFeed = () => {
   return TanstackQueryClient.useQuery(
     'get',
     '/api/v1/client/home-feed',
@@ -12,4 +12,4 @@ const getHomeFeed = () => {
   );
 };
 
-export default getHomeFeed;
+export default useGetHomeFeed;

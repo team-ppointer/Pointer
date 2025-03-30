@@ -1,12 +1,12 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import dayjs from 'dayjs';
+
 import { Button } from '@components';
 import { IcCalendar } from '@svg';
-import { getHomeFeed } from '@apis';
-import dayjs from 'dayjs';
+import { useGetHomeFeed } from '@apis';
 import { DailyProgress } from '@types';
 import { useTrackEvent } from '@hooks';
-
 import {
   GuideButton,
   HomeHeader,
@@ -18,7 +18,7 @@ import {
 const Page = () => {
   const router = useRouter();
   const { trackEvent } = useTrackEvent();
-  const { data } = getHomeFeed();
+  const { data } = useGetHomeFeed();
   const homeFeedData = data?.data;
 
   const dailyProgresses = homeFeedData?.dailyProgresses;

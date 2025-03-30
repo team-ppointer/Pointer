@@ -1,12 +1,17 @@
 import { TanstackQueryClient } from '@apis';
 
-const getProblemThumbnail = (publishId: string, problemId: string) => {
+type UseGetCommentaryProps = {
+  publishId: string;
+  problemId: string;
+};
+
+const useGetCommentary = ({ publishId, problemId }: UseGetCommentaryProps) => {
   return TanstackQueryClient.useQuery(
     'get',
-    '/api/v1/client/problem/thumbnail/{publishId}/{problemId}',
+    '/api/v1/client/commentary',
     {
       params: {
-        path: {
+        query: {
           publishId: Number(publishId),
           problemId: Number(problemId),
         },
@@ -19,4 +24,4 @@ const getProblemThumbnail = (publishId: string, problemId: string) => {
   );
 };
 
-export default getProblemThumbnail;
+export default useGetCommentary;

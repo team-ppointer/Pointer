@@ -1,9 +1,10 @@
 'use client';
 
-import { useTrackEvent } from '@hooks';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+
+import { useTrackEvent } from '@hooks';
 
 const SettingList = () => {
   const { trackEvent } = useTrackEvent();

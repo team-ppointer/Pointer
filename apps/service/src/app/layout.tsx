@@ -13,6 +13,9 @@ const isDevelopment =
   process.env.NEXT_PUBLIC_VERCEL_ENV === 'development';
 
 export const metadata: Metadata = {
+  metadataBase: isDevelopment
+    ? new URL('http://www.dev.math-pointer.com')
+    : new URL('https://math-pointer.com'),
   title: '포인터',
   description: '포인터',
   robots: isDevelopment

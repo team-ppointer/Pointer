@@ -1,9 +1,10 @@
 'use client';
-import { RouteModal } from '@components';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
-const page = () => {
+import { RouteModal } from '@components';
+
+const Page = () => {
   const searchParams = useSearchParams();
   const imageUrl = searchParams.get('imageUrl');
 
@@ -22,4 +23,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

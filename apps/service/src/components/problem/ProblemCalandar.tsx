@@ -1,9 +1,10 @@
 'use client';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+
 import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
 import { components } from '@schema';
-import { getProblemAll } from '@apis';
+import { useGetProblemAll } from '@apis';
 import { useTrackEvent } from '@hooks';
 
 import DayProblemCard from './DayProblemCard';
@@ -18,7 +19,7 @@ const ProblemCalandar = () => {
   const month = currentDay.month() + 1;
 
   // apis
-  const { data: publishedData } = getProblemAll({ year, month });
+  const { data: publishedData } = useGetProblemAll({ year, month });
 
   const publishedDataArray: AllProblemGetResponse[] = Array.from({ length: 32 }).map(() => ({}));
   (publishedData?.data ?? []).forEach((data) => {

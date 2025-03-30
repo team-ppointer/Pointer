@@ -2,7 +2,9 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { getProblemById, putProblemSubmit } from '@apis';
+import Image from 'next/image';
+
+import { useGetProblemById, putProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -17,8 +19,6 @@ import {
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { ProblemStatus } from '@types';
-import Image from 'next/image';
-
 import { useChildProblemContext } from '@/hooks/problem';
 
 const statusLabel: Record<string, string> = {
@@ -48,7 +48,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data, isLoading } = getProblemById(publishId, problemId);
+  const { data, isLoading } = useGetProblemById(publishId, problemId);
 
   const {
     number,

@@ -2,7 +2,9 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { getChildProblemById } from '@apis';
+import Image from 'next/image';
+
+import { useGetChildProblemById } from '@apis';
 import { putChildProblemSubmit, putChildProblemSkip } from '@apis';
 import {
   AnswerInput,
@@ -19,8 +21,6 @@ import {
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { components } from '@schema';
-import Image from 'next/image';
-
 import { useChildProblemContext } from '@/hooks/problem';
 
 type ChildProblemSubmitUpdateResponse = components['schemas']['ChildProblemSubmitUpdateResponse'];
@@ -53,7 +53,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data, isLoading } = getChildProblemById(publishId, problemId, childProblemId);
+  const { data, isLoading } = useGetChildProblemById(publishId, problemId, childProblemId);
   const {
     problemNumber,
     childProblemNumber = 1,

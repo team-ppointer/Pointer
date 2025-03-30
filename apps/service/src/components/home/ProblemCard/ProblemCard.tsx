@@ -1,8 +1,9 @@
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
 import { Button } from '@components';
 import { useTrackEvent } from '@hooks';
 import { IcSolve } from '@svg';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 interface Props {
   publishId: number;
@@ -30,11 +31,11 @@ const ProblemCard = ({ publishId, dateString, title, image, solvedCount }: Props
         <p className={`font-medium-16 text-black`}>{dateString} 문제</p>
         <h3 className={`font-bold-20 text-main line-clamp-2 h-[6rem]`}>{title}</h3>
       </div>
-      <div className='relative'>
+      <div className='relative h-[15.7rem] overflow-hidden rounded-[1.6rem] bg-white p-[0.8rem]'>
         <Image
           src={image}
           alt='문제 이미지'
-          className='h-[15.7rem] w-full rounded-[16px] object-cover object-top'
+          className='w-full object-contain object-top'
           width={264}
           height={157}
         />
