@@ -65,9 +65,10 @@ const Page = () => {
     childProblemStatuses.length > 0 &&
     childProblemStatuses[childProblemStatuses.length - 1] === 'NOT_STARTED';
 
-  const prevButtonLabel = isDirect
-    ? `메인 문제 ${number}번`
-    : `새끼 문제 ${number}-${childProblemLength}번`;
+  const prevButtonLabel =
+    isDirect || childProblemLength === 0
+      ? `메인 문제 ${number}번`
+      : `새끼 문제 ${number}-${childProblemLength}번`;
   const nextButtonLabel = '해설 보기';
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
