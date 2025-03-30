@@ -1,7 +1,8 @@
 'use client';
-import { NavigationFooter, SmallButton, ProgressHeader } from '@components';
+import { NavigationFooter, SmallButton, ProgressHeader, ImageContainer } from '@components';
 import { useParams, useRouter } from 'next/navigation';
 import { useTrackEvent } from '@hooks';
+import Image from 'next/image';
 
 import { useReportContext } from '@/hooks/report';
 
@@ -33,6 +34,10 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
+  if (!seniorTipImageUrl) {
+    return <></>;
+  }
+
   return (
     <>
       <ProgressHeader progress={66} />
@@ -44,11 +49,16 @@ const Page = () => {
           </SmallButton>
         </div>
         <div className='mt-[2.4rem] flex flex-col gap-[1.6rem]'>
-          <img
-            src={seniorTipImageUrl}
-            alt='advanced'
-            className={`w-full rounded-[1.6rem] object-contain`}
-          />
+          <ImageContainer>
+            <Image
+              src={seniorTipImageUrl ?? ''}
+              alt='advanced'
+              className={`w-full rounded-[1.6rem] object-contain`}
+              width={700}
+              height={200}
+              priority
+            />
+          </ImageContainer>
         </div>
         <NavigationFooter
           prevLabel='해설'

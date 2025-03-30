@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { IcRight, IcThumbtack } from '@svg';
-import { NavigationFooter, ProgressHeader } from '@components';
+import { ImageContainer, NavigationFooter, ProgressHeader } from '@components';
 import { useTrackEvent } from '@hooks';
+import Image from 'next/image';
 
 import { useReportContext } from '@/hooks/report';
 import { TabMenu } from '@/components/report';
@@ -40,6 +41,10 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/advanced`);
   };
 
+  if (!mainAnalysisImageUrl || !mainHandwritingExplanationImageUrl) {
+    return <></>;
+  }
+
   return (
     <>
       <ProgressHeader progress={33} />
@@ -61,16 +66,26 @@ const Page = () => {
             selectedTab={selectedTab}
             onTabChange={handleClickTab}
           />
-          <img
-            src={mainAnalysisImageUrl}
-            alt='analysis'
-            className={`w-full rounded-[1.6rem] object-contain ${selectedTab === '분석' ? 'block' : 'hidden'}`}
-          />
-          <img
-            src={mainHandwritingExplanationImageUrl}
-            alt='handWriting'
-            className={`w-full rounded-[1.6rem] object-contain ${selectedTab === '손해설' ? 'block' : 'hidden'}`}
-          />
+          <ImageContainer className={`${selectedTab === '분석' ? 'block' : 'hidden'}`}>
+            <Image
+              src={mainAnalysisImageUrl ?? ''}
+              alt='analysis'
+              className={`w-full object-contain`}
+              width={700}
+              height={200}
+              priority
+            />
+          </ImageContainer>
+          <ImageContainer className={`${selectedTab === '손해설' ? 'block' : 'hidden'}`}>
+            <Image
+              src={mainHandwritingExplanationImageUrl ?? ''}
+              alt='handWriting'
+              className={`w-full object-contain`}
+              width={700}
+              height={200}
+              priority
+            />
+          </ImageContainer>
 
           <button
             type='button'
