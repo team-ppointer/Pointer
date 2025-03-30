@@ -81,6 +81,11 @@ const Page = () => {
     }
   };
 
+  const handleClickStepSolve = () => {
+    trackEvent('problem_main_solve_step_solve_button_click');
+    router.push(`/problem/solve/${publishId}/${problemId}`);
+  };
+
   const handleClickPrev = () => {
     trackEvent('problem_main_solve_footer_prev_button_click', {
       buttonLabel: prevButtonLabel,
@@ -120,10 +125,7 @@ const Page = () => {
 
           {isDirect && (
             <div className='mt-[0.6rem] flex items-center justify-end'>
-              <SmallButton
-                variant='underline'
-                sizeType='small'
-                onClick={() => router.push(`/problem/solve/${publishId}/${problemId}`)}>
+              <SmallButton variant='underline' sizeType='small' onClick={handleClickStepSolve}>
                 단계별로 풀어보기
               </SmallButton>
             </div>

@@ -1,7 +1,6 @@
 import { Button } from '@components';
 import { useTrackEvent } from '@hooks';
 import { IcSolve } from '@svg';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface Props {
