@@ -10,7 +10,7 @@ const Page = () => {
     <RouteModal>
       <BaseModalTemplate>
         <BaseModalTemplate.Content>
-          <BaseModalTemplate.Text text={`현재 준비중인 기능입니다!`} />
+          <BaseModalTemplate.Text text={`현재 준비중인 기능이에요`} />
         </BaseModalTemplate.Content>
         <BaseModalTemplate.ButtonSection>
           <BaseModalTemplate.Button variant='blue' onClick={() => router.back()}>
