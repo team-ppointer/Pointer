@@ -6,7 +6,7 @@ const GNB = () => {
   return (
     <div className='bg-darkgray100 fixed top-0 z-40 min-h-[100dvh] w-[24rem] px-[1.5rem] pt-[3.2rem]'>
       <div className='mb-[3.2rem]'>
-        <img src='/images/logo.jpeg' alt='로고이미지' className='h-[4.4rem]' />
+        <img src='/images/logo.png' alt='로고이미지' className='h-[4rem]' />
       </div>
       <nav>
         <ul>
