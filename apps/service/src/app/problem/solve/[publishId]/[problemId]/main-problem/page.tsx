@@ -9,10 +9,10 @@ import {
   MainAnswerCheckModalTemplate,
   PortalModal,
   Tag,
-  TimeTag,
   ProgressHeader,
   SmallButton,
   NavigationFooter,
+  TimeTag,
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { ProblemStatus } from '@types';
@@ -62,7 +62,7 @@ const Page = () => {
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
   const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
   const isDirect =
-    childProblemStatuses.length === 0 ||
+    childProblemStatuses.length > 0 &&
     childProblemStatuses[childProblemStatuses.length - 1] === 'NOT_STARTED';
 
   const prevButtonLabel = isDirect
@@ -114,8 +114,20 @@ const Page = () => {
       <main className='flex flex-col px-[2rem] py-[8rem] md:flex-row md:gap-[4rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
-            <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
-            <TimeTag minutes={recommendedMinute} seconds={recommendedSecond} />
+            <div className='flex items-center gap-[1.2rem]'>
+              <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
+              <TimeTag minutes={recommendedMinute} seconds={recommendedSecond} />
+            </div>
+            {isSolved && (
+              <Tag variant='green' sizeType='small'>
+                정답
+              </Tag>
+            )}
+            {status === 'INCORRECT' && (
+              <Tag variant='red' sizeType='small'>
+                오답
+              </Tag>
+            )}
           </div>
           <img
             src={imageUrl}
@@ -130,25 +142,25 @@ const Page = () => {
               </SmallButton>
             </div>
           )}
-        </div>
 
-        {!isDirect && childProblemStatuses.length > 0 && (
-          <div className='mt-[2.4rem] w-full'>
-            <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
-            <div className='mt-[1.2rem] flex gap-[1.6rem]'>
-              {childProblemStatuses.map((childProblemStatus, index) => (
-                <div key={index} className='flex items-center gap-[0.6rem]'>
-                  <span className='font-medium-16 text-black'>
-                    {number}-{index + 1}번
-                  </span>
-                  <Tag variant={statusColor[childProblemStatus]}>
-                    {statusLabel[childProblemStatus]}
-                  </Tag>
-                </div>
-              ))}
+          {!isDirect && childProblemStatuses.length > 0 && (
+            <div className='mt-[2.4rem] w-full'>
+              <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
+              <div className='mt-[1.2rem] flex gap-[1.6rem]'>
+                {childProblemStatuses.map((childProblemStatus, index) => (
+                  <div key={index} className='flex items-center gap-[0.6rem]'>
+                    <span className='font-medium-16 text-black'>
+                      {number}-{index + 1}번
+                    </span>
+                    <Tag variant={statusColor[childProblemStatus]}>
+                      {statusLabel[childProblemStatus]}
+                    </Tag>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className='mt-[2.8rem] w-full'>
           <form onSubmit={handleSubmit(handleSubmitAnswer)}>

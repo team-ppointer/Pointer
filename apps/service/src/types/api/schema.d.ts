@@ -225,6 +225,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/auth/oauth/social-login': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * 소셜 로그인
+     * @description 소셜 액세스 토큰으로 로그인하여 자체 액세스 토큰을 발급받고 리프레시 토큰을 쿠키에 설정합니다.
+     */
+    post: operations['socialLogin'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/auth/admin/login': {
     parameters: {
       query?: never;
@@ -852,6 +872,13 @@ export interface components {
       publishId: number;
       /** Format: int64 */
       problemId: number;
+    };
+    LoginResponse: {
+      /** Format: int64 */
+      memberId?: number;
+      email?: string;
+      accessToken?: string;
+      refreshToken?: string;
     };
     AccessTokenResponse: {
       accessToken: string;
@@ -1577,6 +1604,54 @@ export interface operations {
           '*/*': {
             data: components['schemas']['IdResponse'];
           };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  socialLogin: {
+    parameters: {
+      query: {
+        provider: string;
+      };
+      header: {
+        social_access_token: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 로그인 성공 */
+      200: {
+        headers: {
+          /** @description 발급된 액세스 토큰 */
+          Authorization?: string;
+          /** @description 리프레시 토큰이 담긴 HTTP Only 쿠키 */
+          'Set-Cookie'?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['LoginResponse'];
+          };
+        };
+      };
+      /** @description 유효하지 않은 소셜 액세스 토큰 */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResponse'];
         };
       };
       /** @description Internal Server Error */

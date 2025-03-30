@@ -8,11 +8,9 @@ const page = () => {
 
   return (
     <RouteModal>
-      <img
-        src={imageUrl ?? ''}
-        alt='full image'
-        className='max-h-[calc(100dvh-8rem)] w-[calc(100dvw-8rem)] max-w-[100rem] object-contain'
-      />
+      <div className='max-h-[calc(100dvh-8rem)] w-[calc(100dvw-8rem)] max-w-[100rem] p-[2rem]'>
+        <img src={imageUrl ?? ''} alt='full image' className='object-contain' />
+      </div>
     </RouteModal>
   );
 };

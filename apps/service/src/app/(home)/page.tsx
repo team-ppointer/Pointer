@@ -1,6 +1,6 @@
 'use client';
 import { Button } from '@components';
-import { IcSearch } from '@svg';
+import { IcCalendar } from '@svg';
 import { getHomeFeed } from '@apis';
 import dayjs from 'dayjs';
 import { DailyProgress } from '@types';
@@ -52,8 +52,8 @@ const Page = () => {
       </div>
       <footer className='bg-background mt-[2.4rem] px-[2rem] pb-[3.3rem]'>
         <Button variant='light' onClick={handleClickAllProblem}>
-          <IcSearch width={24} height={24} />
-          전체 문제 보기
+          <IcCalendar width={24} height={24} />
+          날짜별로 보기
         </Button>
       </footer>
     </>

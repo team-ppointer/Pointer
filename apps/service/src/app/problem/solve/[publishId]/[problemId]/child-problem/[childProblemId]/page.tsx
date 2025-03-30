@@ -14,6 +14,7 @@ import {
   ChildAnswerCheckModalTemplate,
   TwoButtonModalTemplate,
   AnswerModalTemplate,
+  Tag,
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { components } from '@schema';
@@ -142,9 +143,21 @@ const Page = () => {
       <ProgressHeader progress={(childProblemNumber / (childProblemLength + 1)) * 100} />
       <main className='flex flex-col px-[2rem] py-[8rem] md:flex-row md:gap-[4rem]'>
         <div className='w-full'>
-          <h1 className='font-bold-18 text-main'>
-            새끼 문제 {problemNumber}-{childProblemNumber}번
-          </h1>
+          <div className='flex items-center justify-between'>
+            <h1 className='font-bold-18 text-main'>
+              새끼 문제 {problemNumber}-{childProblemNumber}번
+            </h1>
+            {isSolved && (
+              <Tag variant='green' sizeType='small'>
+                정답
+              </Tag>
+            )}
+            {status === 'INCORRECT' && (
+              <Tag variant='red' sizeType='small'>
+                오답
+              </Tag>
+            )}
+          </div>
           <img
             src={imageUrl}
             alt={`새끼 문제 ${problemNumber}-${childProblemNumber}번`}
@@ -191,7 +204,7 @@ const Page = () => {
       </PortalModal>
       <PortalModal isOpen={isAnswerModalOpen} onClose={closeAnswerModal}>
         <AnswerModalTemplate
-          answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' && '번'}`}
+          answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' ? '번' : ''}`}
           handleClickButton={closeAnswerModal}
         />
       </PortalModal>
