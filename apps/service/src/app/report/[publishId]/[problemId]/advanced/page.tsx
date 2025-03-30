@@ -44,7 +44,11 @@ const Page = () => {
       <main className='px-[2rem] py-[8rem]'>
         <div className='flex items-center justify-between'>
           <h1 className='font-bold-18 text-main my-[0.8rem]'>한 걸음 더</h1>
-          <SmallButton variant='underline' sizeType='small' onClick={handleClickShowMainProblem}>
+          <SmallButton
+            className='translate-x-[1.2rem]'
+            variant='underline'
+            sizeType='small'
+            onClick={handleClickShowMainProblem}>
             메인 문제 {problemNumber}번 다시 보기
           </SmallButton>
         </div>
