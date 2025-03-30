@@ -52,8 +52,8 @@ export default function RootLayout({
     <html lang='ko'>
       <body className={`antialiased`}>
         <Providers>
-          <div>{children}</div>
           <Suspense fallback={<></>}>
+            <div>{children}</div>
             <div>{modal}</div>
           </Suspense>
           <div id='modal'></div>
