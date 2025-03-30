@@ -7,7 +7,7 @@ const Page = () => {
     <>
       <Header title='설정' />
       <main className='px-[2rem] pt-[6rem]'>
-        <NameCard name='홍길동' grade={2} />
+        <NameCard />
         <SettingList />
       </main>
     </>

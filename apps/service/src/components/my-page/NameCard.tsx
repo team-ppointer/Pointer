@@ -1,11 +1,15 @@
-import React from 'react';
+'use client';
 
-interface NameCardProps {
-  name: string;
-  grade: number;
-}
+import { useEffect, useState } from 'react';
+import { getName } from '@utils';
 
-const NameCard = ({ name }: NameCardProps) => {
+const NameCard = () => {
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    setName(getName());
+  }, []);
+
   return (
     <article className='center my-[2rem] flex gap-[0.8rem] rounded-[16px] bg-white p-[2rem]'>
       <p className='font-bold-18 text-black'>
