@@ -9,7 +9,6 @@ import {
   MainAnswerCheckModalTemplate,
   PortalModal,
   Tag,
-  TimeTag,
   ProgressHeader,
   SmallButton,
   NavigationFooter,
