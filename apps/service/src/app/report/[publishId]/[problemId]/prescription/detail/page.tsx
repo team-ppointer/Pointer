@@ -1,7 +1,8 @@
 'use client';
 
-import { Header } from '@components';
+import { Header, ImageContainer } from '@components';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 
 import { useReportContext } from '@/hooks/report';
 
@@ -27,18 +28,38 @@ const Page = () => {
     type === 'child' ? `-${childNumber}` : ''
   }번`;
 
+  if (!problemImageUrl || !solutionImageUrls) {
+    return <></>;
+  }
+
   return (
     <>
       <Header title='진단 및 처방' iconType='back' />
       <main className='px-[2rem] py-[8rem]'>
         <h1 className='font-bold-18 text-main my-[0.8rem]'>{title}</h1>
         <div className='mt-[1.6rem] flex flex-col gap-[1.6rem] md:flex-row'>
-          <div className='w-full'>
-            <img src={problemImageUrl} alt='problem' className='w-full rounded-[1.6rem]' />
-          </div>
+          <ImageContainer className='w-full'>
+            <Image
+              src={problemImageUrl ?? ''}
+              alt='problem'
+              className='w-full'
+              width={700}
+              height={200}
+              priority
+            />
+          </ImageContainer>
           <div className='flex w-full flex-col gap-[1.6rem]'>
             {(solutionImageUrls ?? []).map((url, index) => (
-              <img key={index} src={url} alt='solution' className='w-full rounded-[1.6rem]' />
+              <ImageContainer key={index}>
+                <Image
+                  src={url ?? ''}
+                  alt='solution'
+                  className='w-full'
+                  width={700}
+                  height={200}
+                  priority
+                />
+              </ImageContainer>
             ))}
           </div>
         </div>

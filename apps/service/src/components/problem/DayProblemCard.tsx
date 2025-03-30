@@ -4,6 +4,7 @@ import { Button, Divider, Tag } from '@components';
 import { IcSolve } from '@svg';
 import { components } from '@schema';
 import Link from 'next/link';
+import Image from 'next/image';
 
 dayjs.locale('ko');
 
@@ -73,10 +74,12 @@ const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
             ))}
           </ul>
           <div className='flex flex-1 items-start justify-center'>
-            <img
-              src={mainProblemImageUrl}
+            <Image
+              src={mainProblemImageUrl ?? ''}
               alt='문제 이미지'
-              className='w-full max-w-[10rem] object-contain md:w-full md:max-w-[20rem]'
+              className='w-full max-w-[20rem] object-contain md:w-full md:max-w-[20rem]'
+              width={200}
+              height={100}
             />
           </div>
         </div>
