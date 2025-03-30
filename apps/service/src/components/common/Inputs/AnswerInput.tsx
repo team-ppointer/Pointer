@@ -43,4 +43,6 @@ const AnswerInput = forwardRef<HTMLInputElement, AnswerInputProps>(
   }
 );
 
+AnswerInput.displayName = 'AnswerInput';
+
 export default AnswerInput;

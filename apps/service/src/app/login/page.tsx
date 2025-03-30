@@ -24,7 +24,7 @@ const Page = () => {
     if (accessToken) {
       router.replace('/');
     }
-  }, []);
+  }, [router]);
 
   return (
     <div className='mx-auto flex h-[100dvh] w-[33.5rem] flex-col pb-[2rem]'>

@@ -13,7 +13,7 @@ const Page = () => {
     if (code) {
       postKakaoLogin(code);
     }
-  }, []);
+  }, [code]);
 
   return <></>;
 };

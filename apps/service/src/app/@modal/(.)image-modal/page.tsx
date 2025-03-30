@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 
 import { RouteModal } from '@components';
 
-const page = () => {
+const Page = () => {
   const searchParams = useSearchParams();
   const imageUrl = searchParams.get('imageUrl');
 
@@ -23,4 +23,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
