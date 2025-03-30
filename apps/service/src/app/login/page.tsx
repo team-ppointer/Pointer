@@ -1,33 +1,19 @@
 'use client';
-import { postLogin } from '@apis';
-import { Button, Input } from '@components';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useTrackEvent } from '@hooks';
 
 import { LogoLogin } from '@/assets/svg/logo';
-import { setAccessToken } from '@/contexts/AuthContext';
-
-interface LoginType {
-  email: string;
-  password: string;
-}
+import { KakaoButton } from '@/components/login';
 
 const Page = () => {
-  const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginType>();
+  const { trackEvent } = useTrackEvent();
 
-  const onSubmitLogin: SubmitHandler<LoginType> = async (formData) => {
-    const { data } = await postLogin(formData.email, formData.password);
+  const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${
+    process.env.NEXT_PUBLIC_REST_API_KEY
+  }&redirect_uri=${process.env.NEXT_PUBLIC_REDIRECT_URI}&response_type=code`;
 
-    const { accessToken } = data?.data || {};
-    if (accessToken) {
-      setAccessToken(accessToken);
-      router.push('/');
-    }
+  const handleLoginClick = () => {
+    trackEvent('kakao_login_click');
+    window.location.replace(kakaoLoginUrl);
   };
 
   return (
@@ -41,41 +27,11 @@ const Page = () => {
         <LogoLogin width={250} height={57} className='mt-[2.4rem]' />
         <h1 className='text-main font-bold-24 mt-[1.6rem]'>포인터</h1>
       </div>
-      {/* <div className='mt-auto flex flex-col items-center gap-[1.6rem]'>
+      <div className='mt-auto flex flex-col items-center gap-[1.6rem]'>
         <p className='font-medium-12 text-lightgray500'>포인터는 태블릿의 스플릿뷰를 권장해요</p>
-        <KakaoButton />
-        <AppleButton />
-      </div> */}
-      <form
-        onSubmit={handleSubmit(onSubmitLogin)}
-        className='mt-[4.8rem] flex flex-col items-start justify-center gap-[2.4rem]'>
-        <Input
-          type='email'
-          placeholder='이메일을 입력해주세요'
-          autoComplete='username'
-          {...register('email', {
-            required: true,
-          })}
-        />
-        <Input
-          type='password'
-          placeholder='비밀번호를 입력해주세요'
-          autoComplete='current-password'
-          {...register('password', {
-            required: true,
-            pattern: {
-              value: /^[A-Za-z0-9]*$/,
-              message: '비밀번호는 영문자와 숫자만 입력 가능합니다.',
-            },
-          })}
-        />
-        {errors.password && (
-          <p className='font-medium-16 text-red mt-[1.2rem]' role='alert'>
-            {errors.password.message}
-          </p>
-        )}
-        <Button variant='blue'>로그인</Button>
-      </form>
+        <KakaoButton onClick={handleLoginClick} />
+        {/* <AppleButton /> */}
+      </div>
     </div>
   );
 };
