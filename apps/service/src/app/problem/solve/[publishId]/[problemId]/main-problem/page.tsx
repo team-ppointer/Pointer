@@ -2,7 +2,9 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { getProblemById, putProblemSubmit } from '@apis';
+import Image from 'next/image';
+
+import { useGetProblemById, putProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -13,10 +15,10 @@ import {
   SmallButton,
   NavigationFooter,
   TimeTag,
+  ImageContainer,
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { ProblemStatus } from '@types';
-
 import { useChildProblemContext } from '@/hooks/problem';
 
 const statusLabel: Record<string, string> = {
@@ -46,7 +48,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data } = getProblemById(publishId, problemId);
+  const { data, isLoading } = useGetProblemById(publishId, problemId);
 
   const {
     number,
@@ -109,6 +111,10 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
+  if (isLoading) {
+    return <></>;
+  }
+
   return (
     <>
       <ProgressHeader progress={100} />
@@ -130,11 +136,16 @@ const Page = () => {
               </Tag>
             )}
           </div>
-          <img
-            src={imageUrl}
-            alt={`메인 문제 ${number}번`}
-            className='mt-[1.2rem] w-full object-contain'
-          />
+          <ImageContainer className='mt-[1.2rem]'>
+            <Image
+              src={imageUrl ?? ''}
+              alt={`메인 문제 ${number}번`}
+              className='w-full object-contain'
+              width={700}
+              height={200}
+              priority
+            />
+          </ImageContainer>
 
           {isDirect && (
             <div className='mt-[0.6rem] flex items-center justify-end'>

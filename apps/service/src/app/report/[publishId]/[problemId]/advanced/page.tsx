@@ -1,8 +1,9 @@
 'use client';
-import { NavigationFooter, SmallButton, ProgressHeader } from '@components';
 import { useParams, useRouter } from 'next/navigation';
-import { useTrackEvent } from '@hooks';
+import Image from 'next/image';
 
+import { NavigationFooter, SmallButton, ProgressHeader, ImageContainer } from '@components';
+import { useTrackEvent } from '@hooks';
 import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
@@ -33,22 +34,35 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
+  if (!seniorTipImageUrl) {
+    return <></>;
+  }
+
   return (
     <>
       <ProgressHeader progress={66} />
       <main className='px-[2rem] py-[8rem]'>
         <div className='flex items-center justify-between'>
           <h1 className='font-bold-18 text-main my-[0.8rem]'>한 걸음 더</h1>
-          <SmallButton variant='underline' sizeType='small' onClick={handleClickShowMainProblem}>
+          <SmallButton
+            className='translate-x-[1.2rem]'
+            variant='underline'
+            sizeType='small'
+            onClick={handleClickShowMainProblem}>
             메인 문제 {problemNumber}번 다시 보기
           </SmallButton>
         </div>
         <div className='mt-[2.4rem] flex flex-col gap-[1.6rem]'>
-          <img
-            src={seniorTipImageUrl}
-            alt='advanced'
-            className={`w-full rounded-[1.6rem] object-contain`}
-          />
+          <ImageContainer>
+            <Image
+              src={seniorTipImageUrl ?? ''}
+              alt='advanced'
+              className={`w-full rounded-[1.6rem] object-contain`}
+              width={700}
+              height={200}
+              priority
+            />
+          </ImageContainer>
         </div>
         <NavigationFooter
           prevLabel='해설'

@@ -1,11 +1,11 @@
 import { TanstackQueryClient } from '@apis';
 
-type GetProblemAllProps = {
+type useGetProblemAllProps = {
   year: number;
   month: number;
 };
 
-const getProblemAll = ({ year, month }: GetProblemAllProps) => {
+const useGetProblemAll = ({ year, month }: useGetProblemAllProps) => {
   return TanstackQueryClient.useQuery(
     'get',
     '/api/v1/client/problem/all/{year}/{month}',
@@ -24,4 +24,4 @@ const getProblemAll = ({ year, month }: GetProblemAllProps) => {
   );
 };
 
-export default getProblemAll;
+export default useGetProblemAll;

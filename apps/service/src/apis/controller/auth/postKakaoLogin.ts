@@ -1,7 +1,6 @@
 'use client';
 
 import { setAccessToken, setName } from '@utils';
-
 import { client } from '@/apis/client';
 
 const postKakaoAccessToken = async (code: string) => {

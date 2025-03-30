@@ -1,8 +1,8 @@
 'use client';
-import { Divider, NavigationFooter, ProgressHeader } from '@components';
 import { useParams, useRouter } from 'next/navigation';
-import { useTrackEvent } from '@hooks';
 
+import { Divider, NavigationFooter, ProgressHeader } from '@components';
+import { useTrackEvent } from '@hooks';
 import { PrescriptionCard } from '@/components/report';
 import { useReportContext } from '@/hooks/report';
 
@@ -57,16 +57,15 @@ const Page = () => {
               <PrescriptionCard
                 key={childProblemIndex}
                 status={childProblem.submitStatus}
-                title={`새끼 문항 ${problemNumber}-${childProblemIndex + 1}번`}
+                title={`새끼 문제 ${problemNumber}-${childProblemIndex + 1}번`}
                 onClick={() => handleClickChildPrescription(childProblemIndex)}
               />
             );
           })}
-
-          <Divider />
+          {childProblems.length > 0 && <Divider />}
           <PrescriptionCard
             status={mainProblem.submitStatus}
-            title={`메인 문항 ${problemNumber}번`}
+            title={`메인 문제 ${problemNumber}번`}
             onClick={handleClickMainPrescription}
           />
         </ul>

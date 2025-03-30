@@ -1,15 +1,22 @@
 'use client';
-import { getProblemThumbnail } from '@apis';
-import { ProgressHeader, TimeTag } from '@components';
+
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
+
+import { useGetProblemThumbnail } from '@apis';
+import { ImageContainer, ProgressHeader, TimeTag } from '@components';
 
 import SolveButtonsClient from './SolveButtonsClient';
 
 const Page = () => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
 
-  const { data } = getProblemThumbnail(publishId, problemId);
+  const { data, isLoading } = useGetProblemThumbnail(publishId, problemId);
   const { number, imageUrl, recommendedMinute, recommendedSecond } = data?.data ?? {};
+
+  if (isLoading) {
+    return <></>;
+  }
 
   return (
     <>
@@ -19,11 +26,16 @@ const Page = () => {
           <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
           <TimeTag minutes={recommendedMinute} seconds={recommendedSecond} />
         </div>
-        <img
-          src={imageUrl}
-          alt={`메인 문제 ${number}번`}
-          className='mt-[1.2rem] w-full object-contain'
-        />
+        <ImageContainer className='mt-[1.2rem]'>
+          <Image
+            src={imageUrl ?? ''}
+            alt={`메인 문제 ${number}번`}
+            className='w-full object-contain'
+            width={700}
+            height={200}
+            priority
+          />
+        </ImageContainer>
 
         <SolveButtonsClient publishId={publishId} problemId={problemId} />
       </main>

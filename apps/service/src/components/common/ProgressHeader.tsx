@@ -1,9 +1,10 @@
 'use client';
 
+import { useParams, useRouter } from 'next/navigation';
+
 import { ProgressBar } from '@components';
 import { useTrackEvent } from '@hooks';
 import { IcList } from '@svg';
-import { useParams, useRouter } from 'next/navigation';
 
 interface ProgressHeaderProps {
   progress?: number;

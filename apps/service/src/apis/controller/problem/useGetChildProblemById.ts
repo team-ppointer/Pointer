@@ -1,6 +1,6 @@
-import { TanstackQueryClient } from '@/apis/client';
+import { TanstackQueryClient } from '@apis';
 
-const getChildProblemById = (publishId: string, problemId: string, childProblemId: string) => {
+const useGetChildProblemById = (publishId: string, problemId: string, childProblemId: string) => {
   return TanstackQueryClient.useQuery(
     'get',
     '/api/v1/client/problem/{publishId}/{problemId}/{childProblemId}',
@@ -20,4 +20,4 @@ const getChildProblemById = (publishId: string, problemId: string, childProblemI
   );
 };
 
-export default getChildProblemById;
+export default useGetChildProblemById;

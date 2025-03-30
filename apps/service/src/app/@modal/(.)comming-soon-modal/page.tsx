@@ -1,15 +1,16 @@
 'use client';
-import { BaseModalTemplate, RouteModal } from '@components';
 import { useRouter } from 'next/navigation';
 
-const page = () => {
+import { BaseModalTemplate, RouteModal } from '@components';
+
+const Page = () => {
   const router = useRouter();
 
   return (
     <RouteModal>
       <BaseModalTemplate>
         <BaseModalTemplate.Content>
-          <BaseModalTemplate.Text text={`현재 준비중인 기능입니다!`} />
+          <BaseModalTemplate.Text text={`현재 준비중인 기능이에요`} />
         </BaseModalTemplate.Content>
         <BaseModalTemplate.ButtonSection>
           <BaseModalTemplate.Button variant='blue' onClick={() => router.back()}>
@@ -21,4 +22,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

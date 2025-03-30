@@ -1,15 +1,15 @@
 'use client';
-import { Header } from '@components';
-import { getProblemsByPublishId } from '@apis';
 import dayjs from 'dayjs';
 import { useParams } from 'next/navigation';
 
+import { Header } from '@components';
+import { useGetProblemsByPublishId } from '@apis';
 import { ProblemStatusCard } from '@/components/problem';
 
 const Page = () => {
   const { publishId } = useParams<{ publishId: string }>();
 
-  const { data } = getProblemsByPublishId(publishId);
+  const { data } = useGetProblemsByPublishId(publishId);
   const { date, problems, title } = data?.data ?? {};
   const publishDate = dayjs(date).format('MM월 DD일');
 

@@ -1,8 +1,9 @@
 'use client';
-import { RouteModal, TwoButtonModalTemplate } from '@components';
 import { useRouter } from 'next/navigation';
 
-const page = () => {
+import { RouteModal, TwoButtonModalTemplate } from '@components';
+
+const Page = () => {
   const router = useRouter();
 
   return (
@@ -22,4 +23,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

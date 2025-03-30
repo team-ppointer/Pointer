@@ -1,11 +1,12 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
 import { Button, StatusIcon, StatusTag } from '@components';
 import { useTrackEvent } from '@hooks';
 import { components } from '@schema';
 import { IcDown, IcUp } from '@svg';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
 
 type ProblemFeedProgressesGetResponse = components['schemas']['ProblemFeedProgressesGetResponse'];
 
