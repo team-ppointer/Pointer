@@ -1,6 +1,7 @@
 import { Button } from '@components';
+import { useTrackEvent } from '@hooks';
 import { IcSolve } from '@svg';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   publishId: number;
@@ -11,6 +12,16 @@ interface Props {
 }
 
 const ProblemCard = ({ publishId, dateString, title, image, solvedCount }: Props) => {
+  const router = useRouter();
+  const { trackEvent } = useTrackEvent();
+
+  const handleClickProblem = () => {
+    trackEvent('home_carousel_problem_card_click', {
+      publishId,
+    });
+    router.push(`/problem/list/${publishId}`);
+  };
+
   return (
     <article
       className={`bg-sub2 flex h-full w-full flex-col justify-between rounded-[16px] p-[2.4rem]`}>
@@ -35,12 +46,10 @@ const ProblemCard = ({ publishId, dateString, title, image, solvedCount }: Props
             <strong className='text-main'>{solvedCount}명</strong>이 문제를 풀었어요!
           </span>
         </p>
-        <Link href={`/problem/list/${publishId}`}>
-          <Button>
-            <IcSolve width={24} height={24} />
-            문제 풀러 가기
-          </Button>
-        </Link>
+        <Button onClick={handleClickProblem}>
+          <IcSolve width={24} height={24} />
+          문제 풀러 가기
+        </Button>
       </div>
     </article>
   );

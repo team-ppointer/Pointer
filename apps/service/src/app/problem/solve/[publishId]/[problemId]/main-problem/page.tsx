@@ -14,7 +14,7 @@ import {
   SmallButton,
   NavigationFooter,
 } from '@components';
-import { useInvalidate, useModal } from '@hooks';
+import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { ProblemStatus } from '@types';
 
 import { useChildProblemContext } from '@/hooks/problem';
@@ -36,6 +36,7 @@ const statusColor: Record<string, 'green' | 'red' | 'gray'> = {
 const Page = () => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
   const router = useRouter();
+  const { trackEvent } = useTrackEvent();
   const { childProblemLength } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
 
@@ -80,6 +81,33 @@ const Page = () => {
     }
   };
 
+  const handleClickStepSolve = () => {
+    trackEvent('problem_main_solve_step_solve_button_click');
+    router.push(`/problem/solve/${publishId}/${problemId}`);
+  };
+
+  const handleClickPrev = () => {
+    trackEvent('problem_main_solve_footer_prev_button_click', {
+      buttonLabel: prevButtonLabel,
+    });
+    router.back();
+  };
+
+  const handleClickNext = () => {
+    trackEvent('problem_main_solve_footer_show_commentary_button_click');
+    router.push(`/report/${publishId}/${problemId}/analysis`);
+  };
+
+  const handleClickSolveAgain = () => {
+    trackEvent('problem_main_solve_check_modal_solve_again_button_click');
+    closeModal();
+  };
+
+  const handleClickShowReport = () => {
+    trackEvent('problem_main_solve_check_modal_commentary_button_click');
+    router.push(`/report/${publishId}/${problemId}/analysis`);
+  };
+
   return (
     <>
       <ProgressHeader progress={100} />
@@ -97,10 +125,7 @@ const Page = () => {
 
           {isDirect && (
             <div className='mt-[0.6rem] flex items-center justify-end'>
-              <SmallButton
-                variant='underline'
-                sizeType='small'
-                onClick={() => router.push(`/problem/solve/${publishId}/${problemId}`)}>
+              <SmallButton variant='underline' sizeType='small' onClick={handleClickStepSolve}>
                 단계별로 풀어보기
               </SmallButton>
             </div>
@@ -144,17 +169,15 @@ const Page = () => {
       <NavigationFooter
         prevLabel={prevButtonLabel}
         nextLabel={isSubmitted ? nextButtonLabel : undefined}
-        onClickPrev={() => router.back()}
-        onClickNext={
-          isSubmitted ? () => router.push(`/report/${publishId}/${problemId}/analysis`) : undefined
-        }
+        onClickPrev={handleClickPrev}
+        onClickNext={isSubmitted ? handleClickNext : undefined}
       />
 
       <PortalModal isOpen={isOpen} onClose={closeModal}>
         <MainAnswerCheckModalTemplate
           result={result}
-          onClose={closeModal}
-          handleClickButton={() => router.push(`/report/${publishId}/${problemId}/analysis`)}
+          onClose={handleClickSolveAgain}
+          handleClickButton={handleClickShowReport}
         />
       </PortalModal>
     </>
