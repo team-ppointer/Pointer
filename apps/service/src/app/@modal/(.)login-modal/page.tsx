@@ -1,6 +1,7 @@
 'use client';
-import { RouteModal, TwoButtonModalTemplate } from '@components';
 import { useRouter } from 'next/navigation';
+
+import { RouteModal, TwoButtonModalTemplate } from '@components';
 
 const page = () => {
   const router = useRouter();

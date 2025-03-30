@@ -1,8 +1,9 @@
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
 import { Button } from '@components';
 import { useTrackEvent } from '@hooks';
 import { IcSolve } from '@svg';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 interface Props {
   publishId: number;

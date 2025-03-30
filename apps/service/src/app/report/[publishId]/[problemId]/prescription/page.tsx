@@ -1,8 +1,8 @@
 'use client';
-import { Divider, NavigationFooter, ProgressHeader } from '@components';
 import { useParams, useRouter } from 'next/navigation';
-import { useTrackEvent } from '@hooks';
 
+import { Divider, NavigationFooter, ProgressHeader } from '@components';
+import { useTrackEvent } from '@hooks';
 import { PrescriptionCard } from '@/components/report';
 import { useReportContext } from '@/hooks/report';
 

@@ -1,9 +1,9 @@
 'use client';
-import { NavigationFooter, SmallButton, ProgressHeader, ImageContainer } from '@components';
 import { useParams, useRouter } from 'next/navigation';
-import { useTrackEvent } from '@hooks';
 import Image from 'next/image';
 
+import { NavigationFooter, SmallButton, ProgressHeader, ImageContainer } from '@components';
+import { useTrackEvent } from '@hooks';
 import { useReportContext } from '@/hooks/report';
 
 const Page = () => {

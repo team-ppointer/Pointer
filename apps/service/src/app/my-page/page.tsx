@@ -1,5 +1,4 @@
 import { Header } from '@components';
-
 import { NameCard, SettingList } from '@/components/my-page';
 
 const Page = () => {

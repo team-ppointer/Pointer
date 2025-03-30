@@ -1,9 +1,10 @@
 'use client';
 
-import { getCommentary } from '@apis';
-import { components } from '@schema';
 import { useParams } from 'next/navigation';
 import { createContext } from 'react';
+
+import { getCommentary } from '@apis';
+import { components } from '@schema';
 
 type CommentaryGetResponse = components['schemas']['CommentaryGetResponse'];
 

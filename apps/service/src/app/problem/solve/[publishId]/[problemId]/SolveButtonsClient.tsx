@@ -1,7 +1,8 @@
 'use client';
+import { useRouter } from 'next/navigation';
+
 import { SolveButton } from '@components';
 import { getChildData, postChildProblemSubmit, postProblemSubmit } from '@apis';
-import { useRouter } from 'next/navigation';
 import { useInvalidate, useTrackEvent } from '@hooks';
 
 interface SolveButtonsClientProps {

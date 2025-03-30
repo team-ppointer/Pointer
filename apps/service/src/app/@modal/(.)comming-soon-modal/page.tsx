@@ -1,6 +1,7 @@
 'use client';
-import { BaseModalTemplate, RouteModal } from '@components';
 import { useRouter } from 'next/navigation';
+
+import { BaseModalTemplate, RouteModal } from '@components';
 
 const page = () => {
   const router = useRouter();

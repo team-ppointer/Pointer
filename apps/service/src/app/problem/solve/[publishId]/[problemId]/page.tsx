@@ -1,9 +1,10 @@
 'use client';
 
-import { getProblemThumbnail } from '@apis';
-import { ImageContainer, ProgressHeader, TimeTag } from '@components';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
+
+import { getProblemThumbnail } from '@apis';
+import { ImageContainer, ProgressHeader, TimeTag } from '@components';
 
 import SolveButtonsClient from './SolveButtonsClient';
 

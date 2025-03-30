@@ -1,8 +1,9 @@
 'use client';
 
-import { postKakaoLogin } from '@apis';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+
+import { postKakaoLogin } from '@apis';
 
 const Page = () => {
   const searchParams = useSearchParams();

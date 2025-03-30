@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import Image from 'next/image';
+
 import { getChildProblemById } from '@apis';
 import { putChildProblemSubmit, putChildProblemSkip } from '@apis';
 import {
@@ -19,8 +21,6 @@ import {
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { components } from '@schema';
-import Image from 'next/image';
-
 import { useChildProblemContext } from '@/hooks/problem';
 
 type ChildProblemSubmitUpdateResponse = components['schemas']['ChildProblemSubmitUpdateResponse'];

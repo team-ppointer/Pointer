@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+
 import { IcRight, IcThumbtack } from '@svg';
 import { ImageContainer, NavigationFooter, ProgressHeader } from '@components';
 import { useTrackEvent } from '@hooks';
-import Image from 'next/image';
-
 import { useReportContext } from '@/hooks/report';
 import { TabMenu } from '@/components/report';
 

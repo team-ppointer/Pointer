@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import Image from 'next/image';
+
 import { getProblemById, putProblemSubmit } from '@apis';
 import {
   AnswerInput,
@@ -17,8 +19,6 @@ import {
 } from '@components';
 import { useInvalidate, useModal, useTrackEvent } from '@hooks';
 import { ProblemStatus } from '@types';
-import Image from 'next/image';
-
 import { useChildProblemContext } from '@/hooks/problem';
 
 const statusLabel: Record<string, string> = {

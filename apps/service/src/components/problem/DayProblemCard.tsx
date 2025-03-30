@@ -1,10 +1,12 @@
 import dayjs from 'dayjs';
+
 import 'dayjs/locale/ko';
+import Link from 'next/link';
+import Image from 'next/image';
+
 import { Button, Divider, Tag } from '@components';
 import { IcSolve } from '@svg';
 import { components } from '@schema';
-import Link from 'next/link';
-import Image from 'next/image';
 
 dayjs.locale('ko');
 

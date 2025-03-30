@@ -1,7 +1,8 @@
 'use client';
-import { RouteModal } from '@components';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+
+import { RouteModal } from '@components';
 
 const page = () => {
   const searchParams = useSearchParams();

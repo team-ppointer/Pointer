@@ -1,5 +1,6 @@
-import { IcNext, IcNotice } from '@svg';
 import Link from 'next/link';
+
+import { IcNext, IcNotice } from '@svg';
 
 type Props = {
   count: number;

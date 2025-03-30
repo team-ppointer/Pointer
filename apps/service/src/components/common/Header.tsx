@@ -1,7 +1,8 @@
 'use client';
+import { useRouter } from 'next/navigation';
+
 import { useTrackEvent } from '@hooks';
 import { IcHome, IcLeft } from '@svg';
-import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
   title: string;

@@ -1,5 +1,6 @@
-import { IcNext, IcPrev } from '@svg';
 import React, { ButtonHTMLAttributes } from 'react';
+
+import { IcNext, IcPrev } from '@svg';
 
 interface NavigationButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: 'next' | 'prev';

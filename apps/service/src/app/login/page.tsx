@@ -1,9 +1,9 @@
 'use client';
-import { useTrackEvent } from '@hooks';
-import { getAccessToken } from '@utils';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { useTrackEvent } from '@hooks';
+import { getAccessToken } from '@utils';
 import { LogoLogin } from '@/assets/svg/logo';
 import { KakaoButton } from '@/components/login';
 
