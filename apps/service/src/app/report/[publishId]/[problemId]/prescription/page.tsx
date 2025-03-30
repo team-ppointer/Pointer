@@ -62,8 +62,7 @@ const Page = () => {
               />
             );
           })}
-
-          <Divider />
+          {childProblems.length > 0 && <Divider />}
           <PrescriptionCard
             status={mainProblem.submitStatus}
             title={`메인 문제 ${problemNumber}번`}
