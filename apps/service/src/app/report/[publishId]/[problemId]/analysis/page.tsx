@@ -12,8 +12,13 @@ const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
   const { trackEvent } = useTrackEvent();
-  const { problemNumber, answer, mainAnalysisImageUrl, mainHandwritingExplanationImageUrl } =
-    useReportContext();
+  const {
+    problemNumber,
+    answerType,
+    answer,
+    mainAnalysisImageUrl,
+    mainHandwritingExplanationImageUrl,
+  } = useReportContext();
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
 
   const handleClickTab = (tab: '분석' | '손해설') => {
@@ -43,7 +48,10 @@ const Page = () => {
           <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {problemNumber}번</h1>
           <div className='flex items-center gap-[0.8rem]'>
             <span className='font-medium-16 text-black'>정답</span>
-            <span className='font-medium-16 text-main'>{answer}번</span>
+            <span className='font-medium-16 text-main'>
+              {answer}
+              {answerType === 'MULTIPLE_CHOICE' && '번'}
+            </span>
           </div>
         </header>
         <div className='mt-[2.4rem] flex flex-col gap-[1.6rem]'>
