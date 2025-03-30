@@ -11,6 +11,8 @@ export interface AuthContextType {
 const tokenStore = {
   accessToken: null as string | null,
   setAccessToken: (_: string | null) => {},
+  name: '',
+  setName: (_: string) => {},
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +23,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   tokenStore.accessToken = accessToken;
   tokenStore.setAccessToken = setAccessTokenState;
+  tokenStore.name = name;
+  tokenStore.setName = setNameState;
 
   const contextValue = {
     accessToken,
@@ -34,3 +38,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const getAccessToken = () => tokenStore.accessToken;
 export const setAccessToken = (token: string | null) => tokenStore.setAccessToken(token);
+export const getName = () => tokenStore.name;
+export const setName = (name: string) => tokenStore.setName(name);

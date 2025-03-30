@@ -1,11 +1,11 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { Button } from '@components';
 import { IcCalendar } from '@svg';
 import { getHomeFeed } from '@apis';
 import dayjs from 'dayjs';
 import { DailyProgress } from '@types';
 import { useTrackEvent } from '@hooks';
-import { useRouter } from 'next/navigation';
 
 import {
   GuideButton,
@@ -36,7 +36,7 @@ const Page = () => {
 
   return (
     <>
-      <HomeHeader name='홍길동' grade={2} />
+      <HomeHeader />
       <main className='flex flex-col px-[2rem] pt-[6rem]'>
         <p className='font-medium-12 text-lightgray500 pt-[1.6rem]'>
           아직은 고등학교 2학년 대상으로만 서비스를 하고 있어요!
