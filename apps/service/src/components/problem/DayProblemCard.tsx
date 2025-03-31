@@ -78,7 +78,7 @@ const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
             <Image
               src={mainProblemImageUrl ?? ''}
               alt='문제 이미지'
-              className='w-full max-w-[20rem] object-contain md:w-full md:max-w-[20rem]'
+              className='w-full max-w-[20rem] object-contain'
               width={200}
               height={100}
             />

@@ -118,7 +118,7 @@ const Page = () => {
   return (
     <>
       <ProgressHeader progress={100} />
-      <main className='flex flex-col px-[2rem] py-[8rem] md:flex-row md:gap-[4rem]'>
+      <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-[1.2rem]'>
@@ -177,7 +177,7 @@ const Page = () => {
         <div className='mt-[2.8rem] w-full'>
           <form onSubmit={handleSubmit(handleSubmitAnswer)}>
             <h3 className='font-bold-16 text-black'>정답 선택</h3>
-            <div className='mt-[1.2rem] flex flex-col gap-[2rem] lg:flex-row'>
+            <div className='mt-[1.2rem] flex flex-col gap-[2rem] md:flex-row'>
               <AnswerInput
                 answerType={answerType}
                 selectedAnswer={isSolved && answer ? answer : selectedAnswer}
