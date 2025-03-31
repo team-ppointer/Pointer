@@ -83,8 +83,8 @@ const ProblemCalandar = () => {
         </p>
         <IcNextBlack width={24} height={24} onClick={handleClickNextMonth} />
       </div>
-      <div className='flex flex-col gap-[2.4rem] md:flex-row'>
-        <div className='flex w-full flex-col items-center gap-[2rem] rounded-[16px] bg-white px-[3.2rem] py-[2.4rem] md:w-[33.5rem]'>
+      <div className='flex flex-col gap-[2.4rem]'>
+        <div className='flex w-full flex-col items-center gap-[2rem] rounded-[16px] bg-white px-[3.2rem] py-[2.4rem]'>
           <div className='grid w-[26.8rem] grid-cols-5 gap-[1.2rem]'>
             {['월', '화', '수', '목', '금'].map((day) => (
               <div key={day} className={`font-medium-12 text-midgray100 text-center`}>
