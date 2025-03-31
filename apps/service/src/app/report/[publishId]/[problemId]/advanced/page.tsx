@@ -57,7 +57,7 @@ const Page = () => {
             <Image
               src={seniorTipImageUrl ?? ''}
               alt='advanced'
-              className={`w-full rounded-[1.6rem] object-contain`}
+              className={`w-full object-contain`}
               width={700}
               height={200}
               priority
