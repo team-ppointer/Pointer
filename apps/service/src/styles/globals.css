@@ -73,6 +73,8 @@
     min-height: 100dvh;
     font-family: var(--font-pretendard);
     scroll-behavior: smooth;
+    max-width: 768px;
+    margin: 0 auto;
   }
 
   p {
