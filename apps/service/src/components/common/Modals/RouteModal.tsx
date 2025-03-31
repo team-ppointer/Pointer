@@ -14,7 +14,7 @@ const RouteModal = ({ children }: RouteModalProps) => {
       onClick={() => router.back()}>
       <div className='h-full w-full bg-black opacity-50' />
       <div
-        className='absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] transform overflow-auto rounded-[16px] bg-white shadow-lg'
+        className='absolute top-[50%] left-[50%] max-w-[768px] translate-x-[-50%] translate-y-[-50%] transform overflow-auto rounded-[16px] bg-white shadow-lg'
         onClick={(e) => e.stopPropagation()}>
         {children}
       </div>

@@ -19,7 +19,7 @@ const Header = ({ title, iconType = 'home' }: HeaderProps) => {
   };
 
   return (
-    <header className='bg-background fixed inset-0 z-40 flex h-[6rem] items-center justify-between px-[2rem]'>
+    <header className='bg-background fixed inset-0 z-40 mx-auto flex h-[6rem] max-w-[768px] items-center justify-between px-[2rem]'>
       <div className='flex w-1/6 cursor-pointer items-center'>
         {iconType === 'home' && <IcHome width={24} height={24} onClick={handleClickHome} />}
         {iconType === 'back' && <IcLeft width={24} height={24} onClick={() => router.back()} />}
