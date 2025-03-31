@@ -22,16 +22,16 @@ const Page = () => {
 
   const handleClickPrev = () => {
     trackEvent('report_advanced_prev_button_click', {
-      buttonLabel: '해설',
+      buttonLabel: '포인팅',
     });
-    router.push(`/report/${publishId}/${problemId}/analysis`);
+    router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
   const handleClickNext = () => {
     trackEvent('report_advanced_next_button_click', {
-      buttonLabel: '포인팅',
+      buttonLabel: '리스트로',
     });
-    router.push(`/report/${publishId}/${problemId}/prescription`);
+    router.push(`/problem/list/${publishId}`);
   };
 
   if (!seniorTipImageUrl) {
@@ -40,7 +40,7 @@ const Page = () => {
 
   return (
     <>
-      <ProgressHeader progress={66} />
+      <ProgressHeader progress={100} />
       <main className='px-[2rem] py-[8rem]'>
         <div className='flex items-center justify-between'>
           <h1 className='font-bold-18 text-main my-[0.8rem]'>한 걸음 더</h1>
@@ -65,8 +65,8 @@ const Page = () => {
           </ImageContainer>
         </div>
         <NavigationFooter
-          prevLabel='해설'
-          nextLabel='포인팅'
+          prevLabel='포인팅'
+          nextLabel='리스트로'
           onClickPrev={handleClickPrev}
           onClickNext={handleClickNext}
         />

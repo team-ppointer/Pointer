@@ -36,9 +36,9 @@ const Page = () => {
 
   const handleClickNext = () => {
     trackEvent('report_analysis_next_button_click', {
-      buttonLabel: '한 걸음 더',
+      buttonLabel: '포인팅',
     });
-    router.push(`/report/${publishId}/${problemId}/advanced`);
+    router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
   if (!mainAnalysisImageUrl || !mainHandwritingExplanationImageUrl) {
@@ -102,7 +102,7 @@ const Page = () => {
             <IcRight width={24} height={24} />
           </button>
         </div>
-        <NavigationFooter nextLabel='한 걸음 더' onClickNext={handleClickNext} />
+        <NavigationFooter nextLabel='포인팅' onClickNext={handleClickNext} />
       </main>
     </>
   );
