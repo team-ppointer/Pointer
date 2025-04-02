@@ -19,9 +19,10 @@ import {
   Tag,
   ImageContainer,
 } from '@components';
-import { useInvalidate, useModal, useTrackEvent } from '@hooks';
+import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
 import { useChildProblemContext } from '@/hooks/problem';
+import { trackEvent } from '@utils';
 
 type ChildProblemSubmitUpdateResponse = components['schemas']['ChildProblemSubmitUpdateResponse'];
 
@@ -32,7 +33,6 @@ const Page = () => {
     childProblemId: string;
   }>();
   const router = useRouter();
-  const { trackEvent } = useTrackEvent();
   const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
 

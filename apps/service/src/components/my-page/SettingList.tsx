@@ -4,10 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 
 const SettingList = () => {
-  const { trackEvent } = useTrackEvent();
   const router = useRouter();
 
   const handleClickLogout = () => {
