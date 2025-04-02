@@ -17,9 +17,10 @@ import {
   TimeTag,
   ImageContainer,
 } from '@components';
-import { useInvalidate, useModal, useTrackEvent } from '@hooks';
+import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
+import { trackEvent } from '@utils';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -38,7 +39,6 @@ const statusColor: Record<string, 'green' | 'red' | 'gray'> = {
 const Page = () => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
   const router = useRouter();
-  const { trackEvent } = useTrackEvent();
   const { childProblemLength } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
 

@@ -2,14 +2,13 @@
 import { useParams, useRouter } from 'next/navigation';
 
 import { Divider, NavigationFooter, ProgressHeader } from '@components';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { PrescriptionCard } from '@/components/report';
 import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
-  const { trackEvent } = useTrackEvent();
 
   const { problemNumber, prescription } = useReportContext();
   const childProblems = prescription?.childProblem ?? [];
@@ -32,16 +31,12 @@ const Page = () => {
   };
 
   const handleClickPrev = () => {
-    trackEvent('report_prescription_prev_button_click', {
-      buttonLabel: '해설',
-    });
+    trackEvent('report_prescription_prev_button_click_to_analysis');
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
   const handleClickNext = () => {
-    trackEvent('report_prescription_next_button_click', {
-      buttonLabel: '한 걸음 더',
-    });
+    trackEvent('report_prescription_next_button_click_to_advanced');
     router.push(`/report/${publishId}/${problemId}/advanced`);
   };
 

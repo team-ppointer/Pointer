@@ -2,13 +2,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useTrackEvent } from '@hooks';
-import { getAccessToken } from '@utils';
+import { getAccessToken, trackEvent } from '@utils';
 import { LogoLogin } from '@/assets/svg/logo';
 import { KakaoButton } from '@/components/login';
 
 const Page = () => {
-  const { trackEvent } = useTrackEvent();
   const router = useRouter();
   const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${
     process.env.NEXT_PUBLIC_REST_API_KEY

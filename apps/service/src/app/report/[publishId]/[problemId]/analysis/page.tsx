@@ -5,14 +5,13 @@ import Image from 'next/image';
 
 import { IcRight, IcThumbtack } from '@svg';
 import { ImageContainer, NavigationFooter, ProgressHeader } from '@components';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { useReportContext } from '@/hooks/report';
 import { TabMenu } from '@/components/report';
 
 const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
-  const { trackEvent } = useTrackEvent();
   const {
     problemNumber,
     answerType,
@@ -35,9 +34,7 @@ const Page = () => {
   };
 
   const handleClickNext = () => {
-    trackEvent('report_analysis_next_button_click', {
-      buttonLabel: '포인팅',
-    });
+    trackEvent('report_analysis_next_button_click_to_prescription');
     router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 

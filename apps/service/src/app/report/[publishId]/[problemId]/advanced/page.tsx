@@ -3,13 +3,12 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import { NavigationFooter, SmallButton, ProgressHeader, ImageContainer } from '@components';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
   const { publishId, problemId } = useParams();
   const router = useRouter();
-  const { trackEvent } = useTrackEvent();
 
   const { problemNumber, seniorTipImageUrl, prescription } = useReportContext();
 
@@ -21,16 +20,12 @@ const Page = () => {
   };
 
   const handleClickPrev = () => {
-    trackEvent('report_advanced_prev_button_click', {
-      buttonLabel: '포인팅',
-    });
+    trackEvent('report_advanced_prev_button_click_to_prescription');
     router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
   const handleClickNext = () => {
-    trackEvent('report_advanced_next_button_click', {
-      buttonLabel: '리스트로',
-    });
+    trackEvent('report_advanced_next_button_click_to_list');
     router.push(`/problem/list/${publishId}`);
   };
 
