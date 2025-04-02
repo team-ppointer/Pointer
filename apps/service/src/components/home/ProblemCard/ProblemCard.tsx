@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@components';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { IcSolve } from '@svg';
 
 interface Props {
@@ -15,7 +15,6 @@ interface Props {
 
 const ProblemCard = ({ publishId, dateString, title, image, solvedCount }: Props) => {
   const router = useRouter();
-  const { trackEvent } = useTrackEvent();
 
   const handleClickProblem = () => {
     trackEvent('home_carousel_problem_card_click', {

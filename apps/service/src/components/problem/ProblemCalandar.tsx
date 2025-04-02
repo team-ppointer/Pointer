@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
 import { components } from '@schema';
 import { useGetProblemAll } from '@apis';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 
 import DayProblemCard from './DayProblemCard';
 
@@ -14,7 +14,6 @@ type AllProblemGetResponse = components['schemas']['AllProblemGetResponse'];
 const ProblemCalandar = () => {
   const [currentDay, setCurrentDay] = useState(dayjs());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const { trackEvent } = useTrackEvent();
   const year = currentDay.year();
   const month = currentDay.month() + 1;
 

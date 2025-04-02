@@ -3,7 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 
 import { ProgressBar } from '@components';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { IcList } from '@svg';
 
 interface ProgressHeaderProps {
@@ -13,7 +13,6 @@ interface ProgressHeaderProps {
 const ProgressHeader = ({ progress }: ProgressHeaderProps) => {
   const router = useRouter();
   const { publishId } = useParams();
-  const { trackEvent } = useTrackEvent();
 
   const handleClickProblemList = () => {
     trackEvent('progress_header_problem_list_button_click');

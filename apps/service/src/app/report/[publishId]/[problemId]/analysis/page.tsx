@@ -5,14 +5,13 @@ import Image from 'next/image';
 
 import { IcRight, IcThumbtack } from '@svg';
 import { ImageContainer, NavigationFooter, ProgressHeader } from '@components';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { useReportContext } from '@/hooks/report';
 import { TabMenu } from '@/components/report';
 
 const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
-  const { trackEvent } = useTrackEvent();
   const {
     problemNumber,
     answerType,
@@ -35,10 +34,8 @@ const Page = () => {
   };
 
   const handleClickNext = () => {
-    trackEvent('report_analysis_next_button_click', {
-      buttonLabel: '한 걸음 더',
-    });
-    router.push(`/report/${publishId}/${problemId}/advanced`);
+    trackEvent('report_analysis_next_button_click_to_prescription');
+    router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
   if (!mainAnalysisImageUrl || !mainHandwritingExplanationImageUrl) {
@@ -102,7 +99,7 @@ const Page = () => {
             <IcRight width={24} height={24} />
           </button>
         </div>
-        <NavigationFooter nextLabel='한 걸음 더' onClickNext={handleClickNext} />
+        <NavigationFooter nextLabel='포인팅' onClickNext={handleClickNext} />
       </main>
     </>
   );
