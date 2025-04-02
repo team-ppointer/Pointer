@@ -3,7 +3,8 @@ import { useRouter } from 'next/navigation';
 
 import { SolveButton } from '@components';
 import { useGetChildData, postChildProblemSubmit, postProblemSubmit } from '@apis';
-import { useInvalidate, useTrackEvent } from '@hooks';
+import { useInvalidate } from '@hooks';
+import { trackEvent } from '@utils';
 
 interface SolveButtonsClientProps {
   publishId: string;
@@ -13,7 +14,6 @@ interface SolveButtonsClientProps {
 const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) => {
   const router = useRouter();
   const { invalidateAll } = useInvalidate();
-  const { trackEvent } = useTrackEvent();
   const { data } = useGetChildData(publishId, problemId);
   const childProblemId = data?.data?.childProblemIds[0];
 

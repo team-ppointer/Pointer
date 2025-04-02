@@ -6,7 +6,7 @@ import { Button } from '@components';
 import { IcCalendar } from '@svg';
 import { useGetHomeFeed } from '@apis';
 import { DailyProgress } from '@types';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import {
   GuideButton,
   HomeHeader,
@@ -17,7 +17,6 @@ import {
 
 const Page = () => {
   const router = useRouter();
-  const { trackEvent } = useTrackEvent();
   const { data } = useGetHomeFeed();
   const homeFeedData = data?.data;
 

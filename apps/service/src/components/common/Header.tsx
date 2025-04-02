@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { IcHome, IcLeft } from '@svg';
 
 interface HeaderProps {
@@ -11,7 +11,6 @@ interface HeaderProps {
 
 const Header = ({ title, iconType = 'home' }: HeaderProps) => {
   const router = useRouter();
-  const { trackEvent } = useTrackEvent();
 
   const handleClickHome = () => {
     trackEvent('header_home_button_click');

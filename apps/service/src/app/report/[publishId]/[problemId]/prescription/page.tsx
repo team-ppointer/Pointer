@@ -2,14 +2,13 @@
 import { useParams, useRouter } from 'next/navigation';
 
 import { Divider, NavigationFooter, ProgressHeader } from '@components';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { PrescriptionCard } from '@/components/report';
 import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
-  const { trackEvent } = useTrackEvent();
 
   const { problemNumber, prescription } = useReportContext();
   const childProblems = prescription?.childProblem ?? [];
@@ -32,22 +31,18 @@ const Page = () => {
   };
 
   const handleClickPrev = () => {
-    trackEvent('report_prescription_prev_button_click', {
-      buttonLabel: '한 걸음 더',
-    });
-    router.push(`/report/${publishId}/${problemId}/advanced`);
+    trackEvent('report_prescription_prev_button_click_to_analysis');
+    router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
   const handleClickNext = () => {
-    trackEvent('report_prescription_next_button_click', {
-      buttonLabel: '리스트로',
-    });
-    router.push(`/problem/list/${publishId}`);
+    trackEvent('report_prescription_next_button_click_to_advanced');
+    router.push(`/report/${publishId}/${problemId}/advanced`);
   };
 
   return (
     <>
-      <ProgressHeader progress={100} />
+      <ProgressHeader progress={66} />
       <main className='px-[2rem] py-[8rem]'>
         <h1 className='font-bold-18 text-main my-[0.8rem]'>포인팅</h1>
 
@@ -71,8 +66,8 @@ const Page = () => {
         </ul>
 
         <NavigationFooter
-          prevLabel='한 걸음 더'
-          nextLabel='리스트로'
+          prevLabel='해설'
+          nextLabel='한 걸음 더'
           onClickPrev={handleClickPrev}
           onClickNext={handleClickNext}
         />

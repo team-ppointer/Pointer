@@ -28,7 +28,7 @@ const PrescriptionCard = ({ status = 'NOT_STARTED', title, onClick }: Prescripti
         {statusIcon(status)}
         <p className='font-medium-16 text-black'>{title}</p>
       </div>
-      <SmallButton onClick={onClick}>진단 및 처방</SmallButton>
+      <SmallButton onClick={onClick}>진단 받기</SmallButton>
     </div>
   );
 };

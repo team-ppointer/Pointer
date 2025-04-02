@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { Button, StatusIcon, StatusTag } from '@components';
-import { useTrackEvent } from '@hooks';
+import { trackEvent } from '@utils';
 import { components } from '@schema';
 import { IcDown, IcUp } from '@svg';
 
@@ -23,7 +23,6 @@ const ProblemStatusCard = ({
 }: ProblemStatusCardProps) => {
   const { problemId, status, childProblemStatuses } = problemData;
   const router = useRouter();
-  const { trackEvent } = useTrackEvent();
   const [isOpen, setIsOpen] = useState(
     !childProblemStatuses?.every((childStatus) => childStatus === 'NOT_STARTED')
   );
