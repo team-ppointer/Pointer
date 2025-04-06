@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@components';
 import { IcCalendar } from '@svg';
@@ -23,10 +24,18 @@ const Page = () => {
   const dailyProgresses = homeFeedData?.dailyProgresses;
   const problemSets = homeFeedData?.problemSets;
 
-  const startDate = dayjs(dailyProgresses?.[0]?.date).format('MM/DD');
-  const endDate = dayjs(dailyProgresses?.[dailyProgresses.length - 1]?.date).format('DD');
-  const progress: DailyProgress[] =
-    dailyProgresses?.map((progress) => progress.progressStatus ?? 'NOT_STARTED') ?? [];
+  const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
+  const [progress, setProgress] = useState<DailyProgress[]>([]);
+
+  useEffect(() => {
+    if (dailyProgresses?.length) {
+      setDateRange({
+        startDate: dayjs(dailyProgresses[0]?.date).format('MM/DD'),
+        endDate: dayjs(dailyProgresses[dailyProgresses.length - 1]?.date).format('DD'),
+      });
+      setProgress(dailyProgresses.map((progress) => progress.progressStatus ?? 'NOT_STARTED'));
+    }
+  }, [dailyProgresses]);
 
   const handleClickAllProblem = () => {
     trackEvent('home_all_problem_button_click');
@@ -43,7 +52,11 @@ const Page = () => {
         {false && <NoticeButton count={1} />}
         <div className='flex w-full items-center gap-[1.2rem] pt-[1.6rem]'>
           <GuideButton />
-          <WeekProgress startDate={startDate} endDate={endDate} progress={progress} />
+          <WeekProgress
+            startDate={dateRange.startDate}
+            endDate={dateRange.endDate}
+            progress={progress}
+          />
         </div>
       </main>
       <div className='mt-[2.4rem]'>
