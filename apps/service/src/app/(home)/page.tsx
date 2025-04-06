@@ -18,7 +18,7 @@ import {
 
 const Page = () => {
   const router = useRouter();
-  const { data } = useGetHomeFeed();
+  const { data, isLoading } = useGetHomeFeed();
   const homeFeedData = data?.data;
 
   const dailyProgresses = homeFeedData?.dailyProgresses;
@@ -60,7 +60,13 @@ const Page = () => {
         </div>
       </main>
       <div className='mt-[2.4rem]'>
-        <ProblemSwiper problemSets={problemSets ?? []} />
+        {isLoading ? (
+          <div className='h-[456px] w-full' />
+        ) : problemSets ? (
+          <ProblemSwiper problemSets={problemSets} />
+        ) : (
+          <></>
+        )}
       </div>
       <footer className='bg-background mt-[2.4rem] px-[2rem] pb-[3.3rem]'>
         <Button variant='light' onClick={handleClickAllProblem}>
