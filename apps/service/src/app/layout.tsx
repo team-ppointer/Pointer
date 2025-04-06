@@ -53,6 +53,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='ko'>
+      <head>
+        <link rel='preconnect' href='https://www.google-analytics.com' crossOrigin='anonymous' />
+        <link rel='preconnect' href='https://prod.math-pointer.com' crossOrigin='anonymous' />
+      </head>
       <body className={`antialiased`}>
         <Providers>
           <Suspense fallback={<></>}>
