@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import type { Metadata, Viewport } from 'next';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
 
 import Providers from './providers';
 
@@ -40,8 +40,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({
@@ -53,6 +51,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='ko'>
+      <head>
+        <link rel='preconnect' href='https://www.google-analytics.com' crossOrigin='anonymous' />
+        <link rel='preconnect' href='https://prod.math-pointer.com' crossOrigin='anonymous' />
+      </head>
       <body className={`antialiased`}>
         <Providers>
           <Suspense fallback={<></>}>
@@ -61,7 +63,18 @@ export default function RootLayout({
           </Suspense>
           <div id='modal'></div>
         </Providers>
-        <GoogleAnalytics gaId='G-7C9ETDHB0G' />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=G-7C9ETDHB0G`}
+          strategy='lazyOnload'
+        />
+        <Script id='google-analytics' strategy='lazyOnload'>
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-7C9ETDHB0G');
+          `}
+        </Script>
       </body>
     </html>
   );

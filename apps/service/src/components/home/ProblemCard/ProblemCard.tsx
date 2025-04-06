@@ -37,6 +37,7 @@ const ProblemCard = ({ publishId, dateString, title, image, solvedCount }: Props
           className='w-full object-contain object-top'
           width={264}
           height={157}
+          priority
         />
 
         <div
