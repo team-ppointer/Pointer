@@ -44,7 +44,7 @@ function RouteComponent() {
         onSuccess: (data) => {
           invalidateAll();
           const { id } = data.data;
-          navigate({ to: `/problem/${id}` });
+          navigate({ to: '/problem/$problemId', params: { problemId: id.toString() } });
         },
       }
     );
