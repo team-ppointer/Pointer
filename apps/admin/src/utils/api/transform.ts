@@ -1,13 +1,7 @@
 import { components } from '@schema';
-import { TagType } from '@types';
 
 type ProblemGetResponse = components['schemas']['ProblemGetResponse'];
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
-
-export const tagToQueryParams = (tags: TagType[]) => {
-  if (!tags.length) return {};
-  return { conceptTagIds: tags.map((tag) => tag.id) };
-};
 
 export const transformToProblemUpdateRequest = (
   serverData: ProblemGetResponse
