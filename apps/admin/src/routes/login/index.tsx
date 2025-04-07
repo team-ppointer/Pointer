@@ -53,7 +53,7 @@ function RouteComponent() {
 
   return (
     <div className='flex h-[100dvh] flex-col items-center justify-center'>
-      <img src='/images/logo.jpeg' alt='로고이미지' className='h-[10rem]' />
+      <img src='/images/logo.png' alt='로고이미지' className='h-[6rem]' />
       <form
         onSubmit={handleSubmit(onSubmitLogin)}
         className='mt-[4.8rem] flex w-[42.4rem] flex-col items-start justify-center gap-[4.8rem]'>
