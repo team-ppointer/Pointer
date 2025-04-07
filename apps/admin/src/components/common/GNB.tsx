@@ -1,6 +1,22 @@
+import { HTMLAttributes } from 'react';
 import { Link } from '@tanstack/react-router';
-import { GNBMenu } from '@components';
 import { IcFolder, IcList, IcPublish } from '@svg';
+
+interface GNBMenuProps extends HTMLAttributes<HTMLDivElement> {
+  isSelected: boolean;
+  children: React.ReactNode;
+}
+
+const GNBMenu = ({ isSelected, children }: GNBMenuProps) => {
+  const bgStyles = isSelected ? 'bg-darkgray200' : '';
+
+  return (
+    <div
+      className={`font-medium-18 flex h-[4.8rem] w-full items-center justify-start gap-[1.6rem] ${bgStyles} rounded-[8px] px-[1.6rem] py-[1.2rem] text-white`}>
+      {children}
+    </div>
+  );
+};
 
 const GNB = () => {
   return (

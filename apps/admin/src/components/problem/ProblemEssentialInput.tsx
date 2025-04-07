@@ -1,6 +1,8 @@
-import { Button, ComponentWithLabel, Input, PracticeTestSelect, SectionCard } from '@components';
+import { Button, ComponentWithLabel, Input, SectionCard } from '@components';
 import { ProblemType } from '@types';
 import { forwardRef } from 'react';
+
+import PracticeTestSelect from './PracticeTestSelect';
 
 interface ProblemTypeSectionProps {
   problemType: ProblemType;

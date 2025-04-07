@@ -1,9 +1,11 @@
 import { postProblems } from '@apis';
-import { Button, Header, ProblemEssentialInput } from '@components';
+import { Button, Header } from '@components';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Controller, useForm } from 'react-hook-form';
 import { components } from '@schema';
 import { useInvalidate } from '@hooks';
+
+import { ProblemEssentialInput } from '@/components/problem';
 
 export const Route = createFileRoute('/_GNBLayout/problem/register/')({
   component: RouteComponent,

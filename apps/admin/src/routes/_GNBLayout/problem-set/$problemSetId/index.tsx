@@ -10,7 +10,6 @@ import {
   PlusButton,
   ProblemCard,
   ProblemSearchModal,
-  StatusToggle,
   Tag,
   TwoButtonModalTemplate,
 } from '@components';
@@ -30,6 +29,8 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core';
 import { SortableContext, arrayMove, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+
+import { StatusToggle } from '@/components/problemSet';
 
 export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
   component: RouteComponent,
