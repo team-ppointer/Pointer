@@ -74,6 +74,8 @@ function RouteComponent() {
             placeholder='비밀번호를 입력해주세요'
             type='password'
             autoComplete='current-password'
+            lang='en'
+            inputMode='text'
             {...register('password', {
               required: true,
               pattern: {
