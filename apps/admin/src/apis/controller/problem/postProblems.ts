@@ -1,4 +1,4 @@
-import { $api } from 'src/apis/client';
+import { $api } from '@apis';
 
 const postProblems = () => {
   return $api.useMutation('post', '/api/v1/problems');
