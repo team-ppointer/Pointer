@@ -1,8 +1,9 @@
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { postLogin } from '@apis';
 import { Button, SearchInput } from '@components';
-import { useAuth, useNavigation } from '@hooks';
+import { useNavigation } from '@hooks';
 import { createFileRoute } from '@tanstack/react-router';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { tokenStorage } from '@utils';
 
 export const Route = createFileRoute('/login/')({
   component: RouteComponent,
@@ -14,7 +15,6 @@ interface LoginType {
 }
 
 function RouteComponent() {
-  const { setAccessToken } = useAuth();
   const { mutate } = postLogin();
   const { goPublish } = useNavigation();
 
@@ -36,7 +36,7 @@ function RouteComponent() {
         onSuccess: (data) => {
           const { accessToken } = data.data;
           if (accessToken) {
-            setAccessToken(accessToken);
+            tokenStorage.setToken(accessToken);
             goPublish();
           }
         },

@@ -1,4 +1,3 @@
-import { reissueToken } from './reissueToken';
-import { checkIsLoggedIn } from './checkIsLoggedIn';
-
-export { reissueToken, checkIsLoggedIn };
+export * from './tokenStorage';
+export * from './checkIsLoggedIn';
+export * from './reissueToken';

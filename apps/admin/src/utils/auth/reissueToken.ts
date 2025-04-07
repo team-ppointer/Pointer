@@ -1,4 +1,4 @@
-import { setAccessToken } from '@contexts/AuthContext';
+import { tokenStorage } from './tokenStorage';
 
 // 리프레시 토큰을 이용한 액세스 토큰 재발급
 export const reissueToken = async () => {
@@ -12,11 +12,11 @@ export const reissueToken = async () => {
 
     const data = await response.json();
     const accessToken = data.data.accessToken;
-    setAccessToken(accessToken);
+    tokenStorage.setToken(accessToken);
     return accessToken;
   } catch (error) {
     console.error('Reissue failed:', error);
-    setAccessToken(null);
+    tokenStorage.clearToken();
     window.location.href = '/login';
     return null;
   }

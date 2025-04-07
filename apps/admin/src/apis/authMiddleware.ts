@@ -1,6 +1,5 @@
-import { getAccessToken } from '@contexts/AuthContext';
-import { reissueToken } from '@utils';
 import { Middleware } from 'openapi-fetch';
+import { tokenStorage, reissueToken } from '@utils';
 
 const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login'];
 
@@ -10,7 +9,7 @@ const authMiddleware: Middleware = {
       return undefined;
     }
 
-    let accessToken = getAccessToken();
+    let accessToken = tokenStorage.getToken();
 
     if (!accessToken) {
       accessToken = await reissueToken();
