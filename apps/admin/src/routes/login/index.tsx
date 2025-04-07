@@ -2,10 +2,17 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { postLogin } from '@apis';
 import { Button, SearchInput } from '@components';
 import { useNavigation } from '@hooks';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import { tokenStorage } from '@utils';
 
 export const Route = createFileRoute('/login/')({
+  beforeLoad: async () => {
+    if (tokenStorage.getToken()) {
+      throw redirect({
+        to: '/publish',
+      });
+    }
+  },
   component: RouteComponent,
 });
 
