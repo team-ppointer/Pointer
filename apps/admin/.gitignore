@@ -19,6 +19,3 @@ dist/
 
 # Route Tree
 routeTree.gen.ts
-
-# Stats
-stats.html
