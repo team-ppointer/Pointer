@@ -1,4 +1,4 @@
-import { $api } from 'src/apis/client';
+import { $api } from '@apis';
 
 const deleteChildProblem = () => {
   return $api.useMutation('delete', '/api/v1/problems/{problemId}/child-problems/{childProblemId}');

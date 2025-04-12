@@ -13,7 +13,7 @@ const getPresignedUrl = ({ problemId, imageType }: getPresignedUrlParams) => {
     {
       params: {
         path: {
-          problemId: problemId,
+          problemId: Number(problemId),
         },
         query: {
           'image-type': imageType,

@@ -1,4 +1,4 @@
-import { $api } from 'src/apis/client';
+import { $api } from '@apis';
 
 const getProblemSetById = (problemSetId: number) => {
   return $api.useQuery('get', '/api/v1/problemSet/{problemSetId}', {

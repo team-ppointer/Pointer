@@ -4,16 +4,12 @@ import {
   DeleteButton,
   FloatingButton,
   Header,
-  ImageUpload,
   Input,
-  LevelSelect,
   Modal,
   PlusButton,
-  ProblemEssentialInput,
   SectionCard,
   Tag,
   TagSelectModal,
-  TextArea,
   TwoButtonModalTemplate,
 } from '@components';
 import { components } from '@schema';
@@ -32,6 +28,8 @@ import { useEffect, useState } from 'react';
 import { transformToProblemUpdateRequest } from '@utils';
 import { useInvalidate, useModal } from '@hooks';
 import { Slide, ToastContainer, toast } from 'react-toastify';
+
+import { ImageUpload, LevelSelect, ProblemEssentialInput, TextArea } from '@/components/problem';
 
 export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
   component: RouteComponent,

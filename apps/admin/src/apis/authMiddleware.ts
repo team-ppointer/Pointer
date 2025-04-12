@@ -1,28 +1,7 @@
-import { getAccessToken, setAccessToken } from '@contexts/AuthContext';
 import { Middleware } from 'openapi-fetch';
+import { tokenStorage, reissueToken } from '@utils';
 
 const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login'];
-
-const reissueToken = async () => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/reissue`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
-    if (!response.ok) throw new Error('Token reissue failed');
-
-    const data = await response.json();
-    const accessToken = data.data.accessToken;
-    setAccessToken(accessToken);
-    return accessToken;
-  } catch (error) {
-    console.error('Reissue failed:', error);
-    setAccessToken(null);
-    window.location.href = '/login';
-    return null;
-  }
-};
 
 const authMiddleware: Middleware = {
   async onRequest({ schemaPath, request }: { schemaPath: string; request: Request }) {
@@ -30,7 +9,7 @@ const authMiddleware: Middleware = {
       return undefined;
     }
 
-    let accessToken = getAccessToken();
+    let accessToken = tokenStorage.getToken();
 
     if (!accessToken) {
       accessToken = await reissueToken();
@@ -59,8 +38,6 @@ const authMiddleware: Middleware = {
       request.headers.set('Authorization', `Bearer ${newAccessToken}`);
       return fetch(request);
     }
-    // const cloneJson = await response.clone().json();
-    // return cloneJson.data ? new Response(JSON.stringify(cloneJson.data)) : response;
     return response;
   },
 };

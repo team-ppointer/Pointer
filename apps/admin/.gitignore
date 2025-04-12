@@ -17,4 +17,5 @@ dist/
 !.vscode/extensions.json
 .idea
 
+# Route Tree
 routeTree.gen.ts

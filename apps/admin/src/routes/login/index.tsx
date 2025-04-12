@@ -1,10 +1,18 @@
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { postLogin } from '@apis';
 import { Button, SearchInput } from '@components';
-import { useAuth, useNavigation } from '@hooks';
-import { createFileRoute } from '@tanstack/react-router';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useNavigation } from '@hooks';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { tokenStorage } from '@utils';
 
 export const Route = createFileRoute('/login/')({
+  beforeLoad: async () => {
+    if (tokenStorage.getToken()) {
+      throw redirect({
+        to: '/publish',
+      });
+    }
+  },
   component: RouteComponent,
 });
 
@@ -14,7 +22,6 @@ interface LoginType {
 }
 
 function RouteComponent() {
-  const { setAccessToken } = useAuth();
   const { mutate } = postLogin();
   const { goPublish } = useNavigation();
 
@@ -36,7 +43,7 @@ function RouteComponent() {
         onSuccess: (data) => {
           const { accessToken } = data.data;
           if (accessToken) {
-            setAccessToken(accessToken);
+            tokenStorage.setToken(accessToken);
             goPublish();
           }
         },
@@ -46,7 +53,7 @@ function RouteComponent() {
 
   return (
     <div className='flex h-[100dvh] flex-col items-center justify-center'>
-      <img src='/images/logo.jpeg' alt='로고이미지' className='h-[10rem]' />
+      <img src='/images/logo.png' alt='로고이미지' className='h-[6rem]' />
       <form
         onSubmit={handleSubmit(onSubmitLogin)}
         className='mt-[4.8rem] flex w-[42.4rem] flex-col items-start justify-center gap-[4.8rem]'>
@@ -67,6 +74,8 @@ function RouteComponent() {
             placeholder='비밀번호를 입력해주세요'
             type='password'
             autoComplete='current-password'
+            lang='en'
+            inputMode='text'
             {...register('password', {
               required: true,
               pattern: {
