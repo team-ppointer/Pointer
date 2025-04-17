@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Image from 'next/image';
+import { Slide, ToastContainer } from 'react-toastify';
 
 import { useGetProblemById, putProblemSubmit } from '@apis';
 import {
@@ -16,11 +17,12 @@ import {
   NavigationFooter,
   TimeTag,
   ImageContainer,
+  CopyButton,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
-import { trackEvent } from '@utils';
+import { copyImageToClipboard, trackEvent } from '@utils';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -111,12 +113,30 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
+  const handleClickCopyImage = async () => {
+    if (!imageUrl) return;
+    await copyImageToClipboard(imageUrl);
+  };
+
   if (isLoading) {
     return <></>;
   }
 
   return (
     <>
+      <ToastContainer
+        position='top-center'
+        autoClose={1000}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnHover={false}
+        hideProgressBar
+        transition={Slide}
+        style={{
+          fontSize: '1.6rem',
+        }}
+      />
       <ProgressHeader progress={100} />
       <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
@@ -136,7 +156,7 @@ const Page = () => {
               </Tag>
             )}
           </div>
-          <ImageContainer className='mt-[1.2rem]'>
+          <ImageContainer className='relative mt-[1.2rem]'>
             <Image
               src={imageUrl ?? ''}
               alt={`메인 문제 ${number}번`}
@@ -145,6 +165,9 @@ const Page = () => {
               height={200}
               priority
             />
+            <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
+              <CopyButton onClick={handleClickCopyImage} />
+            </div>
           </ImageContainer>
 
           {isDirect && (
