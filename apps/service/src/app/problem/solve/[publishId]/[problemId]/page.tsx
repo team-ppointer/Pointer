@@ -5,7 +5,12 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { Slide, ToastContainer } from 'react-toastify';
 
-import { useGetProblemById, putProblemSubmit, useGetChildData } from '@apis';
+import {
+  useGetProblemById,
+  putProblemSubmit,
+  useGetChildData,
+  postChildProblemSubmit,
+} from '@apis';
 import {
   AnswerInput,
   Button,
@@ -88,8 +93,10 @@ const Page = () => {
     }
   };
 
-  const handleClickStepSolve = () => {
+  const handleClickStepSolve = async () => {
     trackEvent('problem_main_solve_step_solve_button_click');
+    await postChildProblemSubmit(publishId, problemId);
+    invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}/child-problem/${childProblemId}`);
   };
 

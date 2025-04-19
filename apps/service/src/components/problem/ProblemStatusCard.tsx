@@ -8,6 +8,7 @@ import { trackEvent } from '@utils';
 import { components } from '@schema';
 import { IcDown, IcUp } from '@svg';
 import { postProblemSubmit } from '@apis';
+import { useInvalidate } from '@hooks';
 
 type ProblemFeedProgressesGetResponse = components['schemas']['ProblemFeedProgressesGetResponse'];
 
@@ -22,6 +23,7 @@ const ProblemStatusCard = ({
   publishId,
   problemData,
 }: ProblemStatusCardProps) => {
+  const { invalidateAll } = useInvalidate();
   const { problemId, status, childProblemStatuses } = problemData;
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(
@@ -37,6 +39,7 @@ const ProblemStatusCard = ({
 
     if (!problemId) return;
     await postProblemSubmit(publishId, problemId);
+    invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}`);
   };
 
