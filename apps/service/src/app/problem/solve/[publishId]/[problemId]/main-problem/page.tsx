@@ -125,16 +125,21 @@ const Page = () => {
   return (
     <>
       <ToastContainer
-        position='top-center'
+        position='bottom-center'
         autoClose={1000}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnHover={false}
         hideProgressBar
         transition={Slide}
+        closeButton={false}
         style={{
           fontSize: '1.6rem',
+          width: '30rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          bottom: '3rem',
         }}
       />
       <ProgressHeader progress={100} />
