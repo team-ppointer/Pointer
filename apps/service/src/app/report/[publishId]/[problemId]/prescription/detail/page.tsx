@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
-import { Header, ImageContainer } from '@components';
+import { Button, Header, ImageContainer } from '@components';
 import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
@@ -34,10 +34,9 @@ const Page = () => {
 
   return (
     <>
-      <Header title='포인팅' iconType='back' />
-      <main className='px-[2rem] py-[8rem]'>
-        <h1 className='font-bold-18 text-main my-[0.8rem]'>{title}</h1>
-        <div className='mt-[1.6rem] flex flex-col gap-[1.6rem]'>
+      <Header title={`${title} 포인팅`} iconType='back' />
+      <main className='px-[2rem] py-[6rem]'>
+        <div className='mt-[2rem] flex flex-col gap-[1.6rem]'>
           <ImageContainer className='w-full'>
             <Image
               src={problemImageUrl ?? ''}
