@@ -1,6 +1,4 @@
-import { SmallButton } from '@components';
 import {
-  IcNext,
   IcNextSmall,
   IcStatusCorrect,
   IcStatusIncorrect,
