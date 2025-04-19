@@ -6,7 +6,9 @@ interface ImageContainerProps {
 }
 
 const ImageContainer = ({ children, className = '' }: ImageContainerProps) => {
-  return <div className={`rounded-[1.6rem] bg-white p-[1.6rem] ${className}`}>{children}</div>;
+  return (
+    <div className={`rounded-[1.6rem] bg-white px-[1.6rem] py-[5rem] ${className}`}>{children}</div>
+  );
 };
 
 export default ImageContainer;
