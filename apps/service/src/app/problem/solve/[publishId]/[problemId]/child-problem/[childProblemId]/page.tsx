@@ -68,9 +68,7 @@ const Page = () => {
   } = data?.data ?? {};
 
   const prevButtonLabel =
-    childProblemNumber === 1
-      ? `메인 문제 ${problemNumber}번`
-      : `새끼 문제 ${problemNumber}-${childProblemNumber - 1}번`;
+    childProblemNumber === 1 ? '' : `새끼 문제 ${problemNumber}-${childProblemNumber - 1}번`;
 
   const nextButtonLabel =
     childProblemNumber === childProblemLength
