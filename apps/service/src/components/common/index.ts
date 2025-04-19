@@ -13,6 +13,7 @@ import ImageContainer from './ImageContainer';
 export * from './Buttons';
 export * from './Inputs';
 export * from './Modals';
+export * from './BottomSheet';
 
 export {
   Tag,
