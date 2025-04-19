@@ -21,6 +21,8 @@ import {
   Tag,
   ImageContainer,
   CopyButton,
+  BottomSheet,
+  ChildAnswerCheckBottomSheetTemplate,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
@@ -229,7 +231,17 @@ const Page = () => {
         onClickNext={isSubmitted ? handleClickNext : handleClickFooterSkipButton}
       />
 
-      <PortalModal isOpen={isOpen} onClose={closeModal}>
+      <BottomSheet isOpen={isOpen} onClose={closeModal}>
+        <ChildAnswerCheckBottomSheetTemplate
+          result={result}
+          onClose={handleClickCloseCheckModal}
+          handleClickShowPointing={() => {}}
+          handleClickNext={handleClickNextProblemButton}
+          handleClickShowAnswer={handleClickShowAnswer}
+        />
+      </BottomSheet>
+
+      <PortalModal isOpen={false} onClose={closeModal}>
         <ChildAnswerCheckModalTemplate
           result={result}
           onClose={handleClickCloseCheckModal}

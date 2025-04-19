@@ -38,8 +38,12 @@ const ChildAnswerCheckBottomSheetTemplate = ({
           onClick={handleClickShowPointing}
         />
         <BaseBottomSheetTemplate.Button label='다음 문제 풀기' onClick={handleClickNext} />
-        <BaseBottomSheetTemplate.Button label='다시 풀어보기' onClick={onClose} />
-        <BaseBottomSheetTemplate.Button label='정답 확인하기' onClick={handleClickShowAnswer} />
+        {!isCorrect && (
+          <>
+            <BaseBottomSheetTemplate.Button label='다시 풀어보기' onClick={onClose} />
+            <BaseBottomSheetTemplate.Button label='정답 확인하기' onClick={handleClickShowAnswer} />
+          </>
+        )}
       </BaseBottomSheetTemplate.ButtonSection>
     </BaseBottomSheetTemplate>
   );

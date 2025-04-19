@@ -1,5 +1,5 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface BottomSheetProps {
@@ -8,34 +8,51 @@ interface BottomSheetProps {
   children: React.ReactNode;
 }
 
-const potalElement =
-  typeof window !== 'undefined' && (document.getElementById('modal') as HTMLElement);
+const portalElement = typeof window !== 'undefined' && document.getElementById('modal');
 
-const BottomSheet = ({ isOpen, onClose, children = null }: BottomSheetProps) => {
+const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => {
+  const [shouldRender, setShouldRender] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showBackdrop, setShowBackdrop] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
+      setShouldRender(true);
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsAnimating(true);
+          setShowBackdrop(true);
+        });
+      });
+    } else if (shouldRender) {
+      setIsAnimating(false);
+      setShowBackdrop(false);
+
+      const timeout = setTimeout(() => {
+        setShouldRender(false);
+        document.body.style.overflow = '';
+      }, 300);
+
+      return () => clearTimeout(timeout);
     }
+  }, [isOpen, shouldRender]);
 
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-
-  if (!isOpen || !potalElement) return null;
+  if (!shouldRender || !portalElement) return null;
 
   return createPortal(
-    <div className='fixed inset-0 z-50 flex items-center justify-center' onClick={onClose}>
-      <div className='h-full w-full bg-black opacity-50' />
+    <div className='fixed inset-0 z-40 flex items-center justify-center' onClick={onClose}>
+      {showBackdrop && <div className='h-full w-full bg-black opacity-50' />}
       <div
-        className='absolute bottom-0 left-[50%] w-full max-w-[768px] translate-x-[-50%] transform rounded-t-[24px] bg-white p-[2.4rem] pt-[3.2rem] shadow-lg'
+        className={`absolute right-0 bottom-0 left-0 mx-auto w-full max-w-[768px] transform rounded-t-[24px] bg-white p-[2.4rem] pt-[3.2rem] shadow-lg transition-transform duration-300 ease-out ${
+          isAnimating ? 'translate-y-0' : 'translate-y-full'
+        }`}
         onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>,
-    potalElement
+    portalElement
   );
 };
 
