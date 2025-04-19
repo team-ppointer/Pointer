@@ -9,8 +9,6 @@ import { useGetProblemById, putProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
-  MainAnswerCheckModalTemplate,
-  PortalModal,
   Tag,
   ProgressHeader,
   SmallButton,

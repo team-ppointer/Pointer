@@ -15,7 +15,6 @@ import {
   NavigationFooter,
   ProgressHeader,
   SmallButton,
-  ChildAnswerCheckModalTemplate,
   TwoButtonModalTemplate,
   AnswerModalTemplate,
   Tag,
