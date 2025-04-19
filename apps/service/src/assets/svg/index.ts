@@ -13,6 +13,7 @@ export { default as IcMinusSmall } from './IcMinusSmall';
 export { default as IcMinus } from './IcMinus';
 export { default as IcNextBlack } from './IcNextBlack';
 export { default as IcNextGray } from './IcNextGray';
+export { default as IcNextSmall } from './IcNextSmall';
 export { default as IcNext } from './IcNext';
 export { default as IcNotice } from './IcNotice';
 export { default as IcPrevBlack } from './IcPrevBlack';
