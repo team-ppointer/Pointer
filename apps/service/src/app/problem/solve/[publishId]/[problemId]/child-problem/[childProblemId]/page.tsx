@@ -241,14 +241,6 @@ const Page = () => {
         />
       </BottomSheet>
 
-      <PortalModal isOpen={false} onClose={closeModal}>
-        <ChildAnswerCheckModalTemplate
-          result={result}
-          onClose={handleClickCloseCheckModal}
-          handleClickButton={handleClickNextProblemButton}
-          handleClickShowAnswer={handleClickShowAnswer}
-        />
-      </PortalModal>
       <PortalModal isOpen={isAnswerModalOpen} onClose={closeAnswerModal}>
         <AnswerModalTemplate
           answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' ? '번' : ''}`}

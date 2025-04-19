@@ -18,6 +18,8 @@ import {
   TimeTag,
   ImageContainer,
   CopyButton,
+  MainAnswerCheckBottomSheetTemplate,
+  BottomSheet,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
@@ -220,13 +222,14 @@ const Page = () => {
         onClickNext={isSubmitted ? handleClickNext : undefined}
       />
 
-      <PortalModal isOpen={isOpen} onClose={closeModal}>
-        <MainAnswerCheckModalTemplate
+      <BottomSheet isOpen={isOpen} onClose={closeModal}>
+        <MainAnswerCheckBottomSheetTemplate
           result={result}
           onClose={handleClickSolveAgain}
-          handleClickButton={handleClickShowReport}
+          handleClickStepSolve={handleClickStepSolve}
+          handleClickShowReport={handleClickShowReport}
         />
-      </PortalModal>
+      </BottomSheet>
     </>
   );
 };
