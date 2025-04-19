@@ -7,12 +7,13 @@ import { Button, StatusIcon, StatusTag } from '@components';
 import { trackEvent } from '@utils';
 import { components } from '@schema';
 import { IcDown, IcUp } from '@svg';
+import { postProblemSubmit } from '@apis';
 
 type ProblemFeedProgressesGetResponse = components['schemas']['ProblemFeedProgressesGetResponse'];
 
 interface ProblemStatusCardProps {
   mainProblemNumber: number;
-  publishId: string;
+  publishId: number;
   problemData: ProblemFeedProgressesGetResponse;
 }
 
@@ -29,10 +30,13 @@ const ProblemStatusCard = ({
 
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
 
-  const handleClickSolveButton = () => {
+  const handleClickSolveButton = async () => {
     trackEvent('problem_list_card_solve_button_click', {
       problemId: problemId ?? '',
     });
+
+    if (!problemId) return;
+    await postProblemSubmit(publishId, problemId);
     router.push(`/problem/solve/${publishId}/${problemId}`);
   };
 
