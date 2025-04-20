@@ -1,3 +1,4 @@
-import Button from './button';
+import Button from './Button';
+import PortalModal from './PortalModal';
 
-export { Button };
+export { Button, PortalModal };
