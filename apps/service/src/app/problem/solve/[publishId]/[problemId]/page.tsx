@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Image from 'next/image';
@@ -51,7 +51,7 @@ const Page = () => {
 
   const { isOpen, openModal, closeModal } = useModal();
   const [result, setResult] = useState<ProblemStatus | undefined>();
-  const { register, handleSubmit, watch } = useForm<{ answer: string }>();
+  const { register, handleSubmit, watch, setValue } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
 
   // apis
@@ -75,6 +75,8 @@ const Page = () => {
   const isDirect =
     childProblemStatuses.length > 0 &&
     childProblemStatuses[childProblemStatuses.length - 1] === 'NOT_STARTED';
+
+  const hasChildProblem = childProblemStatuses.length > 0;
 
   const prevButtonLabel =
     isDirect || childProblemLength === 0
@@ -101,9 +103,7 @@ const Page = () => {
   };
 
   const handleClickPrev = () => {
-    trackEvent('problem_main_solve_footer_prev_button_click', {
-      buttonLabel: prevButtonLabel,
-    });
+    trackEvent('problem_main_solve_footer_prev_button_click');
     router.back();
   };
 
@@ -126,6 +126,12 @@ const Page = () => {
     if (!imageUrl) return;
     await copyImageToClipboard(imageUrl);
   };
+
+  useEffect(() => {
+    if (isSolved && answer) {
+      setValue('answer', answer);
+    }
+  }, [isSolved, answer, setValue]);
 
   if (isLoading) {
     return <></>;
@@ -184,7 +190,7 @@ const Page = () => {
             </div>
           </ImageContainer>
 
-          {/* {isDirect && (
+          {hasChildProblem && (
             <div className='mt-[0.6rem] flex items-center justify-end'>
               <SmallButton variant='underline' sizeType='small' onClick={handleClickStepSolve}>
                 단계별로 풀어보기
@@ -192,7 +198,7 @@ const Page = () => {
             </div>
           )}
 
-          {!isDirect && childProblemStatuses.length > 0 && (
+          {/* {!isDirect && childProblemStatuses.length > 0 && (
             <div className='mt-[2.4rem] w-full'>
               <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
               <div className='mt-[1.2rem] flex gap-[1.6rem]'>
