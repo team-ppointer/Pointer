@@ -1,3 +1,4 @@
+export { default as IcArrowGrow14 } from './IcArrowGrow14';
 export { default as IcCalendar } from './IcCalendar';
 export { default as IcCopy } from './IcCopy';
 export { default as IcCorrect } from './IcCorrect';
@@ -18,6 +19,7 @@ export { default as IcNext } from './IcNext';
 export { default as IcNotice } from './IcNotice';
 export { default as IcPrevBlack } from './IcPrevBlack';
 export { default as IcPrev } from './IcPrev';
+export { default as IcQuestion18 } from './IcQuestion18';
 export { default as IcRight } from './IcRight';
 export { default as IcSearch } from './IcSearch';
 export { default as IcSecret } from './IcSecret';
