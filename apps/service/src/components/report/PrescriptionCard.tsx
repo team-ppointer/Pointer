@@ -1,5 +1,10 @@
-import { SmallButton } from '@components';
-import { IcStatusCorrect, IcStatusIncorrect, IcStatusNotStarted, IcStatusRetried } from '@svg';
+import {
+  IcNextSmall,
+  IcStatusCorrect,
+  IcStatusIncorrect,
+  IcStatusNotStarted,
+  IcStatusRetried,
+} from '@svg';
 
 type PrescriptionCardProps = {
   status?: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'IN_PROGRESS' | 'NOT_STARTED';
@@ -28,7 +33,10 @@ const PrescriptionCard = ({ status = 'NOT_STARTED', title, onClick }: Prescripti
         {statusIcon(status)}
         <p className='font-medium-16 text-black'>{title}</p>
       </div>
-      <SmallButton onClick={onClick}>진단 받기</SmallButton>
+      <div className='flex cursor-pointer items-center gap-[0.2rem]' onClick={onClick}>
+        <span className='font-medium-16 text-main'>포인팅</span>
+        <IcNextSmall width={24} height={24} />
+      </div>
     </div>
   );
 };

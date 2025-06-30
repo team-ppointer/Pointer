@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     ? new URL('http://www.dev.math-pointer.com')
     : new URL('https://math-pointer.com'),
   title: '포인터',
-  description: '포인터',
+  description: '진단과 학습은 꼼꼼하게 성적 향상은 빠르게',
   robots: isDevelopment
     ? {
         index: false,

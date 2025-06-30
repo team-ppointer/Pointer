@@ -1,10 +1,10 @@
 import { client } from '@apis';
 
-const postProblemSubmit = async (publishId: string, problemId: string) => {
+const postProblemSubmit = async (publishId: number, problemId: number) => {
   return await client.POST('/api/v1/client/problemSubmit', {
     body: {
-      publishId: Number(publishId),
-      problemId: Number(problemId),
+      publishId,
+      problemId,
     },
   });
 };

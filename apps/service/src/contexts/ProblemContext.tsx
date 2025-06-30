@@ -36,7 +36,7 @@ export const ProblemProvider = ({ children }: { children: React.ReactNode }) => 
 
   const onNext = () => {
     if (step === childProblemIds.length - 1) {
-      router.push(`${baseUrl}/main-problem`);
+      router.push(baseUrl);
     } else if (step < childProblemIds.length - 1) {
       router.push(`${baseUrl}/child-problem/${childProblemIds[step + 1]}`);
       setStep(step + 1);

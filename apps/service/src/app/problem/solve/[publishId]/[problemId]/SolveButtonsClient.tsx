@@ -19,7 +19,7 @@ const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) =
 
   const handleClickDirect = async () => {
     trackEvent('problem_solve_direct_button_click');
-    await postProblemSubmit(publishId, problemId);
+    await postProblemSubmit(Number(publishId), Number(problemId));
     invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}/main-problem`);
   };

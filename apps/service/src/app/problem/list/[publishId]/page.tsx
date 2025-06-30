@@ -25,7 +25,7 @@ const Page = () => {
               <ProblemStatusCard
                 key={problem.problemId}
                 mainProblemNumber={index + 1}
-                publishId={publishId}
+                publishId={Number(publishId)}
                 problemData={problem}
               />
             );
