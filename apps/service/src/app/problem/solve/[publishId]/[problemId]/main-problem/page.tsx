@@ -3,24 +3,26 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Image from 'next/image';
+import { Slide, ToastContainer } from 'react-toastify';
 
 import { useGetProblemById, putProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
-  MainAnswerCheckModalTemplate,
-  PortalModal,
   Tag,
   ProgressHeader,
   SmallButton,
   NavigationFooter,
   TimeTag,
   ImageContainer,
+  CopyButton,
+  MainAnswerCheckBottomSheetTemplate,
+  BottomSheet,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
-import { trackEvent } from '@utils';
+import { copyImageToClipboard, trackEvent } from '@utils';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -111,12 +113,35 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
+  const handleClickCopyImage = async () => {
+    if (!imageUrl) return;
+    await copyImageToClipboard(imageUrl);
+  };
+
   if (isLoading) {
     return <></>;
   }
 
   return (
     <>
+      <ToastContainer
+        position='bottom-center'
+        autoClose={1000}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnHover={false}
+        hideProgressBar
+        transition={Slide}
+        closeButton={false}
+        style={{
+          fontSize: '1.6rem',
+          width: '30rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          bottom: '3rem',
+        }}
+      />
       <ProgressHeader progress={100} />
       <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
@@ -136,7 +161,7 @@ const Page = () => {
               </Tag>
             )}
           </div>
-          <ImageContainer className='mt-[1.2rem]'>
+          <ImageContainer className='relative mt-[1.2rem]'>
             <Image
               src={imageUrl ?? ''}
               alt={`메인 문제 ${number}번`}
@@ -145,6 +170,9 @@ const Page = () => {
               height={200}
               priority
             />
+            <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
+              <CopyButton onClick={handleClickCopyImage} />
+            </div>
           </ImageContainer>
 
           {isDirect && (
@@ -197,13 +225,14 @@ const Page = () => {
         onClickNext={isSubmitted ? handleClickNext : undefined}
       />
 
-      <PortalModal isOpen={isOpen} onClose={closeModal}>
-        <MainAnswerCheckModalTemplate
+      <BottomSheet isOpen={isOpen} onClose={closeModal}>
+        <MainAnswerCheckBottomSheetTemplate
           result={result}
           onClose={handleClickSolveAgain}
-          handleClickButton={handleClickShowReport}
+          handleClickStepSolve={handleClickStepSolve}
+          handleClickShowReport={handleClickShowReport}
         />
-      </PortalModal>
+      </BottomSheet>
     </>
   );
 };

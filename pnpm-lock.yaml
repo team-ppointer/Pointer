@@ -195,6 +195,9 @@ importers:
       react-hook-form:
         specifier: ^7.54.2
         version: 7.54.2(react@19.0.0)
+      react-toastify:
+        specifier: ^11.0.3
+        version: 11.0.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       swiper:
         specifier: ^11.2.5
         version: 11.2.5
@@ -202,6 +205,9 @@ importers:
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.7.3)
+      '@tailwindcss/postcss':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@tanstack/eslint-plugin-query':
         specifier: ^5.66.0
         version: 5.66.0(eslint@9.19.0(jiti@2.4.2))(typescript@5.7.3)

@@ -3,7 +3,9 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Image from 'next/image';
+import { Slide, ToastContainer } from 'react-toastify';
 
+import { copyImageToClipboard } from '@utils';
 import { useGetChildProblemById } from '@apis';
 import { putChildProblemSubmit, putChildProblemSkip } from '@apis';
 import {
@@ -13,11 +15,13 @@ import {
   NavigationFooter,
   ProgressHeader,
   SmallButton,
-  ChildAnswerCheckModalTemplate,
   TwoButtonModalTemplate,
   AnswerModalTemplate,
   Tag,
   ImageContainer,
+  CopyButton,
+  BottomSheet,
+  ChildAnswerCheckBottomSheetTemplate,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
@@ -64,9 +68,7 @@ const Page = () => {
   } = data?.data ?? {};
 
   const prevButtonLabel =
-    childProblemNumber === 1
-      ? `메인 문제 ${problemNumber}번`
-      : `새끼 문제 ${problemNumber}-${childProblemNumber - 1}번`;
+    childProblemNumber === 1 ? '' : `새끼 문제 ${problemNumber}-${childProblemNumber - 1}번`;
 
   const nextButtonLabel =
     childProblemNumber === childProblemLength
@@ -140,12 +142,35 @@ const Page = () => {
     onNext();
   };
 
+  const handleClickCopyImage = async () => {
+    if (!imageUrl) return;
+    await copyImageToClipboard(imageUrl);
+  };
+
   if (isLoading) {
     return <></>;
   }
 
   return (
     <>
+      <ToastContainer
+        position='bottom-center'
+        autoClose={1000}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnHover={false}
+        hideProgressBar
+        transition={Slide}
+        closeButton={false}
+        style={{
+          fontSize: '1.6rem',
+          width: '30rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          bottom: '3rem',
+        }}
+      />
       <ProgressHeader progress={(childProblemNumber / (childProblemLength + 1)) * 100} />
       <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
@@ -164,14 +189,18 @@ const Page = () => {
               </Tag>
             )}
           </div>
-          <ImageContainer className='mt-[1.2rem]'>
+          <ImageContainer className='relative mt-[1.2rem]'>
             <Image
               src={imageUrl ?? ''}
               alt={`새끼 문제 ${problemNumber}-${childProblemNumber}번`}
               className='w-full object-contain'
               width={700}
               height={200}
+              priority
             />
+            <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
+              <CopyButton onClick={handleClickCopyImage} />
+            </div>
           </ImageContainer>
 
           <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end'>
@@ -204,14 +233,16 @@ const Page = () => {
         onClickNext={isSubmitted ? handleClickNext : handleClickFooterSkipButton}
       />
 
-      <PortalModal isOpen={isOpen} onClose={closeModal}>
-        <ChildAnswerCheckModalTemplate
+      <BottomSheet isOpen={isOpen} onClose={closeModal}>
+        <ChildAnswerCheckBottomSheetTemplate
           result={result}
           onClose={handleClickCloseCheckModal}
-          handleClickButton={handleClickNextProblemButton}
+          handleClickShowPointing={() => {}}
+          handleClickNext={handleClickNextProblemButton}
           handleClickShowAnswer={handleClickShowAnswer}
         />
-      </PortalModal>
+      </BottomSheet>
+
       <PortalModal isOpen={isAnswerModalOpen} onClose={closeAnswerModal}>
         <AnswerModalTemplate
           answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' ? '번' : ''}`}
