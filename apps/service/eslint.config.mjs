@@ -11,7 +11,7 @@ const compat = new FlatCompat({
 });
 
 /** @type {import("eslint").FlatConfig[]} */
-export default [
+const config = [
   ...baseConfig,
   ...compat.extends('next/core-web-vitals'),
   {
@@ -21,3 +21,5 @@ export default [
     },
   },
 ];
+
+export default config;
