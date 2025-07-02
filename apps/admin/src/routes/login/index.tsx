@@ -41,7 +41,7 @@ function RouteComponent() {
       },
       {
         onSuccess: (data) => {
-          const { accessToken } = data.data;
+          const { accessToken } = data.token;
           if (accessToken) {
             tokenStorage.setToken(accessToken);
             goPublish();
@@ -61,7 +61,7 @@ function RouteComponent() {
           label='아이디'
           sizeType='long'
           placeholder='이메일을 입력해주세요'
-          type='email'
+          type='text'
           autoComplete='username'
           {...register('email', {
             required: true,
