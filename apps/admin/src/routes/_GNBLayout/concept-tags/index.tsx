@@ -1,13 +1,26 @@
-import { Button, Header, Input } from '@components';
+import { useState } from 'react';
+import { Button, FloatingButton, Header, Input } from '@components';
 import { createFileRoute } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
+import { IcPencil } from '@svg';
+
+import { ConceptTagCard } from '@/components/conceptTags';
 
 export const Route = createFileRoute('/_GNBLayout/concept-tags/')({
   component: RouteComponent,
 });
 
+const OPTIONS = ['React', 'Vue', 'Svelte', 'Angular'];
+
 function RouteComponent() {
+  const [selectedTag, setSelectedTag] = useState<string[]>([]);
+
+  const toggleTag = (tag: string) => {
+    setSelectedTag((prev) =>
+      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag]
+    );
+  };
   const { register, handleSubmit, reset } = useForm<{
     query: string;
   }>();
@@ -37,6 +50,49 @@ function RouteComponent() {
           </Button>
         </div>
       </div>
+
+      <section className='flex flex-col gap-[4.8rem]'>
+        <article>
+          <div className='mb-[4rem] flex items-center gap-[1.2rem]'>
+            <h4 className='font-bold-24 text-black'>지수 로그 그래프</h4>
+            <IcPencil className='cursor-pointer' width={24} height={24} onClick={() => {}} />
+          </div>
+          <div className='grid grid-cols-3 gap-[4rem]'>
+            {OPTIONS.map((name) => {
+              const isChecked = selectedTag.includes(name);
+              return (
+                <ConceptTagCard
+                  key={name}
+                  name={name}
+                  isChecked={isChecked}
+                  toggleTag={toggleTag}
+                />
+              );
+            })}
+          </div>
+        </article>
+        <article>
+          <div className='mb-[4rem] flex items-center gap-[1.2rem]'>
+            <h4 className='font-bold-24 text-black'>지수 로그 그래프</h4>
+            <IcPencil className='cursor-pointer' width={24} height={24} onClick={() => {}} />
+          </div>
+          <div className='grid grid-cols-3 gap-[4rem]'>
+            {OPTIONS.map((name) => {
+              const isChecked = selectedTag.includes(name);
+              return (
+                <ConceptTagCard
+                  key={name}
+                  name={name}
+                  isChecked={isChecked}
+                  toggleTag={toggleTag}
+                />
+              );
+            })}
+          </div>
+        </article>
+      </section>
+
+      <FloatingButton onClick={() => {}}>새로운 개념 태그 등록하기</FloatingButton>
     </>
   );
 }
