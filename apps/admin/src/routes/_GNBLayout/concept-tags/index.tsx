@@ -1,6 +1,6 @@
+import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Button, FloatingButton, Header, Input } from '@components';
-import { createFileRoute } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
 import { IcPencil } from '@svg';
@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_GNBLayout/concept-tags/')({
   component: RouteComponent,
 });
 
-const OPTIONS = ['React', 'Vue', 'Svelte', 'Angular'];
+const OPTIONS = ['React', 'Vue', 'Svelte', 'Angular', 'aaaaa'];
 
 function RouteComponent() {
   const [selectedTag, setSelectedTag] = useState<string[]>([]);
@@ -21,6 +21,7 @@ function RouteComponent() {
       prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag]
     );
   };
+
   const { register, handleSubmit, reset } = useForm<{
     query: string;
   }>();
@@ -31,7 +32,7 @@ function RouteComponent() {
 
   return (
     <>
-      <Header title='세트 목록' />
+      <Header title='개념 태그 검색' />
       <form
         className='my-[4.8rem] flex items-end justify-between gap-[3.2rem]'
         onSubmit={handleSubmit(handleClickSearch)}>
@@ -51,7 +52,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <section className='flex flex-col gap-[4.8rem]'>
+      <section className='mb-[8rem] flex flex-col gap-[4.8rem]'>
         <article>
           <div className='mb-[4rem] flex items-center gap-[1.2rem]'>
             <h4 className='font-bold-24 text-black'>지수 로그 그래프</h4>
