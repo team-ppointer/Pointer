@@ -18,8 +18,8 @@
     "next": "15.1.4",
     "openapi-fetch": "^0.13.4",
     "openapi-react-query": "^0.3.0",
-    "react": "^19",
-    "react-dom": "^19",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "react-toastify": "^11.0.3",
     "swiper": "^11.2.5"
