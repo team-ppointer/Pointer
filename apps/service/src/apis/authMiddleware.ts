@@ -3,14 +3,17 @@ import { Middleware } from 'openapi-fetch';
 
 import { getAccessToken, setAccessToken } from '@utils';
 
-const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login', '/api/v1/auth/oauth/social-login'];
+const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login', '/api/student/auth/social/login'];
 
 const reissueToken = async () => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/reissue`, {
-      method: 'GET',
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/common/auth/refresh`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
 
     if (!response.ok) throw new Error('Token reissue failed');
 

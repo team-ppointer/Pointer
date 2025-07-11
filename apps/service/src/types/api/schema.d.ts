@@ -225,7 +225,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/v1/auth/oauth/social-login': {
+  '/api/student/auth/social/login': {
     parameters: {
       query?: never;
       header?: never;
@@ -593,7 +593,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/v1/auth/reissue': {
+  'api/common/auth/refresh': {
     parameters: {
       query?: never;
       header?: never;
@@ -873,13 +873,14 @@ export interface components {
       /** Format: int64 */
       problemId: number;
     };
+    LoginRequest: {
+      provider?: string;
+      redirectUri?: string;
+    };
     LoginResponse: {
       /** Format: int64 */
-      memberId?: number;
-      name?: string;
-      email?: string;
-      accessToken?: string;
-      refreshToken?: string;
+      provider?: string;
+      loginUrl?: string;
     };
     AccessTokenResponse: {
       accessToken: string;
@@ -1620,30 +1621,24 @@ export interface operations {
   };
   socialLogin: {
     parameters: {
-      query: {
-        provider: string;
-      };
-      header: {
-        social_access_token: string;
-      };
+      query?: never;
+      header?: never;
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['LoginRequest'];
+      };
+    };
     responses: {
       /** @description 로그인 성공 */
       200: {
         headers: {
-          /** @description 발급된 액세스 토큰 */
-          Authorization?: string;
-          /** @description 리프레시 토큰이 담긴 HTTP Only 쿠키 */
-          'Set-Cookie'?: string;
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            data: components['schemas']['LoginResponse'];
-          };
+          'application/json': components['schemas']['LoginResponse'];
         };
       };
       /** @description 유효하지 않은 소셜 액세스 토큰 */

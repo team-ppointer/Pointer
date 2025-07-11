@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { getAccessToken, trackEvent } from '@utils';
+import { postKakaoLogin } from '@apis';
 import { LogoLogin } from '@/assets/svg/logo';
 import { KakaoButton } from '@/components/login';
 
@@ -12,9 +13,14 @@ const Page = () => {
     process.env.NEXT_PUBLIC_REST_API_KEY
   }&redirect_uri=${process.env.NEXT_PUBLIC_REDIRECT_URI}&response_type=code`;
 
-  const handleLoginClick = () => {
+  const handleLoginClick = async () => {
     trackEvent('kakao_login_click');
-    window.location.replace(kakaoLoginUrl);
+    const result = await postKakaoLogin();
+    if (result.isSuccess && result.loginUrl) {
+      router.push(result.loginUrl);
+    } else {
+      console.error('로그인 URL을 가져오는 데 실패했습니다.');
+    }
   };
 
   useEffect(() => {
