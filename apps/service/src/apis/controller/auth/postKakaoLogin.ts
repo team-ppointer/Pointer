@@ -6,7 +6,7 @@ const postKakaoLogin = async () => {
   const response = await client.POST('/api/student/auth/social/login', {
     body: {
       provider: 'KAKAO',
-      redirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI,
+      redirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI ?? '',
     },
   });
 
