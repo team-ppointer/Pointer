@@ -1,35 +1,15 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
 
 import { Button } from '@components';
 import { IcCalendar } from '@svg';
-import { useGetHomeFeed } from '@apis';
-import { DailyProgress } from '@types';
 import { trackEvent } from '@utils';
 import { HomeHeader, NoticeButton, ProblemSwiper, WeekProgress } from '@/components/home';
+import { useGetNoticeUnreadCount } from '@/apis/controller/home';
 
 const Page = () => {
   const router = useRouter();
-  const { data, isLoading } = useGetHomeFeed();
-  const homeFeedData = data?.data;
-
-  const dailyProgresses = homeFeedData?.dailyProgresses;
-  const problemSets = homeFeedData?.problemSets;
-
-  const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
-  const [progress, setProgress] = useState<DailyProgress[]>([]);
-
-  useEffect(() => {
-    if (dailyProgresses?.length) {
-      setDateRange({
-        startDate: dayjs(dailyProgresses[0]?.date).format('MM/DD'),
-        endDate: dayjs(dailyProgresses[dailyProgresses.length - 1]?.date).format('DD'),
-      });
-      setProgress(dailyProgresses.map((progress) => progress.progressStatus ?? 'NOT_STARTED'));
-    }
-  }, [dailyProgresses]);
+  const { data, isLoading } = useGetNoticeUnreadCount();
 
   const handleClickAllProblem = () => {
     trackEvent('home_all_problem_button_click');
@@ -44,18 +24,18 @@ const Page = () => {
           아직은 고등학교 2학년 대상으로만 서비스를 하고 있어요!
         </p>
         <div className='flex h-[12rem] w-full items-center gap-[1.2rem] pt-[1.6rem]'>
-          <NoticeButton count={0} />
+          <NoticeButton />
           <WeekProgress />
         </div>
       </main>
       <div className='mt-[2.4rem]'>
-        {isLoading ? (
+        {/* {isLoading ? (
           <div className='h-[456px] w-full' />
         ) : problemSets ? (
           <ProblemSwiper problemSets={problemSets} />
         ) : (
           <></>
-        )}
+        )} */}
       </div>
       <footer className='bg-background mt-[2.4rem] px-[2rem] pb-[3.3rem]'>
         <Button variant='light' onClick={handleClickAllProblem}>
