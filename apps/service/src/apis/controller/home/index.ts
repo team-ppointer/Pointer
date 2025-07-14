@@ -1,3 +1,3 @@
-import useGetHomeFeed from './useGetHomeFeed';
+import useGetWeeklyProgress from './useGetWeeklyProgress';
 
-export { useGetHomeFeed };
+export { useGetWeeklyProgress };
