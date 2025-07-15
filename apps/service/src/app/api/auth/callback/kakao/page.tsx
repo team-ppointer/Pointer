@@ -1,19 +1,32 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { postKakaoLogin } from '@apis';
+import { setAccessToken, setRefreshToken } from '@utils';
 
 const Page = () => {
   const searchParams = useSearchParams();
-  const code = searchParams.get('code');
+  const router = useRouter();
+  const { success, isFirstLogin, accessToken, refreshToken } = Object.fromEntries(
+    searchParams.entries()
+  );
 
   useEffect(() => {
-    if (code) {
-      postKakaoLogin(code);
+    if (!success || !accessToken) {
+      router.replace('/login');
+      return;
     }
-  }, [code]);
+
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+
+    if (isFirstLogin) {
+      router.replace('/onboarding');
+    } else {
+      router.replace('/');
+    }
+  }, [searchParams]);
 
   return <></>;
 };

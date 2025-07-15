@@ -50,7 +50,7 @@ export default function RootLayout({
   modal: React.ReactNode;
 }>) {
   return (
-    <html lang='ko'>
+    <html lang='ko' suppressHydrationWarning>
       <head>
         <link rel='preconnect' href='https://www.google-analytics.com' crossOrigin='anonymous' />
         <link rel='preconnect' href='https://prod.math-pointer.com' crossOrigin='anonymous' />

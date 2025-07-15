@@ -6,7 +6,7 @@ import { IcHome, IcLeft } from '@svg';
 
 interface HeaderProps {
   title: string;
-  iconType?: 'home' | 'back';
+  iconType?: 'home' | 'back' | 'none';
 }
 
 const Header = ({ title, iconType = 'home' }: HeaderProps) => {
@@ -22,6 +22,7 @@ const Header = ({ title, iconType = 'home' }: HeaderProps) => {
       <div className='flex w-1/6 cursor-pointer items-center'>
         {iconType === 'home' && <IcHome width={24} height={24} onClick={handleClickHome} />}
         {iconType === 'back' && <IcLeft width={24} height={24} onClick={() => router.back()} />}
+        {iconType === 'none' && <div className='h-6 w-6' />}
       </div>
 
       <h1 className='font-bold-16 flex w-2/3 items-center justify-center text-black'>{title}</h1>

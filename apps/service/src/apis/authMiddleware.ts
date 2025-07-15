@@ -1,29 +1,39 @@
 'use client';
 import { Middleware } from 'openapi-fetch';
 
-import { getAccessToken, setAccessToken } from '@utils';
+import { getAccessToken, setAccessToken, setName, setRefreshToken } from '@utils';
+import { postRefreshToken } from '@/apis/controller/auth';
 
-const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login', '/api/v1/auth/oauth/social-login'];
+const UNPROTECTED_ROUTES = ['/api/student/auth/social/login', '/api/common/auth/refresh'];
 
 const reissueToken = async () => {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/reissue`, {
-      method: 'GET',
-      credentials: 'include',
-    });
+  let accessToken = getAccessToken();
 
-    if (!response.ok) throw new Error('Token reissue failed');
-
-    const data = await response.json();
-    const accessToken = data.data.accessToken;
-    setAccessToken(accessToken);
+  if (accessToken) {
     return accessToken;
-  } catch (error) {
-    console.error('Reissue failed:', error);
+  }
+
+  const result = await postRefreshToken();
+
+  if (!result.isSuccess || !result.data) {
+    console.error('액세스토큰 갱신 실패:', result.error);
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     window.location.href = '/login';
     return null;
   }
+
+  if (result.data?.token.accessToken) {
+    setAccessToken(result.data.token.accessToken);
+    accessToken = result.data.token.accessToken;
+  }
+  if (result.data?.token.refreshToken) {
+    setRefreshToken(result.data.token.refreshToken);
+  }
+  if (result.data?.name) {
+    setName(result.data.name);
+  }
+  return accessToken;
 };
 
 const authMiddleware: Middleware = {
@@ -32,18 +42,12 @@ const authMiddleware: Middleware = {
       return undefined;
     }
 
-    let accessToken = getAccessToken();
+    const accessToken = await reissueToken();
 
-    if (!accessToken) {
-      accessToken = await reissueToken();
-
-      if (!accessToken) {
-        console.error('Access token reissue failed. Logging out...');
-        return request;
-      }
+    if (accessToken) {
+      request.headers.set('Authorization', `Bearer ${accessToken}`);
     }
 
-    request.headers.set('Authorization', `Bearer ${accessToken}`);
     return request;
   },
 
