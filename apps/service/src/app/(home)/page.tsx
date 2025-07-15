@@ -5,11 +5,8 @@ import { Button } from '@components';
 import { IcCalendar } from '@svg';
 import { trackEvent } from '@utils';
 import { HomeHeader, NoticeButton, ProblemSwiper, WeekProgress } from '@/components/home';
-import { useGetNoticeUnreadCount } from '@/apis/controller/home';
-
 const Page = () => {
   const router = useRouter();
-  const { data, isLoading } = useGetNoticeUnreadCount();
 
   const handleClickAllProblem = () => {
     trackEvent('home_all_problem_button_click');
