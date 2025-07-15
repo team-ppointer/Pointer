@@ -1,71 +1,72 @@
 'use client';
 import { Middleware } from 'openapi-fetch';
 
-import { getAccessToken, setAccessToken } from '@utils';
+import { getAccessToken, setAccessToken, setName, setRefreshToken } from '@utils';
+import { postRefreshToken } from '@/apis/controller/auth';
 
-// const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login', '/api/student/auth/social/login'];
+const UNPROTECTED_ROUTES = ['/api/student/auth/social/login', '/api/common/auth/refresh'];
 
-// const reissueToken = async () => {
-//   try {
-//     const response = await fetch(
-//       `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/common/auth/refresh`,
-//       {
-//         method: 'GET',
-//         credentials: 'include',
-//       }
-//     );
+const reissueToken = async () => {
+  let accessToken = getAccessToken();
 
-//     if (!response.ok) throw new Error('Token reissue failed');
+  if (accessToken) {
+    return accessToken;
+  }
 
-//     const data = await response.json();
-//     const accessToken = data.data.accessToken;
-//     setAccessToken(accessToken);
-//     return accessToken;
-//   } catch (error) {
-//     console.error('Reissue failed:', error);
-//     localStorage.removeItem('accessToken');
-//     window.location.href = '/login';
-//     return null;
-//   }
-// };
+  const result = await postRefreshToken();
 
-// const authMiddleware: Middleware = {
-//   async onRequest({ schemaPath, request }: { schemaPath: string; request: Request }) {
-//     if (UNPROTECTED_ROUTES.some((pathname) => schemaPath.startsWith(pathname))) {
-//       return undefined;
-//     }
+  if (!result.isSuccess || !result.data) {
+    console.error('액세스토큰 갱신 실패:', result.error);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    window.location.href = '/login';
+    return null;
+  }
 
-//     let accessToken = getAccessToken();
+  if (result.data?.token.accessToken) {
+    setAccessToken(result.data.token.accessToken);
+    accessToken = result.data.token.accessToken;
+  }
+  if (result.data?.token.refreshToken) {
+    setRefreshToken(result.data.token.refreshToken);
+  }
+  if (result.data?.name) {
+    setName(result.data.name);
+  }
+  return accessToken;
+};
 
-//     if (!accessToken) {
-//       accessToken = await reissueToken();
+const authMiddleware: Middleware = {
+  async onRequest({ schemaPath, request }: { schemaPath: string; request: Request }) {
+    if (UNPROTECTED_ROUTES.some((pathname) => schemaPath.startsWith(pathname))) {
+      return undefined;
+    }
 
-//       if (!accessToken) {
-//         console.error('Access token reissue failed. Logging out...');
-//         return request;
-//       }
-//     }
+    const accessToken = await reissueToken();
 
-//     request.headers.set('Authorization', `Bearer ${accessToken}`);
-//     return request;
-//   },
+    if (accessToken) {
+      request.headers.set('Authorization', `Bearer ${accessToken}`);
+    }
 
-//   async onResponse({ request, response }) {
-//     if (response.status === 401) {
-//       console.warn('Access token expired. Attempting reissue...');
+    return request;
+  },
 
-//       const newAccessToken = await reissueToken();
+  async onResponse({ request, response }) {
+    if (response.status === 401) {
+      console.warn('Access token expired. Attempting reissue...');
 
-//       if (!newAccessToken) {
-//         console.error('Reissue failed. Logging out...');
-//         return response;
-//       }
+      const newAccessToken = await reissueToken();
 
-//       request.headers.set('Authorization', `Bearer ${newAccessToken}`);
-//       return fetch(request);
-//     }
-//     return response;
-//   },
-// };
+      if (!newAccessToken) {
+        console.error('Reissue failed. Logging out...');
+        return response;
+      }
 
-// export default authMiddleware;
+      request.headers.set('Authorization', `Bearer ${newAccessToken}`);
+      return fetch(request);
+    }
+    return response;
+  },
+};
+
+export default authMiddleware;
