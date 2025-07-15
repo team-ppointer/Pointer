@@ -3,7 +3,7 @@
 import { client } from '@/apis/client';
 
 const postKakaoLogin = async () => {
-  const response = await client.POST('/api/student/auth/social/login', {
+  const response = await client.POST('/api/student/auth/login/social', {
     body: {
       provider: 'KAKAO',
       redirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI ?? '',

@@ -1,13 +1,31 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+
+import { setAccessToken, setRefreshToken } from '@utils';
 
 const Page = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { success, isFirstLogin, accessToken, refreshToken } = Object.fromEntries(
+    searchParams.entries()
+  );
 
   useEffect(() => {
-    console.log(searchParams);
+    if (!success || !accessToken) {
+      router.replace('/login');
+      return;
+    }
+
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+
+    if (isFirstLogin) {
+      router.replace('/onboarding');
+    } else {
+      router.replace('/');
+    }
   }, [searchParams]);
 
   return <></>;
