@@ -13,6 +13,11 @@ const Page = () => {
     router.push('/problem/calandar');
   };
 
+  const handleClickQnA = () => {
+    trackEvent('home_qna_button_click');
+    router.push('qna/ask');
+  };
+
   return (
     <>
       <HomeHeader />
@@ -34,10 +39,14 @@ const Page = () => {
           <></>
         )} */}
       </div>
-      <footer className='bg-background mt-[2.4rem] px-[2rem] pb-[3.3rem]'>
+      <footer className='bg-background mt-[2.4rem] flex flex-col gap-[1rem] px-[2rem] pb-[3.3rem]'>
         <Button variant='light' onClick={handleClickAllProblem}>
           <IcCalendar width={24} height={24} />
           날짜별로 보기
+        </Button>
+        <Button variant='blue' onClick={handleClickQnA}>
+          <IcCalendar width={24} height={24} />
+          QnA 바로가기
         </Button>
       </footer>
     </>

@@ -306,6 +306,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/teacher/auth/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 토큰 갱신 */
+    post: operations['refresh'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/teacher/auth/login/local': {
     parameters: {
       query?: never;
@@ -409,23 +426,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/auth/social/login': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** 소셜 로그인 URL 요청 [네이버만 완료] */
-    post: operations['getSocialLoginUrl'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/student/auth/register/social': {
     parameters: {
       query?: never;
@@ -437,6 +437,40 @@ export interface paths {
     put?: never;
     /** 소셜 로그인 이후, 정보 등록 */
     post: operations['registerSocial'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 토큰 갱신 */
+    post: operations['refresh_1'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/login/social': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 소셜 로그인 URL 요청 [네이버만 완료] */
+    post: operations['getSocialLoginUrl'];
     delete?: never;
     options?: never;
     head?: never;
@@ -638,6 +672,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/auth/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 토큰 갱신 */
+    post: operations['refresh_2'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/auth/login/local': {
     parameters: {
       query?: never;
@@ -649,6 +700,23 @@ export interface paths {
     put?: never;
     /** 이메일 로그인 */
     post: operations['login_1'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/your-redirect-url': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 소셜 로그인 콜백 example */
+    get: operations['oauthRedirectExample'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -986,7 +1054,7 @@ export interface paths {
       cookie?: never;
     };
     /** 토큰 갱신 */
-    get: operations['refresh'];
+    get: operations['refresh_3'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1039,23 +1107,6 @@ export interface paths {
     };
     /** 학생 별 유효 공지사항(현재 학생이 볼 수 있는 공지사항) 조회 */
     get: operations['getsAvailable_2'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/admin/auth/refresh': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** 토큰 갱신 */
-    get: operations['refresh_1'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1491,12 +1542,12 @@ export interface components {
       /** Format: int64 */
       studentId: number;
     };
-    TeacherLoginReq: {
-      email: string;
-      password: string;
+    RefreshReq: {
+      refreshToken: string;
     };
     JwtResp: {
       accessToken: string;
+      refreshToken?: string;
     };
     TeacherTokenResp: {
       /** Format: int64 */
@@ -1505,6 +1556,10 @@ export interface components {
       email: string;
       students: components['schemas']['StudentResp'][];
       token?: components['schemas']['JwtResp'];
+    };
+    TeacherLoginReq: {
+      email: string;
+      password: string;
     };
     PointingFeedbackRequest: {
       /** Format: int64 */
@@ -1580,6 +1635,15 @@ export interface components {
       /** Format: int64 */
       id: number;
       isExist: boolean;
+    };
+    StudentTokenResp: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /** Format: int32 */
+      grade: number;
+      isFirstLogin: boolean;
+      token: components['schemas']['JwtResp'];
     };
     SocialLoginReq: {
       /** @enum {string} */
@@ -1757,15 +1821,15 @@ export interface components {
     ConceptCategoryCreateRequest: {
       name: string;
     };
-    AdminLoginReq: {
-      email: string;
-      password: string;
-    };
     AdminTokenResp: {
       /** Format: int64 */
       id: number;
       email: string;
       token: components['schemas']['JwtResp'];
+    };
+    AdminLoginReq: {
+      email: string;
+      password: string;
     };
     ListRespPublishMetaResp: {
       /** Format: int32 */
@@ -1797,7 +1861,10 @@ export interface components {
     };
     NoticeUnreadCountResp: {
       /** Format: int64 */
-      count?: number;
+      totalCount?: number;
+      /** Format: int64 */
+      unreadCount?: number;
+      latestNotice?: components['schemas']['NoticeResp'];
     };
     ListRespTeacherResp: {
       /** Format: int32 */
@@ -2567,6 +2634,30 @@ export interface operations {
       };
     };
   };
+  refresh: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RefreshReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['TeacherTokenResp'];
+        };
+      };
+    };
+  };
   login: {
     parameters: {
       query?: never;
@@ -2729,30 +2820,6 @@ export interface operations {
       };
     };
   };
-  getSocialLoginUrl: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SocialLoginReq'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['SocialLoginUrlResp'];
-        };
-      };
-    };
-  };
   registerSocial: {
     parameters: {
       query?: never;
@@ -2773,6 +2840,54 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['StudentResp'];
+        };
+      };
+    };
+  };
+  refresh_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RefreshReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentTokenResp'];
+        };
+      };
+    };
+  };
+  getSocialLoginUrl: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SocialLoginReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['SocialLoginUrlResp'];
         };
       };
     };
@@ -3233,6 +3348,30 @@ export interface operations {
       };
     };
   };
+  refresh_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RefreshReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AdminTokenResp'];
+        };
+      };
+    };
+  };
   login_1: {
     parameters: {
       query?: never;
@@ -3254,6 +3393,35 @@ export interface operations {
         content: {
           '*/*': components['schemas']['AdminTokenResp'];
         };
+      };
+    };
+  };
+  oauthRedirectExample: {
+    parameters: {
+      query: {
+        /** @description 성공 여부 */
+        isSuccess: boolean;
+        /** @description 첫 로그인 여부 */
+        isFirstLogin: boolean;
+        /** @description 응답 메시지 */
+        message: string;
+        /** @description accessToken */
+        accessToken: string;
+        /** @description refreshToken */
+        refreshToken: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -3663,7 +3831,7 @@ export interface operations {
       };
     };
   };
-  refresh: {
+  refresh_3: {
     parameters: {
       query?: never;
       header?: never;
@@ -3767,26 +3935,6 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ListRespNoticeResp'];
-        };
-      };
-    };
-  };
-  refresh_1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['AdminTokenResp'];
         };
       };
     };
