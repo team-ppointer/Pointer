@@ -1,22 +1,20 @@
-import React from 'react';
-
-export interface ProblemBlock {
-  type: 'TEXT' | 'IMAGE';
-  content?: string;
-  data?: string;
-  style?: string;
-}
-
-export interface Problem {
+export type ProblemBlock = {
   id: number;
-  title: string;
-  blocks: ProblemBlock[];
-}
+  style?: string;
+  rank?: number;
+  type?: 'TEXT' | 'IMAGE';
+  data?: string;
+};
 
-export interface ProblemViewerProps {
+export type Problem = {
+  id: number;
+  blocks: ProblemBlock[];
+};
+
+export type ProblemViewerProps = {
   problem: Problem;
   loading?: boolean;
-}
+};
 
 export default ProblemViewer;
 export { EditorModal };

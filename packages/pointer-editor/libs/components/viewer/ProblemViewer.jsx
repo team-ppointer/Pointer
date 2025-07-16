@@ -215,7 +215,7 @@ const ProblemViewer = memo(
             <Box
               key={index}
               sx={{
-                my: 1.5,
+                // my: 1.5,
                 textAlign: 'center', // 중앙 정렬 고정
                 display: 'flex',
                 justifyContent: 'center',
@@ -254,7 +254,7 @@ const ProblemViewer = memo(
     }
 
     return (
-      <Container maxWidth='md' sx={{ py: 4 }}>
+      <Container maxWidth='md' sx={{ p: 0 }}>
         <Paper
           elevation={3}
           sx={{

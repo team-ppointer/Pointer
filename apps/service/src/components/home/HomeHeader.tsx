@@ -12,12 +12,10 @@ const HomeHeader = () => {
         <LogoHeader width={106} height={24} title='로고' titleId='logo-icon' />
       </Link>
       <div className='flex items-center gap-[0.8rem]'>
-        {/* TODO: 학년 받아오기 */}
         <div className='font-medium-12 text-main bg-sub2 flex h-[2.2rem] items-center justify-center rounded-[0.4rem] px-[0.8rem]'>
           {grade}학년
         </div>
         <div className='font-medium-14 text-black'>
-          {/* TODO: 이름 받아오기 */}
           <>
             <span className='text-main mr-[0.4rem]'>{name}</span>님
           </>
