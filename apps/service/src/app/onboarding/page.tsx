@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { Button, Header } from '@components';
 import { postUserInfo } from '@/apis/controller/auth';
-import { setName } from '@utils';
+import { setName, setGrade } from '@utils';
 import UserInfoForm from '@/components/onboarding/UserInfoForm';
 
 const Page = () => {
@@ -26,6 +26,7 @@ const Page = () => {
     if (result.isSuccess) {
       if (result.data) {
         setName(result.data.name);
+        setGrade(result.data.grade);
       }
       router.push('/');
     } else {

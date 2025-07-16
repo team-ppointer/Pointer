@@ -8,7 +8,7 @@ import { ProblemCard, ProblemSecretCard, ProblemEmptyCard } from '@/components/h
 
 import './ProblemSwiper.css';
 
-type ProblemSetHomeFeedResponse = components['schemas']['ProblemSetHomeFeedResponse'];
+type ProblemSetHomeFeedResponse = components['schemas']['PublishMetaResp'];
 
 interface ProblemSwiperProps {
   problemSets: ProblemSetHomeFeedResponse[];
@@ -16,13 +16,13 @@ interface ProblemSwiperProps {
 
 const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: string) => {
   // 문제가 없는 경우
-  if (problem.publishId === null || problem.publishId === undefined) {
+  if (problem === null) {
     return <ProblemEmptyCard dateString={dateString} />;
   }
 
   // 미래 날짜의 비공개 문제인 경우
   const today = dayjs();
-  const date = dayjs(problem.date);
+  const date = dayjs(problem.publishAt);
   const isSecret = date.isAfter(today);
 
   if (isSecret) {
@@ -32,11 +32,10 @@ const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: stri
   // 공개된 일반 문제인 경우
   return (
     <ProblemCard
-      publishId={problem.publishId}
+      publishId={problem.id}
       dateString={dateString}
-      title={problem.title ?? ''}
-      image={problem.problemHomeFeedResponse?.mainProblemImageUrl ?? ''}
-      solvedCount={problem.submitCount ?? 0}
+      title={problem.problemSet.firstProblem.title}
+      problem={problem.problemSet.firstProblem.problemContent}
     />
   );
 };
@@ -45,7 +44,6 @@ const ProblemSwiper = ({ problemSets }: ProblemSwiperProps) => {
   const dayOfWeek = dayjs().day();
 
   const initialSlide = dayOfWeek === 0 || dayOfWeek === 6 ? 4 : dayOfWeek - 1;
-
   return (
     <Swiper
       slidesPerView={'auto'}
@@ -58,7 +56,7 @@ const ProblemSwiper = ({ problemSets }: ProblemSwiperProps) => {
       modules={[Pagination]}
       className='mySwiper'>
       {problemSets.map((problem, index) => {
-        const date = dayjs(problem.date);
+        const date = dayjs(problem.publishAt);
         const dateString = date.format('MM월 DD일');
 
         return <SwiperSlide key={index}>{renderProblemCard(problem, dateString)}</SwiperSlide>;

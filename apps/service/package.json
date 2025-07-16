@@ -12,6 +12,7 @@
   "dependencies": {
     "@next/third-parties": "^15.2.4",
     "@repo/pointer-design-system": "workspace:*",
+    "@repo/pointer-editor": "workspace:*",
     "@tanstack/react-query": "^5.66.0",
     "@tanstack/react-query-devtools": "^5.66.0",
     "dayjs": "^1.11.13",
