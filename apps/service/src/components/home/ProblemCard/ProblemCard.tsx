@@ -10,10 +10,9 @@ interface Props {
   dateString: string;
   title: string;
   image: string;
-  solvedCount: number;
 }
 
-const ProblemCard = ({ publishId, dateString, title, image, solvedCount }: Props) => {
+const ProblemCard = ({ publishId, dateString, title, image }: Props) => {
   const router = useRouter();
 
   const handleClickProblem = () => {
@@ -44,17 +43,10 @@ const ProblemCard = ({ publishId, dateString, title, image, solvedCount }: Props
           className={`from-sub2 absolute bottom-0 left-0 h-[8.9rem] w-full bg-gradient-to-t to-transparent`}
         />
       </div>
-      <div className='flex flex-col gap-[1.2rem]'>
-        <p className='font-medium-12 h-[1.8rem] text-center text-black'>
-          <span>
-            <strong className='text-main'>{solvedCount}명</strong>이 문제를 풀었어요!
-          </span>
-        </p>
-        <Button onClick={handleClickProblem}>
-          <IcSolve width={24} height={24} />
-          문제 풀러 가기
-        </Button>
-      </div>
+      <Button onClick={handleClickProblem}>
+        <IcSolve width={24} height={24} />
+        문제 풀러 가기
+      </Button>
     </article>
   );
 };
