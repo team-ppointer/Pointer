@@ -2,11 +2,14 @@
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@components';
-import { IcCalendar } from '@svg';
+import { IcCalendar, IcQuestionWhite } from '@svg';
 import { trackEvent } from '@utils';
 import { HomeHeader, NoticeButton, ProblemSwiper, WeekProgress } from '@/components/home';
+import { useGetWeeklyPublish } from '@/apis/controller/home';
 const Page = () => {
   const router = useRouter();
+  const { data, isLoading } = useGetWeeklyPublish();
+  const problemSets = data?.data ?? [];
 
   const handleClickAllProblem = () => {
     trackEvent('home_all_problem_button_click');
@@ -31,21 +34,22 @@ const Page = () => {
         </div>
       </main>
       <div className='mt-[2.4rem]'>
-        {/* {isLoading ? (
+        {isLoading ? (
           <div className='h-[456px] w-full' />
         ) : problemSets ? (
           <ProblemSwiper problemSets={problemSets} />
         ) : (
           <></>
-        )} */}
+        )}
       </div>
-      <footer className='bg-background mt-[2.4rem] flex flex-col gap-[1rem] px-[2rem] pb-[3.3rem]'>
+
+      <footer className='bg-background flex flex-col gap-[1rem] px-[2rem] pb-[3.3rem]'>
         <Button variant='light' onClick={handleClickAllProblem}>
           <IcCalendar width={24} height={24} />
           날짜별로 보기
         </Button>
         <Button variant='blue' onClick={handleClickQnA}>
-          <IcCalendar width={24} height={24} />
+          <IcQuestionWhite width={24} height={24} />
           QnA 바로가기
         </Button>
       </footer>

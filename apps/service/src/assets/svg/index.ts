@@ -22,6 +22,7 @@ export { default as IcPrescription20 } from './IcPrescription20';
 export { default as IcPrevBlack } from './IcPrevBlack';
 export { default as IcPrev } from './IcPrev';
 export { default as IcQuestion18 } from './IcQuestion18';
+export { default as IcQuestionWhite } from './IcQuestionWhite';
 export { default as IcRight } from './IcRight';
 export { default as IcSearch } from './IcSearch';
 export { default as IcSecret } from './IcSecret';
