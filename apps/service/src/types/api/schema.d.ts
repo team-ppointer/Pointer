@@ -1236,6 +1236,7 @@ export interface components {
       contentTitle: string;
       content: components['schemas']['ContentResp'];
       question: string;
+      images: components['schemas']['UploadFileResp'][];
       chats: components['schemas']['ChatResp'][];
     };
     UploadFileResp: {
@@ -1272,6 +1273,7 @@ export interface components {
     };
     QnAUpdateRequest: {
       question: string;
+      images?: number[];
     };
     StudentUpdateRequest: {
       name: string;
@@ -1355,7 +1357,7 @@ export interface components {
       oneStepMoreContent?: components['schemas']['ContentUpdateRequest'];
       childProblems?: components['schemas']['ChildProblemUpdateDTO.Request'][];
     };
-    ChildProblemWithStudyInfoResp: {
+    ChildProblemInfoResp: {
       /** Format: int64 */
       id: number;
       /** Format: int32 */
@@ -1366,11 +1368,7 @@ export interface components {
       /** Format: int32 */
       answer: number;
       concepts: components['schemas']['ConceptResp'][];
-      pointings: components['schemas']['PointingWithFeedbackResp'][];
-      /** Format: int32 */
-      submitAnswer: number;
-      isCorrect: boolean;
-      isDone: boolean;
+      pointings?: components['schemas']['PointingResp'][];
     };
     ConceptCategoryResp: {
       /** Format: int64 */
@@ -1391,16 +1389,6 @@ export interface components {
       questionContent: components['schemas']['ContentResp'];
       commentContent: components['schemas']['ContentResp'];
       concepts: components['schemas']['ConceptResp'][];
-    };
-    PointingWithFeedbackResp: {
-      /** Format: int64 */
-      id: number;
-      /** Format: int32 */
-      no: number;
-      questionContent: components['schemas']['ContentResp'];
-      commentContent: components['schemas']['ContentResp'];
-      concepts: components['schemas']['ConceptResp'][];
-      isUnderstood?: boolean;
     };
     PracticeTestResp: {
       /** Format: int64 */
@@ -1440,7 +1428,7 @@ export interface components {
       readingTipContent: components['schemas']['ContentResp'];
       oneStepMoreContent: components['schemas']['ContentResp'];
       pointings: components['schemas']['PointingResp'][];
-      childProblems: components['schemas']['ChildProblemWithStudyInfoResp'][];
+      childProblems: components['schemas']['ChildProblemInfoResp'][];
     };
     ProblemMetaResp: {
       /** Format: int64 */
@@ -1463,12 +1451,6 @@ export interface components {
       recommendedTimeSec: number;
       memo: string;
       concepts: components['schemas']['ConceptResp'][];
-    };
-    SubmissionResp: {
-      /** Format: int32 */
-      submitAnswer: number;
-      isCorrect: boolean;
-      isDone: boolean;
     };
     ProblemSetItemRequest: {
       /** Format: int32 */
@@ -1576,6 +1558,12 @@ export interface components {
       /** Format: int32 */
       submitAnswer: number;
     };
+    SubmissionResp: {
+      /** Format: int32 */
+      submitAnswer: number;
+      isCorrect: boolean;
+      isDone: boolean;
+    };
     /** @description problemId, childProblemId, pointingId 중 하나만 입력 가능 */
     QnACreateRequest: {
       /** Format: int64 */
@@ -1599,6 +1587,7 @@ export interface components {
       /** Format: int64 */
       pointingId?: number;
       question: string;
+      images?: number[];
     };
     QnACheckRequest: {
       /** Format: int64 */
@@ -1682,6 +1671,33 @@ export interface components {
       studentId: number;
       /** Format: date */
       publishAt: string;
+    };
+    ChildProblemWithStudyInfoResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      problemContent: components['schemas']['ContentResp'];
+      /** @enum {string} */
+      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      /** Format: int32 */
+      answer: number;
+      concepts: components['schemas']['ConceptResp'][];
+      pointings: components['schemas']['PointingWithFeedbackResp'][];
+      /** Format: int32 */
+      submitAnswer: number;
+      isCorrect: boolean;
+      isDone: boolean;
+    };
+    PointingWithFeedbackResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      questionContent: components['schemas']['ContentResp'];
+      commentContent: components['schemas']['ContentResp'];
+      concepts: components['schemas']['ConceptResp'][];
+      isUnderstood?: boolean;
     };
     ProblemWithStudyInfoResp: {
       /** Format: int64 */
@@ -3450,6 +3466,8 @@ export interface operations {
   searchMonthly: {
     parameters: {
       query: {
+        year: number;
+        month: number;
         studentId: number;
       };
       header?: never;
@@ -3687,7 +3705,10 @@ export interface operations {
   };
   searchMonthly_1: {
     parameters: {
-      query?: never;
+      query: {
+        year: number;
+        month: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
