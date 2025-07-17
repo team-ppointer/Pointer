@@ -16,7 +16,7 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const baseStyles =
-    'w-full h-[5.6rem] min-w-fit rounded-[16px]  font-medium-16 flex items-center justify-center gap-[1.6rem] px-[1rem]';
+    'w-full h-[5.6rem] min-w-fit rounded-[16px] shrink-0 font-medium-16 flex items-center justify-center gap-[1.6rem] px-[1rem]';
 
   const variantStyles = {
     blue: 'bg-main text-white',

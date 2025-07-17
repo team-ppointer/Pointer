@@ -21,7 +21,7 @@ const QnaAskTextArea = ({ handleTextareaOnChange }: QnaAskTextAreaProps) => {
 
   return (
     <textarea
-      className='font-medium-16 placeholder:text-lightgray500 h-fit min-h-[0.9rem] w-full resize-none px-[1.6rem] outline-none focus:outline-none'
+      className='font-medium-16 placeholder:text-lightgray500 h-full min-h-[0.9rem] w-full resize-none px-[1.6rem] outline-none focus:outline-none'
       placeholder='내용'
       ref={textareaRef}
       onInput={handleInput}

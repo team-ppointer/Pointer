@@ -1,12 +1,10 @@
 'use client';
 
-import { ForwardedRef, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { IcButton } from '@components';
 import { IcCamera, IcPhoto } from '@svg';
-
-import QnaAskImageBox from './QnaAskImageBox';
-import QnaAskTextArea from './QnaAskTextArea';
+import { QnaAskImageBox, QnaAskTextArea } from '@/components/qna';
 
 type QnaAskContentProps = {
   handleTextareaOnChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -39,21 +37,16 @@ const QnaAskContent = ({ handleTextareaOnChange }: QnaAskContentProps) => {
   };
 
   return (
-    <div className='bg-[ flex w-full flex-col items-start justify-start gap-[1.6rem] rounded-[1.6rem] bg-white p-[2rem]'>
+    <div className='flex w-full flex-1 flex-col items-start justify-start gap-[1.6rem] rounded-[1.6rem] bg-white p-[2rem]'>
       <div className='text-main flex w-full items-center justify-between'>
         <p className='font-bold-16'>내용</p>
-        <div className='flex items-center gap-[0.8rem]'>
-          <IcButton>
-            <IcCamera width={24} height={24} />
-          </IcButton>
-          <IcButton onClick={openPicker}>
-            <IcPhoto width={24} height={24} />
-          </IcButton>
-        </div>
+        <IcButton onClick={openPicker}>
+          <IcCamera width={24} height={24} />
+        </IcButton>
       </div>
-      <div className='bg-background flex w-full flex-col items-start justify-start gap-[1.6rem] rounded-[0.8rem] py-[1.6rem]'>
+      <div className='bg-background flex w-full flex-1 flex-col items-start justify-between gap-[1.6rem] rounded-[0.8rem] py-[1.6rem]'>
         <QnaAskTextArea handleTextareaOnChange={handleTextareaOnChange} />
-        <div className='flex w-full items-center justify-start gap-[0.8rem] overflow-hidden overflow-x-auto px-[1.6rem] py-[0.4rem]'>
+        <div className='flex h-fit w-full shrink-0 items-center justify-start gap-[0.8rem] overflow-hidden overflow-x-auto px-[1.6rem] py-[0.4rem]'>
           {previewUrls.map((url, index) => (
             <QnaAskImageBox key={index} imageUrl={url} onDelete={() => handleImageDelete(index)} />
           ))}
