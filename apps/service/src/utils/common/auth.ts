@@ -7,6 +7,9 @@ const getName = () => localStorage.getItem('name');
 const setName = (name: string) => localStorage.setItem('name', name);
 const getGrade = () => localStorage.getItem('grade');
 const setGrade = (grade: number) => localStorage.setItem('grade', grade.toString());
+const logout = () => {
+  localStorage.clear();
+};
 
 export {
   getAccessToken,
@@ -17,4 +20,5 @@ export {
   setName,
   setGrade,
   getGrade,
+  logout,
 };
