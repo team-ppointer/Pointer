@@ -24,7 +24,7 @@ const ProblemCard = ({ publishId, dateString, title, problem }: Props) => {
 
   return (
     <article
-      className={`bg-sub2 flex w-full flex-col justify-between gap-[2.4rem] rounded-[16px] p-[2.4rem]`}>
+      className={`bg-sub2 flex h-full w-full flex-col justify-between gap-[2.4rem] rounded-[16px] p-[2.4rem]`}>
       <div className='flex flex-col items-start gap-[0.8rem]'>
         <p className={`font-medium-16 text-black`}>{dateString}</p>
         <h3 className={`font-bold-20 text-main line-clamp-2`}>{title}</h3>
