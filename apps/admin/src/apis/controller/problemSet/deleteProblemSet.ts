@@ -1,7 +1,7 @@
 import { $api } from '@apis';
 
 const deleteProblemSet = () => {
-  return $api.useMutation('delete', '/api/v1/problemSet/{problemSetId}');
+  return $api.useMutation('delete', '/api/admin/problem-set/{id}');
 };
 
 export default deleteProblemSet;
