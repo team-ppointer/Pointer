@@ -10,7 +10,7 @@ const Page = () => {
   const { publishId } = useParams<{ publishId: string }>();
 
   const { data } = useGetProblemsByPublishId(publishId);
-  const { publishAt, problemSet, data: problems } = data ?? {};
+  const { id, publishAt, problemSet, data: problems } = data ?? {};
   const publishDate = dayjs(publishAt).format('MM월 DD일');
 
   console.log(data);
@@ -26,8 +26,9 @@ const Page = () => {
               <ProblemStatusCard
                 key={index}
                 mainProblemNumber={index + 1}
-                publishId={Number(publishId)}
+                problemId={problem.no}
                 problemData={problem}
+                publishId={+publishId}
               />
             );
           })}

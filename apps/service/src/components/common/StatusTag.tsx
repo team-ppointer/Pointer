@@ -1,7 +1,7 @@
 import { IcTagCorrect, IcTagIncorrect, IcTagRetried, IcTagInprogress } from '@svg';
 
 interface Props {
-  status: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'DOING' | 'NONE';
+  status: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'DOING' | 'NONE' | 'DONE';
 }
 
 const StatusTag = ({ status }: Props) => {
@@ -10,6 +10,7 @@ const StatusTag = ({ status }: Props) => {
     INCORRECT: <IcTagIncorrect width={16} height={16} />,
     RETRY_CORRECT: <IcTagRetried width={16} height={16} />,
     DOING: <IcTagInprogress width={16} height={16} />,
+    DONE: <></>,
     NONE: <></>,
   };
 
@@ -18,6 +19,7 @@ const StatusTag = ({ status }: Props) => {
     INCORRECT: '오답',
     RETRY_CORRECT: '정답',
     DOING: '진행중',
+    DONE: '완료',
     NONE: '시작전',
   };
 
@@ -26,6 +28,7 @@ const StatusTag = ({ status }: Props) => {
     INCORRECT: 'bg-lightred text-red',
     RETRY_CORRECT: 'bg-lightyellow text-yellow',
     DOING: 'bg-lightgreen text-green',
+    DONE: 'bg-lightblue text-blue',
     NONE: 'bg-lightgray300 text-lightgray500',
   };
 
