@@ -1,9 +1,9 @@
 import { useRouter } from 'next/navigation';
+import ProblemViewer, { Problem } from '@repo/pointer-editor/ProblemViewer';
 
 import { Button } from '@components';
 import { trackEvent } from '@utils';
 import { IcSolve } from '@svg';
-import ProblemViewer, { Problem } from '@repo/pointer-editor/ProblemViewer';
 
 interface Props {
   publishId: number;

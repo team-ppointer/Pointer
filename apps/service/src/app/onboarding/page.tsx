@@ -65,7 +65,7 @@ const Page = () => {
             <UserInfoForm formState={formState} register={register} />
           </div>
           <Button type='submit' variant='blue' disabled={!isFormFilled} onClick={handleSubmitForm}>
-            수정 완료
+            완료
           </Button>
         </FormProvider>
       </main>

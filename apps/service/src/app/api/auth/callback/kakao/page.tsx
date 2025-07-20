@@ -21,7 +21,7 @@ const Page = () => {
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
 
-    if (isFirstLogin) {
+    if (isFirstLogin === 'true') {
       router.replace('/onboarding');
     } else {
       router.replace('/');

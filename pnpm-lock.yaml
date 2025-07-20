@@ -177,6 +177,9 @@ importers:
       '@repo/pointer-design-system':
         specifier: workspace:*
         version: link:../../packages/pointer-design-system
+      '@repo/pointer-editor':
+        specifier: workspace:*
+        version: link:../../packages/pointer-editor
       '@tanstack/react-query':
         specifier: ^5.66.0
         version: 5.81.5(react@19.1.0)
