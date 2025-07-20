@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import Image from 'next/image';
 
 import { Button, Divider, Tag } from '@components';
 import { IcSolve } from '@svg';
 import { components } from '@schema';
 
 import 'dayjs/locale/ko';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 dayjs.locale('ko');
 
 const answerStatusLabel = (status: string) => {
@@ -15,41 +15,35 @@ const answerStatusLabel = (status: string) => {
     case 'RETRY_CORRECT':
     case 'INCORRECT':
       return '완료';
-    case 'IN_PROGRESS':
+    case 'DOING':
       return '진행중';
-    case 'NOT_STARTED':
+    case 'NONE':
     default:
       return '미완료';
   }
 };
 const answerStatusColor = (status: string) => {
   switch (status) {
-    case 'CORRECT':
-    case 'RETRY_CORRECT':
-    case 'INCORRECT':
+    case 'DONE':
       return 'green';
-    case 'IN_PROGRESS':
+    case 'DOING':
       return 'red';
-    case 'NOT_STARTED':
+    case 'NONE':
     default:
       return 'gray';
   }
 };
 
-type AllProblemGetResponse = components['schemas']['AllProblemGetResponse'];
-interface DayProblemCardProps {
-  dayProblemData: AllProblemGetResponse;
-}
+type AllProblemGetResponse = components['schemas']['PublishResp'];
 
-const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
-  const { publishId, date, progress, problemStatuses, mainProblemImageUrl } = dayProblemData;
-  const progressLabel =
-    progress === 'COMPLETE' ? '완료' : progress === 'IN_PROGRESS' ? '진행중' : '미완료';
-  const progressColor =
-    progress === 'COMPLETE' ? 'green' : progress === 'IN_PROGRESS' ? 'red' : 'gray';
+const DayProblemCard = ({ dayProblemData }: { dayProblemData: AllProblemGetResponse }) => {
+  const { id, publishAt, progress, problemSet, data } = dayProblemData;
 
-  const dayOfWeek = dayjs(date).format('ddd요일');
-  const dateFormatted = dayjs(date).format('M월 DD일');
+  const progressLabel = progress === 'DONE' ? '완료' : progress === 'DOING' ? '진행중' : '미완료';
+  const progressColor = progress === 'DONE' ? 'green' : progress === 'DOING' ? 'red' : 'gray';
+
+  const dayOfWeek = dayjs(publishAt).format('ddd요일');
+  const dateFormatted = dayjs(publishAt).format('M월 DD일');
 
   return (
     <div className='flex max-h-full w-full flex-col justify-between rounded-[16px] bg-white px-[3.2rem] py-[2.4rem]'>
@@ -61,32 +55,29 @@ const DayProblemCard = ({ dayProblemData }: DayProblemCardProps) => {
           </Tag>
         </div>
         <Divider />
-        <div className='flex gap-[2.4rem]'>
+        <div className='flex flex-row gap-[2.4rem]'>
           <ul className='flex h-full flex-col gap-[1.6rem]'>
-            {(problemStatuses ?? []).map((problem, index) => (
+            {/* problemSet이 배열인 경우 */}
+            {data.map((problem) => (
               <li
-                key={index}
+                key={problem.no}
                 className='flex w-[15.7rem] items-center justify-between gap-[0.8rem]'>
-                <p className='font-medium-16 text-black'>{`메인문제 ${index + 1}번`}</p>
-                <Tag variant={answerStatusColor(problem)} sizeType='small'>
-                  {answerStatusLabel(problem)}
+                <p className='font-medium-16 text-black'>{`메인문제 ${problem.no}번`}</p>
+                <Tag variant={answerStatusColor(problem.progress)} sizeType='small'>
+                  {answerStatusLabel(problem.progress)}
                 </Tag>
               </li>
             ))}
           </ul>
-          <div className='flex flex-1 items-start justify-center'>
-            <Image
-              src={mainProblemImageUrl ?? ''}
-              alt='문제 이미지'
-              className='w-full max-w-[20rem] object-contain'
-              width={200}
-              height={100}
-            />
-          </div>
+          <div  className='flex w-full flex-col items-center justify-center rounded-[1.6rem] bg-white'>
+          <ProblemViewer problem={problemSet.firstProblem.problemContent} loading={false} />
         </div>
+        </div>
+
+
       </div>
 
-      <Link href={`/problem/list/${publishId}`}>
+      <Link href={`/problem/list/${publishAt}`}>
         <Button className='mt-[3.2rem]'>
           <IcSolve width={24} height={24} />
           문제 풀러 가기
