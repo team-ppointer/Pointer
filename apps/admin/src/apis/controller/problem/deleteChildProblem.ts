@@ -1,7 +1,7 @@
-import { $api } from '@apis';
+// import { $api } from '@apis';
 
 const deleteChildProblem = () => {
-  return $api.useMutation('delete', '/api/v1/problems/{problemId}/child-problems/{childProblemId}');
+  // return $api.useMutation('delete', '/api/v1/problems/{problemId}/child-problems/{childProblemId}');
 };
 
 export default deleteChildProblem;

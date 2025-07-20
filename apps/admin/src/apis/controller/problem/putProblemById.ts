@@ -1,7 +1,7 @@
 import { $api } from '@apis';
 
 const putProblemById = () => {
-  return $api.useMutation('put', '/api/v1/problems/{id}');
+  return $api.useMutation('put', '/api/admin/problem/{id}');
 };
 
 export default putProblemById;
