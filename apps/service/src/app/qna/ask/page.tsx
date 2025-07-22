@@ -12,13 +12,7 @@ import { useGetChildProblemById, useGetProblemById } from '@apis';
 import { getFileUploadUrl, uploadFileToS3 } from '@/apis/controller/file/fileUpload';
 import postQna from '@/apis/controller/qna/postQna';
 
-const dummyProps: {
-  publishId: number;
-  problemId?: number;
-  childProblemId?: number;
-  pointingId?: number;
-  type: components['schemas']['QnAResp']['type'];
-} = {
+const dummyProps: Omit<components['schemas']['QnACreateRequest'], 'question' | 'images'> = {
   publishId: 1,
   problemId: 3,
   childProblemId: undefined,
@@ -28,7 +22,7 @@ const dummyProps: {
 
 const Page = () => {
   const [isFilled, setIsFilled] = useState(false);
-  const [content, setContent] = useState('');
+  const [question, setQuestion] = useState('');
   const [images, setImages] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -52,7 +46,7 @@ const Page = () => {
     const value = e.target.value;
     if (value.trim().length > 0) {
       setIsFilled(true);
-      setContent(value);
+      setQuestion(value);
     } else {
       setIsFilled(false);
     }
@@ -74,7 +68,7 @@ const Page = () => {
           const result = await postQna({
             ...dummyProps,
             images: uploadUrls.map((url) => url.id), // 혹은 필요 시 url 자체
-            content,
+            question,
           });
 
           if (result.response.status === 200) {
@@ -89,7 +83,7 @@ const Page = () => {
       // 이미지가 없는 경우
       const result = await postQna({
         ...dummyProps,
-        content,
+        question,
       });
 
       if (result.response.status === 200) {
