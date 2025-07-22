@@ -69,15 +69,13 @@ const DayProblemCard = ({ dayProblemData }: { dayProblemData: AllProblemGetRespo
               </li>
             ))}
           </ul>
-          <div  className='flex w-full flex-col items-center justify-center rounded-[1.6rem] bg-white'>
-          <ProblemViewer problem={problemSet.firstProblem.problemContent} loading={false} />
+          <div className='flex w-full flex-col items-center justify-center rounded-[1.6rem] bg-white'>
+            <ProblemViewer problem={problemSet.firstProblem.problemContent} loading={false} />
+          </div>
         </div>
-        </div>
-
-
       </div>
 
-      <Link href={`/problem/list/${publishAt}`}>
+      <Link href={`/problem/list/${id}`}>
         <Button className='mt-[3.2rem]'>
           <IcSolve width={24} height={24} />
           문제 풀러 가기

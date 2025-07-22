@@ -1749,6 +1749,8 @@ export interface components {
     PublishProblemGroupResp: {
       /** Format: int32 */
       no: number;
+      /** Format: int64 */
+      problemId: number;
       /** @enum {string} */
       progress: 'DONE' | 'DOING' | 'NONE';
       problem: components['schemas']['ProblemWithStudyInfoResp'];

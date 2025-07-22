@@ -13,7 +13,6 @@ const Page = () => {
   const { id, publishAt, problemSet, data: problems } = data ?? {};
   const publishDate = dayjs(publishAt).format('MM월 DD일');
 
-  console.log(data);
   return (
     <>
       <Header title='문제 리스트' />
@@ -25,8 +24,8 @@ const Page = () => {
             return (
               <ProblemStatusCard
                 key={index}
-                mainProblemNumber={index + 1}
-                problemId={problem.no}
+                mainProblemNumber={problem.no}
+                problemId={problem.problemId}
                 problemData={problem}
                 publishId={+publishId}
               />

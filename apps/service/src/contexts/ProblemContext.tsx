@@ -19,7 +19,7 @@ export const ProblemProvider = ({ children }: { children: React.ReactNode }) => 
   const [step, setStep] = useState<number>(0);
 
   // api
-  const { data } = useGetChildData(publishId, problemId);
+  const { data } = useGetChildData(+problemId);
   const childData = data?.data;
   const { mainProblemImageUrl = '', childProblemIds = [] } = childData ?? {};
 
