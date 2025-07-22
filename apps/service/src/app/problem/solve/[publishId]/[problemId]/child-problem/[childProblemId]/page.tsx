@@ -37,7 +37,7 @@ const Page = () => {
     childProblemId: string;
   }>();
   const router = useRouter();
-  const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
+  const { childProblemLength, onPrev, onNext } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
 
   const { isOpen, openModal, closeModal } = useModal();

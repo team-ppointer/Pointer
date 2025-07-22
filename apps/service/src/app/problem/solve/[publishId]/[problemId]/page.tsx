@@ -2,14 +2,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import Image from 'next/image';
 import { Slide, ToastContainer } from 'react-toastify';
 
 import {
   useGetProblemById,
   putProblemSubmit,
-  useGetChildData,
   postChildProblemSubmit,
+  useGetChildProblemById,
 } from '@apis';
 import {
   AnswerInput,
@@ -23,12 +22,14 @@ import {
   CopyButton,
   MainAnswerCheckBottomSheetTemplate,
   BottomSheet,
+  SolveButton,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, trackEvent } from '@utils';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+import { IcArrowGrow14, IcQuestion18 } from '@svg';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -56,29 +57,30 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  console.log('publishId', publishId, 'problemId', problemId);
-  const problemData = useGetProblemById(+problemId);
-  console.log('problemData', problemData);
-  const { data: childData } = useGetChildData(1);
-  const childProblemId = childData?.id;
+  const { data: problemData } = useGetProblemById(+publishId, +problemId);
+
+  if (!problemData) return;
+  const { id, no, recommendedTimeSec, problemContent, answerType, answer, childProblems } =
+    problemData;
+  const childProblemId = childProblems[0]?.id || 0;
 
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
   const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
   const isDirect =
-    childProblemStatuses.length > 0 &&
-    childProblemStatuses[childProblemStatuses.length - 1] === 'NOT_STARTED';
+    childProblemLength > 0 && childProblems[childProblemLength - 1].progress === 'NONE';
+  const hasChildProblem = childProblemLength > 0;
 
-  const hasChildProblem = childProblemStatuses.length > 0;
-
-  const prevButtonLabel =
-    isDirect || childProblemLength === 0
-      ? `메인 문제 ${number}번`
-      : `새끼 문제 ${number}-${childProblemLength}번`;
-  const nextButtonLabel = '해설 보기';
+  const seconds = recommendedTimeSec % 60;
+  const minutes = Math.floor(recommendedTimeSec / 60);
+  // const prevButtonLabel =
+  //   isDirect || childProblemLength === 0
+  //     ? `메인 문제 ${number}번`
+  //     : `새끼 문제 ${number}-${childProblemLength}번`;
+  // const nextButtonLabel = '해설 보기';
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putProblemSubmit(publishId, problemId, answer);
-    const resultData = data?.data;
+    const resultData = problemData.progress;
     invalidateAll();
 
     setResult(resultData);
@@ -119,11 +121,11 @@ const Page = () => {
   //   await copyImageToClipboard(imageUrl);
   // };
 
-  useEffect(() => {
-    if (isSolved && answer) {
-      setValue('answer', answer);
-    }
-  }, [isSolved, answer, setValue]);
+  // useEffect(() => {
+  //   if (isSolved && answer) {
+  //     setValue('answer', String(answer));
+  //   }
+  // }, [isSolved, answer, setValue]);
 
   return (
     <>
@@ -149,9 +151,19 @@ const Page = () => {
       <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-[1.2rem]'>
-              <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
-              <TimeTag seconds={recommendedTimeSec} />
+            <div className='flex items-center justify-between gap-[1.2rem]'>
+              <h1 className='font-bold-18 text-main'>메인 문제 {no}번</h1>
+              <TimeTag minutes={minutes} seconds={seconds} />
+            </div>
+            <div>
+              <SmallButton
+                className='flex flex-row gap-[4px]'
+                variant='white'
+                sizeType='small'
+                onClick={() => {}}>
+                <IcQuestion18 className='h-[1.8rem] w-[1.8rem]' />
+                질문하기
+              </SmallButton>
             </div>
             {isSolved && (
               <Tag variant='green' sizeType='small'>
@@ -166,16 +178,24 @@ const Page = () => {
           </div>
           <ImageContainer className='relative mt-[1.2rem]'>
             <ProblemViewer problem={problemContent} loading={false} />
-            {/* <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
-              <CopyButton onClick={handleClickCopyImage} />
-            </div> */}
           </ImageContainer>
 
           {hasChildProblem && (
-            <div className='mt-[0.6rem] flex items-center justify-end'>
+            <div className='mt-[0.6rem] flex items-center justify-between'>
               <SmallButton variant='underline' sizeType='small' onClick={handleClickStepSolve}>
-                단계별로 풀어보기
+                문제 복사하기
               </SmallButton>
+              <div className='mt-[0.6rem] flex items-center justify-end gap-[0.8rem]'>
+                <h3 className='font-medium-12 text-midgray100'>잘 모르겠다면</h3>
+                <SmallButton
+                  className='flex flex-row gap-[4px]'
+                  variant='white'
+                  sizeType='small'
+                  onClick={handleClickStepSolve}>
+                  <IcArrowGrow14 className='mt-2 flex h-[1.8rem] w-[1.8rem]' />
+                  단계적으로 풀어보기
+                </SmallButton>
+              </div>
             </div>
           )}
 
@@ -201,25 +221,26 @@ const Page = () => {
         <div className='mt-[2rem] w-full'>
           <form onSubmit={handleSubmit(handleSubmitAnswer)}>
             <h3 className='font-bold-16 text-black'>정답 선택</h3>
-            <div className='mt-[1.2rem] flex flex-col gap-[2rem] md:flex-row'>
+            <div className='mt-[1.2rem] flex flex-col gap-[2rem] md:flex-grow md:flex-row'>
               <AnswerInput
+                className='md:flex-1'
                 answerType={answerType}
-                selectedAnswer={isSolved && answer ? answer : selectedAnswer}
+                selectedAnswer={isSolved && answer ? String(answer) : selectedAnswer}
                 disabled={isSolved}
                 {...register('answer')}
               />
-              <Button disabled={isSolved}>제출하기</Button>
+              <Button className='md:flex-1'>제출하기</Button>
             </div>
           </form>
         </div>
       </main>
-{/* 
+
       {/* <NavigationFooter
         prevLabel={prevButtonLabel}
         nextLabel={isSubmitted ? nextButtonLabel : undefined}
         onClickPrev={handleClickPrev}
         onClickNext={isSubmitted ? handleClickNext : undefined}
-      /> */} */}
+      /> */}
 
       <BottomSheet isOpen={isOpen} onClose={closeModal}>
         <MainAnswerCheckBottomSheetTemplate

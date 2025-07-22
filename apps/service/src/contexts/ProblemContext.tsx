@@ -2,11 +2,10 @@
 import { createContext, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-import { useGetChildData } from '@apis';
+import { useGetProblemById } from '@apis';
 
 export interface ProblemContextType {
   childProblemLength: number;
-  mainProblemImageUrl: string;
   onPrev: () => void;
   onNext: () => void;
 }
@@ -19,9 +18,8 @@ export const ProblemProvider = ({ children }: { children: React.ReactNode }) => 
   const [step, setStep] = useState<number>(0);
 
   // api
-  const { data } = useGetChildData(+problemId);
-  const childData = data?.data;
-  const { mainProblemImageUrl = '', childProblemIds = [] } = childData ?? {};
+  const { data } = useGetProblemById(+publishId, +problemId);
+  const childProblems = data?.childProblems ?? [];
 
   const baseUrl = `/problem/solve/${publishId}/${problemId}`;
 
@@ -29,23 +27,22 @@ export const ProblemProvider = ({ children }: { children: React.ReactNode }) => 
     if (step === 0) {
       router.push(baseUrl);
     } else if (step > 0) {
-      router.push(`${baseUrl}/child-problem/${childProblemIds[step - 1]}`);
+      router.push(`${baseUrl}/child-problem/${childProblems[step - 1].id}`);
       setStep(step - 1);
     }
   };
 
   const onNext = () => {
-    if (step === childProblemIds.length - 1) {
+    if (step === childProblems.length - 1) {
       router.push(baseUrl);
-    } else if (step < childProblemIds.length - 1) {
-      router.push(`${baseUrl}/child-problem/${childProblemIds[step + 1]}`);
+    } else if (step < childProblems.length - 1) {
+      router.push(`${baseUrl}/child-problem/${childProblems[step + 1].id}`);
       setStep(step + 1);
     }
   };
 
   const contextValue: ProblemContextType = {
-    childProblemLength: childProblemIds.length,
-    mainProblemImageUrl: mainProblemImageUrl,
+    childProblemLength: childProblems.length,
     onPrev,
     onNext,
   };
