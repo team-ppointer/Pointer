@@ -791,7 +791,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/teacher/study/problem/{id}': {
+  '/api/teacher/study/problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -808,7 +808,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/teacher/study/child-problem/{id}': {
+  '/api/teacher/study/child-problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -978,7 +978,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/study/problem/{id}': {
+  '/api/student/study/problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -995,7 +995,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/study/child-problem/{id}': {
+  '/api/student/study/child-problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -1713,6 +1713,8 @@ export interface components {
       isUnderstood?: boolean;
     };
     ProblemWithStudyInfoResp: {
+      /** Format: int32 */
+      no?: number;
       /** Format: int64 */
       id: number;
       customId: string;
@@ -3557,7 +3559,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3581,7 +3584,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3794,7 +3798,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3816,7 +3821,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
