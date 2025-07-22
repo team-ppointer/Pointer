@@ -14,8 +14,8 @@ interface SolveButtonsClientProps {
 const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) => {
   const router = useRouter();
   const { invalidateAll } = useInvalidate();
-  const { data } = useGetChildData(publishId, problemId);
-  const childProblemId = data?.data?.childProblemIds[0];
+  const { data } = useGetChildData(+problemId);
+  const childProblemId = data?.id;
 
   const handleClickDirect = async () => {
     trackEvent('problem_solve_direct_button_click');

@@ -28,6 +28,7 @@ import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, trackEvent } from '@utils';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -55,20 +56,11 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data, isLoading } = useGetProblemById(publishId, problemId);
-  const { data: childData } = useGetChildData(publishId, problemId);
-  const childProblemId = childData?.data?.childProblemIds[0];
-
-  const {
-    number,
-    imageUrl,
-    recommendedMinute,
-    recommendedSecond,
-    status,
-    childProblemStatuses = [],
-    answerType = 'MULTIPLE_CHOICE',
-    answer,
-  } = data?.data ?? {};
+  console.log('publishId', publishId, 'problemId', problemId);
+  const problemData = useGetProblemById(+problemId);
+  console.log('problemData', problemData);
+  const { data: childData } = useGetChildData(1);
+  const childProblemId = childData?.id;
 
   const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
   const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
@@ -122,20 +114,16 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
-  const handleClickCopyImage = async () => {
-    if (!imageUrl) return;
-    await copyImageToClipboard(imageUrl);
-  };
+  // const handleClickCopyImage = async () => {
+  //   if (!imageUrl) return;
+  //   await copyImageToClipboard(imageUrl);
+  // };
 
   useEffect(() => {
     if (isSolved && answer) {
       setValue('answer', answer);
     }
   }, [isSolved, answer, setValue]);
-
-  if (isLoading) {
-    return <></>;
-  }
 
   return (
     <>
@@ -163,7 +151,7 @@ const Page = () => {
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-[1.2rem]'>
               <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
-              <TimeTag minutes={recommendedMinute} seconds={recommendedSecond} />
+              <TimeTag seconds={recommendedTimeSec} />
             </div>
             {isSolved && (
               <Tag variant='green' sizeType='small'>
@@ -177,17 +165,10 @@ const Page = () => {
             )}
           </div>
           <ImageContainer className='relative mt-[1.2rem]'>
-            <Image
-              src={imageUrl ?? ''}
-              alt={`메인 문제 ${number}번`}
-              className='w-full object-contain'
-              width={700}
-              height={200}
-              priority
-            />
-            <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
+            <ProblemViewer problem={problemContent} loading={false} />
+            {/* <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
               <CopyButton onClick={handleClickCopyImage} />
-            </div>
+            </div> */}
           </ImageContainer>
 
           {hasChildProblem && (
@@ -232,13 +213,13 @@ const Page = () => {
           </form>
         </div>
       </main>
-
+{/* 
       {/* <NavigationFooter
         prevLabel={prevButtonLabel}
         nextLabel={isSubmitted ? nextButtonLabel : undefined}
         onClickPrev={handleClickPrev}
         onClickNext={isSubmitted ? handleClickNext : undefined}
-      /> */}
+      /> */} */}
 
       <BottomSheet isOpen={isOpen} onClose={closeModal}>
         <MainAnswerCheckBottomSheetTemplate

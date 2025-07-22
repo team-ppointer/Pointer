@@ -57,7 +57,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data, isLoading } = useGetChildProblemById(publishId, problemId, childProblemId);
+  const { data, isLoading } = useGetChildProblemById(+childProblemId);
   const {
     problemNumber,
     childProblemNumber = 1,
