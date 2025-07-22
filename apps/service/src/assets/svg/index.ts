@@ -1,6 +1,7 @@
 export { default as IcArrowGrow14 } from './IcArrowGrow14';
 export { default as IcCalendar } from './IcCalendar';
 export { default as IcCamera } from './IcCamera';
+export { default as IcCloseBig } from './IcCloseBig';
 export { default as IcClose } from './IcClose';
 export { default as IcCommentCheck20 } from './IcCommentCheck20';
 export { default as IcCopy } from './IcCopy';
@@ -13,6 +14,7 @@ export { default as IcIncorrect } from './IcIncorrect';
 export { default as IcKakao } from './IcKakao';
 export { default as IcLeft } from './IcLeft';
 export { default as IcList } from './IcList';
+export { default as IcMenu } from './IcMenu';
 export { default as IcMinusSmall } from './IcMinusSmall';
 export { default as IcMinus } from './IcMinus';
 export { default as IcNextBlack } from './IcNextBlack';

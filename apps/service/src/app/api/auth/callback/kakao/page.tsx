@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import PulseLoader from 'react-spinners/PulseLoader';
 
 import { setAccessToken, setRefreshToken } from '@utils';
 
@@ -28,7 +29,11 @@ const Page = () => {
     }
   }, [searchParams]);
 
-  return <></>;
+  return (
+    <div className='flex h-dvh w-full items-center justify-center'>
+      <PulseLoader color='#617AF9' aria-label='Loading Spinner' />
+    </div>
+  );
 };
 
 export default Page;
