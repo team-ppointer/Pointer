@@ -8,9 +8,11 @@ import { QnaAskImageBox, QnaAskTextArea } from '@/components/qna';
 
 type QnaAskContentProps = {
   handleTextareaOnChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  images?: File[];
+  setImages?: (photos: File[]) => void;
 };
 
-const QnaAskContent = ({ handleTextareaOnChange }: QnaAskContentProps) => {
+const QnaAskContent = ({ handleTextareaOnChange, images, setImages }: QnaAskContentProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
@@ -22,6 +24,9 @@ const QnaAskContent = ({ handleTextareaOnChange }: QnaAskContentProps) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrls((prev) => [...prev, reader.result as string]);
+        if (images && setImages) {
+          setImages([...images, file]);
+        }
       };
       reader.readAsDataURL(file);
     });

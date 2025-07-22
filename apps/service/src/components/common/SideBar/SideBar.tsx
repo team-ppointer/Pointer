@@ -11,17 +11,6 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const [isVisible, setIsVisible] = useState(isOpen);
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true); // 바로 보여주기
-    } else {
-      // 딜레이 후 visibility 끄기
-      const timeout = setTimeout(() => setIsVisible(false), 300); // 트랜지션 시간과 맞춰서
-      return () => clearTimeout(timeout);
-    }
-  }, [isOpen]);
   return (
     <>
       {/* 오버레이: 모바일에서는 화면 전체, 데스크톱에서는 콘텐츠 영역에만 */}
@@ -49,7 +38,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className='p-[2rem]'>
           <div className='flex items-center justify-between gap-[1.6rem]'>
             <Input
-              className='bg-background h-[4.8rem] w-full rounded-[1.6rem] p-[1.6rem]'
+              className='bg-background h-[4.8rem] w-full rounded-[1.6rem] p-[1.6rem] text-[1.6rem]'
               placeholder='검색'
             />
             <IcCloseBig width={24} height={24} onClick={onClose} />
