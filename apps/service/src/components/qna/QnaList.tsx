@@ -15,25 +15,26 @@ const QnaList = ({ search }: QnaListProps) => {
   const [qnaList, setQnaList] = useState<components['schemas']['QnAGroupItem'][]>([]);
 
   useEffect(() => {
-    if (data?.data?.groups && data.data.groups.length !== 0) {
-      setQnaList([...data.data.groups].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
-    }
+    const groups = data?.data?.groups ?? [];
+    const sortedGroups = [...groups].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const sortedString = JSON.stringify(sortedGroups);
+    setQnaList((prev) => {
+      if (JSON.stringify(prev) !== sortedString) {
+        return sortedGroups;
+      }
+      return prev;
+    });
   }, [data]);
 
   return (
-    <div className='flex h-full w-full flex-col items-center justify-center gap-[3.2rem] overflow-y-auto py-[3.2rem]'>
-      {isSuccess &&
-        qnaList.length !== 0 &&
-        qnaList.map((group) => <QnaListContent key={group.order} data={group} />)}
-      {isSuccess &&
-        qnaList.length !== 0 &&
-        qnaList.map((group) => <QnaListContent key={group.order} data={group} />)}
-      {isSuccess &&
-        qnaList.length !== 0 &&
-        qnaList.map((group) => <QnaListContent key={group.order} data={group} />)}
-      {isSuccess &&
-        qnaList.length !== 0 &&
-        qnaList.map((group) => <QnaListContent key={group.order} data={group} />)}
+    <div className='w-full flex-1 space-y-[3.2rem] overflow-y-scroll pb-[2rem]'>
+      {isSuccess && qnaList.length !== 0 ? (
+        qnaList.map((group) => <QnaListContent key={group.order} data={group} />)
+      ) : (
+        <div className='flex h-full w-full items-center justify-center'>
+          <p className='text-lightgray500 font-medium-16'>검색 결과가 없습니다.</p>
+        </div>
+      )}
     </div>
   );
 };

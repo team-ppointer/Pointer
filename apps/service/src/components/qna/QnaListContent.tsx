@@ -15,7 +15,7 @@ const QnaListContent = ({ data }: QnaListContentProps) => {
             className='flex w-full flex-row items-center justify-start gap-[0.8rem]'>
             <p className='font-medium-16 text-black'>{item.title}</p>
             <div className='bg-main flex h-[2rem] w-[2rem] items-center justify-center rounded-full text-white'>
-              {item.id}
+              {data.order}
             </div>
           </div>
         ))}

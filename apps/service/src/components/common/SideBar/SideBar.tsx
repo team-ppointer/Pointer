@@ -1,9 +1,5 @@
 import clsx from 'clsx';
-import { PropsWithChildren, useEffect, useState } from 'react';
-
-import { IcCloseBig } from '@svg';
-
-import { Input } from '../Inputs';
+import { PropsWithChildren } from 'react';
 
 type SidebarProps = {
   isOpen: boolean;
@@ -29,20 +25,13 @@ export default function Sidebar({ isOpen, onClose, children }: PropsWithChildren
       {/* 슬라이더 패널 */}
       <div
         className={clsx(
-          'fixed top-0 left-0 z-50 h-full w-[85%] transform bg-white transition-transform duration-300 md:absolute md:top-0 md:left-0 md:h-full',
+          'fixed top-0 left-0 z-50 h-dvh w-[85%] transform bg-white transition-transform duration-300 md:absolute md:top-0 md:left-0 md:h-full',
           {
             'translate-x-0': isOpen,
             '-translate-x-[100vw]': !isOpen,
           }
         )}>
-        <div className='flex w-full flex-col p-[2rem]'>
-          <div className='flex items-center justify-between gap-[1.6rem]'>
-            <Input
-              className='bg-background h-[4.8rem] w-full rounded-[1.6rem] p-[1.6rem] text-[1.6rem]'
-              placeholder='검색'
-            />
-            <IcCloseBig width={24} height={24} onClick={onClose} />
-          </div>
+        <div className='flex h-full w-full flex-col gap-[3.2rem] px-[2rem] pt-[2rem]'>
           {children}
         </div>
       </div>
