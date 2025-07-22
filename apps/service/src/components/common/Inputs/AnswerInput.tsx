@@ -18,7 +18,7 @@ const AnswerInput = forwardRef<HTMLInputElement, AnswerInputProps>(
           <Input ref={ref} placeholder='입력해주세요' disabled={disabled} {...props} />
         )}
         {answerType === 'MULTIPLE_CHOICE' && (
-          <div className='flex items-center gap-[1.4rem]'>
+          <div className='flex items-center justify-between gap-[1.4rem]'>
             {Array.from({ length: 5 }, (_, i) => (i + 1).toString()).map((num) => (
               <label key={num}>
                 <input

@@ -30,6 +30,7 @@ import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, trackEvent } from '@utils';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { IcArrowGrow14, IcQuestion18 } from '@svg';
+import { clsx } from 'clsx';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -221,15 +222,21 @@ const Page = () => {
         <div className='mt-[2rem] w-full'>
           <form onSubmit={handleSubmit(handleSubmitAnswer)}>
             <h3 className='font-bold-16 text-black'>정답 선택</h3>
-            <div className='mt-[1.2rem] flex flex-col gap-[2rem] md:flex-grow md:flex-row'>
+            <div
+              className={clsx(
+                'mt-[1.2rem] flex flex-col gap-[2rem]',
+                answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-grow md:flex-row'
+              )}>
               <AnswerInput
-                className='md:flex-1'
+                className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}
                 answerType={answerType}
                 selectedAnswer={isSolved && answer ? String(answer) : selectedAnswer}
                 disabled={isSolved}
                 {...register('answer')}
               />
-              <Button className='md:flex-1'>제출하기</Button>
+              <Button className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}>
+                제출하기
+              </Button>
             </div>
           </form>
         </div>
