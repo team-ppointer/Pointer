@@ -1,7 +1,7 @@
 import { $api } from '@apis';
 
 const postProblems = () => {
-  return $api.useMutation('post', '/api/v1/problems');
+  return $api.useMutation('post', '/api/admin/problem');
 };
 
 export default postProblems;

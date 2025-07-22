@@ -1,7 +1,7 @@
 import { $api } from '@apis';
 
 const deletePublish = () => {
-  return $api.useMutation('delete', '/api/v1/publish/{publishId}');
+  return $api.useMutation('delete', '/api/admin/publish/{id}');
 };
 
 export default deletePublish;

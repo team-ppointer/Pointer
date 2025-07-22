@@ -1,6 +1,6 @@
 import { HTMLAttributes } from 'react';
 import { Link } from '@tanstack/react-router';
-import { IcFolder, IcList, IcPublish } from '@svg';
+import { IcFolder, IcList, IcPublish, IcTag, IcTeacher } from '@svg';
 
 interface GNBMenuProps extends HTMLAttributes<HTMLDivElement> {
   isSelected: boolean;
@@ -64,6 +64,34 @@ const GNB = () => {
                 <GNBMenu isSelected={isActive}>
                   <IcList width={24} height={24} />
                   <span>문제</span>
+                </GNBMenu>
+              )}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to='/concept-tags'
+              activeProps={{
+                className: 'active',
+              }}>
+              {({ isActive }) => (
+                <GNBMenu isSelected={isActive}>
+                  <IcTag width={24} height={24} />
+                  <span>개념 태그</span>
+                </GNBMenu>
+              )}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to='/teacher'
+              activeProps={{
+                className: 'active',
+              }}>
+              {({ isActive }) => (
+                <GNBMenu isSelected={isActive}>
+                  <IcTeacher width={24} height={24} />
+                  <span>과외 선생 정보</span>
                 </GNBMenu>
               )}
             </Link>

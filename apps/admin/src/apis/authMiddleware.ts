@@ -1,7 +1,7 @@
 import { Middleware } from 'openapi-fetch';
 import { tokenStorage, reissueToken } from '@utils';
 
-const UNPROTECTED_ROUTES = ['/api/v1/auth/admin/login'];
+const UNPROTECTED_ROUTES = ['/api/admin/auth/login/local'];
 
 const authMiddleware: Middleware = {
   async onRequest({ schemaPath, request }: { schemaPath: string; request: Request }) {

@@ -63,7 +63,7 @@ function RouteComponent() {
       {
         params: {
           path: {
-            problemSetId: deleteProblemSetId.current,
+            id: deleteProblemSetId.current,
           },
         },
       },
@@ -84,7 +84,7 @@ function RouteComponent() {
           navigate({
             to: '/problem-set/$problemSetId',
             params: {
-              problemSetId: data.data.id.toString(),
+              problemSetId: data.id.toString(),
             },
           });
         },
@@ -129,7 +129,7 @@ function RouteComponent() {
             }}>
             <SectionCard>
               <div className='flex items-center justify-between'>
-                <h2 className='font-bold-24 text-black'>{problemSet.problemSetTitle}</h2>
+                <h2 className='font-bold-24 text-black'>{problemSet.title}</h2>
                 <div className='flex gap-[1.6rem]'>
                   <IconButton
                     variant='delete'
@@ -142,11 +142,11 @@ function RouteComponent() {
                 </div>
               </div>
               <div className='mt-[3.2rem] flex gap-[3.2rem] overflow-auto'>
-                {problemSet.problemThumbnailResponses.map((problem, index) => (
+                {problemSet.problems.map((problem, index) => (
                   <ProblemPreview
                     key={`problem-${index}`}
-                    title={problem.problemTitle ?? ''}
-                    memo={problem.problemMemo ?? ''}
+                    title={problem.problem.title ?? ''}
+                    memo={problem.problem.memo ?? ''}
                     imgSrc={problem.mainProblemImageUrl ?? ''}
                   />
                 ))}
