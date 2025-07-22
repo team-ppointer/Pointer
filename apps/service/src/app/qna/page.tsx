@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import Sidebar from '@/components/common/SideBar/SideBar';
 import { Button, Header } from '@components';
+import QnaList from '@/components/qna/QnaList';
 
 const Page = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,9 @@ const Page = () => {
       />
       <main className='relative flex h-dvh flex-col items-center justify-between px-[2rem] pt-[8rem] pb-[1.5rem]'>
         <Button variant='blue'>질문하기</Button>
-        <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} />
+        <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)}>
+          <QnaList />
+        </Sidebar>
       </main>
     </>
   );

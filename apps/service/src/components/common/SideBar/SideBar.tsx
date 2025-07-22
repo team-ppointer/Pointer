@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 
 import { IcCloseBig } from '@svg';
 
@@ -10,7 +10,7 @@ type SidebarProps = {
   onClose: () => void;
 };
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, children }: PropsWithChildren<SidebarProps>) {
   return (
     <>
       {/* 오버레이: 모바일에서는 화면 전체, 데스크톱에서는 콘텐츠 영역에만 */}
@@ -35,7 +35,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             '-translate-x-[100vw]': !isOpen,
           }
         )}>
-        <div className='p-[2rem]'>
+        <div className='flex w-full flex-col p-[2rem]'>
           <div className='flex items-center justify-between gap-[1.6rem]'>
             <Input
               className='bg-background h-[4.8rem] w-full rounded-[1.6rem] p-[1.6rem] text-[1.6rem]'
@@ -43,6 +43,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             />
             <IcCloseBig width={24} height={24} onClick={onClose} />
           </div>
+          {children}
         </div>
       </div>
     </>
