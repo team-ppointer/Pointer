@@ -7,12 +7,13 @@ interface AnswerInputProps {
   answerType: ProblemAnswerType;
   selectedAnswer: string;
   disabled?: boolean;
+  className?: string;
 }
 
 const AnswerInput = forwardRef<HTMLInputElement, AnswerInputProps>(
-  ({ answerType, selectedAnswer, disabled = false, ...props }, ref) => {
+  ({ answerType, selectedAnswer, disabled = false, className, ...props }, ref) => {
     return (
-      <>
+      <div className={className}>
         {answerType === 'SHORT_ANSWER' && (
           <Input ref={ref} placeholder='입력해주세요' disabled={disabled} {...props} />
         )}
@@ -38,7 +39,7 @@ const AnswerInput = forwardRef<HTMLInputElement, AnswerInputProps>(
             ))}
           </div>
         )}
-      </>
+      </div>
     );
   }
 );

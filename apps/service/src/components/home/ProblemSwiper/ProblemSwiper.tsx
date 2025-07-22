@@ -8,7 +8,7 @@ import { ProblemCard, ProblemSecretCard, ProblemEmptyCard } from '@/components/h
 
 import './ProblemSwiper.css';
 
-type ProblemSetHomeFeedResponse = components['schemas']['PublishMetaResp'];
+type ProblemSetHomeFeedResponse = components['schemas']['PublishResp'];
 
 interface ProblemSwiperProps {
   problemSets: ProblemSetHomeFeedResponse[];

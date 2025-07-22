@@ -7,35 +7,37 @@ import { Button, StatusIcon, StatusTag } from '@components';
 import { trackEvent } from '@utils';
 import { components } from '@schema';
 import { IcDown, IcUp } from '@svg';
-import { postProblemSubmit } from '@apis';
 import { useInvalidate } from '@hooks';
 
-type ProblemFeedProgressesGetResponse = components['schemas']['ProblemFeedProgressesGetResponse'];
+type ProblemFeedProgressesGetResponse = components['schemas']['PublishProblemGroupResp'];
 
 interface ProblemStatusCardProps {
   mainProblemNumber: number;
-  publishId: number;
+  problemId: number;
+  publishId?: number;
   problemData: ProblemFeedProgressesGetResponse;
 }
 
 const ProblemStatusCard = ({
   mainProblemNumber,
-  publishId,
+  problemId,
   problemData,
+  publishId,
 }: ProblemStatusCardProps) => {
   const { invalidateAll } = useInvalidate();
-  const { problemId, status, childProblemStatuses } = problemData;
+  const { no, progress, childProblems } = problemData;
+  const {} = childProblems;
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(
-    !childProblemStatuses?.every((childStatus) => childStatus === 'NOT_STARTED')
+    !childProblems?.every((childProblem) => childProblem.progress === 'NONE')
   );
 
   useEffect(() => {
-    setIsOpen(!childProblemStatuses?.every((childStatus) => childStatus === 'NOT_STARTED'));
-  }, [childProblemStatuses]);
+    setIsOpen(!childProblems?.every((childProblem) => childProblem.progress === 'NONE'));
+  }, [childProblems]);
 
-  const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
-  const hasChildProblem = childProblemStatuses && childProblemStatuses?.length > 0;
+  const isSolved = progress === 'DONE' || progress === 'DOING';
+  const hasChildProblem = childProblems && childProblems?.length > 0;
 
   const handleClickSolveButton = async () => {
     trackEvent('problem_list_card_solve_button_click', {
@@ -43,7 +45,7 @@ const ProblemStatusCard = ({
     });
 
     if (!problemId) return;
-    await postProblemSubmit(publishId, problemId);
+    // await postProblemSubmit(publishId, problemId);
     invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}`);
   };
@@ -60,7 +62,7 @@ const ProblemStatusCard = ({
       <header className='flex items-center justify-between'>
         <div className='flex items-center justify-between'>
           <h2 className='font-bold-16 text-main w-[10rem]'>메인 문제 {mainProblemNumber}번</h2>
-          <StatusTag status={status ?? 'NOT_STARTED'} />
+          <StatusTag status={problemData.progress ?? 'NONE'} />
         </div>
         {hasChildProblem && (
           <div className='cursor-pointer' onClick={() => setIsOpen((prev) => !prev)}>
@@ -71,12 +73,12 @@ const ProblemStatusCard = ({
 
       {isOpen && hasChildProblem && (
         <ul className='mt-[1.2rem] flex flex-col'>
-          {childProblemStatuses?.map((childStatus, index) => (
+          {childProblems?.map((childProblem, index) => (
             <li className='flex items-center justify-between py-[1.15rem]' key={index}>
               <p className='font-medium-14 text-black'>
                 새끼 문제 {mainProblemNumber}-{index + 1}번
               </p>
-              <StatusIcon status={childStatus} />
+              <StatusIcon status={childProblem.progress ?? 'NONE'} />
             </li>
           ))}
         </ul>

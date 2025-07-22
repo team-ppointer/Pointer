@@ -37,7 +37,7 @@ const Page = () => {
     childProblemId: string;
   }>();
   const router = useRouter();
-  const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
+  const { childProblemLength, onPrev, onNext } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
 
   const { isOpen, openModal, closeModal } = useModal();
@@ -57,7 +57,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data, isLoading } = useGetChildProblemById(publishId, problemId, childProblemId);
+  const { data, isLoading } = useGetChildProblemById(+childProblemId);
   const {
     problemNumber,
     childProblemNumber = 1,

@@ -1,17 +1,14 @@
 import { TanstackQueryClient } from '@apis';
 
-const useGetProblemById = (problemId: number | null) => {
-  if (problemId === null) {
-    return null;
-  }
-
+const useGetProblemById = (publishId: number, problemId: number) => {
   return TanstackQueryClient.useQuery(
     'get',
-    '/api/student/study/problem/{id}',
+    '/api/student/study/problem/{publishId}/{problemId}',
     {
       params: {
         path: {
-          id: problemId,
+          publishId: publishId,
+          problemId: problemId,
         },
       },
     },

@@ -4,12 +4,12 @@ import { useState } from 'react';
 
 import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
 import { components } from '@schema';
-import { useGetProblemAll } from '@apis';
+import { useGetMonthlyPublish } from '@apis';
 import { trackEvent } from '@utils';
 
 import DayProblemCard from './DayProblemCard';
 
-type AllProblemGetResponse = components['schemas']['AllProblemGetResponse'];
+type MonthlyPublishResp = components['schemas']['PublishResp'];
 
 const ProblemCalandar = () => {
   const [currentDay, setCurrentDay] = useState(dayjs());
@@ -17,22 +17,23 @@ const ProblemCalandar = () => {
   const year = currentDay.year();
   const month = currentDay.month() + 1;
 
-  // apis
-  const { data: publishedData } = useGetProblemAll({ year, month });
+  const { data: publishedData } = useGetMonthlyPublish({ year, month });
 
-  const publishedDataArray: AllProblemGetResponse[] = Array.from({ length: 32 }).map(() => ({}));
+  const publishedDataArray: (MonthlyPublishResp | undefined)[] = Array.from({ length: 32 }).map(
+    () => undefined
+  );
   (publishedData?.data ?? []).forEach((data) => {
-    const date = dayjs(data.date);
+    const date = dayjs(data.publishAt);
     const day = date.date();
     publishedDataArray[day] = data;
   });
 
   const progressColor = (day: number) => {
     const data = publishedDataArray[day];
-    if (Object.keys(data).length === 0) return 'bg-white border border-[2px] border-lightgray300';
-    if (data.progress === 'COMPLETE') return 'bg-main';
-    else if (data.progress === 'IN_PROGRESS') return 'bg-sub1';
-    else if (data.progress === 'INCOMPLETE') return 'bg-lightgray300';
+    if (data?.id === undefined) return 'bg-white border border-[2px] border-lightgray300';
+    if (data.progress === 'DONE') return 'bg-main';
+    else if (data.progress === 'DOING') return 'bg-sub1';
+    else if (data.progress === 'NONE') return 'bg-lightgray300';
     return 'bg-white border border-[2px] border-lightgray300';
   };
 
@@ -76,11 +77,21 @@ const ProblemCalandar = () => {
   return (
     <div className='flex flex-col gap-[2.4rem] pt-[2rem]'>
       <div className='flex items-center justify-between'>
-        <IcPrevBlack width={24} height={24} onClick={handleClickPrevMonth} />
+        <IcPrevBlack
+          width={24}
+          height={24}
+          onClick={handleClickPrevMonth}
+          className='cursor-pointer'
+        />
         <p className='font-bold-18 text-main cursor-pointer' onClick={handleClickCurrentMonth}>
           {`${month}월`} 진행도
         </p>
-        <IcNextBlack width={24} height={24} onClick={handleClickNextMonth} />
+        <IcNextBlack
+          width={24}
+          height={24}
+          onClick={handleClickNextMonth}
+          className='cursor-pointer'
+        />
       </div>
       <div className='flex flex-col gap-[2.4rem]'>
         <div className='flex w-full flex-col items-center gap-[2rem] rounded-[16px] bg-white px-[3.2rem] py-[2.4rem]'>
@@ -103,7 +114,7 @@ const ProblemCalandar = () => {
                   key={day}
                   className={`font-medium-16 flex h-[4.4rem] w-[4.4rem] items-center justify-center rounded-[16px] text-white ${progressColor(day)}`}
                   onClick={() => handleClickDay(day)}>
-                  {Object.keys(publishedDataArray[day]).length === 0 ? (
+                  {publishedDataArray[day] === undefined ? (
                     <IcMinus width={24} height={24} />
                   ) : (
                     <span>{day}</span>
@@ -133,7 +144,7 @@ const ProblemCalandar = () => {
             </div>
           </div>
         </div>
-        {selectedDay && publishedDataArray[selectedDay].publishId && (
+        {selectedDay && publishedDataArray[selectedDay] && (
           <DayProblemCard dayProblemData={publishedDataArray[selectedDay]} />
         )}
       </div>
