@@ -1,20 +1,21 @@
+'use client';
+
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { formatDateToSlash, getWeekNum } from '@/utils/common/qna/getWeeknum';
 import { components } from '@schema';
 
-const QnaDetailContent = (props: components['schemas']['QnAResp']) => {
-  const { title, content, question, publishDate } = props;
-  const images = [
-    'https://s3.ap-northeast-2.amazonaws.com/s3.math-pointer.com/4ddd7b0f-550e-4e41-9a2b-6c4b3a1a55d5',
-    'https://s3.ap-northeast-2.amazonaws.com/s3.math-pointer.com/4ddd7b0f-550e-4e41-9a2b-6c4b3a1a55d5',
-    'https://s3.ap-northeast-2.amazonaws.com/s3.math-pointer.com/4ddd7b0f-550e-4e41-9a2b-6c4b3a1a55d5',
-    'https://s3.ap-northeast-2.amazonaws.com/s3.math-pointer.com/4ddd7b0f-550e-4e41-9a2b-6c4b3a1a55d5',
-    'https://s3.ap-northeast-2.amazonaws.com/s3.math-pointer.com/4ddd7b0f-550e-4e41-9a2b-6c4b3a1a55d5',
-    'https://s3.ap-northeast-2.amazonaws.com/s3.math-pointer.com/4ddd7b0f-550e-4e41-9a2b-6c4b3a1a55d5',
-    'https://s3.ap-northeast-2.amazonaws.com/s3.math-pointer.com/4ddd7b0f-550e-4e41-9a2b-6c4b3a1a55d5',
-  ];
+const QnaDetailContent = ({
+  title,
+  content,
+  question,
+  publishDate,
+  images,
+}: components['schemas']['QnAResp'] & { modifyMode: boolean }) => {
+  const query = images.map((u) => `imageUrl=${encodeURIComponent(u.url)}`).join('&');
+  const router = useRouter();
   const weekNumber = getWeekNum(publishDate);
   const formattedDate = formatDateToSlash(publishDate);
   return (
@@ -39,11 +40,12 @@ const QnaDetailContent = (props: components['schemas']['QnAResp']) => {
             images.map((image, index) => (
               <Image
                 key={index}
-                src={image}
+                src={image.url}
                 alt={`질문 이미지 ${index + 1}`}
                 className='h-[8.6rem] w-[8.6rem] rounded-[0.8rem] object-cover'
                 width={86}
                 height={86}
+                onClick={() => router.push(`/images-modal?${query}&index=${index}`)}
               />
             ))}
         </div>

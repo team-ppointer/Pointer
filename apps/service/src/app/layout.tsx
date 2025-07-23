@@ -49,11 +49,20 @@ export default function RootLayout({
   children: React.ReactNode;
   modal: React.ReactNode;
 }>) {
+  const isProd = process.env.NODE_ENV === 'production';
   return (
     <html lang='ko' suppressHydrationWarning>
       <head>
-        <link rel='preconnect' href='https://www.google-analytics.com' crossOrigin='anonymous' />
-        <link rel='preconnect' href='https://prod.math-pointer.com' crossOrigin='anonymous' />
+        {isProd && (
+          <>
+            <link
+              rel='preconnect'
+              href='https://www.google-analytics.com'
+              crossOrigin='anonymous'
+            />
+            <link rel='preconnect' href='https://prod.math-pointer.com' crossOrigin='anonymous' />
+          </>
+        )}
       </head>
       <body className={`antialiased`}>
         <Providers>
