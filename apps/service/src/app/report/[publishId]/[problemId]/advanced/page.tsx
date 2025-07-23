@@ -10,7 +10,7 @@ const Page = () => {
   const { publishId, problemId } = useParams();
   const router = useRouter();
 
-  const { problemNumber, seniorTipImageUrl, prescription } = useReportContext();
+  const { no, seniorTipImageUrl, prescription } = useReportContext();
 
   const mainImageUrl = prescription?.mainProblem?.imageUrl;
 
@@ -44,7 +44,7 @@ const Page = () => {
             variant='underline'
             sizeType='small'
             onClick={handleClickShowMainProblem}>
-            메인 문제 {problemNumber}번 다시 보기
+            메인 문제 {no}번 다시 보기
           </SmallButton>
         </div>
         <div className='mt-[2.4rem] flex flex-col gap-[1.6rem]'>

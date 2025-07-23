@@ -11,7 +11,7 @@ const Page = () => {
   const type = searchParams.get('type');
   const childNumber = searchParams.get('childNumber');
 
-  const { problemNumber, prescription } = useReportContext();
+  const { no, prescription } = useReportContext();
 
   const childProblems = prescription?.childProblem ?? [];
   const mainProblem = prescription?.mainProblem ?? {};
@@ -24,7 +24,7 @@ const Page = () => {
       ? childProblems[Number(childNumber) - 1]?.prescriptionImageUrls
       : mainProblem.prescriptionImageUrls;
 
-  const title = `${type === 'child' ? '새끼' : '메인'} 문제 ${problemNumber}${
+  const title = `${type === 'child' ? '새끼' : '메인'} 문제 ${no}${
     type === 'child' ? `-${childNumber}` : ''
   }번`;
 

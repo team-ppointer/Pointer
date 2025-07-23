@@ -7,7 +7,7 @@ import {
 } from '@svg';
 
 type PrescriptionCardProps = {
-  status?: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'IN_PROGRESS' | 'NOT_STARTED';
+  status?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'IN_PROGRESS' | 'NONE';
   title: string;
   onClick: () => void;
 };
@@ -18,15 +18,15 @@ const statusIcon = (status: PrescriptionCardProps['status']) => {
       return <IcStatusCorrect width={24} height={24} />;
     case 'INCORRECT':
       return <IcStatusIncorrect width={24} height={24} />;
-    case 'RETRY_CORRECT':
+    case 'SEMI_CORRECT':
       return <IcStatusRetried width={24} height={24} />;
     case 'IN_PROGRESS':
-    case 'NOT_STARTED':
+    case 'NONE':
       return <IcStatusNotStarted width={24} height={24} />;
   }
 };
 
-const PrescriptionCard = ({ status = 'NOT_STARTED', title, onClick }: PrescriptionCardProps) => {
+const PrescriptionCard = ({ status = 'NONE', title, onClick }: PrescriptionCardProps) => {
   return (
     <div className='flex h-[6.5rem] items-center justify-between rounded-[1.6rem] bg-white px-[2.4rem]'>
       <div className='flex items-center gap-[0.8rem]'>

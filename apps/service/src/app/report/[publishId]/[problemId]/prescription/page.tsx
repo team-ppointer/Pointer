@@ -10,13 +10,11 @@ const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
 
-  const { problemNumber, prescription } = useReportContext();
-  const childProblems = prescription?.childProblem ?? [];
-  const mainProblem = prescription?.mainProblem ?? {};
+  const { no, childProblems, progress } = useReportContext();
 
   const handleClickChildPrescription = (childProblemIndex: number) => {
     trackEvent('report_prescription_child_prescription_click', {
-      problemNumber: `${problemNumber}-${childProblemIndex + 1}`,
+      problemNumber: `${no}-${childProblemIndex + 1}`,
     });
     router.push(
       `/report/${publishId}/${problemId}/prescription/detail?type=child&childNumber=${childProblemIndex + 1}`
@@ -25,7 +23,7 @@ const Page = () => {
 
   const handleClickMainPrescription = () => {
     trackEvent('report_prescription_main_prescription_click', {
-      problemNumber: `${problemNumber}`,
+      problemNumber: `${no}`,
     });
     router.push(`/report/${publishId}/${problemId}/prescription/detail?type=main`);
   };
@@ -51,16 +49,16 @@ const Page = () => {
             return (
               <PrescriptionCard
                 key={childProblemIndex}
-                status={childProblem.submitStatus}
-                title={`새끼 문제 ${problemNumber}-${childProblemIndex + 1}번`}
+                status={childProblem.progress}
+                title={`새끼 문제 ${no}-${childProblemIndex + 1}번`}
                 onClick={() => handleClickChildPrescription(childProblemIndex)}
               />
             );
           })}
           {childProblems.length > 0 && <Divider />}
           <PrescriptionCard
-            status={mainProblem.submitStatus}
-            title={`메인 문제 ${problemNumber}번`}
+            status={progress}
+            title={`메인 문제 ${no}번`}
             onClick={handleClickMainPrescription}
           />
         </ul>

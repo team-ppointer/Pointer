@@ -5,7 +5,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { Slide, ToastContainer } from 'react-toastify';
 
-import { useGetProblemById, putProblemSubmit } from '@apis';
+import { useGetProblemById, putProblemSubmit, postProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -23,6 +23,7 @@ import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, trackEvent } from '@utils';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -50,33 +51,43 @@ const Page = () => {
   const selectedAnswer = watch('answer');
 
   // apis
-  const { data, isLoading } = useGetProblemById(publishId, problemId);
+  const { data } = useGetProblemById(+publishId, +problemId);
 
+  // const {
+  //   no,
+  //   imageUrl,
+  //   recommendedMinute,
+  //   recommendedSecond,
+  //   status,
+  //   childProblemStatuses = [],
+  //   answerType = 'MULTIPLE_CHOICE',
+  //   answer,
+  // } = data;
   const {
-    number,
-    imageUrl,
-    recommendedMinute,
-    recommendedSecond,
-    status,
-    childProblemStatuses = [],
-    answerType = 'MULTIPLE_CHOICE',
+    no,
+    childProblems = [],
+    answerType,
     answer,
-  } = data?.data ?? {};
+    problemContent,
+    recommendedTimeSec = 0,
+  } = data ?? {};
 
-  const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
-  const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
+  const seconds = recommendedTimeSec % 60;
+  const minutes = Math.floor(recommendedTimeSec / 60);
+
+  const isSolved = status === 'CORRECT' || status === 'SEMI_CORRECT';
+  const isSubmitted = status === 'CORRECT' || status === 'SEMI_CORRECT' || status === 'INCORRECT';
   const isDirect =
-    childProblemStatuses.length > 0 &&
-    childProblemStatuses[childProblemStatuses.length - 1] === 'NOT_STARTED';
+    childProblems.length > 0 && childProblems[childProblems.length - 1].progress === 'NONE';
 
   const prevButtonLabel =
     isDirect || childProblemLength === 0
-      ? `메인 문제 ${number}번`
-      : `새끼 문제 ${number}-${childProblemLength}번`;
+      ? `메인 문제 ${no}번`
+      : `새끼 문제 ${no}-${childProblemLength}번`;
   const nextButtonLabel = '해설 보기';
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
-    const { data } = await putProblemSubmit(publishId, problemId, answer);
+    const { data } = await postProblemSubmit(+publishId, +problemId, null, +answer);
     const resultData = data?.progress;
     invalidateAll();
 
@@ -113,14 +124,10 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
-  const handleClickCopyImage = async () => {
-    if (!imageUrl) return;
-    await copyImageToClipboard(imageUrl);
-  };
-
-  if (isLoading) {
-    return <></>;
-  }
+  // const handleClickCopyImage = async () => {
+  //   if (!imageUrl) return;
+  //   await copyImageToClipboard(imageUrl);
+  // };
 
   return (
     <>
@@ -147,8 +154,8 @@ const Page = () => {
         <div className='w-full'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-[1.2rem]'>
-              <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
-              <TimeTag minutes={recommendedMinute} seconds={recommendedSecond} />
+              <h1 className='font-bold-18 text-main'>메인 문제 {no}번</h1>
+              <TimeTag minutes={minutes} seconds={seconds} />
             </div>
             {isSolved && (
               <Tag variant='green' sizeType='small'>
@@ -162,17 +169,21 @@ const Page = () => {
             )}
           </div>
           <ImageContainer className='relative mt-[1.2rem]'>
-            <Image
+            {/* <Image
               src={imageUrl ?? ''}
-              alt={`메인 문제 ${number}번`}
+              alt={`메인 문제 ${no}번`}
               className='w-full object-contain'
               width={700}
               height={200}
               priority
+            /> */}
+            <ProblemViewer
+              problemContent={problemContent}
+              className='h-full w-full'
+              width={700}
+              height={200}
+              loading={false}
             />
-            <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
-              <CopyButton onClick={handleClickCopyImage} />
-            </div>
           </ImageContainer>
 
           {isDirect && (
@@ -183,17 +194,17 @@ const Page = () => {
             </div>
           )}
 
-          {!isDirect && childProblemStatuses.length > 0 && (
+          {!isDirect && childProblems.length > 0 && (
             <div className='mt-[2.4rem] w-full'>
               <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
               <div className='mt-[1.2rem] flex gap-[1.6rem]'>
-                {childProblemStatuses.map((childProblemStatus, index) => (
+                {childProblems.map((childProblem, index) => (
                   <div key={index} className='flex items-center gap-[0.6rem]'>
                     <span className='font-medium-16 text-black'>
-                      {number}-{index + 1}번
+                      {no}-{index + 1}번
                     </span>
-                    <Tag variant={statusColor[childProblemStatus]}>
-                      {statusLabel[childProblemStatus]}
+                    <Tag variant={statusColor[childProblem.progress!]}>
+                      {statusLabel[childProblem.progress!]}
                     </Tag>
                   </div>
                 ))}
@@ -207,8 +218,8 @@ const Page = () => {
             <h3 className='font-bold-16 text-black'>정답 선택</h3>
             <div className='mt-[1.2rem] flex flex-col gap-[2rem] md:flex-row'>
               <AnswerInput
-                answerType={answerType}
-                selectedAnswer={isSolved && answer ? answer : selectedAnswer}
+                answerType={answerType!}
+                selectedAnswer={isSolved && answer ? String(answer) : selectedAnswer}
                 disabled={isSolved}
                 {...register('answer')}
               />

@@ -11,14 +11,8 @@ import { TabMenu } from '@/components/report';
 
 const Page = () => {
   const router = useRouter();
-  const { publishId, problemId } = useParams();
-  const {
-    problemNumber,
-    answerType,
-    answer,
-    mainAnalysisImageUrl,
-    mainHandwritingExplanationImageUrl,
-  } = useReportContext();
+  const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
+  const { no, answerType, answer, mainAnalysisImage, mainHandAnalysisImage } = useReportContext();
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
 
   const handleClickTab = (tab: '분석' | '손해설') => {
@@ -38,7 +32,7 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
-  if (!mainAnalysisImageUrl || !mainHandwritingExplanationImageUrl) {
+  if (!mainAnalysisImage || !mainHandAnalysisImage) {
     return <></>;
   }
 
@@ -47,7 +41,7 @@ const Page = () => {
       <ProgressHeader progress={33} />
       <main className='min-h-[100dvh] justify-between px-[2rem] pt-[8rem] pb-[18rem]'>
         <header className='flex items-center justify-between'>
-          <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {problemNumber}번</h1>
+          <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {no}번</h1>
           <div className='flex items-center gap-[0.8rem]'>
             <span className='font-medium-16 text-black'>정답</span>
             <span className='font-medium-16 text-main'>
@@ -65,7 +59,7 @@ const Page = () => {
           />
           <ImageContainer className={`${selectedTab === '분석' ? 'block' : 'hidden'}`}>
             <Image
-              src={mainAnalysisImageUrl ?? ''}
+              src={mainAnalysisImage.url ?? ''}
               alt='analysis'
               className={`w-full object-contain`}
               width={700}
@@ -75,7 +69,7 @@ const Page = () => {
           </ImageContainer>
           <ImageContainer className={`${selectedTab === '손해설' ? 'block' : 'hidden'}`}>
             <Image
-              src={mainHandwritingExplanationImageUrl ?? ''}
+              src={mainHandAnalysisImage.url ?? ''}
               alt='handWriting'
               className={`w-full object-contain`}
               width={700}
