@@ -9,6 +9,8 @@ import { IcCloseBig } from '@svg';
 import useGetQnaExist from '@/apis/controller/qna/useGetQnaExist';
 import MyChat from '@/components/qna/chat/MyChat';
 import YourChat from '@/components/qna/chat/YourChat';
+import { QnaDetailContent } from '@/components/qna';
+import useGetQnaById from '@/apis/controller/qna/useGetQnaById';
 
 const Page = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +21,9 @@ const Page = () => {
     type: 'PROBLEM_CONTENT',
   });
 
-  const qnaId = data?.id;
+  const qnaId = data?.id ?? -1;
+
+  const { data: qnaData, isSuccess: isQnaSuccess } = useGetQnaById(5);
 
   return (
     <>
@@ -32,7 +36,7 @@ const Page = () => {
       <main className='relative flex h-dvh flex-col items-center justify-start px-[2rem] pt-[8rem] pb-[1.5rem]'>
         {isSuccess && data.isExist ? (
           <>
-            <MyChat>하이하이</MyChat>
+            <MyChat>{qnaData && isQnaSuccess && <QnaDetailContent {...qnaData} />}</MyChat>
             <YourChat>안녕하세요</YourChat>
           </>
         ) : (
