@@ -1,25 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import clsx from 'clsx';
 
 import Sidebar from '@/components/common/SideBar/SideBar';
 import { Header, Input } from '@components';
-import QnaList from '@/components/qna/QnaList';
 import { IcCloseBig } from '@svg';
-import useGetQnaExist from '@/apis/controller/qna/useGetQnaExist';
-import MyChat from '@/components/qna/chat/MyChat';
-import YourChat from '@/components/qna/chat/YourChat';
+import { QnaDetailContent, QnaList } from '@/components/qna';
+import { useGetQnaById, useGetQnaExist } from '@/apis/controller/qna';
+import { MyChat, YourChat } from '@/components/qna/chat';
+import ContextMenu from '@/components/qna/chat/ContextMenu';
 
 const Page = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState<string>('');
+  const [modifyMode, setModifyMode] = useState(true);
   const { data, isSuccess } = useGetQnaExist({
     publishId: 1,
     problemId: 3,
     type: 'PROBLEM_CONTENT',
   });
 
-  const qnaId = data?.id;
+  const qnaId = data?.id ?? -1;
+
+  const { data: qnaData, isSuccess: isQnaSuccess } = useGetQnaById(qnaId);
 
   return (
     <>
@@ -29,10 +33,28 @@ const Page = () => {
         rightIconType='close'
         menuOnClick={() => setIsOpen(true)}
       />
-      <main className='relative flex h-dvh flex-col items-center justify-start px-[2rem] pt-[8rem] pb-[1.5rem]'>
+      <main
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        className='relative flex h-dvh flex-col items-center justify-start px-[2rem] pt-[8rem] pb-[1.5rem]'>
         {isSuccess && data.isExist ? (
           <>
-            <MyChat>하이하이</MyChat>
+            <div className={clsx(modifyMode ? 'z-100' : 'z-0')}>
+              <MyChat>
+                {qnaData && isQnaSuccess && (
+                  <QnaDetailContent {...qnaData} modifyMode={modifyMode} />
+                )}
+              </MyChat>
+              {modifyMode && <ContextMenu />}
+            </div>
+            <YourChat>안녕하세요</YourChat>
+            <YourChat>안녕하세요</YourChat>
+            <YourChat>안녕하세요</YourChat>
+            <YourChat>안녕하세요</YourChat>
+            <YourChat>안녕하세요</YourChat>
+            <YourChat>안녕하세요</YourChat>
+            <YourChat>안녕하세요</YourChat>
             <YourChat>안녕하세요</YourChat>
           </>
         ) : (
@@ -58,6 +80,13 @@ const Page = () => {
           <QnaList search={search} />
         </Sidebar>
       </main>
+      {modifyMode && (
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center`}
+          onClick={() => setModifyMode(false)}>
+          <div className='absolute inset-0 bg-black opacity-50' />
+        </div>
+      )}
     </>
   );
 };

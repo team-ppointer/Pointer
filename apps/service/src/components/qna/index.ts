@@ -3,5 +3,6 @@ import QnaAskImageBox from './QnaAskImageBox';
 import QnaAskTextArea from './QnaAskTextArea';
 import QnaList from './QnaList';
 import QnaListContent from './QnaListContent';
+import QnaDetailContent from './QnaDetailContent';
 
-export { QnaAskContent, QnaAskImageBox, QnaAskTextArea, QnaList, QnaListContent };
+export { QnaAskContent, QnaAskImageBox, QnaAskTextArea, QnaList, QnaListContent, QnaDetailContent };
