@@ -1231,6 +1231,9 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_COMMENT';
       /** Format: date */
       publishDate: string;
+      /** Format: int32 */
+      unreadCount?: number;
+      studentName?: string;
     };
     QnAResp: {
       /** Format: int64 */
@@ -1250,6 +1253,9 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_COMMENT';
       /** Format: date */
       publishDate: string;
+      /** Format: int32 */
+      unreadCount?: number;
+      studentName?: string;
       contentTitle: string;
       content: components['schemas']['ContentResp'];
       question: string;
@@ -1684,6 +1690,8 @@ export interface components {
       publishAt: string;
     };
     ChildProblemWithStudyInfoResp: {
+      /** Format: int32 */
+      problemNo?: number;
       /** Format: int64 */
       id: number;
       /** Format: int32 */

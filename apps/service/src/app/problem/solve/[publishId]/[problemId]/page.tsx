@@ -93,7 +93,6 @@ const Page = () => {
 
   const handleClickStepSolve = async () => {
     trackEvent('problem_main_solve_step_solve_button_click');
-    await postChildProblemSubmit(publishId, problemId);
     invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}/child-problem/${childProblemId}`);
   };
