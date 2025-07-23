@@ -77,7 +77,7 @@ const Page = () => {
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await putProblemSubmit(publishId, problemId, answer);
-    const resultData = data?.data;
+    const resultData = data?.progress;
     invalidateAll();
 
     setResult(resultData);

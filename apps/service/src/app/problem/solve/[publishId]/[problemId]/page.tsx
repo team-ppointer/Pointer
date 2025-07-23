@@ -9,6 +9,7 @@ import {
   putProblemSubmit,
   postChildProblemSubmit,
   useGetChildProblemById,
+  postProblemSubmit,
 } from '@apis';
 import {
   AnswerInput,
@@ -80,8 +81,8 @@ const Page = () => {
   // const nextButtonLabel = '해설 보기';
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
-    const { data } = await putProblemSubmit(publishId, problemId, answer);
-    const resultData = problemData.progress;
+    const { data } = await postProblemSubmit(+publishId, +problemId, null, +answer);
+    const resultData = data?.progress;
     invalidateAll();
 
     setResult(resultData);
@@ -92,7 +93,6 @@ const Page = () => {
 
   const handleClickStepSolve = async () => {
     trackEvent('problem_main_solve_step_solve_button_click');
-    await postChildProblemSubmit(publishId, problemId);
     invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}/child-problem/${childProblemId}`);
   };

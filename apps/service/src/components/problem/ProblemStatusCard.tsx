@@ -85,10 +85,17 @@ const ProblemStatusCard = ({
       )}
 
       <div className='mt-[1.6rem] flex gap-[0.8rem]'>
-        <Button variant={isSolved ? 'light' : 'blue'} onClick={handleClickSolveButton}>
+        <Button
+          className='flex-1'
+          variant={isSolved ? 'light' : 'blue'}
+          onClick={handleClickSolveButton}>
           문제 풀러 가기
         </Button>
-        {isSolved && <Button onClick={handleClickReportButton}>해설 보기</Button>}
+        {isSolved && (
+          <Button className='flex-1' onClick={handleClickReportButton}>
+            해설 보기
+          </Button>
+        )}
       </div>
     </article>
   );
