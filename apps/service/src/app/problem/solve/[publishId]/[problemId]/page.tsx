@@ -9,6 +9,7 @@ import {
   putProblemSubmit,
   postChildProblemSubmit,
   useGetChildProblemById,
+  postProblemSubmit,
 } from '@apis';
 import {
   AnswerInput,
@@ -80,8 +81,8 @@ const Page = () => {
   // const nextButtonLabel = '해설 보기';
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
-    const { data } = await putProblemSubmit(publishId, problemId, answer);
-    const resultData = problemData.progress;
+    const { data } = await postProblemSubmit(+publishId, +problemId, null, +answer);
+    const resultData = data?.progress;
     invalidateAll();
 
     setResult(resultData);
