@@ -1,20 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import clsx from 'clsx';
 
 import Sidebar from '@/components/common/SideBar/SideBar';
 import { Header, Input } from '@components';
-import { IcCloseBig } from '@svg';
-import { QnaDetailContent, QnaList } from '@/components/qna';
+import { IcCloseBig, IcMore } from '@svg';
+import { QnaDetailContent, QnaEditModal, QnaList } from '@/components/qna';
 import { useGetQnaById, useGetQnaExist } from '@/apis/controller/qna';
 import { MyChat, YourChat } from '@/components/qna/chat';
 import ContextMenu from '@/components/qna/chat/ContextMenu';
+import ChatInput from '@/components/qna/chat/ChatInput';
+import MyImageChat from '@/components/qna/chat/ImageChat';
+import { BottomFixedArea } from '@/components/common/area/BottomFixedArea';
+import { copyToClipboard } from '@utils';
+
+export type Edit = {
+  editId: number | null;
+  editContent: string;
+  editMode: 'qna' | 'chat';
+};
 
 const Page = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [modifyMode, setModifyMode] = useState(true);
+  const [mode, setMode] = useState<'view' | 'menu' | 'edit'>('view');
+  const [edit, setEdit] = useState<Edit>({
+    editId: null,
+    editContent: '',
+    editMode: 'qna',
+  });
+  const mainRef = useRef<HTMLElement>(null);
+
   const { data, isSuccess } = useGetQnaExist({
     publishId: 1,
     problemId: 3,
@@ -23,7 +40,21 @@ const Page = () => {
 
   const qnaId = data?.id ?? -1;
 
-  const { data: qnaData, isSuccess: isQnaSuccess } = useGetQnaById(qnaId);
+  const { data: qnaData, isSuccess: isQnaSuccess, refetch } = useGetQnaById(qnaId);
+
+  const scrollToBottom = () => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop = mainRef.current.scrollHeight;
+    }
+  };
+
+  const handleCopy = async (text: string) => {
+    const success = await copyToClipboard(text);
+    if (success) {
+      // 토스트 메시지 또는 알림 표시
+      alert('복사되었습니다');
+    }
+  };
 
   return (
     <>
@@ -33,29 +64,82 @@ const Page = () => {
         rightIconType='close'
         menuOnClick={() => setIsOpen(true)}
       />
+      <BottomFixedArea>
+        <ChatInput qnaId={qnaId} refetch={refetch} scrollToBottom={scrollToBottom} />
+      </BottomFixedArea>
       <main
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-        className='relative flex h-dvh flex-col items-center justify-start px-[2rem] pt-[8rem] pb-[1.5rem]'>
+        ref={mainRef}
+        className={clsx(
+          'relative flex h-dvh flex-col items-center justify-start overflow-y-auto px-[2rem] pt-[8rem] pb-[9rem]'
+        )}>
         {isSuccess && data.isExist ? (
           <>
-            <div className={clsx(modifyMode ? 'z-100' : 'z-0')}>
+            <div className={clsx('relative', mode === 'menu' ? 'z-200' : 'z-0')}>
               <MyChat>
                 {qnaData && isQnaSuccess && (
-                  <QnaDetailContent {...qnaData} modifyMode={modifyMode} />
+                  <QnaDetailContent {...qnaData} modifyMode={mode === 'menu'} />
                 )}
               </MyChat>
-              {modifyMode && <ContextMenu />}
+              <IcMore
+                className={clsx(
+                  'absolute bottom-0 left-[-0.6rem] z-100 cursor-pointer',
+                  mode === 'menu' && 'hidden'
+                )}
+                width={24}
+                height={24}
+                onClick={() => setMode('menu')}
+              />
+
+              {mode === 'menu' && (
+                <ContextMenu
+                  modifyOnClick={() => {
+                    setMode('edit');
+                    setEdit({
+                      editId: qnaId,
+                      editContent: qnaData?.question ?? '',
+                      editMode: 'qna',
+                    });
+                  }}
+                  copyOnClick={() => handleCopy(qnaData?.question ?? '')}
+                />
+              )}
             </div>
-            <YourChat>안녕하세요</YourChat>
-            <YourChat>안녕하세요</YourChat>
-            <YourChat>안녕하세요</YourChat>
-            <YourChat>안녕하세요</YourChat>
-            <YourChat>안녕하세요</YourChat>
-            <YourChat>안녕하세요</YourChat>
-            <YourChat>안녕하세요</YourChat>
-            <YourChat>안녕하세요</YourChat>
+            <div className='flex w-full flex-col items-center justify-start gap-[2.4rem] pt-[2.4rem]'>
+              {qnaData &&
+                isQnaSuccess &&
+                qnaData.chats.map((chat, index) =>
+                  chat.isMine ? (
+                    <MyChat key={index}>
+                      {
+                        <span className='font-medium-16 w-full text-left text-white'>
+                          {chat.content}
+                        </span>
+                      }
+                      <IcMore
+                        className={clsx(
+                          'absolute bottom-0 left-[-2.6rem] cursor-pointer',
+                          mode === 'menu' && 'hidden'
+                        )}
+                        width={24}
+                        height={24}
+                        onClick={() => {
+                          setMode('edit');
+                          setEdit({
+                            editId: chat.id,
+                            editContent: chat.content,
+                            editMode: 'chat',
+                          });
+                        }}
+                      />
+                    </MyChat>
+                  ) : (
+                    // <MyImageChat key={chat.id} images={images} />
+                    <YourChat key={index}>
+                      {<span className='font-medium-16 w-full text-left'>{chat.content}</span>}
+                    </YourChat>
+                  )
+                )}
+            </div>
           </>
         ) : (
           <p className='font-medium-16 text-lightgray500 flex h-full items-center justify-center text-center'>
@@ -79,14 +163,28 @@ const Page = () => {
           </div>
           <QnaList search={search} />
         </Sidebar>
+        {mode !== 'view' && (
+          <div
+            className='pt-safe fixed top-0 right-0 bottom-0 left-0 z-150 flex items-center justify-center'
+            onClick={(e) => {
+              e.stopPropagation();
+              setMode('view');
+            }}>
+            <div className='absolute top-0 right-0 bottom-0 left-0 bg-black opacity-50' />
+          </div>
+        )}
+        {mode === 'edit' && (
+          <BottomFixedArea zIndex={200}>
+            <QnaEditModal
+              edit={edit}
+              onClose={() => {
+                setMode('view');
+                refetch();
+              }}
+            />
+          </BottomFixedArea>
+        )}
       </main>
-      {modifyMode && (
-        <div
-          className={`fixed inset-0 z-50 flex items-center justify-center`}
-          onClick={() => setModifyMode(false)}>
-          <div className='absolute inset-0 bg-black opacity-50' />
-        </div>
-      )}
     </>
   );
 };
