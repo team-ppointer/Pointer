@@ -73,10 +73,12 @@ const Page = () => {
                     </div>
                   </div>
                   <div className='mt-[1.6rem] grid grid-cols-2 gap-[0.8rem]'>
-                    <Button variant='light' onClick={() => {}}>
+                    <Button variant='light' className='h-[5rem]' onClick={() => {}}>
                       떠올렸어요
                     </Button>
-                    <Button onClick={() => {}}>못 떠올렸어요</Button>
+                    <Button className='h-[5rem]' onClick={() => {}}>
+                      못 떠올렸어요
+                    </Button>
                   </div>
                 </div>
               </div>

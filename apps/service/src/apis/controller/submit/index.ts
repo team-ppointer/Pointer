@@ -3,6 +3,7 @@ import postChildProblemSubmit from './postChildProblemSubmit';
 import putProblemSubmit from './putProblemSubmit';
 import putChildProblemSubmit from './putChildProblemSubmit';
 import putChildProblemSkip from './putChildProblemSkip';
+import postPointingSubmit from './postPointingSubmit';
 
 export {
   postProblemSubmit,
@@ -10,4 +11,5 @@ export {
   putProblemSubmit,
   putChildProblemSubmit,
   putChildProblemSkip,
+  postPointingSubmit,
 };
