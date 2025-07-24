@@ -1,4 +1,5 @@
 export { default as IcArrowGrow14 } from './IcArrowGrow14';
+export { default as IcBulb } from './IcBulb';
 export { default as IcCalendar } from './IcCalendar';
 export { default as IcCamera } from './IcCamera';
 export { default as IcCloseBig } from './IcCloseBig';
@@ -23,6 +24,7 @@ export { default as IcNextGray } from './IcNextGray';
 export { default as IcNextSmall } from './IcNextSmall';
 export { default as IcNext } from './IcNext';
 export { default as IcNotice } from './IcNotice';
+export { default as IcPaw } from './IcPaw';
 export { default as IcPencil } from './IcPencil';
 export { default as IcPhoto } from './IcPhoto';
 export { default as IcPrescription20 } from './IcPrescription20';

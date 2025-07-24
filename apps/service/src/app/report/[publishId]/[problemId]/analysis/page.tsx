@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import { IcRight, IcThumbtack } from '@svg';
-import { ImageContainer, NavigationFooter, ProgressHeader } from '@components';
+import { IcQuestion18, IcRight, IcThumbtack } from '@svg';
+import { ImageContainer, NavigationFooter, ProgressHeader, SmallButton } from '@components';
 import { trackEvent } from '@utils';
 import { useReportContext } from '@/hooks/report';
 import { TabMenu } from '@/components/report';
@@ -38,7 +38,7 @@ const Page = () => {
 
   return (
     <>
-      <ProgressHeader progress={33} />
+      <ProgressHeader />
       <main className='min-h-[100dvh] justify-between px-[2rem] pt-[8rem] pb-[18rem]'>
         <header className='flex items-center justify-between'>
           <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {no}번</h1>
@@ -77,7 +77,18 @@ const Page = () => {
               priority
             />
           </ImageContainer>
+          <div className='flex items-center justify-end'>
+            <SmallButton
+              className='flex flex-row gap-[4px]'
+              variant='white'
+              sizeType='small'
+              onClick={() => {}}>
+              <IcQuestion18 className='h-[1.8rem] w-[1.8rem]' />
+              질문하기
+            </SmallButton>
+          </div>
         </div>
+
         <div className='bg-background fixed right-0 bottom-[6.2rem] left-0 mx-auto h-[11.8rem] max-w-[768px] p-[2rem]'>
           <button
             type='button'

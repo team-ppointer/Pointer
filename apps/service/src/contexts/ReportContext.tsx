@@ -12,9 +12,10 @@ export const ReportContext = createContext<ProblemInfoResp | null>(null);
 
 export const ReportProvider = ({ children }: { children: React.ReactNode }) => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
-  const { data } = useGetProblemById(+publishId, +problemId);
-  console.log('ReportProvider data:', data);
-  return (
-    <ReportContext.Provider value={data ? { ...data } : null}>{children}</ReportContext.Provider>
-  );
+  const { data, isLoading, error } = useGetProblemById(+publishId, +problemId);
+  if (isLoading) {
+    return;
+  }
+
+  return <ReportContext.Provider value={data || null}>{children}</ReportContext.Provider>;
 };
