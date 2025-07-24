@@ -64,7 +64,7 @@ export default function RootLayout({
           </>
         )}
       </head>
-      <body className={`antialiased`}>
+      <body suppressHydrationWarning className={`antialiased`}>
         <Providers>
           <Suspense fallback={<></>}>
             <div>{children}</div>

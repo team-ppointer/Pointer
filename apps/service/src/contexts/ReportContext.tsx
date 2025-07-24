@@ -3,19 +3,19 @@
 import { useParams } from 'next/navigation';
 import { createContext } from 'react';
 
-import { useGetCommentary } from '@apis';
+import { useGetProblemById } from '@apis';
 import { components } from '@schema';
 
-type CommentaryGetResponse = components['schemas']['CommentaryGetResponse'];
+type ProblemInfoResp = components['schemas']['ProblemWithStudyInfoResp'];
 
-export const ReportContext = createContext<CommentaryGetResponse | null>(null);
+export const ReportContext = createContext<ProblemInfoResp | null>(null);
 
 export const ReportProvider = ({ children }: { children: React.ReactNode }) => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
-  const { data: reportData } = useGetCommentary({
-    publishId,
-    problemId,
-  });
+  const { data, isLoading, error } = useGetProblemById(+publishId, +problemId);
+  if (isLoading) {
+    return;
+  }
 
-  return <ReportContext.Provider value={reportData?.data ?? {}}>{children}</ReportContext.Provider>;
+  return <ReportContext.Provider value={data || null}>{children}</ReportContext.Provider>;
 };

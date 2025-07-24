@@ -1,30 +1,39 @@
 import Image from 'next/image';
 
-import { IcCommentCheck20, IcPrescription20 } from '@svg';
+import { IcCommentCheck20, IcPrescription20, IcQuestion18 } from '@svg';
+import { components } from '@schema';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+import { SmallButton } from '@components';
+
+type Contentype = components['schemas']['ContentResp'];
+
 interface PointingImageContainerProps {
-  src: string;
+  contents: Contentype;
   variant: 'pointing' | 'prescription';
 }
 
-const PointingImageContainer = ({ src, variant }: PointingImageContainerProps) => {
+const PointingImageContainer = ({ contents, variant }: PointingImageContainerProps) => {
   return (
-    <div className='border-sub1 flex flex-col gap-[1rem] rounded-[1.6rem] border bg-white p-[1.6rem]'>
-      <div className='flex items-center gap-[0.8rem]'>
-        {variant === 'pointing' ? (
-          <IcCommentCheck20 width={20} height={20} />
-        ) : (
-          <IcPrescription20 width={20} height={20} />
-        )}
-        <h3 className='font-bold-16 text-main'>{variant === 'pointing' ? '포인팅' : '처방'}</h3>
+    <div>
+      <div className='flex justify-between'>
+        <div className='flex items-center gap-[0.8rem]'>
+          {variant === 'pointing' ? (
+            <IcCommentCheck20 width={20} height={20} />
+          ) : (
+            <IcPrescription20 width={20} height={20} />
+          )}
+          <h3 className='font-bold-16 text-main'>{variant === 'pointing' ? '포인팅' : '처방'}</h3>
+        </div>
+        <SmallButton
+          className='flex flex-row gap-[4px]'
+          variant='white'
+          sizeType='small'
+          onClick={() => {}}>
+          <IcQuestion18 className='h-[1.8rem] w-[1.8rem]' />
+          질문하기
+        </SmallButton>
       </div>
-      <Image
-        src={src}
-        alt={variant === 'pointing' ? '포인팅' : '처방'}
-        className='w-full object-contain'
-        width={700}
-        height={200}
-        priority
-      />
+      <ProblemViewer problem={contents} />
     </div>
   );
 };
