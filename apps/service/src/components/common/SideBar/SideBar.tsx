@@ -12,7 +12,7 @@ export default function Sidebar({ isOpen, onClose, children }: PropsWithChildren
       {/* 오버레이: 모바일에서는 화면 전체, 데스크톱에서는 콘텐츠 영역에만 */}
       <div
         className={clsx(
-          'fixed inset-0 z-40 bg-black/30 transition-opacity duration-300',
+          'fixed inset-0 z-110 bg-black/30 transition-opacity duration-300',
           {
             'visible opacity-100': isOpen,
             'invisible opacity-0': !isOpen,
@@ -25,7 +25,7 @@ export default function Sidebar({ isOpen, onClose, children }: PropsWithChildren
       {/* 슬라이더 패널 */}
       <div
         className={clsx(
-          'fixed top-0 left-0 z-50 h-dvh w-[85%] transform bg-white transition-transform duration-300 md:absolute md:top-0 md:left-0 md:h-full',
+          'fixed top-0 left-0 z-120 h-dvh w-[85%] transform bg-white transition-transform duration-300 md:absolute md:top-0 md:left-0 md:h-full',
           {
             'translate-x-0': isOpen,
             '-translate-x-[100vw]': !isOpen,
