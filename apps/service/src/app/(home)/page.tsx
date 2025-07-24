@@ -43,7 +43,7 @@ const Page = () => {
         )}
       </div>
 
-      <footer className='bg-background flex flex-col gap-[1rem] px-[2rem] pb-[3.3rem] pt-[2.4rem]'>
+      <footer className='bg-background flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[3.3rem]'>
         <Button variant='light' onClick={handleClickAllProblem}>
           <IcCalendar width={24} height={24} />
           날짜별로 보기
