@@ -4,13 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Slide, ToastContainer } from 'react-toastify';
 
-import {
-  useGetProblemById,
-  putProblemSubmit,
-  postChildProblemSubmit,
-  useGetChildProblemById,
-  postProblemSubmit,
-} from '@apis';
+import { useGetProblemById, postProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,

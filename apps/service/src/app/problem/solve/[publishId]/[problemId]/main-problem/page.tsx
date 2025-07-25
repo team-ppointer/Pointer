@@ -5,7 +5,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { Slide, ToastContainer } from 'react-toastify';
 
-import { useGetProblemById, putProblemSubmit, postProblemSubmit } from '@apis';
+import { useGetProblemById, postProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
