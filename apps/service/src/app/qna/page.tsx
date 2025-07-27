@@ -4,12 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 
-import { postQnaExist, useGetQnaById } from '@/apis/controller/qna';
+import { postQnaExist, useGetQnaById } from '@apis';
 import { Header, Input, BottomFixedArea, Sidebar } from '@components';
 import { IcCloseBig, IcMore } from '@svg';
 import { QnaDetailContent, QnaEditModal, QnaList } from '@/components/qna';
 import { MyChat, YourChat, ImageChat, ContextMenu, ChatInput } from '@/components/qna/chat';
 import { copyToClipboard } from '@utils';
+import { showToast } from '@/utils/common/toast';
 import { components } from '@schema';
 
 export type Edit = {
@@ -53,8 +54,8 @@ const Page = () => {
   const handleCopy = async (text: string) => {
     const success = await copyToClipboard(text);
     if (success) {
-      // 토스트 메시지 또는 알림 표시
-      alert('복사되었습니다');
+      setMode('view');
+      showToast.success('클립보드에 복사되었습니다.');
     }
   };
 
@@ -73,8 +74,8 @@ const Page = () => {
             setQnaId(undefined);
           }
         })
-        .catch((error) => {
-          console.error('Error fetching QnA existence:', error);
+        .catch(() => {
+          showToast.error('QnA를 불러오는 데 실패했습니다.');
           setQnaId(undefined);
         });
     }

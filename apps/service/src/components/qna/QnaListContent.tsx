@@ -4,7 +4,8 @@ import { useState } from 'react';
 
 import { components } from '@schema';
 import { IcMore } from '@svg';
-import deleteQna from '@/apis/controller/qna/deleteQna';
+import { deleteQna } from '@/apis';
+import { showToast } from '@utils';
 
 import DeleteButton from './DeleteButton';
 
@@ -31,7 +32,7 @@ const QnaListContent = ({ data, onClose, refetch }: QnaListContentProps) => {
         window.location.reload();
       })
       .catch((error) => {
-        console.error('QnA 삭제 실패:', error);
+        showToast.error('QnA 삭제에 실패했습니다. 다시 시도해주세요.');
       });
   };
   return (

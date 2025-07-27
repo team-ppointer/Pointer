@@ -8,9 +8,14 @@ import PulseLoader from 'react-spinners/PulseLoader';
 import { QnaAskContent } from '@/components/qna';
 import { Button, Header } from '@components';
 import { components } from '@schema';
-import { useGetChildProblemById, useGetProblemById } from '@apis';
-import { getFileUploadUrl, uploadFileToS3 } from '@/apis/controller/file/fileUpload';
-import postQna from '@/apis/controller/qna/postQna';
+import {
+  useGetChildProblemById,
+  postQna,
+  useGetProblemById,
+  getFileUploadUrl,
+  uploadFileToS3,
+} from '@apis';
+import { showToast } from '@utils';
 
 const Page = () => {
   const [isFilled, setIsFilled] = useState(false);
@@ -83,11 +88,13 @@ const Page = () => {
           }
           if (result.response.status !== 200) {
             setIsLoading(false);
-            alert('질문 등록에 실패했습니다. 다시 시도해주세요.');
+            showToast.error('질문 등록에 실패했습니다. 다시 시도해주세요.');
           }
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
-        console.error('업로드 실패:', err);
+        setIsLoading(false);
+        showToast.error('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
       }
     } else {
       // 이미지가 없는 경우
@@ -106,7 +113,7 @@ const Page = () => {
       }
       if (result.response.status !== 200) {
         setIsLoading(false);
-        alert('질문 등록에 실패했습니다. 다시 시도해주세요.');
+        showToast.error('질문 등록에 실패했습니다. 다시 시도해주세요.');
       }
     }
   };

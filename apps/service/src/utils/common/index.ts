@@ -4,3 +4,5 @@ export * from './image';
 export * from './getOs';
 export * from './getUserAgent';
 export * from './clipboard';
+export * from './toast';
+export * from './qna/getWeeknum';

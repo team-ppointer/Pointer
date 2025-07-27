@@ -5,5 +5,15 @@ import useGetQnaList from './useGetQnaList';
 import postChat from './postChat';
 import putChat from './putChat';
 import putQna from './putQna';
+import deleteQna from './deleteQna';
 
-export { useGetQnaById, postQnaExist, postQna, useGetQnaList, postChat, putChat, putQna };
+export {
+  useGetQnaById,
+  postQnaExist,
+  postQna,
+  useGetQnaList,
+  postChat,
+  putChat,
+  putQna,
+  deleteQna,
+};

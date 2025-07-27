@@ -1,13 +1,13 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 import { Button } from '@components';
 import { IcCalendar, IcQuestionWhite } from '@svg';
 import { setGrade, setName, trackEvent } from '@utils';
 import { HomeHeader, NoticeButton, ProblemSwiper, WeekProgress } from '@/components/home';
 import { useGetUserInfo, useGetWeeklyPublish } from '@/apis';
-import { toast } from 'react-toastify';
 
 const Page = () => {
   const router = useRouter();

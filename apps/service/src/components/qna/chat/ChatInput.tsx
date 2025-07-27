@@ -2,8 +2,8 @@ import { useRef, useState } from 'react';
 
 import { IcButton } from '@components';
 import { IcArrowUp, IcCamera } from '@svg';
-import postChat from '@/apis/controller/qna/postChat';
-import { getFileUploadUrl, uploadFileToS3 } from '@/apis/controller/file/fileUpload';
+import { postChat, getFileUploadUrl, uploadFileToS3 } from '@apis';
+import { showToast } from '@utils';
 
 type ChatInputProps = {
   qnaId: number;
@@ -80,7 +80,7 @@ const ChatInput = ({ qnaId, refetch, scrollToBottom }: ChatInputProps) => {
           }
         }
       } catch (error) {
-        console.error('Error uploading images:', error);
+        showToast.error('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
       }
     }
   };
