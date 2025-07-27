@@ -2,10 +2,10 @@
 
 import { client } from '@/apis/client';
 
-const postKakaoLogin = async () => {
+const postSocialLogin = async (social: 'KAKAO' | 'GOOGLE') => {
   const response = await client.POST('/api/student/auth/login/social', {
     body: {
-      provider: 'KAKAO',
+      provider: social,
       redirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI ?? '',
     },
   });
@@ -21,4 +21,4 @@ const postKakaoLogin = async () => {
   }
 };
 
-export default postKakaoLogin;
+export default postSocialLogin;
