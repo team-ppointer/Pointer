@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import ProblemViewer, { Problem } from '@repo/pointer-editor/ProblemViewer';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import PulseLoader from 'react-spinners/PulseLoader';
 
 import { QnaAskContent } from '@/components/qna';
@@ -12,14 +12,6 @@ import { useGetChildProblemById, useGetProblemById } from '@apis';
 import { getFileUploadUrl, uploadFileToS3 } from '@/apis/controller/file/fileUpload';
 import postQna from '@/apis/controller/qna/postQna';
 
-const dummyProps: Omit<components['schemas']['QnACreateRequest'], 'question' | 'images'> = {
-  publishId: 1,
-  problemId: 3,
-  childProblemId: undefined,
-  pointingId: undefined,
-  type: 'PROBLEM_CONTENT',
-};
-
 const Page = () => {
   const [isFilled, setIsFilled] = useState(false);
   const [question, setQuestion] = useState('');
@@ -27,9 +19,19 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const parentQuery = useGetProblemById(dummyProps.problemId ?? null);
+  const searchParams = useSearchParams();
+  const publishId = Number(searchParams.get('publishId')) || -1;
+  const problemId = Number(searchParams.get('problemId')) || -1;
+  const childProblemId = Number(searchParams.get('childProblemId')) || -1;
+  const pointingId = Number(searchParams.get('pointingId')) || -1;
 
-  const childQuery = useGetChildProblemById(dummyProps.childProblemId ?? null);
+  const type =
+    (searchParams.get('type') as components['schemas']['QnACreateRequest']['type']) ??
+    'PROBLEM_CONTENT';
+
+  const parentQuery = useGetProblemById(publishId, problemId);
+
+  const childQuery = useGetChildProblemById(publishId, childProblemId);
 
   // 메인 문제인 경우와 자식 문제인 경우를 구분하여 데이터를 가져옴
   // parentQuery는 메인 문제의 데이터를 가져오고, childQuery는 자식 문제의 데이터를 가져옴
@@ -66,7 +68,11 @@ const Page = () => {
         );
         if (success) {
           const result = await postQna({
-            ...dummyProps,
+            publishId: publishId,
+            problemId: problemId,
+            childProblemId: childProblemId,
+            pointingId: pointingId,
+            type,
             images: uploadUrls.map((url) => url.id), // 혹은 필요 시 url 자체
             question,
           });
@@ -75,6 +81,10 @@ const Page = () => {
             setIsLoading(false);
             router.back();
           }
+          if (result.response.status !== 200) {
+            setIsLoading(false);
+            alert('질문 등록에 실패했습니다. 다시 시도해주세요.');
+          }
         }
       } catch (err) {
         console.error('업로드 실패:', err);
@@ -82,13 +92,21 @@ const Page = () => {
     } else {
       // 이미지가 없는 경우
       const result = await postQna({
-        ...dummyProps,
+        publishId: publishId,
+        problemId: problemId,
+        childProblemId: childProblemId,
+        pointingId: pointingId,
+        type,
         question,
       });
 
       if (result.response.status === 200) {
         setIsLoading(false);
         router.back();
+      }
+      if (result.response.status !== 200) {
+        setIsLoading(false);
+        alert('질문 등록에 실패했습니다. 다시 시도해주세요.');
       }
     }
   };

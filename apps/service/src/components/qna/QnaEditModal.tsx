@@ -29,12 +29,10 @@ const QnaEditModal = ({ edit, onClose }: QnaEditModalProps) => {
   };
 
   return (
-    <div className='flex w-full flex-col items-center justify-start gap-[0.8rem] px-[2rem] pb-[2.4rem]'>
-      <p className='font-medium-16 mb-[0.8rem] w-full text-right text-white'>메시지 수정중</p>
+    <div className='flex w-full flex-col items-end justify-start gap-[0.8rem] px-[2rem] pb-[2.4rem]'>
       <MyChat>
         <div className='flex w-full flex-col justify-start gap-[0.8rem]'>
           <p className='font-medium-14 text-sub1 w-full text-left'>질문 내용</p>
-          <p onClick={handleSubmit}> 수정</p>
           <div
             className='min-w-0 resize-none text-[1.6rem] whitespace-pre-wrap text-white focus:outline-0'
             contentEditable
@@ -45,6 +43,11 @@ const QnaEditModal = ({ edit, onClose }: QnaEditModalProps) => {
           </div>
         </div>
       </MyChat>
+      <button
+        className='font-medium-12 text-main rounded-[0.8rem] bg-white px-[1.2rem] py-[0.6rem]'
+        onClick={handleSubmit}>
+        수정 완료
+      </button>
     </div>
   );
 };

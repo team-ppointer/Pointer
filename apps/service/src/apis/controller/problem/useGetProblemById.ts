@@ -15,6 +15,7 @@ const useGetProblemById = (publishId: number, problemId: number) => {
     {
       staleTime: Infinity,
       gcTime: Infinity,
+      enabled: problemId >= 0 && publishId >= 0,
     }
   );
 };

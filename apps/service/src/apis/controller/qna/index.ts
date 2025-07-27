@@ -1,5 +1,9 @@
 import useGetQnaById from './useGetQnaById';
-import useGetQnaExist from './useGetQnaExist';
+import postQnaExist from './postQnaExist';
 import postQna from './postQna';
 import useGetQnaList from './useGetQnaList';
-export { useGetQnaById, useGetQnaExist, postQna, useGetQnaList };
+import postChat from './postChat';
+import putChat from './putChat';
+import putQna from './putQna';
+
+export { useGetQnaById, postQnaExist, postQna, useGetQnaList, postChat, putChat, putQna };

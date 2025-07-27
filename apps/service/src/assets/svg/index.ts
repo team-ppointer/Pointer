@@ -53,5 +53,6 @@ export { default as IcTagInprogress } from './IcTagInprogress';
 export { default as IcTagNone } from './IcTagNone';
 export { default as IcTagRetried } from './IcTagRetried';
 export { default as IcThumbtack } from './IcThumbtack';
+export { default as IcTrashBlack } from './IcTrashBlack';
 export { default as IcTrash } from './IcTrash';
 export { default as IcUp } from './IcUp';

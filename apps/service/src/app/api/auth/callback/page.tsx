@@ -3,10 +3,8 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import PulseLoader from 'react-spinners/PulseLoader';
-import { set } from 'react-hook-form';
 
-import { setAccessToken, setGrade, setName, setRefreshToken } from '@utils';
-import useGetUserInfo from '@/apis/controller/auth/useGetUserInfo';
+import { setAccessToken, setRefreshToken } from '@utils';
 
 const Page = () => {
   const searchParams = useSearchParams();

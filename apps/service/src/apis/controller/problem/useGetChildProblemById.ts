@@ -15,6 +15,7 @@ const useGetChildProblemById = (publishId: number, childProblemId: number) => {
     {
       staleTime: Infinity,
       gcTime: Infinity,
+      enabled: childProblemId >= 0,
     }
   );
 };

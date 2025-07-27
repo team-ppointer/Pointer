@@ -8,10 +8,11 @@ import QnaListContent from './QnaListContent';
 
 type QnaListProps = {
   search?: string;
+  onClose: () => void;
 };
 
-const QnaList = ({ search }: QnaListProps) => {
-  const { data, isSuccess } = useGetQnaList(search);
+const QnaList = ({ search, onClose }: QnaListProps) => {
+  const { data, isSuccess, refetch } = useGetQnaList(search);
   const [qnaList, setQnaList] = useState<components['schemas']['QnAGroupItem'][]>([]);
 
   useEffect(() => {
@@ -29,7 +30,9 @@ const QnaList = ({ search }: QnaListProps) => {
   return (
     <div className='w-full flex-1 space-y-[3.2rem] overflow-y-scroll pb-[2rem]'>
       {isSuccess && qnaList.length !== 0 ? (
-        qnaList.map((group) => <QnaListContent key={group.order} data={group} />)
+        qnaList.map((group) => (
+          <QnaListContent key={group.order} data={group} onClose={onClose} refetch={refetch} />
+        ))
       ) : (
         <div className='flex h-full w-full items-center justify-center'>
           <p className='text-lightgray500 font-medium-16'>검색 결과가 없습니다.</p>
