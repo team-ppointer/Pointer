@@ -60,7 +60,7 @@ const ProblemSwiper = ({ problemSets, onProblemSelect }: ProblemSwiperProps) => 
   return (
     <Swiper
       slidesPerView={'auto'}
-      initialSlide={initialSlide}
+      initialSlide={0}
       spaceBetween={12}
       centeredSlides={true}
       pagination={{
@@ -70,7 +70,6 @@ const ProblemSwiper = ({ problemSets, onProblemSelect }: ProblemSwiperProps) => 
       className='mySwiper'
       onSlideChange={handleSlideChange}
       onSwiper={(swiper) => {
-        // 초기 슬라이드에 대한 선택 처리
         const initialProblem = problemSets[initialSlide];
         if (initialProblem && initialProblem.problemSet?.firstProblem) {
           onProblemSelect({
