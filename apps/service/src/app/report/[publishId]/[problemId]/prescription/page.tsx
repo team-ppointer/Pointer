@@ -38,6 +38,12 @@ const Page = () => {
     router.push(`/problem/list/${publishId}`);
   };
 
+  const handleClickQuestion = () => {
+    router.push(
+      `/qna/ask?publishId=${publishId}&problemId=${problemId}&type=PROBLEM_ONE_STEP_MORE`
+    );
+  };
+
   return (
     <>
       <ProgressHeader />
@@ -61,7 +67,7 @@ const Page = () => {
             title={`메인 문제 ${no}번`}
             onClick={handleClickMainPrescription}
           />
-          <AdvancedCard contents={oneStepMoreContent} />
+          <AdvancedCard contents={oneStepMoreContent} handleClickQuestion={handleClickQuestion} />
         </ul>
 
         <NavigationFooter

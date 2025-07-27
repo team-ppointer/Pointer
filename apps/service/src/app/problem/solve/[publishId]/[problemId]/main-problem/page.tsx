@@ -1,8 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import Image from 'next/image';
 import { Slide, ToastContainer } from 'react-toastify';
 
 import { useGetProblemById, postProblemSubmit } from '@apis';
@@ -15,7 +14,6 @@ import {
   NavigationFooter,
   TimeTag,
   ImageContainer,
-  CopyButton,
   MainAnswerCheckBottomSheetTemplate,
   BottomSheet,
 } from '@components';
@@ -49,34 +47,27 @@ const Page = () => {
   const [result, setResult] = useState<ProblemStatus | undefined>();
   const { register, handleSubmit, watch } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
+  const problemViewerRef = useRef<HTMLDivElement>(null);
 
   // apis
   const { data } = useGetProblemById(+publishId, +problemId);
 
-  // const {
-  //   no,
-  //   imageUrl,
-  //   recommendedMinute,
-  //   recommendedSecond,
-  //   status,
-  //   childProblemStatuses = [],
-  //   answerType = 'MULTIPLE_CHOICE',
-  //   answer,
-  // } = data;
   const {
     no,
     childProblems = [],
     answerType,
     answer,
     problemContent,
+    progress,
     recommendedTimeSec = 0,
   } = data ?? {};
 
   const seconds = recommendedTimeSec % 60;
   const minutes = Math.floor(recommendedTimeSec / 60);
 
-  const isSolved = status === 'CORRECT' || status === 'SEMI_CORRECT';
-  const isSubmitted = status === 'CORRECT' || status === 'SEMI_CORRECT' || status === 'INCORRECT';
+  const isSolved = progress === 'CORRECT' || progress === 'SEMI_CORRECT';
+  const isSubmitted =
+    progress === 'CORRECT' || progress === 'SEMI_CORRECT' || progress === 'INCORRECT';
   const isDirect =
     childProblems.length > 0 && childProblems[childProblems.length - 1].progress === 'NONE';
 
@@ -124,10 +115,9 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
-  // const handleClickCopyImage = async () => {
-  //   if (!imageUrl) return;
-  //   await copyImageToClipboard(imageUrl);
-  // };
+  const handleClickCopyProblemImage = async () => {
+    copyImageToClipboard(problemViewerRef);
+  };
 
   return (
     <>
@@ -169,16 +159,8 @@ const Page = () => {
             )}
           </div>
           <ImageContainer className='relative mt-[1.2rem]'>
-            {/* <Image
-              src={imageUrl ?? ''}
-              alt={`메인 문제 ${no}번`}
-              className='w-full object-contain'
-              width={700}
-              height={200}
-              priority
-            /> */}
             <ProblemViewer
-              problemContent={problemContent}
+              problem={problemContent}
               className='h-full w-full'
               width={700}
               height={200}

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Slide, ToastContainer } from 'react-toastify';
@@ -18,7 +18,6 @@ import {
   AnswerModalTemplate,
   Tag,
   ImageContainer,
-  CopyButton,
   BottomSheet,
   ChildAnswerCheckBottomSheetTemplate,
 } from '@components';
@@ -27,8 +26,8 @@ import { components } from '@schema';
 import { useChildProblemContext } from '@/hooks/problem';
 import { trackEvent } from '@utils';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
-
-type SubmitUpdateResponse = components['schemas']['SubmissionResp'];
+import { IcCommentCheck20, IcCopyBig, IcQuestion18, IcRotate } from '@svg';
+import { ProblemStatus } from '@/types/component';
 
 const Page = () => {
   const { publishId, problemId, childProblemId } = useParams<{
@@ -52,9 +51,10 @@ const Page = () => {
     closeModal: closeSkipModal,
   } = useModal();
 
-  const [result, setResult] = useState<SubmitUpdateResponse | undefined>();
+  const [result, setResult] = useState<ProblemStatus | undefined>();
   const { register, handleSubmit, watch } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
+  const problemViewerRef = useRef<HTMLDivElement>(null);
 
   // apis
   const { data, isLoading } = useGetChildProblemById(+publishId, +childProblemId);
@@ -79,13 +79,12 @@ const Page = () => {
 
   const handleClickShowMainProblem = () => {
     trackEvent('problem_child_solve_show_main_problem_modal_button_click');
-    // qqqqqqq
-    // router.push(`/image-modal?imageUrl=${mainProblemImageUrl}`);
+    router.push(`/image-modal?publishId=${publishId}&childProblemId=${childProblemId}`);
   };
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await postProblemSubmit(+publishId, null, +childProblemId, +answer);
-    const resultData = data;
+    const resultData = data?.progress;
     invalidateAll();
 
     setResult(resultData);
@@ -142,12 +141,26 @@ const Page = () => {
     onNext();
   };
 
-  // const handleClickCopyImage = async () => {
-  //   if (!imageUrl) return;
-  //   await copyImageToClipboard(imageUrl);
-  // };
+  const handleClickPointing = () => {
+    trackEvent('problem_child_solve_pointing_button_click');
+    invalidateAll();
+    router.push(
+      `/report/${publishId}/${problemId}/prescription/detail?type=child&childNumber=${no}`
+    );
+  };
+  const handleClickQuestion = () => {
+    trackEvent('problem_child_solve_question_button_click');
+    invalidateAll();
+    router.push(
+      `/qna/ask?publishId=${publishId}&childProblemId=${childProblemId}&type=CHILD_PROBLEM_CONTENT`
+    );
+  };
+  const handleClickCopyProblemImage = async () => {
+    copyImageToClipboard(problemViewerRef);
+  };
 
   if (isLoading) {
+    ``;
     return <></>;
   }
 
@@ -179,32 +192,50 @@ const Page = () => {
               새끼 문제 {problemNo}-{no}번
             </h1>
             {isSolved && (
-              <Tag variant='green' sizeType='small'>
+              <Tag variant='green' sizeType='medium'>
                 정답
               </Tag>
             )}
-            {status === 'INCORRECT' && (
-              <Tag variant='red' sizeType='small'>
+            {progress === 'INCORRECT' && (
+              <Tag variant='red' sizeType='medium'>
                 오답
               </Tag>
             )}
+            {progress === 'NONE' && <Tag sizeType='medium'>미완</Tag>}
           </div>
-          <ImageContainer className='relative mt-[1.2rem]'>
-            {/* <Image
-              src={imageUrl ?? ''}
-              alt={`새끼 문제 ${problemNumber}-${childProblemNumber}번`}
-              className='w-full object-contain'
-              width={700}
-              height={200}
-              priority
-            /> */}
+          <ImageContainer className='relative mt-[1.2rem]' ref={problemViewerRef}>
             <ProblemViewer problem={problemContent} loading={false} />
           </ImageContainer>
-
-          <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end'>
-            <SmallButton variant='underline' sizeType='small' onClick={handleClickShowMainProblem}>
+          <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end gap-[0.6rem]'>
+            <SmallButton
+              className='flex flex-row gap-[4px]'
+              variant='white'
+              sizeType='small'
+              onClick={handleClickPointing}>
+              <IcCommentCheck20 width={14} height={14} viewBox='0 0 20 20' />
+              포인팅 보기
+            </SmallButton>
+            <SmallButton
+              className='flex flex-row gap-[4px]'
+              variant='white'
+              sizeType='small'
+              onClick={handleClickShowMainProblem}>
+              <IcRotate width={14} height={14} />
               메인 문제 다시보기
             </SmallButton>
+            <div
+              className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'
+              onClick={handleClickQuestion}>
+              <IcQuestion18 width={20} height={20} />
+            </div>
+            <div className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'>
+              <IcCopyBig
+                width={20}
+                height={20}
+                onClick={handleClickCopyProblemImage}
+                viewBox='0 0 24 24'
+              />
+            </div>
           </div>
         </div>
 
@@ -235,7 +266,7 @@ const Page = () => {
         <ChildAnswerCheckBottomSheetTemplate
           result={result}
           onClose={handleClickCloseCheckModal}
-          handleClickShowPointing={() => {}}
+          handleClickShowPointing={handleClickPointing}
           handleClickNext={handleClickNextProblemButton}
           handleClickShowAnswer={handleClickShowAnswer}
         />

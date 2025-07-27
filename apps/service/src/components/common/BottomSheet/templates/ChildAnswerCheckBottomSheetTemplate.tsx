@@ -1,13 +1,10 @@
 import { IcCorrect, IcIncorrect } from '@svg';
-import { components } from '@schema';
 
 import BaseBottomSheetTemplate from './BaseBottomSheetTemplate';
-import postProblemSubmit from '@/apis/controller/submit/postProblemSubmit';
-
-type ChildProblemSubmitUpdateResponse = components['schemas']['SubmitUpdateResponse'];
+import { ProblemStatus } from '@types';
 
 interface ChildAnswerCheckBottomSheetTemplateProps {
-  result: ChildProblemSubmitUpdateResponse | undefined;
+  result: ProblemStatus | undefined;
   onClose: () => void;
   handleClickShowPointing?: () => void;
   handleClickNext?: () => void;
@@ -23,8 +20,7 @@ const ChildAnswerCheckBottomSheetTemplate = ({
 }: ChildAnswerCheckBottomSheetTemplateProps) => {
   if (!result) return null;
 
-  const { status } = result;
-  const isCorrect = status === 'CORRECT' || status === 'SEMI_CORRECT';
+  const isCorrect = result === 'CORRECT' || result === 'SEMI_CORRECT';
 
   return (
     <BaseBottomSheetTemplate>

@@ -1,9 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Slide, ToastContainer } from 'react-toastify';
-
 import { useGetProblemById, postProblemSubmit } from '@apis';
 import {
   AnswerInput,
@@ -11,20 +10,17 @@ import {
   Tag,
   ProgressHeader,
   SmallButton,
-  NavigationFooter,
   TimeTag,
   ImageContainer,
-  CopyButton,
   MainAnswerCheckBottomSheetTemplate,
   BottomSheet,
-  SolveButton,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, trackEvent } from '@utils';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
-import { IcArrowGrow14, IcQuestion18 } from '@svg';
+import { IcArrowGrow14, IcCommentCheck20, IcCopy, IcCopyBig, IcQuestion18 } from '@svg';
 import { clsx } from 'clsx';
 
 const statusLabel: Record<string, string> = {
@@ -49,37 +45,46 @@ const Page = () => {
 
   const { isOpen, openModal, closeModal } = useModal();
   const [result, setResult] = useState<ProblemStatus | undefined>();
+  const [localResult, setLocalResult] = useState<ProblemStatus | undefined>();
   const { register, handleSubmit, watch, setValue } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
+  const problemViewerRef = useRef<HTMLDivElement>(null);
 
   // apis
   const { data: problemData } = useGetProblemById(+publishId, +problemId);
 
   if (!problemData) return;
-  const { id, no, recommendedTimeSec, problemContent, answerType, answer, childProblems } =
-    problemData;
+  const {
+    id,
+    no,
+    recommendedTimeSec,
+    problemContent,
+    answerType,
+    answer,
+    childProblems,
+    progress,
+  } = problemData;
   const childProblemId = childProblems[0]?.id || 0;
 
-  const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
-  const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
-  const isDirect =
-    childProblemLength > 0 && childProblems[childProblemLength - 1].progress === 'NONE';
+  const isCorrect = localResult
+    ? localResult === 'CORRECT' || localResult === 'SEMI_CORRECT'
+    : progress === 'CORRECT' || progress === 'SEMI_CORRECT';
+
   const hasChildProblem = childProblemLength > 0;
 
   const seconds = recommendedTimeSec % 60;
   const minutes = Math.floor(recommendedTimeSec / 60);
-  // const prevButtonLabel =
-  //   isDirect || childProblemLength === 0
-  //     ? `메인 문제 ${number}번`
-  //     : `새끼 문제 ${number}-${childProblemLength}번`;
-  // const nextButtonLabel = '해설 보기';
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await postProblemSubmit(+publishId, +problemId, null, +answer);
-    const resultData = data?.progress;
-    invalidateAll();
 
+    const resultData = data?.progress;
+
+    setLocalResult(resultData);
+
+    invalidateAll();
     setResult(resultData);
+
     if (resultData) {
       openModal();
     }
@@ -91,14 +96,10 @@ const Page = () => {
     router.push(`/problem/solve/${publishId}/${problemId}/child-problem/${childProblemId}`);
   };
 
-  const handleClickPrev = () => {
-    trackEvent('problem_main_solve_footer_prev_button_click');
-    router.back();
-  };
-
-  const handleClickNext = () => {
-    trackEvent('problem_main_solve_footer_show_commentary_button_click');
-    router.push(`/report/${publishId}/${problemId}/analysis`);
+  const handleClickPointing = () => {
+    trackEvent('problem_main_solve_pointing_button_click');
+    invalidateAll();
+    router.push(`/report/${publishId}/${problemId}/prescription/detail?type=main`);
   };
 
   const handleClickSolveAgain = () => {
@@ -111,16 +112,21 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
-  // const handleClickCopyImage = async () => {
-  //   if (!imageUrl) return;
-  //   await copyImageToClipboard(imageUrl);
-  // };
+  const handleClickCopyProblemImage = async () => {
+    copyImageToClipboard(problemViewerRef);
+  };
 
-  // useEffect(() => {
-  //   if (isSolved && answer) {
-  //     setValue('answer', String(answer));
-  //   }
-  // }, [isSolved, answer, setValue]);
+  const handleClickQuestion = () => {
+    trackEvent('problem_main_solve_question_button_click');
+    invalidateAll();
+    router.push(`/qna/ask?publishId=${publishId}&problemId=${problemId}&type=PROBLEM_CONTENT`);
+  };
+
+  const handleClickAnalysis = () => {
+    trackEvent('problem_main_solve_analysis_button_click');
+    invalidateAll();
+    router.push(`/report/${publishId}/${problemId}/analysis`);
+  };
 
   return (
     <>
@@ -143,77 +149,71 @@ const Page = () => {
         }}
       />
       <ProgressHeader />
-      <main className='flex flex-col px-[2rem] py-[8rem]'>
+      <main className='flex flex-col px-[2rem] py-[8rem] pb-[20rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center justify-between gap-[1.2rem]'>
               <h1 className='font-bold-18 text-main'>메인 문제 {no}번</h1>
               <TimeTag minutes={minutes} seconds={seconds} />
             </div>
-            <div>
-              <SmallButton
-                className='flex flex-row gap-[4px]'
-                variant='white'
-                sizeType='small'
-                onClick={() => {}}>
-                <IcQuestion18 className='h-[1.8rem] w-[1.8rem]' />
-                질문하기
-              </SmallButton>
-            </div>
-            {isSolved && (
-              <Tag variant='green' sizeType='small'>
+            {(localResult === 'CORRECT' ||
+              localResult === 'SEMI_CORRECT' ||
+              (!localResult && (progress === 'CORRECT' || progress === 'SEMI_CORRECT'))) && (
+              <Tag variant='green' sizeType='medium'>
                 정답
               </Tag>
             )}
-            {status === 'INCORRECT' && (
-              <Tag variant='red' sizeType='small'>
+            {(localResult === 'INCORRECT' || (!localResult && progress === 'INCORRECT')) && (
+              <Tag variant='red' sizeType='medium'>
                 오답
               </Tag>
             )}
+            {!localResult && progress === 'NONE' && <Tag sizeType='medium'>미완</Tag>}
           </div>
-          <ImageContainer className='relative mt-[1.2rem]'>
+          <ImageContainer className='relative mt-[1.2rem]' ref={problemViewerRef}>
             <ProblemViewer problem={problemContent} loading={false} />
           </ImageContainer>
 
           {hasChildProblem && (
-            <div className='mt-[0.6rem] flex items-center justify-between'>
-              <SmallButton variant='underline' sizeType='small' onClick={handleClickStepSolve}>
-                문제 복사하기
-              </SmallButton>
+            <div className='tems-center right-0 mt-[0.6rem] flex items-end justify-end'>
               <div className='mt-[0.6rem] flex items-center justify-end gap-[0.8rem]'>
-                <h3 className='font-medium-12 text-midgray100'>잘 모르겠다면</h3>
                 <SmallButton
                   className='flex flex-row gap-[4px]'
                   variant='white'
                   sizeType='small'
-                  onClick={handleClickStepSolve}>
-                  <IcArrowGrow14 className='mt-2 flex h-[1.8rem] w-[1.8rem]' />
-                  단계적으로 풀어보기
+                  onClick={handleClickPointing}>
+                  <IcCommentCheck20 width={14} height={14} viewBox='0 0 20 20' />
+                  포인팅 보기
                 </SmallButton>
+                {childProblemLength > 0 && (
+                  <SmallButton
+                    className='flex flex-row gap-[4px]'
+                    variant='white'
+                    sizeType='small'
+                    onClick={handleClickStepSolve}>
+                    <IcArrowGrow14 className='mt-2 flex h-[1.8rem] w-[1.8rem]' />
+                    단계적으로 풀기
+                  </SmallButton>
+                )}
+                <div
+                  className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'
+                  onClick={handleClickQuestion}>
+                  <IcQuestion18 width={20} height={20} />
+                </div>
+                <div className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'>
+                  <IcCopyBig
+                    width={20}
+                    height={20}
+                    onClick={handleClickCopyProblemImage}
+                    viewBox='0 0 24 24'
+                  />
+                </div>
               </div>
             </div>
           )}
-
-          {/* {!isDirect && childProblemStatuses.length > 0 && (
-            <div className='mt-[2.4rem] w-full'>
-              <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
-              <div className='mt-[1.2rem] flex gap-[1.6rem]'>
-                {childProblemStatuses.map((childProblemStatus, index) => (
-                  <div key={index} className='flex items-center gap-[0.6rem]'>
-                    <span className='font-medium-16 text-black'>
-                      {number}-{index + 1}번
-                    </span>
-                    <Tag variant={statusColor[childProblemStatus]}>
-                      {statusLabel[childProblemStatus]}
-                    </Tag>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )} */}
         </div>
 
-        <div className='mt-[2rem] w-full'>
+        <div className='fixed right-0 bottom-0 left-0 z-10 p-[2rem]'>
           <form onSubmit={handleSubmit(handleSubmitAnswer)}>
             <h3 className='font-bold-16 text-black'>정답 선택</h3>
             <div
@@ -224,25 +224,26 @@ const Page = () => {
               <AnswerInput
                 className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}
                 answerType={answerType}
-                selectedAnswer={isSolved && answer ? String(answer) : selectedAnswer}
-                disabled={isSolved}
+                selectedAnswer={isCorrect && answer ? String(answer) : selectedAnswer}
+                disabled={isCorrect}
                 {...register('answer')}
               />
-              <Button className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}>
-                제출하기
-              </Button>
+              {isCorrect ? (
+                <Button
+                  type='button'
+                  onClick={handleClickAnalysis}
+                  className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}>
+                  해설보기
+                </Button>
+              ) : (
+                <Button className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}>
+                  제출하기
+                </Button>
+              )}
             </div>
           </form>
         </div>
       </main>
-
-      {/* <NavigationFooter
-        prevLabel={prevButtonLabel}
-        nextLabel={isSubmitted ? nextButtonLabel : undefined}
-        onClickPrev={handleClickPrev}
-        onClickNext={isSubmitted ? handleClickNext : undefined}
-      /> */}
-
       <BottomSheet isOpen={isOpen} onClose={closeModal}>
         <MainAnswerCheckBottomSheetTemplate
           result={result}

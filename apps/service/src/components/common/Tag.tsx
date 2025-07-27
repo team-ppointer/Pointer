@@ -5,7 +5,7 @@ type Props = {
 };
 
 const Tag = ({ variant = 'gray', sizeType = 'medium', children }: Props) => {
-  const baseStyles = 'flex items-center justify-center rounded-[8px] font-medium-14';
+  const baseStyles = 'flex items-center justify-center rounded-[8px] font-medium-12';
 
   const variantStyles = {
     green: 'bg-lightgreen text-green',
