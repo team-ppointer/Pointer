@@ -11,6 +11,7 @@ export { default as IcCopy } from './IcCopy';
 export { default as IcCorrect } from './IcCorrect';
 export { default as IcDirect } from './IcDirect';
 export { default as IcDown } from './IcDown';
+export { default as IcGoogle } from './IcGoogle';
 export { default as IcGuide } from './IcGuide';
 export { default as IcHome } from './IcHome';
 export { default as IcIncorrect } from './IcIncorrect';
