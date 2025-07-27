@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'blue' | 'dark' | 'light' | 'dimmed';
-  sizeType?: 'short' | 'long' | 'full';
+  sizeType?: 'short' | 'long' | 'fit' | 'full';
   disabled?: boolean;
   children: React.ReactNode;
 }
@@ -21,6 +21,7 @@ const Button = ({
   const sizeStyles = {
     short: 'min-w-[12rem] w-[12rem] h-[5.6rem]',
     long: 'min-w-[34.8rem] w-[34.8rem] h-[5.6rem]',
+    fit: 'w-fit h-[5.6rem] px-[1.6rem]',
     full: 'w-full h-[5.6rem]',
   };
 

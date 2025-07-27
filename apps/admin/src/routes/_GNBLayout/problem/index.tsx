@@ -165,15 +165,15 @@ function RouteComponent() {
       ) : (
         <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
           {problemList?.data.map(
-            ({ problemId, problemCustomId, problemTitle, memo, mainProblemImageUrl, tagNames }) => (
+            ({ id: problemId, customId, title, memo, mainProblemImageUrl, concepts }) => (
               <Link
-                key={problemCustomId}
+                key={customId}
                 to={`/problem/$problemId`}
                 params={{ problemId: problemId.toString() }}>
                 <ProblemCard>
                   <ProblemCard.TextSection>
-                    <ProblemCard.Info label='문항 ID' content={problemCustomId} />
-                    <ProblemCard.Info label='문항 타이틀' content={problemTitle} />
+                    <ProblemCard.Info label='문항 ID' content={customId} />
+                    <ProblemCard.Info label='문항 타이틀' content={title} />
                     <ProblemCard.Info label='문항 메모' content={memo} />
                   </ProblemCard.TextSection>
 
@@ -187,8 +187,8 @@ function RouteComponent() {
                   <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
 
                   <ProblemCard.TagSection>
-                    {(tagNames || []).map((tag, tagIndex) => {
-                      return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
+                    {(concepts || []).map((tag, tagIndex) => {
+                      return <Tag key={`${tag}-${tagIndex}`} label={tag.name} />;
                     })}
                   </ProblemCard.TagSection>
                 </ProblemCard>

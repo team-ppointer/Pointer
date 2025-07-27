@@ -3,20 +3,18 @@ import { useParams, useRouter } from 'next/navigation';
 
 import { Divider, NavigationFooter, ProgressHeader } from '@components';
 import { trackEvent } from '@utils';
-import { PrescriptionCard } from '@/components/report';
+import { AdvancedCard, PrescriptionCard } from '@/components/report';
 import { useReportContext } from '@/hooks/report';
 
 const Page = () => {
   const router = useRouter();
   const { publishId, problemId } = useParams();
 
-  const { problemNumber, prescription } = useReportContext();
-  const childProblems = prescription?.childProblem ?? [];
-  const mainProblem = prescription?.mainProblem ?? {};
+  const { no, childProblems, progress, oneStepMoreContent } = useReportContext();
 
   const handleClickChildPrescription = (childProblemIndex: number) => {
     trackEvent('report_prescription_child_prescription_click', {
-      problemNumber: `${problemNumber}-${childProblemIndex + 1}`,
+      problemNumber: `${no}-${childProblemIndex + 1}`,
     });
     router.push(
       `/report/${publishId}/${problemId}/prescription/detail?type=child&childNumber=${childProblemIndex + 1}`
@@ -25,7 +23,7 @@ const Page = () => {
 
   const handleClickMainPrescription = () => {
     trackEvent('report_prescription_main_prescription_click', {
-      problemNumber: `${problemNumber}`,
+      problemNumber: `${no}`,
     });
     router.push(`/report/${publishId}/${problemId}/prescription/detail?type=main`);
   };
@@ -37,12 +35,12 @@ const Page = () => {
 
   const handleClickNext = () => {
     trackEvent('report_prescription_next_button_click_to_advanced');
-    router.push(`/report/${publishId}/${problemId}/advanced`);
+    router.push(`/problem/list/${publishId}`);
   };
 
   return (
     <>
-      <ProgressHeader progress={66} />
+      <ProgressHeader />
       <main className='px-[2rem] py-[8rem]'>
         <h1 className='font-bold-18 text-main my-[0.8rem]'>포인팅</h1>
 
@@ -51,23 +49,24 @@ const Page = () => {
             return (
               <PrescriptionCard
                 key={childProblemIndex}
-                status={childProblem.submitStatus}
-                title={`새끼 문제 ${problemNumber}-${childProblemIndex + 1}번`}
+                status={childProblem.progress}
+                title={`새끼 문제 ${no}-${childProblemIndex + 1}번`}
                 onClick={() => handleClickChildPrescription(childProblemIndex)}
               />
             );
           })}
           {childProblems.length > 0 && <Divider />}
           <PrescriptionCard
-            status={mainProblem.submitStatus}
-            title={`메인 문제 ${problemNumber}번`}
+            status={progress}
+            title={`메인 문제 ${no}번`}
             onClick={handleClickMainPrescription}
           />
+          <AdvancedCard contents={oneStepMoreContent} />
         </ul>
 
         <NavigationFooter
           prevLabel='해설'
-          nextLabel='한 걸음 더'
+          nextLabel='문제 리스트'
           onClickPrev={handleClickPrev}
           onClickNext={handleClickNext}
         />

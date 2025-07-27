@@ -17,7 +17,7 @@ const MainAnswerCheckModalTemplate = ({
   handleClickShowReport,
 }: MainAnswerCheckModalTemplateProps) => {
   if (!result) return null;
-  const isCorrect = result === 'CORRECT' || result === 'RETRY_CORRECT';
+  const isCorrect = result === 'CORRECT' || result === 'SEMI_CORRECT';
 
   return (
     <BaseBottomSheetTemplate>

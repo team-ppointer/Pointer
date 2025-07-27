@@ -2,7 +2,11 @@
   "compilerOptions": {
     "composite": true,
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -20,18 +24,48 @@
       }
     ],
     "paths": {
-      "@apis": ["./src/apis"],
-      "@svg": ["./src/assets/svg"],
-      "@image": ["./public/image"],
-      "@components": ["./src/components/common"],
-      "@contexts": ["./src/contexts"],
-      "@hooks": ["./src/hooks/common"],
-      "@types": ["./src/types"],
-      "@schema": ["./src/types/api/schema.d.ts"],
-      "@utils": ["./src/utils/common"],
-      "@/*": ["./src/*"]
+      "@apis": [
+        "./src/apis"
+      ],
+      "@svg": [
+        "./src/assets/svg"
+      ],
+      "@image": [
+        "./public/image"
+      ],
+      "@components": [
+        "./src/components/common"
+      ],
+      "@contexts": [
+        "./src/contexts"
+      ],
+      "@hooks": [
+        "./src/hooks/common"
+      ],
+      "@types": [
+        "./src/types"
+      ],
+      "@schema": [
+        "./src/types/api/schema.d.ts"
+      ],
+      "@utils": [
+        "./src/utils/common"
+      ],
+      "@/*": [
+        "./src/*"
+      ],
+      "@repo/pointer-editor/*": [
+        "../../packages/pointer-editor"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

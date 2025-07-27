@@ -1,0 +1,20 @@
+import type { SVGProps } from 'react';
+import { memo } from 'react';
+interface SVGRProps {
+  title?: string;
+  titleId?: string;
+}
+const SvgIcPencil = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg fill='none' xmlns='http://www.w3.org/2000/svg' aria-labelledby={titleId} {...props}>
+    {title ? <title id={titleId}>{title}</title> : null}
+    <path
+      d='M13.4452 6.95241L17.0452 10.5524M4.44531 19.5524L8.8113 18.6727C9.04307 18.626 9.25589 18.5119 9.42303 18.3446L19.1967 8.56559C19.6653 8.09674 19.665 7.33675 19.196 6.86829L17.1256 4.80021C16.6568 4.33194 15.8972 4.33226 15.4288 4.80092L5.65408 14.581C5.48726 14.7479 5.37336 14.9603 5.32662 15.1916L4.44531 19.5524Z'
+      stroke='#617AF9'
+      strokeWidth={2}
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+  </svg>
+);
+const Memo = memo(SvgIcPencil);
+export default Memo;

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import PulseLoader from 'react-spinners/PulseLoader';
 
 import { setAccessToken, setRefreshToken } from '@utils';
 
@@ -21,14 +22,18 @@ const Page = () => {
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
 
-    if (isFirstLogin) {
+    if (isFirstLogin === 'true') {
       router.replace('/onboarding');
     } else {
       router.replace('/');
     }
   }, [searchParams]);
 
-  return <></>;
+  return (
+    <div className='flex h-dvh w-full items-center justify-center'>
+      <PulseLoader color='#617AF9' aria-label='Loading Spinner' />
+    </div>
+  );
 };
 
 export default Page;

@@ -7,6 +7,8 @@ export type ProblemStatus =
   | 'INCORRECT'
   | 'RETRY_CORRECT'
   | 'IN_PROGRESS'
-  | 'NOT_STARTED';
+  | 'NOT_STARTED'
+  | 'NONE'
+  | 'SEMI_CORRECT';
 
 export type ChildProblemStatus = 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'NOT_STARTED';

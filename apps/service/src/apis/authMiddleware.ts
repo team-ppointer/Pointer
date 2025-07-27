@@ -1,10 +1,10 @@
 'use client';
 import { Middleware } from 'openapi-fetch';
 
-import { getAccessToken, setAccessToken, setName, setRefreshToken } from '@utils';
+import { getAccessToken, setAccessToken, setGrade, setName, setRefreshToken } from '@utils';
 import { postRefreshToken } from '@/apis/controller/auth';
 
-const UNPROTECTED_ROUTES = ['/api/student/auth/social/login', '/api/common/auth/refresh'];
+const UNPROTECTED_ROUTES = ['/api/student/auth/login/social', '/api/common/auth/refresh'];
 
 const reissueToken = async () => {
   let accessToken = getAccessToken();
@@ -32,6 +32,7 @@ const reissueToken = async () => {
   }
   if (result.data?.name) {
     setName(result.data.name);
+    setGrade(result.data.grade);
   }
   return accessToken;
 };

@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
-    ".": "./libs/components/EditorModal.jsx"
+    "./EditorModal": {
+      "import": "./libs/components/EditorModal.jsx",
+      "types": "./index.d.ts"
+    },
+    "./ProblemViewer": {
+      "import": "./libs/components/viewer/ProblemViewer.jsx",
+      "types": "./index.d.ts"
+    }
   },
   "scripts": {
-    "dev": "vite",
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"

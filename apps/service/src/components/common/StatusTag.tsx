@@ -1,32 +1,42 @@
-import { IcTagCorrect, IcTagIncorrect, IcTagRetried, IcTagInprogress } from '@svg';
+import {
+  IcTagCorrect,
+  IcTagIncorrect,
+  IcTagRetried,
+  IcTagInprogress,
+  IcTagDone,
+  IcTagNone,
+} from '@svg';
 
 interface Props {
-  status: 'CORRECT' | 'INCORRECT' | 'RETRY_CORRECT' | 'IN_PROGRESS' | 'NOT_STARTED';
+  status: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'DOING' | 'NONE' | 'DONE';
 }
 
 const StatusTag = ({ status }: Props) => {
   const statusIcon = {
     CORRECT: <IcTagCorrect width={16} height={16} />,
     INCORRECT: <IcTagIncorrect width={16} height={16} />,
-    RETRY_CORRECT: <IcTagRetried width={16} height={16} />,
-    IN_PROGRESS: <IcTagInprogress width={16} height={16} />,
-    NOT_STARTED: <></>,
+    SEMI_CORRECT: <IcTagRetried width={16} height={16} />,
+    DOING: <IcTagInprogress width={16} height={16} className='mt-2' />,
+    DONE: <IcTagDone width={16} height={16} className='mt-2' />,
+    NONE: <IcTagNone width={16} height={16} className='mt-5' />,
   };
 
   const statusLabel = {
     CORRECT: '정답',
     INCORRECT: '오답',
-    RETRY_CORRECT: '정답',
-    IN_PROGRESS: '진행중',
-    NOT_STARTED: '시작전',
+    SEMI_CORRECT: '정답',
+    DOING: '진행중',
+    DONE: '완료',
+    NONE: '시작전',
   };
 
   const statusColor = {
     CORRECT: 'bg-sub2 text-blue',
     INCORRECT: 'bg-lightred text-red',
-    RETRY_CORRECT: 'bg-lightyellow text-yellow',
-    IN_PROGRESS: 'bg-lightgreen text-green',
-    NOT_STARTED: 'bg-lightgray300 text-lightgray500',
+    SEMI_CORRECT: 'bg-lightyellow text-yellow',
+    DOING: 'bg-lightgreen text-[#0C9200]',
+    DONE: 'bg-lightblue text-blue',
+    NONE: 'bg-lightgray300 text-lightgray500',
   };
 
   return (

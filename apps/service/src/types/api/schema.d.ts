@@ -791,7 +791,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/teacher/study/problem/{id}': {
+  '/api/teacher/study/problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -808,7 +808,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/teacher/study/child-problem/{id}': {
+  '/api/teacher/study/child-problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -978,7 +978,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/study/problem/{id}': {
+  '/api/student/study/problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -995,7 +995,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/study/child-problem/{id}': {
+  '/api/student/study/child-problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -1115,6 +1115,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/auth/quit': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** 회원 탈퇴 */
+    delete: operations['quit'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/common/upload-file/{id}': {
     parameters: {
       query?: never;
@@ -1214,6 +1231,9 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_COMMENT';
       /** Format: date */
       publishDate: string;
+      /** Format: int32 */
+      unreadCount?: number;
+      studentName?: string;
     };
     QnAResp: {
       /** Format: int64 */
@@ -1233,9 +1253,13 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_COMMENT';
       /** Format: date */
       publishDate: string;
+      /** Format: int32 */
+      unreadCount?: number;
+      studentName?: string;
       contentTitle: string;
       content: components['schemas']['ContentResp'];
       question: string;
+      images: components['schemas']['UploadFileResp'][];
       chats: components['schemas']['ChatResp'][];
     };
     UploadFileResp: {
@@ -1272,6 +1296,7 @@ export interface components {
     };
     QnAUpdateRequest: {
       question: string;
+      images?: number[];
     };
     StudentUpdateRequest: {
       name: string;
@@ -1355,7 +1380,7 @@ export interface components {
       oneStepMoreContent?: components['schemas']['ContentUpdateRequest'];
       childProblems?: components['schemas']['ChildProblemUpdateDTO.Request'][];
     };
-    ChildProblemWithStudyInfoResp: {
+    ChildProblemInfoResp: {
       /** Format: int64 */
       id: number;
       /** Format: int32 */
@@ -1366,11 +1391,7 @@ export interface components {
       /** Format: int32 */
       answer: number;
       concepts: components['schemas']['ConceptResp'][];
-      pointings: components['schemas']['PointingWithFeedbackResp'][];
-      /** Format: int32 */
-      submitAnswer: number;
-      isCorrect: boolean;
-      isDone: boolean;
+      pointings?: components['schemas']['PointingResp'][];
     };
     ConceptCategoryResp: {
       /** Format: int64 */
@@ -1391,16 +1412,6 @@ export interface components {
       questionContent: components['schemas']['ContentResp'];
       commentContent: components['schemas']['ContentResp'];
       concepts: components['schemas']['ConceptResp'][];
-    };
-    PointingWithFeedbackResp: {
-      /** Format: int64 */
-      id: number;
-      /** Format: int32 */
-      no: number;
-      questionContent: components['schemas']['ContentResp'];
-      commentContent: components['schemas']['ContentResp'];
-      concepts: components['schemas']['ConceptResp'][];
-      isUnderstood?: boolean;
     };
     PracticeTestResp: {
       /** Format: int64 */
@@ -1440,7 +1451,7 @@ export interface components {
       readingTipContent: components['schemas']['ContentResp'];
       oneStepMoreContent: components['schemas']['ContentResp'];
       pointings: components['schemas']['PointingResp'][];
-      childProblems: components['schemas']['ChildProblemWithStudyInfoResp'][];
+      childProblems: components['schemas']['ChildProblemInfoResp'][];
     };
     ProblemMetaResp: {
       /** Format: int64 */
@@ -1464,12 +1475,6 @@ export interface components {
       memo: string;
       concepts: components['schemas']['ConceptResp'][];
     };
-    SubmissionResp: {
-      /** Format: int32 */
-      submitAnswer: number;
-      isCorrect: boolean;
-      isDone: boolean;
-    };
     ProblemSetItemRequest: {
       /** Format: int32 */
       no: number;
@@ -1488,14 +1493,6 @@ export interface components {
       /** Format: int32 */
       no: number;
       problem: components['schemas']['ProblemMetaResp'];
-    };
-    ProblemSetMetaResp: {
-      /** Format: int64 */
-      id: number;
-      title: string;
-      /** @enum {string} */
-      status: 'CONFIRMED' | 'DOING';
-      firstProblem: components['schemas']['ProblemMetaResp'];
     };
     ProblemSetResp: {
       /** Format: int64 */
@@ -1576,6 +1573,14 @@ export interface components {
       /** Format: int32 */
       submitAnswer: number;
     };
+    SubmissionResp: {
+      /** @enum {string} */
+      progress?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'NONE';
+      /** Format: int32 */
+      submitAnswer: number;
+      isCorrect: boolean;
+      isDone: boolean;
+    };
     /** @description problemId, childProblemId, pointingId 중 하나만 입력 가능 */
     QnACreateRequest: {
       /** Format: int64 */
@@ -1599,6 +1604,7 @@ export interface components {
       /** Format: int64 */
       pointingId?: number;
       question: string;
+      images?: number[];
     };
     QnACheckRequest: {
       /** Format: int64 */
@@ -1683,7 +1689,40 @@ export interface components {
       /** Format: date */
       publishAt: string;
     };
+    ChildProblemWithStudyInfoResp: {
+      /** Format: int32 */
+      problemNo?: number;
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      problemContent: components['schemas']['ContentResp'];
+      /** @enum {string} */
+      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      /** Format: int32 */
+      answer: number;
+      concepts: components['schemas']['ConceptResp'][];
+      pointings: components['schemas']['PointingWithFeedbackResp'][];
+      /** @enum {string} */
+      progress?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'NONE';
+      /** Format: int32 */
+      submitAnswer: number;
+      isCorrect: boolean;
+      isDone: boolean;
+    };
+    PointingWithFeedbackResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      questionContent: components['schemas']['ContentResp'];
+      commentContent: components['schemas']['ContentResp'];
+      concepts: components['schemas']['ConceptResp'][];
+      isUnderstood?: boolean;
+    };
     ProblemWithStudyInfoResp: {
+      /** Format: int32 */
+      no?: number;
       /** Format: int64 */
       id: number;
       customId: string;
@@ -1709,24 +1748,19 @@ export interface components {
       readingTipContent: components['schemas']['ContentResp'];
       oneStepMoreContent: components['schemas']['ContentResp'];
       pointings: components['schemas']['PointingWithFeedbackResp'][];
+      /** @enum {string} */
+      progress?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'NONE';
       /** Format: int32 */
       submitAnswer: number;
       isCorrect: boolean;
       isDone: boolean;
       childProblems: components['schemas']['ChildProblemWithStudyInfoResp'][];
     };
-    PublishMetaResp: {
-      /** Format: int64 */
-      id: number;
-      /** Format: date */
-      publishAt: string;
-      /** @enum {string} */
-      progress: 'DONE' | 'DOING' | 'NONE';
-      problemSet: components['schemas']['ProblemSetMetaResp'];
-    };
     PublishProblemGroupResp: {
       /** Format: int32 */
       no: number;
+      /** Format: int64 */
+      problemId: number;
       /** @enum {string} */
       progress: 'DONE' | 'DOING' | 'NONE';
       problem: components['schemas']['ProblemWithStudyInfoResp'];
@@ -1739,7 +1773,7 @@ export interface components {
       publishAt: string;
       /** @enum {string} */
       progress: 'DONE' | 'DOING' | 'NONE';
-      problemSet: components['schemas']['ProblemSetMetaResp'];
+      problemSet: components['schemas']['ProblemSetResp'];
       data: components['schemas']['PublishProblemGroupResp'][];
     };
     ChildProblemCreateRequest: {
@@ -1831,10 +1865,10 @@ export interface components {
       email: string;
       password: string;
     };
-    ListRespPublishMetaResp: {
+    ListRespPublishResp: {
       /** Format: int32 */
       total: number;
-      data: components['schemas']['PublishMetaResp'][];
+      data: components['schemas']['PublishResp'][];
     };
     PublishStudentProgressResp: {
       /** Format: double */
@@ -1845,14 +1879,23 @@ export interface components {
       total: number;
       data: components['schemas']['StudentResp'][];
     };
-    PageRespQnAMetaResp: {
+    PageRespNotListQnAGroupByWeekResp: {
       /** Format: int32 */
       page: number;
       /** Format: int32 */
       size: number;
       /** Format: int32 */
       lastPage: number;
-      data: components['schemas']['QnAMetaResp'][];
+      data: components['schemas']['QnAGroupByWeekResp'];
+    };
+    QnAGroupByWeekResp: {
+      groups?: components['schemas']['QnAGroupItem'][];
+    };
+    QnAGroupItem: {
+      /** Format: int32 */
+      order?: number;
+      weekName?: string;
+      data?: components['schemas']['QnAMetaResp'][];
     };
     ListRespNoticeResp: {
       /** Format: int32 */
@@ -2730,7 +2773,9 @@ export interface operations {
   };
   gets: {
     parameters: {
-      query?: never;
+      query?: {
+        query?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -2743,7 +2788,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['PageRespQnAMetaResp'];
+          '*/*': components['schemas']['PageRespNotListQnAGroupByWeekResp'];
         };
       };
     };
@@ -3027,7 +3072,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
@@ -3442,7 +3487,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
@@ -3450,6 +3495,8 @@ export interface operations {
   searchMonthly: {
     parameters: {
       query: {
+        year: number;
+        month: number;
         studentId: number;
       };
       header?: never;
@@ -3464,7 +3511,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
@@ -3520,7 +3567,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3544,7 +3592,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3583,7 +3632,9 @@ export interface operations {
   };
   gets_2: {
     parameters: {
-      query?: never;
+      query?: {
+        query?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -3596,7 +3647,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['PageRespQnAMetaResp'];
+          '*/*': components['schemas']['PageRespNotListQnAGroupByWeekResp'];
         };
       };
     };
@@ -3680,14 +3731,17 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
   };
   searchMonthly_1: {
     parameters: {
-      query?: never;
+      query: {
+        year: number;
+        month: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -3700,7 +3754,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
@@ -3752,7 +3806,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3774,7 +3829,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3936,6 +3992,24 @@ export interface operations {
         content: {
           '*/*': components['schemas']['ListRespNoticeResp'];
         };
+      };
+    };
+  };
+  quit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

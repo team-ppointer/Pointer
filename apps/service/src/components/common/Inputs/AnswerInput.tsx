@@ -7,17 +7,18 @@ interface AnswerInputProps {
   answerType: ProblemAnswerType;
   selectedAnswer: string;
   disabled?: boolean;
+  className?: string;
 }
 
 const AnswerInput = forwardRef<HTMLInputElement, AnswerInputProps>(
-  ({ answerType, selectedAnswer, disabled = false, ...props }, ref) => {
+  ({ answerType, selectedAnswer, disabled = false, className, ...props }, ref) => {
     return (
-      <>
+      <div className={className}>
         {answerType === 'SHORT_ANSWER' && (
           <Input ref={ref} placeholder='입력해주세요' disabled={disabled} {...props} />
         )}
         {answerType === 'MULTIPLE_CHOICE' && (
-          <div className='flex items-center gap-[1.4rem]'>
+          <div className='flex items-center justify-between gap-[1.4rem]'>
             {Array.from({ length: 5 }, (_, i) => (i + 1).toString()).map((num) => (
               <label key={num}>
                 <input
@@ -38,7 +39,7 @@ const AnswerInput = forwardRef<HTMLInputElement, AnswerInputProps>(
             ))}
           </div>
         )}
-      </>
+      </div>
     );
   }
 );
