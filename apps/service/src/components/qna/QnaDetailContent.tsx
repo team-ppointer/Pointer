@@ -33,7 +33,7 @@ const QnaDetailContent = ({
       <Divider />
       <div className='flex w-full flex-col items-start justify-start gap-[0.8rem]'>
         <p className='text-sub1 font-medium-12'>질문 내용</p>
-        <span className='font-medium-16 text-white'>{question}</span>
+        <span className='font-medium-16 whitespace-pre-wrap text-white'>{question}</span>
         <div className='flex w-full flex-wrap items-start justify-start gap-[0.4rem]'>
           {images &&
             images.length > 0 &&

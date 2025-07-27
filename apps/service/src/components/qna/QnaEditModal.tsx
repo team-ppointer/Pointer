@@ -14,18 +14,16 @@ type QnaEditModalProps = {
 
 const QnaEditModal = ({ edit, onClose }: QnaEditModalProps) => {
   const messageRef = useRef<HTMLDivElement>(null);
-  const handleOnKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter') {
-      if (edit.editMode === 'chat') {
-        const result = await putChat(edit.editId ?? -1, messageRef.current?.textContent ?? '');
-        if (result) {
-          onClose();
-        }
-      } else {
-        const result = await putQna(edit.editId ?? -1, messageRef.current?.textContent ?? '');
-        if (result) {
-          onClose();
-        }
+  const handleSubmit = async () => {
+    if (edit.editMode === 'chat') {
+      const result = await putChat(edit.editId ?? -1, messageRef.current?.innerText ?? '');
+      if (result) {
+        onClose();
+      }
+    } else {
+      const result = await putQna(edit.editId ?? -1, messageRef.current?.innerText ?? '');
+      if (result) {
+        onClose();
       }
     }
   };
@@ -36,11 +34,11 @@ const QnaEditModal = ({ edit, onClose }: QnaEditModalProps) => {
       <MyChat>
         <div className='flex w-full flex-col justify-start gap-[0.8rem]'>
           <p className='font-medium-14 text-sub1 w-full text-left'>질문 내용</p>
+          <p onClick={handleSubmit}> 수정</p>
           <div
-            className='min-w-0 resize-none text-[1.6rem] text-white focus:outline-0'
+            className='min-w-0 resize-none text-[1.6rem] whitespace-pre-wrap text-white focus:outline-0'
             contentEditable
             suppressContentEditableWarning
-            onKeyDown={handleOnKeyDown}
             ref={messageRef}
             autoFocus>
             {edit.editContent}

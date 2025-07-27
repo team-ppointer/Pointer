@@ -14,14 +14,16 @@ const Page = () => {
 
   return (
     <RouteModal className='absolute top-[50%] left-[50%] w-[100dvw] translate-x-[-50%] translate-y-[-50%] transform overflow-auto bg-transparent px-[2rem]'>
-      <div className='flex w-full flex-col gap-[3.2rem]'>
-        <Image
-          src={imageUrls[currentIndex] ?? ''}
-          alt={`full image ${currentIndex + 1}`}
-          className='object-contain'
-          width={700}
-          height={200}
-        />
+      <div className='flex w-full flex-col items-center justify-center gap-[3.2rem]'>
+        <div className='relative flex max-h-[60vh] max-w-[80vw] items-center justify-center'>
+          <Image
+            src={imageUrls[currentIndex] ?? ''}
+            alt={`full image ${currentIndex + 1}`}
+            className='h-auto max-h-4/5 w-auto max-w-4/5 object-cover'
+            width={800}
+            height={600}
+          />
+        </div>
         <div className='flex w-full items-center justify-center gap-[1.6rem]'>
           <div className='min-h-[2.4rem] min-w-[2.4rem]'>
             {currentIndex > 0 && (
