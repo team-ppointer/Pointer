@@ -1,20 +1,16 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 
-import Sidebar from '@/components/common/SideBar/SideBar';
-import { Header, Input } from '@components';
+import { postQnaExist, useGetQnaById } from '@/apis/controller/qna';
+import { Header, Input, BottomFixedArea, Sidebar } from '@components';
 import { IcCloseBig, IcMore } from '@svg';
 import { QnaDetailContent, QnaEditModal, QnaList } from '@/components/qna';
-import { useGetQnaById, useGetQnaExist } from '@/apis/controller/qna';
-import { MyChat, YourChat } from '@/components/qna/chat';
-import ContextMenu from '@/components/qna/chat/ContextMenu';
-import ChatInput from '@/components/qna/chat/ChatInput';
-import ImageChat from '@/components/qna/chat/ImageChat';
-import { BottomFixedArea } from '@/components/common/area/BottomFixedArea';
+import { MyChat, YourChat, ImageChat, ContextMenu, ChatInput } from '@/components/qna/chat';
 import { copyToClipboard } from '@utils';
+import { components } from '@schema';
 
 export type Edit = {
   editId: number | null;
@@ -37,15 +33,16 @@ const Page = () => {
   // images-modal이 열렸는지 확인
   const isImageModalOpen = pathname.includes('images-modal');
 
-  const { data, isSuccess } = useGetQnaExist({
-    publishId: 1,
-    problemId: 3,
-    type: 'PROBLEM_CONTENT',
-  });
+  const searchParams = useSearchParams();
+  const publishId = Number(searchParams.get('publishId')) || -1;
+  const problemId = Number(searchParams.get('problemId')) || undefined;
+  const type =
+    (searchParams.get('type') as components['schemas']['QnACreateRequest']['type']) ??
+    'PROBLEM_CONTENT';
 
-  const qnaId = data?.id ?? -1;
+  const [qnaId, setQnaId] = useState<number | undefined>(Number(searchParams.get('qnaId')));
 
-  const { data: qnaData, isSuccess: isQnaSuccess, refetch } = useGetQnaById(qnaId);
+  const { data: qnaData, isSuccess: isQnaSuccess, refetch } = useGetQnaById(qnaId ?? -1);
 
   const scrollToBottom = () => {
     if (mainRef.current) {
@@ -61,6 +58,32 @@ const Page = () => {
     }
   };
 
+  useEffect(() => {
+    if (publishId && problemId && type) {
+      postQnaExist({
+        publishId,
+        problemId,
+        type,
+      })
+        .then((response) => {
+          if (response.data && response.data.id) {
+            setQnaId(response.data.id);
+            refetch();
+          } else {
+            setQnaId(undefined);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching QnA existence:', error);
+          setQnaId(undefined);
+        });
+    }
+  }, [publishId, problemId, type]);
+
+  useEffect(() => {
+    setQnaId(Number(searchParams.get('qnaId')));
+  }, [searchParams]);
+
   return (
     <>
       <Header
@@ -75,7 +98,7 @@ const Page = () => {
         className={clsx(
           'relative flex h-dvh flex-col items-center justify-start overflow-y-auto px-[2rem] pt-[8rem] pb-[9rem]'
         )}>
-        {isSuccess && data.isExist ? (
+        {isQnaSuccess ? (
           <>
             <div className={clsx('relative', mode === 'menu' ? 'z-200' : 'z-0')}>
               <MyChat>
@@ -98,7 +121,7 @@ const Page = () => {
                   modifyOnClick={() => {
                     setMode('edit');
                     setEdit({
-                      editId: qnaId,
+                      editId: qnaId ?? -1,
                       editContent: qnaData?.question ?? '',
                       editMode: 'qna',
                     });
@@ -110,7 +133,7 @@ const Page = () => {
             <div className='flex w-full flex-col items-center justify-start gap-[2.4rem] pt-[2.4rem]'>
               {qnaData &&
                 isQnaSuccess &&
-                qnaData.chats.map((chat, index) =>
+                qnaData.chats.map((chat) =>
                   chat.isMine ? (
                     chat.images && chat.images.length > 0 ? (
                       <ImageChat
@@ -119,7 +142,7 @@ const Page = () => {
                         images={chat.images.map((image) => image.url)}
                       />
                     ) : (
-                      <MyChat key={index}>
+                      <MyChat key={chat.id}>
                         {
                           <span className='font-medium-16 w-full text-left whitespace-pre-wrap text-white'>
                             {chat.content}
@@ -150,7 +173,7 @@ const Page = () => {
                       images={chat.images.map((image) => image.url)}
                     />
                   ) : (
-                    <YourChat key={index}>
+                    <YourChat key={chat.id}>
                       {<span className='font-medium-16 w-full text-left'>{chat.content}</span>}
                     </YourChat>
                   )
@@ -177,7 +200,7 @@ const Page = () => {
             />
             <IcCloseBig width={24} height={24} onClick={() => setIsOpen(false)} />
           </div>
-          <QnaList search={search} />
+          <QnaList search={search} onClose={() => setIsOpen(false)} />
         </Sidebar>
         {mode !== 'view' && (
           <div
@@ -189,7 +212,7 @@ const Page = () => {
             <div className='absolute top-0 right-0 bottom-0 left-0 bg-black opacity-50' />
           </div>
         )}
-        {!isImageModalOpen && (
+        {!isImageModalOpen && qnaData && qnaId && (
           <BottomFixedArea zIndex={40}>
             <ChatInput qnaId={qnaId} refetch={refetch} scrollToBottom={scrollToBottom} />
           </BottomFixedArea>

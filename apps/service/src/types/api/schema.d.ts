@@ -1231,6 +1231,8 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_COMMENT';
       /** Format: date */
       publishDate: string;
+      /** Format: int64 */
+      publishId?: number;
       /** Format: int32 */
       unreadCount?: number;
       studentName?: string;
@@ -1253,6 +1255,8 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_COMMENT';
       /** Format: date */
       publishDate: string;
+      /** Format: int64 */
+      publishId?: number;
       /** Format: int32 */
       unreadCount?: number;
       studentName?: string;
@@ -1260,6 +1264,10 @@ export interface components {
       content: components['schemas']['ContentResp'];
       question: string;
       images: components['schemas']['UploadFileResp'][];
+      /** Format: int64 */
+      problemId?: number;
+      /** Format: int64 */
+      childProblemId?: number;
       chats: components['schemas']['ChatResp'][];
     };
     UploadFileResp: {

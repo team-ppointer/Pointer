@@ -7,6 +7,9 @@ const useGetQnaById = (qnaId: number) => {
         qnaId: qnaId,
       },
     },
+    staleTime: Infinity,
+    gcTime: Infinity,
+    enabled: qnaId > 0,
   });
 };
 
