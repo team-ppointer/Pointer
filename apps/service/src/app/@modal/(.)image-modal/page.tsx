@@ -3,21 +3,19 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
 import { RouteModal } from '@components';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+import { useGetChildProblemById } from '@apis';
 
 const Page = () => {
   const searchParams = useSearchParams();
-  const imageUrl = searchParams.get('imageUrl');
+  const publishId = searchParams.get('publishId') || '';
+  const childProblemId = searchParams.get('childProblemId') || '';
+  const { data, isLoading } = useGetChildProblemById(+publishId, +childProblemId);
 
   return (
     <RouteModal>
       <div className='max-h-[calc(100dvh-8rem)] w-[calc(100dvw-8rem)] max-w-[100rem] p-[1.6rem]'>
-        <Image
-          src={imageUrl ?? ''}
-          alt='full image'
-          className='object-contain'
-          width={700}
-          height={200}
-        />
+        <ProblemViewer problem={data?.problemContent} loading={isLoading} />
       </div>
     </RouteModal>
   );

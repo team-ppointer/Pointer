@@ -1,10 +1,14 @@
 import { Button, Divider } from '@components';
 import PointingImageContainer from '@/components/report/PointingImageContainer';
 import QuestionSection from './QuestionSection';
+import { components } from '@schema';
+
+type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'];
 
 interface PointingCardProps {
-  pointingContent: any; // 실제 타입으로 교체
+  pointingContent: PointingWithFeedbackResp;
   step: number;
+  pointingId: number;
   onPointingAnswer: () => void;
   onPrescriptionAnswer: (isUnderstood: boolean) => void;
 }
@@ -12,13 +16,18 @@ interface PointingCardProps {
 const PointingCard = ({
   pointingContent,
   step,
+  pointingId,
   onPointingAnswer,
   onPrescriptionAnswer,
 }: PointingCardProps) => {
   return (
     <div className='border-sub1 flex flex-col gap-[2rem] rounded-[1.6rem] border bg-white p-[2rem]'>
       {/* 포인팅 부분 */}
-      <PointingImageContainer variant='pointing' contents={pointingContent.questionContent} />
+      <PointingImageContainer
+        pointingId={pointingId}
+        variant='pointing'
+        contents={pointingContent.questionContent}
+      />
 
       {step === 1 && (
         <QuestionSection
@@ -33,6 +42,7 @@ const PointingCard = ({
         <>
           <Divider />
           <PointingImageContainer
+            pointingId={pointingId}
             variant='prescription'
             contents={pointingContent.commentContent}
           />

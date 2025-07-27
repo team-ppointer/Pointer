@@ -32,6 +32,11 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
+  const handleClickQuestion = () => {
+    const type = selectedTab === '분석' ? 'PROBLEM_MAIN_ANALYSIS' : 'PROBLEM_MAIN_HAND_ANALYSIS';
+    router.push(`/qna/ask?publishId=${publishId}&problemId=${problemId}&type=${type}`);
+  };
+
   if (!mainAnalysisImage || !mainHandAnalysisImage) {
     return <></>;
   }
@@ -82,7 +87,7 @@ const Page = () => {
               className='flex flex-row gap-[4px]'
               variant='white'
               sizeType='small'
-              onClick={() => {}}>
+              onClick={handleClickQuestion}>
               <IcQuestion18 className='h-[1.8rem] w-[1.8rem]' />
               질문하기
             </SmallButton>

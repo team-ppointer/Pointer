@@ -48,6 +48,7 @@ const Page = () => {
     if (index === visibleCount - 1 && visibleCount < pointingsContents.length) {
       setVisibleCount(visibleCount + 1);
       setPointingSteps([...newSteps, 1]);
+      PointingCard;
     }
   };
 
@@ -70,6 +71,7 @@ const Page = () => {
           {pointingsContents.slice(0, visibleCount).map((pointingContent, index) => (
             <PointingCard
               key={index}
+              pointingId={pointingContent.id}
               pointingContent={pointingContent}
               step={pointingSteps[index]}
               onPointingAnswer={() => handlePointingAnswer(index)}

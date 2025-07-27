@@ -12,6 +12,7 @@ type ProblemSetHomeFeedResponse = components['schemas']['PublishResp'];
 
 interface ProblemSwiperProps {
   problemSets: ProblemSetHomeFeedResponse[];
+  onProblemSelect: (problem: { publishId: number; problemId: number }) => void;
 }
 
 const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: string) => {
@@ -40,10 +41,22 @@ const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: stri
   );
 };
 
-const ProblemSwiper = ({ problemSets }: ProblemSwiperProps) => {
+const ProblemSwiper = ({ problemSets, onProblemSelect }: ProblemSwiperProps) => {
   const dayOfWeek = dayjs().day();
-
   const initialSlide = dayOfWeek === 0 || dayOfWeek === 6 ? 4 : dayOfWeek - 1;
+
+  const handleSlideChange = (swiper: any) => {
+    const activeIndex = swiper.activeIndex;
+    const activeProblem = problemSets[activeIndex];
+
+    if (activeProblem && activeProblem.problemSet?.firstProblem) {
+      onProblemSelect({
+        publishId: activeProblem.id,
+        problemId: activeProblem.problemSet.firstProblem.id,
+      });
+    }
+  };
+
   return (
     <Swiper
       slidesPerView={'auto'}
@@ -54,7 +67,18 @@ const ProblemSwiper = ({ problemSets }: ProblemSwiperProps) => {
         clickable: true,
       }}
       modules={[Pagination]}
-      className='mySwiper'>
+      className='mySwiper'
+      onSlideChange={handleSlideChange}
+      onSwiper={(swiper) => {
+        // 초기 슬라이드에 대한 선택 처리
+        const initialProblem = problemSets[initialSlide];
+        if (initialProblem && initialProblem.problemSet?.firstProblem) {
+          onProblemSelect({
+            publishId: initialProblem.id,
+            problemId: initialProblem.problemSet.firstProblem.id,
+          });
+        }
+      }}>
       {problemSets.map((problem, index) => {
         const date = dayjs(problem.publishAt);
         const dateString = date.format('MM월 DD일');

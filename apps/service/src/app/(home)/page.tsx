@@ -1,16 +1,22 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@components';
 import { IcCalendar, IcQuestionWhite } from '@svg';
 import { setGrade, setName, trackEvent } from '@utils';
 import { HomeHeader, NoticeButton, ProblemSwiper, WeekProgress } from '@/components/home';
 import { useGetUserInfo, useGetWeeklyPublish } from '@/apis';
+import { toast } from 'react-toastify';
+
 const Page = () => {
   const router = useRouter();
   const { data: userInfo, isSuccess: isUserInfoSuccess } = useGetUserInfo();
   const { data, isLoading } = useGetWeeklyPublish();
+  const [selectedProblem, setSelectedProblem] = useState<{
+    publishId: number;
+    problemId: number;
+  } | null>(null);
   const problemSets = data?.data ?? [];
 
   const handleClickAllProblem = () => {
@@ -19,8 +25,16 @@ const Page = () => {
   };
 
   const handleClickQnA = () => {
+    const { publishId, problemId } = selectedProblem || {
+      publishId: problemSets[0]?.id || 0,
+      problemId: problemSets[0]?.problemSet.firstProblem.id || 0,
+    };
+    if (!publishId || !problemId) {
+      console.warn('문제가 없습니다.');
+      return;
+    }
     trackEvent('home_qna_button_click');
-    router.push('qna/ask');
+    router.push(`/qna?publishId=${publishId}&problemId=${problemId}`);
   };
 
   useEffect(() => {
@@ -31,7 +45,7 @@ const Page = () => {
   }, [isUserInfoSuccess, userInfo]);
 
   return (
-    <>
+    <div className='flex min-h-screen flex-col'>
       <HomeHeader />
       <main className='flex flex-col px-[2rem] pt-[6rem]'>
         <p className='font-medium-12 text-lightgray500 pt-[1.6rem]'>
@@ -42,17 +56,18 @@ const Page = () => {
           <WeekProgress />
         </div>
       </main>
-      <div className='mt-[2.4rem]'>
+
+      <div className='mt-[2.4rem] flex-1'>
         {isLoading ? (
           <div className='h-[456px] w-full' />
-        ) : problemSets ? (
-          <ProblemSwiper problemSets={problemSets} />
+        ) : problemSets.length > 0 ? (
+          <ProblemSwiper problemSets={problemSets} onProblemSelect={setSelectedProblem} />
         ) : (
-          <></>
+          <div className='w-full'></div>
         )}
       </div>
 
-      <footer className='bg-background flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[3.3rem]'>
+      <footer className='bg-background mt-auto flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[3.3rem]'>
         <Button variant='light' onClick={handleClickAllProblem}>
           <IcCalendar width={24} height={24} />
           날짜별로 보기
@@ -62,7 +77,7 @@ const Page = () => {
           QnA 바로가기
         </Button>
       </footer>
-    </>
+    </div>
   );
 };
 

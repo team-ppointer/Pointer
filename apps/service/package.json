@@ -17,6 +17,7 @@
     "@tanstack/react-query-devtools": "^5.66.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
+    "html2canvas": "^1.4.1",
     "next": "15.1.4",
     "openapi-fetch": "^0.13.4",
     "openapi-react-query": "^0.3.0",
