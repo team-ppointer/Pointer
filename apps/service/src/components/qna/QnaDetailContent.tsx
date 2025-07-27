@@ -4,7 +4,7 @@ import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import { formatDateToSlash, getWeekNum } from '@/utils/common/qna/getWeeknum';
+import { formatDateToSlash, getWeekNum } from '@utils';
 import { components } from '@schema';
 
 const QnaDetailContent = ({

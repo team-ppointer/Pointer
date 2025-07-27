@@ -5,6 +5,7 @@ import type * as React from 'react';
 
 import { client } from '@apis';
 import authMiddleware from '@/apis/authMiddleware';
+import Toast from '@/components/common/Toast';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient();
@@ -13,9 +14,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <div style={{ fontSize: '16px' }}>
-        <ReactQueryDevtools />
-      </div>
+      <ReactQueryDevtools initialIsOpen={false} />
+      <Toast />
     </QueryClientProvider>
   );
 }

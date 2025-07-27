@@ -1,11 +1,13 @@
 'use client';
 
+import { on } from 'events';
+
 import { useRef } from 'react';
 
 import { MyChat } from '@/components/qna/chat';
-import putQna from '@/apis/controller/qna/putQna';
 import { Edit } from '@/app/qna/page';
-import putChat from '@/apis/controller/qna/putChat';
+import { putChat, putQna } from '@apis';
+import { showToast } from '@utils';
 
 type QnaEditModalProps = {
   edit: Edit;
@@ -19,10 +21,16 @@ const QnaEditModal = ({ edit, onClose }: QnaEditModalProps) => {
       const result = await putChat(edit.editId ?? -1, messageRef.current?.innerText ?? '');
       if (result) {
         onClose();
+      } else {
+        showToast.error('채팅 수정에 실패했습니다. 다시 시도해주세요.');
+        onClose();
       }
     } else {
       const result = await putQna(edit.editId ?? -1, messageRef.current?.innerText ?? '');
       if (result) {
+        onClose();
+      } else {
+        showToast.error('질문 수정에 실패했습니다. 다시 시도해주세요.');
         onClose();
       }
     }

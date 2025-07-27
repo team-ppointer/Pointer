@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { getAccessToken, trackEvent } from '@utils';
+import { getAccessToken, trackEvent, showToast } from '@utils';
 import { LogoLogin } from '@/assets/svg/logo';
 import { GoogleButton, KakaoButton } from '@/components/login';
 import { postSocialLogin } from '@apis';
@@ -16,7 +16,7 @@ const Page = () => {
     if (result.isSuccess && result.loginUrl) {
       router.push(result.loginUrl);
     } else {
-      console.error('로그인 URL을 가져오는 데 실패했습니다.');
+      showToast.error('로그인에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
