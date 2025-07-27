@@ -1,5 +1,8 @@
+'use client';
+
 import clsx from 'clsx';
 import NextImage from 'next/image';
+import { useRouter } from 'next/navigation';
 
 type ImageChatProps = {
   images: string[];
@@ -7,6 +10,8 @@ type ImageChatProps = {
 };
 
 const ImageChat = ({ images, isMine = true }: ImageChatProps) => {
+  const router = useRouter();
+  const query = images.map((u) => `imageUrl=${encodeURIComponent(u)}`).join('&');
   return (
     <div className='flex w-full flex-col items-center justify-start gap-[0.4rem]'>
       <div
@@ -22,6 +27,7 @@ const ImageChat = ({ images, isMine = true }: ImageChatProps) => {
             className='h-[9.8rem] w-[9.8rem] rounded-[0.8rem] object-cover'
             width={98}
             height={98}
+            onClick={() => router.push(`/images-modal?${query}&index=${index}`)}
           />
         ))}
       </div>

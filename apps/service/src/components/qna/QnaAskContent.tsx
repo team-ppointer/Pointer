@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 
 import { IcButton } from '@components';
-import { IcCamera, IcPhoto } from '@svg';
+import { IcCamera } from '@svg';
 import { QnaAskImageBox, QnaAskTextArea } from '@/components/qna';
 
 type QnaAskContentProps = {

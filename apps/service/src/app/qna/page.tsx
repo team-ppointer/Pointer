@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
 import Sidebar from '@/components/common/SideBar/SideBar';
@@ -11,7 +12,7 @@ import { useGetQnaById, useGetQnaExist } from '@/apis/controller/qna';
 import { MyChat, YourChat } from '@/components/qna/chat';
 import ContextMenu from '@/components/qna/chat/ContextMenu';
 import ChatInput from '@/components/qna/chat/ChatInput';
-import MyImageChat from '@/components/qna/chat/ImageChat';
+import ImageChat from '@/components/qna/chat/ImageChat';
 import { BottomFixedArea } from '@/components/common/area/BottomFixedArea';
 import { copyToClipboard } from '@utils';
 
@@ -31,6 +32,10 @@ const Page = () => {
     editMode: 'qna',
   });
   const mainRef = useRef<HTMLElement>(null);
+  const pathname = usePathname();
+
+  // images-modal이 열렸는지 확인
+  const isImageModalOpen = pathname.includes('images-modal');
 
   const { data, isSuccess } = useGetQnaExist({
     publishId: 1,
@@ -64,9 +69,7 @@ const Page = () => {
         rightIconType='close'
         menuOnClick={() => setIsOpen(true)}
       />
-      <BottomFixedArea>
-        <ChatInput qnaId={qnaId} refetch={refetch} scrollToBottom={scrollToBottom} />
-      </BottomFixedArea>
+
       <main
         ref={mainRef}
         className={clsx(
@@ -109,31 +112,44 @@ const Page = () => {
                 isQnaSuccess &&
                 qnaData.chats.map((chat, index) =>
                   chat.isMine ? (
-                    <MyChat key={index}>
-                      {
-                        <span className='font-medium-16 w-full text-left text-white'>
-                          {chat.content}
-                        </span>
-                      }
-                      <IcMore
-                        className={clsx(
-                          'absolute bottom-0 left-[-2.6rem] cursor-pointer',
-                          mode === 'menu' && 'hidden'
-                        )}
-                        width={24}
-                        height={24}
-                        onClick={() => {
-                          setMode('edit');
-                          setEdit({
-                            editId: chat.id,
-                            editContent: chat.content,
-                            editMode: 'chat',
-                          });
-                        }}
+                    chat.images && chat.images.length > 0 ? (
+                      <ImageChat
+                        key={chat.id}
+                        isMine={chat.isMine}
+                        images={chat.images.map((image) => image.url)}
                       />
-                    </MyChat>
+                    ) : (
+                      <MyChat key={index}>
+                        {
+                          <span className='font-medium-16 w-full text-left whitespace-pre-wrap text-white'>
+                            {chat.content}
+                          </span>
+                        }
+                        <IcMore
+                          className={clsx(
+                            'absolute bottom-0 left-[-2.6rem] cursor-pointer',
+                            mode === 'menu' && 'hidden'
+                          )}
+                          width={24}
+                          height={24}
+                          onClick={() => {
+                            setMode('edit');
+                            setEdit({
+                              editId: chat.id,
+                              editContent: chat.content,
+                              editMode: 'chat',
+                            });
+                          }}
+                        />
+                      </MyChat>
+                    )
+                  ) : chat.images && chat.images.length > 0 ? (
+                    <ImageChat
+                      key={chat.id}
+                      isMine={chat.isMine}
+                      images={chat.images.map((image) => image.url)}
+                    />
                   ) : (
-                    // <MyImageChat key={chat.id} images={images} />
                     <YourChat key={index}>
                       {<span className='font-medium-16 w-full text-left'>{chat.content}</span>}
                     </YourChat>
@@ -172,6 +188,11 @@ const Page = () => {
             }}>
             <div className='absolute top-0 right-0 bottom-0 left-0 bg-black opacity-50' />
           </div>
+        )}
+        {!isImageModalOpen && (
+          <BottomFixedArea zIndex={40}>
+            <ChatInput qnaId={qnaId} refetch={refetch} scrollToBottom={scrollToBottom} />
+          </BottomFixedArea>
         )}
         {mode === 'edit' && (
           <BottomFixedArea zIndex={200}>
