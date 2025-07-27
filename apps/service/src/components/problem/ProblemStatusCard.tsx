@@ -60,8 +60,8 @@ const ProblemStatusCard = ({
   return (
     <article className='rounded-[16px] bg-white p-[2rem]'>
       <header className='flex items-center justify-between'>
-        <div className='flex items-center justify-between'>
-          <h2 className='font-bold-16 text-main w-[10rem]'>메인 문제 {mainProblemNumber}번</h2>
+        <div className='flex items-center justify-between gap-[1.2rem]'>
+          <h2 className='font-bold-16 text-main'>{mainProblemNumber} 번째 세트</h2>
           <StatusTag status={problemData.progress ?? 'NONE'} />
         </div>
         {hasChildProblem && (
@@ -73,6 +73,12 @@ const ProblemStatusCard = ({
 
       {isOpen && hasChildProblem && (
         <ul className='mt-[1.2rem] flex flex-col'>
+          <li className='flex items-center justify-between py-[1.15rem]'>
+            <p className='font-medium-14 text-black'>메인 문제 {mainProblemNumber}번</p>
+            <StatusIcon status={problemData.problem.progress ?? 'NONE'} />
+          </li>
+
+          <li></li>
           {childProblems?.map((childProblem, index) => (
             <li className='flex items-center justify-between py-[1.15rem]' key={index}>
               <p className='font-medium-14 text-black'>
