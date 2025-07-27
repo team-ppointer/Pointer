@@ -1,7 +1,8 @@
 import { Button, Divider } from '@components';
 import PointingImageContainer from '@/components/report/PointingImageContainer';
-import QuestionSection from './QuestionSection';
 import { components } from '@schema';
+
+import QuestionSection from './QuestionSection';
 
 type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'];
 

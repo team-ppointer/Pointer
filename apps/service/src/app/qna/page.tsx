@@ -16,6 +16,7 @@ import { components } from '@schema';
 export type Edit = {
   editId: number | null;
   editContent: string;
+  images?: number[];
   editMode: 'qna' | 'chat';
 };
 
@@ -101,21 +102,21 @@ const Page = () => {
         )}>
         {isQnaSuccess ? (
           <>
-            <div className={clsx('relative', mode === 'menu' ? 'z-200' : 'z-0')}>
+            <div className={clsx('w-full', mode === 'menu' ? 'z-200' : 'z-0')}>
               <MyChat>
                 {qnaData && isQnaSuccess && (
                   <QnaDetailContent {...qnaData} modifyMode={mode === 'menu'} />
                 )}
+                <IcMore
+                  className={clsx(
+                    'absolute bottom-0 left-[-2.4rem] z-100 cursor-pointer',
+                    mode === 'menu' && 'hidden'
+                  )}
+                  width={24}
+                  height={24}
+                  onClick={() => setMode('menu')}
+                />
               </MyChat>
-              <IcMore
-                className={clsx(
-                  'absolute bottom-0 left-[-0.6rem] z-100 cursor-pointer',
-                  mode === 'menu' && 'hidden'
-                )}
-                width={24}
-                height={24}
-                onClick={() => setMode('menu')}
-              />
 
               {mode === 'menu' && (
                 <ContextMenu
@@ -124,6 +125,7 @@ const Page = () => {
                     setEdit({
                       editId: qnaId ?? -1,
                       editContent: qnaData?.question ?? '',
+                      images: qnaData?.images?.map((image) => image.id),
                       editMode: 'qna',
                     });
                   }}

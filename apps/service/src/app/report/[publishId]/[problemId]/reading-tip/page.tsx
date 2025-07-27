@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+import { useParams, useRouter } from 'next/navigation';
 
 import { Header, ImageContainer, SmallButton } from '@components';
 import { useReportContext } from '@/hooks/report';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { IcQuestion18 } from '@svg';
-import { useParams, useRouter } from 'next/navigation';
 
 const Page = () => {
   const router = useRouter();

@@ -15,7 +15,8 @@ import {
   getFileUploadUrl,
   uploadFileToS3,
 } from '@apis';
-import { showToast } from '@utils';
+import { showToast, getQnaTitle } from '@utils';
+import QnaContent from '@/components/qna/QnaContent';
 
 const Page = () => {
   const [isFilled, setIsFilled] = useState(false);
@@ -26,17 +27,19 @@ const Page = () => {
 
   const searchParams = useSearchParams();
   const publishId = Number(searchParams.get('publishId')) || -1;
-  const problemId = Number(searchParams.get('problemId')) || -1;
-  const childProblemId = Number(searchParams.get('childProblemId')) || -1;
-  const pointingId = Number(searchParams.get('pointingId')) || -1;
+  const problemId = Number(searchParams.get('problemId')) || undefined;
+  const childProblemId = Number(searchParams.get('childProblemId')) || undefined;
+  const pointingId = Number(searchParams.get('pointingId')) || undefined;
 
   const type =
     (searchParams.get('type') as components['schemas']['QnACreateRequest']['type']) ??
     'PROBLEM_CONTENT';
 
-  const parentQuery = useGetProblemById(publishId, problemId);
+  const title = getQnaTitle(type);
 
-  const childQuery = useGetChildProblemById(publishId, childProblemId);
+  const parentQuery = useGetProblemById(publishId, problemId || -1);
+
+  const childQuery = useGetChildProblemById(publishId, childProblemId || -1);
 
   // 메인 문제인 경우와 자식 문제인 경우를 구분하여 데이터를 가져옴
   // parentQuery는 메인 문제의 데이터를 가져오고, childQuery는 자식 문제의 데이터를 가져옴
@@ -129,8 +132,17 @@ const Page = () => {
           <Header title='질문하기' iconType='back' />
           <main className='flex min-h-dvh flex-col items-center justify-between gap-[1.6rem] px-[2rem] pt-[8rem] pb-[1.5rem]'>
             <div className='flex w-full flex-col items-center justify-center rounded-[1.6rem] bg-white'>
-              <p className='font-bold-16 text-main w-full px-[2rem] pt-[2rem] text-start'>문제</p>
-              <ProblemViewer problem={problem} loading={false} />
+              <p className='font-bold-16 text-main w-full px-[2rem] pt-[2rem] text-start'>
+                {title}
+              </p>
+              <QnaContent
+                type={type}
+                pointingId={pointingId}
+                data={
+                  response as components['schemas']['ProblemWithStudyInfoResp'] &
+                    components['schemas']['ChildProblemWithStudyInfoResp']
+                }
+              />
             </div>
             <QnaAskContent
               handleTextareaOnChange={handleTextareaOnChange}

@@ -1,7 +1,7 @@
 import { IcCorrect, IcIncorrect } from '@svg';
+import { ProblemStatus } from '@types';
 
 import BaseBottomSheetTemplate from './BaseBottomSheetTemplate';
-import { ProblemStatus } from '@types';
 
 interface ChildAnswerCheckBottomSheetTemplateProps {
   result: ProblemStatus | undefined;

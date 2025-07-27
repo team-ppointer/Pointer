@@ -6,3 +6,4 @@ export * from './getUserAgent';
 export * from './clipboard';
 export * from './toast';
 export * from './qna/getWeeknum';
+export * from './qna/getQnaTitle';

@@ -9,7 +9,6 @@ const putChat = async (chatId: number, content: string) => {
     },
     body: {
       content,
-      images: [],
     },
   });
   return response.data;

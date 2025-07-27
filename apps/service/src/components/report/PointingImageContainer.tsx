@@ -1,9 +1,10 @@
 'use client';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+import { useRouter, useSearchParams } from 'next/navigation';
+
 import { IcCommentCheck20, IcPrescription20, IcQuestion18 } from '@svg';
 import { components } from '@schema';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { SmallButton } from '@components';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useReportContext } from '@/hooks/report';
 
 type Contentype = components['schemas']['ContentResp'];

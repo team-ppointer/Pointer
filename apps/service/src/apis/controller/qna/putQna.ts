@@ -1,6 +1,6 @@
 import { client } from '@/apis/client';
 
-const putQna = async (qnaId: number, question: string) => {
+const putQna = async (qnaId: number, question: string, images: number[]) => {
   const response = await client.PUT(`/api/student/qna/{qnaId}`, {
     params: {
       path: {
@@ -9,7 +9,7 @@ const putQna = async (qnaId: number, question: string) => {
     },
     body: {
       question,
-      images: [],
+      images,
     },
   });
   return response.data;

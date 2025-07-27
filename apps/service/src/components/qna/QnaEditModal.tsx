@@ -1,7 +1,5 @@
 'use client';
 
-import { on } from 'events';
-
 import { useRef } from 'react';
 
 import { MyChat } from '@/components/qna/chat';
@@ -26,7 +24,11 @@ const QnaEditModal = ({ edit, onClose }: QnaEditModalProps) => {
         onClose();
       }
     } else {
-      const result = await putQna(edit.editId ?? -1, messageRef.current?.innerText ?? '');
+      const result = await putQna(
+        edit.editId ?? -1,
+        messageRef.current?.innerText ?? '',
+        edit.images ?? []
+      );
       if (result) {
         onClose();
       } else {
