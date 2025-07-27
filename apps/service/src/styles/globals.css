@@ -58,7 +58,7 @@
 
 /* Toast 버튼 스타일 */
 .Toastify__close-button {
-  display: none !important;
+  opacity: 0 !important;
 }
 
 /* Toast 아이콘 숨기기 */
