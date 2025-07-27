@@ -3,16 +3,16 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { getAccessToken, trackEvent } from '@utils';
-import { postKakaoLogin } from '@apis';
 import { LogoLogin } from '@/assets/svg/logo';
-import { KakaoButton } from '@/components/login';
+import { GoogleButton, KakaoButton } from '@/components/login';
+import { postSocialLogin } from '@apis';
 
 const Page = () => {
   const router = useRouter();
 
-  const handleLoginClick = async () => {
-    trackEvent('kakao_login_click');
-    const result = await postKakaoLogin();
+  const handleLoginClick = async (social: 'KAKAO' | 'GOOGLE') => {
+    trackEvent(`${social.toLowerCase()}_login_click`);
+    const result = await postSocialLogin(social);
     if (result.isSuccess && result.loginUrl) {
       router.push(result.loginUrl);
     } else {
@@ -40,8 +40,8 @@ const Page = () => {
       </div>
       <div className='flex flex-col items-center gap-[1.6rem]'>
         <p className='font-medium-12 text-lightgray500'>포인터는 태블릿의 스플릿뷰를 권장해요</p>
-        <KakaoButton onClick={handleLoginClick} />
-        {/* <AppleButton /> */}
+        <KakaoButton onClick={() => handleLoginClick('KAKAO')} />
+        <GoogleButton onClick={() => handleLoginClick('GOOGLE')} />
       </div>
     </div>
   );

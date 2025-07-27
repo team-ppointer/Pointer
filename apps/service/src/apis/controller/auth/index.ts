@@ -1,6 +1,7 @@
-import postKakaoLogin from './postKakaoLogin';
 import postUserInfo from './postUserInfo';
 import postRefreshToken from './postRefreshToken';
 import putUserInfo from './putUserInfo';
+import postSocialLogin from './postSocialLogin';
+import useGetUserInfo from './useGetUserInfo';
 
-export { postKakaoLogin, postUserInfo, postRefreshToken, putUserInfo };
+export { postSocialLogin, postUserInfo, postRefreshToken, putUserInfo, useGetUserInfo };
