@@ -79,6 +79,11 @@ const Page = () => {
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await postProblemSubmit(+publishId, +problemId, null, +answer);
+    if (!data) {
+      showToast.error('정답 제출에 실패했습니다. 다시 시도해주세요.');
+      return;
+    }
+
     const resultData = data?.progress;
     invalidateAll();
 
@@ -122,24 +127,6 @@ const Page = () => {
 
   return (
     <>
-      <ToastContainer
-        position='bottom-center'
-        autoClose={1000}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnHover={false}
-        hideProgressBar
-        transition={Slide}
-        closeButton={false}
-        style={{
-          fontSize: '1.6rem',
-          width: '30rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: '3rem',
-        }}
-      />
       <ProgressHeader progress={100} />
       <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>

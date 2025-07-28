@@ -8,6 +8,7 @@ import { Header, ImageContainer } from '@components';
 import { useReportContext } from '@/hooks/report';
 import postPointingSubmit from '@/apis/controller/submit/postPointingSubmit';
 import { PointingCard } from '@/components/report';
+import { showToast } from '@utils';
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -40,7 +41,11 @@ const Page = () => {
 
   const handlePrescriptionAnswer = async (index: number, isUnderstood: boolean) => {
     const pointingId = pointingsContents[index].id || pointingsContents[index].id;
-    await postPointingSubmit(pointingId, isUnderstood);
+    const result = await postPointingSubmit(pointingId, isUnderstood);
+    if (!result) {
+      showToast.error('처방 제출에 실패했습니다. 다시 시도해주세요.');
+      return;
+    }
 
     const newSteps = [...pointingSteps];
     newSteps[index] = 3;
@@ -49,6 +54,7 @@ const Page = () => {
     if (index === visibleCount - 1 && visibleCount < pointingsContents.length) {
       setVisibleCount(visibleCount + 1);
       setPointingSteps([...newSteps, 1]);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       PointingCard;
     }
   };

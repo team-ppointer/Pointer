@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button, Header } from '@components';
-import { setName, setGrade } from '@utils';
+import { setName, setGrade, showToast } from '@utils';
 import UserInfoForm from '@/components/onboarding/UserInfoForm';
 import putUserInfo from '@/apis/controller/auth/putUserInfo';
 
@@ -27,7 +27,7 @@ const Page = () => {
       }
       router.push('/');
     } else {
-      console.error('회원 정보 입력 실패:', result.error);
+      showToast.error('회원 정보 수정에 실패했습니다. 다시 시도해주세요.');
       router.push('/login');
     }
   };
