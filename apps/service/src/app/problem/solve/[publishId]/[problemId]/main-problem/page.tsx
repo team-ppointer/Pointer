@@ -21,7 +21,7 @@ import {
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
-import { copyImageToClipboard, trackEvent } from '@utils';
+import { copyImageToClipboard, showToast, trackEvent } from '@utils';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -117,6 +117,7 @@ const Page = () => {
 
   const handleClickCopyProblemImage = async () => {
     copyImageToClipboard(problemViewerRef);
+    showToast.success('클립보드에 복사되었습니다.');
   };
 
   return (

@@ -5,7 +5,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Slide, ToastContainer } from 'react-toastify';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
-import { copyImageToClipboard } from '@utils';
+import { copyImageToClipboard, showToast } from '@utils';
 import { postProblemSubmit, useGetChildProblemById } from '@apis';
 import {
   AnswerInput,
@@ -155,6 +155,7 @@ const Page = () => {
   };
   const handleClickCopyProblemImage = async () => {
     copyImageToClipboard(problemViewerRef);
+    showToast.success('클립보드에 복사되었습니다.');
   };
 
   if (isLoading) {
