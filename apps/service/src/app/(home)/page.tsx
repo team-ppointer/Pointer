@@ -1,7 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 
 import { Button } from '@components';
 import { IcCalendar, IcQuestionWhite } from '@svg';

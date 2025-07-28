@@ -1,7 +1,8 @@
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+
 import { IcPaw, IcQuestion18 } from '@svg';
 import { SmallButton } from '@components';
 import { components } from '@schema';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 type oneStepMoreContent = components['schemas']['ContentUpdateRequest'];
 

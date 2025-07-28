@@ -2,9 +2,11 @@
 import { useRouter } from 'next/navigation';
 
 import { SolveButton } from '@components';
-import { postChildProblemSubmit, useGetChildProblemById } from '@apis';
+import { useGetChildProblemById } from '@apis';
 import { useInvalidate } from '@hooks';
 import { trackEvent } from '@utils';
+
+// TODO: 페이지 수정필요!!
 
 interface SolveButtonsClientProps {
   publishId: string;
@@ -25,7 +27,7 @@ const SolveButtonsClient = ({ publishId, problemId }: SolveButtonsClientProps) =
 
   const handleClickStep = async () => {
     trackEvent('problem_solve_step_button_click');
-    await postChildProblemSubmit(publishId, problemId);
+    // await postChildProblemSubmit(publishId, problemId);
     invalidateAll();
     router.push(`/problem/solve/${publishId}/${problemId}/child-problem/${childProblemId}`);
   };

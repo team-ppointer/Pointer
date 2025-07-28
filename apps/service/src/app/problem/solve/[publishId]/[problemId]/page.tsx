@@ -3,6 +3,9 @@ import { useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Slide, ToastContainer } from 'react-toastify';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+import { clsx } from 'clsx';
+
 import { useGetProblemById, postProblemSubmit } from '@apis';
 import {
   AnswerInput,
@@ -19,9 +22,7 @@ import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, trackEvent } from '@utils';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { IcArrowGrow14, IcCommentCheck20, IcCopy, IcCopyBig, IcQuestion18 } from '@svg';
-import { clsx } from 'clsx';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',

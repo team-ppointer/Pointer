@@ -3,10 +3,10 @@ import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Slide, ToastContainer } from 'react-toastify';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { copyImageToClipboard } from '@utils';
 import { postProblemSubmit, useGetChildProblemById } from '@apis';
-import { putChildProblemSkip } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -25,10 +25,10 @@ import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
 import { useChildProblemContext } from '@/hooks/problem';
 import { trackEvent } from '@utils';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { IcCommentCheck20, IcCopyBig, IcQuestion18, IcRotate } from '@svg';
 import { ProblemStatus } from '@/types/component';
 
+// TODO: 페이지 수정필요!!
 const Page = () => {
   const { publishId, problemId, childProblemId } = useParams<{
     publishId: string;
@@ -136,7 +136,7 @@ const Page = () => {
 
   const handleClickSkipButton = async () => {
     trackEvent('problem_child_solve_modal_skip_button_click');
-    await putChildProblemSkip(publishId, childProblemId);
+    // await putChildProblemSkip(publishId, childProblemId);
     invalidateAll();
     onNext();
   };
@@ -160,7 +160,6 @@ const Page = () => {
   };
 
   if (isLoading) {
-    ``;
     return <></>;
   }
 

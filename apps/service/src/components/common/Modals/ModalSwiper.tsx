@@ -1,7 +1,8 @@
 'use client';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { BaseModalTemplate } from '@components';
 import { useRouter } from 'next/navigation';
+
+import { BaseModalTemplate } from '@components';
 import { putRead } from '@/apis/controller/home';
 import { components } from '@schema';
 

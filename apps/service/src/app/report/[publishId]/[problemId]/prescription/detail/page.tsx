@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+
 import { Header, ImageContainer } from '@components';
 import { useReportContext } from '@/hooks/report';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import postPointingSubmit from '@/apis/controller/submit/postPointingSubmit';
 import { PointingCard } from '@/components/report';
 
@@ -48,7 +49,8 @@ const Page = () => {
     if (index === visibleCount - 1 && visibleCount < pointingsContents.length) {
       setVisibleCount(visibleCount + 1);
       setPointingSteps([...newSteps, 1]);
-      PointingCard;
+      // TODO: 에러해결 필요
+      //PointingCard;
     }
   };
 

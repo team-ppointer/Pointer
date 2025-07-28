@@ -1,9 +1,8 @@
 'use client';
-import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { RouteModal } from '@components';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { useGetChildProblemById } from '@apis';
 
 const Page = () => {
