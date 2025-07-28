@@ -49,8 +49,7 @@ const Page = () => {
     if (index === visibleCount - 1 && visibleCount < pointingsContents.length) {
       setVisibleCount(visibleCount + 1);
       setPointingSteps([...newSteps, 1]);
-      // TODO: 에러해결 필요
-      //PointingCard;
+      PointingCard;
     }
   };
 

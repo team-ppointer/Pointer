@@ -8,7 +8,7 @@ import { components } from '@schema';
 
 type ProblemInfoResp = components['schemas']['ProblemWithStudyInfoResp'];
 
-interface ReportContextType extends ProblemInfoResp {
+export interface ReportContextType extends ProblemInfoResp {
   publishId: number;
   problemId: number;
   type?: string | null;

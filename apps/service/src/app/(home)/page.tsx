@@ -44,7 +44,7 @@ const Page = () => {
   }, [isUserInfoSuccess, userInfo]);
 
   return (
-    <div className='flex min-h-screen flex-col'>
+    <>
       <HomeHeader />
       <main className='flex flex-col px-[2rem] pt-[6rem]'>
         <p className='font-medium-12 text-lightgray500 pt-[1.6rem]'>
@@ -56,7 +56,7 @@ const Page = () => {
         </div>
       </main>
 
-      <div className='mt-[2.4rem] flex-1'>
+      <div className='mt-[2.4rem]'>
         {isLoading ? (
           <div className='h-[456px] w-full' />
         ) : problemSets.length > 0 ? (
@@ -66,7 +66,7 @@ const Page = () => {
         )}
       </div>
 
-      <footer className='bg-background mt-auto flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[3.3rem]'>
+      <footer className='bg-background flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[3.3rem]'>
         <Button variant='light' onClick={handleClickAllProblem}>
           <IcCalendar width={24} height={24} />
           날짜별로 보기
@@ -76,7 +76,7 @@ const Page = () => {
           QnA 바로가기
         </Button>
       </footer>
-    </div>
+    </>
   );
 };
 

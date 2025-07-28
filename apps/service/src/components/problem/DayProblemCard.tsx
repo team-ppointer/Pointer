@@ -6,7 +6,6 @@ import { IcSolve } from '@svg';
 import { components } from '@schema';
 
 import 'dayjs/locale/ko';
-// TODO: 에러해결 필요
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 dayjs.locale('ko');

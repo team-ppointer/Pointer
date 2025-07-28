@@ -22,13 +22,11 @@ import {
   ChildAnswerCheckBottomSheetTemplate,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
-import { components } from '@schema';
 import { useChildProblemContext } from '@/hooks/problem';
 import { trackEvent } from '@utils';
 import { IcCommentCheck20, IcCopyBig, IcQuestion18, IcRotate } from '@svg';
 import { ProblemStatus } from '@/types/component';
 
-// TODO: 페이지 수정필요!!
 const Page = () => {
   const { publishId, problemId, childProblemId } = useParams<{
     publishId: string;
@@ -136,7 +134,8 @@ const Page = () => {
 
   const handleClickSkipButton = async () => {
     trackEvent('problem_child_solve_modal_skip_button_click');
-    // await putChildProblemSkip(publishId, childProblemId);
+    //CHECK: postProblemSubmit의 파라미터가 맞는지 확인
+    await postProblemSubmit(+publishId, null, +childProblemId, 0);
     invalidateAll();
     onNext();
   };
