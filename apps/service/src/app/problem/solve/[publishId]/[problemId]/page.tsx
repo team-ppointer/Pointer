@@ -17,6 +17,7 @@ import {
   ImageContainer,
   MainAnswerCheckBottomSheetTemplate,
   BottomSheet,
+  BottomFixedArea,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
@@ -213,37 +214,38 @@ const Page = () => {
             </div>
           )}
         </div>
-
-        <div className='fixed right-0 bottom-0 left-0 z-10 p-[2rem]'>
-          <form onSubmit={handleSubmit(handleSubmitAnswer)}>
-            <h3 className='font-bold-16 text-black'>정답 선택</h3>
-            <div
-              className={clsx(
-                'mt-[1.2rem] flex flex-col gap-[2rem]',
-                answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-grow md:flex-row'
-              )}>
-              <AnswerInput
-                className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}
-                answerType={answerType}
-                selectedAnswer={isCorrect && answer ? String(answer) : selectedAnswer}
-                disabled={isCorrect}
-                {...register('answer')}
-              />
-              {isCorrect ? (
-                <Button
-                  type='button'
-                  onClick={handleClickAnalysis}
-                  className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}>
-                  해설보기
-                </Button>
-              ) : (
-                <Button className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}>
-                  제출하기
-                </Button>
-              )}
-            </div>
-          </form>
-        </div>
+        <BottomFixedArea>
+          <div className='fixed right-0 bottom-0 left-0 z-10 p-[2rem]'>
+            <form onSubmit={handleSubmit(handleSubmitAnswer)}>
+              <h3 className='font-bold-16 text-black'>정답 선택</h3>
+              <div
+                className={clsx(
+                  'mt-[1.2rem] flex flex-col gap-[2rem]',
+                  answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-grow md:flex-row'
+                )}>
+                <AnswerInput
+                  className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}
+                  answerType={answerType}
+                  selectedAnswer={isCorrect && answer ? String(answer) : selectedAnswer}
+                  disabled={isCorrect}
+                  {...register('answer')}
+                />
+                {isCorrect ? (
+                  <Button
+                    type='button'
+                    onClick={handleClickAnalysis}
+                    className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}>
+                    해설보기
+                  </Button>
+                ) : (
+                  <Button className={clsx(answerType === 'MULTIPLE_CHOICE' ? '' : 'md:flex-1')}>
+                    제출하기
+                  </Button>
+                )}
+              </div>
+            </form>
+          </div>
+        </BottomFixedArea>
       </main>
       <BottomSheet isOpen={isOpen} onClose={closeModal}>
         <MainAnswerCheckBottomSheetTemplate
