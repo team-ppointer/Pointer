@@ -6,7 +6,7 @@ const WeekProgress = () => {
   const progress = data?.progress ?? 0;
 
   return (
-    <div className='h-full rounded-[8px] bg-white px-[2.4rem] py-[1.5rem]'>
+    <div className='h-full rounded-[16px] bg-white px-[2.4rem] py-[1.5rem]'>
       <div className='flex items-end gap-[0.8rem]'>
         <h6 className='font-bold-16 text-black'>이번주 진행</h6>
       </div>

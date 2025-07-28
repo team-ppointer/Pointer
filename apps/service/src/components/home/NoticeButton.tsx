@@ -10,7 +10,7 @@ const NoticeButton = () => {
     <Link
       href={unreadCount !== 0 ? '/notice-modal' : '/'}
       scroll={false}
-      className='relative flex min-w-[12rem] flex-1 flex-col gap-[1.2rem] rounded-[1.6rem] bg-white px-[2.4rem] py-[2.0rem]'>
+      className='relative flex h-full min-w-[12rem] flex-1 flex-col gap-[1.2rem] rounded-[1.6rem] bg-white px-[2.4rem] py-[2.0rem]'>
       {unreadCount > 0 && (
         <span className='bg-main font-bold-14 absolute -top-[4px] -right-[4px] flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-[4px] text-[11px] text-white'>
           {unreadCount}
