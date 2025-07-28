@@ -7,7 +7,7 @@ interface Props {
 
 const ProgressBar = ({ progress, type = 'problem' }: Props) => {
   const baseStyles = {
-    week: 'bg-lightgray300 relative flex h-[2.8rem] w-full rounded-[8px]',
+    week: 'bg-lightgray300 relative flex h-[2.8rem] w-full rounded-[8px] overflow-hidden',
     problem: 'bg-lightgray400 relative flex h-[2px] w-full',
   };
 
@@ -15,7 +15,10 @@ const ProgressBar = ({ progress, type = 'problem' }: Props) => {
     <div className={baseStyles[type]}>
       <div
         className='bg-main absolute inset-0 h-full'
-        style={{ width: `${progress}%`, borderRadius: type === 'week' ? '8px' : '0px' }}
+        style={{
+          width: `${progress}%`,
+          borderRadius: type === 'week' ? '8px 0 0 8px' : '0px',
+        }}
       />
     </div>
   );
