@@ -1579,7 +1579,7 @@ export interface components {
       /** Format: int64 */
       childProblemId?: number;
       /** Format: int32 */
-      submitAnswer: number;
+      submitAnswer?: number;
     };
     SubmissionResp: {
       /** @enum {string} */

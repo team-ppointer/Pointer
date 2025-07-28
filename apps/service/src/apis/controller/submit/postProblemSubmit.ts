@@ -10,10 +10,10 @@ const postProblemSubmit = async (
     publishId: number;
     problemId?: number;
     childProblemId?: number;
-    submitAnswer?: number | null;
+    submitAnswer?: number;
   } = {
     publishId,
-    submitAnswer,
+    ...(submitAnswer !== null && submitAnswer !== undefined ? { submitAnswer } : {}),
   };
 
   if (problemId !== null && childProblemId === null) {
