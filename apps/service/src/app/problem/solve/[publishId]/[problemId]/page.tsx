@@ -5,8 +5,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Slide, ToastContainer } from 'react-toastify';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { clsx } from 'clsx';
-import { showToast } from '@/utils/common/toast';
 
+import { showToast } from '@/utils/common/toast';
 import { useGetProblemById, postProblemSubmit } from '@apis';
 import {
   AnswerInput,
@@ -56,7 +56,10 @@ const Page = () => {
   // apis
   const { data: problemData } = useGetProblemById(+publishId, +problemId);
 
-  if (!problemData) return;
+  if (!problemData) {
+    showToast.error('문제를 불러오는 데 실패했습니다. 다시 시도해주세요.');
+    return;
+  }
   const {
     id,
     no,
@@ -80,6 +83,11 @@ const Page = () => {
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
     const { data } = await postProblemSubmit(+publishId, +problemId, null, +answer);
+
+    if (!data) {
+      showToast.error('정답 제출에 실패했습니다. 다시 시도해주세요.');
+      return;
+    }
 
     const resultData = data?.progress;
 

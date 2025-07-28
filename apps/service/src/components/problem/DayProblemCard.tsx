@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { Button, Divider, Tag } from '@components';
 import { IcSolve } from '@svg';
 import { components } from '@schema';
 
 import 'dayjs/locale/ko';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 dayjs.locale('ko');
 

@@ -5,6 +5,7 @@ import { createContext } from 'react';
 
 import { useGetProblemById } from '@apis';
 import { components } from '@schema';
+import { showToast } from '@utils';
 
 type ProblemInfoResp = components['schemas']['ProblemWithStudyInfoResp'];
 
@@ -14,6 +15,7 @@ export interface ReportContextType extends ProblemInfoResp {
   type?: string | null;
   childProblemId?: number;
   isLoading: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error?: any;
 }
 
@@ -25,7 +27,10 @@ export const ReportProvider = ({ children }: { children: React.ReactNode }) => {
   const type = searchParams.get('type');
   const childNumber = searchParams.get('childNumber');
   const { data, isLoading, error } = useGetProblemById(+publishId, +problemId);
-
+  if (error) {
+    showToast.error('문제를 불러오는 데 실패했습니다. 다시 시도해주세요.');
+    return null;
+  }
   if (isLoading) {
     return <div>Loading...</div>;
   }
