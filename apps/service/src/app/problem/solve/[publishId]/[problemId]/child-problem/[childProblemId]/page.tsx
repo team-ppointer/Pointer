@@ -134,8 +134,7 @@ const Page = () => {
 
   const handleClickSkipButton = async () => {
     trackEvent('problem_child_solve_modal_skip_button_click');
-    //CHECK: postProblemSubmit의 파라미터가 맞는지 확인
-    await postProblemSubmit(+publishId, null, +childProblemId, 0);
+    await postProblemSubmit(+publishId, null, +childProblemId, null);
     invalidateAll();
     onNext();
   };

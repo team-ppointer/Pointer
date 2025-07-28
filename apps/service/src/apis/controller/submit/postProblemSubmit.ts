@@ -4,13 +4,13 @@ const postProblemSubmit = async (
   publishId: number,
   problemId: number | null,
   childProblemId: number | null,
-  submitAnswer: number
+  submitAnswer: number | null
 ) => {
   const body: {
     publishId: number;
     problemId?: number;
     childProblemId?: number;
-    submitAnswer: number;
+    submitAnswer?: number | null;
   } = {
     publishId,
     submitAnswer,
