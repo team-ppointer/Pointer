@@ -23,3 +23,17 @@ export const GRADE_VALIDATION_RULES = {
     message: '',
   },
 };
+
+export const ID_VALIDATION_RULES = {
+  required: {
+    value: true,
+    message: '',
+  },
+};
+
+export const PASSWORD_VALIDATION_RULES = {
+  required: {
+    value: true,
+    message: '',
+  },
+};

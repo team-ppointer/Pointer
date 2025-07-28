@@ -1,3 +1,4 @@
+export { default as IcAlert } from './IcAlert';
 export { default as IcArrowGrow14 } from './IcArrowGrow14';
 export { default as IcArrowUp } from './IcArrowUp';
 export { default as IcBulb } from './IcBulb';

@@ -1,3 +1,42 @@
+const getTeacherAccessToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('teacherAccessToken');
+  }
+  return null;
+};
+
+const setTeacherAccessToken = (accessToken: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('teacherAccessToken', accessToken);
+  }
+};
+
+const getTeacherRefreshToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('teacherRefreshToken');
+  }
+  return null;
+};
+
+const setTeacherRefreshToken = (refreshToken: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('teacherRefreshToken', refreshToken);
+  }
+};
+
+const getTeacherName = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('teacherName');
+  }
+  return null;
+};
+
+const setTeacherName = (name: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('teacherName', name);
+  }
+};
+
 const getAccessToken = () => {
   if (typeof window !== 'undefined') {
     return localStorage.getItem('accessToken');
@@ -57,6 +96,12 @@ const logout = () => {
 };
 
 export {
+  getTeacherAccessToken,
+  setTeacherAccessToken,
+  getTeacherRefreshToken,
+  setTeacherRefreshToken,
+  getTeacherName,
+  setTeacherName,
   getAccessToken,
   setAccessToken,
   getRefreshToken,
