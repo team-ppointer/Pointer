@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import html2canvas from 'html2canvas';
 import { RefObject } from 'react';
 
@@ -25,14 +26,12 @@ export const copyImageToClipboard = async (
       if (blob) {
         try {
           await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-        } catch (err) {
-          console.error('클립보드 복사 실패:', err);
+        } catch (error) {
           showToast.error('이미지 복사에 실패했습니다.');
         }
       }
     });
   } catch (error) {
     showToast.error('이미지 복사에 실패했습니다.');
-    console.error('이미지 복사 실패:', error);
   }
 };

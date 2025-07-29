@@ -10,6 +10,10 @@ import {
   getTeacherAccessToken,
   setTeacherAccessToken,
   setTeacherRefreshToken,
+  getName,
+  getGrade,
+  setTeacherName,
+  getTeacherName,
 } from '@utils';
 import { postRefreshToken } from '@/apis/controller/auth';
 import { postTeacherRefreshToken } from '@/apis/controller-teacher/auth';
@@ -102,6 +106,33 @@ const authMiddleware: Middleware = {
 
     if (accessToken) {
       request.headers.set('Authorization', `Bearer ${accessToken}`);
+    }
+
+    // 학생이고 로컬스토리지에 이름, 학년 없을때 내정보 api
+    if (!isTeacher && !getName() && !getGrade()) {
+      const result = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/student/me`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (result.ok) {
+        const data = await result.json();
+        setName(data.name);
+        setGrade(data.grade);
+      }
+    }
+
+    // 선생님이고 로컬스토리지에 이름 없을때
+    if (isTeacher && !getTeacherName()) {
+      const result = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/teacher/me`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (result.ok) {
+        const data = await result.json();
+        setTeacherName(data.name);
+      }
     }
 
     return request;

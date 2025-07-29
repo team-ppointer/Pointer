@@ -56,7 +56,6 @@ const Page = () => {
   // apis
   const { data, isLoading } = useGetChildProblemById(+publishId, +childProblemId);
   const {
-    id,
     problemNo,
     no = 1,
     problemContent,

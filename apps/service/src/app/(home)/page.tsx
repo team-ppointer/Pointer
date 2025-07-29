@@ -1,16 +1,16 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { BottomFixedArea, Button } from '@components';
 import { IcCalendar, IcQuestionWhite } from '@svg';
-import { setGrade, setName, trackEvent } from '@utils';
+import { trackEvent } from '@utils';
 import { HomeHeader, NoticeButton, ProblemSwiper, WeekProgress } from '@/components/home';
-import { useGetUserInfo, useGetWeeklyPublish } from '@/apis';
+import { useGetWeeklyPublish } from '@/apis';
 
 const Page = () => {
   const router = useRouter();
-  const { data: userInfo, isSuccess: isUserInfoSuccess } = useGetUserInfo();
+
   const { data, isLoading } = useGetWeeklyPublish();
   const [selectedProblem, setSelectedProblem] = useState<{
     publishId: number;
@@ -35,13 +35,6 @@ const Page = () => {
     trackEvent('home_qna_button_click');
     router.push(`/qna?publishId=${publishId}&problemId=${problemId}`);
   };
-
-  useEffect(() => {
-    if (isUserInfoSuccess && userInfo) {
-      setName(userInfo.name);
-      setGrade(Number(userInfo.grade));
-    }
-  }, [isUserInfoSuccess, userInfo]);
 
   return (
     <>
