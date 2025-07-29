@@ -1,5 +1,5 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { trackEvent } from '@utils';
 import { IcCloseBig, IcHome, IcLeft, IcMenu } from '@svg';
@@ -13,9 +13,15 @@ interface HeaderProps {
 
 const Header = ({ title, iconType = 'home', rightIconType = 'none', menuOnClick }: HeaderProps) => {
   const router = useRouter();
+  const pathname = usePathname();
+  const isTeacherPage = pathname.includes('/teacher');
 
   const handleClickHome = () => {
     trackEvent('header_home_button_click');
+    if (isTeacherPage) {
+      router.push('/teacher');
+      return;
+    }
     router.push('/');
   };
 

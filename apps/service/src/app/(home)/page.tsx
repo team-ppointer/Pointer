@@ -57,9 +57,13 @@ const Page = () => {
         {isLoading ? (
           <div className='h-[456px] w-full' />
         ) : problemSets.length > 0 ? (
-          <ProblemSwiper problemSets={problemSets} onProblemSelect={setSelectedProblem} />
+          <div className='flex h-[456px] items-center justify-center'>
+            <ProblemSwiper problemSets={problemSets} onProblemSelect={setSelectedProblem} />
+          </div>
         ) : (
-          <div className='w-full'></div>
+          <div className='flex h-[456px] items-center justify-center'>
+            <p className='font-medium-16 text-[#C6CAD4]'>아직 발행된 문제가 없어요.</p>
+          </div>
         )}
       </div>
       <BottomFixedArea>
