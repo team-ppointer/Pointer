@@ -19,7 +19,7 @@ const ProblemCard = ({ publishId, dateString, title, problem }: Props) => {
     trackEvent('home_carousel_problem_card_click', {
       publishId,
     });
-    router.push(`/problem/list/${publishId}`);
+    router.push(`/teacher/problem/list/${publishId}`);
   };
 
   return (

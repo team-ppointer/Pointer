@@ -86,7 +86,7 @@ const Page = () => {
       return;
     }
     trackEvent('home_qna_button_click');
-    router.push(`/teacher/qna?publishId=${publishId}&problemId=${problemId}`);
+    router.push(`/teacher/qna`);
   };
 
   const handleClickStudentSelect = () => {

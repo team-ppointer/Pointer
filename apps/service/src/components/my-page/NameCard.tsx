@@ -1,13 +1,14 @@
 'use client';
 
-import { getName, getGrade } from '@utils';
+import { getName, getGrade, getTeacherName } from '@utils';
 import { usePathname } from 'next/navigation';
 
 const NameCard = () => {
   const pathname = usePathname();
-  const name = getName();
   const grade = getGrade();
   const isTeacherPage = pathname.includes('/teacher');
+  const name = isTeacherPage ? getTeacherName() : getName();
+
   return (
     <article className='center my-[2rem] flex gap-[0.8rem] rounded-[16px] bg-white p-[2rem]'>
       <p className='font-bold-18 text-black'>
