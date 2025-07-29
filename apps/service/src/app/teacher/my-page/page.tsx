@@ -1,8 +1,16 @@
+import { Header } from '@components';
+import { NameCard, SettingList } from '@/components/my-page';
+
 const Page = () => {
   return (
     <>
-      <h1>Teacher My</h1>
+      <Header title='설정' />
+      <main className='px-[2rem] pt-[6rem]'>
+        <NameCard />
+        <SettingList />
+      </main>
     </>
   );
 };
+
 export default Page;
