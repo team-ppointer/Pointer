@@ -9,3 +9,5 @@ export * from './controller/problem';
 export * from './controller/submit';
 export * from './controller/qna';
 export * from './controller/file/fileUpload';
+export * from './controller-teacher/auth';
+export * from './controller-teacher/qna';

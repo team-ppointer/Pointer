@@ -4,19 +4,21 @@ import { useRef } from 'react';
 
 import { MyChat } from '@/components/qna/chat';
 import { Edit } from '@/app/qna/page';
-import { putChat, putQna } from '@apis';
+import { putChat, putQna, putTeacherChat } from '@apis';
 import { showToast } from '@utils';
 
 type QnaEditModalProps = {
   edit: Edit;
   onClose: () => void;
+  user?: 'teacher' | 'student';
 };
 
-const QnaEditModal = ({ edit, onClose }: QnaEditModalProps) => {
+const QnaEditModal = ({ edit, onClose, user = 'student' }: QnaEditModalProps) => {
+  const putMessage = user === 'teacher' ? putTeacherChat : putChat;
   const messageRef = useRef<HTMLDivElement>(null);
   const handleSubmit = async () => {
     if (edit.editMode === 'chat') {
-      const result = await putChat(edit.editId ?? -1, messageRef.current?.innerText ?? '');
+      const result = await putMessage(edit.editId ?? -1, messageRef.current?.innerText ?? '');
       if (result) {
         onClose();
       } else {

@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 
 import { postQnaExist, useGetQnaById } from '@apis';
-import { Header, Input, BottomFixedArea, Sidebar } from '@components';
+import { Header, BottomFixedArea, Sidebar, SearchInput } from '@components';
 import { IcCloseBig, IcMore } from '@svg';
 import { QnaDetailContent, QnaEditModal, QnaList } from '@/components/qna';
 import { MyChat, YourChat, ImageChat, ContextMenu, ChatInput } from '@/components/qna/chat';
@@ -104,9 +104,7 @@ const Page = () => {
           <>
             <div className={clsx('w-full', mode === 'menu' ? 'z-200' : 'z-0')}>
               <MyChat>
-                {qnaData && isQnaSuccess && (
-                  <QnaDetailContent {...qnaData} modifyMode={mode === 'menu'} />
-                )}
+                {qnaData && isQnaSuccess && <QnaDetailContent {...qnaData} />}
                 <IcMore
                   className={clsx(
                     'absolute bottom-0 left-[-2.4rem] z-100 cursor-pointer',
@@ -191,16 +189,7 @@ const Page = () => {
 
         <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)}>
           <div className='flex items-center justify-between gap-[1.6rem]'>
-            <Input
-              className='bg-background h-[4.8rem] w-full rounded-[1.6rem] p-[1.6rem] text-[1.6rem] focus:outline-0'
-              placeholder='검색'
-              type='text'
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setSearch(e.currentTarget.value);
-                }
-              }}
-            />
+            <SearchInput setValue={setSearch} />
             <IcCloseBig width={24} height={24} onClick={() => setIsOpen(false)} />
           </div>
           <QnaList search={search} onClose={() => setIsOpen(false)} />
