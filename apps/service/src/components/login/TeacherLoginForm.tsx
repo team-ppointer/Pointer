@@ -8,7 +8,7 @@ import { ID_VALIDATION_RULES, PASSWORD_VALIDATION_RULES } from '@/constants/vali
 import { Button, Input } from '@components';
 import { IcAlert } from '@svg';
 import { postLogin } from '@/apis/controller-teacher';
-import { setTeacherAccessToken, setTeacherRefreshToken } from '@utils';
+import { setTeacherAccessToken, setTeacherName, setTeacherRefreshToken } from '@utils';
 
 const TeacherLoginForm = () => {
   const router = useRouter();
@@ -18,7 +18,7 @@ const TeacherLoginForm = () => {
   }>({
     mode: 'onChange',
   });
-  const { register, formState } = methods;
+  const { register } = methods;
 
   const [error, setError] = useState<boolean>(false);
 
@@ -27,6 +27,7 @@ const TeacherLoginForm = () => {
     if (response.response.status === 200) {
       setTeacherAccessToken(response.data?.token?.accessToken ?? '');
       setTeacherRefreshToken(response.data?.token?.refreshToken ?? '');
+      setTeacherName(response.data?.name ?? '');
       router.push('/teacher');
       setError(false);
     } else {

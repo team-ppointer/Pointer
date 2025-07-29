@@ -1,14 +1,7 @@
-'use client';
-import { useRouter } from 'next/navigation';
-
 import { LogoLogin } from '@/assets/svg/logo';
 import TeacherLoginForm from '@/components/login/TeacherLoginForm';
 
 const Page = () => {
-  const router = useRouter();
-
-  const handleLoginClick = async (social: 'KAKAO' | 'GOOGLE') => {};
-
   return (
     <div className='mx-auto flex h-[100dvh] w-full flex-col justify-center gap-[6.4rem] bg-white px-[2rem]'>
       <div className='mt-[6.4rem] flex flex-col items-center'>
