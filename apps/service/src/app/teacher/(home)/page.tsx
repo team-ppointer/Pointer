@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 import { BottomFixedArea, BottomSheet, Button } from '@components';
 import { IcCalendar, IcMessage, IcSmileFace, IcThumbtack } from '@svg';
@@ -11,6 +11,7 @@ import StudentSelectBottomSheetTemplate from '@/components/common/BottomSheet/te
 import { useModal } from '@hooks';
 import useGetStudent from '@/apis/controller-teacher/student/useGetStudent';
 import { useGetStudentProgress } from '@/apis/controller-teacher/student';
+import useGetStudentWeeklyPublish from '@/apis/controller-teacher/problem/useGetStudentWeeklyPublish';
 
 const Page = () => {
   const router = useRouter();
@@ -22,9 +23,49 @@ const Page = () => {
     name: string;
   } | null>(null);
 
+  // 조회할 학생 ID 계산 (첫 번째 학생 또는 선택된 학생)
+  const targetStudentId = useMemo(() => {
+    // 선택된 학생이 있으면 그 학생의 ID 사용
+    if (selectedStudent?.id) {
+      return selectedStudent.id;
+    }
+
+    // 선택된 학생이 없고, 학생 데이터가 로드되었으며, 첫 번째 학생이 있으면 그 학생의 ID 사용
+    if (!isLoadingStudents && students.data.length > 0) {
+      return students.data[0].id;
+    }
+
+    return null;
+  }, [selectedStudent, isLoadingStudents, students.data]);
+
+  const targetStudent = useMemo(() => {
+    if (selectedStudent) {
+      return selectedStudent;
+    }
+
+    if (!isLoadingStudents && students.data.length > 0) {
+      return {
+        id: students.data[0].id,
+        name: students.data[0].name,
+      };
+    }
+
+    return null;
+  }, [selectedStudent, isLoadingStudents, students.data]);
+
   const { data: studentProgress, isLoading: isLoadingStudentProgress } = useGetStudentProgress(
-    selectedStudent?.id || 0
+    targetStudentId || 0
   );
+
+  const { data: studentWeeklyPublish, isLoading: isLoadingStudentWeeklyPublish } =
+    useGetStudentWeeklyPublish(targetStudentId || 0);
+
+  const problemSets = useMemo(() => {
+    if (!studentWeeklyPublish?.data || !Array.isArray(studentWeeklyPublish.data)) {
+      return [];
+    }
+    return studentWeeklyPublish.data;
+  }, [studentWeeklyPublish]);
 
   const { data, isLoading } = useGetWeeklyPublish();
   const { isOpen, openModal, closeModal } = useModal();
@@ -32,9 +73,12 @@ const Page = () => {
     publishId: number;
     problemId: number;
   } | null>(null);
-  const problemSets = data?.data ?? [];
 
   const handleClickAllProblem = () => {
+    router.push('/comming-soon-modal');
+  };
+
+  const handleClickStudentStatus = () => {
     router.push('/comming-soon-modal');
   };
 
@@ -63,7 +107,6 @@ const Page = () => {
   useEffect(() => {
     if (!isLoadingStudents && students.data.length > 0 && !selectedStudent) {
       setSelectedStudent({
-        // 첫 번째 학생을 첫 번째로 선택
         id: students.data[0].id,
         name: students.data[0].name,
       });
@@ -77,6 +120,8 @@ const Page = () => {
     }
   }, [isUserInfoSuccess, userInfo]);
 
+  const isLoadingData = isLoading || isLoadingStudentWeeklyPublish;
+
   return (
     <>
       <HomeHeader />
@@ -84,7 +129,7 @@ const Page = () => {
         <div className='flex items-center gap-[1.2rem] pt-[1.6rem]'>
           <StudentSelectButton
             onClick={handleClickStudentSelect}
-            name={selectedStudent?.name || '-'}
+            name={targetStudent?.name || '-'}
             progress={studentProgress?.progress || 0}
           />
           <Button variant='lightBlue' onClick={handleClickAllProblem} className='flex-1'>
@@ -94,8 +139,8 @@ const Page = () => {
         </div>
       </main>
 
-      <div className='mt-[2rem] pb-[3.3rem]'>
-        {isLoading ? (
+      <div className='mt-[2.4rem] pb-[3.3rem] align-middle'>
+        {isLoadingData ? (
           <div className='h-[456px] w-full' />
         ) : problemSets.length > 0 ? (
           <ProblemSwiper problemSets={problemSets} onProblemSelect={setSelectedProblem} />
@@ -103,8 +148,8 @@ const Page = () => {
           <div className='w-full'></div>
         )}
       </div>
-      <BottomFixedArea zIndex={30}>
-        <footer className='flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[3.3rem]'>
+      <BottomFixedArea zIndex={40}>
+        <footer className='flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[4.9rem]'>
           <Button variant='light' onClick={handleClickAllProblem}>
             <IcCalendar width={24} height={24} />
             날짜별로 보기
@@ -114,7 +159,10 @@ const Page = () => {
               <IcMessage width={24} height={24} />
               QnA 게시판
             </Button>
-            <Button variant='lightBlue' className='flex-1 gap-[1.2rem]' onClick={handleClickQnA}>
+            <Button
+              variant='lightBlue'
+              className='flex-1 gap-[1.2rem]'
+              onClick={handleClickStudentStatus}>
               <IcSmileFace width={24} height={24} />
               학생 상태
             </Button>

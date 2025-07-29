@@ -14,7 +14,6 @@ const StudentSelectBottomSheetTemplate = ({
   students,
   selectedStudentId,
 }: StudentSelectBottomSheetTemplate) => {
-  console.log(students);
   return (
     <BaseBottomSheetTemplate>
       <BaseBottomSheetTemplate.Content>

@@ -5,4 +5,3 @@ const useGetStudent = () => {
 };
 
 export default useGetStudent;
-import { IcCalendar, IcThumbtack } from '@svg';
