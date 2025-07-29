@@ -10,8 +10,8 @@ import { IcCloseBig, IcMore } from '@svg';
 import { QnaDetailContent, QnaEditModal, QnaList } from '@/components/qna';
 import { MyChat, YourChat, ImageChat, ContextMenu, ChatInput } from '@/components/qna/chat';
 import { copyToClipboard } from '@utils';
-import { showToast } from '@/utils/common/toast';
 import { components } from '@schema';
+import { showToast } from '@utils';
 
 export type Edit = {
   editId: number | null;

@@ -19,7 +19,7 @@ const QuestionSection = ({
       <div className='flex gap-[0.8rem]'>
         <IcBulb width={20} height={20} />
         <div className='flex flex-col gap-[0.4rem]'>
-          <h3 className='font-medium-16 flex text-[#1E1E21]'>
+          <h3 className='font-medium-16 flex flex-wrap text-[#1E1E21]'>
             {questionText} &nbsp;<p className='text-main'>{highlightText}&nbsp;</p>
             떠올렸나요?
           </h3>

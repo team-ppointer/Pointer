@@ -2,7 +2,6 @@
 import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Slide, ToastContainer } from 'react-toastify';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { copyImageToClipboard, showToast } from '@utils';
@@ -164,24 +163,6 @@ const Page = () => {
 
   return (
     <>
-      <ToastContainer
-        position='bottom-center'
-        autoClose={1000}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnHover={false}
-        hideProgressBar
-        transition={Slide}
-        closeButton={false}
-        style={{
-          fontSize: '1.6rem',
-          width: '30rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: '3rem',
-        }}
-      />
       <ProgressHeader progress={(no / (childProblemLength + 1)) * 100} />
       <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>

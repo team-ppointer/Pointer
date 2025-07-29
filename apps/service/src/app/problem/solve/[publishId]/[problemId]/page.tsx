@@ -2,11 +2,9 @@
 import { useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Slide, ToastContainer } from 'react-toastify';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { clsx } from 'clsx';
 
-import { showToast } from '@/utils/common/toast';
 import { useGetProblemById, postProblemSubmit } from '@apis';
 import {
   AnswerInput,
@@ -23,7 +21,7 @@ import {
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
-import { copyImageToClipboard, trackEvent } from '@utils';
+import { copyImageToClipboard, showToast, trackEvent } from '@utils';
 import { IcArrowGrow14, IcCommentCheck20, IcCopy, IcCopyBig, IcQuestion18 } from '@svg';
 
 const statusLabel: Record<string, string> = {
@@ -57,7 +55,6 @@ const Page = () => {
   const { data: problemData } = useGetProblemById(+publishId, +problemId);
 
   if (!problemData) {
-    showToast.error('문제를 불러오는 데 실패했습니다. 다시 시도해주세요.');
     return;
   }
   const {
@@ -142,24 +139,6 @@ const Page = () => {
 
   return (
     <>
-      <ToastContainer
-        position='bottom-center'
-        autoClose={1000}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnHover={false}
-        hideProgressBar
-        transition={Slide}
-        closeButton={false}
-        style={{
-          fontSize: '1.6rem',
-          width: '30rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: '3rem',
-        }}
-      />
       <ProgressHeader />
       <main className='flex flex-col px-[2rem] py-[8rem] pb-[20rem]'>
         <div className='w-full'>

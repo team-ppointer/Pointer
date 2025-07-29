@@ -2,7 +2,6 @@
 import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Slide, ToastContainer } from 'react-toastify';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { useGetProblemById, postProblemSubmit } from '@apis';

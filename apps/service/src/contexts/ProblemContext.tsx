@@ -3,7 +3,6 @@ import { createContext, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 import { useGetProblemById } from '@apis';
-import { showToast } from '@utils';
 
 export interface ProblemContextType {
   childProblemLength: number;
@@ -21,7 +20,6 @@ export const ProblemProvider = ({ children }: { children: React.ReactNode }) => 
   // api
   const { data } = useGetProblemById(+publishId, +problemId);
   if (!data) {
-    showToast.error('문제를 불러오는 데 실패했습니다. 다시 시도해주세요.');
     return null;
   }
   const childProblems = data?.childProblems ?? [];

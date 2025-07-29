@@ -2,10 +2,10 @@
 
 import { useParams, useSearchParams } from 'next/navigation';
 import { createContext } from 'react';
+import PulseLoader from 'react-spinners/PulseLoader';
 
 import { useGetProblemById } from '@apis';
 import { components } from '@schema';
-import { showToast } from '@utils';
 
 type ProblemInfoResp = components['schemas']['ProblemWithStudyInfoResp'];
 
@@ -28,11 +28,10 @@ export const ReportProvider = ({ children }: { children: React.ReactNode }) => {
   const childNumber = searchParams.get('childNumber');
   const { data, isLoading, error } = useGetProblemById(+publishId, +problemId);
   if (error) {
-    showToast.error('문제를 불러오는 데 실패했습니다. 다시 시도해주세요.');
     return null;
   }
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <PulseLoader color='#617AF9' aria-label='Loading Spinner' />;
   }
 
   if (!data) {
