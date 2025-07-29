@@ -6,6 +6,7 @@ import ProblemSwiper from './ProblemSwiper/ProblemSwiper';
 import ProblemCard from './ProblemCard/ProblemCard';
 import ProblemSecretCard from './ProblemCard/ProblemSecretCard';
 import ProblemEmptyCard from './ProblemCard/ProblemEmptyCard';
+import StudentSelectButton from './StudentSelectButton';
 
 export {
   HomeHeader,
@@ -16,4 +17,5 @@ export {
   ProblemCard,
   ProblemSecretCard,
   ProblemEmptyCard,
+  StudentSelectButton,
 };

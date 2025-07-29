@@ -25,7 +25,7 @@ const SettingList = () => {
   return (
     <ul className='flex w-full flex-col'>
       <li className='font-medium-16 flex h-[4.8rem] w-full cursor-pointer items-center text-black'>
-        <Link href='/my-page/edit'>
+        <Link href='/comming-soon-modal'>
           <p>회원 정보 수정</p>
         </Link>
       </li>
