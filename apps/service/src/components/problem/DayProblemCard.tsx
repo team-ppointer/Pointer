@@ -7,6 +7,7 @@ import { IcSolve } from '@svg';
 import { components } from '@schema';
 
 import 'dayjs/locale/ko';
+import { usePathname } from 'next/dist/client/components/navigation';
 
 dayjs.locale('ko');
 
@@ -39,6 +40,8 @@ type AllProblemGetResponse = components['schemas']['PublishResp'];
 
 const DayProblemCard = ({ dayProblemData }: { dayProblemData: AllProblemGetResponse }) => {
   const { id, publishAt, progress, problemSet, data } = dayProblemData;
+  const pathname = usePathname();
+  const isTeacherPage = pathname.includes('/teacher');
 
   const progressLabel = progress === 'DONE' ? '완료' : progress === 'DOING' ? '진행중' : '미완료';
   const progressColor = progress === 'DONE' ? 'green' : progress === 'DOING' ? 'red' : 'gray';
@@ -76,10 +79,10 @@ const DayProblemCard = ({ dayProblemData }: { dayProblemData: AllProblemGetRespo
         </div>
       </div>
 
-      <Link href={`/problem/list/${id}`}>
+      <Link href={isTeacherPage ? `/teacher/problem/list/${id}` : `/problem/list/${id}`}>
         <Button className='mt-[3.2rem]'>
           <IcSolve width={24} height={24} />
-          문제 풀러 가기
+          문제 보러 가기
         </Button>
       </Link>
     </div>

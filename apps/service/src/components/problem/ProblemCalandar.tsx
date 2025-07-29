@@ -4,20 +4,23 @@ import { useState } from 'react';
 
 import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
 import { components } from '@schema';
-import { useGetMonthlyPublish } from '@apis';
 import { trackEvent } from '@utils';
 
 import DayProblemCard from './DayProblemCard';
+import { useGetMonthlyPublishByStudent } from '@/apis/controller-teacher/problem';
+import { useSearchParams } from 'next/dist/client/components/navigation';
 
 type MonthlyPublishResp = components['schemas']['PublishResp'];
 
 const ProblemCalandar = () => {
+  const searchParams = useSearchParams();
   const [currentDay, setCurrentDay] = useState(dayjs());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const year = currentDay.year();
   const month = currentDay.month() + 1;
+  const studentId = Number(searchParams.get('studentId')) || -1;
 
-  const { data: publishedData } = useGetMonthlyPublish({ year, month });
+  const { data: publishedData } = useGetMonthlyPublishByStudent({ year, month, studentId });
 
   const publishedDataArray: (MonthlyPublishResp | undefined)[] = Array.from({ length: 32 }).map(
     () => undefined

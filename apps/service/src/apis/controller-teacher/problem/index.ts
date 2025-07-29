@@ -1,2 +1,8 @@
 import useGetStudentWeeklyPublish from './useGetStudentWeeklyPublish';
-export { useGetStudentWeeklyPublish };
+import useGetMonthlyPublishByStudent from './useGetMonthlyPublishByStudent';
+import useGetProblemsTeacherByPublishId from './useGetProblemsTeacherByPublishId';
+export {
+  useGetStudentWeeklyPublish,
+  useGetMonthlyPublishByStudent,
+  useGetProblemsTeacherByPublishId,
+};

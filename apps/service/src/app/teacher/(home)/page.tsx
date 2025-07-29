@@ -51,10 +51,6 @@ const Page = () => {
     return null;
   }, [selectedStudent, isLoadingStudents, students.data]);
 
-  const { data: studentProgress, isLoading: isLoadingStudentProgress } = useGetStudentProgress(
-    targetStudentId || 0
-  );
-
   const { data: studentWeeklyPublish, isLoading: isLoadingStudentWeeklyPublish } =
     useGetStudentWeeklyPublish(targetStudentId || 0);
 
@@ -73,7 +69,7 @@ const Page = () => {
   } | null>(null);
 
   const handleClickAllProblem = () => {
-    router.push('/comming-soon-modal');
+    router.push(`/teacher/problem/calandar?studentId=${targetStudentId}`);
   };
 
   const handleClickStudentStatus = () => {

@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { IcSetting } from '@svg';
 import { LogoHeader } from '@/assets/svg/logo';
-import { getName, getGrade } from '@/utils/common/auth';
+import { getName, getGrade, getTeacherName } from '@/utils/common/auth';
 import { usePathname } from 'next/navigation';
 
 const HomeHeader = () => {
@@ -16,7 +16,7 @@ const HomeHeader = () => {
 
   useEffect(() => {
     setMounted(true);
-    const nameValue = getName();
+    const nameValue = isTeacherPage ? getTeacherName() : getName();
     const gradeValue = getGrade();
     setName(nameValue || '');
     setGrade(gradeValue || '');
