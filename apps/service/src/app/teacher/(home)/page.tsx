@@ -4,9 +4,8 @@ import { useEffect, useState, useMemo } from 'react';
 
 import { BottomFixedArea, BottomSheet, Button } from '@components';
 import { IcCalendar, IcMessage, IcSmileFace, IcThumbtack } from '@svg';
-import { setGrade, setName, trackEvent } from '@utils';
+import { trackEvent } from '@utils';
 import { HomeHeader, ProblemSwiper, StudentSelectButton } from '@/components/home';
-import { useGetUserInfo, useGetWeeklyPublish } from '@/apis';
 import StudentSelectBottomSheetTemplate from '@/components/common/BottomSheet/templates/StudentSelectBottomSheetTemplate';
 import { useModal } from '@hooks';
 import useGetStudent from '@/apis/controller-teacher/student/useGetStudent';
@@ -15,7 +14,6 @@ import useGetStudentWeeklyPublish from '@/apis/controller-teacher/problem/useGet
 
 const Page = () => {
   const router = useRouter();
-  const { data: userInfo, isSuccess: isUserInfoSuccess } = useGetUserInfo();
   const { data: students = { total: 0, data: [] }, isLoading: isLoadingStudents } = useGetStudent();
 
   const [selectedStudent, setSelectedStudent] = useState<{
@@ -67,7 +65,7 @@ const Page = () => {
     return studentWeeklyPublish.data;
   }, [studentWeeklyPublish]);
 
-  const { data, isLoading } = useGetWeeklyPublish();
+  const { data, isLoading } = useGetStudentWeeklyPublish(targetStudentId || 0);
   const { isOpen, openModal, closeModal } = useModal();
   const [selectedProblem, setSelectedProblem] = useState<{
     publishId: number;
@@ -113,13 +111,6 @@ const Page = () => {
     }
   }, [isLoadingStudents, students, selectedStudent]);
 
-  useEffect(() => {
-    if (isUserInfoSuccess && userInfo) {
-      setName(userInfo.name);
-      setGrade(Number(userInfo.grade));
-    }
-  }, [isUserInfoSuccess, userInfo]);
-
   const isLoadingData = isLoading || isLoadingStudentWeeklyPublish;
 
   return (
@@ -130,7 +121,6 @@ const Page = () => {
           <StudentSelectButton
             onClick={handleClickStudentSelect}
             name={targetStudent?.name || '-'}
-            progress={studentProgress?.progress || 0}
           />
           <Button variant='lightBlue' onClick={handleClickAllProblem} className='flex-1'>
             <IcThumbtack width={24} height={24} />
@@ -153,7 +143,7 @@ const Page = () => {
         )}
       </div>
       <BottomFixedArea zIndex={40}>
-        <footer className='flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[4.9rem]'>
+        <footer className='flex flex-col gap-[2.4rem] px-[2rem] pt-[2.4rem] pb-[4.9rem]'>
           <Button variant='light' onClick={handleClickAllProblem}>
             <IcCalendar width={24} height={24} />
             날짜별로 보기
