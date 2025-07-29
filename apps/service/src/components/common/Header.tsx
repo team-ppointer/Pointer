@@ -9,9 +9,16 @@ interface HeaderProps {
   iconType?: 'home' | 'back' | 'menu' | 'none';
   rightIconType?: 'close' | 'none';
   menuOnClick?: () => void;
+  closeOnClick?: () => void;
 }
 
-const Header = ({ title, iconType = 'home', rightIconType = 'none', menuOnClick }: HeaderProps) => {
+const Header = ({
+  title,
+  iconType = 'home',
+  rightIconType = 'none',
+  menuOnClick,
+  closeOnClick,
+}: HeaderProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const isTeacherPage = pathname.includes('/teacher');
@@ -46,7 +53,11 @@ const Header = ({ title, iconType = 'home', rightIconType = 'none', menuOnClick 
       <h1 className='font-bold-16 flex w-2/3 items-center justify-center text-black'>{title}</h1>
       <div className='flex w-1/6 cursor-pointer items-center justify-end'>
         {rightIconType === 'close' && (
-          <IcCloseBig width={24} height={24} onClick={() => router.replace('/')} />
+          <IcCloseBig
+            width={24}
+            height={24}
+            onClick={() => (closeOnClick ? closeOnClick() : router.replace('/'))}
+          />
         )}
       </div>
     </header>

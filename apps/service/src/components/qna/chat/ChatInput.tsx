@@ -2,20 +2,23 @@ import { useRef, useState } from 'react';
 
 import { IcButton } from '@components';
 import { IcArrowUp, IcCamera } from '@svg';
-import { postChat, getFileUploadUrl, uploadFileToS3 } from '@apis';
+import { postChat, getFileUploadUrl, uploadFileToS3, postTeacherChat } from '@apis';
 import { showToast } from '@utils';
 
 type ChatInputProps = {
   qnaId: number;
   refetch: () => void;
   scrollToBottom: () => void;
+  user?: 'teacher' | 'student';
 };
 
-const ChatInput = ({ qnaId, refetch, scrollToBottom }: ChatInputProps) => {
+const ChatInput = ({ qnaId, refetch, scrollToBottom, user = 'student' }: ChatInputProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [chatValue, setChatValue] = useState('');
+
+  const postMessage = user === 'teacher' ? postTeacherChat : postChat;
 
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
@@ -67,7 +70,7 @@ const ChatInput = ({ qnaId, refetch, scrollToBottom }: ChatInputProps) => {
           }))
         );
         if (success) {
-          const result = await postChat(
+          const result = await postMessage(
             qnaId,
             '',
             uploadUrls.map((url) => url.id)
@@ -88,7 +91,7 @@ const ChatInput = ({ qnaId, refetch, scrollToBottom }: ChatInputProps) => {
   const handleSendMessage = async () => {
     if (chatValue.trim() === '') return;
 
-    const result = await postChat(qnaId, chatValue);
+    const result = await postMessage(qnaId, chatValue);
     if (result) {
       setChatValue('');
       if (textareaRef.current) {

@@ -13,27 +13,32 @@ const QnaDetailContent = ({
   question,
   publishDate,
   images,
-}: components['schemas']['QnAResp'] & { modifyMode: boolean }) => {
+  user = 'student',
+}: components['schemas']['QnAResp'] & { user?: 'teacher' | 'student' }) => {
   const query = images.map((u) => `imageUrl=${encodeURIComponent(u.url)}`).join('&');
   const router = useRouter();
   const weekNumber = getWeekNum(publishDate);
   const formattedDate = formatDateToSlash(publishDate);
+  const titleColor = user === 'student' ? 'sub1' : 'main';
+  const contentColor = user === 'student' ? 'white' : 'black';
   return (
     <div className='flex w-full flex-col gap-[1.2rem]'>
       <div className='flex w-full items-center justify-between'>
-        <p className='text-sub1 font-medium-12'>{weekNumber}</p>
-        <p className='text-sub1 font-medium-12'>{formattedDate}</p>
+        <p className={`text-${titleColor} font-medium-12`}>{weekNumber}</p>
+        <p className={`text-${titleColor} font-medium-12`}>{formattedDate} 숙제</p>
       </div>
-      <Divider />
+      <Divider color={user === 'student' ? 'sub1' : 'background'} />
       <div className='flex w-full flex-col items-start justify-start gap-[0.8rem]'>
-        <p className='text-sub1 font-medium-12'>해당 페이지</p>
-        <p className='font-medium-16 text-white'>{title}</p>
+        <p className={`text-${titleColor} font-medium-12`}>해당 페이지</p>
+        <p className={`font-medium-16 text-${contentColor}`}>{title}</p>
         <ProblemViewer problem={content} loading={false} />
       </div>
-      <Divider />
+      <Divider color={user === 'student' ? 'sub1' : 'background'} />
       <div className='flex w-full flex-col items-start justify-start gap-[0.8rem]'>
-        <p className='text-sub1 font-medium-12'>질문 내용</p>
-        <span className='font-medium-16 whitespace-pre-wrap text-white'>{question}</span>
+        <p className={`text-${titleColor} font-medium-12`}>질문 내용</p>
+        <span className={`font-medium-16 whitespace-pre-wrap text-${contentColor}`}>
+          {question}
+        </span>
         <div className='flex w-full flex-wrap items-start justify-start gap-[0.4rem]'>
           {images &&
             images.length > 0 &&
@@ -55,6 +60,6 @@ const QnaDetailContent = ({
 };
 export default QnaDetailContent;
 
-const Divider = () => {
-  return <div className='bg-sub1 h-[0.2rem] w-full' />;
+const Divider = ({ color }: { color: string }) => {
+  return <div className={`bg-${color} h-[0.2rem] w-full`} />;
 };

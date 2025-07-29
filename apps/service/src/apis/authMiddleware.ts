@@ -14,8 +14,16 @@ import {
 import { postRefreshToken } from '@/apis/controller/auth';
 import { postTeacherRefreshToken } from '@/apis/controller-teacher/auth';
 
-const UNPROTECTED_ROUTES = ['/api/student/auth/login/social', '/api/student/auth/refresh'];
-const TEACHER_UNPROTECTED_ROUTES = ['/api/teacher/auth/login', '/api/teacher/auth/refresh'];
+const UNPROTECTED_ROUTES = [
+  '/api/student/auth/login/social',
+  '/api/student/auth/refresh',
+  '/api/common/upload-file',
+];
+const TEACHER_UNPROTECTED_ROUTES = [
+  '/api/teacher/auth/login',
+  '/api/teacher/auth/refresh',
+  '/api/common/upload-file',
+];
 
 const isTeacherRoute = (schemaPath: string) => {
   return schemaPath.startsWith('/api/teacher/') || schemaPath.includes('teacher');

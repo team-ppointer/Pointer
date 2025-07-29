@@ -43,6 +43,7 @@ export { default as IcQuestion18 } from './IcQuestion18';
 export { default as IcQuestionWhite } from './IcQuestionWhite';
 export { default as IcRight } from './IcRight';
 export { default as IcRotate } from './IcRotate';
+export { default as IcSearchGray } from './IcSearchGray';
 export { default as IcSearch } from './IcSearch';
 export { default as IcSecret } from './IcSecret';
 export { default as IcSetting } from './IcSetting';
