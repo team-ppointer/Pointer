@@ -1,4 +1,4 @@
-import { IcNextGray } from '@svg';
+import { IcCheck, IcNextGray, IcTagDone } from '@svg';
 
 interface BottomSheetButtonProps {
   variant?: 'default' | 'recommend';
@@ -48,9 +48,25 @@ const BottomSheetButton = ({ variant = 'default', label, onClick }: BottomSheetB
   );
 };
 
+const StudentSelectBottomSheetButton = ({
+  variant = 'default',
+  label,
+  onClick,
+}: BottomSheetButtonProps) => {
+  return (
+    <div
+      className='flex h-[5rem] w-full cursor-pointer items-center justify-between'
+      onClick={onClick}>
+      <p className={'font-medium-16 ' + (variant === 'recommend' ? 'text-main' : '')}>{label}</p>
+      {variant === 'recommend' && <IcCheck width={24} height={24} />}
+    </div>
+  );
+};
+
 BaseBottomSheetTemplate.Content = BottomSheetContent;
 BaseBottomSheetTemplate.Text = BottomSheetText;
 BaseBottomSheetTemplate.ButtonSection = BottomSheetButtonSection;
 BaseBottomSheetTemplate.Button = BottomSheetButton;
+BaseBottomSheetTemplate.StudentSelectButton = StudentSelectBottomSheetButton;
 
 export default BaseBottomSheetTemplate;

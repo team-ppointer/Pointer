@@ -4,6 +4,7 @@ export { default as IcArrowUp } from './IcArrowUp';
 export { default as IcBulb } from './IcBulb';
 export { default as IcCalendar } from './IcCalendar';
 export { default as IcCamera } from './IcCamera';
+export { default as IcCheck } from './IcCheck';
 export { default as IcCloseBig } from './IcCloseBig';
 export { default as IcClose } from './IcClose';
 export { default as IcCommentCheck20 } from './IcCommentCheck20';

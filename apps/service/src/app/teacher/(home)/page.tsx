@@ -10,11 +10,22 @@ import { useGetUserInfo, useGetWeeklyPublish } from '@/apis';
 import StudentSelectBottomSheetTemplate from '@/components/common/BottomSheet/templates/StudentSelectBottomSheetTemplate';
 import { useModal } from '@hooks';
 import useGetStudent from '@/apis/controller-teacher/student/useGetStudent';
+import { useGetStudentProgress } from '@/apis/controller-teacher/student';
 
 const Page = () => {
   const router = useRouter();
   const { data: userInfo, isSuccess: isUserInfoSuccess } = useGetUserInfo();
   const { data: students = { total: 0, data: [] }, isLoading: isLoadingStudents } = useGetStudent();
+
+  const [selectedStudent, setSelectedStudent] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+
+  const { data: studentProgress, isLoading: isLoadingStudentProgress } = useGetStudentProgress(
+    selectedStudent?.id || 0
+  );
+
   const { data, isLoading } = useGetWeeklyPublish();
   const { isOpen, openModal, closeModal } = useModal();
   const [selectedProblem, setSelectedProblem] = useState<{
@@ -44,6 +55,21 @@ const Page = () => {
     openModal();
   };
 
+  const handleClickStudent = (student: { id: number; name: string }) => {
+    setSelectedStudent(student);
+    closeModal();
+  };
+
+  useEffect(() => {
+    if (!isLoadingStudents && students.data.length > 0 && !selectedStudent) {
+      setSelectedStudent({
+        // 첫 번째 학생을 첫 번째로 선택
+        id: students.data[0].id,
+        name: students.data[0].name,
+      });
+    }
+  }, [isLoadingStudents, students, selectedStudent]);
+
   useEffect(() => {
     if (isUserInfoSuccess && userInfo) {
       setName(userInfo.name);
@@ -56,7 +82,11 @@ const Page = () => {
       <HomeHeader />
       <main className='flex flex-col px-[2rem] pt-[6rem]'>
         <div className='flex items-center gap-[1.2rem] pt-[1.6rem]'>
-          <StudentSelectButton onClick={handleClickStudentSelect} />
+          <StudentSelectButton
+            onClick={handleClickStudentSelect}
+            name={selectedStudent?.name || '-'}
+            progress={studentProgress?.progress || 0}
+          />
           <Button variant='lightBlue' onClick={handleClickAllProblem} className='flex-1'>
             <IcThumbtack width={24} height={24} />
             공지 등록하기
@@ -92,7 +122,11 @@ const Page = () => {
         </footer>
       </BottomFixedArea>
       <BottomSheet isOpen={isOpen} onClose={closeModal}>
-        <StudentSelectBottomSheetTemplate handleClickStudent={() => {}} students={students} />
+        <StudentSelectBottomSheetTemplate
+          handleClickStudent={handleClickStudent}
+          students={students}
+          selectedStudentId={selectedStudent?.id}
+        />
       </BottomSheet>
     </>
   );

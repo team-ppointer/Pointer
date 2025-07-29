@@ -1,2 +1,3 @@
 import useGetStudent from './useGetStudent';
-export { useGetStudent };
+import useGetStudentProgress from './useGetStudentProgress';
+export { useGetStudent, useGetStudentProgress };

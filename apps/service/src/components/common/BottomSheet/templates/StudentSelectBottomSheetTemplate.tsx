@@ -4,13 +4,15 @@ import BaseBottomSheetTemplate from './BaseBottomSheetTemplate';
 type ListRespStudentResp = components['schemas']['ListRespStudentResp'];
 
 interface StudentSelectBottomSheetTemplate {
-  handleClickStudent: () => void;
+  handleClickStudent: (student: { id: number; name: string }) => void;
   students: ListRespStudentResp;
+  selectedStudentId?: number;
 }
 
 const StudentSelectBottomSheetTemplate = ({
   handleClickStudent,
   students,
+  selectedStudentId,
 }: StudentSelectBottomSheetTemplate) => {
   console.log(students);
   return (
@@ -20,11 +22,11 @@ const StudentSelectBottomSheetTemplate = ({
       </BaseBottomSheetTemplate.Content>
       <BaseBottomSheetTemplate.ButtonSection>
         {students.data.map((student) => (
-          <BaseBottomSheetTemplate.Button
+          <BaseBottomSheetTemplate.StudentSelectButton
             key={student.id}
-            variant='recommend'
+            variant={student.id === selectedStudentId ? 'recommend' : 'default'}
             label={student.name}
-            onClick={handleClickStudent}
+            onClick={() => handleClickStudent({ id: student.id, name: student.name })}
           />
         ))}
       </BaseBottomSheetTemplate.ButtonSection>
