@@ -2,6 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { ID_VALIDATION_RULES, PASSWORD_VALIDATION_RULES } from '@/constants/validationRules';
 import { Button, Input } from '@components';
@@ -19,26 +20,33 @@ const TeacherLoginForm = () => {
   });
   const { register, formState } = methods;
 
+  const [error, setError] = useState<boolean>(false);
+
   const handleSubmit = async (data: { email: string; password: string }) => {
     const response = await postLogin(data);
     if (response.response.status === 200) {
       setTeacherAccessToken(response.data?.token?.accessToken ?? '');
       setTeacherRefreshToken(response.data?.token?.refreshToken ?? '');
       router.push('/teacher');
+      setError(false);
+    } else {
+      setError(true);
     }
   };
 
   return (
     <form className='flex w-full flex-col gap-[0.8rem]' onSubmit={(e) => e.preventDefault()}>
-      <div className='text-red font-medium-12 flex items-center justify-start gap-[0.4rem]'>
-        <IcAlert width={16} height={16} />
-        <p>아이디 또는 비밀번호를 확인해주세요</p>
-      </div>
+      {error && (
+        <div className='text-red font-medium-12 flex items-center justify-start gap-[0.4rem]'>
+          <IcAlert width={16} height={16} />
+          <p>아이디 또는 비밀번호를 확인해주세요</p>
+        </div>
+      )}
 
       <Input
         className='bg-background font-medium-16 placeholder:text-lightgray500 w-full rounded-[1.6rem] p-[1.6rem] focus:outline-0'
         type='id'
-        {...register('id', ID_VALIDATION_RULES)}
+        {...register('email', ID_VALIDATION_RULES)}
         placeholder='아이디를 입력해주세요'
       />
       <Input
