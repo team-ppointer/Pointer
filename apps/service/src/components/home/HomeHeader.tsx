@@ -24,7 +24,7 @@ const HomeHeader = () => {
 
   return (
     <header className='bg-background fixed inset-0 z-40 mx-auto flex h-[6rem] max-w-[768px] items-center justify-between px-[2rem]'>
-      <Link href='/'>
+      <Link href={isTeacherPage ? '/teacher' : '/'}>
         <LogoHeader width={106} height={24} title='로고' titleId='logo-icon' />
       </Link>
       <div className='flex items-center gap-[0.8rem]'>
