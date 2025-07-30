@@ -69,7 +69,7 @@ const Page = () => {
   return (
     <>
       <ProgressHeader />
-      <main className='flex flex-col px-[2rem] pt-[8rem] pb-0'>
+      <main className='mb-[7rem] flex h-full flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center justify-between gap-[1.2rem]'>
@@ -108,7 +108,7 @@ const Page = () => {
           )}
         </div>
         <BottomFixedArea>
-          <div className='mx-[2rem] mb-[1.6rem] flex flex-row gap-[0.8rem]'>
+          <div className='mx-[2rem] flex flex-row gap-[0.8rem]'>
             <AnswerLabel label='학생 답' value={submitAnswer} />
             <AnswerLabel label='문제 정답' value={answer} />
           </div>

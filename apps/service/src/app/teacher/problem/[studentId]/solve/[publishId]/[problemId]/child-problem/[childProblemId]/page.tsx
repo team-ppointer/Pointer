@@ -80,7 +80,7 @@ const Page = () => {
   return (
     <>
       <ProgressHeader progress={(no / childProblemLength) * 100} />
-      <main className='flex h-full flex-col px-[2rem] py-[8rem]'>
+      <main className='mb-[7rem] flex h-full flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
             <h1 className='font-bold-18 text-main'>

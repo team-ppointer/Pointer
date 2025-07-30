@@ -233,7 +233,7 @@ const Page = () => {
           </form>
         </div>
       </main>
-      <BottomFixedArea>
+      <BottomFixedArea zIndex={10}>
         <NavigationFooter
           prevLabel={prevButtonLabel}
           nextLabel={nextButtonLabel}
