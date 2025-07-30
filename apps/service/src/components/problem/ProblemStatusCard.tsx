@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
 import { Button, StatusIcon, StatusTag } from '@components';
@@ -24,13 +24,16 @@ const ProblemStatusCard = ({
   problemData,
   publishId,
 }: ProblemStatusCardProps) => {
+  const { studentId } = useParams<{ studentId: string }>();
   const { invalidateAll } = useInvalidate();
   const { no, progress, childProblems } = problemData;
   const {} = childProblems;
+  const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(
     !childProblems?.every((childProblem) => childProblem.progress === 'NONE')
   );
+  const isTeacherPage = pathname.includes('/teacher');
 
   useEffect(() => {
     setIsOpen(!childProblems?.every((childProblem) => childProblem.progress === 'NONE'));
@@ -40,6 +43,10 @@ const ProblemStatusCard = ({
   const hasChildProblem = childProblems && childProblems?.length > 0;
 
   const handleClickSolveButton = async () => {
+    if (isTeacherPage) {
+      router.push(`/teacher/problem/${studentId}/solve/${publishId}/${problemId}`);
+      return;
+    }
     trackEvent('problem_list_card_solve_button_click', {
       problemId: problemId ?? '',
     });
@@ -95,9 +102,9 @@ const ProblemStatusCard = ({
           className='flex-1'
           variant={isSolved ? 'light' : 'blue'}
           onClick={handleClickSolveButton}>
-          문제 풀러 가기
+          {isTeacherPage ? '문제 열람하기' : '문제 풀러 가기'}
         </Button>
-        {isSolved && (
+        {isSolved && !isTeacherPage && (
           <Button className='flex-1' onClick={handleClickReportButton}>
             해설 보기
           </Button>

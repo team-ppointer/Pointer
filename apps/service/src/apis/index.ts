@@ -11,3 +11,5 @@ export * from './controller/qna';
 export * from './controller/file/fileUpload';
 export * from './controller-teacher/auth';
 export * from './controller-teacher/qna';
+export * from './controller-teacher/problem';
+export * from './controller-teacher/student';

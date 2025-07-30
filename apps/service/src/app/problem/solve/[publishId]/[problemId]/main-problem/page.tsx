@@ -16,6 +16,7 @@ import {
   ImageContainer,
   MainAnswerCheckBottomSheetTemplate,
   BottomSheet,
+  BottomFixedArea,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
@@ -197,13 +198,14 @@ const Page = () => {
           </form>
         </div>
       </main>
-
-      <NavigationFooter
-        prevLabel={prevButtonLabel}
-        nextLabel={isSubmitted ? nextButtonLabel : undefined}
-        onClickPrev={handleClickPrev}
-        onClickNext={isSubmitted ? handleClickNext : undefined}
-      />
+      <BottomFixedArea>
+        <NavigationFooter
+          prevLabel={prevButtonLabel}
+          nextLabel={isSubmitted ? nextButtonLabel : undefined}
+          onClickPrev={handleClickPrev}
+          onClickNext={isSubmitted ? handleClickNext : undefined}
+        />
+      </BottomFixedArea>
 
       <BottomSheet isOpen={isOpen} onClose={closeModal}>
         <MainAnswerCheckBottomSheetTemplate

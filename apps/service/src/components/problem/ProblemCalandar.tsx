@@ -8,19 +8,22 @@ import { trackEvent } from '@utils';
 
 import DayProblemCard from './DayProblemCard';
 import { useGetMonthlyPublishByStudent } from '@/apis/controller-teacher/problem';
-import { useSearchParams } from 'next/dist/client/components/navigation';
+import { useParams, useSearchParams } from 'next/dist/client/components/navigation';
 
 type MonthlyPublishResp = components['schemas']['PublishResp'];
 
 const ProblemCalandar = () => {
-  const searchParams = useSearchParams();
+  const { studentId } = useParams<{ studentId: string }>();
   const [currentDay, setCurrentDay] = useState(dayjs());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const year = currentDay.year();
   const month = currentDay.month() + 1;
-  const studentId = Number(searchParams.get('studentId')) || -1;
 
-  const { data: publishedData } = useGetMonthlyPublishByStudent({ year, month, studentId });
+  const { data: publishedData } = useGetMonthlyPublishByStudent({
+    year,
+    month,
+    studentId: +studentId,
+  });
 
   const publishedDataArray: (MonthlyPublishResp | undefined)[] = Array.from({ length: 32 }).map(
     () => undefined

@@ -9,7 +9,6 @@ import { HomeHeader, ProblemSwiper, StudentSelectButton } from '@/components/hom
 import StudentSelectBottomSheetTemplate from '@/components/common/BottomSheet/templates/StudentSelectBottomSheetTemplate';
 import { useModal } from '@hooks';
 import useGetStudent from '@/apis/controller-teacher/student/useGetStudent';
-import { useGetStudentProgress } from '@/apis/controller-teacher/student';
 import useGetStudentWeeklyPublish from '@/apis/controller-teacher/problem/useGetStudentWeeklyPublish';
 
 const Page = () => {
@@ -69,13 +68,13 @@ const Page = () => {
   } | null>(null);
 
   const handleClickAllProblem = () => {
-    router.push(`/teacher/problem/calandar?studentId=${targetStudentId}`);
+    router.push(`/teacher/problem/${targetStudentId}/calandar`);
   };
 
   const handleClickStudentStatus = () => {
     router.push('/comming-soon-modal');
   };
-
+  ``;
   const handleClickQnA = () => {
     const { publishId, problemId } = selectedProblem || {
       publishId: problemSets[0]?.id || 0,
@@ -130,7 +129,11 @@ const Page = () => {
           <div className='h-[456px] w-full' />
         ) : problemSets.length > 0 ? (
           <div className='flex h-[456px] items-center justify-center'>
-            <ProblemSwiper problemSets={problemSets} onProblemSelect={setSelectedProblem} />
+            <ProblemSwiper
+              problemSets={problemSets}
+              onProblemSelect={setSelectedProblem}
+              studentId={targetStudentId!}
+            />
           </div>
         ) : (
           <div className='flex h-[456px] items-center justify-center'>

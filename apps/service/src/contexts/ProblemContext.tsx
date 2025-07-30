@@ -1,8 +1,8 @@
 'use client';
 import { createContext, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 
-import { useGetProblemById } from '@apis';
+import { useGetProblemById, useGetProblemTeacherById } from '@apis';
 
 export interface ProblemContextType {
   childProblemLength: number;
@@ -13,18 +13,33 @@ export interface ProblemContextType {
 export const ProblemContext = createContext<ProblemContextType | null>(null);
 
 export const ProblemProvider = ({ children }: { children: React.ReactNode }) => {
-  const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
+  const { publishId, problemId, studentId } = useParams<{
+    publishId: string;
+    problemId: string;
+    studentId: string;
+  }>();
+  const pathname = usePathname();
   const router = useRouter();
   const [step, setStep] = useState<number>(0);
+  const isTeacherPage = pathname.includes('/teacher');
 
-  // api
-  const { data } = useGetProblemById(+publishId, +problemId);
+  let data;
+  if (isTeacherPage && studentId) {
+    const result = useGetProblemTeacherById(+publishId, +problemId, +studentId);
+    data = result.data;
+  } else {
+    const result = useGetProblemById(+publishId, +problemId);
+    data = result.data;
+  }
+
   if (!data) {
     return null;
   }
   const childProblems = data?.childProblems ?? [];
 
-  const baseUrl = `/problem/solve/${publishId}/${problemId}`;
+  const baseUrl = isTeacherPage
+    ? `/teacher/problem/${studentId}/solve/${publishId}/${problemId}`
+    : `/problem/solve/${publishId}/${problemId}`;
 
   const onPrev = () => {
     if (step === 0) {

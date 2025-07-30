@@ -1,7 +1,7 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
 
-import { Divider, NavigationFooter, ProgressHeader } from '@components';
+import { BottomFixedArea, Divider, NavigationFooter, ProgressHeader } from '@components';
 import { trackEvent } from '@utils';
 import { AdvancedCard, PrescriptionCard } from '@/components/report';
 import { useReportContext } from '@/hooks/report';
@@ -69,13 +69,14 @@ const Page = () => {
           />
           <AdvancedCard contents={oneStepMoreContent} handleClickQuestion={handleClickQuestion} />
         </ul>
-
-        <NavigationFooter
-          prevLabel='해설'
-          nextLabel='문제 리스트'
-          onClickPrev={handleClickPrev}
-          onClickNext={handleClickNext}
-        />
+        <BottomFixedArea>
+          <NavigationFooter
+            prevLabel='해설'
+            nextLabel='문제 리스트'
+            onClickPrev={handleClickPrev}
+            onClickNext={handleClickNext}
+          />
+        </BottomFixedArea>
       </main>
     </>
   );
