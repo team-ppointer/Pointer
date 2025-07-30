@@ -5,6 +5,7 @@ import ChildAnswerCheckModalTemplate from './templates/ChildAnswerCheckModalTemp
 import MainAnswerCheckModalTemplate from './templates/MainAnswerCheckModalTemplate';
 import AnswerModalTemplate from './templates/AnswerModalTemplate';
 import TwoButtonModalTemplate from './templates/TwoButtonModalTemplate';
+import ProblemPreviewModalTemplate from './templates/ProblemPreviewModalTemplate';
 
 export {
   PortalModal,
@@ -14,4 +15,5 @@ export {
   MainAnswerCheckModalTemplate,
   AnswerModalTemplate,
   TwoButtonModalTemplate,
+  ProblemPreviewModalTemplate,
 };

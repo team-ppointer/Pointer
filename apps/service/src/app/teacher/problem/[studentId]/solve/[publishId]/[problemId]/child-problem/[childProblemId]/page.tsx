@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { copyImageToClipboard, showToast } from '@utils';
-import { useGetChildProblemTeacherById } from '@apis';
+import { useGetChildProblemTeacherById, useGetProblemTeacherById } from '@apis';
 import {
   NavigationFooter,
   ProgressHeader,
@@ -12,11 +12,14 @@ import {
   Tag,
   ImageContainer,
   BottomFixedArea,
+  PortalModal,
+  ProblemPreviewModalTemplate,
 } from '@components';
 import { useChildProblemContext } from '@/hooks/problem';
 import { trackEvent } from '@utils';
 import { IcCopyBig, IcRotate } from '@svg';
 import { AnswerLabel } from '@/components/problem';
+import { useModal } from '@hooks';
 
 const Page = () => {
   const { publishId, problemId, childProblemId, studentId } = useParams<{
@@ -37,7 +40,10 @@ const Page = () => {
     +childProblemId,
     +studentId
   );
-  console.log('data', data);
+  const { data: mainProblemData } = useGetProblemTeacherById(+publishId, +problemId, +studentId);
+  if (!mainProblemData?.problemContent) {
+    showToast.error('문제 정보를 불러오는 데 실패했습니다.');
+  }
   const { id, problemNo, no = 1, problemContent, progress, submitAnswer, answer } = data ?? {};
 
   const prevButtonLabel = no === 1 ? '' : `새끼 문제 ${problemNo}-${no - 1}번`;
@@ -46,12 +52,11 @@ const Page = () => {
     no === childProblemLength ? `메인 문제 ${problemNo}번` : `새끼 문제 ${problemNo}-${no + 1}번`;
 
   const isSolved = progress === 'CORRECT' || progress === 'SEMI_CORRECT';
+  const { isOpen, openModal, closeModal } = useModal();
 
   const handleClickShowMainProblem = () => {
     trackEvent('problem_child_solve_show_main_problem_modal_button_click');
-    router.push(
-      `/image-modal?publishId=${publishId}&childProblemId=${childProblemId}&studentId=${studentId}`
-    );
+    openModal();
   };
 
   const handleClickPrev = () => {
@@ -110,8 +115,10 @@ const Page = () => {
           </div>
         </div>
       </main>
-
-      <BottomFixedArea>
+      <PortalModal isOpen={isOpen} onClose={closeModal}>
+        <ProblemPreviewModalTemplate problemContent={mainProblemData?.problemContent!} />
+      </PortalModal>
+      <BottomFixedArea zIndex={20}>
         <div className='mx-[2rem] flex flex-row gap-[0.8rem]'>
           <AnswerLabel label='학생 답' value={submitAnswer} />
           <AnswerLabel label='문제 정답' value={answer} />
