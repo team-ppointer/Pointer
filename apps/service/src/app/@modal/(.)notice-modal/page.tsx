@@ -12,7 +12,7 @@ const Page = () => {
       onClick={() => router.back()}>
       <div className='absolute h-full w-full bg-black opacity-50' />
       <div
-        className='flex max-h-[90vh] max-w-[95vw] flex-row items-center gap-[1.0rem] overflow-hidden'
+        className='relative flex max-h-[90vh] w-full flex-row items-center gap-[1.0rem] overflow-hidden'
         style={{
           scrollSnapType: 'x mandatory',
         }}

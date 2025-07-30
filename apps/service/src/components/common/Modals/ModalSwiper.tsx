@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { useRouter } from 'next/navigation';
 
 import { BaseModalTemplate } from '@components';
-import { putRead, useGetNotice } from '@/apis/controller/home';
+import { putRead, useGetNotice, useGetNoticeUnreadCount } from '@/apis/controller/home';
 import { components } from '@schema';
 
 import 'swiper/css';
@@ -13,12 +13,15 @@ type NoticeResp = components['schemas']['NoticeResp'];
 
 const ModalSwiper = () => {
   const router = useRouter();
-  const { data: getNoticeData } = useGetNotice();
+  const { data: getNoticeData, refetch } = useGetNotice();
+  const { refetch: refetchUnreadCount } = useGetNoticeUnreadCount();
   const noticeSets = getNoticeData?.data.filter((notice) => !notice.isRead) || [];
   const unreadNotices = noticeSets.filter((notice) => !notice.isRead);
 
   const onClickConfirm = async (noticeId: number) => {
     await putRead(noticeId);
+    await refetch();
+    await refetchUnreadCount(); // unreadCount도 업데이트
     if (unreadNotices.length === 1) {
       router.back();
     }
@@ -30,9 +33,9 @@ const ModalSwiper = () => {
       <div className='h-auto max-h-[80vh] w-full overflow-auto rounded-[16px] bg-white shadow-lg'>
         <BaseModalTemplate>
           <BaseModalTemplate.Content>
-            <BaseModalTemplate.Text className='font-bold-18 text-[#1E1E21]' text='새 공지' />
+            <BaseModalTemplate.Text className='font-bold-18 text-[ #1E1E21]' text='새 공지' />
             <BaseModalTemplate.Text
-              className='w-full text-center break-words whitespace-pre-wrap text-[#1E1E21]'
+              className='text-[ #1E1E21] w-full text-center break-words whitespace-pre-wrap'
               text={notice.content}
             />
           </BaseModalTemplate.Content>
