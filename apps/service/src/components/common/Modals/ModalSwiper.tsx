@@ -32,18 +32,20 @@ const ModalSwiper = ({ noticeSets }: Props) => {
       <div className='h-full w-full rounded-[16px] bg-white shadow-lg'>
         <BaseModalTemplate>
           <BaseModalTemplate.Content>
-            <BaseModalTemplate.Text text='새 공지' className='font-bold-18' />
-            <BaseModalTemplate.Text text={notice.content} className='font-medium-16' />
-            <BaseModalTemplate.ButtonSection>
-              <BaseModalTemplate.Button
-                variant='blue'
-                onClick={() => {
-                  onClickConfirm(notice.id);
-                }}>
-                확인
-              </BaseModalTemplate.Button>
-            </BaseModalTemplate.ButtonSection>
+            <p className='font-bold-18'>새 공지</p>
+            <span className='font-medium-16 flex h-full w-full items-center justify-center text-center'>
+              {notice.content}
+            </span>
           </BaseModalTemplate.Content>
+          <BaseModalTemplate.ButtonSection>
+            <BaseModalTemplate.Button
+              variant='blue'
+              onClick={() => {
+                onClickConfirm(notice.id);
+              }}>
+              확인
+            </BaseModalTemplate.Button>
+          </BaseModalTemplate.ButtonSection>
         </BaseModalTemplate>
       </div>
     );

@@ -17,7 +17,7 @@ const NavigationFooter = ({
 }: NavigationFooterProps) => {
   return (
     <div
-      className={`bg-background mx-auto mb-[2.2rem] flex h-[6.2rem] max-w-[768px] items-center justify-between px-[2rem] ${className || ''}`}>
+      className={`bg-background mx-auto flex h-[6.2rem] max-w-[768px] items-center justify-between px-[2rem] pt-[2rem] pb-[2.2rem] ${className || ''}`}>
       <div>
         {prevLabel && prevLabel !== '' && onClickPrev && (
           <NavigationButton variant='prev' label={prevLabel} onClick={onClickPrev} />
