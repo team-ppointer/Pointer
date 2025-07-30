@@ -2,16 +2,18 @@
 @import 'swiper/css/pagination';
 
 .swiper-slide {
-  width: 31.2rem;
-  height: 43.1rem;
+  width: 31.2rem !important;
+  height: 43.1rem !important;
+  /* width: 100%;
+  height: 100%; */
 }
 
 .swiper-pagination {
-  position: unset;
-  margin-top: 1rem;
+  position: unset !important;
+  margin-top: 1rem !important;
 }
 
 .swiper-pagination-bullet {
-  width: 4px;
-  height: 4px;
+  width: 4px !important;
+  height: 4px !important;
 }

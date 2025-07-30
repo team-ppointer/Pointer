@@ -17,7 +17,7 @@ const BaseModalTemplate = ({ children }: { children: React.ReactNode }) => {
 
 const ModalContent = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='flex h-full flex-col items-center justify-between gap-[1.6rem] text-center'>
+    <div className='flex h-full w-full flex-col items-center justify-between gap-[1.6rem] text-center'>
       {children}
     </div>
   );

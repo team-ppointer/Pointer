@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { useRouter } from 'next/navigation';
 
 import { BaseModalTemplate } from '@components';
-import { putRead } from '@/apis/controller/home';
+import { putRead, useGetNotice } from '@/apis/controller/home';
 import { components } from '@schema';
 
 import 'swiper/css';
@@ -11,12 +11,10 @@ import 'swiper/css/pagination';
 
 type NoticeResp = components['schemas']['NoticeResp'];
 
-type Props = {
-  noticeSets: NoticeResp[];
-};
-
-const ModalSwiper = ({ noticeSets }: Props) => {
+const ModalSwiper = () => {
   const router = useRouter();
+  const { data: getNoticeData } = useGetNotice();
+  const noticeSets = getNoticeData?.data.filter((notice) => !notice.isRead) || [];
   const unreadNotices = noticeSets.filter((notice) => !notice.isRead);
 
   const onClickConfirm = async (noticeId: number) => {
@@ -29,13 +27,14 @@ const ModalSwiper = ({ noticeSets }: Props) => {
 
   const renderNoticeSlide = (notice: NoticeResp) => {
     return (
-      <div className='h-full w-full rounded-[16px] bg-white shadow-lg'>
+      <div className='h-auto max-h-[80vh] w-full overflow-auto rounded-[16px] bg-white shadow-lg'>
         <BaseModalTemplate>
           <BaseModalTemplate.Content>
-            <p className='font-bold-18'>새 공지</p>
-            <span className='font-medium-16 flex h-full w-full items-center justify-center text-center'>
-              {notice.content}
-            </span>
+            <BaseModalTemplate.Text className='font-bold-18 text-[#1E1E21]' text='새 공지' />
+            <BaseModalTemplate.Text
+              className='w-full text-center break-words whitespace-pre-wrap text-[#1E1E21]'
+              text={notice.content}
+            />
           </BaseModalTemplate.Content>
           <BaseModalTemplate.ButtonSection>
             <BaseModalTemplate.Button
