@@ -203,7 +203,7 @@ const Page = () => {
             </div>
           )}
         </div>
-        <BottomFixedArea>
+        <BottomFixedArea zIndex={10}>
           <div className='fixed right-0 bottom-0 left-0 z-10 p-[2rem]'>
             <form onSubmit={handleSubmit(handleSubmitAnswer)}>
               <h3 className='font-bold-16 text-black'>정답 선택</h3>

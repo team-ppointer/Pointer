@@ -9,14 +9,7 @@ const Page = () => {
   const searchParams = useSearchParams();
   const publishId = searchParams.get('publishId') || '';
   const childProblemId = searchParams.get('childProblemId') || '';
-  const studentId = searchParams.get('studentId') || '';
-
-  console.log('studentId', studentId);
-
-  const { data, isLoading } =
-    studentId === ''
-      ? useGetChildProblemById(+publishId, +childProblemId)
-      : useGetChildProblemTeacherById(+publishId, +childProblemId, +studentId);
+  const { data, isLoading } = useGetChildProblemById(+publishId, +childProblemId);
 
   return (
     <RouteModal>
