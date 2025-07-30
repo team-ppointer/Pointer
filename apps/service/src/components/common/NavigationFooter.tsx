@@ -5,6 +5,7 @@ interface NavigationFooterProps {
   nextLabel?: string;
   onClickPrev?: () => void;
   onClickNext?: () => void;
+  className?: string;
 }
 
 const NavigationFooter = ({
@@ -12,9 +13,11 @@ const NavigationFooter = ({
   nextLabel,
   onClickPrev,
   onClickNext,
+  className,
 }: NavigationFooterProps) => {
   return (
-    <div className='bg-background fixed right-0 bottom-0 left-0 mx-auto flex h-[6.2rem] max-w-[768px] items-center justify-between px-[2rem]'>
+    <div
+      className={`bg-background mx-auto mb-[2.2rem] flex h-[6.2rem] max-w-[768px] items-center justify-between px-[2rem] ${className || ''}`}>
       <div>
         {prevLabel && prevLabel !== '' && onClickPrev && (
           <NavigationButton variant='prev' label={prevLabel} onClick={onClickPrev} />

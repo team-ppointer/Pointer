@@ -4,7 +4,13 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import { IcQuestion18, IcRight, IcThumbtack } from '@svg';
-import { ImageContainer, NavigationFooter, ProgressHeader, SmallButton } from '@components';
+import {
+  BottomFixedArea,
+  ImageContainer,
+  NavigationFooter,
+  ProgressHeader,
+  SmallButton,
+} from '@components';
 import { trackEvent } from '@utils';
 import { useReportContext } from '@/hooks/report';
 import { TabMenu } from '@/components/report';
@@ -109,7 +115,9 @@ const Page = () => {
             <IcRight width={24} height={24} />
           </button>
         </div>
-        <NavigationFooter nextLabel='포인팅' onClickNext={handleClickNext} />
+        <BottomFixedArea>
+          <NavigationFooter nextLabel='포인팅' onClickNext={handleClickNext} />
+        </BottomFixedArea>
       </main>
     </>
   );

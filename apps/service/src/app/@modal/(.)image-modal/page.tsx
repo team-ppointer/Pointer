@@ -3,13 +3,20 @@ import { useSearchParams } from 'next/navigation';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { RouteModal } from '@components';
-import { useGetChildProblemById } from '@apis';
+import { useGetChildProblemById, useGetChildProblemTeacherById } from '@apis';
 
 const Page = () => {
   const searchParams = useSearchParams();
   const publishId = searchParams.get('publishId') || '';
   const childProblemId = searchParams.get('childProblemId') || '';
-  const { data, isLoading } = useGetChildProblemById(+publishId, +childProblemId);
+  const studentId = searchParams.get('studentId') || '';
+
+  console.log('studentId', studentId);
+
+  const { data, isLoading } =
+    studentId === ''
+      ? useGetChildProblemById(+publishId, +childProblemId)
+      : useGetChildProblemTeacherById(+publishId, +childProblemId, +studentId);
 
   return (
     <RouteModal>

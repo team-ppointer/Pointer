@@ -1,4 +1,4 @@
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import ProblemViewer, { Problem } from '@repo/pointer-editor/ProblemViewer';
 
 import { Button } from '@components';
@@ -10,16 +10,23 @@ interface Props {
   dateString: string;
   title: string;
   problem: Problem;
+  studentId?: number;
 }
 
-const ProblemCard = ({ publishId, dateString, title, problem }: Props) => {
+const ProblemCard = ({ publishId, dateString, title, problem, studentId }: Props) => {
   const router = useRouter();
+  const pathname = usePathname();
+  const isTeacherPage = pathname.includes('/teacher');
 
   const handleClickProblem = () => {
     trackEvent('home_carousel_problem_card_click', {
       publishId,
     });
-    router.push(`/teacher/problem/list/${publishId}`);
+    if (isTeacherPage) {
+      router.push(`/teacher/problem/${studentId}/list/${publishId}`);
+      return;
+    }
+    router.push(`/problem/list/${publishId}`);
   };
 
   return (

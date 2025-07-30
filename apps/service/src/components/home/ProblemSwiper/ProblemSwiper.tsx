@@ -7,15 +7,21 @@ import { components } from '@schema';
 import { ProblemCard, ProblemSecretCard, ProblemEmptyCard } from '@/components/home';
 
 import './ProblemSwiper.css';
+import { usePathname } from 'next/navigation';
 
 type ProblemSetHomeFeedResponse = components['schemas']['PublishResp'];
 
 interface ProblemSwiperProps {
   problemSets: ProblemSetHomeFeedResponse[];
+  studentId?: number;
   onProblemSelect: (problem: { publishId: number; problemId: number }) => void;
 }
 
-const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: string) => {
+const renderProblemCard = (
+  problem: ProblemSetHomeFeedResponse,
+  dateString: string,
+  studentId?: number
+) => {
   // 문제가 없는 경우
   if (problem === null) {
     return <ProblemEmptyCard dateString={dateString} />;
@@ -25,6 +31,8 @@ const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: stri
   const today = dayjs();
   const date = dayjs(problem.publishAt);
   const isSecret = date.isAfter(today);
+  const pathname = usePathname();
+  const isTeacherPage = pathname.includes('/teacher');
 
   if (isSecret) {
     return <ProblemSecretCard dateString={dateString} />;
@@ -37,11 +45,12 @@ const renderProblemCard = (problem: ProblemSetHomeFeedResponse, dateString: stri
       dateString={dateString}
       title={problem.problemSet.firstProblem.title}
       problem={problem.problemSet.firstProblem.problemContent}
+      studentId={isTeacherPage ? studentId : undefined}
     />
   );
 };
 
-const ProblemSwiper = ({ problemSets, onProblemSelect }: ProblemSwiperProps) => {
+const ProblemSwiper = ({ problemSets, onProblemSelect, studentId }: ProblemSwiperProps) => {
   const dayOfWeek = dayjs().day();
   const initialSlide = dayOfWeek === 0 || dayOfWeek === 6 ? 4 : dayOfWeek - 1;
 
@@ -82,7 +91,9 @@ const ProblemSwiper = ({ problemSets, onProblemSelect }: ProblemSwiperProps) => 
         const date = dayjs(problem.publishAt);
         const dateString = date.format('MM월 DD일');
 
-        return <SwiperSlide key={index}>{renderProblemCard(problem, dateString)}</SwiperSlide>;
+        return (
+          <SwiperSlide key={index}>{renderProblemCard(problem, dateString, studentId)}</SwiperSlide>
+        );
       })}
     </Swiper>
   );
