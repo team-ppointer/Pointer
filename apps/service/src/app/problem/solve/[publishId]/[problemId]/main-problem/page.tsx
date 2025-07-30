@@ -22,6 +22,7 @@ import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, showToast, trackEvent } from '@utils';
+import { IcCommentCheck20, IcRotate, IcQuestion18, IcCopyBig } from '@svg';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -125,6 +126,18 @@ const Page = () => {
     showToast.success('클립보드에 복사되었습니다.');
   };
 
+  const handleClickPointing = () => {
+    trackEvent('problem_main_solve_pointing_button_click');
+    invalidateAll();
+    router.push(`/report/${publishId}/${problemId}/prescription/detail?type=main`);
+  };
+
+  const handleClickQuestion = () => {
+    trackEvent('problem_main_solve_question_button_click');
+    invalidateAll();
+    router.push(`/qna/ask?publishId=${publishId}&problemId=${problemId}&type=PROBLEM_CONTENT`);
+  };
+
   return (
     <>
       <ProgressHeader progress={100} />
@@ -155,6 +168,29 @@ const Page = () => {
               loading={false}
             />
           </ImageContainer>
+          <div className='mt-[1.2rem] mb-[0.4rem] flex items-center justify-end gap-[0.6rem]'>
+            <SmallButton
+              className='flex flex-row gap-[4px]'
+              variant='white'
+              sizeType='small'
+              onClick={handleClickPointing}>
+              <IcCommentCheck20 width={14} height={14} viewBox='0 0 20 20' />
+              포인팅 보기
+            </SmallButton>
+            <div
+              className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'
+              onClick={handleClickQuestion}>
+              <IcQuestion18 width={20} height={20} />
+            </div>
+            <div className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'>
+              <IcCopyBig
+                width={20}
+                height={20}
+                onClick={handleClickCopyProblemImage}
+                viewBox='0 0 24 24'
+              />
+            </div>
+          </div>
 
           {isDirect && (
             <div className='mt-[0.6rem] flex items-center justify-end'>
@@ -188,17 +224,20 @@ const Page = () => {
             <h3 className='font-bold-16 text-black'>정답 선택</h3>
             <div className='mt-[1.2rem] flex flex-col gap-[2rem] md:flex-row'>
               <AnswerInput
+                className='flex-1'
                 answerType={answerType!}
                 selectedAnswer={isSolved && answer ? String(answer) : selectedAnswer}
                 disabled={isSolved}
                 {...register('answer')}
               />
-              <Button disabled={isSolved}>제출하기</Button>
+              <Button className='flex-1' disabled={isSolved}>
+                제출하기
+              </Button>
             </div>
           </form>
         </div>
       </main>
-      <BottomFixedArea>
+      <BottomFixedArea zIndex={10}>
         <NavigationFooter
           prevLabel={prevButtonLabel}
           nextLabel={isSubmitted ? nextButtonLabel : undefined}

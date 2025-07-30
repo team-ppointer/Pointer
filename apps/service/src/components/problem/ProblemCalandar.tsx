@@ -8,27 +8,39 @@ import { trackEvent } from '@utils';
 
 import DayProblemCard from './DayProblemCard';
 import { useGetMonthlyPublishByStudent } from '@/apis/controller-teacher/problem';
-import { useParams, useSearchParams } from 'next/dist/client/components/navigation';
+import { useParams, usePathname, useSearchParams } from 'next/dist/client/components/navigation';
+import useGetMonthlyPublish from '@/apis/controller/problem/useGetMonthlyPublish';
 
 type MonthlyPublishResp = components['schemas']['PublishResp'];
 
 const ProblemCalandar = () => {
-  const { studentId } = useParams<{ studentId: string }>();
+  const searchParams = useSearchParams();
   const [currentDay, setCurrentDay] = useState(dayjs());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const pathname = usePathname();
+  const isTeacherPage = pathname.includes('/teacher');
   const year = currentDay.year();
   const month = currentDay.month() + 1;
-
-  const { data: publishedData } = useGetMonthlyPublishByStudent({
-    year,
-    month,
-    studentId: +studentId,
-  });
+  let publishedData;
+  if (isTeacherPage) {
+    const { studentId } = useParams<{ studentId: string }>();
+    publishedData = useGetMonthlyPublishByStudent({
+      year,
+      month,
+      studentId: +studentId,
+    });
+  } else {
+    const studentId = Number(searchParams.get('studentId')) || -1;
+    publishedData = useGetMonthlyPublish({
+      year,
+      month,
+    });
+  }
 
   const publishedDataArray: (MonthlyPublishResp | undefined)[] = Array.from({ length: 32 }).map(
     () => undefined
   );
-  (publishedData?.data ?? []).forEach((data) => {
+  (publishedData?.data?.data ?? []).forEach((data) => {
     const date = dayjs(data.publishAt);
     const day = date.date();
     publishedDataArray[day] = data;

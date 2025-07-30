@@ -50,7 +50,7 @@ const Page = () => {
   return (
     <>
       <ProgressHeader />
-      <main className='min-h-[100dvh] justify-between px-[2rem] pt-[8rem] pb-[18rem]'>
+      <main className='mb-[7rem] min-h-[100dvh] justify-between px-[2rem] pt-[8rem]'>
         <header className='flex items-center justify-between'>
           <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {no}번</h1>
           <div className='flex items-center gap-[0.8rem]'>
@@ -99,8 +99,9 @@ const Page = () => {
             </SmallButton>
           </div>
         </div>
-
-        <div className='bg-background fixed right-0 bottom-[6.2rem] left-0 mx-auto h-[11.8rem] max-w-[768px] p-[2rem]'>
+      </main>
+      <BottomFixedArea>
+        <div className='fixed right-0 bottom-[6.2rem] left-0 mx-auto h-[11.8rem] max-w-[768px] p-[2rem]'>
           <button
             type='button'
             className='border-sub1 flex w-full items-center justify-between rounded-[1.6rem] border bg-white px-[2rem] py-[1.6rem]'
@@ -115,10 +116,8 @@ const Page = () => {
             <IcRight width={24} height={24} />
           </button>
         </div>
-        <BottomFixedArea>
-          <NavigationFooter nextLabel='포인팅' onClickNext={handleClickNext} />
-        </BottomFixedArea>
-      </main>
+        <NavigationFooter nextLabel='포인팅' onClickNext={handleClickNext} />
+      </BottomFixedArea>
     </>
   );
 };
