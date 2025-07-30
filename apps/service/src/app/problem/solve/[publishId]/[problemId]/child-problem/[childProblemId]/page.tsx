@@ -98,9 +98,15 @@ const Page = () => {
   };
 
   const handleClickNext = () => {
+    console.log('childProblemLength', childProblemLength);
+    console.log('no', no);
     trackEvent('problem_child_solve_footer_next_button_click', {
       buttonLabel: nextButtonLabel,
     });
+    if (childProblemLength === no) {
+      router.push(`/problem/solve/${publishId}/${problemId}/main-problem`);
+      return;
+    }
     onNext();
   };
 
@@ -114,11 +120,6 @@ const Page = () => {
   const handleClickCloseCheckModal = () => {
     trackEvent('problem_child_solve_check_modal_close_button_click');
     closeModal();
-  };
-
-  const handleClickNextProblemButton = () => {
-    trackEvent('problem_child_solve_check_modal_next_problem_button_click');
-    onNext();
   };
 
   const handleClickShowAnswer = () => {
@@ -247,7 +248,7 @@ const Page = () => {
           result={result}
           onClose={handleClickCloseCheckModal}
           handleClickShowPointing={handleClickPointing}
-          handleClickNext={handleClickNextProblemButton}
+          handleClickNext={handleClickNext}
           handleClickShowAnswer={handleClickShowAnswer}
         />
       </BottomSheet>
