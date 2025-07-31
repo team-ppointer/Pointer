@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { Button, FloatingButton, Header, Input } from '@components';
+import { Button, FloatingButton, Header, Input, Modal } from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
 import { getTeacher } from '@apis';
+import { useModal } from '@hooks';
+import { components } from '@schema';
 
 import { TeacherCard } from '@/components/teacher';
+import EditTeacherModal from '@/components/common/Modals/EditTeacherModal';
 
 export const Route = createFileRoute('/_GNBLayout/teacher/')({
   component: RouteComponent,
@@ -14,6 +17,10 @@ export const Route = createFileRoute('/_GNBLayout/teacher/')({
 function RouteComponent() {
   const [selectedTeacherId, setSelectedTeacherId] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [editingTeacher, setEditingTeacher] = useState<components['schemas']['TeacherResp'] | null>(
+    null
+  );
+  const { isOpen, openModal, closeModal } = useModal();
   const { register, handleSubmit } = useForm<{
     query: string;
   }>();
@@ -42,6 +49,16 @@ function RouteComponent() {
     setSelectedTeacherId((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
+  };
+
+  const handleModifyTeacher = (teacher: components['schemas']['TeacherResp']) => {
+    setEditingTeacher(teacher);
+    openModal();
+  };
+
+  const handleCloseModal = () => {
+    setEditingTeacher(null);
+    closeModal();
   };
 
   return (
@@ -82,13 +99,17 @@ function RouteComponent() {
                 students={teacher.students.map((student) => student.name)}
                 isChecked={isChecked}
                 toggleTeacher={toggleTeacher}
+                onModify={() => handleModifyTeacher(teacher)}
               />
             );
           })}
         </div>
       </section>
 
-      <FloatingButton onClick={() => {}}>새로운 개념 태그 등록하기</FloatingButton>
+      <FloatingButton onClick={openModal}>새로운 아이디 등록하기</FloatingButton>
+      <Modal isOpen={isOpen} onClose={handleCloseModal}>
+        <EditTeacherModal teacher={editingTeacher} onClose={handleCloseModal} />
+      </Modal>
     </>
   );
 }

@@ -8,9 +8,10 @@ interface Props {
   students: string[];
   isChecked: boolean;
   toggleTeacher: (id: number) => void;
+  onModify?: () => void;
 }
 
-const TeacherCard = ({ name, id, email, students, isChecked, toggleTeacher }: Props) => {
+const TeacherCard = ({ name, id, email, students, isChecked, toggleTeacher, onModify }: Props) => {
   return (
     <section className='flex flex-col gap-[0.8rem] rounded-[1.6rem] bg-white px-[2.4rem] py-[1.6rem]'>
       <div className='flex w-full justify-between'>
@@ -28,7 +29,7 @@ const TeacherCard = ({ name, id, email, students, isChecked, toggleTeacher }: Pr
         </label>
         <div className='flex items-center gap-[0.8rem]'>
           <IconButton variant='delete' onClick={() => {}} />
-          <IconButton variant='modify' onClick={() => {}} />
+          <IconButton variant='modify' onClick={onModify} />
         </div>
       </div>
       <div className='flex w-full'>
