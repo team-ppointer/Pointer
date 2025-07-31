@@ -10,7 +10,7 @@ import {
 } from '@components';
 import { useInvalidate } from '@hooks';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
-import { getSearchProblemSetParamsType } from '@types';
+import { GetProblemSetSearchParams } from '@types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -29,15 +29,15 @@ function RouteComponent() {
 
   // state
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState<getSearchProblemSetParamsType>({});
+  const [searchQuery, setSearchQuery] = useState<GetProblemSetSearchParams>({});
 
   // api
   const { data: problemSetList } = getConfirmProblemSet(searchQuery);
   const { mutate: mutatePostPublish } = postPublish();
 
-  const { register, handleSubmit, reset } = useForm<getSearchProblemSetParamsType>();
+  const { register, handleSubmit, reset } = useForm<GetProblemSetSearchParams>();
 
-  const handleClickSearch = (data: getSearchProblemSetParamsType) => {
+  const handleClickSearch = (data: GetProblemSetSearchParams) => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );

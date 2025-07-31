@@ -14,7 +14,7 @@ import {
 import { useInvalidate, useModal } from '@hooks';
 import { IcDown } from '@svg';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { getProblemsSearchParamsType } from '@types';
+import { GetProblemsSearchParams } from '@types';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
@@ -35,10 +35,10 @@ function RouteComponent() {
 
   const deleteProblemId = useRef<number | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
+  const [searchQuery, setSearchQuery] = useState<GetProblemsSearchParams>({});
   const [selectedTagList, setSelectedTagList] = useState<number[]>([]);
 
-  const { register, handleSubmit, reset } = useForm<getProblemsSearchParamsType>();
+  const { register, handleSubmit, reset } = useForm<GetProblemsSearchParams>();
 
   const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
   const { mutate: mutateDeleteProblem } = deleteProblems();
@@ -74,7 +74,7 @@ function RouteComponent() {
     );
   };
 
-  const handleClickSearch = (data: getProblemsSearchParamsType) => {
+  const handleClickSearch = (data: GetProblemsSearchParams) => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );

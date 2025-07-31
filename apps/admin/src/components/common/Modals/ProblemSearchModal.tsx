@@ -3,7 +3,7 @@ import { Button, Modal, ProblemCard, SearchInput, Tag, TagSelectModal } from '@c
 import { useModal } from '@hooks';
 import { components } from '@schema';
 import { IcDown } from '@svg';
-import { getProblemsSearchParamsType } from '@types';
+import { GetProblemsSearchParams } from '@types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
@@ -17,17 +17,17 @@ interface ProblemSearchModalProps {
 const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
   const { isOpen, openModal, closeModal } = useModal();
 
-  const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
+  const [searchQuery, setSearchQuery] = useState<GetProblemsSearchParams>({});
   const [selectedTagList, setSelectedTagList] = useState<number[]>([]);
 
-  const { register, handleSubmit, reset } = useForm<getProblemsSearchParamsType>();
+  const { register, handleSubmit, reset } = useForm<GetProblemsSearchParams>();
 
   const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
   const { data: tagsData } = getConceptTags();
   const allTagList = tagsData?.data || [];
   const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
 
-  const handleClickSearch = (data: getProblemsSearchParamsType) => {
+  const handleClickSearch = (data: GetProblemsSearchParams) => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );

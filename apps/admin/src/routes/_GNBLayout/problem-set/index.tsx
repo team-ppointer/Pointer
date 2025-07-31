@@ -12,7 +12,7 @@ import {
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
-import { getSearchProblemSetParamsType } from '@types';
+import { GetProblemSetSearchParams } from '@types';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -24,8 +24,8 @@ function RouteComponent() {
   const { invalidateProblemSet } = useInvalidate();
   const { navigate } = useRouter();
 
-  const [searchQuery, setSearchQuery] = useState<getSearchProblemSetParamsType>({});
-  const { register, handleSubmit, reset } = useForm<getSearchProblemSetParamsType>();
+  const [searchQuery, setSearchQuery] = useState<GetProblemSetSearchParams>({});
+  const { register, handleSubmit, reset } = useForm<GetProblemSetSearchParams>();
   const {
     isOpen: isDeleteModalOpen,
     openModal: openDeleteModal,
@@ -38,7 +38,7 @@ function RouteComponent() {
   const { mutate: mutatePostProblemSet } = postProblemSet();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
 
-  const handleClickSearch = (data: getSearchProblemSetParamsType) => {
+  const handleClickSearch = (data: GetProblemSetSearchParams) => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );

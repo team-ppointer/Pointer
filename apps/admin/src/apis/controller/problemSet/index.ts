@@ -1,15 +1,19 @@
 import deleteProblemSet from './deleteProblemSet';
+import deleteProblemFromProblemSet from './deleteProblemFromProblemSet';
 import getProblemSetById from './getProblemSetById';
-import getSearchProblemSet from './getSearchProblemSet';
+import getProblemSetSearch from './getProblemSetSearch';
 import postProblemSet from './postProblemSet';
-import putConfirmProblemSet from './putConfirmProblemSet';
 import putProblemSet from './putProblemSet';
+import putProblemSetStatus from './putProblemSetStatus';
+import putProblemSetToggleStatus from './putProblemSetToggleStatus';
 
 export {
   deleteProblemSet,
+  deleteProblemFromProblemSet,
   getProblemSetById,
-  getSearchProblemSet,
+  getProblemSetSearch,
   postProblemSet,
-  putConfirmProblemSet,
   putProblemSet,
+  putProblemSetStatus,
+  putProblemSetToggleStatus,
 };
