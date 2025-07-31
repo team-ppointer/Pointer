@@ -17,11 +17,9 @@ import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Controller, SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { produce } from 'immer';
 import {
-  deleteChildProblem,
-  deleteProblems,
-  getConceptTags,
+  deleteProblem,
+  getConcept,
   getProblemById,
-  postChildProblem,
   putProblemById,
 } from '@apis';
 import { useEffect, useState } from 'react';
@@ -35,7 +33,7 @@ export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
   component: RouteComponent,
 });
 
-type ProblemGetResponse = components['schemas']['ProblemGetResponse'];
+type ProblemGetResponse = components['schemas']['ProblemMetaResp'];
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 
 function RouteComponent() {
@@ -59,12 +57,10 @@ function RouteComponent() {
   const [currentChildIndex, setCurrentChildIndex] = useState<number>();
 
   // api
-  const { data: fetchedProblemData } = getProblemById(Number(problemId));
+  const { data: fetchedProblemData } = getProblemById({ id: Number(problemId) });
   const { mutate: mutateUpdateProblem } = putProblemById();
-  const { mutate: mutateAddChildProblem } = postChildProblem();
-  const { mutate: mutateDeleteChildProblem } = deleteChildProblem();
-  const { mutate: mutateDeleteProblem } = deleteProblems();
-  const { data: tagsData } = getConceptTags();
+  const { mutate: mutateDeleteProblem } = deleteProblem();
+  const { data: tagsData } = getConcept();
   const allTagList = tagsData?.data || [];
   const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
 
@@ -82,12 +78,12 @@ function RouteComponent() {
     defaultValues: transformToProblemUpdateRequest({} as ProblemGetResponse),
   });
 
-  const problemCustomId = fetchedProblemData?.data.problemCustomId ?? '';
+  const problemCustomId = fetchedProblemData?.customId ?? '';
   const problemType = watch('problemType');
-  const conceptTagIds = watch('conceptTagIds');
+  const concepts = watch('concepts');
   const selectedAnswerType = watch('answerType');
   const selectedAnswer = watch('answer');
-  const prescriptionImageUrls = watch('prescriptionImageUrls');
+  // const prescriptionImageUrls = watch('prescriptionImageUrls');
 
   const {
     fields: childProblems,
@@ -96,51 +92,51 @@ function RouteComponent() {
     update,
   } = useFieldArray({
     control,
-    name: 'updateChildProblems',
+    name: 'childProblems',
   });
 
   // api call functions
-  const handleAddChildProblem = () => {
-    mutateAddChildProblem(
-      {
-        params: {
-          path: {
-            problemId: Number(problemId),
-          },
-        },
-      },
-      {
-        onSuccess: (data) => {
-          append({
-            childProblemId: data.data.id,
-            conceptTagIds: [],
-            imageUrl: '',
-            answerType: 'MULTIPLE_CHOICE',
-            answer: '',
-            prescriptionImageUrls: [''],
-          });
-        },
-      }
-    );
-  };
+  // const handleAddChildProblem = () => {
+  //   mutateAddChildProblem(
+  //     {
+  //       params: {
+  //         path: {
+  //           problemId: Number(problemId),
+  //         },
+  //       },
+  //     },
+  //     {
+  //       onSuccess: (data) => {
+  //         append({
+  //           childProblemId: data.data.id,
+  //           conceptTagIds: [],
+  //           imageUrl: '',
+  //           answerType: 'MULTIPLE_CHOICE',
+  //           answer: '',
+  //           prescriptionImageUrls: [''],
+  //         });
+  //       },
+  //     }
+  //   );
+  // };
 
-  const handleDeleteChildProblem = (childProblemId: number, index: number) => {
-    mutateDeleteChildProblem(
-      {
-        params: {
-          path: {
-            problemId: Number(problemId),
-            childProblemId: childProblemId,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          remove(index);
-        },
-      }
-    );
-  };
+  // const handleDeleteChildProblem = (childProblemId: number, index: number) => {
+  //   mutateDeleteChildProblem(
+  //     {
+  //       params: {
+  //         path: {
+  //           problemId: Number(problemId),
+  //           childProblemId: childProblemId,
+  //         },
+  //       },
+  //     },
+  //     {
+  //       onSuccess: () => {
+  //         remove(index);
+  //       },
+  //     }
+  //   );
+  // };
 
   // functions
   const handleSubmitUpdate: SubmitHandler<ProblemUpdateRequest> = (data) => {
@@ -184,19 +180,19 @@ function RouteComponent() {
 
   const handleChangeTagList = (tagList: number[]) => {
     const newTagList = tagList.map((tag) => tag);
-    setValue('conceptTagIds', newTagList);
+    setValue('concepts', newTagList);
   };
 
   const handleRemoveTag = (tag: number) => {
-    const newTagList = conceptTagIds.filter((t) => t !== tag);
-    setValue('conceptTagIds', newTagList);
+    const newTagList = concepts?.filter((t) => t !== tag);
+    setValue('concepts', newTagList);
   };
 
   const handleChangeChildTagList = (tagList: number[], index: number | undefined) => {
     if (index === undefined) return;
     const newChildProblem = produce(childProblems[index], (draft) => {
       if (draft) {
-        draft.conceptTagIds = [...tagList];
+        draft.concepts = [...tagList];
       }
     });
 
@@ -208,7 +204,7 @@ function RouteComponent() {
   const handleRemoveChildTag = (tagId: number, index: number) => {
     const newChildProblem = produce(childProblems[index], (draft) => {
       if (draft) {
-        draft.conceptTagIds = draft.conceptTagIds.filter((tag) => tag !== tagId);
+        draft.concepts = draft.concepts?.filter((tag) => tag !== tagId);
       }
     });
     if (newChildProblem) {
@@ -216,51 +212,51 @@ function RouteComponent() {
     }
   };
 
-  const handleChangeChildProblemImage = (newImageUrl: string, index: number) => {
-    const newChildProblem = produce(childProblems[index], (draft) => {
-      if (draft) {
-        draft.imageUrl = newImageUrl;
-      }
-    });
-    if (newChildProblem) {
-      update(index, newChildProblem);
-    }
-  };
+  // const handleChangeChildProblemImage = (newImageUrl: string, index: number) => {
+  //   const newChildProblem = produce(childProblems[index], (draft) => {
+  //     if (draft) {
+  //       draft.imageUrl = newImageUrl;
+  //     }
+  //   });
+  //   if (newChildProblem) {
+  //     update(index, newChildProblem);
+  //   }
+  // };
 
-  const handleChangeChildPrescriptionImage = (newImageUrl: string, index: number) => {
-    const newChildProblem = produce(childProblems[index], (draft) => {
-      if (draft) {
-        // 추후 확장성을 고려해 배열로 관리되지만, 현재는 1개만 저장
-        draft.prescriptionImageUrls = [newImageUrl];
-      }
-    });
-    if (newChildProblem) {
-      update(index, newChildProblem);
-    }
-  };
+  // const handleChangeChildPrescriptionImage = (newImageUrl: string, index: number) => {
+  //   const newChildProblem = produce(childProblems[index], (draft) => {
+  //     if (draft) {
+  //       // 추후 확장성을 고려해 배열로 관리되지만, 현재는 1개만 저장
+  //       draft.prescriptionImageUrls = [newImageUrl];
+  //     }
+  //   });
+  //   if (newChildProblem) {
+  //     update(index, newChildProblem);
+  //   }
+  // };
 
-  const handleAddPrescription = () => {
-    const newPrescriptionImageUrls = [...(prescriptionImageUrls || [])];
-    newPrescriptionImageUrls.push('');
-    setValue('prescriptionImageUrls', newPrescriptionImageUrls);
-  };
+  // const handleAddPrescription = () => {
+  //   const newPrescriptionImageUrls = [...(prescriptionImageUrls || [])];
+  //   newPrescriptionImageUrls.push('');
+  //   setValue('prescriptionImageUrls', newPrescriptionImageUrls);
+  // };
 
-  const handleChangePrescriptionImageUrl = (imageUrl: string, index: number) => {
-    const updatedUrls = [...(prescriptionImageUrls || [])];
-    updatedUrls[index] = imageUrl;
-    setValue('prescriptionImageUrls', updatedUrls);
-  };
+  // const handleChangePrescriptionImageUrl = (imageUrl: string, index: number) => {
+  //   const updatedUrls = [...(prescriptionImageUrls || [])];
+  //   updatedUrls[index] = imageUrl;
+  //   setValue('prescriptionImageUrls', updatedUrls);
+  // };
 
-  const handleDeletePrescription = (index: number) => {
-    const updatedUrls = [...(prescriptionImageUrls || [])];
-    updatedUrls.splice(index, 1);
-    setValue('prescriptionImageUrls', updatedUrls);
-  };
+  // const handleDeletePrescription = (index: number) => {
+  //   const updatedUrls = [...(prescriptionImageUrls || [])];
+  //   updatedUrls.splice(index, 1);
+  //   setValue('prescriptionImageUrls', updatedUrls);
+  // };
 
   // useEffect
   useEffect(() => {
     if (fetchedProblemData) {
-      reset(transformToProblemUpdateRequest(fetchedProblemData.data)); // 응답 -> 수정에 맞게 데이터 변환
+      reset(transformToProblemUpdateRequest(fetchedProblemData)); // 응답 -> 수정에 맞게 데이터 변환
     }
   }, [fetchedProblemData]);
 
@@ -298,7 +294,7 @@ function RouteComponent() {
                   clearErrors();
                   if (type === 'CREATION_PROBLEM') {
                     setValue('practiceTestId', undefined);
-                    setValue('number', undefined);
+                    setValue('practiceTestNo', undefined);
                   }
                   field.onChange(type);
                 }}
@@ -321,7 +317,7 @@ function RouteComponent() {
                 )}
               />
               <ProblemEssentialInput.PraticeTestNumber
-                {...register('number', {
+                {...register('practiceTestNo', {
                   valueAsNumber: true,
                   required: '모의고사와 문항 번호는 필수 입력 항목입니다.',
                 })}
@@ -329,7 +325,7 @@ function RouteComponent() {
             </ProblemEssentialInput.PracticeTestSection>
           )}
           <ProblemEssentialInput.ProblemError
-            isError={Boolean(errors.practiceTestId || errors.number)}
+            isError={Boolean(errors.practiceTestId || errors.practiceTestNo)}
             errorMessage='모의고사와 문항 번호는 필수 입력 항목입니다.'
           />
         </ProblemEssentialInput>
@@ -341,8 +337,8 @@ function RouteComponent() {
               </ComponentWithLabel>
               <ComponentWithLabel label='메인 문항 개념 태그' labelWidth='15.4rem'>
                 <div className='flex flex-wrap gap-[0.8rem]'>
-                  {conceptTagIds.length > 0 &&
-                    conceptTagIds.map((tag) => (
+                  {concepts && concepts?.length > 0 &&
+                    concepts.map((tag) => (
                       <Tag
                         key={tag}
                         label={tagsNameMap[tag] ?? ''}
@@ -362,7 +358,7 @@ function RouteComponent() {
                   />
                   <AnswerInput.AnswerInputSection
                     selectedAnswerType={selectedAnswerType}
-                    selectedAnswer={selectedAnswer}
+                    selectedAnswer={selectedAnswer.toString()}
                     {...register('answer')}
                   />
                 </AnswerInput>
@@ -380,7 +376,7 @@ function RouteComponent() {
                 <div>
                   <ComponentWithLabel label='권장 시간 입력'>
                     <div className='flex gap-[2.4rem]'>
-                      <div className='flex items-center gap-[1.6rem]'>
+                      {/* <div className='flex items-center gap-[1.6rem]'>
                         <input
                           className='font-bold-18 border-lightgray500 h-[5.6rem] w-[5.6rem] rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]'
                           {...register('recommendedMinute', {
@@ -388,11 +384,11 @@ function RouteComponent() {
                           })}
                         />
                         <span className='font-medium-18 text-black'>분</span>
-                      </div>
+                      </div> */}
                       <div className='flex items-center gap-[1.6rem]'>
                         <input
                           className='font-bold-18 border-lightgray500 h-[5.6rem] w-[5.6rem] rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]'
-                          {...register('recommendedSecond', {
+                          {...register('recommendedTimeSec', {
                             valueAsNumber: true,
                           })}
                         />
@@ -406,7 +402,7 @@ function RouteComponent() {
               <div className='grid grid-cols-3 gap-x-[4.8rem]'>
                 <div>
                   <ComponentWithLabel label='메인 문항 선택' direction='column'>
-                    <Controller
+                    {/* <Controller
                       control={control}
                       name='mainProblemImageUrl'
                       render={({ field }) => (
@@ -417,12 +413,13 @@ function RouteComponent() {
                           handleChangeImageUrl={field.onChange}
                         />
                       )}
-                    />
+                    /> */}
+                    <></>
                   </ComponentWithLabel>
                 </div>
                 <div>
                   <ComponentWithLabel label='메인 문항 분석 선택' direction='column'>
-                    <Controller
+                    {/* <Controller
                       control={control}
                       name='mainAnalysisImageUrl'
                       render={({ field }) => (
@@ -433,12 +430,13 @@ function RouteComponent() {
                           handleChangeImageUrl={field.onChange}
                         />
                       )}
-                    />
+                    /> */}
+                    <></>
                   </ComponentWithLabel>
                 </div>
                 <div>
                   <ComponentWithLabel label='메인 문항 손해설 선택' direction='column'>
-                    <Controller
+                    {/* <Controller
                       control={control}
                       name='mainHandwritingExplanationImageUrl'
                       render={({ field }) => (
@@ -449,7 +447,8 @@ function RouteComponent() {
                           handleChangeImageUrl={field.onChange}
                         />
                       )}
-                    />
+                    /> */}
+                    <></>
                   </ComponentWithLabel>
                 </div>
               </div>
@@ -468,14 +467,14 @@ function RouteComponent() {
             </div>
             <div className='mt-[3.2rem] grid grid-cols-2 gap-x-[4.8rem] gap-y-[6.4rem]'>
               {childProblems.map((childProblem, index) => {
-                const watchedConceptTagIds = watch(`updateChildProblems.${index}.conceptTagIds`);
-                const watchedAnswerType = watch(`updateChildProblems.${index}.answerType`);
-                const watchedAnswer = watch(`updateChildProblems.${index}.answer`);
+                const watchedConceptTagIds = watch(`childProblems.${index}.concepts`);
+                const watchedAnswerType = watch(`childProblems.${index}.answerType`);
+                const watchedAnswer = watch(`childProblems.${index}.answer`);
                 return (
                   <div key={childProblem.id} className='flex flex-col gap-[3.2rem]'>
                     <ComponentWithLabel label='새끼 문항 개념 태그'>
                       <div className='flex flex-1 flex-wrap gap-[0.8rem]'>
-                        {watchedConceptTagIds.length > 0 &&
+                        {watchedConceptTagIds && watchedConceptTagIds.length > 0 &&
                           watchedConceptTagIds.map((tag, tagIndex) => (
                             <Tag
                               key={tag}
@@ -489,7 +488,7 @@ function RouteComponent() {
                           label='태그 추가하기'
                           onClick={() => {
                             setCurrentChildIndex(index);
-                            setCurrentChildTagList(watchedConceptTagIds);
+                            setCurrentChildTagList(watchedConceptTagIds || []);
                             openChildTagModal();
                           }}
                           color='lightgray'
@@ -499,21 +498,22 @@ function RouteComponent() {
                         size='small'
                         type='button'
                         label='문항 삭제'
-                        onClick={() => handleDeleteChildProblem(childProblem.childProblemId, index)}
+                        // onClick={() => handleDeleteChildProblem(childProblem.childProblemId, index)}
                       />
                     </ComponentWithLabel>
                     <ComponentWithLabel label='새끼 문항 선택' direction='column'>
-                      <ImageUpload
+                      {/* <ImageUpload
                         problemId={problemId}
                         imageType='CHILD_PROBLEM'
                         imageUrl={childProblem.imageUrl}
                         handleChangeImageUrl={(newImageUrl) =>
                           handleChangeChildProblemImage(newImageUrl, index)
                         }
-                      />
+                      /> */}
+                      <></>
                     </ComponentWithLabel>
                     <ComponentWithLabel label='새끼 문항 답 입력'>
-                      <AnswerInput>
+                      {/* <AnswerInput>
                         <AnswerInput.AnswerTypeSection
                           selectedAnswerType={watchedAnswerType}
                           {...register(`updateChildProblems.${index}.answerType`)}
@@ -523,23 +523,27 @@ function RouteComponent() {
                           selectedAnswer={watchedAnswer}
                           {...register(`updateChildProblems.${index}.answer`)}
                         />
-                      </AnswerInput>
+                      </AnswerInput> */}
+                      <></>
                     </ComponentWithLabel>
                     <ComponentWithLabel label='새끼 문제 진단 및 처방 선택' direction='column'>
-                      <ImageUpload
+                      {/* <ImageUpload
                         problemId={problemId}
                         imageType='CHILD_PRESCRIPTION'
                         imageUrl={childProblem.prescriptionImageUrls[0]}
                         handleChangeImageUrl={(newImageUrl) =>
                           handleChangeChildPrescriptionImage(newImageUrl, index)
                         }
-                      />
+                      /> */}
+                      <></>
                     </ComponentWithLabel>
                   </div>
                 );
               })}
               <div className='flex items-center'>
-                <PlusButton onClick={handleAddChildProblem} />
+                <PlusButton
+                // onClick={handleAddChildProblem}
+                />
               </div>
             </div>
           </SectionCard>
@@ -548,7 +552,7 @@ function RouteComponent() {
             <div className='mt-[4.8rem] grid grid-cols-2 gap-[4.8rem]'>
               <div>
                 <ComponentWithLabel label='문항을 읽어내려갈 때' direction='column'>
-                  <Controller
+                  {/* <Controller
                     control={control}
                     name='readingTipImageUrl'
                     render={({ field }) => (
@@ -559,12 +563,13 @@ function RouteComponent() {
                         handleChangeImageUrl={field.onChange}
                       />
                     )}
-                  />
+                  /> */}
+                  <></>
                 </ComponentWithLabel>
               </div>
               <div>
                 <ComponentWithLabel label='1등급 선배가 해주는 조언' direction='column'>
-                  <Controller
+                  {/* <Controller
                     control={control}
                     name='seniorTipImageUrl'
                     render={({ field }) => (
@@ -575,14 +580,15 @@ function RouteComponent() {
                         handleChangeImageUrl={field.onChange}
                       />
                     )}
-                  />
+                  /> */}
+                  <></>
                 </ComponentWithLabel>
               </div>
             </div>
             <div className='bg-lightgray300 my-[4.8rem] h-[2px] w-full' />
             <h6 className='font-medium-18 mt-[3.2rem] text-black'>진단 및 처방</h6>
             <div className='mt-[2.4rem] grid grid-cols-2 gap-x-[4.8rem] gap-y-[2.4rem]'>
-              {prescriptionImageUrls?.map((url, index) => {
+              {/* {prescriptionImageUrls?.map((url, index) => {
                 return (
                   <ImageUpload
                     key={`prescription-${index}`}
@@ -595,9 +601,11 @@ function RouteComponent() {
                     handleClickDelete={() => handleDeletePrescription(index)}
                   />
                 );
-              })}
+              })} */}
               <div className='flex items-center'>
-                <PlusButton onClick={handleAddPrescription} />
+                <PlusButton
+                // onClick={handleAddPrescription}
+                />
               </div>
             </div>
           </SectionCard>
@@ -607,7 +615,7 @@ function RouteComponent() {
       <Modal isOpen={isTagModalOpen} onClose={closeTagModal}>
         <TagSelectModal
           onClose={closeTagModal}
-          selectedTagList={conceptTagIds}
+          selectedTagList={concepts || []}
           handleChangeTagList={handleChangeTagList}
         />
       </Modal>

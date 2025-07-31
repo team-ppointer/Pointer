@@ -1,4 +1,4 @@
-import { deleteProblemSet, getSearchProblemSet, postProblemSet } from '@apis';
+import { deleteProblemSet, getProblemSetSearch, postProblemSet } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -34,7 +34,7 @@ function RouteComponent() {
 
   const deleteProblemSetId = useRef<number | null>(null);
 
-  const { data: problemSetList } = getSearchProblemSet(searchQuery);
+  const { data: problemSetList } = getProblemSetSearch(searchQuery);
   const { mutate: mutatePostProblemSet } = postProblemSet();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
 
@@ -78,7 +78,12 @@ function RouteComponent() {
 
   const handleClickRegister = () => {
     mutatePostProblemSet(
-      {},
+      {
+        body: {
+          title: '',
+          problems: [],
+        },
+      },
       {
         onSuccess: (data) => {
           navigate({
@@ -103,7 +108,7 @@ function RouteComponent() {
             sizeType='long'
             label='세트 타이틀'
             placeholder='입력해주세요.'
-            {...register('problemSetTitle', { required: false })}
+            {...register('setTitle', { required: false })}
           />
           <SearchInput
             sizeType='long'
@@ -147,7 +152,8 @@ function RouteComponent() {
                     key={`problem-${index}`}
                     title={problem.problem.title ?? ''}
                     memo={problem.problem.memo ?? ''}
-                    imgSrc={problem.mainProblemImageUrl ?? ''}
+                    // imgSrc={problem.mainProblemImageUrl ?? ''}
+                    imgSrc={''}
                   />
                 ))}
               </div>

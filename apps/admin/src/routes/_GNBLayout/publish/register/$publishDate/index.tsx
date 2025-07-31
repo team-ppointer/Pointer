@@ -1,4 +1,4 @@
-import { getConfirmProblemSet, postPublish } from '@apis';
+import { getProblemSetSearch, postPublish } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -32,7 +32,7 @@ function RouteComponent() {
   const [searchQuery, setSearchQuery] = useState<GetProblemSetSearchParams>({});
 
   // api
-  const { data: problemSetList } = getConfirmProblemSet(searchQuery);
+  const { data: problemSetList } = getProblemSetSearch(searchQuery);
   const { mutate: mutatePostPublish } = postPublish();
 
   const { register, handleSubmit, reset } = useForm<GetProblemSetSearchParams>();
@@ -53,20 +53,20 @@ function RouteComponent() {
   const handleClickPublish = () => {
     if (!selectedSetId) return;
 
-    mutatePostPublish(
-      {
-        body: {
-          publishedDate: publishDate,
-          problemSetId: selectedSetId,
-        },
-      },
-      {
-        onSuccess: () => {
-          invalidatePublish(Number(year), Number(month));
-          navigate({ to: '/publish' });
-        },
-      }
-    );
+    // mutatePostPublish(
+    //   {
+    //     body: {
+    //       publishAt: publishDate,
+    //       problemSetId: selectedSetId,
+    //     },
+    //   },
+    //   {
+    //     onSuccess: () => {
+    //       invalidatePublish(Number(year), Number(month));
+    //       navigate({ to: '/publish' });
+    //     },
+    //   }
+    // );
   };
 
   return (
@@ -80,7 +80,7 @@ function RouteComponent() {
             sizeType='long'
             label='세트 타이틀'
             placeholder='입력해주세요.'
-            {...register('problemSetTitle', { required: false })}
+            {...register('setTitle', { required: false })}
           />
           <SearchInput
             sizeType='long'
@@ -106,7 +106,7 @@ function RouteComponent() {
             }}>
             <SectionCard isSelected={selectedSetId === problemSet.id}>
               <div className='flex items-center justify-between'>
-                <h2 className='font-bold-24 text-black'>{problemSet.problemSetTitle}</h2>
+                <h2 className='font-bold-24 text-black'>{problemSet.title}</h2>
                 <div className='flex gap-[1.6rem]'>
                   <IconButton
                     variant={selectedSetId === problemSet.id ? 'select' : 'unselected'}
@@ -119,14 +119,14 @@ function RouteComponent() {
                 </div>
               </div>
               <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
-                {problemSet.problemThumbnailResponses.map((problem, index) => (
+                {/* {problemSet.problemThumbnailResponses.map((problem, index) => (
                   <ProblemPreview
                     key={`문항-${index}`}
                     title={problem.problemTitle ?? ''}
                     memo={problem.problemMemo ?? ''}
                     imgSrc={problem.mainProblemImageUrl ?? ''}
                   />
-                ))}
+                ))} */}
               </div>
             </SectionCard>
           </Link>

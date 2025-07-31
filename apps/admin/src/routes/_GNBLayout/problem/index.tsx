@@ -1,4 +1,4 @@
-import { deleteProblems, getConceptTags, getProblemsSearch } from '@apis';
+import { deleteProblem, getConcept, getProblemsSearch } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -41,8 +41,8 @@ function RouteComponent() {
   const { register, handleSubmit, reset } = useForm<GetProblemsSearchParams>();
 
   const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
-  const { mutate: mutateDeleteProblem } = deleteProblems();
-  const { data: tagsData } = getConceptTags();
+  const { mutate: mutateDeleteProblem } = deleteProblem();
+  const { data: tagsData } = getConcept();
   const allTagList = tagsData?.data || [];
   const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
 
@@ -78,7 +78,7 @@ function RouteComponent() {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );
-    setSearchQuery({ ...filteredData, conceptTagIds: selectedTagList });
+    setSearchQuery({ ...filteredData, concepts: selectedTagList });
   };
 
   const handleResetQuery = () => {
@@ -92,7 +92,7 @@ function RouteComponent() {
     setSearchQuery((prev) => {
       return {
         ...prev,
-        conceptTagIds: prev.conceptTagIds?.filter((selectedTag) => selectedTag !== tag),
+        concepts: prev.concepts?.filter((selectedTag) => selectedTag !== tag),
       };
     });
   };
@@ -102,7 +102,7 @@ function RouteComponent() {
     setSearchQuery((prev) => {
       return {
         ...prev,
-        conceptTagIds: tagList,
+        concepts: tagList,
       };
     });
   };
@@ -117,7 +117,7 @@ function RouteComponent() {
           <SearchInput
             label='문항 ID'
             placeholder='입력해주세요.'
-            {...register('problemCustomId', { required: false })}
+            {...register('customId', { required: false })}
           />
           <SearchInput
             label='문항 타이틀'
@@ -165,7 +165,7 @@ function RouteComponent() {
       ) : (
         <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
           {problemList?.data.map(
-            ({ id: problemId, customId, title, memo, mainProblemImageUrl, concepts }) => (
+            ({ id: problemId, customId, title, memo, concepts }) => (
               <Link
                 key={customId}
                 to={`/problem/$problemId`}
@@ -184,7 +184,7 @@ function RouteComponent() {
                     />
                   </ProblemCard.ButtonSection>
 
-                  <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
+                  {/* <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} /> */}
 
                   <ProblemCard.TagSection>
                     {(concepts || []).map((tag, tagIndex) => {

@@ -1,4 +1,4 @@
-import { postProblems } from '@apis';
+import { postProblem } from '@apis';
 import { Button, Header } from '@components';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Controller, useForm } from 'react-hook-form';
@@ -11,13 +11,13 @@ export const Route = createFileRoute('/_GNBLayout/problem/register/')({
   component: RouteComponent,
 });
 
-type ProblemPostRequest = components['schemas']['ProblemPostRequest'];
+type ProblemPostRequest = components['schemas']['ProblemCreateRequest'];
 
 function RouteComponent() {
   const { navigate } = useRouter();
   const { invalidateAll } = useInvalidate();
 
-  const { mutate } = postProblems();
+  const { mutate } = postProblem();
   const {
     control,
     register,
@@ -30,7 +30,7 @@ function RouteComponent() {
     defaultValues: {
       problemType: 'GICHUL_PROBLEM',
       practiceTestId: undefined,
-      number: undefined,
+      practiceTestNo: undefined,
     },
   });
   const problemType = watch('problemType');
@@ -43,7 +43,7 @@ function RouteComponent() {
       {
         onSuccess: (data) => {
           invalidateAll();
-          const { id } = data.data;
+          const { id } = data;
           navigate({ to: '/problem/$problemId', params: { problemId: id.toString() } });
         },
       }
@@ -66,7 +66,7 @@ function RouteComponent() {
                 handleChangeType={(type) => {
                   if (type === 'CREATION_PROBLEM') {
                     setValue('practiceTestId', undefined);
-                    setValue('number', undefined);
+                    setValue('practiceTestNo', undefined);
                   }
                   clearErrors();
                   field.onChange(type);
@@ -90,7 +90,7 @@ function RouteComponent() {
                 )}
               />
               <ProblemEssentialInput.PraticeTestNumber
-                {...register('number', {
+                {...register('practiceTestNo', {
                   valueAsNumber: true,
                   required: '모의고사와 문항 번호는 필수 입력 항목입니다.',
                 })}
@@ -98,7 +98,7 @@ function RouteComponent() {
             </ProblemEssentialInput.PracticeTestSection>
           )}
           <ProblemEssentialInput.ProblemError
-            isError={Boolean(errors.practiceTestId || errors.number)}
+            isError={Boolean(errors.practiceTestId || errors.practiceTestNo)}
             errorMessage='모의고사와 문항 번호는 필수 입력 항목입니다.'
           />
         </ProblemEssentialInput>

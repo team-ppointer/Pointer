@@ -1,6 +1,6 @@
 import { IcCloseCircle, IcDown, IcUp } from '@svg';
 import { useEffect, useState } from 'react';
-import { getPracticeTestTags } from '@apis';
+import { getPracticeTest } from '@apis';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
 
@@ -10,7 +10,7 @@ interface PracticeTestSelectProps {
 }
 
 const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSelectProps) => {
-  const { data: practiceTestList } = getPracticeTestTags();
+  const { data: practiceTestList } = getPracticeTest();
 
   const [isOpen, setIsOpen] = useState(false);
   const [filteredResult, setFilteredResult] = useState(practiceTestList?.data);

@@ -1,4 +1,9 @@
-import { deleteProblemSet, getProblemSetById, putConfirmProblemSet, putProblemSet } from '@apis';
+import {
+  deleteProblemSet,
+  getProblemSetById,
+  putProblemSetToggleStatus,
+  putProblemSet,
+} from '@apis';
 import {
   Button,
   ComponentWithLabel,
@@ -37,16 +42,15 @@ export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
 });
 
 type ProblemSetUpdateRequest = components['schemas']['ProblemSetUpdateRequest'];
-type ProblemSummaryResponse = components['schemas']['ProblemSummaryResponse'];
-type ProblemSearchGetResponse = components['schemas']['ProblemSearchGetResponse'];
-type ErrorResponse = components['schemas']['ErrorResponse'];
+type ProblemMetaResp = components['schemas']['ProblemMetaResp'];
+type ProblemSetItemResp = components['schemas']['ProblemSetItemResp'];
 
 function RouteComponent() {
   const { problemSetId } = Route.useParams();
   const { navigate } = useRouter();
   const { invalidateProblemSet } = useInvalidate();
 
-  const [problemSummaries, setProblemSummaries] = useState<ProblemSummaryResponse[]>([]);
+  const [problemSummaries, setProblemSummaries] = useState<ProblemSetItemResp[]>([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState<number>(0);
   const [deleteProblemIndex, setDeleteProblemIndex] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -79,17 +83,20 @@ function RouteComponent() {
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
   // api
-  const { data: problemSetData } = getProblemSetById(Number(problemSetId));
+  const { data: problemSetData } = getProblemSetById({ id: Number(problemSetId) });
   const { mutate: mutatePutProblemSet } = putProblemSet();
-  const { mutate: mutateConfirmProblemSet } = putConfirmProblemSet();
+  const { mutate: mutateConfirmProblemSet } = putProblemSetToggleStatus();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
-  const confirmStatus = problemSetData?.data.confirmStatus;
+  const confirmStatus = problemSetData?.status;
 
   // RHF
-  const { register, handleSubmit, setValue } = useForm<ProblemSetUpdateRequest>({
+  const { register, handleSubmit, setValue } = useForm<{
+    title: string;
+    status: 'CONFIRMED' | 'DOING';
+  }>({
     defaultValues: {
-      problemSetTitle: '',
-      problemIds: [],
+      title: '',
+      status: 'DOING',
     },
   });
 
@@ -104,21 +111,21 @@ function RouteComponent() {
       {
         params: {
           path: {
-            problemSetId: Number(problemSetId),
+            id: Number(problemSetId),
           },
         },
       },
       {
         onSuccess: (data) => {
           invalidateProblemSet(Number(problemSetId));
-          if (data.data === 'CONFIRMED') {
+          if (data.status === 'CONFIRMED') {
             toast.success('컨펌이 완료되었습니다');
           } else {
             toast.info('컨펌이 취소되었습니다');
           }
         },
-        onError: (error: ErrorResponse) => {
-          setErrorMessage(error.message);
+        onError: (error: any) => {
+          setErrorMessage(error.message || '오류가 발생했습니다.');
           openErrorModal();
         },
       }
@@ -130,7 +137,7 @@ function RouteComponent() {
       {
         params: {
           path: {
-            problemSetId: Number(problemSetId),
+            id: Number(problemSetId),
           },
         },
       },
@@ -145,11 +152,12 @@ function RouteComponent() {
 
   // functions
   const handleClickSetDelete = () => {
-    if (problemSetData?.data.publishedDates && problemSetData?.data.publishedDates.length > 0) {
-      setErrorMessage('발행된 세트는 삭제할 수 없어요');
-      openErrorModal();
-      return;
-    }
+    // publishedDates 속성이 스키마에 없으므로 주석 처리
+    // if (problemSetData?.publishedDates && problemSetData?.publishedDates.length > 0) {
+    //   setErrorMessage('발행된 세트는 삭제할 수 없어요');
+    //   openErrorModal();
+    //   return;
+    // }
     openSetDeleteModal();
   };
 
@@ -168,11 +176,23 @@ function RouteComponent() {
       return [
         ...prev,
         {
-          problemId: 0,
-          problemCustomId: '',
-          memo: '',
-          mainProblemImageUrl: undefined,
-          tagNames: [],
+          id: 0,
+          no: prev.length + 1,
+          problem: {
+            id: 0,
+            customId: '',
+            problemType: 'CREATION_PROBLEM',
+            practiceTest: { id: 0, year: 0, month: 0, grade: 0, name: '', displayName: '' },
+            practiceTestNo: 0,
+            problemContent: { id: 0, blocks: [] },
+            title: '',
+            answerType: 'MULTIPLE_CHOICE',
+            answer: 0,
+            difficulty: 0,
+            recommendedTimeSec: 0,
+            memo: '',
+            concepts: [],
+          },
         },
       ];
     });
@@ -212,28 +232,40 @@ function RouteComponent() {
   const resetProblemSummaries = () => {
     setProblemSummaries([
       {
-        problemId: 0,
-        problemCustomId: '',
-        memo: '',
-        mainProblemImageUrl: undefined,
-        tagNames: [],
+        id: 0,
+        no: 1,
+        problem: {
+          id: 0,
+          customId: '',
+          problemType: 'CREATION_PROBLEM',
+          practiceTest: { id: 0, year: 0, month: 0, grade: 0, name: '', displayName: '' },
+          practiceTestNo: 0,
+          problemContent: { id: 0, blocks: [] },
+          title: '',
+          answerType: 'MULTIPLE_CHOICE',
+          answer: 0,
+          difficulty: 0,
+          recommendedTimeSec: 0,
+          memo: '',
+          concepts: [],
+        },
       },
     ]);
   };
 
-  const handleAddProblemSummary = (index: number, problemSummary: ProblemSearchGetResponse) => {
-    if (
-      problemSummaries
-        .map((problemSummary) => problemSummary.problemId)
-        .includes(problemSummary.problemId)
-    ) {
+  const handleAddProblemSummary = (index: number, problemMeta: ProblemMetaResp) => {
+    if (problemSummaries.map((item) => item.problem.id).includes(problemMeta.id)) {
       setErrorMessage('이미 추가된 문항이에요');
       openErrorModal();
       return;
     }
 
     const newProblemSummaries = [...problemSummaries];
-    newProblemSummaries[index] = problemSummary;
+    newProblemSummaries[index] = {
+      id: problemMeta.id,
+      no: index + 1,
+      problem: problemMeta,
+    };
     setProblemSummaries(newProblemSummaries);
 
     closeSearchModal();
@@ -241,9 +273,7 @@ function RouteComponent() {
   };
 
   const handleClickSave = (data: ProblemSetUpdateRequest) => {
-    const filteredProblemSummaries = problemSummaries.filter(
-      (problemSummary) => problemSummary.problemId !== 0
-    );
+    const filteredProblemSummaries = problemSummaries.filter((item) => item.problem.id !== 0);
     if (filteredProblemSummaries.length === 0) {
       setErrorMessage('적어도 1개의 문항을 등록해주세요');
       openErrorModal();
@@ -251,18 +281,20 @@ function RouteComponent() {
     }
 
     const filteredData = {
-      ...data,
-      problemIds: filteredProblemSummaries.map((problemSummary) => problemSummary.problemId),
+      title: data.title,
+      status: data.status,
+      problems: filteredProblemSummaries.map((item, index) => ({
+        no: index + 1,
+        problemId: item.problem.id,
+      })),
     };
 
     mutatePutProblemSet(
       {
-        body: {
-          ...filteredData,
-        },
+        body: filteredData,
         params: {
           path: {
-            problemSetId: Number(problemSetId),
+            id: Number(problemSetId),
           },
         },
       },
@@ -279,12 +311,8 @@ function RouteComponent() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const currentSequence = problemSummaries.findIndex(
-        (problemSummary) => problemSummary.problemId === active.id
-      );
-      const newSequence = problemSummaries.findIndex(
-        (problemSummary) => problemSummary.problemId === over.id
-      );
+      const currentSequence = problemSummaries.findIndex((item) => item.problem.id === active.id);
+      const newSequence = problemSummaries.findIndex((item) => item.problem.id === over.id);
 
       setProblemSummaries((prevList) => arrayMove(prevList, currentSequence, newSequence));
       if (isSaved) setIsSaved(false);
@@ -294,16 +322,12 @@ function RouteComponent() {
   // useEffect
   useEffect(() => {
     if (problemSetData) {
-      setValue('problemSetTitle', problemSetData.data.title ?? '');
-      if (problemSetData.data.problemSummaries.length === 0) {
-        setValue('problemIds', [0]);
+      setValue('title', problemSetData.title ?? '');
+      setValue('status', problemSetData.status ?? 'DOING');
+      if (problemSetData.problems.length === 0) {
         resetProblemSummaries();
       } else {
-        setValue(
-          'problemIds',
-          problemSetData.data.problemSummaries.map((problem) => problem.problemId)
-        );
-        setProblemSummaries(problemSetData.data.problemSummaries);
+        setProblemSummaries(problemSetData.problems);
       }
     }
   }, [problemSetData]);
@@ -336,7 +360,7 @@ function RouteComponent() {
           <ComponentWithLabel label='세트 제목'>
             <Input
               placeholder='입력해주세요'
-              {...register('problemSetTitle', {
+              {...register('title', {
                 onChange: () => isSaved && setIsSaved(false),
               })}
             />
@@ -345,7 +369,7 @@ function RouteComponent() {
 
         <div className='flex items-center gap-[2.4rem]'>
           <StatusToggle
-            selectedStatus={confirmStatus ?? 'NOT_CONFIRMED'}
+            selectedStatus={confirmStatus === 'CONFIRMED' ? 'CONFIRMED' : 'NOT_CONFIRMED'}
             onSelect={() => {
               handleSubmit(handleClickSave);
               handleClickConfirm();
@@ -362,37 +386,34 @@ function RouteComponent() {
       <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
-            items={problemSummaries.map((problemSummary) => problemSummary.problemId)}
+            items={problemSummaries.map((item) => item.problem.id)}
             strategy={horizontalListSortingStrategy}>
-            {problemSummaries.map((problemSummary: ProblemSummaryResponse, index: number) => {
+            {problemSummaries.map((item: ProblemSetItemResp, index: number) => {
               const handlePointerDown = (event: React.PointerEvent) => {
                 event.stopPropagation(); // 이벤트가 상위로 전파되지 않도록 차단
               };
+              const problem = item.problem;
+              const getImageUrl = () => {
+                const imageBlock = problem.problemContent?.blocks?.find(
+                  (block) => block.type === 'IMAGE'
+                );
+                return imageBlock?.data;
+              };
+
               return (
-                <ProblemCard
-                  key={`${problemSummary.problemId}-${index}`}
-                  problemId={problemSummary.problemId}>
-                  {problemSummary.problemId === 0 ? (
+                <ProblemCard key={`${problem.id}-${index}`} problemId={problem.id}>
+                  {problem.id === 0 ? (
                     <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
                   ) : (
                     <>
                       <ProblemCard.TextSection>
                         <ProblemCard.Title title={`문항 ${index + 1}`} />
-                        <ProblemCard.Info
-                          label='문항 ID'
-                          content={problemSummaries[index]?.problemCustomId.toString()}
-                        />
-                        <ProblemCard.Info
-                          label='문항 타이틀'
-                          content={problemSummaries[index]?.problemTitle}
-                        />
-                        <ProblemCard.Info
-                          label='문항 메모'
-                          content={problemSummaries[index]?.memo}
-                        />
+                        <ProblemCard.Info label='문항 ID' content={problem.customId} />
+                        <ProblemCard.Info label='문항 타이틀' content={problem.title} />
+                        <ProblemCard.Info label='문항 메모' content={problem.memo} />
                         <ProblemCard.TagSection>
-                          {problemSummaries[index]?.tagNames.map((tag, tagIndex) => {
-                            return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
+                          {problem.concepts?.map((concept, tagIndex) => {
+                            return <Tag key={`${concept.name}-${tagIndex}`} label={concept.name} />;
                           })}
                         </ProblemCard.TagSection>
                       </ProblemCard.TextSection>
@@ -402,7 +423,7 @@ function RouteComponent() {
                           onClick={() =>
                             navigate({
                               to: '/problem/$problemId',
-                              params: { problemId: problemSummary.problemId.toString() },
+                              params: { problemId: problem.id.toString() },
                             })
                           }
                           onPointerDown={handlePointerDown}
@@ -413,10 +434,7 @@ function RouteComponent() {
                           onPointerDown={handlePointerDown}
                         />
                       </ProblemCard.ButtonSection>
-                      <ProblemCard.CardImage
-                        src={problemSummaries[index]?.mainProblemImageUrl}
-                        height={'34.4rem'}
-                      />
+                      <ProblemCard.CardImage src={getImageUrl()} height={'34.4rem'} />
                     </>
                   )}
                 </ProblemCard>
@@ -448,7 +466,7 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isSearchModalOpen} onClose={closeSearchModal}>
         <ProblemSearchModal
-          onClickCard={(problem: ProblemSearchGetResponse) => {
+          onClickCard={(problem: ProblemMetaResp) => {
             handleAddProblemSummary(currentProblemIndex, problem);
           }}
         />
