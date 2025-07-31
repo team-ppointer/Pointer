@@ -152,7 +152,7 @@ const ProblemCalandar = () => {
             </div>
             <div className='flex items-center gap-[0.6rem]'>
               <div className='bg-lightgray300 h-[1.4rem] w-[1.4rem] rounded-[5px]' />
-              <p className='font-medium-12 text-midgray100'>미완료</p>
+              <p className='font-medium-12 text-midgray100'>시작전</p>
             </div>
             <div className='flex items-center gap-[0.6rem]'>
               <div className='border-lightgray300 flex h-[1.4rem] w-[1.4rem] items-center justify-center rounded-[5px] border bg-white'>

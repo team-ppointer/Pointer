@@ -15,22 +15,23 @@ dayjs.locale('ko');
 const answerStatusLabel = (status: string) => {
   switch (status) {
     case 'CORRECT':
-    case 'RETRY_CORRECT':
+    case 'SEMI_CORRECT':
+      return '정답';
     case 'INCORRECT':
-      return '완료';
+      return '오답';
     case 'DOING':
-      return '진행중';
     case 'NONE':
     default:
-      return '미완료';
+      return '미완';
   }
 };
 const answerStatusColor = (status: string) => {
   switch (status) {
     case 'DONE':
       return 'green';
-    case 'DOING':
+    case 'INCORRECT':
       return 'red';
+    case 'DOING':
     case 'NONE':
     default:
       return 'gray';
@@ -45,7 +46,7 @@ const DayProblemCard = ({ dayProblemData }: { dayProblemData: AllProblemGetRespo
   const pathname = usePathname();
   const isTeacherPage = pathname.includes('/teacher');
 
-  const progressLabel = progress === 'DONE' ? '완료' : progress === 'DOING' ? '진행중' : '미완료';
+  const progressLabel = progress === 'DONE' ? '완료' : progress === 'DOING' ? '진행중' : '미완';
   const progressColor = progress === 'DONE' ? 'green' : progress === 'DOING' ? 'red' : 'gray';
 
   const dayOfWeek = dayjs(publishAt).format('ddd요일');
@@ -56,7 +57,7 @@ const DayProblemCard = ({ dayProblemData }: { dayProblemData: AllProblemGetRespo
       <div className='flex flex-col gap-[1.6rem]'>
         <div className='flex items-center justify-between gap-[1.2rem]'>
           <p className='font-bold-18 text-main'>{`${dateFormatted} ${dayOfWeek}`}</p>
-          <Tag variant={progressColor} sizeType='small'>
+          <Tag variant={progressColor} sizeType='auto'>
             {progressLabel}
           </Tag>
         </div>
@@ -69,7 +70,7 @@ const DayProblemCard = ({ dayProblemData }: { dayProblemData: AllProblemGetRespo
                 key={problem.no}
                 className='flex w-[15.7rem] items-center justify-between gap-[0.8rem]'>
                 <p className='font-medium-16 text-black'>{`메인문제 ${problem.no}번`}</p>
-                <Tag variant={answerStatusColor(problem.progress)} sizeType='small'>
+                <Tag variant={answerStatusColor(problem.progress)} sizeType='auto'>
                   {answerStatusLabel(problem.progress)}
                 </Tag>
               </li>

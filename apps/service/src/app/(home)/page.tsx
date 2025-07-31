@@ -59,7 +59,7 @@ const Page = () => {
           </div>
         )}
       </div>
-      <BottomFixedArea>
+      <BottomFixedArea zIndex={10}>
         <footer className='flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[3.3rem]'>
           <Button variant='light' onClick={handleClickAllProblem}>
             <IcCalendar width={24} height={24} />

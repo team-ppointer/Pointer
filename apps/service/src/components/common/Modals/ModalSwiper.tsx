@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { useRouter } from 'next/navigation';
 
 import { BaseModalTemplate } from '@components';
-import { putRead } from '@/apis/controller/home';
+import { putRead, useGetNotice, useGetNoticeUnreadCount } from '@/apis/controller/home';
 import { components } from '@schema';
 
 import 'swiper/css';
@@ -11,16 +11,17 @@ import 'swiper/css/pagination';
 
 type NoticeResp = components['schemas']['NoticeResp'];
 
-type Props = {
-  noticeSets: NoticeResp[];
-};
-
-const ModalSwiper = ({ noticeSets }: Props) => {
+const ModalSwiper = () => {
   const router = useRouter();
+  const { data: getNoticeData, refetch } = useGetNotice();
+  const { refetch: refetchUnreadCount } = useGetNoticeUnreadCount();
+  const noticeSets = getNoticeData?.data.filter((notice) => !notice.isRead) || [];
   const unreadNotices = noticeSets.filter((notice) => !notice.isRead);
 
   const onClickConfirm = async (noticeId: number) => {
     await putRead(noticeId);
+    await refetch();
+    await refetchUnreadCount(); // unreadCount도 업데이트
     if (unreadNotices.length === 1) {
       router.back();
     }
@@ -29,21 +30,24 @@ const ModalSwiper = ({ noticeSets }: Props) => {
 
   const renderNoticeSlide = (notice: NoticeResp) => {
     return (
-      <div className='h-full w-full rounded-[16px] bg-white shadow-lg'>
+      <div className='h-auto max-h-[80vh] w-full overflow-auto rounded-[16px] bg-white shadow-lg'>
         <BaseModalTemplate>
           <BaseModalTemplate.Content>
-            <BaseModalTemplate.Text text='새 공지' className='font-bold-18' />
-            <BaseModalTemplate.Text text={notice.content} className='font-medium-16' />
-            <BaseModalTemplate.ButtonSection>
-              <BaseModalTemplate.Button
-                variant='blue'
-                onClick={() => {
-                  onClickConfirm(notice.id);
-                }}>
-                확인
-              </BaseModalTemplate.Button>
-            </BaseModalTemplate.ButtonSection>
+            <BaseModalTemplate.Text className='font-bold-18 text-[ #1E1E21]' text='새 공지' />
+            <BaseModalTemplate.Text
+              className='text-[ #1E1E21] w-full text-center break-words whitespace-pre-wrap'
+              text={notice.content}
+            />
           </BaseModalTemplate.Content>
+          <BaseModalTemplate.ButtonSection>
+            <BaseModalTemplate.Button
+              variant='blue'
+              onClick={() => {
+                onClickConfirm(notice.id);
+              }}>
+              확인
+            </BaseModalTemplate.Button>
+          </BaseModalTemplate.ButtonSection>
         </BaseModalTemplate>
       </div>
     );
