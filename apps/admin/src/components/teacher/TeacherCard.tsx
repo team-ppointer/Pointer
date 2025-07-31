@@ -3,14 +3,14 @@ import { IcTagCheck16 } from '@svg';
 
 interface Props {
   name: string;
-  id: string;
-  password: string;
+  id: number;
+  email: string;
   students: string[];
   isChecked: boolean;
-  toggleTeacher: (id: string) => void;
+  toggleTeacher: (id: number) => void;
 }
 
-const TeacherCard = ({ name, id, password, students, isChecked, toggleTeacher }: Props) => {
+const TeacherCard = ({ name, id, email, students, isChecked, toggleTeacher }: Props) => {
   return (
     <section className='flex flex-col gap-[0.8rem] rounded-[1.6rem] bg-white px-[2.4rem] py-[1.6rem]'>
       <div className='flex w-full justify-between'>
@@ -33,12 +33,12 @@ const TeacherCard = ({ name, id, password, students, isChecked, toggleTeacher }:
       </div>
       <div className='flex w-full'>
         <div className='font-medium-16 text-lightgray500 mr-[0.8rem] w-[5.6rem]'>아이디</div>
-        <div className='font-medium-16 text-black'>{id}</div>
+        <div className='font-medium-16 text-black'>{email}</div>
       </div>
-      <div className='flex w-full'>
+      {/* <div className='flex w-full'>
         <div className='font-medium-16 text-lightgray500 mr-[0.8rem] w-[5.6rem]'>비밀번호</div>
         <div className='font-medium-16 text-black'>{password}</div>
-      </div>
+      </div> */}
       <div className='flex w-full'>
         <div className='font-medium-16 text-lightgray500 mr-[0.8rem] w-[5.6rem]'>담당학생</div>
         <div className='font-medium-16 text-black'>{students.join(', ')}</div>

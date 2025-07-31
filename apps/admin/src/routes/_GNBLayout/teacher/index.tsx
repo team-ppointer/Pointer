@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Button, FloatingButton, Header, Input } from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
+import { getTeacher } from '@apis';
 
 import { TeacherCard } from '@/components/teacher';
 
@@ -10,74 +11,20 @@ export const Route = createFileRoute('/_GNBLayout/teacher/')({
   component: RouteComponent,
 });
 
-const OPTIONS = [
-  {
-    name: '과외 선생님',
-    id: 'teacher',
-    password: 'password',
-    students: ['student1', 'student2'],
-  },
-  {
-    name: '과외 선생님2',
-    id: 'teacher2',
-    password: 'password2',
-    students: ['student3', 'student4'],
-  },
-  {
-    name: '과외 선생님3',
-    id: 'teacher3',
-    password: 'password3',
-    students: ['student5', 'student6'],
-  },
-  {
-    name: '과외 선생님',
-    id: 'teacher',
-    password: 'password',
-    students: ['student1', 'student2'],
-  },
-  {
-    name: '과외 선생님2',
-    id: 'teacher2',
-    password: 'password2',
-    students: ['student3', 'student4'],
-  },
-  {
-    name: '과외 선생님3',
-    id: 'teacher3',
-    password: 'password3',
-    students: ['student5', 'student6'],
-  },
-  {
-    name: '과외 선생님',
-    id: 'teacher',
-    password: 'password',
-    students: ['student1', 'student2'],
-  },
-  {
-    name: '과외 선생님2',
-    id: 'teacher2',
-    password: 'password2',
-    students: ['student3', 'student4'],
-  },
-  {
-    name: '과외 선생님3',
-    id: 'teacher3',
-    password: 'password3',
-    students: ['student5', 'student6'],
-  },
-];
-
 function RouteComponent() {
-  const [selectedTeacherId, setSelectedTeacherId] = useState<string[]>([]);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number[]>([]);
   const { register, handleSubmit, reset } = useForm<{
     query: string;
   }>();
+
+  // api
+  const { data: teacherList } = getTeacher();
 
   const handleClickSearch = (data: { query: string }) => {
     // Handle search logic here
   };
 
-  const toggleTeacher = (id: string) => {
+  const toggleTeacher = (id: number) => {
     setSelectedTeacherId((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
@@ -99,7 +46,7 @@ function RouteComponent() {
       <div className='my-[4.8rem] flex items-center justify-between'>
         <h2 className='font-bold-32 text-black'>과외 선생 리스트</h2>
         <div className='flex gap-[1.6rem]'>
-          <Button sizeType='fit' variant='light'>
+          <Button sizeType='fit' variant='light' onClick={() => setSelectedTeacherId([])}>
             전체 선택 해제
           </Button>
           <Button sizeType='fit' variant='dark'>
@@ -110,15 +57,15 @@ function RouteComponent() {
 
       <section className='mb-[8rem] flex flex-col gap-[4.8rem]'>
         <div className='grid grid-cols-3 gap-[2.4rem]'>
-          {OPTIONS.map((teacher) => {
+          {teacherList?.data.map((teacher) => {
             const isChecked = selectedTeacherId.includes(teacher.id);
             return (
               <TeacherCard
                 key={teacher.id}
-                name={teacher.name}
                 id={teacher.id}
-                password={teacher.password}
-                students={teacher.students}
+                name={teacher.name}
+                email={teacher.email}
+                students={teacher.students.map((student) => student.name)}
                 isChecked={isChecked}
                 toggleTeacher={toggleTeacher}
               />
