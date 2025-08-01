@@ -1,7 +1,8 @@
 'use client';
 
-import { getName, getGrade, getTeacherName } from '@utils';
 import { usePathname } from 'next/navigation';
+
+import { getName, getGrade, getTeacherName } from '@utils';
 
 const NameCard = () => {
   const pathname = usePathname();

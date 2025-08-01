@@ -1,5 +1,6 @@
-import { IcAlert } from '@svg';
 import { useFormContext } from 'react-hook-form';
+
+import { IcAlert } from '@svg';
 
 type DateInputProps = {
   yearField: string;
@@ -11,7 +12,7 @@ type DateInputProps = {
 const DateInput = ({ yearField, monthField, dayField, label }: DateInputProps) => {
   const { register, watch } = useFormContext();
 
-  const validateEndDate = (value: string) => {
+  const validateEndDate = () => {
     const watchedValues = watch();
     const { startYear, startMonth, startDay, endYear, endMonth, endDay } = watchedValues;
 
@@ -98,12 +99,6 @@ const NoticeForm = () => {
       errors.endDay
   );
 
-  const hasDateOrderError = Boolean(
-    errors.endYear?.message === '날짜를 정확히 입력해주세요' ||
-      errors.endMonth?.message === '날짜를 정확히 입력해주세요' ||
-      errors.endDay?.message === '날짜를 정확히 입력해주세요'
-  );
-
   return (
     <>
       <div className='flex w-full flex-col gap-[1.2rem]'>
@@ -118,22 +113,14 @@ const NoticeForm = () => {
         {isSubmitted && hasDateErrors && (
           <div className='text-red flex flex-row gap-[0.4rem]'>
             <IcAlert width={16} height={16} />
-            <p className='text-red font-medium-12'>
-              {hasDateOrderError && '날짜를 정확히 입력해주세요'}
-            </p>
+            <p className='text-red font-medium-12'>날짜를 정확히 입력해주세요</p>
           </div>
         )}
       </div>
 
       <div className='flex flex-col gap-[0.8rem]'>
         <textarea
-          {...register('content', {
-            required: '내용을 입력해주세요',
-            minLength: {
-              value: 1,
-              message: '내용을 입력해주세요',
-            },
-          })}
+          {...register('content')}
           className='bg-background placeholder:text-gray500 font-medium-16 h-[14.4rem] resize-none scroll-auto rounded-[1.6rem] border-none p-[2rem] text-black outline-none focus:border-none focus:outline-none'
           placeholder='내용을 입력해주세요'
         />

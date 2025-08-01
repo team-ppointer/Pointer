@@ -1,46 +1,43 @@
 'use client';
 import dayjs from 'dayjs';
+import { useParams, usePathname } from 'next/dist/client/components/navigation';
 import { useState } from 'react';
 
-import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
 import { components } from '@schema';
+import { IcMinus, IcMinusSmall, IcNextBlack, IcPrevBlack } from '@svg';
 import { trackEvent } from '@utils';
+import { useGetMonthlyPublishByStudent } from '@/apis/controller-teacher/problem';
+import useGetMonthlyPublish from '@/apis/controller/problem/useGetMonthlyPublish';
 
 import DayProblemCard from './DayProblemCard';
-import { useGetMonthlyPublishByStudent } from '@/apis/controller-teacher/problem';
-import { useParams, usePathname, useSearchParams } from 'next/dist/client/components/navigation';
-import useGetMonthlyPublish from '@/apis/controller/problem/useGetMonthlyPublish';
 
 type MonthlyPublishResp = components['schemas']['PublishResp'];
 
 const ProblemCalandar = () => {
-  const searchParams = useSearchParams();
   const [currentDay, setCurrentDay] = useState(dayjs());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const pathname = usePathname();
   const isTeacherPage = pathname.includes('/teacher');
   const year = currentDay.year();
   const month = currentDay.month() + 1;
-  let publishedData;
-  if (isTeacherPage) {
-    const { studentId } = useParams<{ studentId: string }>();
-    publishedData = useGetMonthlyPublishByStudent({
-      year,
-      month,
-      studentId: +studentId,
-    });
-  } else {
-    const studentId = Number(searchParams.get('studentId')) || -1;
-    publishedData = useGetMonthlyPublish({
-      year,
-      month,
-    });
-  }
+  const { studentId } = useParams<{ studentId: string }>();
+  const teacherResult = useGetMonthlyPublishByStudent({
+    year,
+    month,
+    studentId: +studentId,
+    enabled: isTeacherPage,
+  });
+
+  const studentResult = useGetMonthlyPublish({
+    year,
+    month,
+  });
+  const publishedData = isTeacherPage ? teacherResult.data : studentResult.data;
 
   const publishedDataArray: (MonthlyPublishResp | undefined)[] = Array.from({ length: 32 }).map(
     () => undefined
   );
-  (publishedData?.data?.data ?? []).forEach((data) => {
+  (publishedData?.data ?? []).forEach((data) => {
     const date = dayjs(data.publishAt);
     const day = date.date();
     publishedDataArray[day] = data;

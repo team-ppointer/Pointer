@@ -1,6 +1,12 @@
 import { TanstackQueryClient } from '@apis';
 
-const useGetProblemById = (publishId: number, problemId: number) => {
+type Props = {
+  publishId: number;
+  problemId: number;
+  enabled?: boolean;
+};
+
+const useGetProblemById = ({ publishId, problemId, enabled = true }: Props) => {
   return TanstackQueryClient.useQuery(
     'get',
     '/api/student/study/problem/{publishId}/{problemId}',
@@ -15,7 +21,7 @@ const useGetProblemById = (publishId: number, problemId: number) => {
     {
       staleTime: Infinity,
       gcTime: Infinity,
-      enabled: problemId >= 0 && publishId >= 0,
+      enabled: enabled,
     }
   );
 };

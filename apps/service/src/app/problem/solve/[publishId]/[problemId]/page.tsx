@@ -22,21 +22,7 @@ import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, showToast, trackEvent } from '@utils';
-import { IcArrowGrow14, IcCommentCheck20, IcCopy, IcCopyBig, IcQuestion18 } from '@svg';
-
-const statusLabel: Record<string, string> = {
-  CORRECT: '정답',
-  INCORRECT: '오답',
-  RETRY_CORRECT: '정답',
-  NOT_STARTED: '시작전',
-};
-
-const statusColor: Record<string, 'green' | 'red' | 'gray'> = {
-  CORRECT: 'green',
-  INCORRECT: 'red',
-  RETRY_CORRECT: 'green',
-  NOT_STARTED: 'gray',
-};
+import { IcArrowGrow14, IcCommentCheck20, IcCopyBig, IcQuestion18 } from '@svg';
 
 const Page = () => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
@@ -47,26 +33,17 @@ const Page = () => {
   const { isOpen, openModal, closeModal } = useModal();
   const [result, setResult] = useState<ProblemStatus | undefined>();
   const [localResult, setLocalResult] = useState<ProblemStatus | undefined>();
-  const { register, handleSubmit, watch, setValue } = useForm<{ answer: string }>();
+  const { register, handleSubmit, watch } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
   const problemViewerRef = useRef<HTMLDivElement>(null);
 
-  // apis
-  const { data: problemData } = useGetProblemById(+publishId, +problemId);
+  const { data: problemData } = useGetProblemById({ publishId: +publishId, problemId: +problemId });
 
   if (!problemData) {
     return;
   }
-  const {
-    id,
-    no,
-    recommendedTimeSec,
-    problemContent,
-    answerType,
-    answer,
-    childProblems,
-    progress,
-  } = problemData;
+  const { no, recommendedTimeSec, problemContent, answerType, answer, childProblems, progress } =
+    problemData;
   const childProblemId = childProblems[0]?.id || 0;
 
   const isCorrect = localResult

@@ -1,4 +1,4 @@
-import { IcDoubleArrow, IcProgressGreen } from '@svg';
+import { IcDoubleArrow } from '@svg';
 
 type Props = {
   name: string;

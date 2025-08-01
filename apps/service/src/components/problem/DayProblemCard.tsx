@@ -2,13 +2,13 @@
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+import { useParams, usePathname } from 'next/dist/client/components/navigation';
 
 import { Button, Divider, Tag } from '@components';
 import { IcSolve } from '@svg';
 import { components } from '@schema';
 
 import 'dayjs/locale/ko';
-import { useParams, usePathname } from 'next/dist/client/components/navigation';
 
 dayjs.locale('ko');
 

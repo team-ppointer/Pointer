@@ -80,6 +80,7 @@ const Page = () => {
           setQnaId(undefined);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publishId, problemId, type]);
 
   useEffect(() => {

@@ -10,7 +10,7 @@ const Page = () => {
   const { publishId } = useParams<{ publishId: string }>();
 
   const { data } = useGetProblemsByPublishId(publishId);
-  const { id, publishAt, problemSet, data: problems } = data ?? {};
+  const { publishAt, problemSet, data: problems } = data ?? {};
   const publishDate = dayjs(publishAt).format('MM월 DD일');
 
   return (

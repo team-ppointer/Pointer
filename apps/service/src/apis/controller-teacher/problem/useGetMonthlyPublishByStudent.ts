@@ -4,9 +4,10 @@ type Props = {
   year: number;
   month: number;
   studentId: number;
+  enabled?: boolean;
 };
 
-const useGetMonthlyPublishByStudent = ({ year, month, studentId }: Props) => {
+const useGetMonthlyPublishByStudent = ({ year, month, studentId, enabled = true }: Props) => {
   return TanstackQueryClient.useQuery(
     'get',
     '/api/teacher/study/publish/monthly',
@@ -18,6 +19,7 @@ const useGetMonthlyPublishByStudent = ({ year, month, studentId }: Props) => {
     {
       staleTime: Infinity,
       gcTime: Infinity,
+      enabled: enabled,
     }
   );
 };

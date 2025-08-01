@@ -33,6 +33,7 @@ const QnaListContent = ({ data, onClose, refetch }: QnaListContentProps) => {
       })
       .catch((error) => {
         showToast.error('QnA 삭제에 실패했습니다. 다시 시도해주세요.');
+        console.error(error);
       });
   };
   return (

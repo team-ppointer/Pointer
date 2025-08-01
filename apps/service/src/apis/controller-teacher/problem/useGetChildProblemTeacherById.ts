@@ -5,7 +5,6 @@ const useGetChildProblemTeacherById = (
   childProblemId: number,
   studentId: number
 ) => {
-  console.log('useGetChildProblemTeacherById', publishId, childProblemId, studentId);
   return TanstackQueryClient.useQuery(
     'get',
     '/api/teacher/study/child-problem/{publishId}/{problemId}',

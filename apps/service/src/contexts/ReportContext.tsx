@@ -26,7 +26,11 @@ export const ReportProvider = ({ children }: { children: React.ReactNode }) => {
   const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
   const type = searchParams.get('type');
   const childNumber = searchParams.get('childNumber');
-  const { data, isLoading, error } = useGetProblemById(+publishId, +problemId);
+
+  const { data, isLoading, error } = useGetProblemById({
+    publishId: +publishId,
+    problemId: +problemId,
+  });
   if (error) {
     return null;
   }
