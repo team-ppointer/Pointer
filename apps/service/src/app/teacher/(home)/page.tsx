@@ -97,6 +97,10 @@ const Page = () => {
     closeModal();
   };
 
+  const handleClickNoticeButton = () => {
+    router.push(`/teacher-notice-modal?studentId=${targetStudentId}`);
+  };
+
   useEffect(() => {
     if (!isLoadingStudents && students.data.length > 0 && !selectedStudent) {
       setSelectedStudent({
@@ -117,7 +121,7 @@ const Page = () => {
             onClick={handleClickStudentSelect}
             name={targetStudent?.name || '-'}
           />
-          <Button variant='lightBlue' onClick={handleClickAllProblem} className='flex-1'>
+          <Button variant='lightBlue' onClick={handleClickNoticeButton} className='flex-1'>
             <IcThumbtack width={24} height={24} />
             공지 등록하기
           </Button>
