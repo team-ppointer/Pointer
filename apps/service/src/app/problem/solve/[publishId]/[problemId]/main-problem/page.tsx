@@ -22,7 +22,7 @@ import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, showToast, trackEvent } from '@utils';
-import { IcCommentCheck20, IcRotate, IcQuestion18, IcCopyBig } from '@svg';
+import { IcCommentCheck20, IcQuestion18, IcCopyBig } from '@svg';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -50,8 +50,7 @@ const Page = () => {
   const selectedAnswer = watch('answer');
   const problemViewerRef = useRef<HTMLDivElement>(null);
 
-  // apis
-  const { data } = useGetProblemById(+publishId, +problemId);
+  const { data } = useGetProblemById({ publishId: +publishId, problemId: +problemId });
 
   const {
     no,

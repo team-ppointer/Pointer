@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import ProblemViewer, { Problem } from '@repo/pointer-editor/ProblemViewer';
 import { useRouter, useSearchParams } from 'next/navigation';
 import PulseLoader from 'react-spinners/PulseLoader';
 
@@ -37,7 +36,7 @@ const Page = () => {
 
   const title = getQnaTitle(type);
 
-  const parentQuery = useGetProblemById(publishId, problemId || -1);
+  const parentQuery = useGetProblemById({ publishId: +publishId, problemId: problemId ?? -1 });
 
   const childQuery = useGetChildProblemById(publishId, childProblemId || -1);
 
@@ -46,11 +45,6 @@ const Page = () => {
   const response =
     (parentQuery?.data as components['schemas']['ProblemWithStudyInfoResp']) ??
     (childQuery?.data as components['schemas']['ChildProblemWithStudyInfoResp']);
-
-  const problem: Problem = {
-    id: response?.problemContent.id || 0,
-    blocks: response?.problemContent.blocks || [],
-  };
 
   const handleTextareaOnChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;

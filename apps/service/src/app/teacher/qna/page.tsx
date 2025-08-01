@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 
-import { Header, Input, BottomFixedArea, Sidebar, SearchInput } from '@components';
+import { Header, BottomFixedArea, Sidebar, SearchInput } from '@components';
 import { IcCloseBig, IcMore } from '@svg';
 import TeacherQnaList from '@/components/qna/TeacherQnaList';
 import { useGetTeacherQnaById } from '@apis';

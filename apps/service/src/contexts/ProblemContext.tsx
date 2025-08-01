@@ -23,18 +23,25 @@ export const ProblemProvider = ({ children }: { children: React.ReactNode }) => 
   const [step, setStep] = useState<number>(0);
   const isTeacherPage = pathname.includes('/teacher');
 
-  let data;
-  if (isTeacherPage && studentId) {
-    const result = useGetProblemTeacherById(+publishId, +problemId, +studentId);
-    data = result.data;
-  } else {
-    const result = useGetProblemById(+publishId, +problemId);
-    data = result.data;
-  }
+  const teacherResult = useGetProblemTeacherById({
+    publishId: +publishId,
+    problemId: +problemId,
+    studentId: +studentId,
+    enabled: isTeacherPage && !!studentId,
+  });
+
+  const studentResult = useGetProblemById({
+    publishId: +publishId,
+    problemId: +problemId,
+    enabled: !isTeacherPage,
+  });
+
+  const data = isTeacherPage ? teacherResult.data : studentResult.data;
 
   if (!data) {
     return null;
   }
+
   const childProblems = data?.childProblems ?? [];
 
   const baseUrl = isTeacherPage

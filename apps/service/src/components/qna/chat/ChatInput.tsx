@@ -84,6 +84,7 @@ const ChatInput = ({ qnaId, refetch, scrollToBottom, user = 'student' }: ChatInp
         }
       } catch (error) {
         showToast.error('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+        console.error(error);
       }
     }
   };

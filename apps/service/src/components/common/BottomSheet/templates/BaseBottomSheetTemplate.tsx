@@ -1,4 +1,4 @@
-import { IcCheck, IcNextGray, IcTagDone } from '@svg';
+import { IcCheck, IcNextGray } from '@svg';
 
 interface BottomSheetButtonProps {
   variant?: 'default' | 'recommend';

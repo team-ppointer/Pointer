@@ -1,6 +1,6 @@
 'use client';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { IcCommentCheck20, IcPrescription20, IcQuestion18 } from '@svg';
 import { components } from '@schema';

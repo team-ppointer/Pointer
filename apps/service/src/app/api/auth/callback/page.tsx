@@ -9,11 +9,11 @@ import { setAccessToken, setRefreshToken } from '@utils';
 const Page = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { success, isFirstLogin, accessToken, refreshToken } = Object.fromEntries(
-    searchParams.entries()
-  );
 
   useEffect(() => {
+    const { success, isFirstLogin, accessToken, refreshToken } = Object.fromEntries(
+      searchParams.entries()
+    );
     if (!success || !accessToken) {
       router.replace('/login');
       return;
@@ -27,7 +27,7 @@ const Page = () => {
     } else {
       router.replace('/');
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   return (
     <div className='flex h-dvh w-full items-center justify-center'>

@@ -15,7 +15,7 @@ import {
 import { useInvalidate } from '@hooks';
 import { useChildProblemContext } from '@/hooks/problem';
 import { copyImageToClipboard, showToast, trackEvent } from '@utils';
-import { IcArrowGrow14, IcCommentCheck20, IcCopyBig } from '@svg';
+import { IcArrowGrow14, IcCopyBig } from '@svg';
 import AnswerLabel from '@/components/problem/AnswerLabel';
 
 const Page = () => {
@@ -29,7 +29,11 @@ const Page = () => {
   const { invalidateAll } = useInvalidate();
   const problemViewerRef = useRef<HTMLDivElement>(null);
 
-  const { data: problemData } = useGetProblemTeacherById(+publishId, +problemId, +studentId);
+  const { data: problemData } = useGetProblemTeacherById({
+    publishId: +publishId,
+    problemId: +problemId,
+    studentId: +studentId,
+  });
 
   if (!problemData) {
     return;

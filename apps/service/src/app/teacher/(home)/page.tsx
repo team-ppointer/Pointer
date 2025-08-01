@@ -60,7 +60,6 @@ const Page = () => {
     return studentWeeklyPublish.data;
   }, [studentWeeklyPublish]);
 
-  const { data, isLoading } = useGetStudentWeeklyPublish(targetStudentId || 0);
   const { isOpen, openModal, closeModal } = useModal();
   const [selectedProblem, setSelectedProblem] = useState<{
     publishId: number;
@@ -74,7 +73,6 @@ const Page = () => {
   const handleClickStudentStatus = () => {
     router.push('/comming-soon-modal');
   };
-  ``;
   const handleClickQnA = () => {
     const { publishId, problemId } = selectedProblem || {
       publishId: problemSets[0]?.id || 0,
@@ -110,8 +108,6 @@ const Page = () => {
     }
   }, [isLoadingStudents, students, selectedStudent]);
 
-  const isLoadingData = isLoading || isLoadingStudentWeeklyPublish;
-
   return (
     <>
       <HomeHeader />
@@ -129,7 +125,7 @@ const Page = () => {
       </main>
 
       <div className='mt-[2.4rem]'>
-        {isLoadingData ? (
+        {isLoadingStudentWeeklyPublish ? (
           <div className='h-[456px] w-full' />
         ) : problemSets.length > 0 ? (
           <div className='flex h-[456px] items-center justify-center'>

@@ -24,13 +24,8 @@ const formatDateString = (year: string, month: string, day: string): string => {
   return `${year}-${paddedMonth}-${paddedDay}`;
 };
 
-const transformFormData = (data: FormValues) => {
-  const searchParams = useSearchParams();
-  const studentId = searchParams.get('studentId') || '';
-  if (!studentId) {
-    showToast.error('학생 ID가 없습니다.');
-  }
-
+// studentId를 파라미터로 받도록 수정
+const transformFormData = (data: FormValues, studentId: number) => {
   const startAt = formatDateString(data.startYear, data.startMonth, data.startDay);
   const endAt = formatDateString(data.endYear, data.endMonth, data.endDay);
 
@@ -38,13 +33,14 @@ const transformFormData = (data: FormValues) => {
     startAt,
     endAt,
     content: data.content,
-    studentId: +studentId,
+    studentId,
   };
 };
 
 const TeacherNoticeModal = () => {
-  const [isFormValid, setIsFormValid] = useState(false);
+  const [, setIsFormValid] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams(); // 컴포넌트 레벨에서 hook 사용
 
   const methods = useForm<FormValues>({
     mode: 'onChange',
@@ -54,19 +50,27 @@ const TeacherNoticeModal = () => {
   const watchedFields = watch();
 
   useEffect(() => {
-    const { startYear, startMonth, startDay, endYear, endMonth, endDay, content } = watchedFields;
+    const { startYear, startMonth, startDay, endYear, endMonth, endDay } = watchedFields;
     const hasErrors = Object.keys(formState.errors).length > 0;
 
-    const allFieldsFilled = Boolean(
-      startYear && startMonth && startDay && endYear && endMonth && endDay && content
+    // content는 이제 선택사항이므로 제외
+    const allRequiredFieldsFilled = Boolean(
+      startYear && startMonth && startDay && endYear && endMonth && endDay
     );
 
-    setIsFormValid(allFieldsFilled && !hasErrors);
+    setIsFormValid(allRequiredFieldsFilled && !hasErrors);
   }, [watchedFields, formState.errors]);
 
   const handleSubmit = async (data: FormValues) => {
     try {
-      const transformedData = transformFormData(data);
+      const studentId = searchParams.get('studentId');
+
+      if (!studentId) {
+        showToast.error('학생 ID가 없습니다.');
+        return;
+      }
+
+      const transformedData = transformFormData(data, +studentId);
       await postTeacherNotice(transformedData);
       router.back();
     } catch (error) {
