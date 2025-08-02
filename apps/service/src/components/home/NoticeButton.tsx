@@ -4,8 +4,7 @@ import { IcNext, IcNotice } from '@svg';
 import { useGetNoticeUnreadCount } from '@/apis/controller/home';
 
 const NoticeButton = () => {
-  const { data, refetch } = useGetNoticeUnreadCount();
-  console.log('NoticeButton data', data);
+  const { data } = useGetNoticeUnreadCount();
   const { totalCount = 0, unreadCount = 0, latestNotice } = data ?? {};
   return (
     <Link

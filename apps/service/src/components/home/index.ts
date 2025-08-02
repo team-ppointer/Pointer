@@ -7,8 +7,9 @@ import ProblemCard from './ProblemCard/ProblemCard';
 import ProblemSecretCard from './ProblemCard/ProblemSecretCard';
 import ProblemEmptyCard from './ProblemCard/ProblemEmptyCard';
 import StudentSelectButton from './StudentSelectButton';
-
+import NoticeForm from './NoticeForm';
 export {
+  NoticeForm,
   HomeHeader,
   NoticeButton,
   WeekProgress,

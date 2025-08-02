@@ -11,7 +11,7 @@ const Page = () => {
 
   const { data } = useGetProblemsTeacherByPublishId(publishId);
   console.log(data);
-  const { id, publishAt, problemSet, data: problems } = data ?? {};
+  const { publishAt, problemSet, data: problems } = data ?? {};
   const publishDate = dayjs(publishAt).format('MM월 DD일');
 
   return (

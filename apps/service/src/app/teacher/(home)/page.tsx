@@ -60,7 +60,6 @@ const Page = () => {
     return studentWeeklyPublish.data;
   }, [studentWeeklyPublish]);
 
-  const { data, isLoading } = useGetStudentWeeklyPublish(targetStudentId || 0);
   const { isOpen, openModal, closeModal } = useModal();
   const [selectedProblem, setSelectedProblem] = useState<{
     publishId: number;
@@ -74,7 +73,6 @@ const Page = () => {
   const handleClickStudentStatus = () => {
     router.push('/comming-soon-modal');
   };
-  ``;
   const handleClickQnA = () => {
     const { publishId, problemId } = selectedProblem || {
       publishId: problemSets[0]?.id || 0,
@@ -97,6 +95,10 @@ const Page = () => {
     closeModal();
   };
 
+  const handleClickNoticeButton = () => {
+    router.push(`/teacher-notice-modal?studentId=${targetStudentId}`);
+  };
+
   useEffect(() => {
     if (!isLoadingStudents && students.data.length > 0 && !selectedStudent) {
       setSelectedStudent({
@@ -105,8 +107,6 @@ const Page = () => {
       });
     }
   }, [isLoadingStudents, students, selectedStudent]);
-
-  const isLoadingData = isLoading || isLoadingStudentWeeklyPublish;
 
   return (
     <>
@@ -117,7 +117,7 @@ const Page = () => {
             onClick={handleClickStudentSelect}
             name={targetStudent?.name || '-'}
           />
-          <Button variant='lightBlue' onClick={handleClickAllProblem} className='flex-1'>
+          <Button variant='lightBlue' onClick={handleClickNoticeButton} className='flex-1'>
             <IcThumbtack width={24} height={24} />
             공지 등록하기
           </Button>
@@ -125,7 +125,7 @@ const Page = () => {
       </main>
 
       <div className='mt-[2.4rem]'>
-        {isLoadingData ? (
+        {isLoadingStudentWeeklyPublish ? (
           <div className='h-[456px] w-full' />
         ) : problemSets.length > 0 ? (
           <div className='flex h-[456px] items-center justify-center'>

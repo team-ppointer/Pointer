@@ -1,6 +1,8 @@
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
-import BaseModalTemplate from './BaseModalTemplate';
+
 import { components } from '@schema';
+
+import BaseModalTemplate from './BaseModalTemplate';
 
 type problemContent = components['schemas']['ContentResp'];
 

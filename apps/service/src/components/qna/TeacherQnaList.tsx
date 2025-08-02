@@ -12,7 +12,7 @@ type TeacherQnaListProps = {
 };
 
 const TeacherQnaList = ({ search, onClose }: TeacherQnaListProps) => {
-  const { data, isSuccess, refetch } = useGetTeacherQnaList(search);
+  const { data, isSuccess } = useGetTeacherQnaList(search);
   const [qnaList, setQnaList] = useState<components['schemas']['QnAGroupItem'][]>([]);
 
   useEffect(() => {

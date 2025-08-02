@@ -3,7 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { RouteModal } from '@components';
-import { useGetChildProblemById, useGetChildProblemTeacherById } from '@apis';
+import { useGetChildProblemById } from '@apis';
 
 const Page = () => {
   const searchParams = useSearchParams();
