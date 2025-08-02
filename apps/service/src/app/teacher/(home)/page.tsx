@@ -117,7 +117,7 @@ const Page = () => {
             onClick={handleClickStudentSelect}
             name={targetStudent?.name || '-'}
           />
-          <Button variant='lightBlue' onClick={handleClickNoticeButton} className='flex-1'>
+          <Button variant='light' onClick={handleClickNoticeButton} className='flex-1'>
             <IcThumbtack width={24} height={24} />
             공지 등록하기
           </Button>
@@ -148,12 +148,12 @@ const Page = () => {
             날짜별로 보기
           </Button>
           <div className='flex gap-[1.2rem]'>
-            <Button variant='lightBlue' className='flex-1 gap-[1.2rem]' onClick={handleClickQnA}>
+            <Button variant='light' className='flex-1 gap-[1.2rem]' onClick={handleClickQnA}>
               <IcMessage width={24} height={24} />
               QnA 게시판
             </Button>
             <Button
-              variant='lightBlue'
+              variant='light'
               className='flex-1 gap-[1.2rem]'
               onClick={handleClickStudentStatus}>
               <IcSmileFace width={24} height={24} />

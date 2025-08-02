@@ -3,7 +3,7 @@ import React from 'react';
 import { ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'blue' | 'light' | 'lightBlue';
+  variant?: 'blue' | 'light' | 'disabled';
   disabled?: boolean;
   children: React.ReactNode;
 }
@@ -20,8 +20,7 @@ const Button = ({
 
   const variantStyles = {
     blue: 'bg-main text-white',
-    light: 'bg-white text-main border border-main',
-    lightBlue: 'bg-white border border-[#C5CEFF] text-main',
+    light: 'bg-white text-main border border-sub1',
     disabled: 'bg-lightgray300 text-lightgray500',
   };
 
