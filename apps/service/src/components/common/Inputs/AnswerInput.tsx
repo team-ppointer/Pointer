@@ -15,7 +15,13 @@ const AnswerInput = forwardRef<HTMLInputElement, AnswerInputProps>(
     return (
       <div className={className}>
         {answerType === 'SHORT_ANSWER' && (
-          <Input ref={ref} placeholder='입력해주세요' disabled={disabled} {...props} />
+          <Input
+            ref={ref}
+            placeholder='입력해주세요'
+            type='number'
+            disabled={disabled}
+            {...props}
+          />
         )}
         {answerType === 'MULTIPLE_CHOICE' && (
           <div className='flex items-center justify-between gap-[1.4rem]'>

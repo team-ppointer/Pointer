@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
-import { copyImageToClipboard, showToast } from '@utils';
+import { copyImageToClipboard } from '@utils';
 import { postProblemSubmit, useGetChildProblemById } from '@apis';
 import {
   AnswerInput,

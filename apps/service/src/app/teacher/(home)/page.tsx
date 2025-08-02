@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 
 import { BottomFixedArea, BottomSheet, Button } from '@components';
 import { IcCalendar, IcMessage, IcSmileFace, IcThumbtack } from '@svg';
-import { trackEvent } from '@utils';
+import { showToast, trackEvent } from '@utils';
 import { HomeHeader, ProblemSwiper, StudentSelectButton } from '@/components/home';
 import StudentSelectBottomSheetTemplate from '@/components/common/BottomSheet/templates/StudentSelectBottomSheetTemplate';
 import { useModal } from '@hooks';
@@ -74,14 +74,6 @@ const Page = () => {
     router.push('/comming-soon-modal');
   };
   const handleClickQnA = () => {
-    const { publishId, problemId } = selectedProblem || {
-      publishId: problemSets[0]?.id || 0,
-      problemId: problemSets[0]?.problemSet.firstProblem.id || 0,
-    };
-    if (!publishId || !problemId) {
-      console.warn('문제가 없습니다.');
-      return;
-    }
     trackEvent('home_qna_button_click');
     router.push(`/teacher/qna`);
   };
