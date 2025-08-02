@@ -13,7 +13,7 @@ import { Edit } from '@/app/qna/page';
 const Page = () => {
   const router = useRouter();
   const mainRef = useRef<HTMLElement>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [search, setSearch] = useState<string>('');
   const [mode, setMode] = useState<'view' | 'menu' | 'edit'>('view');
   const pathname = usePathname();
