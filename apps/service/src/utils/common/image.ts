@@ -23,6 +23,11 @@ export const copyImageToClipboard = async (
   if (!ref.current) return;
 
   try {
+    const images = ref.current.querySelectorAll('img');
+    images.forEach((img) => {
+      img.crossOrigin = 'anonymous';
+    });
+
     const canvas = await html2canvas(ref.current, {
       useCORS: true,
       allowTaint: true,
@@ -30,6 +35,9 @@ export const copyImageToClipboard = async (
       backgroundColor: '#ffffff',
       logging: false,
       removeContainer: true,
+      // CORS 문제 해결을 위한 추가 옵션
+      foreignObjectRendering: false,
+      imageTimeout: 0,
     });
 
     const dataURL = canvas.toDataURL('image/png');
