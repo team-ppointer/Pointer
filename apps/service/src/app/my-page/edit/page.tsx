@@ -36,18 +36,13 @@ const Page = () => {
     const isNameValid = getFieldState('name', formState);
     const isGradeValid = getFieldState('grade', formState);
 
-    if (
-      !isNameValid.invalid &&
-      !isGradeValid.invalid &&
-      isNameValid.isDirty &&
-      isGradeValid.isDirty
-    ) {
+    if (!isNameValid.invalid && !isGradeValid.invalid) {
       setIsFormFilled(true);
     } else {
       setIsFormFilled(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState, methods]);
+  }, [formState]);
   return (
     <>
       <Header title='회원 정보 수정' iconType='back' />
