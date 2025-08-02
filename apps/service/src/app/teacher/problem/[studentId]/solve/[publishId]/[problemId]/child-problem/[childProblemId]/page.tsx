@@ -74,7 +74,6 @@ const Page = () => {
 
   const handleClickCopyProblemImage = async () => {
     copyImageToClipboard(problemViewerRef);
-    showToast.success('클립보드에 복사되었습니다.');
   };
 
   if (isLoading) {
