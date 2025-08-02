@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { BottomFixedArea, Button } from '@components';
 import { IcCalendar, IcQuestionWhite } from '@svg';
-import { trackEvent } from '@utils';
+import { showToast, trackEvent } from '@utils';
 import { HomeHeader, NoticeButton, ProblemSwiper, WeekProgress } from '@/components/home';
 import { useGetWeeklyPublish } from '@/apis';
 
@@ -29,7 +29,7 @@ const Page = () => {
       problemId: problemSets[0]?.problemSet.firstProblem.id || 0,
     };
     if (!publishId || !problemId) {
-      console.warn('문제가 없습니다.');
+      showToast.error('문제가 없습니다.');
       return;
     }
     trackEvent('home_qna_button_click');
