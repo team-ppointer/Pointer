@@ -35,7 +35,7 @@ const QnaList = ({ search, onClose }: QnaListProps) => {
         ))
       ) : (
         <div className='flex h-full w-full items-center justify-center'>
-          <p className='text-lightgray500 font-medium-16'>검색 결과가 없습니다.</p>
+          <p className='text-lightgray500 font-medium-16'>등록된 질문이 없습니다</p>
         </div>
       )}
     </div>
