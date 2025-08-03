@@ -5,9 +5,11 @@ interface Props {
   name: string;
   isChecked: boolean;
   toggleTag: (tag: string) => void;
+  onDelete?: () => void;
+  onModify?: () => void;
 }
 
-const ConceptTagCard = ({ name, isChecked, toggleTag }: Props) => {
+const ConceptTagCard = ({ name, isChecked, toggleTag, onDelete, onModify }: Props) => {
   return (
     <section className='flex w-full justify-between rounded-[1.6rem] bg-white px-[2.4rem] py-[1.6rem]'>
       <label className='flex cursor-pointer items-center gap-[1.6rem]'>
@@ -23,8 +25,8 @@ const ConceptTagCard = ({ name, isChecked, toggleTag }: Props) => {
         <span className='font-medium-16 text-black'>{name}</span>
       </label>
       <div className='flex items-center gap-[0.8rem]'>
-        <IconButton variant='delete' onClick={() => {}} />
-        <IconButton variant='modify' onClick={() => {}} />
+        <IconButton variant='delete' onClick={onDelete} />
+        <IconButton variant='modify' onClick={onModify} />
       </div>
     </section>
   );

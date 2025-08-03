@@ -1,12 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Button, FloatingButton, Header, Input } from '@components';
+import { Button, FloatingButton, Header, Input, Modal, TwoButtonModalTemplate } from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
 import { IcPencil } from '@svg';
-import { getConcept, getConceptCategory } from '@apis';
+import { getConcept, getConceptCategory, deleteConcept } from '@apis';
+import { useModal, useInvalidate } from '@hooks';
 
+import type { components } from '@/types/api/schema';
 import { ConceptTagCard } from '@/components/conceptTags';
+import EditConceptModal from '@/components/common/Modals/EditConceptModal';
 
 export const Route = createFileRoute('/_GNBLayout/concept-tags/')({
   component: RouteComponent,
@@ -15,10 +18,27 @@ export const Route = createFileRoute('/_GNBLayout/concept-tags/')({
 function RouteComponent() {
   const [selectedTag, setSelectedTag] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedConceptForDelete, setSelectedConceptForDelete] = useState<number | null>(null);
+  const [selectedConceptForEdit, setSelectedConceptForEdit] = useState<
+    components['schemas']['ConceptResp'] | null
+  >(null);
+  const [isMultipleDelete, setIsMultipleDelete] = useState<boolean>(false);
+  const {
+    isOpen: isDeleteModalOpen,
+    openModal: openDeleteModal,
+    closeModal: closeDeleteModal,
+  } = useModal();
+  const {
+    isOpen: isEditConceptModalOpen,
+    openModal: openEditConceptModal,
+    closeModal: closeEditConceptModal,
+  } = useModal();
 
   // api
   const { data: concepts } = getConcept({ query: searchQuery });
   const { data: conceptCategories } = getConceptCategory();
+  const { invalidateAll } = useInvalidate();
+  const deleteConceptMutation = deleteConcept();
 
   const toggleTag = (tag: number) => {
     setSelectedTag((prev) =>
@@ -26,13 +46,60 @@ function RouteComponent() {
     );
   };
 
-  const { register, handleSubmit, reset } = useForm<{
+  const { register, handleSubmit } = useForm<{
     query: string;
   }>();
 
   const handleClickSearch = (data: { query: string }) => {
     setSearchQuery(data.query.trim());
     setSelectedTag([]);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      if (isMultipleDelete) {
+        // 선택된 태그들 삭제
+        await Promise.all(
+          selectedTag.map((conceptId) =>
+            deleteConceptMutation.mutateAsync({
+              params: {
+                path: {
+                  conceptId,
+                },
+              },
+            })
+          )
+        );
+        setSelectedTag([]);
+        alert('선택된 개념 태그들이 삭제되었습니다.');
+      } else if (selectedConceptForDelete) {
+        // 개별 태그 삭제
+        await deleteConceptMutation.mutateAsync({
+          params: {
+            path: {
+              conceptId: selectedConceptForDelete,
+            },
+          },
+        });
+        setSelectedConceptForDelete(null);
+      }
+
+      invalidateAll();
+      closeDeleteModal();
+      setIsMultipleDelete(false);
+    } catch (error) {
+      console.error('개념 태그 삭제 중 오류가 발생했습니다:', error);
+      alert('개념 태그 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteSelectedConcepts = () => {
+    if (selectedTag.length === 0) {
+      alert('삭제할 개념 태그를 선택해주세요.');
+      return;
+    }
+    setIsMultipleDelete(true);
+    openDeleteModal();
   };
 
   return (
@@ -51,7 +118,7 @@ function RouteComponent() {
           <Button sizeType='fit' variant='light' onClick={() => setSelectedTag([])}>
             전체 선택 해제
           </Button>
-          <Button sizeType='fit' variant='dark' onClick={() => {}}>
+          <Button sizeType='fit' variant='dark' onClick={handleDeleteSelectedConcepts}>
             선택 태그 삭제
           </Button>
         </div>
@@ -76,6 +143,15 @@ function RouteComponent() {
                         name={concept.name}
                         isChecked={isChecked}
                         toggleTag={() => toggleTag(concept.id)}
+                        onDelete={() => {
+                          setSelectedConceptForDelete(concept.id);
+                          setIsMultipleDelete(false);
+                          openDeleteModal();
+                        }}
+                        onModify={() => {
+                          setSelectedConceptForEdit(concept);
+                          openEditConceptModal();
+                        }}
                       />
                     );
                   })}
@@ -87,7 +163,47 @@ function RouteComponent() {
         )}
       </section>
 
-      <FloatingButton onClick={() => {}}>새로운 개념 태그 등록하기</FloatingButton>
+      <FloatingButton
+        onClick={() => {
+          setSelectedConceptForEdit(null);
+          openEditConceptModal();
+        }}>
+        새로운 개념 태그 등록하기
+      </FloatingButton>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          closeDeleteModal();
+          setIsMultipleDelete(false);
+          setSelectedConceptForDelete(null);
+        }}>
+        <TwoButtonModalTemplate
+          text={
+            isMultipleDelete
+              ? `선택된 ${selectedTag.length}개의 개념 태그를 삭제할까요?`
+              : '개념 태그를 삭제할까요?'
+          }
+          leftButtonText='아니오'
+          rightButtonText='예'
+          handleClickLeftButton={() => {
+            closeDeleteModal();
+            setIsMultipleDelete(false);
+            setSelectedConceptForDelete(null);
+          }}
+          handleClickRightButton={handleConfirmDelete}
+        />
+      </Modal>
+      <Modal isOpen={isEditConceptModalOpen} onClose={closeEditConceptModal}>
+        <EditConceptModal
+          onClose={closeEditConceptModal}
+          onSave={() => {
+            invalidateAll();
+            closeEditConceptModal();
+          }}
+          concept={selectedConceptForEdit}
+        />
+      </Modal>
     </>
   );
 }
