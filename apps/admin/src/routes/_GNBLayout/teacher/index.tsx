@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { Button, FloatingButton, Header, Input, Modal } from '@components';
+import { Button, FloatingButton, Header, Input, Modal, TwoButtonModalTemplate } from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
 import { getTeacher } from '@apis';
@@ -20,7 +20,16 @@ function RouteComponent() {
   const [editingTeacher, setEditingTeacher] = useState<components['schemas']['TeacherResp'] | null>(
     null
   );
-  const { isOpen, openModal, closeModal } = useModal();
+  const {
+    isOpen: isEditTeacherModalOpen,
+    openModal: openEditTeacherModal,
+    closeModal: closeEditTeacherModal,
+  } = useModal();
+  const {
+    isOpen: isDeleteModalOpen,
+    openModal: openDeleteModal,
+    closeModal: closeDeleteModal,
+  } = useModal();
   const { register, handleSubmit } = useForm<{
     query: string;
   }>();
@@ -53,12 +62,12 @@ function RouteComponent() {
 
   const handleModifyTeacher = (teacher: components['schemas']['TeacherResp']) => {
     setEditingTeacher(teacher);
-    openModal();
+    openEditTeacherModal();
   };
 
-  const handleCloseModal = () => {
+  const handleCloseEditTeacherModal = () => {
     setEditingTeacher(null);
-    closeModal();
+    closeEditTeacherModal();
   };
 
   return (
@@ -80,7 +89,7 @@ function RouteComponent() {
           <Button sizeType='fit' variant='light' onClick={() => setSelectedTeacherId([])}>
             전체 선택 해제
           </Button>
-          <Button sizeType='fit' variant='dark'>
+          <Button sizeType='fit' variant='dark' onClick={openDeleteModal}>
             선택 정보 삭제
           </Button>
         </div>
@@ -100,15 +109,25 @@ function RouteComponent() {
                 isChecked={isChecked}
                 toggleTeacher={toggleTeacher}
                 onModify={() => handleModifyTeacher(teacher)}
+                onDelete={() => openDeleteModal()}
               />
             );
           })}
         </div>
       </section>
 
-      <FloatingButton onClick={openModal}>새로운 아이디 등록하기</FloatingButton>
-      <Modal isOpen={isOpen} onClose={handleCloseModal}>
-        <EditTeacherModal teacher={editingTeacher} onClose={handleCloseModal} />
+      <FloatingButton onClick={openEditTeacherModal}>새로운 아이디 등록하기</FloatingButton>
+      <Modal isOpen={isEditTeacherModalOpen} onClose={handleCloseEditTeacherModal}>
+        <EditTeacherModal teacher={editingTeacher} onClose={handleCloseEditTeacherModal} />
+      </Modal>
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
+        <TwoButtonModalTemplate
+          text='해당 정보를 삭제할까요?'
+          leftButtonText='아니오'
+          rightButtonText='예'
+          handleClickLeftButton={closeDeleteModal}
+          handleClickRightButton={closeDeleteModal}
+        />
       </Modal>
     </>
   );
