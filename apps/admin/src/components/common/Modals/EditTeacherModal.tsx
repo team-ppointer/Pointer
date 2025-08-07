@@ -1,6 +1,6 @@
 import { Button, Modal, SearchInput, Tag } from '@components';
 import { useForm } from 'react-hook-form';
-import { putTeacher, deleteStudentFromTeacher, postAssignTeacher, postTeacher } from '@apis';
+import { putTeacher, postTeacher, putTeacherStudent } from '@apis';
 import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
 import { useState } from 'react';
@@ -34,8 +34,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
   );
 
   const { mutate: updateTeacher } = putTeacher();
-  const { mutate: deleteStudentFromTeacherMutate } = deleteStudentFromTeacher();
-  const { mutate: postAssignTeacherMutate } = postAssignTeacher();
+  const { mutate: updateTeacherStudent } = putTeacherStudent();
   const { mutate: createTeacher } = postTeacher();
   const invalidate = useInvalidate();
 
@@ -46,54 +45,25 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
   const updateStudentAssignments = async () => {
     if (!teacher) return;
 
-    const currentStudentIds = teacher.students.map((s) => s.id);
-    const selectedStudentIds = selectedStudents.map((s) => s.id);
-
-    const studentsToRemove = currentStudentIds.filter((id) => !selectedStudentIds.includes(id));
-
-    const studentsToAdd = selectedStudentIds.filter((id) => !currentStudentIds.includes(id));
-
-    const removePromises = studentsToRemove.map(
-      (studentId) =>
-        new Promise((resolve, reject) => {
-          deleteStudentFromTeacherMutate(
-            {
-              params: {
-                path: { teacherId: teacher.id, studentId },
-              },
-            },
-            {
-              onSuccess: resolve,
-              onError: reject,
-            }
-          );
-        })
+    updateTeacherStudent(
+      {
+        params: {
+          path: { teacherId: teacher.id },
+        },
+        body: {
+          students: selectedStudents.map((s) => s.id),
+        },
+      },
+      {
+        onSuccess: () => {
+          invalidate.invalidateAll();
+          onClose();
+        },
+        onError: (error) => {
+          console.error('Failed to update teacher student:', error);
+        },
+      }
     );
-
-    const addPromises = studentsToAdd.map(
-      (studentId) =>
-        new Promise((resolve, reject) => {
-          postAssignTeacherMutate(
-            {
-              params: {
-                path: { teacherId: teacher.id },
-              },
-              body: { students: [studentId] },
-            },
-            {
-              onSuccess: resolve,
-              onError: reject,
-            }
-          );
-        })
-    );
-
-    try {
-      await Promise.all([...removePromises, ...addPromises]);
-    } catch (error) {
-      console.error('Failed to update student assignments:', error);
-      throw error;
-    }
   };
 
   const onSubmit = async (data: FormData) => {
