@@ -18,6 +18,12 @@ export interface GetNoticeAvailableParams {
   studentId: number;
 }
 
+export interface GetTeacherParams {
+  query?: string;
+  page?: number;
+  size?: number;
+}
+
 export interface GetPracticeTestParams {
   query?: string;
   year?: number;

@@ -1,7 +1,12 @@
 import { $api } from '@apis';
+import { GetTeacherParams } from '@types';
 
-const getTeacher = () => {
-  return $api.useQuery('get', '/api/admin/teacher', {});
+const getTeacher = (params: GetTeacherParams) => {
+  return $api.useQuery('get', '/api/admin/teacher', {
+    params: {
+      query: params,
+    },
+  });
 };
 
 export default getTeacher;

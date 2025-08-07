@@ -1,7 +1,7 @@
-import deleteStudentFromTeacher from './deleteStudentFromTeacher';
+import deleteTeacher from './deleteTeacher';
 import getTeacher from './getTeacher';
 import postTeacher from './postTeacher';
-import postAssignTeacher from './postAssignTeacher';
 import putTeacher from './putTeacher';
+import putTeacherStudent from './putTeacherStudent';
 
-export { deleteStudentFromTeacher, getTeacher, postTeacher, postAssignTeacher, putTeacher };
+export { deleteTeacher, getTeacher, postTeacher, putTeacher, putTeacherStudent };
