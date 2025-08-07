@@ -35,24 +35,11 @@ function RouteComponent() {
   }>();
 
   // api
-  const { data: teacherList } = getTeacher();
+  const { data: teacherList } = getTeacher({ query: searchQuery });
 
   const handleClickSearch = (data: { query: string }) => {
     setSearchQuery(data.query.trim());
   };
-
-  const filteredTeacherList = teacherList?.data.filter((teacher) => {
-    if (!searchQuery) return true;
-
-    const query = searchQuery.toLowerCase();
-    const matchesName = teacher.name.toLowerCase().includes(query);
-    const matchesEmail = teacher.email.toLowerCase().includes(query);
-    const matchesStudents = teacher.students.some((student) =>
-      student.name.toLowerCase().includes(query)
-    );
-
-    return matchesName || matchesEmail || matchesStudents;
-  });
 
   const toggleTeacher = (id: number) => {
     setSelectedTeacherId((prev) =>
@@ -97,7 +84,7 @@ function RouteComponent() {
 
       <section className='mb-[8rem] flex flex-col gap-[4.8rem]'>
         <div className='grid grid-cols-3 gap-[2.4rem]'>
-          {filteredTeacherList?.map((teacher) => {
+          {teacherList?.data?.map((teacher) => {
             const isChecked = selectedTeacherId.includes(teacher.id);
             return (
               <TeacherCard
