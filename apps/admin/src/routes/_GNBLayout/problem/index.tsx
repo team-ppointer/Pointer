@@ -165,35 +165,45 @@ function RouteComponent() {
       ) : (
         <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
           {problemList?.data.map(
-            ({ id: problemId, customId, title, memo, concepts }) => (
-              <Link
-                key={customId}
-                to={`/problem/$problemId`}
-                params={{ problemId: problemId.toString() }}>
-                <ProblemCard>
-                  <ProblemCard.TextSection>
-                    <ProblemCard.Info label='문항 ID' content={customId} />
-                    <ProblemCard.Info label='문항 타이틀' content={title} />
-                    <ProblemCard.Info label='문항 메모' content={memo} />
-                  </ProblemCard.TextSection>
+            ({ id: problemId, customId, title, memo, concepts, problemContent }) => {
+              // problemContent.blocks에서 type이 IMAGE인 첫 번째 블록 찾기
+              const firstImageBlock = problemContent?.blocks?.find(
+                (block) => block.type === 'IMAGE'
+              );
+              const mainProblemImageUrl = firstImageBlock?.data;
 
-                  <ProblemCard.ButtonSection>
-                    <IconButton
-                      variant='delete'
-                      onClick={(e) => handleClickDelete(e, problemId.toString())}
-                    />
-                  </ProblemCard.ButtonSection>
+              return (
+                <Link
+                  key={customId}
+                  to={`/problem/$problemId`}
+                  params={{ problemId: problemId.toString() }}>
+                  <ProblemCard>
+                    <ProblemCard.TextSection>
+                      <ProblemCard.Info label='문항 ID' content={customId} />
+                      <ProblemCard.Info label='문항 타이틀' content={title} />
+                      <ProblemCard.Info label='문항 메모' content={memo} />
+                    </ProblemCard.TextSection>
 
-                  {/* <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} /> */}
+                    <ProblemCard.ButtonSection>
+                      <IconButton
+                        variant='delete'
+                        onClick={(e) => handleClickDelete(e, problemId.toString())}
+                      />
+                    </ProblemCard.ButtonSection>
 
-                  <ProblemCard.TagSection>
-                    {(concepts || []).map((tag, tagIndex) => {
-                      return <Tag key={`${tag}-${tagIndex}`} label={tag.name} />;
-                    })}
-                  </ProblemCard.TagSection>
-                </ProblemCard>
-              </Link>
-            )
+                    {mainProblemImageUrl && (
+                      <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
+                    )}
+
+                    <ProblemCard.TagSection>
+                      {(concepts || []).map((tag, tagIndex) => {
+                        return <Tag key={`${tag}-${tagIndex}`} label={tag.name} />;
+                      })}
+                    </ProblemCard.TagSection>
+                  </ProblemCard>
+                </Link>
+              );
+            }
           )}
         </section>
       )}
