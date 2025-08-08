@@ -1,15 +1,24 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Button, IconButton, Modal, PlusButton, TwoButtonModalTemplate } from '@components';
+import {
+  Button,
+  IconButton,
+  Modal,
+  PlusButton,
+  TwoButtonModalTemplate,
+  CreateNoticeModal,
+} from '@components';
 import { HTMLAttributes, useState } from 'react';
 import { IcDeleteSm } from '@svg';
 import { Link } from '@tanstack/react-router';
 import { deletePublish, getPublish, getStudent } from '@apis';
 import { useInvalidate, useModal } from '@hooks';
+import { components } from '@schema';
 import dayjs from 'dayjs';
 
-import 'dayjs/locale/ko';
-import { components } from '@schema';
 import SelectStudentModal from '@/components/common/Modals/SelectStudentModal';
+
+import 'dayjs/locale/ko';
+
 dayjs.locale('ko');
 
 interface DayProps extends HTMLAttributes<HTMLDivElement> {
@@ -52,7 +61,7 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) =>
       {
         params: {
           path: {
-            publishId: publishId,
+            id: publishId,
           },
         },
       },
@@ -131,6 +140,12 @@ function RouteComponent() {
     closeModal: closeSelectStudentModal,
   } = useModal();
 
+  const {
+    isOpen: isCreateNoticeModalOpen,
+    openModal: openCreateNoticeModal,
+    closeModal: closeCreateNoticeModal,
+  } = useModal();
+
   const handleClickPrevMonth = () => setCurrentMonth(currentMonth.subtract(1, 'month'));
   const handleClickNextMonth = () => setCurrentMonth(currentMonth.add(1, 'month'));
   const handleClickCurrentMonth = () => setCurrentMonth(dayjs().startOf('month'));
@@ -140,7 +155,10 @@ function RouteComponent() {
   const lastDayOfMonth = currentMonth.endOf('month').day(); // 마지막날 요일, 0: Sunday ~ 6: Saturday
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  const { data: publishDataResponse } = getPublish(currentMonth.year(), currentMonth.month() + 1);
+  const { data: publishDataResponse } = getPublish({
+    year: currentMonth.year(),
+    month: currentMonth.month() + 1,
+  });
   const publishData = publishDataResponse?.data ?? [];
 
   return (
@@ -165,7 +183,9 @@ function RouteComponent() {
           </div>
           <div className='flex items-center gap-[1.6rem]'>
             <Button variant='light'>공지 목록</Button>
-            <Button variant='dark'>공지 작성</Button>
+            <Button variant='dark' onClick={openCreateNoticeModal}>
+              공지 작성
+            </Button>
           </div>
         </div>
 
@@ -188,7 +208,7 @@ function RouteComponent() {
             const currentDate = currentMonth.date(day);
             const fullDate = currentDate.format('YYYY-MM-DD');
             const dayOfWeek = currentDate.day();
-            const setData = publishData.find((e) => e.date === fullDate);
+            const setData = publishData.find((e) => e.publishAt === fullDate);
 
             return (
               <Day
@@ -196,9 +216,9 @@ function RouteComponent() {
                 day={day}
                 dayOfWeek={dayOfWeek}
                 fullDate={fullDate}
-                publishId={setData?.publishId}
-                title={setData?.problemSetInfo?.title}
-                setId={setData?.problemSetInfo?.id}
+                publishId={setData?.id}
+                title={setData?.problemSet?.title}
+                setId={setData?.problemSet?.id}
               />
             );
           })}
@@ -215,6 +235,9 @@ function RouteComponent() {
           setSelectedStudent={setSelectedStudent}
           onApply={closeSelectStudentModal}
         />
+      </Modal>
+      <Modal isOpen={isCreateNoticeModalOpen} onClose={closeCreateNoticeModal}>
+        <CreateNoticeModal selectedStudent={selectedStudent} onClose={closeCreateNoticeModal} />
       </Modal>
     </>
   );
