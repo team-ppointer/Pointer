@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   AnswerInput,
   ComponentWithLabel,
@@ -7,18 +8,23 @@ import {
   Tag,
   Button,
 } from '@components';
-import { Control, UseFormRegister, UseFormWatch } from 'react-hook-form';
+import { Control, UseFormRegister, UseFormWatch, UseFormSetValue } from 'react-hook-form';
 import { components } from '@schema';
+import EditorModal from '@repo/pointer-editor/EditorModal';
 
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 type ChildProblem = components['schemas']['ChildProblemUpdateDTO.Request'];
+type ProblemInfoResp = components['schemas']['ProblemInfoResp'];
+type ContentBlockUpdateRequest = components['schemas']['ContentBlockUpdateRequest'];
 
 interface ChildProblemSectionProps {
   control: Control<ProblemUpdateRequest>;
   register: UseFormRegister<ProblemUpdateRequest>;
   watch: UseFormWatch<ProblemUpdateRequest>;
+  setValue: UseFormSetValue<ProblemUpdateRequest>;
   childProblems: ChildProblem[];
   tagsNameMap: Record<number, string>;
+  fetchedProblemData?: ProblemInfoResp;
   onAddChildProblem: () => void;
   onDeleteChildProblem: (index: number) => void;
   onRemoveChildTag: (tagId: number, index: number) => void;
@@ -36,8 +42,10 @@ export const ChildProblemSection = ({
   control: _control,
   register,
   watch,
+  setValue,
   childProblems,
   tagsNameMap,
+  fetchedProblemData,
   onAddChildProblem,
   onDeleteChildProblem,
   onRemoveChildTag,
@@ -46,6 +54,181 @@ export const ChildProblemSection = ({
   onDeletePointing,
   onOpenPointingTagModal,
 }: ChildProblemSectionProps) => {
+  // EditorModal 상태 관리
+  const [editorModalState, setEditorModalState] = useState<{
+    isOpen: boolean;
+    type: 'childProblem' | 'pointingQuestion' | 'pointingComment';
+    childIndex: number;
+    pointingIndex?: number;
+  }>({
+    isOpen: false,
+    type: 'childProblem',
+    childIndex: 0,
+  });
+
+  // 임시로 수정된 블록들을 저장하는 상태
+  const [tempChildProblemBlocks, setTempChildProblemBlocks] = useState<
+    Record<number, unknown[] | null>
+  >({});
+  const [tempPointingQuestionBlocks, setTempPointingQuestionBlocks] = useState<
+    Record<string, unknown[] | null>
+  >({});
+  const [tempPointingCommentBlocks, setTempPointingCommentBlocks] = useState<
+    Record<string, unknown[] | null>
+  >({});
+
+  const handleOpenEditorModal = (
+    type: 'childProblem' | 'pointingQuestion' | 'pointingComment',
+    childIndex: number,
+    pointingIndex?: number
+  ) => {
+    setEditorModalState({
+      isOpen: true,
+      type,
+      childIndex,
+      pointingIndex,
+    });
+  };
+
+  const handleCloseEditorModal = () => {
+    setEditorModalState({
+      isOpen: false,
+      type: 'childProblem',
+      childIndex: 0,
+    });
+  };
+
+  const formatBlocks = (blocks: unknown[]): ContentBlockUpdateRequest[] => {
+    return blocks.map((block, index) => {
+      const blockData = block as {
+        // id?: number;
+        type?: 'TEXT' | 'IMAGE';
+        data?: string;
+        content?: string;
+      };
+
+      return {
+        // id: blockData.id || 0,
+        rank: index,
+        type: blockData.type,
+        data: blockData.data || blockData.content,
+      };
+    });
+  };
+
+  const handleSaveEditor = (blocks: unknown[]) => {
+    const formattedBlocks = formatBlocks(blocks);
+    const { type, childIndex, pointingIndex } = editorModalState;
+
+    if (type === 'childProblem') {
+      setValue(`childProblems.${childIndex}.problemContent.blocks`, formattedBlocks);
+      setTempChildProblemBlocks((prev) => ({
+        ...prev,
+        [childIndex]: blocks,
+      }));
+      console.log(`Updated childProblem ${childIndex} blocks:`, formattedBlocks);
+    } else if (type === 'pointingQuestion' && pointingIndex !== undefined) {
+      setValue(
+        `childProblems.${childIndex}.pointings.${pointingIndex}.questionContent.blocks`,
+        formattedBlocks
+      );
+      const key = `${childIndex}-${pointingIndex}-question`;
+      setTempPointingQuestionBlocks((prev) => ({
+        ...prev,
+        [key]: blocks,
+      }));
+      console.log(
+        `Updated pointing question ${childIndex}-${pointingIndex} blocks:`,
+        formattedBlocks
+      );
+    } else if (type === 'pointingComment' && pointingIndex !== undefined) {
+      setValue(
+        `childProblems.${childIndex}.pointings.${pointingIndex}.commentContent.blocks`,
+        formattedBlocks
+      );
+      const key = `${childIndex}-${pointingIndex}-comment`;
+      setTempPointingCommentBlocks((prev) => ({
+        ...prev,
+        [key]: blocks,
+      }));
+      console.log(
+        `Updated pointing comment ${childIndex}-${pointingIndex} blocks:`,
+        formattedBlocks
+      );
+    }
+
+    handleCloseEditorModal();
+  };
+
+  const getEditorBlocks = () => {
+    const { type, childIndex, pointingIndex } = editorModalState;
+
+    if (type === 'childProblem') {
+      return (
+        tempChildProblemBlocks[childIndex] ||
+        fetchedProblemData?.childProblems?.[childIndex]?.problemContent?.blocks ||
+        []
+      );
+    } else if (type === 'pointingQuestion' && pointingIndex !== undefined) {
+      const key = `${childIndex}-${pointingIndex}-question`;
+      return (
+        tempPointingQuestionBlocks[key] ||
+        fetchedProblemData?.childProblems?.[childIndex]?.pointings?.[pointingIndex]?.questionContent
+          ?.blocks ||
+        []
+      );
+    } else if (type === 'pointingComment' && pointingIndex !== undefined) {
+      const key = `${childIndex}-${pointingIndex}-comment`;
+      return (
+        tempPointingCommentBlocks[key] ||
+        fetchedProblemData?.childProblems?.[childIndex]?.pointings?.[pointingIndex]?.commentContent
+          ?.blocks ||
+        []
+      );
+    }
+
+    return [];
+  };
+
+  const hasBlocks = (
+    type: 'childProblem' | 'pointingQuestion' | 'pointingComment',
+    childIndex: number,
+    pointingIndex?: number
+  ): boolean => {
+    if (type === 'childProblem') {
+      const tempBlocks = tempChildProblemBlocks[childIndex];
+      const fetchedBlocks = fetchedProblemData?.childProblems?.[childIndex]?.problemContent?.blocks;
+      return (
+        (tempBlocks && tempBlocks.length > 0) ||
+        (fetchedBlocks && fetchedBlocks.length > 0) ||
+        false
+      );
+    } else if (type === 'pointingQuestion' && pointingIndex !== undefined) {
+      const key = `${childIndex}-${pointingIndex}-question`;
+      const tempBlocks = tempPointingQuestionBlocks[key];
+      const fetchedBlocks =
+        fetchedProblemData?.childProblems?.[childIndex]?.pointings?.[pointingIndex]?.questionContent
+          ?.blocks;
+      return (
+        (tempBlocks && tempBlocks.length > 0) ||
+        (fetchedBlocks && fetchedBlocks.length > 0) ||
+        false
+      );
+    } else if (type === 'pointingComment' && pointingIndex !== undefined) {
+      const key = `${childIndex}-${pointingIndex}-comment`;
+      const tempBlocks = tempPointingCommentBlocks[key];
+      const fetchedBlocks =
+        fetchedProblemData?.childProblems?.[childIndex]?.pointings?.[pointingIndex]?.commentContent
+          ?.blocks;
+      return (
+        (tempBlocks && tempBlocks.length > 0) ||
+        (fetchedBlocks && fetchedBlocks.length > 0) ||
+        false
+      );
+    }
+    return false;
+  };
+
   return (
     <SectionCard>
       <div className='flex items-baseline gap-[1.6rem]'>
@@ -91,8 +274,12 @@ export const ChildProblemSection = ({
                   />
                 </ComponentWithLabel>
                 <ComponentWithLabel label='새끼 문제 입력' labelWidth='15.4rem' direction='column'>
-                  <Button type='button' variant='light' sizeType='full' onClick={() => {}}>
-                    입력 바로가기
+                  <Button
+                    type='button'
+                    variant={hasBlocks('childProblem', index) ? 'dark' : 'light'}
+                    sizeType='full'
+                    onClick={() => handleOpenEditorModal('childProblem', index)}>
+                    {hasBlocks('childProblem', index) ? '입력 확인 및 수정하기' : '입력 바로가기'}
                   </Button>
                 </ComponentWithLabel>
                 <ComponentWithLabel label='새끼 문제 답 입력'>
@@ -122,10 +309,18 @@ export const ChildProblemSection = ({
                           <ComponentWithLabel label='질문' labelWidth='15.4rem' direction='column'>
                             <Button
                               type='button'
-                              variant='light'
+                              variant={
+                                hasBlocks('pointingQuestion', index, pointingIndex)
+                                  ? 'dark'
+                                  : 'light'
+                              }
                               sizeType='full'
-                              onClick={() => {}}>
-                              입력 바로가기
+                              onClick={() =>
+                                handleOpenEditorModal('pointingQuestion', index, pointingIndex)
+                              }>
+                              {hasBlocks('pointingQuestion', index, pointingIndex)
+                                ? '입력 확인 및 수정하기'
+                                : '입력 바로가기'}
                             </Button>
                           </ComponentWithLabel>
                         </div>
@@ -136,10 +331,18 @@ export const ChildProblemSection = ({
                             direction='column'>
                             <Button
                               type='button'
-                              variant='light'
+                              variant={
+                                hasBlocks('pointingComment', index, pointingIndex)
+                                  ? 'dark'
+                                  : 'light'
+                              }
                               sizeType='full'
-                              onClick={() => {}}>
-                              입력 바로가기
+                              onClick={() =>
+                                handleOpenEditorModal('pointingComment', index, pointingIndex)
+                              }>
+                              {hasBlocks('pointingComment', index, pointingIndex)
+                                ? '입력 확인 및 수정하기'
+                                : '입력 바로가기'}
                             </Button>
                           </ComponentWithLabel>
                         </div>
@@ -185,6 +388,15 @@ export const ChildProblemSection = ({
       <div className='mt-[6.4rem] flex items-center justify-center'>
         <PlusButton onClick={onAddChildProblem} />
       </div>
+
+      {/* EditorModal */}
+      {editorModalState.isOpen && (
+        <EditorModal
+          blocks={getEditorBlocks()}
+          onSave={handleSaveEditor}
+          onClose={handleCloseEditorModal}
+        />
+      )}
     </SectionCard>
   );
 };

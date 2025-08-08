@@ -308,6 +308,7 @@ function RouteComponent() {
                 control={control}
                 register={register}
                 watch={watch}
+                setValue={setValue}
                 childProblems={childProblems}
                 tagsNameMap={tagsNameMap}
                 onAddChildProblem={handleAddChildProblem}

@@ -346,8 +346,10 @@ function RouteComponent() {
             control={control}
             register={register}
             watch={watch}
+            setValue={setValue}
             childProblems={childProblems}
             tagsNameMap={tagsNameMap}
+            fetchedProblemData={fetchedProblemData}
             onAddChildProblem={handleAddChildProblem}
             onDeleteChildProblem={handleDeleteChildProblem}
             onRemoveChildTag={handleRemoveChildTag}
