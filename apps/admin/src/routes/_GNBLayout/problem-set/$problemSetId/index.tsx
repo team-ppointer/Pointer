@@ -3,6 +3,7 @@ import {
   getProblemSetById,
   putProblemSetToggleStatus,
   putProblemSet,
+  deleteProblemFromProblemSet,
 } from '@apis';
 import {
   Button,
@@ -55,6 +56,8 @@ function RouteComponent() {
   const [deleteProblemIndex, setDeleteProblemIndex] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isSaved, setIsSaved] = useState<boolean>(true);
+  const [confirmStatus, setConfirmStatus] = useState<'CONFIRMED' | 'DOING'>('DOING');
+  const [originalProblems, setOriginalProblems] = useState<ProblemSetItemResp[]>([]);
 
   const {
     isOpen: isSetDeleteModalOpen,
@@ -87,7 +90,7 @@ function RouteComponent() {
   const { mutate: mutatePutProblemSet } = putProblemSet();
   const { mutate: mutateConfirmProblemSet } = putProblemSetToggleStatus();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
-  const confirmStatus = problemSetData?.status;
+  const { mutate: mutateDeleteProblemFromProblemSet } = deleteProblemFromProblemSet();
 
   // RHF
   const { register, handleSubmit, setValue } = useForm<{
@@ -116,15 +119,16 @@ function RouteComponent() {
         },
       },
       {
-        onSuccess: (data) => {
-          invalidateProblemSet(Number(problemSetId));
+        onSuccess: async (data) => {
+          await invalidateProblemSet(Number(problemSetId));
+          setConfirmStatus(data.status);
           if (data.status === 'CONFIRMED') {
             toast.success('컨펌이 완료되었습니다');
           } else {
             toast.info('컨펌이 취소되었습니다');
           }
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
           setErrorMessage(error.message || '오류가 발생했습니다.');
           openErrorModal();
         },
@@ -142,8 +146,8 @@ function RouteComponent() {
         },
       },
       {
-        onSuccess: () => {
-          invalidateProblemSet(Number(problemSetId));
+        onSuccess: async () => {
+          await invalidateProblemSet(Number(problemSetId));
           navigate({ to: '/problem-set' });
         },
       }
@@ -218,6 +222,7 @@ function RouteComponent() {
 
     if (problemSummaries.length === 1) {
       resetProblemSummaries();
+      setOriginalProblems([]);
       closeProblemDeleteModal();
       return;
     }
@@ -272,40 +277,78 @@ function RouteComponent() {
     if (isSaved) setIsSaved(false);
   };
 
-  const handleClickSave = (data: ProblemSetUpdateRequest) => {
-    const filteredProblemSummaries = problemSummaries.filter((item) => item.problem.id !== 0);
-    if (filteredProblemSummaries.length === 0) {
+  const handleClickSave = async (data: ProblemSetUpdateRequest) => {
+    if (problemSummaries.length === 0) {
       setErrorMessage('적어도 1개의 문항을 등록해주세요');
       openErrorModal();
       return;
     }
 
-    const filteredData = {
-      title: data.title,
-      status: data.status,
-      problems: filteredProblemSummaries.map((item, index) => ({
-        no: index + 1,
-        problemId: item.problem.id,
-      })),
-    };
-
-    mutatePutProblemSet(
-      {
-        body: filteredData,
-        params: {
-          path: {
-            id: Number(problemSetId),
+    try {
+      // originalProblems: 원본 선택 문제들
+      // problemSummaries: 현재 선택된 문제들
+      // 삭제할 문제들 찾기 (원본에는 있지만 현재에는 없는 것들)
+      const problemsToDelete = originalProblems.filter(
+        (item) => !problemSummaries.map((item) => item.problem.id).includes(item.problem.id)
+      );
+      // 선택된 문제들 업데이트
+      await new Promise<void>((resolve, reject) => {
+        console.log('originalProblems: ');
+        console.log(originalProblems);
+        console.log('problemSummaries: ');
+        console.log(problemSummaries);
+        mutatePutProblemSet(
+          {
+            body: {
+              title: data.title,
+              status: data.status,
+              problems: problemSummaries.map((item, index) => ({
+                no: index + 1,
+                problemId: item.problem.id,
+              })),
+            },
+            params: {
+              path: {
+                id: Number(problemSetId),
+              },
+            },
           },
-        },
-      },
-      {
-        onSuccess: () => {
-          invalidateProblemSet(Number(problemSetId));
-          toast.success('저장이 완료되었습니다');
-          setIsSaved(true);
-        },
-      }
-    );
+          {
+            onSuccess: () => resolve(),
+            onError: (error) => reject(error),
+          }
+        );
+      });
+      // 삭제할 문제들 제거
+      // console.log('problemsToDelete: ');
+      // console.log(problemsToDelete);
+      // for (const problemToDelete of problemsToDelete) {
+      //   await new Promise<void>((resolve, reject) => {
+      //     mutateDeleteProblemFromProblemSet(
+      //       {
+      //         params: {
+      //           path: {
+      //             id: Number(problemSetId),
+      //             problemId: problemToDelete.id,
+      //           },
+      //         },
+      //       },
+      //       {
+      //         onSuccess: () => resolve(),
+      //         onError: (error) => reject(error),
+      //       }
+      //     );
+      //   });
+      // }
+      // 6. 성공 처리
+      await invalidateProblemSet(Number(problemSetId));
+      toast.success('저장이 완료되었습니다');
+      setIsSaved(true);
+      setOriginalProblems([...problemSummaries]);
+    } catch {
+      setErrorMessage('저장 중 오류가 발생했습니다.');
+      openErrorModal();
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -324,10 +367,13 @@ function RouteComponent() {
     if (problemSetData) {
       setValue('title', problemSetData.title ?? '');
       setValue('status', problemSetData.status ?? 'DOING');
+      setConfirmStatus(problemSetData.status ?? 'DOING');
       if (problemSetData.problems.length === 0) {
         resetProblemSummaries();
+        setOriginalProblems([]);
       } else {
         setProblemSummaries(problemSetData.problems);
+        setOriginalProblems([...problemSetData.problems]); // 원본 데이터 저장
       }
     }
   }, [problemSetData]);
@@ -369,10 +415,11 @@ function RouteComponent() {
 
         <div className='flex items-center gap-[2.4rem]'>
           <StatusToggle
-            selectedStatus={confirmStatus === 'CONFIRMED' ? 'CONFIRMED' : 'NOT_CONFIRMED'}
-            onSelect={() => {
-              handleSubmit(handleClickSave);
-              handleClickConfirm();
+            selectedStatus={confirmStatus}
+            onSelect={(status) => {
+              if (status !== confirmStatus) {
+                handleClickConfirm();
+              }
             }}
           />
           <div className='flex items-center gap-[0.8rem]'>

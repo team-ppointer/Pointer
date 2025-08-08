@@ -120,6 +120,9 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
           <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem] pb-[4.8rem]'>
             {problemList?.data.map((problem) => {
               const { customId, title, memo, concepts } = problem;
+              const mainProblemImageUrl = problem.problemContent?.blocks?.find(
+                (block) => block.type === 'IMAGE'
+              )?.data;
               return (
                 <div
                   key={problem.id}
@@ -132,7 +135,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
                       <ProblemCard.Info label='문항 메모' content={memo} />
                     </ProblemCard.TextSection>
 
-                    <ProblemCard.CardImage src={''} height={'34.4rem'} />
+                    <ProblemCard.CardImage src={mainProblemImageUrl ?? ''} height={'34.4rem'} />
 
                     <ProblemCard.TagSection>
                       {(concepts || []).map((concept, conceptIndex) => {

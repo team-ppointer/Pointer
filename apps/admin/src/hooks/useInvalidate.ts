@@ -11,19 +11,16 @@ const useInvalidate = () => {
   const invalidateProblemSet = (problemSetId: number) => {
     return Promise.all([
       queryClient.invalidateQueries({
-        queryKey: $api.queryOptions('get', '/api/v1/problemSet/{problemSetId}', {
+        queryKey: $api.queryOptions('get', '/api/admin/problem-set/{id}', {
           params: {
             path: {
-              problemSetId,
+              id: problemSetId,
             },
           },
         }).queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: $api.queryOptions('get', '/api/v1/problemSet/search').queryKey,
-      }),
-      queryClient.invalidateQueries({
-        queryKey: $api.queryOptions('get', '/api/v1/problemSet/confirm/search').queryKey,
+        queryKey: $api.queryOptions('get', '/api/admin/problem-set').queryKey,
       }),
     ]);
   };
