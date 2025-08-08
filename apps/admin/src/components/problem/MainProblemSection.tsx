@@ -1,17 +1,27 @@
+import { useState } from 'react';
 import { AnswerInput, ComponentWithLabel, Input, SectionCard, Tag, Button } from '@components';
-import { Controller, Control, UseFormRegister, FieldErrors } from 'react-hook-form';
+import {
+  Controller,
+  Control,
+  UseFormRegister,
+  FieldErrors,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { components } from '@schema';
+import EditorModal from '@repo/pointer-editor/EditorModal';
 
 import { ImageUpload, LevelSelect, TextArea } from '@/components/problem';
 import { ProblemAnswerType } from '@/types/component';
 
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 type ProblemInfoResp = components['schemas']['ProblemInfoResp'];
+type ContentBlockUpdateRequest = components['schemas']['ContentBlockUpdateRequest'];
 
 interface MainProblemSectionProps {
   control: Control<ProblemUpdateRequest>;
   register: UseFormRegister<ProblemUpdateRequest>;
   errors: FieldErrors<ProblemUpdateRequest>;
+  setValue: UseFormSetValue<ProblemUpdateRequest>;
   concepts?: number[] | undefined;
   selectedAnswerType?: ProblemAnswerType;
   selectedAnswer?: number;
@@ -24,7 +34,8 @@ interface MainProblemSectionProps {
 export const MainProblemSection = ({
   control,
   register,
-  errors,
+  errors: _errors,
+  setValue,
   concepts,
   selectedAnswerType,
   selectedAnswer,
@@ -33,6 +44,86 @@ export const MainProblemSection = ({
   onRemoveTag,
   onOpenTagModal,
 }: MainProblemSectionProps) => {
+  const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
+  const [isPointingQuestionModalOpen, setIsPointingQuestionModalOpen] = useState(false);
+  const [isPointingCommentModalOpen, setIsPointingCommentModalOpen] = useState(false);
+
+  // 임시로 수정된 블록들을 저장하는 상태
+  const [tempMainProblemBlocks, setTempMainProblemBlocks] = useState<unknown[] | null>(
+    fetchedProblemData?.problemContent?.blocks || null
+  );
+  const [tempPointingQuestionBlocks, setTempPointingQuestionBlocks] = useState<unknown[] | null>(
+    fetchedProblemData?.pointings?.[0]?.questionContent?.blocks || null
+  );
+  const [tempPointingCommentBlocks, setTempPointingCommentBlocks] = useState<unknown[] | null>(
+    fetchedProblemData?.pointings?.[0]?.commentContent?.blocks || null
+  );
+
+  const handleOpenEditorModal = () => {
+    setIsEditorModalOpen(true);
+  };
+
+  const handleCloseEditorModal = () => {
+    setIsEditorModalOpen(false);
+  };
+
+  const handleOpenPointingQuestionModal = () => {
+    setIsPointingQuestionModalOpen(true);
+  };
+
+  const handleClosePointingQuestionModal = () => {
+    setIsPointingQuestionModalOpen(false);
+  };
+
+  const handleOpenPointingCommentModal = () => {
+    setIsPointingCommentModalOpen(true);
+  };
+
+  const handleClosePointingCommentModal = () => {
+    setIsPointingCommentModalOpen(false);
+  };
+
+  const formatBlocks = (blocks: unknown[]): ContentBlockUpdateRequest[] => {
+    return blocks.map((block, index) => {
+      const blockData = block as {
+        // id?: number;
+        type?: 'TEXT' | 'IMAGE';
+        data?: string;
+        content?: string;
+      };
+
+      return {
+        // id: blockData.id || 0,
+        rank: index,
+        type: blockData.type,
+        data: blockData.data || blockData.content,
+      };
+    });
+  };
+
+  const handleSaveEditor = (blocks: unknown[]) => {
+    const formattedBlocks = formatBlocks(blocks);
+    setValue('problemContent.blocks', formattedBlocks);
+    setTempMainProblemBlocks(blocks); // 임시 상태에 원본 블록 저장
+    console.log('Updated problemContent blocks:', formattedBlocks);
+    setIsEditorModalOpen(false);
+  };
+
+  const handleSavePointingQuestion = (blocks: unknown[]) => {
+    const formattedBlocks = formatBlocks(blocks);
+    setValue('pointings.0.questionContent.blocks', formattedBlocks);
+    setTempPointingQuestionBlocks(blocks); // 임시 상태에 원본 블록 저장
+    console.log('Updated pointing question blocks:', formattedBlocks);
+    setIsPointingQuestionModalOpen(false);
+  };
+
+  const handleSavePointingComment = (blocks: unknown[]) => {
+    const formattedBlocks = formatBlocks(blocks);
+    setValue('pointings.0.commentContent.blocks', formattedBlocks);
+    setTempPointingCommentBlocks(blocks); // 임시 상태에 원본 블록 저장
+    console.log('Updated pointing comment blocks:', formattedBlocks);
+    setIsPointingCommentModalOpen(false);
+  };
   return (
     <SectionCard>
       <h3 className='font-bold-32 mb-12 text-black'>메인 문제 등록</h3>
@@ -100,8 +191,14 @@ export const MainProblemSection = ({
           </div>
         </div>
         <ComponentWithLabel label='메인 문제 입력' labelWidth='15.4rem' direction='column'>
-          <Button type='button' variant='light' sizeType='full' onClick={() => {}}>
-            입력 바로가기
+          <Button
+            type='button'
+            variant={tempMainProblemBlocks && tempMainProblemBlocks?.length > 0 ? 'dark' : 'light'}
+            sizeType='full'
+            onClick={handleOpenEditorModal}>
+            {tempMainProblemBlocks && tempMainProblemBlocks?.length > 0
+              ? '입력 확인 및 수정하기'
+              : '입력 바로가기'}
           </Button>
         </ComponentWithLabel>
 
@@ -144,15 +241,35 @@ export const MainProblemSection = ({
           </div>
           <div>
             <ComponentWithLabel label='포인팅 질문' labelWidth='15.4rem' direction='column'>
-              <Button type='button' variant='light' sizeType='full' onClick={() => {}}>
-                입력 바로가기
+              <Button
+                type='button'
+                variant={
+                  tempPointingQuestionBlocks && tempPointingQuestionBlocks?.length > 0
+                    ? 'dark'
+                    : 'light'
+                }
+                sizeType='full'
+                onClick={handleOpenPointingQuestionModal}>
+                {tempPointingQuestionBlocks && tempPointingQuestionBlocks?.length > 0
+                  ? '입력 확인 및 수정하기'
+                  : '입력 바로가기'}
               </Button>
             </ComponentWithLabel>
           </div>
           <div>
             <ComponentWithLabel label='포인팅 처방' labelWidth='15.4rem' direction='column'>
-              <Button type='button' variant='light' sizeType='full' onClick={() => {}}>
-                입력 바로가기
+              <Button
+                type='button'
+                variant={
+                  tempPointingCommentBlocks && tempPointingCommentBlocks?.length > 0
+                    ? 'dark'
+                    : 'light'
+                }
+                sizeType='full'
+                onClick={handleOpenPointingCommentModal}>
+                {tempPointingCommentBlocks && tempPointingCommentBlocks?.length > 0
+                  ? '입력 확인 및 수정하기'
+                  : '입력 바로가기'}
               </Button>
             </ComponentWithLabel>
           </div>
@@ -162,6 +279,41 @@ export const MainProblemSection = ({
           <TextArea placeholder={'여기에 메모를 작성해주세요.'} {...register('memo')} />
         </ComponentWithLabel>
       </div>
+
+      {/* EditorModal - 메인 문제 */}
+      {isEditorModalOpen && (
+        <EditorModal
+          blocks={tempMainProblemBlocks || fetchedProblemData?.problemContent?.blocks || []}
+          onSave={handleSaveEditor}
+          onClose={handleCloseEditorModal}
+        />
+      )}
+
+      {/* EditorModal - 포인팅 질문 */}
+      {isPointingQuestionModalOpen && (
+        <EditorModal
+          blocks={
+            tempPointingQuestionBlocks ||
+            fetchedProblemData?.pointings?.[0]?.questionContent?.blocks ||
+            []
+          }
+          onSave={handleSavePointingQuestion}
+          onClose={handleClosePointingQuestionModal}
+        />
+      )}
+
+      {/* EditorModal - 포인팅 처방 */}
+      {isPointingCommentModalOpen && (
+        <EditorModal
+          blocks={
+            tempPointingCommentBlocks ||
+            fetchedProblemData?.pointings?.[0]?.commentContent?.blocks ||
+            []
+          }
+          onSave={handleSavePointingComment}
+          onClose={handleClosePointingCommentModal}
+        />
+      )}
     </SectionCard>
   );
 };

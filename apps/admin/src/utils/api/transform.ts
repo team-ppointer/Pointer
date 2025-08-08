@@ -28,7 +28,32 @@ export const transformToProblemUpdateRequest = (
           data: block.data,
         })) ?? [],
     },
-    pointings: [],
+    pointings:
+      serverData.pointings?.map((pointing, pointingIndex) => ({
+        id: pointing.id,
+        no: pointing.no ?? pointingIndex + 1, // no가 null인 경우 기본값 설정
+        questionContent: {
+          id: pointing.questionContent?.id,
+          blocks:
+            pointing.questionContent?.blocks?.map((block, blockIndex) => ({
+              id: block.id,
+              rank: blockIndex,
+              type: block.type,
+              data: block.data,
+            })) ?? [],
+        },
+        commentContent: {
+          id: pointing.commentContent?.id,
+          blocks:
+            pointing.commentContent?.blocks?.map((block, blockIndex) => ({
+              id: block.id,
+              rank: blockIndex,
+              type: block.type,
+              data: block.data,
+            })) ?? [],
+        },
+        concepts: pointing.concepts?.map((concept) => concept.id) ?? [],
+      })) ?? [],
     mainAnalysisImageId: serverData.mainAnalysisImage?.id,
     mainHandAnalysisImageId: serverData.mainHandAnalysisImage?.id,
     readingTipContent: {
@@ -69,9 +94,9 @@ export const transformToProblemUpdateRequest = (
         answer: childProblem.answer ?? 1,
         concepts: childProblem.concepts?.map((concept) => concept.id) ?? [],
         pointings:
-          childProblem.pointings?.map((pointing) => ({
+          childProblem.pointings?.map((pointing, pointingIndex) => ({
             id: pointing.id,
-            no: pointing.no,
+            no: pointing.no ?? pointingIndex + 1, // no가 null인 경우 기본값 설정
             questionContent: {
               id: pointing.questionContent?.id,
               blocks:

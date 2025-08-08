@@ -2,7 +2,6 @@ import { FloatingButton, Header, Modal, TagSelectModal, TwoButtonModalTemplate }
 import { components } from '@schema';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Controller, SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
-import { produce } from 'immer';
 import { deleteProblem, getConcept, getProblemById, putProblemById } from '@apis';
 import { useEffect, useState } from 'react';
 import { transformToProblemUpdateRequest } from '@utils';
@@ -92,7 +91,6 @@ function RouteComponent() {
     fields: childProblems,
     append,
     remove,
-    update,
   } = useFieldArray({
     control,
     name: 'childProblems',
@@ -120,12 +118,15 @@ function RouteComponent() {
   const handleSubmitUpdate: SubmitHandler<ProblemUpdateRequest> = (data) => {
     const processedData = {
       ...data,
+      // answer 필드를 숫자로 변환 (메인 문제)
+      answer: typeof data.answer === 'string' ? parseInt(data.answer, 10) : data.answer,
       // 이미지 ID가 undefined인 경우 명시적으로 undefined로 설정 (삭제 의미)
       mainAnalysisImageId: data.mainAnalysisImageId ?? undefined,
       mainHandAnalysisImageId: data.mainHandAnalysisImageId ?? undefined,
       childProblems: data.childProblems?.map((child) => ({
         ...child,
         id: child.id && typeof child.id === 'string' ? undefined : child.id, // 새로 생성되는 경우 undefined로 명시
+        answer: typeof child.answer === 'string' ? parseInt(child.answer, 10) : child.answer, // answer 필드를 숫자로 변환
       })),
       // readingTipContent, oneStepMoreContent에 id 추가
       readingTipContent: {
@@ -198,63 +199,40 @@ function RouteComponent() {
 
   const handleChangeChildTagList = (tagList: number[], index: number | undefined) => {
     if (index === undefined) return;
-    const newChildProblem = produce(childProblems[index], (draft) => {
-      if (draft) {
-        draft.concepts = [...tagList];
-      }
-    });
-
-    if (newChildProblem) {
-      update(index, newChildProblem);
-    }
+    // setValue를 사용해서 concepts 필드만 업데이트 (id 보존)
+    setValue(`childProblems.${index}.concepts`, [...tagList]);
   };
 
   const handleRemoveChildTag = (tagId: number, index: number) => {
-    const newChildProblem = produce(childProblems[index], (draft) => {
-      if (draft) {
-        draft.concepts = draft.concepts?.filter((tag) => tag !== tagId);
-      }
-    });
-    if (newChildProblem) {
-      update(index, newChildProblem);
-    }
+    // 현재 concepts를 가져와서 필터링 후 setValue로 업데이트 (id 보존)
+    const currentConcepts = watch(`childProblems.${index}.concepts`) || [];
+    const newConcepts = currentConcepts.filter((tag: number) => tag !== tagId);
+    setValue(`childProblems.${index}.concepts`, newConcepts);
   };
 
   const handleAddPointing = (childProblemIndex: number) => {
-    const newChildProblem = produce(childProblems[childProblemIndex], (draft) => {
-      if (draft) {
-        if (!draft.pointings) {
-          draft.pointings = [];
-        }
-        // PointingCreateRequest를 PointingUpdateRequest 형태로 변환
-        const pointingForUpdate: components['schemas']['PointingUpdateRequest'] = {
-          id: undefined, // 새로 생성되는 경우 undefined
-          no: (draft.pointings?.length ?? 0) + 1,
-          questionContent: { blocks: [] },
-          commentContent: { blocks: [] },
-          concepts: [],
-        };
-        draft.pointings.push(pointingForUpdate);
-      }
-    });
-    if (newChildProblem) {
-      update(childProblemIndex, newChildProblem);
-    }
+    // 현재 pointings 배열을 가져와서 새로운 pointing 추가 (id 보존)
+    const currentPointings = watch(`childProblems.${childProblemIndex}.pointings`) || [];
+    const newPointing: components['schemas']['PointingUpdateRequest'] = {
+      id: undefined, // 새로 생성되는 경우 undefined
+      no: currentPointings.length + 1,
+      questionContent: { blocks: [] },
+      commentContent: { blocks: [] },
+      concepts: [],
+    };
+    setValue(`childProblems.${childProblemIndex}.pointings`, [...currentPointings, newPointing]);
   };
 
   const handleDeletePointing = (childProblemIndex: number, pointingIndex: number) => {
-    const newChildProblem = produce(childProblems[childProblemIndex], (draft) => {
-      if (draft && draft.pointings) {
-        draft.pointings.splice(pointingIndex, 1);
-        // 포인팅 번호 재정렬
-        draft.pointings.forEach((pointing, index) => {
-          pointing.no = index + 1;
-        });
-      }
-    });
-    if (newChildProblem) {
-      update(childProblemIndex, newChildProblem);
-    }
+    // 현재 pointings 배열을 가져와서 특정 인덱스 삭제 후 번호 재정렬 (id 보존)
+    const currentPointings = watch(`childProblems.${childProblemIndex}.pointings`) || [];
+    const updatedPointings = currentPointings
+      .filter((_: unknown, index: number) => index !== pointingIndex)
+      .map((pointing: components['schemas']['PointingUpdateRequest'], index: number) => ({
+        ...pointing,
+        no: index + 1, // 번호 재정렬
+      }));
+    setValue(`childProblems.${childProblemIndex}.pointings`, updatedPointings);
   };
 
   const handleChangePointingTagList = (
@@ -263,15 +241,8 @@ function RouteComponent() {
   ) => {
     if (!pointingIndex) return;
     const { childIndex, pointingIndex: pIndex } = pointingIndex;
-    const newChildProblem = produce(childProblems[childIndex], (draft) => {
-      if (draft && draft.pointings && draft.pointings[pIndex]) {
-        draft.pointings[pIndex].concepts = [...tagList];
-      }
-    });
-
-    if (newChildProblem) {
-      update(childIndex, newChildProblem);
-    }
+    // setValue를 사용해서 pointing의 concepts 필드만 업데이트 (id 보존)
+    setValue(`childProblems.${childIndex}.pointings.${pIndex}.concepts`, [...tagList]);
   };
 
   // useEffect
@@ -362,6 +333,7 @@ function RouteComponent() {
             control={control}
             register={register}
             errors={errors}
+            setValue={setValue}
             concepts={concepts}
             selectedAnswerType={selectedAnswerType}
             selectedAnswer={selectedAnswer}
