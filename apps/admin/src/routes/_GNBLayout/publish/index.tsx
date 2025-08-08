@@ -7,11 +7,12 @@ import {
   TwoButtonModalTemplate,
   CreateNoticeModal,
   NoticeListModal,
+  ProgressModal,
 } from '@components';
 import { HTMLAttributes, useState } from 'react';
 import { IcDeleteSm } from '@svg';
 import { Link } from '@tanstack/react-router';
-import { deletePublish, getPublish, getStudent } from '@apis';
+import { deletePublish, getPublish, getPublishById, getStudent } from '@apis';
 import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
 import dayjs from 'dayjs';
@@ -39,7 +40,13 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
     openModal: openDeleteModal,
     closeModal: closeDeleteModal,
   } = useModal();
+  const {
+    isOpen: isProgressModalOpen,
+    openModal: openProgressModal,
+    closeModal: closeProgressModal,
+  } = useModal();
   const { mutate: mutateDeletePublish } = deletePublish();
+  const { data: publishDetailData } = getPublishById({ id: publishId || 0 });
 
   const today = dayjs().startOf('day');
   const isPast = dayjs(fullDate).isBefore(today, 'day');
@@ -85,11 +92,14 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
             className={`font-medium-16 h-[2.4rem] rounded-[0.4rem] px-[0.6rem] text-black ${dayOfWeekStyle} ${todayBgStyle}`}>
             {day}
           </div>
-          <div>
-            {title && !isPast && (
-              <div className='cursor-pointer' onClick={openDeleteModal}>
-                <IcDeleteSm width={24} height={24} />
-              </div>
+          <div className='flex items-center gap-[0.8rem]'>
+            {title && selectedStudent && (
+              <>
+                <div className='cursor-pointer' onClick={openDeleteModal}>
+                  <IcDeleteSm width={24} height={24} />
+                </div>
+                <IconButton variant='view' onClick={openProgressModal} />
+              </>
             )}
           </div>
         </div>
@@ -125,6 +135,11 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
           handleClickRightButton={handleMutateDelete}
         />
       </Modal>
+      {publishDetailData && publishId && (
+        <Modal isOpen={isProgressModalOpen} onClose={closeProgressModal}>
+          <ProgressModal publishData={publishDetailData} onClose={closeProgressModal} />
+        </Modal>
+      )}
     </>
   );
 };

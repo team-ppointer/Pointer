@@ -7,6 +7,7 @@ import TagSelectModal from './TagSelectModal';
 import ProblemSearchModal from './ProblemSearchModal';
 import CreateNoticeModal from './CreateNoticeModal';
 import NoticeListModal from './NoticeListModal';
+import ProgressModal from './ProgressModal';
 
 export {
   Modal,
@@ -18,4 +19,5 @@ export {
   ProblemSearchModal,
   CreateNoticeModal,
   NoticeListModal,
+  ProgressModal,
 };
