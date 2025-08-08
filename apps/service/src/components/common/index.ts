@@ -9,7 +9,11 @@ import NavigationFooter from './NavigationFooter';
 import Divider from './Divider';
 import ProgressHeader from './ProgressHeader';
 import ImageContainer from './ImageContainer';
+import Sidebar from './SideBar/SideBar';
+import { BottomFixedArea } from './area/BottomFixedArea';
 
+export * from './area/BottomFixedArea';
+export * from './SideBar/SideBar';
 export * from './Buttons';
 export * from './Inputs';
 export * from './Modals';
@@ -27,4 +31,6 @@ export {
   Divider,
   ProgressHeader,
   ImageContainer,
+  Sidebar,
+  BottomFixedArea,
 };

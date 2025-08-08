@@ -1,21 +1,21 @@
 import { TanstackQueryClient } from '@apis';
 
-const useGetChildProblemById = (publishId: string, problemId: string, childProblemId: string) => {
+const useGetChildProblemById = (publishId: number, childProblemId: number) => {
   return TanstackQueryClient.useQuery(
     'get',
-    '/api/v1/client/problem/{publishId}/{problemId}/{childProblemId}',
+    '/api/student/study/child-problem/{publishId}/{problemId}',
     {
       params: {
         path: {
-          publishId: Number(publishId),
-          problemId: Number(problemId),
-          childProblemId: Number(childProblemId),
+          publishId: publishId,
+          problemId: childProblemId,
         },
       },
     },
     {
       staleTime: Infinity,
       gcTime: Infinity,
+      enabled: childProblemId >= 0,
     }
   );
 };

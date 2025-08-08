@@ -1,14 +1,24 @@
 'use client';
 
 import Image from 'next/image';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
+import { useParams, useRouter } from 'next/navigation';
 
-import { Header, ImageContainer } from '@components';
+import { Header, ImageContainer, SmallButton } from '@components';
 import { useReportContext } from '@/hooks/report';
+import { IcQuestion18 } from '@svg';
 
 const Page = () => {
-  const { problemNumber, mainAnalysisImageUrl, readingTipImageUrl } = useReportContext();
+  const router = useRouter();
+  const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
+  const { no, mainAnalysisImage, readingTipContent } = useReportContext();
+  const handleClickQuestion = () => {
+    router.push(
+      `/qna/ask?publishId=${publishId}&problemId=${problemId}&type=PROBLEM_READING_TIP_CONTENT`
+    );
+  };
 
-  if (!mainAnalysisImageUrl || !readingTipImageUrl) {
+  if (!mainAnalysisImage || !readingTipContent) {
     return <></>;
   }
 
@@ -16,13 +26,23 @@ const Page = () => {
     <>
       <Header title='문제를 읽어내려갈 때' iconType='back' />
       <main className='px-[2rem] py-[8rem]'>
-        <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {problemNumber}번</h1>
+        <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {no}번</h1>
         <div className='mt-[1.6rem] flex flex-col gap-[3.2rem]'>
           <div className='flex w-full flex-col gap-[1.2rem]'>
-            <h2 className='font-bold-16 text-main my-[0.8rem]'>문제 분석</h2>
+            <div className='flex items-center justify-between'>
+              <h2 className='font-bold-16 text-main my-[0.8rem]'>문제 분석</h2>
+              <SmallButton
+                className='flex flex-row gap-[4px]'
+                variant='white'
+                sizeType='small'
+                onClick={handleClickQuestion}>
+                <IcQuestion18 className='h-[1.8rem] w-[1.8rem]' />
+                질문하기
+              </SmallButton>
+            </div>
             <ImageContainer>
               <Image
-                src={mainAnalysisImageUrl ?? ''}
+                src={mainAnalysisImage.url ?? ''}
                 alt='analysis'
                 className={`w-full object-contain`}
                 width={700}
@@ -34,14 +54,7 @@ const Page = () => {
           <div className='flex w-full flex-col gap-[1.2rem]'>
             <h2 className='font-bold-16 text-main my-[0.8rem]'>문제를 읽어내려갈 때</h2>
             <ImageContainer>
-              <Image
-                src={readingTipImageUrl ?? ''}
-                alt='reading-tip'
-                className={`w-full object-contain`}
-                width={700}
-                height={200}
-                priority
-              />
+              <ProblemViewer problem={readingTipContent} />
             </ImageContainer>
           </div>
         </div>

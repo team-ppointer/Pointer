@@ -17,3 +17,69 @@
     margin: 0 auto;
   }
 }
+
+/* Toast 커스텀 스타일 */
+.toast-container {
+  position: fixed !important;
+  top: 4rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999;
+  max-width: calc(100vw - 4rem);
+  width: auto;
+  /* 모바일 대응 추가 */
+  margin: 0 !important;
+  padding: 0 2rem !important;
+}
+
+.toast-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: fit-content !important;
+  flex-wrap: nowrap !important;
+  flex-direction: column !important;
+  background: #1a1a1a !important;
+  border-radius: 0.8rem !important;
+  box-shadow: 0 !important;
+  border: 0 !important;
+  padding: 1rem 1.2rem !important;
+  font-family: inherit !important;
+  font-size: 1.4rem !important;
+  text-align: center !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  color: #ffffff !important;
+  min-height: auto !important;
+}
+
+@media (max-width: 768px) {
+  .toast-container {
+    top: 3rem !important;
+    left: 2rem !important;
+    right: 2rem !important;
+    transform: none !important;
+    max-width: none !important;
+    width: calc(100vw - 4rem) !important;
+  }
+}
+
+.toast-content.Toastify__toast--success {
+  background: #e1f5df !important;
+  color: #0c9200 !important;
+}
+
+.toast-content.Toastify__toast--error {
+  background: #fce4e4 !important;
+  color: #d20000 !important;
+}
+
+/* Toast 버튼 스타일 */
+.Toastify__close-button {
+  opacity: 0 !important;
+}
+
+/* Toast 아이콘 숨기기 */
+.Toastify__toast-icon {
+  display: none !important;
+}

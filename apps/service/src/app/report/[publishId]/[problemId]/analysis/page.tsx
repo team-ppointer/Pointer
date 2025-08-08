@@ -3,22 +3,22 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import { IcRight, IcThumbtack } from '@svg';
-import { ImageContainer, NavigationFooter, ProgressHeader } from '@components';
+import { IcQuestion18, IcRight, IcThumbtack } from '@svg';
+import {
+  BottomFixedArea,
+  ImageContainer,
+  NavigationFooter,
+  ProgressHeader,
+  SmallButton,
+} from '@components';
 import { trackEvent } from '@utils';
 import { useReportContext } from '@/hooks/report';
 import { TabMenu } from '@/components/report';
 
 const Page = () => {
   const router = useRouter();
-  const { publishId, problemId } = useParams();
-  const {
-    problemNumber,
-    answerType,
-    answer,
-    mainAnalysisImageUrl,
-    mainHandwritingExplanationImageUrl,
-  } = useReportContext();
+  const { publishId, problemId } = useParams<{ publishId: string; problemId: string }>();
+  const { no, answerType, answer, mainAnalysisImage, mainHandAnalysisImage } = useReportContext();
   const [selectedTab, setSelectedTab] = useState<'분석' | '손해설'>('분석');
 
   const handleClickTab = (tab: '분석' | '손해설') => {
@@ -38,16 +38,21 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/prescription`);
   };
 
-  if (!mainAnalysisImageUrl || !mainHandwritingExplanationImageUrl) {
+  const handleClickQuestion = () => {
+    const type = selectedTab === '분석' ? 'PROBLEM_MAIN_ANALYSIS' : 'PROBLEM_MAIN_HAND_ANALYSIS';
+    router.push(`/qna/ask?publishId=${publishId}&problemId=${problemId}&type=${type}`);
+  };
+
+  if (!mainAnalysisImage || !mainHandAnalysisImage) {
     return <></>;
   }
 
   return (
     <>
-      <ProgressHeader progress={33} />
-      <main className='min-h-[100dvh] justify-between px-[2rem] pt-[8rem] pb-[18rem]'>
+      <ProgressHeader />
+      <main className='mb-[7rem] min-h-[100dvh] justify-between px-[2rem] pt-[8rem]'>
         <header className='flex items-center justify-between'>
-          <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {problemNumber}번</h1>
+          <h1 className='font-bold-18 text-main my-[0.8rem]'>메인 문제 {no}번</h1>
           <div className='flex items-center gap-[0.8rem]'>
             <span className='font-medium-16 text-black'>정답</span>
             <span className='font-medium-16 text-main'>
@@ -65,7 +70,7 @@ const Page = () => {
           />
           <ImageContainer className={`${selectedTab === '분석' ? 'block' : 'hidden'}`}>
             <Image
-              src={mainAnalysisImageUrl ?? ''}
+              src={mainAnalysisImage.url ?? ''}
               alt='analysis'
               className={`w-full object-contain`}
               width={700}
@@ -75,7 +80,7 @@ const Page = () => {
           </ImageContainer>
           <ImageContainer className={`${selectedTab === '손해설' ? 'block' : 'hidden'}`}>
             <Image
-              src={mainHandwritingExplanationImageUrl ?? ''}
+              src={mainHandAnalysisImage.url ?? ''}
               alt='handWriting'
               className={`w-full object-contain`}
               width={700}
@@ -83,8 +88,20 @@ const Page = () => {
               priority
             />
           </ImageContainer>
+          <div className='flex items-center justify-end'>
+            <SmallButton
+              className='flex flex-row gap-[4px]'
+              variant='white'
+              sizeType='small'
+              onClick={handleClickQuestion}>
+              <IcQuestion18 className='h-[1.8rem] w-[1.8rem]' />
+              질문하기
+            </SmallButton>
+          </div>
         </div>
-        <div className='bg-background fixed right-0 bottom-[6.2rem] left-0 mx-auto h-[11.8rem] max-w-[768px] p-[2rem]'>
+      </main>
+      <BottomFixedArea>
+        <div className='fixed right-0 bottom-[6.2rem] left-0 mx-auto h-[11.8rem] max-w-[768px] p-[2rem]'>
           <button
             type='button'
             className='border-sub1 flex w-full items-center justify-between rounded-[1.6rem] border bg-white px-[2rem] py-[1.6rem]'
@@ -100,7 +117,7 @@ const Page = () => {
           </button>
         </div>
         <NavigationFooter nextLabel='포인팅' onClickNext={handleClickNext} />
-      </main>
+      </BottomFixedArea>
     </>
   );
 };

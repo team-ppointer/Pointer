@@ -1,20 +1,27 @@
 import { TanstackQueryClient } from '@apis';
 
-const useGetProblemById = (publishId: string, problemId: string) => {
+type Props = {
+  publishId: number;
+  problemId: number;
+  enabled?: boolean;
+};
+
+const useGetProblemById = ({ publishId, problemId, enabled = true }: Props) => {
   return TanstackQueryClient.useQuery(
     'get',
-    '/api/v1/client/problem/{publishId}/{problemId}',
+    '/api/student/study/problem/{publishId}/{problemId}',
     {
       params: {
         path: {
-          publishId: Number(publishId),
-          problemId: Number(problemId),
+          publishId: publishId,
+          problemId: problemId,
         },
       },
     },
     {
       staleTime: Infinity,
       gcTime: Infinity,
+      enabled: enabled,
     }
   );
 };

@@ -2,19 +2,22 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { getAccessToken, trackEvent } from '@utils';
+import { getAccessToken, trackEvent, showToast } from '@utils';
 import { LogoLogin } from '@/assets/svg/logo';
-import { KakaoButton } from '@/components/login';
+import { GoogleButton, KakaoButton } from '@/components/login';
+import { postSocialLogin } from '@apis';
 
 const Page = () => {
   const router = useRouter();
-  const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${
-    process.env.NEXT_PUBLIC_REST_API_KEY
-  }&redirect_uri=${process.env.NEXT_PUBLIC_REDIRECT_URI}&response_type=code`;
 
-  const handleLoginClick = () => {
-    trackEvent('kakao_login_click');
-    window.location.replace(kakaoLoginUrl);
+  const handleLoginClick = async (social: 'KAKAO' | 'GOOGLE') => {
+    trackEvent(`${social.toLowerCase()}_login_click`);
+    const result = await postSocialLogin(social);
+    if (result.isSuccess && result.loginUrl) {
+      router.push(result.loginUrl);
+    } else {
+      showToast.error('로그인에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   useEffect(() => {
@@ -37,8 +40,8 @@ const Page = () => {
       </div>
       <div className='flex flex-col items-center gap-[1.6rem]'>
         <p className='font-medium-12 text-lightgray500'>포인터는 태블릿의 스플릿뷰를 권장해요</p>
-        <KakaoButton onClick={handleLoginClick} />
-        {/* <AppleButton /> */}
+        <KakaoButton onClick={() => handleLoginClick('KAKAO')} />
+        <GoogleButton onClick={() => handleLoginClick('GOOGLE')} />
       </div>
     </div>
   );

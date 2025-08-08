@@ -73,15 +73,10 @@ const Page = () => {
 
       <StatusTag status='CORRECT' />
       <StatusTag status='INCORRECT' />
-      <StatusTag status='RETRY_CORRECT' />
-      <StatusTag status='IN_PROGRESS' />
-      <StatusTag status='NOT_STARTED' />
 
       <div className='flex gap-[0.4rem]'>
         <StatusIcon status='CORRECT' />
         <StatusIcon status='INCORRECT' />
-        <StatusIcon status='RETRY_CORRECT' />
-        <StatusIcon status='NOT_STARTED' />
       </div>
     </div>
   );

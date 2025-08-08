@@ -1,11 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import Image from 'next/image';
-import { Slide, ToastContainer } from 'react-toastify';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
-import { useGetProblemById, putProblemSubmit } from '@apis';
+import { useGetProblemById, postProblemSubmit } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -15,14 +14,15 @@ import {
   NavigationFooter,
   TimeTag,
   ImageContainer,
-  CopyButton,
   MainAnswerCheckBottomSheetTemplate,
   BottomSheet,
+  BottomFixedArea,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { ProblemStatus } from '@types';
 import { useChildProblemContext } from '@/hooks/problem';
-import { copyImageToClipboard, trackEvent } from '@utils';
+import { copyImageToClipboard, showToast, trackEvent } from '@utils';
+import { IcCommentCheck20, IcQuestion18, IcCopyBig } from '@svg';
 
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
@@ -48,36 +48,43 @@ const Page = () => {
   const [result, setResult] = useState<ProblemStatus | undefined>();
   const { register, handleSubmit, watch } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
+  const problemViewerRef = useRef<HTMLDivElement>(null);
 
-  // apis
-  const { data, isLoading } = useGetProblemById(publishId, problemId);
+  const { data } = useGetProblemById({ publishId: +publishId, problemId: +problemId });
 
   const {
-    number,
-    imageUrl,
-    recommendedMinute,
-    recommendedSecond,
-    status,
-    childProblemStatuses = [],
-    answerType = 'MULTIPLE_CHOICE',
+    no,
+    childProblems = [],
+    answerType,
     answer,
-  } = data?.data ?? {};
+    problemContent,
+    progress,
+    recommendedTimeSec = 0,
+  } = data ?? {};
 
-  const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
-  const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
+  const seconds = recommendedTimeSec % 60;
+  const minutes = Math.floor(recommendedTimeSec / 60);
+
+  const isSolved = progress === 'CORRECT' || progress === 'SEMI_CORRECT';
+  const isSubmitted =
+    progress === 'CORRECT' || progress === 'SEMI_CORRECT' || progress === 'INCORRECT';
   const isDirect =
-    childProblemStatuses.length > 0 &&
-    childProblemStatuses[childProblemStatuses.length - 1] === 'NOT_STARTED';
+    childProblems.length > 0 && childProblems[childProblems.length - 1].progress === 'NONE';
 
   const prevButtonLabel =
     isDirect || childProblemLength === 0
-      ? `메인 문제 ${number}번`
-      : `새끼 문제 ${number}-${childProblemLength}번`;
+      ? `메인 문제 ${no}번`
+      : `새끼 문제 ${no}-${childProblemLength}번`;
   const nextButtonLabel = '해설 보기';
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
-    const { data } = await putProblemSubmit(publishId, problemId, answer);
-    const resultData = data?.data;
+    const { data } = await postProblemSubmit(+publishId, +problemId, null, +answer);
+    if (!data) {
+      showToast.error('정답 제출에 실패했습니다. 다시 시도해주세요.');
+      return;
+    }
+
+    const resultData = data?.progress;
     invalidateAll();
 
     setResult(resultData);
@@ -113,42 +120,31 @@ const Page = () => {
     router.push(`/report/${publishId}/${problemId}/analysis`);
   };
 
-  const handleClickCopyImage = async () => {
-    if (!imageUrl) return;
-    await copyImageToClipboard(imageUrl);
+  const handleClickCopyProblemImage = async () => {
+    copyImageToClipboard(problemViewerRef);
   };
 
-  if (isLoading) {
-    return <></>;
-  }
+  const handleClickPointing = () => {
+    trackEvent('problem_main_solve_pointing_button_click');
+    invalidateAll();
+    router.push(`/report/${publishId}/${problemId}/prescription/detail?type=main`);
+  };
+
+  const handleClickQuestion = () => {
+    trackEvent('problem_main_solve_question_button_click');
+    invalidateAll();
+    router.push(`/qna/ask?publishId=${publishId}&problemId=${problemId}&type=PROBLEM_CONTENT`);
+  };
 
   return (
     <>
-      <ToastContainer
-        position='bottom-center'
-        autoClose={1000}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnHover={false}
-        hideProgressBar
-        transition={Slide}
-        closeButton={false}
-        style={{
-          fontSize: '1.6rem',
-          width: '30rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: '3rem',
-        }}
-      />
       <ProgressHeader progress={100} />
       <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-[1.2rem]'>
-              <h1 className='font-bold-18 text-main'>메인 문제 {number}번</h1>
-              <TimeTag minutes={recommendedMinute} seconds={recommendedSecond} />
+              <h1 className='font-bold-18 text-main'>메인 문제 {no}번</h1>
+              <TimeTag minutes={minutes} seconds={seconds} />
             </div>
             {isSolved && (
               <Tag variant='green' sizeType='small'>
@@ -162,18 +158,37 @@ const Page = () => {
             )}
           </div>
           <ImageContainer className='relative mt-[1.2rem]'>
-            <Image
-              src={imageUrl ?? ''}
-              alt={`메인 문제 ${number}번`}
-              className='w-full object-contain'
+            <ProblemViewer
+              problem={problemContent}
+              className='h-full w-full'
               width={700}
               height={200}
-              priority
+              loading={false}
             />
-            <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
-              <CopyButton onClick={handleClickCopyImage} />
-            </div>
           </ImageContainer>
+          <div className='mt-[1.2rem] mb-[0.4rem] flex items-center justify-end gap-[0.6rem]'>
+            <SmallButton
+              className='flex flex-row gap-[4px]'
+              variant='white'
+              sizeType='small'
+              onClick={handleClickPointing}>
+              <IcCommentCheck20 width={14} height={14} viewBox='0 0 20 20' />
+              포인팅 보기
+            </SmallButton>
+            <div
+              className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'
+              onClick={handleClickQuestion}>
+              <IcQuestion18 width={20} height={20} />
+            </div>
+            <div className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'>
+              <IcCopyBig
+                width={20}
+                height={20}
+                onClick={handleClickCopyProblemImage}
+                viewBox='0 0 24 24'
+              />
+            </div>
+          </div>
 
           {isDirect && (
             <div className='mt-[0.6rem] flex items-center justify-end'>
@@ -183,17 +198,17 @@ const Page = () => {
             </div>
           )}
 
-          {!isDirect && childProblemStatuses.length > 0 && (
+          {!isDirect && childProblems.length > 0 && (
             <div className='mt-[2.4rem] w-full'>
               <h3 className='font-bold-16 text-black'>새끼 문제 정답</h3>
               <div className='mt-[1.2rem] flex gap-[1.6rem]'>
-                {childProblemStatuses.map((childProblemStatus, index) => (
+                {childProblems.map((childProblem, index) => (
                   <div key={index} className='flex items-center gap-[0.6rem]'>
                     <span className='font-medium-16 text-black'>
-                      {number}-{index + 1}번
+                      {no}-{index + 1}번
                     </span>
-                    <Tag variant={statusColor[childProblemStatus]}>
-                      {statusLabel[childProblemStatus]}
+                    <Tag variant={statusColor[childProblem.progress!]}>
+                      {statusLabel[childProblem.progress!]}
                     </Tag>
                   </div>
                 ))}
@@ -207,23 +222,27 @@ const Page = () => {
             <h3 className='font-bold-16 text-black'>정답 선택</h3>
             <div className='mt-[1.2rem] flex flex-col gap-[2rem] md:flex-row'>
               <AnswerInput
-                answerType={answerType}
-                selectedAnswer={isSolved && answer ? answer : selectedAnswer}
+                className='flex-1'
+                answerType={answerType!}
+                selectedAnswer={isSolved && answer ? String(answer) : selectedAnswer}
                 disabled={isSolved}
                 {...register('answer')}
               />
-              <Button disabled={isSolved}>제출하기</Button>
+              <Button className='flex-1' disabled={isSolved}>
+                제출하기
+              </Button>
             </div>
           </form>
         </div>
       </main>
-
-      <NavigationFooter
-        prevLabel={prevButtonLabel}
-        nextLabel={isSubmitted ? nextButtonLabel : undefined}
-        onClickPrev={handleClickPrev}
-        onClickNext={isSubmitted ? handleClickNext : undefined}
-      />
+      <BottomFixedArea zIndex={10}>
+        <NavigationFooter
+          prevLabel={prevButtonLabel}
+          nextLabel={isSubmitted ? nextButtonLabel : undefined}
+          onClickPrev={handleClickPrev}
+          onClickNext={isSubmitted ? handleClickNext : undefined}
+        />
+      </BottomFixedArea>
 
       <BottomSheet isOpen={isOpen} onClose={closeModal}>
         <MainAnswerCheckBottomSheetTemplate

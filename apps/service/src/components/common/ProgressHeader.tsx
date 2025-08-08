@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 
 import { ProgressBar } from '@components';
 import { trackEvent } from '@utils';
@@ -12,9 +12,15 @@ interface ProgressHeaderProps {
 
 const ProgressHeader = ({ progress }: ProgressHeaderProps) => {
   const router = useRouter();
-  const { publishId } = useParams();
+  const { publishId, studentId } = useParams<{ publishId: string; studentId: string }>();
+  const pathname = usePathname();
+  const isTeacherPage = pathname.includes('/teacher');
 
   const handleClickProblemList = () => {
+    if (isTeacherPage) {
+      router.push(`/teacher/problem/${studentId}/list/${publishId}`);
+      return;
+    }
     trackEvent('progress_header_problem_list_button_click');
     router.push(`/problem/list/${publishId}`);
   };

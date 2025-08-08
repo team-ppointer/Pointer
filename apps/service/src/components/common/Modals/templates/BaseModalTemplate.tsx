@@ -9,7 +9,7 @@ interface ModalButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const BaseModalTemplate = ({ children }: { children: React.ReactNode }) => {
   return (
-    <article className='font-medium-16 flex max-w-[50dvw] min-w-[30rem] flex-col items-center justify-center gap-[2rem] px-[3rem] pt-[3.2rem] pb-[2.4rem]'>
+    <article className='font-medium-16 flex h-full max-w-[50dvw] min-w-[30rem] flex-col items-center justify-center gap-[2rem] px-[2.4rem] pt-[3.2rem] pb-[2.4rem]'>
       {children}
     </article>
   );
@@ -17,14 +17,14 @@ const BaseModalTemplate = ({ children }: { children: React.ReactNode }) => {
 
 const ModalContent = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='flex flex-col items-center justify-between gap-[1.6rem] text-center'>
+    <div className='flex h-full w-full flex-col items-center justify-between gap-[1.6rem] text-center'>
       {children}
     </div>
   );
 };
 
-const ModalText = ({ text }: { text: string }) => {
-  return <p>{text}</p>;
+const ModalText = ({ text, className }: { text: string; className?: string }) => {
+  return <p className={className}>{text}</p>;
 };
 
 const ModalButtonSection = ({ children }: { children: React.ReactNode }) => {

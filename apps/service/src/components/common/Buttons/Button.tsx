@@ -1,8 +1,9 @@
+import clsx from 'clsx';
 import React from 'react';
 import { ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'blue' | 'light';
+  variant?: 'blue' | 'light' | 'disabled';
   disabled?: boolean;
   children: React.ReactNode;
 }
@@ -15,17 +16,17 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const baseStyles =
-    'w-full h-[5.6rem] min-w-fit rounded-[16px] font-medium-16 flex items-center justify-center gap-[1.6rem] px-[1rem]';
+    'w-full h-[5.6rem] min-w-fit rounded-[16px] shrink-0 font-medium-16 flex items-center justify-center gap-[1.6rem] px-[1rem]';
 
   const variantStyles = {
     blue: 'bg-main text-white',
-    light: 'bg-white text-main border border-main',
+    light: 'bg-white text-main border border-sub1',
     disabled: 'bg-lightgray300 text-lightgray500',
   };
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles[disabled ? 'disabled' : variant]} ${className} `}
+      className={clsx(baseStyles, variantStyles[disabled ? 'disabled' : variant], className)}
       disabled={disabled}
       {...props}>
       {children}

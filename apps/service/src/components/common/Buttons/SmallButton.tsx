@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes } from 'react';
 
 interface SmallButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'blue' | 'underline' | 'disabled';
+  variant?: 'blue' | 'underline' | 'disabled' | 'white';
   sizeType?: 'small' | 'medium';
   children: React.ReactNode;
 }
@@ -20,6 +20,7 @@ const SmallButton = ({
     blue: 'bg-main text-white',
     disabled: 'bg-lightgray300 text-lightgray500',
     underline: 'bg-none text-main underline',
+    white: 'bg-white text-main border border-sub1',
   };
 
   const sizeTypeStyles = {

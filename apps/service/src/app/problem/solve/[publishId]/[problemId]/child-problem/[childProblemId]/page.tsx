@@ -1,13 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import Image from 'next/image';
-import { Slide, ToastContainer } from 'react-toastify';
+import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { copyImageToClipboard } from '@utils';
-import { useGetChildProblemById } from '@apis';
-import { putChildProblemSubmit, putChildProblemSkip } from '@apis';
+import { postProblemSubmit, useGetChildProblemById } from '@apis';
 import {
   AnswerInput,
   Button,
@@ -19,16 +17,15 @@ import {
   AnswerModalTemplate,
   Tag,
   ImageContainer,
-  CopyButton,
   BottomSheet,
   ChildAnswerCheckBottomSheetTemplate,
+  BottomFixedArea,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
-import { components } from '@schema';
 import { useChildProblemContext } from '@/hooks/problem';
 import { trackEvent } from '@utils';
-
-type ChildProblemSubmitUpdateResponse = components['schemas']['ChildProblemSubmitUpdateResponse'];
+import { IcCommentCheck20, IcCopyBig, IcQuestion18, IcRotate } from '@svg';
+import { ProblemStatus } from '@/types/component';
 
 const Page = () => {
   const { publishId, problemId, childProblemId } = useParams<{
@@ -37,7 +34,7 @@ const Page = () => {
     childProblemId: string;
   }>();
   const router = useRouter();
-  const { childProblemLength, mainProblemImageUrl, onPrev, onNext } = useChildProblemContext();
+  const { childProblemLength, onPrev, onNext } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
 
   const { isOpen, openModal, closeModal } = useModal();
@@ -52,40 +49,39 @@ const Page = () => {
     closeModal: closeSkipModal,
   } = useModal();
 
-  const [result, setResult] = useState<ChildProblemSubmitUpdateResponse | undefined>();
+  const [result, setResult] = useState<ProblemStatus | undefined>();
   const { register, handleSubmit, watch } = useForm<{ answer: string }>();
   const selectedAnswer = watch('answer');
+  const problemViewerRef = useRef<HTMLDivElement>(null);
 
   // apis
-  const { data, isLoading } = useGetChildProblemById(publishId, problemId, childProblemId);
+  const { data, isLoading } = useGetChildProblemById(+publishId, +childProblemId);
   const {
-    problemNumber,
-    childProblemNumber = 1,
-    imageUrl,
-    status,
+    problemNo,
+    no = 1,
+    problemContent,
     answerType = 'MULTIPLE_CHOICE',
     answer,
-  } = data?.data ?? {};
+    progress,
+  } = data ?? {};
 
-  const prevButtonLabel =
-    childProblemNumber === 1 ? '' : `새끼 문제 ${problemNumber}-${childProblemNumber - 1}번`;
+  const prevButtonLabel = no === 1 ? '' : `새끼 문제 ${problemNo}-${no - 1}번`;
 
   const nextButtonLabel =
-    childProblemNumber === childProblemLength
-      ? `메인 문제 ${problemNumber}번`
-      : `새끼 문제 ${problemNumber}-${childProblemNumber + 1}번`;
+    no === childProblemLength ? `메인 문제 ${problemNo}번` : `새끼 문제 ${problemNo}-${no + 1}번`;
 
-  const isSolved = status === 'CORRECT' || status === 'RETRY_CORRECT';
-  const isSubmitted = status === 'CORRECT' || status === 'RETRY_CORRECT' || status === 'INCORRECT';
+  const isSolved = progress === 'CORRECT' || progress === 'SEMI_CORRECT';
+  const isSubmitted =
+    progress === 'CORRECT' || progress === 'SEMI_CORRECT' || progress === 'INCORRECT';
 
   const handleClickShowMainProblem = () => {
     trackEvent('problem_child_solve_show_main_problem_modal_button_click');
-    router.push(`/image-modal?imageUrl=${mainProblemImageUrl}`);
+    router.push(`/image-modal?publishId=${publishId}&childProblemId=${childProblemId}`);
   };
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
-    const { data } = await putChildProblemSubmit(publishId, childProblemId, answer);
-    const resultData = data?.data;
+    const { data } = await postProblemSubmit(+publishId, null, +childProblemId, +answer);
+    const resultData = data?.progress;
     invalidateAll();
 
     setResult(resultData);
@@ -102,9 +98,15 @@ const Page = () => {
   };
 
   const handleClickNext = () => {
+    console.log('childProblemLength', childProblemLength);
+    console.log('no', no);
     trackEvent('problem_child_solve_footer_next_button_click', {
       buttonLabel: nextButtonLabel,
     });
+    if (childProblemLength === no) {
+      router.push(`/problem/solve/${publishId}/${problemId}/main-problem`);
+      return;
+    }
     onNext();
   };
 
@@ -120,11 +122,6 @@ const Page = () => {
     closeModal();
   };
 
-  const handleClickNextProblemButton = () => {
-    trackEvent('problem_child_solve_check_modal_next_problem_button_click');
-    onNext();
-  };
-
   const handleClickShowAnswer = () => {
     trackEvent('problem_child_solve_check_modal_show_answer_button_click');
     closeModal();
@@ -137,14 +134,27 @@ const Page = () => {
 
   const handleClickSkipButton = async () => {
     trackEvent('problem_child_solve_modal_skip_button_click');
-    await putChildProblemSkip(publishId, childProblemId);
+    await postProblemSubmit(+publishId, null, +childProblemId, null);
     invalidateAll();
     onNext();
   };
 
-  const handleClickCopyImage = async () => {
-    if (!imageUrl) return;
-    await copyImageToClipboard(imageUrl);
+  const handleClickPointing = () => {
+    trackEvent('problem_child_solve_pointing_button_click');
+    invalidateAll();
+    router.push(
+      `/report/${publishId}/${problemId}/prescription/detail?type=child&childNumber=${no}`
+    );
+  };
+  const handleClickQuestion = () => {
+    trackEvent('problem_child_solve_question_button_click');
+    invalidateAll();
+    router.push(
+      `/qna/ask?publishId=${publishId}&childProblemId=${childProblemId}&type=CHILD_PROBLEM_CONTENT`
+    );
+  };
+  const handleClickCopyProblemImage = async () => {
+    copyImageToClipboard(problemViewerRef);
   };
 
   if (isLoading) {
@@ -153,60 +163,58 @@ const Page = () => {
 
   return (
     <>
-      <ToastContainer
-        position='bottom-center'
-        autoClose={1000}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnHover={false}
-        hideProgressBar
-        transition={Slide}
-        closeButton={false}
-        style={{
-          fontSize: '1.6rem',
-          width: '30rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: '3rem',
-        }}
-      />
-      <ProgressHeader progress={(childProblemNumber / (childProblemLength + 1)) * 100} />
+      <ProgressHeader progress={(no / (childProblemLength + 1)) * 100} />
       <main className='flex flex-col px-[2rem] py-[8rem]'>
         <div className='w-full'>
           <div className='flex items-center justify-between'>
             <h1 className='font-bold-18 text-main'>
-              새끼 문제 {problemNumber}-{childProblemNumber}번
+              새끼 문제 {problemNo}-{no}번
             </h1>
             {isSolved && (
-              <Tag variant='green' sizeType='small'>
+              <Tag variant='green' sizeType='medium'>
                 정답
               </Tag>
             )}
-            {status === 'INCORRECT' && (
-              <Tag variant='red' sizeType='small'>
+            {progress === 'INCORRECT' && (
+              <Tag variant='red' sizeType='medium'>
                 오답
               </Tag>
             )}
+            {progress === 'NONE' && <Tag sizeType='medium'>미완</Tag>}
           </div>
-          <ImageContainer className='relative mt-[1.2rem]'>
-            <Image
-              src={imageUrl ?? ''}
-              alt={`새끼 문제 ${problemNumber}-${childProblemNumber}번`}
-              className='w-full object-contain'
-              width={700}
-              height={200}
-              priority
-            />
-            <div className='absolute right-[1.6rem] bottom-[1.6rem]'>
-              <CopyButton onClick={handleClickCopyImage} />
-            </div>
+          <ImageContainer className='relative mt-[1.2rem]' ref={problemViewerRef}>
+            <ProblemViewer problem={problemContent} loading={false} />
           </ImageContainer>
-
-          <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end'>
-            <SmallButton variant='underline' sizeType='small' onClick={handleClickShowMainProblem}>
+          <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end gap-[0.6rem]'>
+            <SmallButton
+              className='flex flex-row gap-[4px]'
+              variant='white'
+              sizeType='small'
+              onClick={handleClickPointing}>
+              <IcCommentCheck20 width={14} height={14} viewBox='0 0 20 20' />
+              포인팅 보기
+            </SmallButton>
+            <SmallButton
+              className='flex flex-row gap-[4px]'
+              variant='white'
+              sizeType='small'
+              onClick={handleClickShowMainProblem}>
+              <IcRotate width={14} height={14} />
               메인 문제 다시보기
             </SmallButton>
+            <div
+              className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'
+              onClick={handleClickQuestion}>
+              <IcQuestion18 width={20} height={20} />
+            </div>
+            <div className='bg-sub2 cursor-pointer rounded-[0.8rem] p-[0.5rem]'>
+              <IcCopyBig
+                width={20}
+                height={20}
+                onClick={handleClickCopyProblemImage}
+                viewBox='0 0 24 24'
+              />
+            </div>
           </div>
         </div>
 
@@ -216,7 +224,7 @@ const Page = () => {
             <div className='mt-[1.2rem] flex flex-col gap-[2rem]'>
               <AnswerInput
                 answerType={answerType}
-                selectedAnswer={isSolved && answer ? answer : selectedAnswer}
+                selectedAnswer={isSolved && answer ? String(answer) : selectedAnswer}
                 disabled={isSolved}
                 {...register('answer')}
               />
@@ -225,27 +233,28 @@ const Page = () => {
           </form>
         </div>
       </main>
-
-      <NavigationFooter
-        prevLabel={prevButtonLabel}
-        nextLabel={nextButtonLabel}
-        onClickPrev={handleClickPrev}
-        onClickNext={isSubmitted ? handleClickNext : handleClickFooterSkipButton}
-      />
+      <BottomFixedArea zIndex={10}>
+        <NavigationFooter
+          prevLabel={prevButtonLabel}
+          nextLabel={nextButtonLabel}
+          onClickPrev={handleClickPrev}
+          onClickNext={isSubmitted ? handleClickNext : handleClickFooterSkipButton}
+        />
+      </BottomFixedArea>
 
       <BottomSheet isOpen={isOpen} onClose={closeModal}>
         <ChildAnswerCheckBottomSheetTemplate
           result={result}
           onClose={handleClickCloseCheckModal}
-          handleClickShowPointing={() => {}}
-          handleClickNext={handleClickNextProblemButton}
+          handleClickShowPointing={handleClickPointing}
+          handleClickNext={handleClickNext}
           handleClickShowAnswer={handleClickShowAnswer}
         />
       </BottomSheet>
 
       <PortalModal isOpen={isAnswerModalOpen} onClose={closeAnswerModal}>
         <AnswerModalTemplate
-          answer={`${result?.answer}${answerType === 'MULTIPLE_CHOICE' ? '번' : ''}`}
+          answer={`${answer}${answerType === 'MULTIPLE_CHOICE' ? '번' : ''}`}
           handleClickButton={closeAnswerModal}
         />
       </PortalModal>
