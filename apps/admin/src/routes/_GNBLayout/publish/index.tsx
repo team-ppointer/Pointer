@@ -29,9 +29,10 @@ interface DayProps extends HTMLAttributes<HTMLDivElement> {
   publishId?: number;
   title?: string;
   setId?: number;
+  selectedStudent?: components['schemas']['StudentResp'] | null;
 }
 
-const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) => {
+const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStudent }: DayProps) => {
   const { invalidatePublish } = useInvalidate();
   const {
     isOpen: isDeleteModalOpen,
@@ -101,10 +102,14 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) =>
             <p className={`font-bold-18 h-full w-full text-black`}>{title}</p>
           </Link>
         ) : (
-          !isPast && (
+          !isPast &&
+          selectedStudent && (
             <Link
-              to={`/publish/register/$publishDate`}
-              params={{ publishDate: fullDate }}
+              to={`/publish/register/$publishDate/$studentId`}
+              params={{
+                publishDate: fullDate,
+                studentId: selectedStudent.id.toString(),
+              }}
               className='flex h-full w-full flex-col items-center justify-center'>
               <PlusButton variant='dark' />
             </Link>
@@ -165,6 +170,7 @@ function RouteComponent() {
   const { data: publishDataResponse } = getPublish({
     year: currentMonth.year(),
     month: currentMonth.month() + 1,
+    studentId: selectedStudent?.id,
   });
   const publishData = publishDataResponse?.data ?? [];
 
@@ -228,6 +234,7 @@ function RouteComponent() {
                 publishId={setData?.id}
                 title={setData?.problemSet?.title}
                 setId={setData?.problemSet?.id}
+                selectedStudent={selectedStudent}
               />
             );
           })}

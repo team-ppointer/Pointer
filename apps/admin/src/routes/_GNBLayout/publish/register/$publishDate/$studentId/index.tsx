@@ -13,15 +13,16 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { GetProblemSetSearchParams } from '@types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Slide, toast, ToastContainer } from 'react-toastify';
 
-export const Route = createFileRoute('/_GNBLayout/publish/register/$publishDate/')({
+export const Route = createFileRoute('/_GNBLayout/publish/register/$publishDate/$studentId/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const { invalidatePublish } = useInvalidate();
   const { navigate } = useRouter();
-  const { publishDate } = Route.useParams();
+  const { publishDate, studentId } = Route.useParams();
   const dateArr = publishDate.split('-');
   const year = dateArr[0];
   const month = dateArr[1];
@@ -51,26 +52,49 @@ function RouteComponent() {
   };
 
   const handleClickPublish = () => {
-    if (!selectedSetId) return;
+    if (!selectedSetId || !studentId) return;
 
-    // mutatePostPublish(
-    //   {
-    //     body: {
-    //       publishAt: publishDate,
-    //       problemSetId: selectedSetId,
-    //     },
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       invalidatePublish(Number(year), Number(month));
-    //       navigate({ to: '/publish' });
-    //     },
-    //   }
-    // );
+    console.log(studentId);
+    console.log(publishDate);
+    console.log(selectedSetId);
+
+    mutatePostPublish(
+      {
+        body: {
+          publishAt: publishDate,
+          problemSetId: selectedSetId,
+          studentId: Number(studentId),
+        },
+      },
+      {
+        onSuccess: () => {
+          invalidatePublish(Number(year), Number(month));
+          navigate({ to: '/publish' });
+        },
+        onError: (error: Error) => {
+          toast.error(error.message);
+        },
+      }
+    );
   };
 
   return (
     <>
+      <ToastContainer
+        position='top-center'
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        draggable
+        pauseOnHover
+        theme='dark'
+        transition={Slide}
+        style={{
+          fontSize: '1.6rem',
+        }}
+      />
       <Header title='세트 검색' description={`${year}/${month}/${day} 발행`} />
       <form
         className='mt-[4.8rem] flex items-end justify-between'
@@ -119,14 +143,20 @@ function RouteComponent() {
                 </div>
               </div>
               <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
-                {/* {problemSet.problemThumbnailResponses.map((problem, index) => (
-                  <ProblemPreview
-                    key={`문항-${index}`}
-                    title={problem.problemTitle ?? ''}
-                    memo={problem.problemMemo ?? ''}
-                    imgSrc={problem.mainProblemImageUrl ?? ''}
-                  />
-                ))} */}
+                {problemSet.problems.map((problem, index) => {
+                  const mainProblemImageUrl = problem.problem.problemContent?.blocks?.find(
+                    (block) => block.type === 'IMAGE'
+                  )?.data;
+
+                  return (
+                    <ProblemPreview
+                      key={`problem-${index}`}
+                      title={problem.problem.title ?? ''}
+                      memo={problem.problem.memo ?? ''}
+                      imgSrc={mainProblemImageUrl ?? ''}
+                    />
+                  );
+                })}
               </div>
             </SectionCard>
           </Link>
