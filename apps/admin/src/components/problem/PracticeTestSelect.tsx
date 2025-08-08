@@ -1,6 +1,6 @@
 import { IcCloseCircle, IcDown, IcUp } from '@svg';
 import { useEffect, useState } from 'react';
-import { getPracticeTestTags } from '@apis';
+import { getPracticeTest } from '@apis';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
 
@@ -10,7 +10,7 @@ interface PracticeTestSelectProps {
 }
 
 const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSelectProps) => {
-  const { data: practiceTestList } = getPracticeTestTags();
+  const { data: practiceTestList } = getPracticeTest();
 
   const [isOpen, setIsOpen] = useState(false);
   const [filteredResult, setFilteredResult] = useState(practiceTestList?.data);
@@ -18,7 +18,9 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
   const { register, watch, setValue } = useForm({ defaultValues: { search: '' } });
   const searchValue = watch('search');
 
-  const practiceTestName = practiceTestList?.data.find((exam) => exam.id === practiceTest)?.name;
+  const practiceTestName = practiceTestList?.data.find(
+    (exam) => exam.id === practiceTest
+  )?.displayName;
 
   const toggleOpen = () => {
     setIsOpen((prev) => !prev);
@@ -26,7 +28,7 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
 
   useEffect(() => {
     const debouncedFilter = debounce((value) => {
-      setFilteredResult(practiceTestList?.data.filter((exam) => exam.name.includes(value)));
+      setFilteredResult(practiceTestList?.data.filter((exam) => exam?.displayName.includes(value)));
     }, 300);
 
     debouncedFilter(searchValue);
@@ -45,9 +47,9 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
   };
 
   return (
-    <div className='h-[5.6rem] w-[70rem]'>
+    <div className='relative h-[5.6rem] w-full'>
       <div
-        className={`border-lightgray500 absolute z-30 min-h-[5.6rem] w-[70rem] rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]`}>
+        className={`border-lightgray500 absolute z-30 min-h-[5.6rem] w-full rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]`}>
         <div className='flex justify-between gap-[0.9rem]'>
           {practiceTest ? (
             <div className='font-bold-24 w-full'>{practiceTestName}</div>
@@ -83,7 +85,7 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
                     key={exam.id}
                     className='font-medium-14 cursor-pointer text-black'
                     onClick={(e) => handleSelectPracticeTest(e, exam.id)}>
-                    {exam.name}
+                    {exam?.displayName}
                   </div>
                 ))}
               </div>

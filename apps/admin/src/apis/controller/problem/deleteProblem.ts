@@ -1,7 +1,7 @@
 import { $api } from '@apis';
 
-const deleteProblems = () => {
+const deleteProblem = () => {
   return $api.useMutation('delete', '/api/admin/problem/{id}');
 };
 
-export default deleteProblems;
+export default deleteProblem;

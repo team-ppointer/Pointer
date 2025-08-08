@@ -1,13 +1,10 @@
 import { $api } from '@apis';
+import { GetPublishParams } from '@types';
 
-const getPublish = (year: number, month: number, studentId: number) => {
+const getPublish = (params: GetPublishParams) => {
   return $api.useQuery('get', '/api/admin/publish', {
     params: {
-      query: {
-        year,
-        month,
-        studentId,
-      },
+      query: params,
     },
   });
 };

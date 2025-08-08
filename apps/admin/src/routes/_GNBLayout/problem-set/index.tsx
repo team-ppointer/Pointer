@@ -1,4 +1,4 @@
-import { deleteProblemSet, getSearchProblemSet, postProblemSet } from '@apis';
+import { deleteProblemSet, getProblemSetSearch, postProblemSet } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -12,7 +12,7 @@ import {
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
-import { getSearchProblemSetParamsType } from '@types';
+import { GetProblemSetSearchParams } from '@types';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -24,8 +24,8 @@ function RouteComponent() {
   const { invalidateProblemSet } = useInvalidate();
   const { navigate } = useRouter();
 
-  const [searchQuery, setSearchQuery] = useState<getSearchProblemSetParamsType>({});
-  const { register, handleSubmit, reset } = useForm<getSearchProblemSetParamsType>();
+  const [searchQuery, setSearchQuery] = useState<GetProblemSetSearchParams>({});
+  const { register, handleSubmit, reset } = useForm<GetProblemSetSearchParams>();
   const {
     isOpen: isDeleteModalOpen,
     openModal: openDeleteModal,
@@ -34,11 +34,11 @@ function RouteComponent() {
 
   const deleteProblemSetId = useRef<number | null>(null);
 
-  const { data: problemSetList } = getSearchProblemSet(searchQuery);
+  const { data: problemSetList } = getProblemSetSearch(searchQuery);
   const { mutate: mutatePostProblemSet } = postProblemSet();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
 
-  const handleClickSearch = (data: getSearchProblemSetParamsType) => {
+  const handleClickSearch = (data: GetProblemSetSearchParams) => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );
@@ -68,25 +68,9 @@ function RouteComponent() {
         },
       },
       {
-        onSuccess: () => {
-          invalidateProblemSet(deleteProblemSetId.current ?? 0);
+        onSuccess: async () => {
+          await invalidateProblemSet(deleteProblemSetId.current ?? 0);
           closeDeleteModal();
-        },
-      }
-    );
-  };
-
-  const handleClickRegister = () => {
-    mutatePostProblemSet(
-      {},
-      {
-        onSuccess: (data) => {
-          navigate({
-            to: '/problem-set/$problemSetId',
-            params: {
-              problemSetId: data.id.toString(),
-            },
-          });
         },
       }
     );
@@ -103,7 +87,7 @@ function RouteComponent() {
             sizeType='long'
             label='세트 타이틀'
             placeholder='입력해주세요.'
-            {...register('problemSetTitle', { required: false })}
+            {...register('setTitle', { required: false })}
           />
           <SearchInput
             sizeType='long'
@@ -142,20 +126,28 @@ function RouteComponent() {
                 </div>
               </div>
               <div className='mt-[3.2rem] flex gap-[3.2rem] overflow-auto'>
-                {problemSet.problems.map((problem, index) => (
-                  <ProblemPreview
-                    key={`problem-${index}`}
-                    title={problem.problem.title ?? ''}
-                    memo={problem.problem.memo ?? ''}
-                    imgSrc={problem.mainProblemImageUrl ?? ''}
-                  />
-                ))}
+                {problemSet.problems.map((problem, index) => {
+                  const mainProblemImageUrl = problem.problem.problemContent?.blocks?.find(
+                    (block) => block.type === 'IMAGE'
+                  )?.data;
+
+                  return (
+                    <ProblemPreview
+                      key={`problem-${index}`}
+                      title={problem.problem.title ?? ''}
+                      memo={problem.problem.memo ?? ''}
+                      imgSrc={mainProblemImageUrl ?? ''}
+                    />
+                  );
+                })}
               </div>
             </SectionCard>
           </Link>
         ))}
       </div>
-      <FloatingButton onClick={handleClickRegister}>새로운 세트 등록하기</FloatingButton>
+      <FloatingButton onClick={() => navigate({ to: '/problem-set/register' })}>
+        새로운 세트 등록하기
+      </FloatingButton>
       <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
         <TwoButtonModalTemplate
           text='세트를 삭제할까요?'

@@ -1,29 +1,11 @@
-import { CSS } from '@dnd-kit/utilities';
-import { useSortable } from '@dnd-kit/sortable';
-
 interface ProblemCardProps {
   children: React.ReactNode;
   problemId?: number;
 }
 
-const ProblemCard = ({ children, problemId }: ProblemCardProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: problemId ?? 0,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    cursor: 'grab',
-  };
-
+const ProblemCard = ({ children }: ProblemCardProps) => {
   return (
-    <section
-      className='relative flex min-h-[67rem] w-full min-w-[48rem] cursor-pointer flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}>
+    <section className='relative flex min-h-[67rem] w-full min-w-[48rem] flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
       {children}
     </section>
   );

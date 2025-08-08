@@ -16,7 +16,8 @@ const Button = ({
   className,
   ...props
 }: ButtonProps) => {
-  const baseStyles = 'rounded-[8px] font-medium-18 flex items-center justify-center';
+  const baseStyles =
+    'rounded-[8px] font-medium-18 flex items-center justify-center whitespace-nowrap break-keep';
 
   const sizeStyles = {
     short: 'min-w-[12rem] w-[12rem] h-[5.6rem]',

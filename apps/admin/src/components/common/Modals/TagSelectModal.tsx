@@ -1,4 +1,4 @@
-import { getConceptTags } from '@apis';
+import { getConcept } from '@apis';
 import { Button, Input, Tag } from '@components';
 import { debounce } from 'lodash';
 import { useEffect, useState } from 'react';
@@ -12,7 +12,7 @@ interface TagSelectModalProps {
 
 const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSelectModalProps) => {
   const [modalSelectedTag, setModalSelectedTag] = useState<number[]>(selectedTagList);
-  const { data: tagsData } = getConceptTags();
+  const { data: tagsData } = getConcept();
   const [searchValue, setSearchValue] = useState('');
 
   const { register, watch } = useForm({ defaultValues: { searchInput: '' } });

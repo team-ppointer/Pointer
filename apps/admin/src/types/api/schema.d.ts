@@ -128,6 +128,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/teacher/student/{teacherId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 담당 학생 수정 */
+    put: operations['assignStudentsToTeacher'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/problem/{id}': {
     parameters: {
       query?: never;
@@ -306,6 +323,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/teacher/auth/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 토큰 갱신 */
+    post: operations['refresh'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/teacher/auth/login/local': {
     parameters: {
       query?: never;
@@ -409,23 +443,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/auth/social/login': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** 소셜 로그인 URL 요청 [네이버만 완료] */
-    post: operations['getSocialLoginUrl'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/student/auth/register/social': {
     parameters: {
       query?: never;
@@ -437,6 +454,40 @@ export interface paths {
     put?: never;
     /** 소셜 로그인 이후, 정보 등록 */
     post: operations['registerSocial'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 토큰 갱신 */
+    post: operations['refresh_1'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/login/social': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 소셜 로그인 URL 요청 [네이버만 완료] */
+    post: operations['getSocialLoginUrl'];
     delete?: never;
     options?: never;
     head?: never;
@@ -484,28 +535,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** 전체 조회 */
-    get: operations['gets_1'];
+    /** 검색 */
+    get: operations['search'];
     put?: never;
     /** 생성 */
     post: operations['create_3'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/admin/teacher/assign/{teacherId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** 선생님에게 학생 배정 */
-    post: operations['assignStudentsToTeacher'];
     delete?: never;
     options?: never;
     head?: never;
@@ -520,7 +554,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search'];
+    get: operations['search_1'];
     put?: never;
     /** 생성 */
     post: operations['create_4'];
@@ -538,7 +572,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_1'];
+    get: operations['search_2'];
     put?: never;
     /** 생성 */
     post: operations['createProblem'];
@@ -556,7 +590,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_2'];
+    get: operations['search_3'];
     put?: never;
     /** 생성 */
     post: operations['create_5'];
@@ -574,7 +608,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_3'];
+    get: operations['search_4'];
     put?: never;
     /** 생성 */
     post: operations['create_6'];
@@ -610,7 +644,7 @@ export interface paths {
       cookie?: never;
     };
     /** 개념 태그 검색 */
-    get: operations['search_4'];
+    get: operations['search_5'];
     put?: never;
     /** 개념태그 생성 */
     post: operations['create_8'];
@@ -638,6 +672,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/auth/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 토큰 갱신 */
+    post: operations['refresh_2'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/auth/login/local': {
     parameters: {
       query?: never;
@@ -655,6 +706,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/your-redirect-url': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 소셜 로그인 콜백 example */
+    get: operations['oauthRedirectExample'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/teacher/study/publish/weekly': {
     parameters: {
       query?: never;
@@ -663,7 +731,7 @@ export interface paths {
       cookie?: never;
     };
     /** 학생 주간 발행(숙제) 조회 */
-    get: operations['search_5'];
+    get: operations['search_6'];
     put?: never;
     post?: never;
     delete?: never;
@@ -723,7 +791,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/teacher/study/problem/{id}': {
+  '/api/teacher/study/problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -740,7 +808,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/teacher/study/child-problem/{id}': {
+  '/api/teacher/study/child-problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -782,7 +850,7 @@ export interface paths {
       cookie?: never;
     };
     /** Q&A 목록 조회 */
-    get: operations['gets_2'];
+    get: operations['gets_1'];
     put?: never;
     post?: never;
     delete?: never;
@@ -850,7 +918,7 @@ export interface paths {
       cookie?: never;
     };
     /** 주간 발행(숙제) 조회 */
-    get: operations['search_6'];
+    get: operations['search_7'];
     put?: never;
     post?: never;
     delete?: never;
@@ -910,7 +978,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/study/problem/{id}': {
+  '/api/student/study/problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -927,7 +995,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/study/child-problem/{id}': {
+  '/api/student/study/child-problem/{publishId}/{problemId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -986,7 +1054,7 @@ export interface paths {
       cookie?: never;
     };
     /** 토큰 갱신 */
-    get: operations['refresh'];
+    get: operations['refresh_3'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1003,7 +1071,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_7'];
+    get: operations['search_8'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1030,6 +1098,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/problem/custom-id/generate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** unique customId 받기 */
+    get: operations['getCustomId'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/notice/available': {
     parameters: {
       query?: never;
@@ -1047,18 +1132,18 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/admin/auth/refresh': {
+  '/api/student/auth/quit': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** 토큰 갱신 */
-    get: operations['refresh_1'];
+    get?: never;
     put?: never;
     post?: never;
-    delete?: never;
+    /** 회원 탈퇴 */
+    delete: operations['quit'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1081,7 +1166,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/admin/teacher/{teacherId}/{studentId}': {
+  '/api/admin/teacher/{teacherId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -1091,8 +1176,8 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** 선생님으로부터 학생 제거 */
-    delete: operations['removeStudentFromTeacher'];
+    /** 선생님 삭제 */
+    delete: operations['delete_6'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1163,6 +1248,11 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_COMMENT';
       /** Format: date */
       publishDate: string;
+      /** Format: int64 */
+      publishId?: number;
+      /** Format: int32 */
+      unreadCount?: number;
+      studentName?: string;
     };
     QnAResp: {
       /** Format: int64 */
@@ -1182,9 +1272,19 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_COMMENT';
       /** Format: date */
       publishDate: string;
+      /** Format: int64 */
+      publishId?: number;
+      /** Format: int32 */
+      unreadCount?: number;
+      studentName?: string;
       contentTitle: string;
       content: components['schemas']['ContentResp'];
       question: string;
+      images: components['schemas']['UploadFileResp'][];
+      /** Format: int64 */
+      problemId?: number;
+      /** Format: int64 */
+      childProblemId?: number;
       chats: components['schemas']['ChatResp'][];
     };
     UploadFileResp: {
@@ -1221,6 +1321,7 @@ export interface components {
     };
     QnAUpdateRequest: {
       question: string;
+      images?: number[];
     };
     StudentUpdateRequest: {
       name: string;
@@ -1238,6 +1339,9 @@ export interface components {
       name: string;
       email: string;
       students: components['schemas']['StudentResp'][];
+    };
+    TeacherStudentAssignReq: {
+      students: number[];
     };
     'ChildProblemUpdateDTO.Request': {
       /** Format: int64 */
@@ -1304,7 +1408,7 @@ export interface components {
       oneStepMoreContent?: components['schemas']['ContentUpdateRequest'];
       childProblems?: components['schemas']['ChildProblemUpdateDTO.Request'][];
     };
-    ChildProblemWithStudyInfoResp: {
+    ChildProblemInfoResp: {
       /** Format: int64 */
       id: number;
       /** Format: int32 */
@@ -1315,11 +1419,7 @@ export interface components {
       /** Format: int32 */
       answer: number;
       concepts: components['schemas']['ConceptResp'][];
-      pointings: components['schemas']['PointingWithFeedbackResp'][];
-      /** Format: int32 */
-      submitAnswer: number;
-      isCorrect: boolean;
-      isDone: boolean;
+      pointings?: components['schemas']['PointingResp'][];
     };
     ConceptCategoryResp: {
       /** Format: int64 */
@@ -1340,16 +1440,6 @@ export interface components {
       questionContent: components['schemas']['ContentResp'];
       commentContent: components['schemas']['ContentResp'];
       concepts: components['schemas']['ConceptResp'][];
-    };
-    PointingWithFeedbackResp: {
-      /** Format: int64 */
-      id: number;
-      /** Format: int32 */
-      no: number;
-      questionContent: components['schemas']['ContentResp'];
-      commentContent: components['schemas']['ContentResp'];
-      concepts: components['schemas']['ConceptResp'][];
-      isUnderstood?: boolean;
     };
     PracticeTestResp: {
       /** Format: int64 */
@@ -1389,7 +1479,7 @@ export interface components {
       readingTipContent: components['schemas']['ContentResp'];
       oneStepMoreContent: components['schemas']['ContentResp'];
       pointings: components['schemas']['PointingResp'][];
-      childProblems: components['schemas']['ChildProblemWithStudyInfoResp'][];
+      childProblems: components['schemas']['ChildProblemInfoResp'][];
     };
     ProblemMetaResp: {
       /** Format: int64 */
@@ -1413,12 +1503,6 @@ export interface components {
       memo: string;
       concepts: components['schemas']['ConceptResp'][];
     };
-    SubmissionResp: {
-      /** Format: int32 */
-      submitAnswer: number;
-      isCorrect: boolean;
-      isDone: boolean;
-    };
     ProblemSetItemRequest: {
       /** Format: int32 */
       no: number;
@@ -1437,14 +1521,6 @@ export interface components {
       /** Format: int32 */
       no: number;
       problem: components['schemas']['ProblemMetaResp'];
-    };
-    ProblemSetMetaResp: {
-      /** Format: int64 */
-      id: number;
-      title: string;
-      /** @enum {string} */
-      status: 'CONFIRMED' | 'DOING';
-      firstProblem: components['schemas']['ProblemMetaResp'];
     };
     ProblemSetResp: {
       /** Format: int64 */
@@ -1491,12 +1567,12 @@ export interface components {
       /** Format: int64 */
       studentId: number;
     };
-    TeacherLoginReq: {
-      email: string;
-      password: string;
+    RefreshReq: {
+      refreshToken: string;
     };
     JwtResp: {
       accessToken: string;
+      refreshToken?: string;
     };
     TeacherTokenResp: {
       /** Format: int64 */
@@ -1505,6 +1581,10 @@ export interface components {
       email: string;
       students: components['schemas']['StudentResp'][];
       token?: components['schemas']['JwtResp'];
+    };
+    TeacherLoginReq: {
+      email: string;
+      password: string;
     };
     PointingFeedbackRequest: {
       /** Format: int64 */
@@ -1519,7 +1599,15 @@ export interface components {
       /** Format: int64 */
       childProblemId?: number;
       /** Format: int32 */
+      submitAnswer?: number;
+    };
+    SubmissionResp: {
+      /** @enum {string} */
+      progress?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'NONE';
+      /** Format: int32 */
       submitAnswer: number;
+      isCorrect: boolean;
+      isDone: boolean;
     };
     /** @description problemId, childProblemId, pointingId 중 하나만 입력 가능 */
     QnACreateRequest: {
@@ -1544,6 +1632,7 @@ export interface components {
       /** Format: int64 */
       pointingId?: number;
       question: string;
+      images?: number[];
     };
     QnACheckRequest: {
       /** Format: int64 */
@@ -1581,14 +1670,23 @@ export interface components {
       id: number;
       isExist: boolean;
     };
+    StudentTokenResp: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /** Format: int32 */
+      grade: number;
+      isFirstLogin: boolean;
+      token: components['schemas']['JwtResp'];
+    };
     SocialLoginReq: {
       /** @enum {string} */
-      provider: 'KAKAO' | 'APPLE';
+      provider: 'KAKAO' | 'GOOGLE';
       redirectUri: string;
     };
     SocialLoginUrlResp: {
       /** @enum {string} */
-      provider: 'KAKAO' | 'APPLE';
+      provider: 'KAKAO' | 'GOOGLE';
       loginUrl: string;
     };
     PreSignedReq: {
@@ -1608,9 +1706,6 @@ export interface components {
       email: string;
       password: string;
     };
-    TeacherStudentAssignReq: {
-      students: number[];
-    };
     PublishCreateRequest: {
       /** Format: int64 */
       problemSetId: number;
@@ -1619,7 +1714,40 @@ export interface components {
       /** Format: date */
       publishAt: string;
     };
+    ChildProblemWithStudyInfoResp: {
+      /** Format: int32 */
+      problemNo?: number;
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      problemContent: components['schemas']['ContentResp'];
+      /** @enum {string} */
+      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      /** Format: int32 */
+      answer: number;
+      concepts: components['schemas']['ConceptResp'][];
+      pointings: components['schemas']['PointingWithFeedbackResp'][];
+      /** @enum {string} */
+      progress?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'NONE';
+      /** Format: int32 */
+      submitAnswer: number;
+      isCorrect: boolean;
+      isDone: boolean;
+    };
+    PointingWithFeedbackResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      questionContent: components['schemas']['ContentResp'];
+      commentContent: components['schemas']['ContentResp'];
+      concepts: components['schemas']['ConceptResp'][];
+      isUnderstood?: boolean;
+    };
     ProblemWithStudyInfoResp: {
+      /** Format: int32 */
+      no?: number;
       /** Format: int64 */
       id: number;
       customId: string;
@@ -1645,24 +1773,19 @@ export interface components {
       readingTipContent: components['schemas']['ContentResp'];
       oneStepMoreContent: components['schemas']['ContentResp'];
       pointings: components['schemas']['PointingWithFeedbackResp'][];
+      /** @enum {string} */
+      progress?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'NONE';
       /** Format: int32 */
       submitAnswer: number;
       isCorrect: boolean;
       isDone: boolean;
       childProblems: components['schemas']['ChildProblemWithStudyInfoResp'][];
     };
-    PublishMetaResp: {
-      /** Format: int64 */
-      id: number;
-      /** Format: date */
-      publishAt: string;
-      /** @enum {string} */
-      progress: 'DONE' | 'DOING' | 'NONE';
-      problemSet: components['schemas']['ProblemSetMetaResp'];
-    };
     PublishProblemGroupResp: {
       /** Format: int32 */
       no: number;
+      /** Format: int64 */
+      problemId: number;
       /** @enum {string} */
       progress: 'DONE' | 'DOING' | 'NONE';
       problem: components['schemas']['ProblemWithStudyInfoResp'];
@@ -1675,7 +1798,7 @@ export interface components {
       publishAt: string;
       /** @enum {string} */
       progress: 'DONE' | 'DOING' | 'NONE';
-      problemSet: components['schemas']['ProblemSetMetaResp'];
+      problemSet: components['schemas']['ProblemSetResp'];
       data: components['schemas']['PublishProblemGroupResp'][];
     };
     ChildProblemCreateRequest: {
@@ -1757,20 +1880,20 @@ export interface components {
     ConceptCategoryCreateRequest: {
       name: string;
     };
-    AdminLoginReq: {
-      email: string;
-      password: string;
-    };
     AdminTokenResp: {
       /** Format: int64 */
       id: number;
       email: string;
       token: components['schemas']['JwtResp'];
     };
-    ListRespPublishMetaResp: {
+    AdminLoginReq: {
+      email: string;
+      password: string;
+    };
+    ListRespPublishResp: {
       /** Format: int32 */
       total: number;
-      data: components['schemas']['PublishMetaResp'][];
+      data: components['schemas']['PublishResp'][];
     };
     PublishStudentProgressResp: {
       /** Format: double */
@@ -1781,14 +1904,23 @@ export interface components {
       total: number;
       data: components['schemas']['StudentResp'][];
     };
-    PageRespQnAMetaResp: {
+    PageRespNotListQnAGroupByWeekResp: {
       /** Format: int32 */
       page: number;
       /** Format: int32 */
       size: number;
       /** Format: int32 */
       lastPage: number;
-      data: components['schemas']['QnAMetaResp'][];
+      data: components['schemas']['QnAGroupByWeekResp'];
+    };
+    QnAGroupByWeekResp: {
+      groups?: components['schemas']['QnAGroupItem'][];
+    };
+    QnAGroupItem: {
+      /** Format: int32 */
+      order?: number;
+      weekName?: string;
+      data?: components['schemas']['QnAMetaResp'][];
     };
     ListRespNoticeResp: {
       /** Format: int32 */
@@ -1797,11 +1929,18 @@ export interface components {
     };
     NoticeUnreadCountResp: {
       /** Format: int64 */
-      count?: number;
+      totalCount?: number;
+      /** Format: int64 */
+      unreadCount?: number;
+      latestNotice?: components['schemas']['NoticeResp'];
     };
-    ListRespTeacherResp: {
+    PageRespTeacherResp: {
       /** Format: int32 */
-      total: number;
+      page: number;
+      /** Format: int32 */
+      size: number;
+      /** Format: int32 */
+      lastPage: number;
       data: components['schemas']['TeacherResp'][];
     };
     PageRespStudentResp: {
@@ -1821,6 +1960,9 @@ export interface components {
       /** Format: int32 */
       lastPage: number;
       data: components['schemas']['ProblemMetaResp'][];
+    };
+    ProblemCustomIdResp: {
+      customId?: string;
     };
     PageRespProblemSetResp: {
       /** Format: int32 */
@@ -2135,6 +2277,32 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['TeacherUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['TeacherResp'];
+        };
+      };
+    };
+  };
+  assignStudentsToTeacher: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        teacherId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TeacherStudentAssignReq'];
       };
     };
     responses: {
@@ -2567,6 +2735,30 @@ export interface operations {
       };
     };
   };
+  refresh: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RefreshReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['TeacherTokenResp'];
+        };
+      };
+    };
+  };
   login: {
     parameters: {
       query?: never;
@@ -2639,7 +2831,9 @@ export interface operations {
   };
   gets: {
     parameters: {
-      query?: never;
+      query?: {
+        query?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -2652,7 +2846,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['PageRespQnAMetaResp'];
+          '*/*': components['schemas']['PageRespNotListQnAGroupByWeekResp'];
         };
       };
     };
@@ -2729,30 +2923,6 @@ export interface operations {
       };
     };
   };
-  getSocialLoginUrl: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SocialLoginReq'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['SocialLoginUrlResp'];
-        };
-      };
-    };
-  };
   registerSocial: {
     parameters: {
       query?: never;
@@ -2773,6 +2943,54 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['StudentResp'];
+        };
+      };
+    };
+  };
+  refresh_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RefreshReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentTokenResp'];
+        };
+      };
+    };
+  };
+  getSocialLoginUrl: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SocialLoginReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['SocialLoginUrlResp'];
         };
       };
     };
@@ -2823,9 +3041,13 @@ export interface operations {
       };
     };
   };
-  gets_1: {
+  search: {
     parameters: {
-      query?: never;
+      query?: {
+        query?: string;
+        page?: number;
+        size?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -2838,7 +3060,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespTeacherResp'];
+          '*/*': components['schemas']['PageRespTeacherResp'];
         };
       };
     };
@@ -2867,33 +3089,7 @@ export interface operations {
       };
     };
   };
-  assignStudentsToTeacher: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        teacherId: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['TeacherStudentAssignReq'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['TeacherResp'];
-        };
-      };
-    };
-  };
-  search: {
+  search_1: {
     parameters: {
       query?: {
         year?: number;
@@ -2912,7 +3108,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
@@ -2941,7 +3137,7 @@ export interface operations {
       };
     };
   };
-  search_1: {
+  search_2: {
     parameters: {
       query?: {
         customId?: string;
@@ -2991,7 +3187,7 @@ export interface operations {
       };
     };
   };
-  search_2: {
+  search_3: {
     parameters: {
       query?: {
         setTitle?: string;
@@ -3040,7 +3236,7 @@ export interface operations {
       };
     };
   };
-  search_3: {
+  search_4: {
     parameters: {
       query?: {
         query?: string;
@@ -3137,7 +3333,7 @@ export interface operations {
       };
     };
   };
-  search_4: {
+  search_5: {
     parameters: {
       query?: {
         query?: string;
@@ -3233,6 +3429,30 @@ export interface operations {
       };
     };
   };
+  refresh_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RefreshReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AdminTokenResp'];
+        };
+      };
+    };
+  };
   login_1: {
     parameters: {
       query?: never;
@@ -3257,7 +3477,36 @@ export interface operations {
       };
     };
   };
-  search_5: {
+  oauthRedirectExample: {
+    parameters: {
+      query: {
+        /** @description 성공 여부 */
+        isSuccess: boolean;
+        /** @description 첫 로그인 여부 */
+        isFirstLogin: boolean;
+        /** @description 응답 메시지 */
+        message: string;
+        /** @description accessToken */
+        accessToken: string;
+        /** @description refreshToken */
+        refreshToken: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  search_6: {
     parameters: {
       query: {
         studentId: number;
@@ -3274,7 +3523,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
@@ -3282,6 +3531,8 @@ export interface operations {
   searchMonthly: {
     parameters: {
       query: {
+        year: number;
+        month: number;
         studentId: number;
       };
       header?: never;
@@ -3296,7 +3547,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
@@ -3352,7 +3603,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3376,7 +3628,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3413,9 +3666,11 @@ export interface operations {
       };
     };
   };
-  gets_2: {
+  gets_1: {
     parameters: {
-      query?: never;
+      query?: {
+        query?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -3428,7 +3683,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['PageRespQnAMetaResp'];
+          '*/*': components['schemas']['PageRespNotListQnAGroupByWeekResp'];
         };
       };
     };
@@ -3497,7 +3752,7 @@ export interface operations {
       };
     };
   };
-  search_6: {
+  search_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -3512,14 +3767,17 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
   };
   searchMonthly_1: {
     parameters: {
-      query?: never;
+      query: {
+        year: number;
+        month: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -3532,7 +3790,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespPublishMetaResp'];
+          '*/*': components['schemas']['ListRespPublishResp'];
         };
       };
     };
@@ -3584,7 +3842,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3606,7 +3865,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: number;
+        publishId: number;
+        problemId: number;
       };
       cookie?: never;
     };
@@ -3663,7 +3923,7 @@ export interface operations {
       };
     };
   };
-  refresh: {
+  refresh_3: {
     parameters: {
       query?: never;
       header?: never;
@@ -3683,7 +3943,7 @@ export interface operations {
       };
     };
   };
-  search_7: {
+  search_8: {
     parameters: {
       query?: {
         query?: string;
@@ -3749,6 +4009,26 @@ export interface operations {
       };
     };
   };
+  getCustomId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemCustomIdResp'];
+        };
+      };
+    };
+  };
   getsAvailable_2: {
     parameters: {
       query: {
@@ -3771,7 +4051,7 @@ export interface operations {
       };
     };
   };
-  refresh_1: {
+  quit: {
     parameters: {
       query?: never;
       header?: never;
@@ -3785,9 +4065,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          '*/*': components['schemas']['AdminTokenResp'];
-        };
+        content?: never;
       };
     };
   };
@@ -3811,13 +4089,12 @@ export interface operations {
       };
     };
   };
-  removeStudentFromTeacher: {
+  delete_6: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         teacherId: number;
-        studentId: number;
       };
       cookie?: never;
     };
@@ -3828,9 +4105,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          '*/*': components['schemas']['TeacherResp'];
-        };
+        content?: never;
       };
     };
   };

@@ -1,86 +1,60 @@
 import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { Button, FloatingButton, Header, Input } from '@components';
+import { Button, FloatingButton, Header, Input, Modal, TwoButtonModalTemplate } from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
+import { getTeacher } from '@apis';
+import { useModal } from '@hooks';
+import { components } from '@schema';
 
 import { TeacherCard } from '@/components/teacher';
+import EditTeacherModal from '@/components/common/Modals/EditTeacherModal';
 
 export const Route = createFileRoute('/_GNBLayout/teacher/')({
   component: RouteComponent,
 });
 
-const OPTIONS = [
-  {
-    name: '과외 선생님',
-    id: 'teacher',
-    password: 'password',
-    students: ['student1', 'student2'],
-  },
-  {
-    name: '과외 선생님2',
-    id: 'teacher2',
-    password: 'password2',
-    students: ['student3', 'student4'],
-  },
-  {
-    name: '과외 선생님3',
-    id: 'teacher3',
-    password: 'password3',
-    students: ['student5', 'student6'],
-  },
-  {
-    name: '과외 선생님',
-    id: 'teacher',
-    password: 'password',
-    students: ['student1', 'student2'],
-  },
-  {
-    name: '과외 선생님2',
-    id: 'teacher2',
-    password: 'password2',
-    students: ['student3', 'student4'],
-  },
-  {
-    name: '과외 선생님3',
-    id: 'teacher3',
-    password: 'password3',
-    students: ['student5', 'student6'],
-  },
-  {
-    name: '과외 선생님',
-    id: 'teacher',
-    password: 'password',
-    students: ['student1', 'student2'],
-  },
-  {
-    name: '과외 선생님2',
-    id: 'teacher2',
-    password: 'password2',
-    students: ['student3', 'student4'],
-  },
-  {
-    name: '과외 선생님3',
-    id: 'teacher3',
-    password: 'password3',
-    students: ['student5', 'student6'],
-  },
-];
-
 function RouteComponent() {
-  const [selectedTeacherId, setSelectedTeacherId] = useState<string[]>([]);
-  const { register, handleSubmit, reset } = useForm<{
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [editingTeacher, setEditingTeacher] = useState<components['schemas']['TeacherResp'] | null>(
+    null
+  );
+  const {
+    isOpen: isEditTeacherModalOpen,
+    openModal: openEditTeacherModal,
+    closeModal: closeEditTeacherModal,
+  } = useModal();
+  const {
+    isOpen: isDeleteModalOpen,
+    openModal: openDeleteModal,
+    closeModal: closeDeleteModal,
+  } = useModal();
+  const { register, handleSubmit } = useForm<{
     query: string;
   }>();
 
+  // api
+  const { data: teacherList } = getTeacher({ query: searchQuery });
+
   const handleClickSearch = (data: { query: string }) => {
-    // Handle search logic here
+    setSearchQuery(data.query.trim());
   };
 
-  const toggleTeacher = (id: string) => {
+  const toggleTeacher = (id: number) => {
     setSelectedTeacherId((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
+  };
+
+  const handleModifyTeacher = (teacher: components['schemas']['TeacherResp']) => {
+    setEditingTeacher(teacher);
+    openEditTeacherModal();
+  };
+
+  const handleCloseEditTeacherModal = () => {
+    setEditingTeacher(null);
+    closeEditTeacherModal();
   };
 
   return (
@@ -99,10 +73,10 @@ function RouteComponent() {
       <div className='my-[4.8rem] flex items-center justify-between'>
         <h2 className='font-bold-32 text-black'>과외 선생 리스트</h2>
         <div className='flex gap-[1.6rem]'>
-          <Button sizeType='fit' variant='light'>
+          <Button sizeType='fit' variant='light' onClick={() => setSelectedTeacherId([])}>
             전체 선택 해제
           </Button>
-          <Button sizeType='fit' variant='dark'>
+          <Button sizeType='fit' variant='dark' onClick={openDeleteModal}>
             선택 정보 삭제
           </Button>
         </div>
@@ -110,24 +84,38 @@ function RouteComponent() {
 
       <section className='mb-[8rem] flex flex-col gap-[4.8rem]'>
         <div className='grid grid-cols-3 gap-[2.4rem]'>
-          {OPTIONS.map((teacher) => {
+          {teacherList?.data?.map((teacher) => {
             const isChecked = selectedTeacherId.includes(teacher.id);
             return (
               <TeacherCard
                 key={teacher.id}
-                name={teacher.name}
                 id={teacher.id}
-                password={teacher.password}
-                students={teacher.students}
+                name={teacher.name}
+                email={teacher.email}
+                students={teacher.students.map((student) => student.name)}
                 isChecked={isChecked}
                 toggleTeacher={toggleTeacher}
+                onModify={() => handleModifyTeacher(teacher)}
+                onDelete={() => openDeleteModal()}
               />
             );
           })}
         </div>
       </section>
 
-      <FloatingButton onClick={() => {}}>새로운 개념 태그 등록하기</FloatingButton>
+      <FloatingButton onClick={openEditTeacherModal}>새로운 아이디 등록하기</FloatingButton>
+      <Modal isOpen={isEditTeacherModalOpen} onClose={handleCloseEditTeacherModal}>
+        <EditTeacherModal teacher={editingTeacher} onClose={handleCloseEditTeacherModal} />
+      </Modal>
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
+        <TwoButtonModalTemplate
+          text='해당 정보를 삭제할까요?'
+          leftButtonText='아니오'
+          rightButtonText='예'
+          handleClickLeftButton={closeDeleteModal}
+          handleClickRightButton={closeDeleteModal}
+        />
+      </Modal>
     </>
   );
 }
