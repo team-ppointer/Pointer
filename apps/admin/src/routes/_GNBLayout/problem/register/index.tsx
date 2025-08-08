@@ -295,6 +295,7 @@ function RouteComponent() {
                 control={control}
                 register={register}
                 errors={errors}
+                setValue={setValue}
                 concepts={concepts}
                 selectedAnswerType={selectedAnswerType}
                 selectedAnswer={selectedAnswer}
@@ -325,7 +326,7 @@ function RouteComponent() {
                   openPointingTagModal();
                 }}
               />
-              <TipSection />
+              <TipSection setValue={setValue} />
             </div>
             <FloatingButton type='submit'>저장하기</FloatingButton>
           </>

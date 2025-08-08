@@ -364,7 +364,7 @@ function RouteComponent() {
               openPointingTagModal();
             }}
           />
-          <TipSection />
+          <TipSection setValue={setValue} fetchedProblemData={fetchedProblemData} />
         </div>
         <FloatingButton>저장하기</FloatingButton>
       </form>
