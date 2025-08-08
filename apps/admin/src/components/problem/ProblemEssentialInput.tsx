@@ -67,9 +67,11 @@ const PracticeTest = ({ practiceTest, handlePracticeTest }: PracticeTestProps) =
 
 const PraticeTestNumber = forwardRef<HTMLInputElement>(({ ...props }, ref) => {
   return (
-    <ComponentWithLabel label='메인 문항 번호 입력'>
-      <Input ref={ref} placeholder={'입력해주세요'} {...props} />
-    </ComponentWithLabel>
+    <div className='flex'>
+      <ComponentWithLabel label='메인 문항 번호 입력'>
+        <Input ref={ref} placeholder={'입력해주세요'} {...props} />
+      </ComponentWithLabel>
+    </div>
   );
 });
 interface ProblemErrorProps {

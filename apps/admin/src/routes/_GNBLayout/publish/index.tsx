@@ -1,13 +1,26 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { IconButton, Modal, PlusButton, TwoButtonModalTemplate } from '@components';
+import {
+  Button,
+  IconButton,
+  Modal,
+  PlusButton,
+  TwoButtonModalTemplate,
+  CreateNoticeModal,
+  NoticeListModal,
+  ProgressModal,
+} from '@components';
 import { HTMLAttributes, useState } from 'react';
 import { IcDeleteSm } from '@svg';
 import { Link } from '@tanstack/react-router';
-import { deletePublish, getPublish } from '@apis';
+import { deletePublish, getPublish, getPublishById, getStudent } from '@apis';
 import { useInvalidate, useModal } from '@hooks';
+import { components } from '@schema';
 import dayjs from 'dayjs';
 
+import SelectStudentModal from '@/components/common/Modals/SelectStudentModal';
+
 import 'dayjs/locale/ko';
+
 dayjs.locale('ko');
 
 interface DayProps extends HTMLAttributes<HTMLDivElement> {
@@ -17,16 +30,23 @@ interface DayProps extends HTMLAttributes<HTMLDivElement> {
   publishId?: number;
   title?: string;
   setId?: number;
+  selectedStudent?: components['schemas']['StudentResp'] | null;
 }
 
-const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) => {
+const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStudent }: DayProps) => {
   const { invalidatePublish } = useInvalidate();
   const {
     isOpen: isDeleteModalOpen,
     openModal: openDeleteModal,
     closeModal: closeDeleteModal,
   } = useModal();
+  const {
+    isOpen: isProgressModalOpen,
+    openModal: openProgressModal,
+    closeModal: closeProgressModal,
+  } = useModal();
   const { mutate: mutateDeletePublish } = deletePublish();
+  const { data: publishDetailData } = getPublishById({ id: publishId || 0 });
 
   const today = dayjs().startOf('day');
   const isPast = dayjs(fullDate).isBefore(today, 'day');
@@ -50,7 +70,7 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) =>
       {
         params: {
           path: {
-            publishId: publishId,
+            id: publishId,
           },
         },
       },
@@ -72,11 +92,14 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) =>
             className={`font-medium-16 h-[2.4rem] rounded-[0.4rem] px-[0.6rem] text-black ${dayOfWeekStyle} ${todayBgStyle}`}>
             {day}
           </div>
-          <div>
-            {title && !isPast && (
-              <div className='cursor-pointer' onClick={openDeleteModal}>
-                <IcDeleteSm width={24} height={24} />
-              </div>
+          <div className='flex items-center gap-[0.8rem]'>
+            {title && selectedStudent && (
+              <>
+                <div className='cursor-pointer' onClick={openDeleteModal}>
+                  <IcDeleteSm width={24} height={24} />
+                </div>
+                <IconButton variant='view' onClick={openProgressModal} />
+              </>
             )}
           </div>
         </div>
@@ -89,10 +112,14 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) =>
             <p className={`font-bold-18 h-full w-full text-black`}>{title}</p>
           </Link>
         ) : (
-          !isPast && (
+          !isPast &&
+          selectedStudent && (
             <Link
-              to={`/publish/register/$publishDate`}
-              params={{ publishDate: fullDate }}
+              to={`/publish/register/$publishDate/$studentId`}
+              params={{
+                publishDate: fullDate,
+                studentId: selectedStudent.id.toString(),
+              }}
               className='flex h-full w-full flex-col items-center justify-center'>
               <PlusButton variant='dark' />
             </Link>
@@ -108,6 +135,11 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId }: DayProps) =>
           handleClickRightButton={handleMutateDelete}
         />
       </Modal>
+      {publishDetailData && publishId && (
+        <Modal isOpen={isProgressModalOpen} onClose={closeProgressModal}>
+          <ProgressModal publishData={publishDetailData} onClose={closeProgressModal} />
+        </Modal>
+      )}
     </>
   );
 };
@@ -118,6 +150,28 @@ export const Route = createFileRoute('/_GNBLayout/publish/')({
 
 function RouteComponent() {
   const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
+  const [selectedStudent, setSelectedStudent] = useState<
+    components['schemas']['StudentResp'] | null
+  >(null);
+  const { data: studentList } = getStudent({ query: '' });
+
+  const {
+    isOpen: isSelectStudentModalOpen,
+    openModal: openSelectStudentModal,
+    closeModal: closeSelectStudentModal,
+  } = useModal();
+
+  const {
+    isOpen: isCreateNoticeModalOpen,
+    openModal: openCreateNoticeModal,
+    closeModal: closeCreateNoticeModal,
+  } = useModal();
+
+  const {
+    isOpen: isNoticeListModalOpen,
+    openModal: openNoticeListModal,
+    closeModal: closeNoticeListModal,
+  } = useModal();
 
   const handleClickPrevMonth = () => setCurrentMonth(currentMonth.subtract(1, 'month'));
   const handleClickNextMonth = () => setCurrentMonth(currentMonth.add(1, 'month'));
@@ -128,18 +182,41 @@ function RouteComponent() {
   const lastDayOfMonth = currentMonth.endOf('month').day(); // 마지막날 요일, 0: Sunday ~ 6: Saturday
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  const { data: publishDataResponse } = getPublish(currentMonth.year(), currentMonth.month() + 1);
+  const { data: publishDataResponse } = getPublish({
+    year: currentMonth.year(),
+    month: currentMonth.month() + 1,
+    studentId: selectedStudent?.id,
+  });
   const publishData = publishDataResponse?.data ?? [];
 
   return (
     <>
       <div className='w-full'>
-        <div className='mb-[7.4rem] flex items-center justify-center gap-[4.8rem]'>
-          <IconButton variant='left' onClick={handleClickPrevMonth} />
-          <h2 className='font-bold-32 cursor-pointer' onClick={handleClickCurrentMonth}>
-            {currentMonth.format('YYYY년 M월')}
-          </h2>
-          <IconButton variant='right' onClick={handleClickNextMonth} />
+        <div className='mb-[7.4rem] flex items-center justify-between'>
+          <div className='flex items-center gap-[1.6rem]'>
+            <h2
+              className={`font-bold-32 cursor-pointer ${
+                selectedStudent ? 'text-black' : 'text-lightgray500'
+              }`}>
+              {selectedStudent ? selectedStudent.name : '학생을 선택해주세요'}
+            </h2>
+            <IconButton variant='right' onClick={openSelectStudentModal} />
+          </div>
+          <div className='flex items-center justify-center gap-[4.8rem]'>
+            <IconButton variant='left' onClick={handleClickPrevMonth} />
+            <h2 className='font-bold-32 cursor-pointer' onClick={handleClickCurrentMonth}>
+              {currentMonth.format('YYYY년 M월')}
+            </h2>
+            <IconButton variant='right' onClick={handleClickNextMonth} />
+          </div>
+          <div className='flex items-center gap-[1.6rem]'>
+            <Button variant='light' onClick={openNoticeListModal}>
+              공지 목록
+            </Button>
+            <Button variant='dark' onClick={openCreateNoticeModal}>
+              공지 작성
+            </Button>
+          </div>
         </div>
 
         <div className='font-medium-18 grid grid-cols-7 text-center'>
@@ -161,7 +238,7 @@ function RouteComponent() {
             const currentDate = currentMonth.date(day);
             const fullDate = currentDate.format('YYYY-MM-DD');
             const dayOfWeek = currentDate.day();
-            const setData = publishData.find((e) => e.date === fullDate);
+            const setData = publishData.find((e) => e.publishAt === fullDate);
 
             return (
               <Day
@@ -169,9 +246,10 @@ function RouteComponent() {
                 day={day}
                 dayOfWeek={dayOfWeek}
                 fullDate={fullDate}
-                publishId={setData?.publishId}
-                title={setData?.problemSetInfo?.title}
-                setId={setData?.problemSetInfo?.id}
+                publishId={setData?.id}
+                title={setData?.problemSet?.title}
+                setId={setData?.problemSet?.id}
+                selectedStudent={selectedStudent}
               />
             );
           })}
@@ -181,6 +259,20 @@ function RouteComponent() {
           })}
         </div>
       </div>
+      <Modal isOpen={isSelectStudentModalOpen} onClose={closeSelectStudentModal}>
+        <SelectStudentModal
+          students={studentList?.data ?? []}
+          selectedStudent={selectedStudent}
+          setSelectedStudent={setSelectedStudent}
+          onApply={closeSelectStudentModal}
+        />
+      </Modal>
+      <Modal isOpen={isCreateNoticeModalOpen} onClose={closeCreateNoticeModal}>
+        <CreateNoticeModal selectedStudent={selectedStudent} onClose={closeCreateNoticeModal} />
+      </Modal>
+      <Modal isOpen={isNoticeListModalOpen} onClose={closeNoticeListModal}>
+        <NoticeListModal selectedStudent={selectedStudent} onClose={closeNoticeListModal} />
+      </Modal>
     </>
   );
 }

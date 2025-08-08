@@ -14,7 +14,7 @@ interface AnswerTypeSectionProps {
 
 interface AnswerInputSectionProps {
   selectedAnswerType: ProblemAnswerType | undefined;
-  selectedAnswer: string | undefined;
+  selectedAnswer: number | undefined;
 }
 
 const AnswerInput = ({ children }: { children: React.ReactNode }) => {
@@ -48,12 +48,12 @@ const AnswerInputSection = forwardRef<HTMLInputElement, AnswerInputSectionProps>
         {selectedAnswerType === 'SHORT_ANSWER' && <Input ref={ref} {...props} />}
         {selectedAnswerType === 'MULTIPLE_CHOICE' && (
           <div className='flex items-center justify-between gap-[1.6rem]'>
-            {Array.from({ length: 5 }, (_, i) => (i + 1).toString()).map((num) => (
+            {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
               <label key={num}>
                 <input type='radio' className='hidden' value={num} ref={ref} {...props} />
                 <div
                   className={`flex h-[5.6rem] w-[5.6rem] cursor-pointer items-center justify-center rounded-full ${
-                    selectedAnswer === num
+                    Number(selectedAnswer) === num
                       ? 'bg-darkgray100 text-white'
                       : 'border-lightgray500 border bg-white text-black'
                   }`}>

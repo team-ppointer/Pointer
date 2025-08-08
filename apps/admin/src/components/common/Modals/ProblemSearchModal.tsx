@@ -1,37 +1,37 @@
-import { getConceptTags, getProblemsSearch } from '@apis';
+import { getConcept, getProblemsSearch } from '@apis';
 import { Button, Modal, ProblemCard, SearchInput, Tag, TagSelectModal } from '@components';
 import { useModal } from '@hooks';
 import { components } from '@schema';
 import { IcDown } from '@svg';
-import { getProblemsSearchParamsType } from '@types';
+import { GetProblemsSearchParams } from '@types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
 
-type ProblemSearchGetResponse = components['schemas']['ProblemSearchGetResponse'];
+type ProblemMetaResp = components['schemas']['ProblemMetaResp'];
 
 interface ProblemSearchModalProps {
-  onClickCard(problem: ProblemSearchGetResponse): void;
+  onClickCard(problem: ProblemMetaResp): void;
 }
 
 const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
   const { isOpen, openModal, closeModal } = useModal();
 
-  const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
+  const [searchQuery, setSearchQuery] = useState<GetProblemsSearchParams>({});
   const [selectedTagList, setSelectedTagList] = useState<number[]>([]);
 
-  const { register, handleSubmit, reset } = useForm<getProblemsSearchParamsType>();
+  const { register, handleSubmit, reset } = useForm<GetProblemsSearchParams>();
 
   const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
-  const { data: tagsData } = getConceptTags();
+  const { data: tagsData } = getConcept();
   const allTagList = tagsData?.data || [];
   const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
 
-  const handleClickSearch = (data: getProblemsSearchParamsType) => {
+  const handleClickSearch = (data: GetProblemsSearchParams) => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );
-    setSearchQuery({ ...filteredData, conceptTagIds: selectedTagList });
+    setSearchQuery({ ...filteredData, concepts: selectedTagList });
   };
 
   const handleResetQuery = () => {
@@ -45,7 +45,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
     setSearchQuery((prev) => {
       return {
         ...prev,
-        conceptTagIds: prev.conceptTagIds?.filter((selectedTag) => selectedTag !== tag),
+        concepts: prev.concepts?.filter((selectedTag: number) => selectedTag !== tag),
       };
     });
   };
@@ -55,7 +55,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
     setSearchQuery((prev) => {
       return {
         ...prev,
-        conceptTagIds: tagList,
+        concepts: tagList,
       };
     });
   };
@@ -71,7 +71,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
             <SearchInput
               label='문항 ID'
               placeholder='입력해주세요.'
-              {...register('problemCustomId', { required: false })}
+              {...register('customId', { required: false })}
             />
             <SearchInput
               label='문항 타이틀'
@@ -119,25 +119,27 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
         ) : (
           <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem] pb-[4.8rem]'>
             {problemList?.data.map((problem) => {
-              const { problemCustomId, problemTitle, memo, mainProblemImageUrl, tagNames } =
-                problem;
+              const { customId, title, memo, concepts } = problem;
+              const mainProblemImageUrl = problem.problemContent?.blocks?.find(
+                (block) => block.type === 'IMAGE'
+              )?.data;
               return (
                 <div
-                  key={problem.problemId}
+                  key={problem.id}
                   className='border-lightgray500 rounded-[16px] border'
                   onClick={() => onClickCard(problem)}>
                   <ProblemCard>
                     <ProblemCard.TextSection>
-                      <ProblemCard.Info label='문항 ID' content={problemCustomId} />
-                      <ProblemCard.Info label='문항 타이틀' content={problemTitle} />
+                      <ProblemCard.Info label='문항 ID' content={customId} />
+                      <ProblemCard.Info label='문항 타이틀' content={title} />
                       <ProblemCard.Info label='문항 메모' content={memo} />
                     </ProblemCard.TextSection>
 
-                    <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
+                    <ProblemCard.CardImage src={mainProblemImageUrl ?? ''} height={'34.4rem'} />
 
                     <ProblemCard.TagSection>
-                      {(tagNames || []).map((tag, tagIndex) => {
-                        return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
+                      {(concepts || []).map((concept, conceptIndex) => {
+                        return <Tag key={`${concept.name}-${conceptIndex}`} label={concept.name} />;
                       })}
                     </ProblemCard.TagSection>
                   </ProblemCard>

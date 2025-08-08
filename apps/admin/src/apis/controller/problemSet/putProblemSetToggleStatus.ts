@@ -1,7 +1,7 @@
 import { $api } from '@apis';
 
-const putConfirmProblemSet = () => {
+const putProblemSetToggleStatus = () => {
   return $api.useMutation('put', '/api/admin/problem-set/toggle-status/{id}');
 };
 
-export default putConfirmProblemSet;
+export default putProblemSetToggleStatus;

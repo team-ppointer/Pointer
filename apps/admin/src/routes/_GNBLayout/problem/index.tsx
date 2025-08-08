@@ -1,4 +1,4 @@
-import { deleteProblems, getConceptTags, getProblemsSearch } from '@apis';
+import { deleteProblem, getConcept, getProblemsSearch } from '@apis';
 import {
   Button,
   FloatingButton,
@@ -14,7 +14,7 @@ import {
 import { useInvalidate, useModal } from '@hooks';
 import { IcDown } from '@svg';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { getProblemsSearchParamsType } from '@types';
+import { GetProblemsSearchParams } from '@types';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
@@ -35,14 +35,14 @@ function RouteComponent() {
 
   const deleteProblemId = useRef<number | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState<getProblemsSearchParamsType>({});
+  const [searchQuery, setSearchQuery] = useState<GetProblemsSearchParams>({});
   const [selectedTagList, setSelectedTagList] = useState<number[]>([]);
 
-  const { register, handleSubmit, reset } = useForm<getProblemsSearchParamsType>();
+  const { register, handleSubmit, reset } = useForm<GetProblemsSearchParams>();
 
   const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
-  const { mutate: mutateDeleteProblem } = deleteProblems();
-  const { data: tagsData } = getConceptTags();
+  const { mutate: mutateDeleteProblem } = deleteProblem();
+  const { data: tagsData } = getConcept();
   const allTagList = tagsData?.data || [];
   const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
 
@@ -74,11 +74,11 @@ function RouteComponent() {
     );
   };
 
-  const handleClickSearch = (data: getProblemsSearchParamsType) => {
+  const handleClickSearch = (data: GetProblemsSearchParams) => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
     );
-    setSearchQuery({ ...filteredData, conceptTagIds: selectedTagList });
+    setSearchQuery({ ...filteredData, concepts: selectedTagList });
   };
 
   const handleResetQuery = () => {
@@ -92,7 +92,7 @@ function RouteComponent() {
     setSearchQuery((prev) => {
       return {
         ...prev,
-        conceptTagIds: prev.conceptTagIds?.filter((selectedTag) => selectedTag !== tag),
+        concepts: prev.concepts?.filter((selectedTag) => selectedTag !== tag),
       };
     });
   };
@@ -102,7 +102,7 @@ function RouteComponent() {
     setSearchQuery((prev) => {
       return {
         ...prev,
-        conceptTagIds: tagList,
+        concepts: tagList,
       };
     });
   };
@@ -117,7 +117,7 @@ function RouteComponent() {
           <SearchInput
             label='문항 ID'
             placeholder='입력해주세요.'
-            {...register('problemCustomId', { required: false })}
+            {...register('customId', { required: false })}
           />
           <SearchInput
             label='문항 타이틀'
@@ -165,35 +165,45 @@ function RouteComponent() {
       ) : (
         <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem]'>
           {problemList?.data.map(
-            ({ id: problemId, customId, title, memo, mainProblemImageUrl, concepts }) => (
-              <Link
-                key={customId}
-                to={`/problem/$problemId`}
-                params={{ problemId: problemId.toString() }}>
-                <ProblemCard>
-                  <ProblemCard.TextSection>
-                    <ProblemCard.Info label='문항 ID' content={customId} />
-                    <ProblemCard.Info label='문항 타이틀' content={title} />
-                    <ProblemCard.Info label='문항 메모' content={memo} />
-                  </ProblemCard.TextSection>
+            ({ id: problemId, customId, title, memo, concepts, problemContent }) => {
+              // problemContent.blocks에서 type이 IMAGE인 첫 번째 블록 찾기
+              const firstImageBlock = problemContent?.blocks?.find(
+                (block) => block.type === 'IMAGE'
+              );
+              const mainProblemImageUrl = firstImageBlock?.data;
 
-                  <ProblemCard.ButtonSection>
-                    <IconButton
-                      variant='delete'
-                      onClick={(e) => handleClickDelete(e, problemId.toString())}
-                    />
-                  </ProblemCard.ButtonSection>
+              return (
+                <Link
+                  key={customId}
+                  to={`/problem/$problemId`}
+                  params={{ problemId: problemId.toString() }}>
+                  <ProblemCard>
+                    <ProblemCard.TextSection>
+                      <ProblemCard.Info label='문항 ID' content={customId} />
+                      <ProblemCard.Info label='문항 타이틀' content={title} />
+                      <ProblemCard.Info label='문항 메모' content={memo} />
+                    </ProblemCard.TextSection>
 
-                  <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
+                    <ProblemCard.ButtonSection>
+                      <IconButton
+                        variant='delete'
+                        onClick={(e) => handleClickDelete(e, problemId.toString())}
+                      />
+                    </ProblemCard.ButtonSection>
 
-                  <ProblemCard.TagSection>
-                    {(concepts || []).map((tag, tagIndex) => {
-                      return <Tag key={`${tag}-${tagIndex}`} label={tag.name} />;
-                    })}
-                  </ProblemCard.TagSection>
-                </ProblemCard>
-              </Link>
-            )
+                    {mainProblemImageUrl && (
+                      <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
+                    )}
+
+                    <ProblemCard.TagSection>
+                      {(concepts || []).map((tag, tagIndex) => {
+                        return <Tag key={`${tag}-${tagIndex}`} label={tag.name} />;
+                      })}
+                    </ProblemCard.TagSection>
+                  </ProblemCard>
+                </Link>
+              );
+            }
           )}
         </section>
       )}

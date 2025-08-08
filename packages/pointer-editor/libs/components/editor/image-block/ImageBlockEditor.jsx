@@ -14,10 +14,7 @@ import {
 } from '@mui/material';
 import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 
-import {
-  getFileUploadUrl,
-  uploadFileToS3,
-} from '../../../../../../../pointer_custom_editor_demo/src/editor-modal/libs/api/fileUpload';
+import { getFileUploadUrl, uploadFileToS3 } from '../../../api/fileUpload';
 
 const ImageBlockEditor = memo(({ initialData, onChange }) => {
   const [imageUrl, setImageUrl] = useState('');
