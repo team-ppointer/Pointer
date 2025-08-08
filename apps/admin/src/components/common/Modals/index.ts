@@ -6,6 +6,7 @@ import TwoButtonModalTemplate from './templates/TwoButtonModalTemplate';
 import TagSelectModal from './TagSelectModal';
 import ProblemSearchModal from './ProblemSearchModal';
 import CreateNoticeModal from './CreateNoticeModal';
+import NoticeListModal from './NoticeListModal';
 
 export {
   Modal,
@@ -16,4 +17,5 @@ export {
   TagSelectModal,
   ProblemSearchModal,
   CreateNoticeModal,
+  NoticeListModal,
 };

@@ -6,6 +6,7 @@ import {
   PlusButton,
   TwoButtonModalTemplate,
   CreateNoticeModal,
+  NoticeListModal,
 } from '@components';
 import { HTMLAttributes, useState } from 'react';
 import { IcDeleteSm } from '@svg';
@@ -146,6 +147,12 @@ function RouteComponent() {
     closeModal: closeCreateNoticeModal,
   } = useModal();
 
+  const {
+    isOpen: isNoticeListModalOpen,
+    openModal: openNoticeListModal,
+    closeModal: closeNoticeListModal,
+  } = useModal();
+
   const handleClickPrevMonth = () => setCurrentMonth(currentMonth.subtract(1, 'month'));
   const handleClickNextMonth = () => setCurrentMonth(currentMonth.add(1, 'month'));
   const handleClickCurrentMonth = () => setCurrentMonth(dayjs().startOf('month'));
@@ -182,7 +189,9 @@ function RouteComponent() {
             <IconButton variant='right' onClick={handleClickNextMonth} />
           </div>
           <div className='flex items-center gap-[1.6rem]'>
-            <Button variant='light'>공지 목록</Button>
+            <Button variant='light' onClick={openNoticeListModal}>
+              공지 목록
+            </Button>
             <Button variant='dark' onClick={openCreateNoticeModal}>
               공지 작성
             </Button>
@@ -238,6 +247,9 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isCreateNoticeModalOpen} onClose={closeCreateNoticeModal}>
         <CreateNoticeModal selectedStudent={selectedStudent} onClose={closeCreateNoticeModal} />
+      </Modal>
+      <Modal isOpen={isNoticeListModalOpen} onClose={closeNoticeListModal}>
+        <NoticeListModal selectedStudent={selectedStudent} onClose={closeNoticeListModal} />
       </Modal>
     </>
   );
