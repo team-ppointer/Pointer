@@ -1,13 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { IconButton, Modal, PlusButton, TwoButtonModalTemplate } from '@components';
+import { Button, IconButton, Modal, PlusButton, TwoButtonModalTemplate } from '@components';
 import { HTMLAttributes, useState } from 'react';
 import { IcDeleteSm } from '@svg';
 import { Link } from '@tanstack/react-router';
-import { deletePublish, getPublish } from '@apis';
+import { deletePublish, getPublish, getStudent } from '@apis';
 import { useInvalidate, useModal } from '@hooks';
 import dayjs from 'dayjs';
 
 import 'dayjs/locale/ko';
+import { components } from '@schema';
+import SelectStudentModal from '@/components/common/Modals/SelectStudentModal';
 dayjs.locale('ko');
 
 interface DayProps extends HTMLAttributes<HTMLDivElement> {
@@ -118,6 +120,16 @@ export const Route = createFileRoute('/_GNBLayout/publish/')({
 
 function RouteComponent() {
   const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
+  const [selectedStudent, setSelectedStudent] = useState<
+    components['schemas']['StudentResp'] | null
+  >(null);
+  const { data: studentList } = getStudent({ query: '' });
+
+  const {
+    isOpen: isSelectStudentModalOpen,
+    openModal: openSelectStudentModal,
+    closeModal: closeSelectStudentModal,
+  } = useModal();
 
   const handleClickPrevMonth = () => setCurrentMonth(currentMonth.subtract(1, 'month'));
   const handleClickNextMonth = () => setCurrentMonth(currentMonth.add(1, 'month'));
@@ -134,12 +146,27 @@ function RouteComponent() {
   return (
     <>
       <div className='w-full'>
-        <div className='mb-[7.4rem] flex items-center justify-center gap-[4.8rem]'>
-          <IconButton variant='left' onClick={handleClickPrevMonth} />
-          <h2 className='font-bold-32 cursor-pointer' onClick={handleClickCurrentMonth}>
-            {currentMonth.format('YYYY년 M월')}
-          </h2>
-          <IconButton variant='right' onClick={handleClickNextMonth} />
+        <div className='mb-[7.4rem] flex items-center justify-between'>
+          <div className='flex items-center gap-[1.6rem]'>
+            <h2
+              className={`font-bold-32 cursor-pointer ${
+                selectedStudent ? 'text-black' : 'text-lightgray500'
+              }`}>
+              {selectedStudent ? selectedStudent.name : '학생을 선택해주세요'}
+            </h2>
+            <IconButton variant='right' onClick={openSelectStudentModal} />
+          </div>
+          <div className='flex items-center justify-center gap-[4.8rem]'>
+            <IconButton variant='left' onClick={handleClickPrevMonth} />
+            <h2 className='font-bold-32 cursor-pointer' onClick={handleClickCurrentMonth}>
+              {currentMonth.format('YYYY년 M월')}
+            </h2>
+            <IconButton variant='right' onClick={handleClickNextMonth} />
+          </div>
+          <div className='flex items-center gap-[1.6rem]'>
+            <Button variant='light'>공지 목록</Button>
+            <Button variant='dark'>공지 작성</Button>
+          </div>
         </div>
 
         <div className='font-medium-18 grid grid-cols-7 text-center'>
@@ -181,6 +208,14 @@ function RouteComponent() {
           })}
         </div>
       </div>
+      <Modal isOpen={isSelectStudentModalOpen} onClose={closeSelectStudentModal}>
+        <SelectStudentModal
+          students={studentList?.data ?? []}
+          selectedStudent={selectedStudent}
+          setSelectedStudent={setSelectedStudent}
+          onApply={closeSelectStudentModal}
+        />
+      </Modal>
     </>
   );
 }
