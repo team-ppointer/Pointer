@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import {
   Box,
   TextField,
@@ -11,26 +11,26 @@ import {
   Button,
   CircularProgress,
   Alert,
-} from "@mui/material";
-import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
+} from '@mui/material';
+import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 
-import { getFileUploadUrl, uploadFileToS3 } from "../../../api/fileUpload";
+import { getFileUploadUrl, uploadFileToS3 } from '../../../api/fileUpload';
 // '../../../../../../../pointer_custom_editor_demo/src/editor-modal/libs/api/fileUpload';
 
 const ImageBlockEditor = memo(({ initialData, onChange }) => {
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState('');
   const [width, setWidth] = useState(50);
-  const [borderStyle, setBorderStyle] = useState("none");
+  const [borderStyle, setBorderStyle] = useState('none');
   const onChangeRef = useRef(onChange);
 
   // 현재 스타일을 저장하는 ref (이미지 URL 변경 시 기존 스타일 유지용)
-  const currentStyleRef = useRef("");
+  const currentStyleRef = useRef('');
   const [isInitialized, setIsInitialized] = useState(false);
   const initializedRef = useRef(false); // 중복 초기화 방지
 
   // 파일 업로드 관련 상태
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
+  const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef(null);
 
   // onChange 함수 참조를 항상 최신으로 유지
@@ -53,8 +53,7 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
         const borderMatch = style.match(/border:\s*([^;]+)/);
 
         if (widthMatch) setWidth(parseInt(widthMatch[1]));
-        if (borderMatch && borderMatch[1] !== "none")
-          setBorderStyle(borderMatch[1]);
+        if (borderMatch && borderMatch[1] !== 'none') setBorderStyle(borderMatch[1]);
 
         currentStyleRef.current = initialData.style;
       } else {
@@ -71,7 +70,7 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
   useEffect(() => {
     if (isInitialized) {
       const blockData = {
-        type: "IMAGE",
+        type: 'IMAGE',
         content: imageUrl,
         style: currentStyleRef.current, // 기존 스타일 유지
       };
@@ -91,7 +90,7 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
         currentStyleRef.current = newStyle;
 
         const blockData = {
-          type: "IMAGE",
+          type: 'IMAGE',
           content: imageUrl,
           style: newStyle,
         };
@@ -103,26 +102,26 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
   }, [width, borderStyle, isInitialized, imageUrl]);
 
   const generateStyle = useCallback(() => {
-    const styles = ["text-align: center"]; // 항상 center로 고정
+    const styles = ['text-align: center']; // 항상 center로 고정
 
     // 이미지 크기 추가
     styles.push(`width: ${width}%`);
 
-    if (borderStyle !== "none") {
+    if (borderStyle !== 'none') {
       styles.push(`border: ${borderStyle}`);
-      styles.push("padding: 10px");
+      styles.push('padding: 10px');
     }
 
-    return styles.join("; ") + ";";
+    return styles.join('; ') + ';';
   }, [width, borderStyle]);
 
   const getImageStyle = useCallback(() => {
     return {
       width: `${width}%`,
-      height: "auto",
-      maxWidth: "100%",
-      border: borderStyle !== "none" ? borderStyle : undefined,
-      padding: borderStyle !== "none" ? "10px" : undefined,
+      height: 'auto',
+      maxWidth: '100%',
+      border: borderStyle !== 'none' ? borderStyle : undefined,
+      padding: borderStyle !== 'none' ? '10px' : undefined,
     };
   }, [width, borderStyle]);
 
@@ -131,30 +130,28 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    setUploadError("");
+    setUploadError('');
     setIsUploading(true);
 
     try {
       // 이미지 업로드
       const result = await getFileUploadUrl({ fileName: file.name });
-      console.log(result);
 
       const uploadResult = await uploadFileToS3({
         uploadUrl: result.uploadUrl,
         contentDisposition: result.contentDisposition,
         file: file,
       });
-      console.log(uploadResult);
       // 성공 시 URL 설정
       setImageUrl(result.file.url);
     } catch (error) {
-      console.error("이미지 업로드 실패:", error);
-      setUploadError(error.message || "이미지 업로드에 실패했습니다.");
+      console.error('이미지 업로드 실패:', error);
+      setUploadError(error.message || '이미지 업로드에 실패했습니다.');
     } finally {
       setIsUploading(false);
       // 파일 input 초기화
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = '';
       }
     }
   };
@@ -170,70 +167,61 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
       <Box sx={{ mb: 1 }}>
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             mb: 1,
-          }}
-        >
-          <Typography variant="h6" component="h3">
+          }}>
+          <Typography variant='h6' component='h3'>
             이미지 블록
           </Typography>
         </Box>
 
         <TextField
           fullWidth
-          size="small"
-          label="이미지 URL"
+          size='small'
+          label='이미지 URL'
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://example.com/image.jpg"
+          placeholder='https://example.com/image.jpg'
           sx={{ mb: 1 }}
         />
 
         {/* 파일 업로드 섹션 */}
-        <Box sx={{ mb: 2, textAlign: "center" }}>
-          <Typography
-            variant="caption"
-            display="block"
-            gutterBottom
-            color="text.secondary"
-          >
+        <Box sx={{ mb: 2, textAlign: 'center' }}>
+          <Typography variant='caption' display='block' gutterBottom color='text.secondary'>
             또는 파일을 업로드하세요
           </Typography>
           <input
             ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
+            type='file'
+            accept='image/*'
+            style={{ display: 'none' }}
             onChange={handleFileSelect}
           />
           <Button
-            variant="outlined"
-            size="small"
-            startIcon={
-              isUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />
-            }
+            variant='outlined'
+            size='small'
+            startIcon={isUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
             onClick={handleUploadClick}
             disabled={isUploading}
-            sx={{ mb: 1 }}
-          >
-            {isUploading ? "업로드 중..." : "파일 선택"}
+            sx={{ mb: 1 }}>
+            {isUploading ? '업로드 중...' : '파일 선택'}
           </Button>
 
           {uploadError && (
-            <Alert severity="error" sx={{ mt: 1 }}>
+            <Alert severity='error' sx={{ mt: 1 }}>
               {uploadError}
             </Alert>
           )}
         </Box>
 
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1 }}>
-          <FormControl size="small" sx={{ minWidth: 80 }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+          <FormControl size='small' sx={{ minWidth: 80 }}>
             <InputLabel>테두리</InputLabel>
             <Select
               value={borderStyle}
-              label="테두리"
+              label='테두리'
               onChange={(e) => setBorderStyle(e.target.value)}
               MenuProps={{
                 PaperProps: {
@@ -244,17 +232,16 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
                 disablePortal: true,
                 keepMounted: false,
               }}
-              sx={{ zIndex: 9999 }}
-            >
-              <MenuItem value="none">없음</MenuItem>
-              <MenuItem value="1px solid #ccc">얇은 회색</MenuItem>
-              <MenuItem value="2px solid #000">굵은 검정</MenuItem>
-              <MenuItem value="1px dashed #999">점선</MenuItem>
+              sx={{ zIndex: 9999 }}>
+              <MenuItem value='none'>없음</MenuItem>
+              <MenuItem value='1px solid #ccc'>얇은 회색</MenuItem>
+              <MenuItem value='2px solid #000'>굵은 검정</MenuItem>
+              <MenuItem value='1px dashed #999'>점선</MenuItem>
             </Select>
           </FormControl>
 
           <Box sx={{ flex: 1, ml: 2 }}>
-            <Typography variant="caption" display="block" gutterBottom>
+            <Typography variant='caption' display='block' gutterBottom>
               이미지 크기: {width}%
             </Typography>
             <Slider
@@ -263,8 +250,8 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
               min={10}
               max={100}
               step={5}
-              size="small"
-              valueLabelDisplay="auto"
+              size='small'
+              valueLabelDisplay='auto'
             />
           </Box>
         </Box>
@@ -276,23 +263,22 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
           sx={{
             mt: 1,
             p: 1,
-            border: "1px dashed #ccc",
+            border: '1px dashed #ccc',
             borderRadius: 1,
-            textAlign: "center",
-          }}
-        >
-          <Typography variant="caption" display="block" gutterBottom>
+            textAlign: 'center',
+          }}>
+          <Typography variant='caption' display='block' gutterBottom>
             미리보기:
           </Typography>
           <img
             src={imageUrl}
-            alt="미리보기"
+            alt='미리보기'
             style={getImageStyle()}
             onError={(e) => {
-              e.target.style.display = "none";
+              e.target.style.display = 'none';
             }}
             onLoad={(e) => {
-              e.target.style.display = "block";
+              e.target.style.display = 'block';
             }}
           />
         </Box>
@@ -302,6 +288,6 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
 });
 
 // displayName 설정 (디버깅용)
-ImageBlockEditor.displayName = "ImageBlockEditor";
+ImageBlockEditor.displayName = 'ImageBlockEditor';
 
 export default ImageBlockEditor;

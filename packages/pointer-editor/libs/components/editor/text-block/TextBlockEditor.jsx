@@ -1,12 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useReducer,
-  useCallback,
-  useMemo,
-  memo,
-  useState,
-} from "react";
+import { useEffect, useRef, useReducer, useCallback, useMemo, memo, useState } from 'react';
 import {
   Box,
   Button,
@@ -20,55 +12,49 @@ import {
   TextField,
   Menu,
   MenuItem,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Functions,
   FormatAlignLeft,
   FormatAlignCenter,
   FormatAlignRight,
-} from "@mui/icons-material";
-import katex from "katex";
+} from '@mui/icons-material';
+import katex from 'katex';
 
-import {
-  BoldIcon,
-  ItalicIcon,
-  UnderlineIcon,
-  ColorIcon,
-  BoxIcon,
-} from "../../../assets";
+import { BoldIcon, ItalicIcon, UnderlineIcon, ColorIcon, BoxIcon } from '../../../assets';
 
-import useQuillEditor from "./hooks/useQuillEditor";
-import FormulaModal from "./FormulaModal";
-import "katex/dist/katex.min.css";
+import useQuillEditor from './hooks/useQuillEditor';
+import FormulaModal from './FormulaModal';
+import 'katex/dist/katex.min.css';
 
 // 상태 관리를 위한 초기 상태 정의
 const initialState = {
   // 스타일 관련 상태
-  alignment: "left",
+  alignment: 'left',
   hasBorder: false,
-  borderStyle: "1px solid black", // 기본 border 스타일
-  innerPadding: "medium",
+  borderStyle: '1px solid black', // 기본 border 스타일
+  innerPadding: 'medium',
   isBold: false,
   isItalic: false,
   isUnderline: false,
   hasColor: false,
-  textColor: "#000000",
+  textColor: '#000000',
 
   // 에디터 상태
   isInitialized: false,
 
   // 수식 모달 관련 상태
   isFormulaModalOpen: false,
-  editingFormula: "",
+  editingFormula: '',
   isEditMode: false,
 
   // 이미지 삽입 모달 관련 상태
   isImageModalOpen: false,
-  imageUrl: "",
+  imageUrl: '',
 
   // 색상 선택 모달 관련 상태
   isColorModalOpen: false,
-  selectedColor: "#000000",
+  selectedColor: '#000000',
 
   // 추적용 상태
   lastInitialDataStyle: null,
@@ -77,37 +63,37 @@ const initialState = {
 
 // 액션 타입 정의
 const actionTypes = {
-  SET_STYLE_FROM_INITIAL_DATA: "SET_STYLE_FROM_INITIAL_DATA",
-  SET_ALIGNMENT: "SET_ALIGNMENT",
-  SET_BORDER: "SET_BORDER",
-  SET_INNER_PADDING: "SET_INNER_PADDING",
-  SET_BOLD: "SET_BOLD",
-  SET_ITALIC: "SET_ITALIC",
-  SET_UNDERLINE: "SET_UNDERLINE",
-  SET_TEXT_COLOR: "SET_TEXT_COLOR",
-  SET_INITIALIZED: "SET_INITIALIZED",
-  OPEN_FORMULA_MODAL: "OPEN_FORMULA_MODAL",
-  CLOSE_FORMULA_MODAL: "CLOSE_FORMULA_MODAL",
-  OPEN_IMAGE_MODAL: "OPEN_IMAGE_MODAL",
-  CLOSE_IMAGE_MODAL: "CLOSE_IMAGE_MODAL",
-  SET_IMAGE_URL: "SET_IMAGE_URL",
-  OPEN_COLOR_MODAL: "OPEN_COLOR_MODAL",
-  CLOSE_COLOR_MODAL: "CLOSE_COLOR_MODAL",
-  SET_SELECTED_COLOR: "SET_SELECTED_COLOR",
-  RESET_STYLE_UPDATE_FLAG: "RESET_STYLE_UPDATE_FLAG",
+  SET_STYLE_FROM_INITIAL_DATA: 'SET_STYLE_FROM_INITIAL_DATA',
+  SET_ALIGNMENT: 'SET_ALIGNMENT',
+  SET_BORDER: 'SET_BORDER',
+  SET_INNER_PADDING: 'SET_INNER_PADDING',
+  SET_BOLD: 'SET_BOLD',
+  SET_ITALIC: 'SET_ITALIC',
+  SET_UNDERLINE: 'SET_UNDERLINE',
+  SET_TEXT_COLOR: 'SET_TEXT_COLOR',
+  SET_INITIALIZED: 'SET_INITIALIZED',
+  OPEN_FORMULA_MODAL: 'OPEN_FORMULA_MODAL',
+  CLOSE_FORMULA_MODAL: 'CLOSE_FORMULA_MODAL',
+  OPEN_IMAGE_MODAL: 'OPEN_IMAGE_MODAL',
+  CLOSE_IMAGE_MODAL: 'CLOSE_IMAGE_MODAL',
+  SET_IMAGE_URL: 'SET_IMAGE_URL',
+  OPEN_COLOR_MODAL: 'OPEN_COLOR_MODAL',
+  CLOSE_COLOR_MODAL: 'CLOSE_COLOR_MODAL',
+  SET_SELECTED_COLOR: 'SET_SELECTED_COLOR',
+  RESET_STYLE_UPDATE_FLAG: 'RESET_STYLE_UPDATE_FLAG',
 };
 
 const parseStyleString = (styleString) => {
   const result = {
-    alignment: "left",
+    alignment: 'left',
     hasBorder: false,
-    borderStyle: "1px solid black", // 기본값
-    innerPadding: "medium",
+    borderStyle: '1px solid black', // 기본값
+    innerPadding: 'medium',
     isBold: false,
     isItalic: false,
     isUnderline: false,
     hasColor: false,
-    textColor: "#000000",
+    textColor: '#000000',
   };
 
   if (!styleString) {
@@ -126,11 +112,7 @@ const parseStyleString = (styleString) => {
     result.alignment = alignMatch[1].trim();
   }
 
-  if (
-    borderMatch &&
-    borderMatch[1].trim() &&
-    borderMatch[1].trim() !== "none"
-  ) {
+  if (borderMatch && borderMatch[1].trim() && borderMatch[1].trim() !== 'none') {
     result.hasBorder = true;
     result.borderStyle = borderMatch[1].trim(); // 원본 border 스타일 보존
   }
@@ -138,22 +120,22 @@ const parseStyleString = (styleString) => {
   if (paddingMatch) {
     const paddingValue = parseInt(paddingMatch[1].trim(), 10);
     if (!isNaN(paddingValue)) {
-      if (paddingValue <= 10) result.innerPadding = "small";
-      else if (paddingValue <= 20) result.innerPadding = "medium";
-      else result.innerPadding = "large";
+      if (paddingValue <= 10) result.innerPadding = 'small';
+      else if (paddingValue <= 20) result.innerPadding = 'medium';
+      else result.innerPadding = 'large';
     }
   }
 
   if (fontWeightMatch) {
-    result.isBold = fontWeightMatch[1].trim() === "bold";
+    result.isBold = fontWeightMatch[1].trim() === 'bold';
   }
 
   if (fontStyleMatch) {
-    result.isItalic = fontStyleMatch[1].trim() === "italic";
+    result.isItalic = fontStyleMatch[1].trim() === 'italic';
   }
 
   if (textDecorationMatch) {
-    result.isUnderline = textDecorationMatch[1].trim().includes("underline");
+    result.isUnderline = textDecorationMatch[1].trim().includes('underline');
   }
 
   if (colorMatch) {
@@ -250,7 +232,7 @@ const editorReducer = (state, action) => {
       return {
         ...state,
         isFormulaModalOpen: true,
-        editingFormula: action.payload?.formula || "",
+        editingFormula: action.payload?.formula || '',
         isEditMode: action.payload?.isEdit || false,
       };
 
@@ -258,7 +240,7 @@ const editorReducer = (state, action) => {
       return {
         ...state,
         isFormulaModalOpen: false,
-        editingFormula: "",
+        editingFormula: '',
         isEditMode: false,
       };
 
@@ -266,14 +248,14 @@ const editorReducer = (state, action) => {
       return {
         ...state,
         isImageModalOpen: true,
-        imageUrl: action.payload?.imageUrl || "",
+        imageUrl: action.payload?.imageUrl || '',
       };
 
     case actionTypes.CLOSE_IMAGE_MODAL:
       return {
         ...state,
         isImageModalOpen: false,
-        imageUrl: "",
+        imageUrl: '',
       };
 
     case actionTypes.SET_IMAGE_URL:
@@ -310,42 +292,42 @@ const editorReducer = (state, action) => {
 
 // $...$를 <span class="ql-formula" data-value="..."></span>로 변환 (내부에 KaTeX HTML 포함)
 function latexToQuillFormulaHtml(text) {
-  if (!text) return "";
+  if (!text) return '';
   // 1. $...$를 모두 변환
 
   // text를 개행 단위로 분리 (p태그 단위)
-  const splitText = text.split("\n");
+  const splitText = text.split('\n');
 
-  let html = "";
+  let html = '';
   for (let i = 0; i < splitText.length; i++) {
     html += `<p>${splitText[i]}</p>`;
   }
 
   html = html.replace(/\$([^\$]+)\$/g, (match, formula) => {
-    let katexHtml = "";
+    let katexHtml = '';
     try {
       katexHtml = katex.renderToString(formula, { throwOnError: false });
     } catch {
-      katexHtml = "";
+      katexHtml = '';
     }
     return `<span class="ql-formula" data-value="${formula}">\uFEFF<span contenteditable="false">${katexHtml}</span>\uFEFF</span>`;
   });
   // 3. 연속 공백을 &nbsp;로 변환 (HTML 태그 내부는 제외)
-  html = html.replace(/  +/g, (spaces) => "&nbsp;".repeat(spaces.length));
+  html = html.replace(/  +/g, (spaces) => '&nbsp;'.repeat(spaces.length));
   // 4. 전체를 하나의 p태그로 감싸기
   return html;
 }
 
 // Quill HTML을 $$...$$ LaTeX 텍스트로 변환하는 함수
 function quillHtmlToLatex(html) {
-  if (!html) return "";
+  if (!html) return '';
 
   // make domTree from html
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  const pTags = doc.querySelectorAll("p");
+  const doc = parser.parseFromString(html, 'text/html');
+  const pTags = doc.querySelectorAll('p');
 
-  let result = "";
+  let result = '';
   // iter pTags
   for (let i = 0; i < pTags.length; i++) {
     const pTag = pTags[i];
@@ -356,9 +338,9 @@ function quillHtmlToLatex(html) {
         result += node.textContent;
       } else if (node.nodeType === Node.ELEMENT_NODE) {
         // 요소 노드인 경우
-        if (node.classList && node.classList.contains("ql-formula")) {
+        if (node.classList && node.classList.contains('ql-formula')) {
           // LaTeX 수식인 경우
-          let formula = node.getAttribute("data-value");
+          let formula = node.getAttribute('data-value');
           result += `$${formula}$`;
         } else {
           // 다른 요소인 경우 (span, strong, em 등)
@@ -367,7 +349,7 @@ function quillHtmlToLatex(html) {
       }
     }
     if (i < pTags.length - 1) {
-      result += "\n";
+      result += '\n';
     }
   }
   return result;
@@ -387,8 +369,8 @@ const TextBlockEditor = memo(
     // initialData를 그대로 유지 (LaTeX 형태)
     const externalData = useMemo(
       () => ({
-        content: initialData?.content || initialData?.data || "",
-        style: initialData?.style || "",
+        content: initialData?.content || initialData?.data || '',
+        style: initialData?.style || '',
       }),
       [initialData]
     );
@@ -397,7 +379,7 @@ const TextBlockEditor = memo(
     const renderingData = useMemo(() => {
       const content = externalData.content;
       // 이미 HTML(Quill) 형태면 그대로, 아니면 변환
-      if (content && content.includes("ql-formula")) {
+      if (content && content.includes('ql-formula')) {
         return {
           content: content,
           style: externalData.style,
@@ -429,63 +411,57 @@ const TextBlockEditor = memo(
     const generateCurrentStyleFromRef = useCallback(() => {
       const currentState = stateRef.current;
       const paddingPx = paddingValues[currentState.innerPadding];
-      const styles = [
-        `text-align: ${currentState.alignment}`,
-        `padding: ${paddingPx}px`,
-      ];
+      const styles = [`text-align: ${currentState.alignment}`, `padding: ${paddingPx}px`];
 
       if (currentState.hasBorder) {
         styles.push(`border: ${currentState.borderStyle}`);
       }
 
       if (currentState.isBold) {
-        styles.push("font-weight: bold");
+        styles.push('font-weight: bold');
       }
 
       if (currentState.isItalic) {
-        styles.push("font-style: italic");
+        styles.push('font-style: italic');
       }
 
       if (currentState.isUnderline) {
-        styles.push("text-decoration: underline");
+        styles.push('text-decoration: underline');
       }
 
       if (currentState.hasColor) {
         styles.push(`color: ${currentState.textColor}`);
       }
 
-      return styles.join("; ") + ";";
+      return styles.join('; ') + ';';
     }, [paddingValues]);
 
     // 기존 스타일 생성 함수 (UI용)
     const generateCurrentStyle = useCallback(() => {
       const paddingPx = paddingValues[state.innerPadding];
-      const styles = [
-        `text-align: ${state.alignment}`,
-        `padding: ${paddingPx}px`,
-      ];
+      const styles = [`text-align: ${state.alignment}`, `padding: ${paddingPx}px`];
 
       if (state.hasBorder) {
         styles.push(`border: ${state.borderStyle}`);
       }
 
       if (state.isBold) {
-        styles.push("font-weight: bold");
+        styles.push('font-weight: bold');
       }
 
       if (state.isItalic) {
-        styles.push("font-style: italic");
+        styles.push('font-style: italic');
       }
 
       if (state.isUnderline) {
-        styles.push("text-decoration: underline");
+        styles.push('text-decoration: underline');
       }
 
       if (state.hasColor) {
         styles.push(`color: ${state.textColor}`);
       }
 
-      return styles.join("; ") + ";";
+      return styles.join('; ') + ';';
     }, [
       state.alignment,
       state.hasBorder,
@@ -505,7 +481,7 @@ const TextBlockEditor = memo(
         // content(HTML)를 LaTeX로 변환해서 저장
         const latexContent = quillHtmlToLatex(content);
         const blockData = {
-          type: "TEXT",
+          type: 'TEXT',
           content: latexContent, // LaTeX 형태로 저장
           style: style,
         };
@@ -536,28 +512,22 @@ const TextBlockEditor = memo(
     }, []);
 
     // Quill 에디터 초기화 - renderingData 사용
-    const { getSelection, insertFormula, getContent, insertImage } =
-      useQuillEditor({
-        containerRef,
-        initialContent: renderingData.content, // 렌더링용 데이터 사용
-        onTextChange: handleTextChange,
-        onFormulaClick: handleFormulaClick,
-        onInitialized: handleEditorInitialized,
-        isInsertableImage,
-      });
+    const { getSelection, insertFormula, getContent, insertImage } = useQuillEditor({
+      containerRef,
+      initialContent: renderingData.content, // 렌더링용 데이터 사용
+      onTextChange: handleTextChange,
+      onFormulaClick: handleFormulaClick,
+      onInitialized: handleEditorInitialized,
+      isInsertableImage,
+    });
 
     // 키보드 단축키 핸들러 (useQuillEditor 이후에 정의)
     const handleKeyDown = useCallback(
       (e) => {
         // Cmd+M (맥) 또는 Ctrl+Shift+M (윈도우) - 수식 삽입
-        if (
-          (e.metaKey && e.key === "m") ||
-          (e.ctrlKey && e.shiftKey && e.key === "M")
-        ) {
+        if ((e.metaKey && e.key === 'm') || (e.ctrlKey && e.shiftKey && e.key === 'M')) {
           // 현재 포커스된 요소가 이 TextBlockEditor 내부에 있는지 확인
-          const isFocusedInThisEditor = containerRef.current?.contains(
-            document.activeElement
-          );
+          const isFocusedInThisEditor = containerRef.current?.contains(document.activeElement);
 
           if (isFocusedInThisEditor) {
             e.preventDefault();
@@ -565,7 +535,7 @@ const TextBlockEditor = memo(
             savedRangeRef.current = getSelection();
             dispatch({
               type: actionTypes.OPEN_FORMULA_MODAL,
-              payload: { formula: "", isEdit: false },
+              payload: { formula: '', isEdit: false },
             });
           }
         }
@@ -576,10 +546,10 @@ const TextBlockEditor = memo(
     // Quill 에디터가 초기화된 후 키보드 이벤트 리스너 추가
     useEffect(() => {
       if (getSelection) {
-        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener('keydown', handleKeyDown);
 
         return () => {
-          document.removeEventListener("keydown", handleKeyDown);
+          document.removeEventListener('keydown', handleKeyDown);
         };
       }
     }, [getSelection, handleKeyDown]);
@@ -682,35 +652,33 @@ const TextBlockEditor = memo(
         <Box sx={{ mb: 1 }}>
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               mb: 1,
-            }}
-          >
-            <Box sx={{ display: "flex", gap: 1 }}>
+            }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
               <Button
-                variant="outlined"
-                size="small"
+                variant='outlined'
+                size='small'
                 onClick={() => {
                   savedRangeRef.current = getSelection();
                   dispatch({
                     type: actionTypes.OPEN_FORMULA_MODAL,
-                    payload: { formula: "", isEdit: false },
+                    payload: { formula: '', isEdit: false },
                   });
                 }}
                 startIcon={<Functions />}
-                title="수식 삽입 (⌘+M / Ctrl+Shift+M)"
-              >
+                title='수식 삽입 (⌘+M / Ctrl+Shift+M)'>
                 수식 삽입 (⌘+Shift+M / Ctrl+Shift+M)
               </Button>
             </Box>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
             <Button
-              variant={state.isBold ? "contained" : "outlined"}
-              size="small"
+              variant={state.isBold ? 'contained' : 'outlined'}
+              size='small'
               onClick={() => {
                 dispatch({
                   type: actionTypes.SET_BOLD,
@@ -719,13 +687,12 @@ const TextBlockEditor = memo(
                 const content = getContent();
                 const currentStyle = generateCurrentStyle();
                 updateBlock(content, currentStyle);
-              }}
-            >
+              }}>
               <BoldIcon width={10} height={14} />
             </Button>
             <Button
-              variant={state.isItalic ? "contained" : "outlined"}
-              size="small"
+              variant={state.isItalic ? 'contained' : 'outlined'}
+              size='small'
               onClick={() => {
                 dispatch({
                   type: actionTypes.SET_ITALIC,
@@ -734,13 +701,12 @@ const TextBlockEditor = memo(
                 const content = getContent();
                 const currentStyle = generateCurrentStyle();
                 updateBlock(content, currentStyle);
-              }}
-            >
+              }}>
               <ItalicIcon width={10} height={12} />
             </Button>
             <Button
-              variant={state.isUnderline ? "contained" : "outlined"}
-              size="small"
+              variant={state.isUnderline ? 'contained' : 'outlined'}
+              size='small'
               onClick={() => {
                 dispatch({
                   type: actionTypes.SET_UNDERLINE,
@@ -749,20 +715,18 @@ const TextBlockEditor = memo(
                 const content = getContent();
                 const currentStyle = generateCurrentStyle();
                 updateBlock(content, currentStyle);
-              }}
-            >
+              }}>
               <UnderlineIcon width={16} height={16} />
             </Button>
             <Button
-              variant={state.hasColor ? "contained" : "outlined"}
-              size="small"
-              onClick={handleColor}
-            >
+              variant={state.hasColor ? 'contained' : 'outlined'}
+              size='small'
+              onClick={handleColor}>
               <ColorIcon width={16} height={16} />
             </Button>
             <Button
-              variant={state.hasBorder ? "contained" : "outlined"}
-              size="small"
+              variant={state.hasBorder ? 'contained' : 'outlined'}
+              size='small'
               onClick={() => {
                 const newBorderState = !state.hasBorder;
                 dispatch({
@@ -774,28 +738,26 @@ const TextBlockEditor = memo(
                 if (!newBorderState) {
                   dispatch({
                     type: actionTypes.SET_INNER_PADDING,
-                    payload: "medium",
+                    payload: 'medium',
                   });
                 }
 
                 const content = getContent();
                 const currentStyle = generateCurrentStyle();
                 updateBlock(content, currentStyle);
-              }}
-            >
+              }}>
               <BoxIcon width={14} height={14} />
             </Button>
           </Box>
 
           <Box
             sx={{
-              display: "flex",
+              display: 'flex',
               gap: 2,
-              alignItems: "center",
-              flexWrap: "wrap",
+              alignItems: 'center',
+              flexWrap: 'wrap',
               mt: 1,
-            }}
-          >
+            }}>
             {/* 정렬 옵션 */}
             {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography variant="body2" sx={{ minWidth: 40 }}>
@@ -832,8 +794,8 @@ const TextBlockEditor = memo(
 
             {/* 내부 여백 선택 */}
             {state.hasBorder && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Typography variant="body2" sx={{ minWidth: 60 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant='body2' sx={{ minWidth: 60 }}>
                   내부 여백:
                 </Typography>
                 <ToggleButtonGroup
@@ -850,16 +812,15 @@ const TextBlockEditor = memo(
                       updateBlock(content, currentStyle);
                     }
                   }}
-                  size="small"
-                >
-                  <ToggleButton value="small" aria-label="작게">
-                    <Typography variant="caption">작게</Typography>
+                  size='small'>
+                  <ToggleButton value='small' aria-label='작게'>
+                    <Typography variant='caption'>작게</Typography>
                   </ToggleButton>
-                  <ToggleButton value="medium" aria-label="보통">
-                    <Typography variant="caption">보통</Typography>
+                  <ToggleButton value='medium' aria-label='보통'>
+                    <Typography variant='caption'>보통</Typography>
                   </ToggleButton>
-                  <ToggleButton value="large" aria-label="크게">
-                    <Typography variant="caption">크게</Typography>
+                  <ToggleButton value='large' aria-label='크게'>
+                    <Typography variant='caption'>크게</Typography>
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Box>
@@ -871,10 +832,10 @@ const TextBlockEditor = memo(
         <div
           ref={containerRef}
           style={{
-            height: "300px",
-            backgroundColor: "#F7F7F7",
-            borderRadius: "20px",
-            border: "none",
+            height: '300px',
+            backgroundColor: '#F7F7F7',
+            borderRadius: '20px',
+            border: 'none',
           }}
         />
 
@@ -890,31 +851,26 @@ const TextBlockEditor = memo(
         <Dialog
           open={state.isImageModalOpen}
           onClose={handleImageModalClose}
-          maxWidth="sm"
-          fullWidth
-        >
+          maxWidth='sm'
+          fullWidth>
           <DialogTitle>이미지 삽입</DialogTitle>
           <DialogContent>
             <TextField
               autoFocus
-              margin="dense"
-              label="이미지 URL"
-              type="url"
+              margin='dense'
+              label='이미지 URL'
+              type='url'
               fullWidth
-              variant="outlined"
+              variant='outlined'
               value={state.imageUrl}
               onChange={handleImageUrlChange}
-              placeholder="https://example.com/image.jpg"
+              placeholder='https://example.com/image.jpg'
               sx={{ mt: 1 }}
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleImageModalClose}>취소</Button>
-            <Button
-              onClick={handleImageSave}
-              variant="contained"
-              disabled={!state.imageUrl}
-            >
+            <Button onClick={handleImageSave} variant='contained' disabled={!state.imageUrl}>
               삽입
             </Button>
           </DialogActions>
@@ -924,43 +880,40 @@ const TextBlockEditor = memo(
         <Dialog
           open={state.isColorModalOpen}
           onClose={handleColorModalClose}
-          maxWidth="sm"
+          maxWidth='sm'
           fullWidth
-          sx={{ zIndex: 99999 }}
-        >
+          sx={{ zIndex: 99999 }}>
           <DialogTitle>글자색 선택</DialogTitle>
           <DialogContent>
-            <Box
-              sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
-            >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
               <TextField
                 autoFocus
-                margin="dense"
-                label="색상 코드"
-                type="color"
+                margin='dense'
+                label='색상 코드'
+                type='color'
                 fullWidth
-                variant="outlined"
+                variant='outlined'
                 value={state.selectedColor}
                 onChange={handleColorChange}
                 sx={{
                   '& input[type="color"]': {
-                    height: "50px",
-                    cursor: "pointer",
+                    height: '50px',
+                    cursor: 'pointer',
                   },
                 }}
               />
-              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {[
-                  "#000000",
-                  "#FF0000",
-                  "#00FF00",
-                  "#0000FF",
-                  "#FFFF00",
-                  "#FF00FF",
-                  "#00FFFF",
-                  "#FFA500",
-                  "#800080",
-                  "#008000",
+                  '#000000',
+                  '#FF0000',
+                  '#00FF00',
+                  '#0000FF',
+                  '#FFFF00',
+                  '#FF00FF',
+                  '#00FFFF',
+                  '#FFA500',
+                  '#800080',
+                  '#008000',
                 ].map((color) => (
                   <Box
                     key={color}
@@ -968,11 +921,11 @@ const TextBlockEditor = memo(
                       width: 40,
                       height: 40,
                       backgroundColor: color,
-                      border: "2px solid #ccc",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      "&:hover": {
-                        border: "2px solid #666",
+                      border: '2px solid #ccc',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        border: '2px solid #666',
                       },
                     }}
                     onClick={() => {
@@ -992,7 +945,7 @@ const TextBlockEditor = memo(
           </DialogContent>
           <DialogActions>
             <Button onClick={handleColorModalClose}>취소</Button>
-            <Button onClick={handleColorSave} variant="contained">
+            <Button onClick={handleColorSave} variant='contained'>
               적용
             </Button>
           </DialogActions>
@@ -1015,6 +968,6 @@ const TextBlockEditor = memo(
   }
 );
 
-TextBlockEditor.displayName = "TextBlockEditor";
+TextBlockEditor.displayName = 'TextBlockEditor';
 
 export default TextBlockEditor;

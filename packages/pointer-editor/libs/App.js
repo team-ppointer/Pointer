@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import EditorModal from "./components/EditorModal";
-import { Button } from "@mui/material";
+import React, { useState } from 'react';
+import { Button } from '@mui/material';
+
+import EditorModal from './components/EditorModal';
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -8,7 +9,7 @@ function App() {
 
   return (
     <div style={{ padding: 40 }}>
-      <Button variant="contained" onClick={() => setOpen(true)}>
+      <Button variant='contained' onClick={() => setOpen(true)}>
         에디터 열기
       </Button>
       {open && (
@@ -17,7 +18,6 @@ function App() {
           onClose={() => setOpen(false)}
           onSave={(data) => {
             setBlocks(data);
-            console.log("저장된 블록:", data);
             setOpen(false);
           }}
         />
