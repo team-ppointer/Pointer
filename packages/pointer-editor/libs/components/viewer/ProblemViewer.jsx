@@ -215,7 +215,7 @@ const ProblemViewer = memo(
             <Box
               key={index}
               sx={{
-                // my: 1.5,
+                my: 1.5,
                 textAlign: 'center', // 중앙 정렬 고정
                 display: 'flex',
                 justifyContent: 'center',
@@ -245,7 +245,7 @@ const ProblemViewer = memo(
 
     if (loading || !problem) {
       return (
-        <Container sx={{ py: 4 }}>
+        <Container maxWidth='md' sx={{ py: 4 }}>
           <Box display='flex' justifyContent='center' alignItems='center' minHeight='400px'>
             <CircularProgress size={60} />
           </Box>
@@ -254,13 +254,14 @@ const ProblemViewer = memo(
     }
 
     return (
-      <Container maxWidth={false} disableGutters sx={{ p: 0 }}>
+      <Container maxWidth='md' sx={{ py: 4 }}>
         <Paper
+          elevation={3}
           sx={{
-            p: '2rem',
+            p: 4,
             backgroundColor: 'white',
             borderRadius: 3,
-            boxShadow: 0,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
           }}>
           <Box sx={{ lineHeight: 2, fontSize: '1.1rem' }}>
             {problem.blocks && problem.blocks.length > 0 ? (

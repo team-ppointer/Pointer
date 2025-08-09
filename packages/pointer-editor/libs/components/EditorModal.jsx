@@ -1,11 +1,13 @@
-import { useState, useCallback } from 'react';
-import { Box, Paper, Typography, Button, IconButton, Divider } from '@mui/material';
+import { useState, useCallback } from "react";
 import {
-  TextFields,
-  Image as ImageIcon,
-  Delete as DeleteIcon,
-  DragHandle as DragHandleIcon,
-} from '@mui/icons-material';
+  Box,
+  Paper,
+  Typography,
+  Button,
+  IconButton,
+  Divider,
+} from "@mui/material";
+import { TextFields, Image as ImageIcon } from "@mui/icons-material";
 import {
   DndContext,
   closestCenter,
@@ -13,23 +15,32 @@ import {
   useSensor,
   useSensors,
   KeyboardSensor,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
   sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import DragHandleIcon from "../assets/DragHandleIcon";
+import DeleteIcon from "../assets/DeleteIcon";
 
-import TextBlockEditor from './editor/text-block/TextBlockEditor';
-import ImageBlockEditor from './editor/image-block/ImageBlockEditor';
-import ProblemViewer from './viewer/ProblemViewer';
+import TextBlockEditor from "./editor/text-block/TextBlockEditor";
+import ImageBlockEditor from "./editor/image-block/ImageBlockEditor";
+import ProblemViewer from "./viewer/ProblemViewer";
 
 // 개별 블럭 에디터 (드래그 가능)
 function SortableBlock({ id, block, onUpdate, onDelete }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id,
   });
   const style = {
@@ -41,7 +52,7 @@ function SortableBlock({ id, block, onUpdate, onDelete }) {
   // 블록 데이터를 Context 형식에 맞게 변환
   const blockForEditor = {
     ...block,
-    content: block.data || block.content || '',
+    content: block.data || block.content || "",
     serverBlockId: block.id,
   };
 
@@ -52,35 +63,65 @@ function SortableBlock({ id, block, onUpdate, onDelete }) {
       sx={{
         mb: 2,
         p: 2,
-        position: 'relative',
-        border: isDragging ? '2px dashed #1976d2' : '1px solid #e0e0e0',
-      }}>
-      <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 1, zIndex: 1000 }}>
-        <IconButton size='small' {...attributes} {...listeners}>
+        position: "relative",
+        border: isDragging ? "2px dashed #1976d2" : "1px solid #e0e0e0",
+      }}
+    >
+      <Typography
+        sx={{
+          fontFamily: "Pretendard",
+          fontWeight: 700,
+          fontStyle: "normal",
+          fontSize: "14px",
+          lineHeight: "150%",
+          letterSpacing: "0%",
+          top: 8,
+        }}
+      >
+        텍스트 블록
+      </Typography>
+      <Box
+        sx={{
+          position: "absolute",
+          top: 8,
+          right: 8,
+          display: "flex",
+          zIndex: 1000,
+        }}
+      >
+        <IconButton {...attributes} {...listeners}>
           <DragHandleIcon />
         </IconButton>
-        <IconButton size='small' onClick={() => onDelete(id)} color='error'>
+        <IconButton size="small" onClick={() => onDelete(id)} color="error">
           <DeleteIcon />
         </IconButton>
       </Box>
       <Box sx={{ pt: 4 }}>
-        {block.type === 'TEXT' ? (
+        {block.type === "TEXT" ? (
           <TextBlockEditor
             initialData={blockForEditor}
             onChange={(data) =>
-              onUpdate(id, { ...block, data: data.content || data.data || '', style: data.style })
+              onUpdate(id, {
+                ...block,
+                data: data.content || data.data || "",
+                style: data.style,
+              })
             }
             blockId={id}
-            problemId='modal'
+            problemId="modal"
           />
-        ) : block.type === 'IMAGE' ? (
+        ) : block.type === "IMAGE" ? (
           <ImageBlockEditor
             initialData={blockForEditor}
             onChange={(data) =>
-              onUpdate(id, { ...block, data: data.content || data.data || '', style: data.style })
+              onUpdate(id, {
+                ...block,
+                data: data.content || data.data || "",
+                style: data.style,
+              })
             }
             blockId={id}
-            problemId='modal'
+            problemId="modal"
           />
         ) : null}
       </Box>
@@ -103,13 +144,24 @@ function LocalDraggableBlockEditor({ blocks, setBlocks }) {
         id: Date.now() + Math.random(),
         isNew: true,
         type,
-        data: '',
+        data: "",
         style:
-          type === 'TEXT' ? 'text-align: left; padding: 16px;' : 'text-align: center; width: 50%;',
+          type === "TEXT"
+            ? "text-align: left; padding: 16px;"
+            : "text-align: center; width: 50%;",
         rank: blocks.length,
       };
       setBlocks((prev) => [...prev, newBlock]);
       setAnchorEl(null);
+
+      setTimeout(() => {
+        const scrollContainer = document.querySelector(
+          '[data-scroll-container="block-editor"]'
+        );
+        if (scrollContainer) {
+          scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }
+      }, 100);
     },
     [setBlocks, blocks.length]
   );
@@ -171,50 +223,90 @@ function LocalDraggableBlockEditor({ blocks, setBlocks }) {
   return (
     <Box
       sx={{
-        p: 2,
-        minHeight: 500,
-        background: '#fafbfc',
-        borderRadius: 3,
-        border: '1px solid #eee',
-        height: '100%',
-      }}>
-      <Typography variant='h6' sx={{ mb: 2 }}>
-        블록 추가
-      </Typography>
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-        <Button
-          variant='outlined'
-          startIcon={<TextFields />}
-          onClick={() => handleAddBlock('TEXT')}>
-          텍스트 블록 추가
-        </Button>
-        <Button
-          variant='contained'
-          startIcon={<ImageIcon />}
-          onClick={() => handleAddBlock('IMAGE')}>
-          이미지 블록 추가
-        </Button>
-      </Box>
-      <Divider sx={{ mb: 2 }} />
-      {blocks.length === 0 ? (
-        <Typography color='text.secondary' align='center' sx={{ mt: 10 }}>
-          블록을 추가해주세요
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* 고정 헤더 영역 */}
+      <Box
+        sx={{
+          p: 3,
+          pb: 0,
+          flexShrink: 0, // 이 영역은 줄어들지 않음
+        }}
+      >
+        <Typography
+          sx={{
+            fontFamily: "Inter",
+            fontWeight: 700,
+            fontStyle: "normal",
+            fontSize: "20px",
+            lineHeight: "150%",
+            letterSpacing: "0%",
+            color: "#1E1E21",
+            marginBottom: "15px",
+          }}
+        >
+          블록 추가
         </Typography>
-      ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={blockIds} strategy={verticalListSortingStrategy}>
-            {blocks.map((block) => (
-              <SortableBlock
-                key={block.id}
-                id={block.id}
-                block={block}
-                onUpdate={handleUpdateBlock}
-                onDelete={handleDeleteBlock}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
-      )}
+
+        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<TextFields />}
+            onClick={() => handleAddBlock("TEXT")}
+          >
+            텍스트 블록 추가
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<ImageIcon />}
+            onClick={() => handleAddBlock("IMAGE")}
+          >
+            이미지 블록 추가
+          </Button>
+        </Box>
+        <Divider />
+      </Box>
+
+      {/* 스크롤 가능한 콘텐츠 영역 */}
+      <Box
+        data-scroll-container="block-editor"
+        sx={{
+          flex: 1,
+          overflow: "auto",
+          p: 3,
+          pt: 2,
+        }}
+      >
+        {blocks.length === 0 ? (
+          <Typography color="text.secondary" align="center" sx={{ mt: 10 }}>
+            블록을 추가해주세요
+          </Typography>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={blockIds}
+              strategy={verticalListSortingStrategy}
+            >
+              {blocks.map((block) => (
+                <SortableBlock
+                  key={block.id}
+                  id={block.id}
+                  block={block}
+                  onUpdate={handleUpdateBlock}
+                  onDelete={handleDeleteBlock}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        )}
+      </Box>
     </Box>
   );
 }
@@ -233,7 +325,7 @@ function EditorModal({ blocks, onClose, onSave }) {
   const problem = {
     blocks: internalBlocks.map((block) => ({
       ...block,
-      content: block.data || block.content || '',
+      content: block.data || block.content || "",
     })),
   };
 
@@ -259,61 +351,85 @@ function EditorModal({ blocks, onClose, onSave }) {
   return (
     <Box
       sx={{
-        width: '100vw',
-        height: '100vh',
-        position: 'fixed',
+        width: "100vw",
+        height: "100vh",
+        position: "fixed",
         top: 0,
         left: 0,
-        bgcolor: 'rgba(0,0,0,0.08)',
+        bgcolor: "rgba(0,0,0,0.08)",
         zIndex: 2000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Paper
         sx={{
-          width: '90vw',
-          height: '90vh',
+          width: "90vw",
+          height: "90vh",
           p: 4,
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column",
           gap: 2,
-        }}>
-        <Typography variant='h5' sx={{ mb: 2 }}>
+        }}
+      >
+        <Typography variant="h5" sx={{ mb: 2 }}>
           문제 입력
         </Typography>
-        <Box sx={{ display: 'flex', gap: 4, flex: 1, minHeight: 0 }}>
+        <Box sx={{ display: "flex", gap: 4, flex: 1, minHeight: 0 }}>
           {/* 좌측: 블럭 에디터 */}
           <Box
             sx={{
               flex: 1,
               minWidth: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%',
-              overflow: 'auto',
-            }}>
-            <LocalDraggableBlockEditor blocks={internalBlocks} setBlocks={setInternalBlocks} />
+              width: "47%",
+              height: "75vh",
+              flexDirection: "column",
+              overflow: "auto",
+              bgcolor: "#f7f7f7",
+              borderRadius: 3,
+            }}
+          >
+            <LocalDraggableBlockEditor
+              blocks={internalBlocks}
+              setBlocks={setInternalBlocks}
+            />
           </Box>
           {/* 우측: 미리보기 */}
           <Box
             sx={{
-              flex: 1.5,
-              minWidth: 0,
-              bgcolor: '#f7f7f7',
+              width: "47%",
+              height: "69vh",
+              bgcolor: "#f7f7f7",
               borderRadius: 3,
               p: 3,
-              overflow: 'auto',
-              height: '100%',
-            }}>
+              overflow: "auto",
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: "Inter",
+                fontWeight: 700,
+                fontStyle: "normal",
+                fontSize: "20px",
+                lineHeight: "150%",
+                letterSpacing: "0%",
+                color: "#1E1E21",
+                marginBottom: "15px",
+              }}
+            >
+              미리보기
+            </Typography>
             <ProblemViewer problem={problem} />
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-          <Button variant='outlined' onClick={onClose}>
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}
+        >
+          <Button variant="outlined" onClick={onClose}>
             취소
           </Button>
-          <Button variant='contained' color='primary' onClick={handleSave}>
+          <Button variant="contained" color="primary" onClick={handleSave}>
             저장
           </Button>
         </Box>
