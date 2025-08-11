@@ -52,48 +52,50 @@ function RouteComponent() {
   };
 
   return (
-    <div className='flex h-[100dvh] flex-col items-center justify-center'>
-      <img src='/images/logo.png' alt='로고이미지' className='h-[6rem]' />
-      <form
-        onSubmit={handleSubmit(onSubmitLogin)}
-        className='mt-1200 flex w-[42.4rem] flex-col items-start justify-center gap-1200'>
-        <SearchInput
-          label='아이디'
-          sizeType='long'
-          placeholder='이메일을 입력해주세요'
-          type='text'
-          autoComplete='username'
-          {...register('email', {
-            required: true,
-          })}
-        />
-        <div>
+    <div className='flex h-[100dvh] w-[100dvw] items-center justify-center'>
+      <div className='flex w-full max-w-[42.4rem] flex-col items-center px-600'>
+        <img src='/images/logo.png' alt='로고이미지' className='aspect-auto max-h-[6rem]' />
+        <form
+          onSubmit={handleSubmit(onSubmitLogin)}
+          className='mt-1200 flex w-full flex-col items-start justify-center gap-1200'>
           <SearchInput
-            label='비밀번호'
-            sizeType='long'
-            placeholder='비밀번호를 입력해주세요'
-            type='password'
-            autoComplete='current-password'
-            lang='en'
-            inputMode='text'
-            {...register('password', {
+            label='아이디'
+            sizeType='full'
+            placeholder='이메일을 입력해주세요'
+            type='text'
+            autoComplete='username'
+            {...register('email', {
               required: true,
-              pattern: {
-                value: /^[A-Za-z0-9]*$/,
-                message: '비밀번호는 영문자와 숫자만 입력 가능합니다.',
-              },
             })}
           />
-          {errors.password && (
-            <p className='font-medium-16 text-red mt-[1.2rem]' role='alert'>
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-        <Button sizeType='full' variant='dark'>
-          로그인
-        </Button>
-      </form>
+          <div className='w-full'>
+            <SearchInput
+              label='비밀번호'
+              sizeType='full'
+              placeholder='비밀번호를 입력해주세요'
+              type='password'
+              autoComplete='current-password'
+              lang='en'
+              inputMode='text'
+              {...register('password', {
+                required: true,
+                pattern: {
+                  value: /^[A-Za-z0-9]*$/,
+                  message: '비밀번호는 영문자와 숫자만 입력 가능합니다.',
+                },
+              })}
+            />
+            {errors.password && (
+              <p className='font-medium-16 text-red mt-[1.2rem]' role='alert'>
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+          <Button sizeType='full' variant='dark'>
+            로그인
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
