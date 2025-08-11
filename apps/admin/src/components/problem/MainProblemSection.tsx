@@ -127,13 +127,13 @@ export const MainProblemSection = ({
   return (
     <SectionCard>
       <h3 className='font-bold-32 mb-12 text-black'>메인 문제 등록</h3>
-      <div className='flex flex-col gap-[3.2rem]'>
+      <div className='flex flex-col gap-800'>
         <ComponentWithLabel label='메인 문제 타이틀 입력' labelWidth='15.4rem'>
           <Input {...register('title')} />
         </ComponentWithLabel>
         {concepts !== undefined && onRemoveTag && onOpenTagModal && (
           <ComponentWithLabel label='메인 문제 개념 태그' labelWidth='15.4rem'>
-            <div className='flex flex-wrap gap-[0.8rem]'>
+            <div className='flex flex-wrap gap-200'>
               {concepts &&
                 concepts?.length > 0 &&
                 concepts.map((tag) => (
@@ -176,10 +176,10 @@ export const MainProblemSection = ({
           </ComponentWithLabel>
           <div>
             <ComponentWithLabel label='권장 시간 입력'>
-              <div className='flex gap-[2.4rem]'>
-                <div className='flex items-center gap-[1.6rem]'>
+              <div className='flex gap-600'>
+                <div className='flex items-center gap-400'>
                   <input
-                    className='font-bold-18 border-lightgray500 h-[5.6rem] w-[5.6rem] rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]'
+                    className='font-bold-18 border-lightgray500 rounded-400 h-[5.6rem] w-[5.6rem] border bg-white px-400 py-200'
                     {...register('recommendedTimeSec', {
                       valueAsNumber: true,
                     })}
@@ -202,7 +202,7 @@ export const MainProblemSection = ({
           </Button>
         </ComponentWithLabel>
 
-        <div className='grid grid-cols-2 gap-[4.8rem]'>
+        <div className='grid grid-cols-2 gap-1200'>
           <div>
             <ComponentWithLabel label='메인 문제 분석 선택' direction='column'>
               <Controller

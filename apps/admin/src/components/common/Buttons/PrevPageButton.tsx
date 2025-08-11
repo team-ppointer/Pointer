@@ -7,7 +7,7 @@ const PrevPageButton = ({ ...props }: ButtonHTMLAttributes<HTMLButtonElement>) =
   return (
     <button
       type='button'
-      className='bg-darkgray100 flex h-[3.6rem] w-[15rem] items-center justify-center gap-[1.2rem] rounded-[4px] text-white'
+      className='bg-darkgray100 rounded-100 flex h-[3.6rem] w-[15rem] items-center justify-center gap-300 text-white'
       onClick={goBack}
       {...props}>
       <IcLeftSm width={8} height={16} />

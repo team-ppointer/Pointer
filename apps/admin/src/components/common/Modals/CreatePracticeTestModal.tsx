@@ -48,10 +48,10 @@ const CreatePracticeTestModal = ({ onClose }: Props) => {
 
   return (
     <>
-      <div className='w-[80dvw] px-[6.4rem] py-[4.8rem]'>
+      <div className='w-[80dvw] px-1600 py-1200'>
         <h2 className='font-bold-24 text-black'>모의고사 새로 추가</h2>
-        <form className='mt-16 flex gap-[3.2rem]' onSubmit={handleSubmit(onSubmit)}>
-          <div className='flex w-[90rem] items-center gap-[1.2rem]'>
+        <form className='mt-16 flex gap-800' onSubmit={handleSubmit(onSubmit)}>
+          <div className='flex w-[90rem] items-center gap-300'>
             <Input
               {...register('year', {
                 required: '년도를 입력해주세요.',
@@ -64,7 +64,7 @@ const CreatePracticeTestModal = ({ onClose }: Props) => {
             />
             <span className='font-medium-18 break-keep text-black'>년도</span>
           </div>
-          <div className='flex w-[90rem] items-center gap-[1.2rem]'>
+          <div className='flex w-[90rem] items-center gap-300'>
             <Input
               {...register('grade', {
                 required: '학년을 입력해주세요.',
@@ -77,7 +77,7 @@ const CreatePracticeTestModal = ({ onClose }: Props) => {
             />
             <span className='font-medium-18 break-keep text-black'>학년</span>
           </div>
-          <div className='flex w-[90rem] items-center gap-[1.2rem]'>
+          <div className='flex w-[90rem] items-center gap-300'>
             <Input
               {...register('month', {
                 required: '월을 입력해주세요.',
@@ -110,7 +110,7 @@ const CreatePracticeTestModal = ({ onClose }: Props) => {
           </div>
         )}
 
-        <div className='mt-[5.6rem] flex justify-end gap-[1.6rem]'>
+        <div className='mt-[5.6rem] flex justify-end gap-400'>
           <Button type='button' variant='light' onClick={onClose} disabled={isPending}>
             취소
           </Button>

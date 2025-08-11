@@ -97,9 +97,9 @@ function RouteComponent() {
       />
       <Header title='세트 검색' description={`${year}/${month}/${day} 발행`} />
       <form
-        className='mt-[4.8rem] flex items-end justify-between'
+        className='mt-1200 flex items-end justify-between'
         onSubmit={handleSubmit(handleClickSearch)}>
-        <div className='flex gap-[2.4rem]'>
+        <div className='flex gap-600'>
           <SearchInput
             sizeType='long'
             label='세트 타이틀'
@@ -113,14 +113,14 @@ function RouteComponent() {
             {...register('problemTitle', { required: false })}
           />
         </div>
-        <div className='flex gap-[1.6rem]'>
+        <div className='flex gap-400'>
           <Button variant='light' type='reset' onClick={handleResetQuery}>
             초기화
           </Button>
           <Button variant='dark'>검색</Button>
         </div>
       </form>
-      <div className='mt-[6.4rem] flex flex-col gap-[4.8rem]'>
+      <div className='mt-1600 flex flex-col gap-1200'>
         {problemSetList?.data.map((problemSet) => (
           <Link
             key={problemSet.id}
@@ -131,7 +131,7 @@ function RouteComponent() {
             <SectionCard isSelected={selectedSetId === problemSet.id}>
               <div className='flex items-center justify-between'>
                 <h2 className='font-bold-24 text-black'>{problemSet.title}</h2>
-                <div className='flex gap-[1.6rem]'>
+                <div className='flex gap-400'>
                   <IconButton
                     variant={selectedSetId === problemSet.id ? 'select' : 'unselected'}
                     onClick={(e) => {
@@ -142,7 +142,7 @@ function RouteComponent() {
                   <IconButton variant='right' />
                 </div>
               </div>
-              <div className='mt-[3.2rem] flex gap-[2.4rem] overflow-auto'>
+              <div className='mt-800 flex gap-600 overflow-auto'>
                 {problemSet.problems.map((problem, index) => {
                   const mainProblemImageUrl = problem.problem.problemContent?.blocks?.find(
                     (block) => block.type === 'IMAGE'

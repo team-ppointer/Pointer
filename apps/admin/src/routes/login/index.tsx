@@ -56,7 +56,7 @@ function RouteComponent() {
       <img src='/images/logo.png' alt='로고이미지' className='h-[6rem]' />
       <form
         onSubmit={handleSubmit(onSubmitLogin)}
-        className='mt-[4.8rem] flex w-[42.4rem] flex-col items-start justify-center gap-[4.8rem]'>
+        className='mt-1200 flex w-[42.4rem] flex-col items-start justify-center gap-1200'>
         <SearchInput
           label='아이디'
           sizeType='long'

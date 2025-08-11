@@ -12,7 +12,7 @@ const GNBMenu = ({ isSelected, children }: GNBMenuProps) => {
 
   return (
     <div
-      className={`font-medium-18 flex h-[4.8rem] w-full items-center justify-start gap-[1.6rem] ${bgStyles} rounded-[8px] px-[1.6rem] py-[1.2rem] text-white`}>
+      className={`font-medium-18 flex h-[4.8rem] w-full items-center justify-start gap-400 ${bgStyles} rounded-200 px-400 py-300 text-white`}>
       {children}
     </div>
   );
@@ -20,8 +20,8 @@ const GNBMenu = ({ isSelected, children }: GNBMenuProps) => {
 
 const GNB = () => {
   return (
-    <div className='bg-darkgray100 fixed top-0 z-40 min-h-[100dvh] w-[24rem] px-[1.5rem] pt-[3.2rem]'>
-      <div className='mb-[3.2rem]'>
+    <div className='bg-darkgray100 fixed top-0 z-40 min-h-[100dvh] w-[24rem] px-400 pt-800'>
+      <div className='mb-800'>
         <img src='/images/logo.png' alt='로고이미지' className='mx-[0.8rem] h-[3.2rem]' />
       </div>
       <nav>

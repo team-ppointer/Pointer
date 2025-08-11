@@ -24,7 +24,7 @@ const ProblemTypeList: ProblemType[] = Object.keys(ProblemTypeName) as ProblemTy
 
 const ProblemEssentialInput = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='mt-[4.8rem]'>
+    <div className='mt-1200'>
       <SectionCard>{children}</SectionCard>
     </div>
   );
@@ -34,7 +34,7 @@ const ProblemTypeSection = ({ problemType, handleChangeType }: ProblemTypeSectio
   return (
     <div className='flex items-center justify-between'>
       <h3 className='font-bold-32'>필수 입력 항목</h3>
-      <div className='flex items-center gap-[0.8rem]'>
+      <div className='flex items-center gap-200'>
         {ProblemTypeList.map((type) => (
           <Button
             key={type}
@@ -51,8 +51,8 @@ const ProblemTypeSection = ({ problemType, handleChangeType }: ProblemTypeSectio
 
 const PracticeTestSection = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='mt-[3.2rem]'>
-      <div className='flex h-fit w-full items-center gap-[4.8rem]'>{children}</div>
+    <div className='mt-800'>
+      <div className='flex h-fit w-full items-center gap-1200'>{children}</div>
     </div>
   );
 };

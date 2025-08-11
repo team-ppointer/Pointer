@@ -8,7 +8,7 @@ interface SectionCardProps {
 const SectionCard = ({ children, isSelected }: SectionCardProps) => {
   return (
     <section
-      className={`w-full rounded-[1.6rem] border bg-white p-[3.2rem] ${isSelected ? 'border-2 border-black' : 'border-lightgray500'}`}>
+      className={`rounded-400 w-full border bg-white p-800 ${isSelected ? 'border-2 border-black' : 'border-lightgray500'}`}>
       {children}
     </section>
   );

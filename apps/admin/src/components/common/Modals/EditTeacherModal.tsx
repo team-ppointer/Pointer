@@ -143,9 +143,9 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
 
   if (!teacher) {
     return (
-      <div className='w-4xl px-[6.4rem] py-[4.8rem]'>
+      <div className='w-4xl px-1600 py-1200'>
         <h2 className='font-bold-24 text-black'>새로운 아이디 등록</h2>
-        <form className='mt-16 flex flex-col gap-[3.2rem]' onSubmit={handleSubmit(onCreateSubmit)}>
+        <form className='mt-16 flex flex-col gap-800' onSubmit={handleSubmit(onCreateSubmit)}>
           <SearchInput
             sizeType='full'
             label='이름'
@@ -165,7 +165,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
             type='password'
             {...register('password', { required: '비밀번호는 필수입니다.' })}
           />
-          <div className='mt-[5.6rem] flex justify-end gap-[1.6rem]'>
+          <div className='mt-[5.6rem] flex justify-end gap-400'>
             <Button type='button' variant='light' onClick={onClose}>
               취소
             </Button>
@@ -180,9 +180,9 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
 
   return (
     <>
-      <div className='w-4xl px-[6.4rem] py-[4.8rem]'>
+      <div className='w-4xl px-1600 py-1200'>
         <h2 className='font-bold-24 text-black'>과외 선생 정보 수정</h2>
-        <form className='mt-16 flex flex-col gap-[3.2rem]' onSubmit={handleSubmit(onSubmit)}>
+        <form className='mt-16 flex flex-col gap-800' onSubmit={handleSubmit(onSubmit)}>
           <SearchInput
             sizeType='full'
             label='이름'
@@ -202,9 +202,9 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
             type='password'
             {...register('password')}
           />
-          <div className='flex flex-col gap-[1.2rem]'>
+          <div className='flex flex-col gap-300'>
             <span className='font-medium-18 text-black'>담당학생</span>
-            <div className='flex flex-wrap gap-[0.8rem]'>
+            <div className='flex flex-wrap gap-200'>
               {selectedStudents.map((student) => (
                 <Tag
                   key={student.id}
@@ -217,7 +217,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
               <Tag label='학생 추가하기' color='lightgray' onClick={openModal} />
             </div>
           </div>
-          <div className='mt-[5.6rem] flex justify-end gap-[1.6rem]'>
+          <div className='mt-[5.6rem] flex justify-end gap-400'>
             <Button type='button' variant='light' onClick={onClose}>
               취소
             </Button>

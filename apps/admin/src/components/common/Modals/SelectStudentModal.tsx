@@ -16,9 +16,9 @@ const SelectStudentModal = ({ students, selectedStudent, setSelectedStudent, onA
   };
 
   return (
-    <div className='w-[50dvw] px-[6.4rem] py-[4.8rem]'>
+    <div className='w-[50dvw] px-1600 py-1200'>
       <h2 className='font-bold-24 text-black'>학생 선택</h2>
-      <div className='mt-[3.2rem] grid grid-cols-6 gap-[1.6rem]'>
+      <div className='mt-800 grid grid-cols-6 gap-400'>
         {students.map((student) => (
           <Button
             key={student.id}

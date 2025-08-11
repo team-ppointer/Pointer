@@ -27,9 +27,9 @@ const NoticeListModal = ({ selectedStudent, onClose }: Props) => {
 
   if (!selectedStudent) {
     return (
-      <div className='w-[70dvw] p-[3.2rem]'>
-        <h2 className='font-bold-24 mb-[2.4rem] text-black'>공지 목록</h2>
-        <p className='font-medium-16 text-lightgray500 mb-[2.4rem]'>
+      <div className='w-[70dvw] p-800'>
+        <h2 className='font-bold-24 mb-600 text-black'>공지 목록</h2>
+        <p className='font-medium-16 text-lightgray500 mb-600'>
           공지를 확인하려면 먼저 학생을 선택해주세요.
         </p>
         <div className='flex justify-end'>
@@ -42,21 +42,21 @@ const NoticeListModal = ({ selectedStudent, onClose }: Props) => {
   }
 
   return (
-    <div className='w-[70dvw] p-[3.2rem]'>
-      <h2 className='font-bold-24 mb-[2.4rem] text-black'>공지 목록</h2>
+    <div className='w-[70dvw] p-800'>
+      <h2 className='font-bold-24 mb-600 text-black'>공지 목록</h2>
 
       <div className='max-h-[50rem] overflow-y-auto'>
         {notices.length === 0 ? (
-          <div className='bg-lightgray100 flex h-[20rem] items-center justify-center rounded-[0.8rem]'>
+          <div className='bg-lightgray100 rounded-200 flex h-[20rem] items-center justify-center'>
             <p className='font-medium-16 text-lightgray500'>등록된 공지가 없습니다.</p>
           </div>
         ) : (
-          <div className='grid grid-cols-2 gap-[0.8rem]'>
-            <div className='bg-lightgray100 space-y-[1.2rem] rounded-[1.6rem] p-[3.2rem]'>
+          <div className='grid grid-cols-2 gap-200'>
+            <div className='bg-lightgray100 rounded-400 space-y-300 p-800'>
               {notices.map((notice) => (
                 <div
                   key={notice.id}
-                  className={`flex cursor-pointer items-center gap-[1.6rem] rounded-[0.8rem] bg-white px-[1.6rem] py-[0.8rem] ${
+                  className={`rounded-200 flex cursor-pointer items-center gap-400 bg-white px-400 py-200 ${
                     selectedNotice?.id === notice.id
                       ? 'border-lightgray500 border'
                       : 'border border-transparent'
@@ -71,7 +71,7 @@ const NoticeListModal = ({ selectedStudent, onClose }: Props) => {
                 </div>
               ))}
             </div>
-            <div className='bg-lightgray100 rounded-[1.6rem] p-[3.2rem]'>
+            <div className='bg-lightgray100 rounded-400 p-800'>
               {selectedNotice ? (
                 <div className='font-medium-16 text-black'>{selectedNotice.content}</div>
               ) : (
@@ -84,7 +84,7 @@ const NoticeListModal = ({ selectedStudent, onClose }: Props) => {
         )}
       </div>
 
-      <div className='mt-[2.4rem] flex justify-end pt-[2.4rem]'>
+      <div className='mt-600 flex justify-end pt-600'>
         <Button variant='dark' onClick={onClose}>
           완료
         </Button>

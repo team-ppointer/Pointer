@@ -126,11 +126,11 @@ const ImageUpload = ({
   });
 
   return (
-    <div className='gap[2.4rem] flex w-full flex-col'>
+    <div className='flex w-full flex-col gap-600'>
       {displayImageUrl ? (
-        <div className='relative h-[54.3rem] w-full overflow-hidden rounded-[1.6rem]'>
+        <div className='rounded-400 relative h-[54.3rem] w-full overflow-hidden'>
           <img src={displayImageUrl} alt='upload-image' className='h-full w-full object-contain' />
-          <div className='absolute right-[1.6rem] bottom-[1.6rem] z-30 flex items-center gap-[1rem]'>
+          <div className='absolute right-400 bottom-400 z-30 flex items-center gap-200'>
             <IconButton variant='view' onClick={openViewModal} />
             <IconButton variant='delete' onClick={openDeleteModal} />
           </div>
@@ -138,10 +138,10 @@ const ImageUpload = ({
       ) : (
         <div
           {...getRootProps()}
-          className={`dropzone bg-background flex h-[54.3rem] cursor-pointer items-center justify-center rounded-[1.6rem] ${isDragActive ? 'active-dropzone' : ''}`}>
+          className={`dropzone bg-background rounded-400 flex h-[54.3rem] cursor-pointer items-center justify-center ${isDragActive ? 'active-dropzone' : ''}`}>
           <input {...getInputProps()} />
           <div
-            className={`flex h-full w-full flex-col items-center justify-center gap-[1.2rem] rounded-[1.6rem] ${isDragActive && 'outline-darkgray100 border-[0.4rem] border-dashed'}`}>
+            className={`rounded-400 flex h-full w-full flex-col items-center justify-center gap-300 ${isDragActive && 'outline-darkgray100 border-100 border-dashed'}`}>
             <IcUpload width={24} height={24} />
             <p className='font-medium-16 text-lightgray500'>
               여기로 이미지를 드래그하거나 파일을 업로드 하세요.

@@ -47,9 +47,9 @@ const CreateNoticeModal = ({ selectedStudent, onClose }: Props) => {
 
   if (!selectedStudent) {
     return (
-      <div className='w-[52rem] p-[3.2rem]'>
-        <h2 className='font-bold-24 mb-[2.4rem] text-black'>공지 작성</h2>
-        <p className='font-medium-16 text-lightgray500 mb-[2.4rem]'>
+      <div className='w-[52rem] p-800'>
+        <h2 className='font-bold-24 mb-600 text-black'>공지 작성</h2>
+        <p className='font-medium-16 text-lightgray500 mb-600'>
           공지를 작성하려면 먼저 학생을 선택해주세요.
         </p>
         <div className='flex justify-end'>
@@ -62,17 +62,11 @@ const CreateNoticeModal = ({ selectedStudent, onClose }: Props) => {
   }
 
   return (
-    <div className='w-[70dvw] p-[3.2rem]'>
-      <h2 className='font-bold-24 mb-[2.4rem] text-black'>공지 작성</h2>
-
-      {/* <div className='bg-lightgray100 mb-[2.4rem] rounded-[0.8rem] p-[1.6rem]'>
-        <p className='font-medium-14 text-lightgray600 mb-[0.4rem]'>공지 대상</p>
-        <p className='font-bold-16 text-black'>{selectedStudent.name}</p>
-      </div> */}
-
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-[2.4rem]'>
-        <div className='grid grid-cols-2 gap-[1.6rem]'>
-          <div className='flex flex-col gap-[1.6rem]'>
+    <div className='w-[70dvw] p-800'>
+      <h2 className='font-bold-24 mb-600 text-black'>공지 작성</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-600'>
+        <div className='grid grid-cols-2 gap-400'>
+          <div className='flex flex-col gap-400'>
             달력 컴포넌트까지 만들기엔 시간이 모자라서 일단 input으로 대체합니다...
             <ComponentWithLabel label='공지 시작일' isRequired>
               <Input
@@ -108,19 +102,19 @@ const CreateNoticeModal = ({ selectedStudent, onClose }: Props) => {
                 required: '공지 내용을 입력해주세요.',
               })}
               placeholder='여기에 공지를 작성해주세요.'
-              className={`font-medium-16 bg-lightgray100 h-full w-full resize-none rounded-[1.6rem] p-[3.2rem] ${
+              className={`font-medium-16 bg-lightgray100 rounded-400 h-full w-full resize-none p-800 ${
                 errors.content
                   ? 'border-red focus:border-red'
                   : 'border-lightgray300 focus:border-black'
               }`}
             />
             {errors.content && (
-              <p className='font-medium-14 text-red mt-[0.8rem]'>{errors.content.message}</p>
+              <p className='font-medium-14 text-red mt-200'>{errors.content.message}</p>
             )}
           </div>
         </div>
 
-        <div className='flex justify-end gap-[1.6rem] pt-[2.4rem]'>
+        <div className='flex justify-end gap-400 pt-600'>
           {/* <Button variant='light' onClick={onClose}>
             취소
           </Button> */}

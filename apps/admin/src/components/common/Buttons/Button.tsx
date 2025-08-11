@@ -17,12 +17,12 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const baseStyles =
-    'rounded-[8px] font-medium-18 flex items-center justify-center whitespace-nowrap break-keep';
+    'rounded-200 font-medium-18 flex items-center justify-center whitespace-nowrap break-keep';
 
   const sizeStyles = {
     short: 'min-w-[12rem] w-[12rem] h-[5.6rem]',
     long: 'min-w-[34.8rem] w-[34.8rem] h-[5.6rem]',
-    fit: 'w-fit h-[5.6rem] px-[1.6rem]',
+    fit: 'w-fit h-[5.6rem] px-400',
     full: 'w-full h-[5.6rem]',
   };
 

@@ -78,7 +78,7 @@ export const TipSection = ({ setValue, fetchedProblemData }: TipSectionProps) =>
     <SectionCard>
       <h6 className='font-bold-32 text-black'>TIP</h6>
 
-      <div className='grid grid-cols-2 gap-[4.8rem]'>
+      <div className='grid grid-cols-2 gap-1200'>
         <div>
           <ComponentWithLabel label='문제를 읽어내려갈 때' labelWidth='15.4rem' direction='column'>
             <Button

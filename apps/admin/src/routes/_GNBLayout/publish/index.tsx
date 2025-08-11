@@ -193,7 +193,7 @@ function RouteComponent() {
     <>
       <div className='w-full'>
         <div className='mb-[7.4rem] flex items-center justify-between'>
-          <div className='flex items-center gap-[1.6rem]'>
+          <div className='flex items-center gap-400'>
             <h2
               className={`font-bold-32 cursor-pointer ${
                 selectedStudent ? 'text-black' : 'text-lightgray500'
@@ -202,14 +202,14 @@ function RouteComponent() {
             </h2>
             <IconButton variant='right' onClick={openSelectStudentModal} />
           </div>
-          <div className='flex items-center justify-center gap-[4.8rem]'>
+          <div className='flex items-center justify-center gap-1200'>
             <IconButton variant='left' onClick={handleClickPrevMonth} />
             <h2 className='font-bold-32 cursor-pointer' onClick={handleClickCurrentMonth}>
               {currentMonth.format('YYYY년 M월')}
             </h2>
             <IconButton variant='right' onClick={handleClickNextMonth} />
           </div>
-          <div className='flex items-center gap-[1.6rem]'>
+          <div className='flex items-center gap-400'>
             <Button variant='light' onClick={openNoticeListModal}>
               공지 목록
             </Button>
@@ -229,9 +229,9 @@ function RouteComponent() {
           ))}
         </div>
 
-        <div className='grid grid-cols-7 gap-[0.8rem]'>
+        <div className='grid grid-cols-7 gap-200'>
           {Array.from({ length: firstDayOfMonth }).map((_, index) => {
-            return <div key={index} className='h-[15rem] rounded-[4px] bg-white'></div>;
+            return <div key={index} className='rounded-100 h-[15rem] bg-white'></div>;
           })}
 
           {daysArray.map((day) => {
@@ -255,7 +255,7 @@ function RouteComponent() {
           })}
 
           {Array.from({ length: 6 - lastDayOfMonth }).map((_, index) => {
-            return <div key={index} className='h-[15rem] rounded-[4px] bg-white'></div>;
+            return <div key={index} className='rounded-100 h-[15rem] bg-white'></div>;
           })}
         </div>
       </div>

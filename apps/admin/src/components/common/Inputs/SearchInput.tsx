@@ -14,12 +14,12 @@ const sizeStyles = {
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
   ({ sizeType = 'short', label, ...props }, ref) => {
     return (
-      <div className='flex flex-col gap-[1.2rem]'>
+      <div className='flex flex-col gap-300'>
         {label && <span className='font-medium-18 text-black'>{label}</span>}
         <div className={` ${sizeStyles[sizeType]}`}>
           <input
             ref={ref}
-            className='font-medium-18 placeholder:text-lightgray500 border-lightgray500 h-full w-full rounded-[16px] border bg-white px-[1.6rem] text-black'
+            className='font-medium-18 placeholder:text-lightgray500 border-lightgray500 rounded-400 h-full w-full border bg-white px-400 text-black'
             {...props}
           />
         </div>
