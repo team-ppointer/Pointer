@@ -12,10 +12,15 @@ const authMiddleware: Middleware = {
     let accessToken = tokenStorage.getToken();
 
     if (!accessToken) {
-      accessToken = await reissueToken();
+      try {
+        accessToken = await reissueToken();
 
-      if (!accessToken) {
-        console.error('Access token reissue failed. Logging out...');
+        if (!accessToken) {
+          console.error('Access token reissue failed. User needs to login again.');
+          return request;
+        }
+      } catch (error) {
+        console.error('Error during token reissue in middleware:', error);
         return request;
       }
     }
@@ -28,15 +33,20 @@ const authMiddleware: Middleware = {
     if (response.status === 401) {
       console.warn('Access token expired. Attempting reissue...');
 
-      const newAccessToken = await reissueToken();
+      try {
+        const newAccessToken = await reissueToken();
 
-      if (!newAccessToken) {
-        console.error('Reissue failed. Logging out...');
+        if (!newAccessToken) {
+          console.error('Token reissue failed. User needs to login again.');
+          return response;
+        }
+
+        request.headers.set('Authorization', `Bearer ${newAccessToken}`);
+        return fetch(request);
+      } catch (error) {
+        console.error('Error during token reissue in response handler:', error);
         return response;
       }
-
-      request.headers.set('Authorization', `Bearer ${newAccessToken}`);
-      return fetch(request);
     }
     return response;
   },

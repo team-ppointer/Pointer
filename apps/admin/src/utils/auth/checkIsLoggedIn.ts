@@ -8,7 +8,17 @@ export const checkIsLoggedIn = async (): Promise<boolean> => {
 
   // 액세스 토큰이 없으면 리프레시 토큰으로 재발급 시도
   if (!accessToken) {
-    accessToken = await reissueToken();
+    try {
+      accessToken = await reissueToken();
+
+      if (!accessToken) {
+        console.log('Token reissue failed, user needs to login again');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error during token reissue:', error);
+      return false;
+    }
   }
 
   return !!accessToken;
