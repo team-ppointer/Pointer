@@ -1,8 +1,10 @@
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { InputHTMLAttributes, forwardRef, useState } from 'react';
+import { IcPreviewButton } from '@svg';
 
 interface SearchInputProps extends InputHTMLAttributes<HTMLInputElement> {
   sizeType?: 'short' | 'long' | 'full';
   label?: string;
+  showPasswordToggle?: boolean;
 }
 
 const sizeStyles = {
@@ -12,16 +14,32 @@ const sizeStyles = {
 };
 
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ sizeType = 'short', label, ...props }, ref) => {
+  ({ sizeType = 'short', label, showPasswordToggle = false, type, ...props }, ref) => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+      setShowPassword(!showPassword);
+    };
+
+    const inputType =
+      showPasswordToggle && type === 'password' ? (showPassword ? 'text' : 'password') : type;
+
     return (
       <div className='flex flex-col gap-[1.2rem]'>
         {label && <span className='font-medium-18 text-black'>{label}</span>}
-        <div className={` ${sizeStyles[sizeType]}`}>
+        <div
+          className={`relative flex items-center ${sizeStyles[sizeType]} font-medium-18 border-lightgray500 rounded-[16px] border bg-white px-[1.6rem] text-black focus-within:outline-2 focus-within:outline-blue-500`}>
           <input
             ref={ref}
-            className='font-medium-18 placeholder:text-lightgray500 border-lightgray500 h-full w-full rounded-[16px] border bg-white px-[1.6rem] text-black'
+            type={inputType}
+            className='placeholder:text-lightgray500 h-full flex-1 focus:outline-none'
             {...props}
           />
+          {showPasswordToggle && type === 'password' && (
+            <button type='button' onClick={togglePasswordVisibility}>
+              <IcPreviewButton className='h-[3.6rem] w-[3.6rem]' />
+            </button>
+          )}
         </div>
       </div>
     );

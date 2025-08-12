@@ -164,6 +164,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
             label='비밀번호'
             placeholder='비밀번호를 입력해주세요.'
             type='password'
+            showPasswordToggle
             {...register('password', { required: '비밀번호는 필수입니다.' })}
           />
           <div className='mt-[5.6rem] flex justify-end gap-[1.6rem]'>
@@ -201,6 +202,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
             label='비밀번호'
             placeholder='새 비밀번호를 입력해주세요.'
             type='password'
+            showPasswordToggle
             {...register('password')}
           />
           <div className='flex flex-col gap-[1.2rem]'>
