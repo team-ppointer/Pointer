@@ -48,7 +48,7 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
   const { data: publishDetailData } = getPublishById({ id: publishId || 0 });
 
   const today = dayjs().startOf('day');
-  const isPast = dayjs(fullDate).isBefore(today, 'day');
+  // const isPast = dayjs(fullDate).isBefore(today, 'day');
   const isToday = dayjs(fullDate).isSame(today, 'day');
   const isSunday = dayOfWeek === 0;
   const isSaturday = dayOfWeek === 6;
@@ -116,7 +116,7 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
             <p className={`font-bold-18 h-full w-full text-black`}>{title}</p>
           </Link>
         ) : (
-          !isPast &&
+          // !isPast &&
           selectedStudent && (
             <Link
               to={`/publish/register/$publishDate/$studentId`}
