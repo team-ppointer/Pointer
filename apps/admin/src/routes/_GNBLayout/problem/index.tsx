@@ -111,7 +111,7 @@ function RouteComponent() {
     <>
       <Header title='문항 목록' />
       <form
-        className='mt-1200 flex items-end justify-between'
+        className='mt-1200 flex items-end justify-between gap-400'
         onSubmit={handleSubmit(handleClickSearch)}>
         <div className='flex gap-600'>
           <SearchInput
@@ -125,14 +125,16 @@ function RouteComponent() {
             placeholder='입력해주세요.'
             {...register('title', { required: false })}
           />
-          <div className='flex flex-col gap-300'>
+          <div className='flex w-full flex-col gap-300'>
             <span className='font-medium-18 text-black'>문항 개념 태그</span>
             <div
-              className='border-lightgray500 rounded-400 flex h-[5.6rem] w-[42.4rem] cursor-pointer items-center justify-between border bg-white px-400 py-200'
+              className='border-lightgray500 rounded-400 flex h-[5.6rem] w-full max-w-[42.4rem] cursor-pointer items-center justify-between border bg-white px-400 py-200'
               onClick={() => {
                 openModal();
               }}>
-              <span className='text-lightgray500 font-medium-18'>선택해주세요</span>
+              <span className='text-lightgray500 font-medium-18 mr-200 whitespace-nowrap'>
+                선택해주세요
+              </span>
               <IcDown width={24} height={24} />
             </div>
           </div>

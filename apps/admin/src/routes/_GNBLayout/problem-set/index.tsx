@@ -80,7 +80,7 @@ function RouteComponent() {
     <>
       <Header title='세트 목록' />
       <form
-        className='mt-1200 flex items-end justify-between'
+        className='mt-1200 flex items-end justify-between gap-400'
         onSubmit={handleSubmit(handleClickSearch)}>
         <div className='flex gap-600'>
           <SearchInput
