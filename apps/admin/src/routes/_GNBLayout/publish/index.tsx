@@ -13,7 +13,7 @@ import { HTMLAttributes, useState } from 'react';
 import { IcDeleteSm, IcRight, IcMore } from '@svg';
 import { Link } from '@tanstack/react-router';
 import { deletePublish, getPublish, getPublishById, getStudent } from '@apis';
-import { useInvalidate, useModal } from '@hooks';
+import { useInvalidate, useModal, useSelectedStudent } from '@hooks';
 import { components } from '@schema';
 import dayjs from 'dayjs';
 
@@ -154,9 +154,7 @@ export const Route = createFileRoute('/_GNBLayout/publish/')({
 
 function RouteComponent() {
   const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
-  const [selectedStudent, setSelectedStudent] = useState<
-    components['schemas']['StudentResp'] | null
-  >(null);
+  const { selectedStudent, setSelectedStudent } = useSelectedStudent();
   const { data: studentList } = getStudent({ query: '' });
 
   const {
@@ -275,7 +273,13 @@ function RouteComponent() {
         <SelectStudentModal
           students={studentList?.data ?? []}
           selectedStudent={selectedStudent}
-          setSelectedStudent={setSelectedStudent}
+          setSelectedStudent={(student) => {
+            if (typeof student === 'function') {
+              setSelectedStudent(student(selectedStudent));
+            } else {
+              setSelectedStudent(student);
+            }
+          }}
           onApply={closeSelectStudentModal}
         />
       </Modal>
