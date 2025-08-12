@@ -84,7 +84,7 @@ const getGrade = () => {
 };
 
 const setGrade = (grade: number) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && grade !== null) {
     localStorage.setItem('grade', grade.toString());
   }
 };
