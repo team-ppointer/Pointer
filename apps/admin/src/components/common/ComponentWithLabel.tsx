@@ -18,7 +18,7 @@ const ComponentWithLabel = ({
     column: 'flex-col items-start',
   };
   return (
-    <div className={`flex w-full gap-[2.4rem] ${directionStyle[direction]}`}>
+    <div className={`flex w-full gap-600 ${directionStyle[direction]}`}>
       <h6
         className='font-medium-18 whitespace-nowrap'
         style={{ width: labelWidth, minWidth: labelWidth }}>

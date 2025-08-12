@@ -15,7 +15,7 @@ const DeleteButton = ({ size = 'medium', label, onClick }: DeleteButtonProps) =>
   return (
     <button
       type='button'
-      className='bg-lightred flex items-center justify-center gap-[0.8rem] rounded-[0.8rem] px-[1.6rem] py-[0.8rem] whitespace-nowrap'
+      className='bg-lightred rounded-200 flex items-center justify-center gap-200 px-400 py-200 whitespace-nowrap'
       onClick={onClick}>
       {size === 'small' ? (
         <IcTrash16 width={16} height={16} />

@@ -49,6 +49,26 @@
   --color-lightblue: #ecf0fb;
   --color-yellow: #e59c00;
   --color-lightyellow: #fff4cc;
+
+  /* Spacing */
+  --spacing-0: 0;
+  --spacing-050: 0.2rem;
+  --spacing-100: 0.4rem;
+  --spacing-150: 0.6rem;
+  --spacing-200: 0.8rem;
+  --spacing-300: 1.2rem;
+  --spacing-400: 1.6rem;
+  --spacing-600: 2.4rem;
+  --spacing-800: 3.2rem;
+  --spacing-1200: 4.8rem;
+  --spacing-1600: 6.4rem;
+  --spacing-2400: 9.6rem;
+  --spacing-4000: 16rem;
+
+  /* Radius */
+  --radius-100: 0.4rem;
+  --radius-200: 0.8rem;
+  --radius-400: 1.6rem;
 }
 
 /* ========================= */

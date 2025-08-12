@@ -61,7 +61,7 @@ function RouteComponent() {
     <>
       <Header title='과외 선생 정보' />
       <form
-        className='my-[4.8rem] flex items-end justify-between gap-[3.2rem]'
+        className='my-1200 flex items-end justify-between gap-800'
         onSubmit={handleSubmit(handleClickSearch)}>
         <Input
           placeholder='선생님 이름, 아이디, 비밀번호, 담당학생 등 검색'
@@ -72,7 +72,7 @@ function RouteComponent() {
       <Divider />
       <div className='my-[4.8rem] flex items-center justify-between'>
         <h2 className='font-bold-32 text-black'>과외 선생 리스트</h2>
-        <div className='flex gap-[1.6rem]'>
+        <div className='flex gap-400'>
           <Button sizeType='fit' variant='light' onClick={() => setSelectedTeacherId([])}>
             전체 선택 해제
           </Button>
@@ -82,8 +82,8 @@ function RouteComponent() {
         </div>
       </div>
 
-      <section className='mb-[8rem] flex flex-col gap-[4.8rem]'>
-        <div className='grid grid-cols-3 gap-[2.4rem]'>
+      <section className='mb-[8rem] flex flex-col gap-1200'>
+        <div className='grid grid-cols-3 gap-600'>
           {teacherList?.data?.map((teacher) => {
             const isChecked = selectedTeacherId.includes(teacher.id);
             return (

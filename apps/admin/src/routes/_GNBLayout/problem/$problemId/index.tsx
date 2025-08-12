@@ -328,7 +328,7 @@ function RouteComponent() {
             errorMessage='모의고사와 문제 번호는 필수 입력 항목입니다.'
           />
         </ProblemEssentialInput>
-        <div className='mt-[4.8rem] flex flex-col gap-[4.8rem]'>
+        <div className='mt-1200 flex flex-col gap-1200'>
           <MainProblemSection
             control={control}
             register={register}

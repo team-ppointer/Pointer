@@ -125,16 +125,16 @@ const EditConceptModal = ({ onClose, onSave, concept }: Props) => {
 
   return (
     <>
-      <div className='w-4xl px-[6.4rem] py-[4.8rem]'>
+      <div className='w-4xl px-1600 py-1200'>
         <h2 className='font-bold-24 text-black'>
           {isEditMode ? '개념 태그 수정' : '개념 태그 등록'}
         </h2>
-        <form className='mt-16 flex flex-col gap-[3.2rem]' onSubmit={() => {}}>
-          <div className='flex flex-col gap-[1.2rem]'>
+        <form className='mt-16 flex flex-col gap-800' onSubmit={() => {}}>
+          <div className='flex flex-col gap-300'>
             <span className='font-medium-18 text-black'>개념 태그 대분류</span>
             <div className='relative h-[5.6rem] w-full'>
               <div
-                className={`border-lightgray500 absolute z-30 flex min-h-[5.6rem] w-full flex-col justify-center rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]`}>
+                className={`border-lightgray500 rounded-400 absolute z-30 flex min-h-[5.6rem] w-full flex-col justify-center border bg-white px-400 py-800`}>
                 <div className='flex min-h-[4rem] items-center justify-between gap-[0.9rem]'>
                   {selectedConceptCategory ? (
                     <span className='font-medium-18'>
@@ -155,7 +155,7 @@ const EditConceptModal = ({ onClose, onSave, concept }: Props) => {
                     />
                   )}
 
-                  <div className='flex items-center gap-[0.8rem]'>
+                  <div className='flex items-center gap-200'>
                     {selectedConceptCategory && (
                       <div onClick={(e) => handleSelectConceptCategory(e, undefined)}>
                         <IcCloseCircle width={24} height={24} className='cursor-pointer' />
@@ -180,9 +180,9 @@ const EditConceptModal = ({ onClose, onSave, concept }: Props) => {
                 </div>
                 {isOpen && (
                   <>
-                    <div className='bg-lightgray500 mt-[0.8rem] mb-[1rem] h-[1px] w-full' />
+                    <div className='bg-lightgray500 mt-200 mb-[1rem] h-[1px] w-full' />
                     <div>
-                      <div className='flex flex-col gap-[1.2rem]'>
+                      <div className='flex flex-col gap-300'>
                         {conceptCategories?.data
                           .filter((conceptCategory) => conceptCategory.name.includes(searchQuery))
                           .map((conceptCategory) => (
@@ -207,7 +207,7 @@ const EditConceptModal = ({ onClose, onSave, concept }: Props) => {
             value={conceptName}
             onChange={(e) => setConceptName(e.target.value)}
           />
-          <div className='mt-[5.6rem] flex justify-end gap-[1.6rem]'>
+          <div className='mt-[5.6rem] flex justify-end gap-400'>
             <Button type='button' variant='light' onClick={onClose}>
               취소
             </Button>

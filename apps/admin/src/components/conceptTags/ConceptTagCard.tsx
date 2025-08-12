@@ -11,20 +11,20 @@ interface Props {
 
 const ConceptTagCard = ({ name, isChecked, toggleTag, onDelete, onModify }: Props) => {
   return (
-    <section className='flex w-full justify-between rounded-[1.6rem] bg-white px-[2.4rem] py-[1.6rem]'>
-      <label className='flex cursor-pointer items-center gap-[1.6rem]'>
+    <section className='rounded-400 flex w-full justify-between bg-white px-600 py-400'>
+      <label className='flex cursor-pointer items-center gap-400'>
         <input
           type='checkbox'
           checked={isChecked}
           onChange={() => toggleTag(name)}
           className='peer hidden'
         />
-        <div className='bg-lightgray300 flex h-[3.6rem] w-[3.6rem] items-center justify-center rounded-[0.4rem]'>
+        <div className='bg-lightgray300 rounded-100 flex h-[3.6rem] w-[3.6rem] items-center justify-center'>
           <IcTagCheck16 width={17} height={12} className={isChecked ? 'visible' : 'invisible'} />
         </div>
         <span className='font-medium-16 text-black'>{name}</span>
       </label>
-      <div className='flex items-center gap-[0.8rem]'>
+      <div className='flex items-center gap-200'>
         <IconButton variant='delete' onClick={onDelete} />
         <IconButton variant='modify' onClick={onModify} />
       </div>

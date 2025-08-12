@@ -238,17 +238,17 @@ export const ChildProblemSection = ({
         </p>
       </div>
 
-      <div className='mt-[3.2rem] flex flex-col gap-[6.4rem]'>
+      <div className='mt-800 flex flex-col gap-1600'>
         {childProblems.map((childProblem, index) => {
           const watchedConcepts = watch(`childProblems.${index}.concepts`);
           const watchedAnswerType = watch(`childProblems.${index}.answerType`);
           const watchedAnswer = watch(`childProblems.${index}.answer`);
           const watchedPointings = watch(`childProblems.${index}.pointings`);
           return (
-            <div key={childProblem.id} className='grid grid-cols-2 gap-[4.8rem]'>
-              <div className='flex flex-col gap-[3.2rem]'>
+            <div key={childProblem.id} className='grid grid-cols-2 gap-1200'>
+              <div className='flex flex-col gap-800'>
                 <ComponentWithLabel label='새끼 문제 개념 태그'>
-                  <div className='flex flex-1 flex-wrap gap-[0.8rem]'>
+                  <div className='flex flex-1 flex-wrap gap-200'>
                     {watchedConcepts &&
                       watchedConcepts.length > 0 &&
                       watchedConcepts.map((tag, _tagIndex) => (
@@ -296,7 +296,7 @@ export const ChildProblemSection = ({
                   </AnswerInput>
                 </ComponentWithLabel>
               </div>
-              <div className='flex flex-col gap-[3.2rem]'>
+              <div className='flex flex-col gap-800'>
                 {watchedPointings &&
                   watchedPointings.length > 0 &&
                   watchedPointings.map((pointing, pointingIndex) => (
@@ -304,7 +304,7 @@ export const ChildProblemSection = ({
                       key={pointing.id}
                       label={`새끼 문제 포인팅 ${pointingIndex + 1}번`}
                       direction='column'>
-                      <div className='grid w-full grid-cols-2 gap-[4.8rem]'>
+                      <div className='grid w-full grid-cols-2 gap-1200'>
                         <div>
                           <ComponentWithLabel label='질문' labelWidth='15.4rem' direction='column'>
                             <Button
@@ -348,7 +348,7 @@ export const ChildProblemSection = ({
                         </div>
                       </div>
                       <ComponentWithLabel label='포인팅 개념 태그'>
-                        <div className='flex flex-1 flex-wrap gap-[0.8rem]'>
+                        <div className='flex flex-1 flex-wrap gap-200'>
                           {pointing.concepts &&
                             pointing.concepts.length > 0 &&
                             pointing.concepts.map((tag, _tagIndex) => (
@@ -385,7 +385,7 @@ export const ChildProblemSection = ({
           );
         })}
       </div>
-      <div className='mt-[6.4rem] flex items-center justify-center'>
+      <div className='mt-1600 flex items-center justify-center'>
         <PlusButton onClick={onAddChildProblem} />
       </div>
 

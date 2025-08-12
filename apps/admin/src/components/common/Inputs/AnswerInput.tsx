@@ -24,12 +24,12 @@ const AnswerInput = ({ children }: { children: React.ReactNode }) => {
 const AnswerTypeSection = forwardRef<HTMLInputElement, AnswerTypeSectionProps>(
   ({ selectedAnswerType, ...props }, ref) => {
     return (
-      <div className='flex gap-[0.8rem]'>
+      <div className='flex gap-200'>
         {AnswerTypeList.map((answerType) => (
           <label key={answerType}>
             <input type='radio' className='hidden' ref={ref} value={answerType} {...props} />
             <div
-              className={`flex h-[5.6rem] w-[5.6rem] cursor-pointer items-center justify-center rounded-[4px] ${answerType === selectedAnswerType ? 'bg-midgray200 text-white' : 'bg-lightgray300 text-lightgray500'} `}>
+              className={`rounded-100 flex h-[5.6rem] w-[5.6rem] cursor-pointer items-center justify-center ${answerType === selectedAnswerType ? 'bg-midgray200 text-white' : 'bg-lightgray300 text-lightgray500'} `}>
               <span className='font-medium-24'>
                 {AnswerTypeName[answerType as ProblemAnswerType]}
               </span>
@@ -47,7 +47,7 @@ const AnswerInputSection = forwardRef<HTMLInputElement, AnswerInputSectionProps>
       <>
         {selectedAnswerType === 'SHORT_ANSWER' && <Input ref={ref} {...props} />}
         {selectedAnswerType === 'MULTIPLE_CHOICE' && (
-          <div className='flex items-center justify-between gap-[1.6rem]'>
+          <div className='flex items-center justify-between gap-400'>
             {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
               <label key={num}>
                 <input type='radio' className='hidden' value={num} ref={ref} {...props} />
@@ -57,7 +57,7 @@ const AnswerInputSection = forwardRef<HTMLInputElement, AnswerInputSectionProps>
                       ? 'bg-darkgray100 text-white'
                       : 'border-lightgray500 border bg-white text-black'
                   }`}>
-                  <span className='font-bold-24'>{num}</span>
+                  <span className='font-bold-18'>{num}</span>
                 </div>
               </label>
             ))}

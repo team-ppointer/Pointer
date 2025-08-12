@@ -15,7 +15,7 @@ const Tag = ({ label, color = 'light', onClick, removable = false }: TagProps) =
   };
   return (
     <div
-      className={`font-medium-14 flex h-[3.6rem] w-fit cursor-pointer items-center gap-[1rem] rounded-full px-[1.2rem] py-[0.6rem] whitespace-nowrap ${colorStyle[color]}`}
+      className={`font-medium-14 flex h-[3.6rem] w-fit cursor-pointer items-center gap-[1rem] rounded-full px-300 py-150 whitespace-nowrap ${colorStyle[color]}`}
       onClick={onClick}>
       {label}
       {removable &&

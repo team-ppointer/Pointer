@@ -5,7 +5,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLText
     return (
       <textarea
         ref={ref}
-        className='placeholder:text-lightgray500 font-medium-18 bg-background h-fit min-h-[18.4rem] w-full rounded-[16px] p-[3.2rem] text-black'
+        className='placeholder:text-lightgray500 font-medium-18 bg-background rounded-400 h-fit min-h-[18.4rem] w-full p-800 text-black'
         {...props}
       />
     );

@@ -8,14 +8,14 @@ interface ModalButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const BaseModalTemplate = ({ children }: { children: React.ReactNode }) => {
   return (
-    <article className='font-medium-18 flex max-w-[50dvw] min-w-[38.4rem] flex-col items-center justify-center gap-[3.2rem] px-[6.4rem] py-[4.8rem]'>
+    <article className='font-medium-18 flex max-w-[50dvw] min-w-[38.4rem] flex-col items-center justify-center gap-800 px-1600 py-1200'>
       {children}
     </article>
   );
 };
 
 const ModalContent = ({ children }: { children: React.ReactNode }) => {
-  return <div className='flex flex-col items-center justify-between gap-[1.6rem]'>{children}</div>;
+  return <div className='flex flex-col items-center justify-between gap-400'>{children}</div>;
 };
 
 const ModalText = ({ text }: { text: string }) => {
@@ -23,16 +23,12 @@ const ModalText = ({ text }: { text: string }) => {
 };
 
 const ModalButtonSection = ({ children }: { children: React.ReactNode }) => {
-  return <div className='flex w-full items-center justify-center gap-[1.6rem]'>{children}</div>;
+  return <div className='flex w-full items-center justify-center gap-400'>{children}</div>;
 };
 
 const ModalButton = ({ variant = 'dark', children, onClick, ...props }: ModalButtonProps) => {
   return (
-    <Button
-      className='w-fit min-w-[12rem] px-[2.4rem]'
-      variant={variant}
-      onClick={onClick}
-      {...props}>
+    <Button className='w-fit min-w-[12rem] px-600' variant={variant} onClick={onClick} {...props}>
       {children}
     </Button>
   );
