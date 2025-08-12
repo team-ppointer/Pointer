@@ -65,8 +65,9 @@ function RouteComponent() {
               setSelectedTeacherId([]);
             }
           },
-          onError: (error) => {
+          onError: (error: Error) => {
             console.error('Failed to delete teacher:', error);
+            alert(error.message);
             completedDeletions++;
             if (completedDeletions === totalDeletions) {
               invalidateAll();
