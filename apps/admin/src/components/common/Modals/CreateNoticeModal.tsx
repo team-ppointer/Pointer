@@ -1,5 +1,6 @@
-import { Button, Input, ComponentWithLabel } from '@components';
+import { Button, DateRangePicker } from '@components';
 import { useForm } from 'react-hook-form';
+import { useEffect, useCallback } from 'react';
 import { postNotice } from '@apis';
 import { useInvalidate } from '@hooks';
 import { components } from '@schema';
@@ -20,12 +21,51 @@ const CreateNoticeModal = ({ selectedStudent, onClose }: Props) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+    setValue,
+    watch,
+  } = useForm<FormData>({
+    mode: 'onChange',
+  });
   const { mutate: createNotice } = postNotice();
   const { invalidateNotice } = useInvalidate();
 
+  const startAt = watch('startAt');
+  const endAt = watch('endAt');
+
+  // 날짜 필드 validation 등록
+  useEffect(() => {
+    register('startAt', {
+      required: '공지 시작일을 선택해주세요.',
+    });
+    register('endAt', {
+      required: '공지 종료일을 선택해주세요.',
+      validate: (value) => {
+        if (startAt && value < startAt) {
+          return '종료일은 시작일보다 늦어야 합니다.';
+        }
+        return true;
+      },
+    });
+  }, [register, startAt]);
+
+  const handleDateRangeChange = useCallback(
+    (startDate: string, endDate: string) => {
+      console.log('CreateNoticeModal: 받은 날짜 범위', { startDate, endDate });
+      setValue('startAt', startDate, { shouldValidate: true });
+      setValue('endAt', endDate, { shouldValidate: true });
+    },
+    [setValue]
+  );
+
   const onSubmit = (data: FormData) => {
     if (!selectedStudent) return;
+
+    console.log('CreateNoticeModal: 제출할 데이터', {
+      startAt: data.startAt,
+      endAt: data.endAt,
+      content: data.content,
+      studentId: selectedStudent.id,
+    });
 
     createNotice(
       {
@@ -67,33 +107,12 @@ const CreateNoticeModal = ({ selectedStudent, onClose }: Props) => {
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-600'>
         <div className='grid grid-cols-2 gap-400'>
           <div className='flex flex-col gap-400'>
-            달력 컴포넌트까지 만들기엔 시간이 모자라서 일단 input으로 대체합니다...
-            <ComponentWithLabel label='공지 시작일' isRequired>
-              <Input
-                type='date'
-                {...register('startAt', {
-                  required: '공지 시작일을 입력해주세요.',
-                })}
-                placeholder='공지 시작일을 선택해주세요'
-                error={errors.startAt?.message}
-              />
-            </ComponentWithLabel>
-            <ComponentWithLabel label='공지 종료일' isRequired>
-              <Input
-                type='date'
-                {...register('endAt', {
-                  required: '공지 종료일을 입력해주세요.',
-                  validate: (value, formValues) => {
-                    if (formValues.startAt && value < formValues.startAt) {
-                      return '종료일은 시작일보다 늦어야 합니다.';
-                    }
-                    return true;
-                  },
-                })}
-                placeholder='공지 종료일을 선택해주세요'
-                error={errors.endAt?.message}
-              />
-            </ComponentWithLabel>
+            <DateRangePicker
+              startDate={startAt}
+              endDate={endAt}
+              onDateRangeChange={handleDateRangeChange}
+              error={errors.startAt?.message || errors.endAt?.message}
+            />
           </div>
 
           <div>
