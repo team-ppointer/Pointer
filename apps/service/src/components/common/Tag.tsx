@@ -1,5 +1,5 @@
 type Props = {
-  variant?: 'green' | 'red' | 'gray';
+  variant?: 'green' | 'red' | 'gray' | 'yellow';
   sizeType?: 'small' | 'medium' | 'auto'; // small은 고정 너비, medium은 가변 너비
   children: React.ReactNode;
 };

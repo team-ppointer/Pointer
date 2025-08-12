@@ -16,6 +16,7 @@ const Page = () => {
   const childNumber = searchParams.get('childNumber');
 
   const { no, childProblems, problemContent, pointings } = useReportContext();
+  console.log(no, childProblems, problemContent, pointings);
 
   // 1단계: 포인팅만 보여줌 (포인팅 질문 + 버튼)
   // 2단계: 포인팅 + 처방 보여줌 (처방 질문 + 버튼 활성화)
