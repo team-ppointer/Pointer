@@ -10,7 +10,7 @@ import {
   ProgressModal,
 } from '@components';
 import { HTMLAttributes, useState } from 'react';
-import { IcDeleteSm } from '@svg';
+import { IcDeleteSm, IcRight } from '@svg';
 import { Link } from '@tanstack/react-router';
 import { deletePublish, getPublish, getPublishById, getStudent } from '@apis';
 import { useInvalidate, useModal } from '@hooks';
@@ -201,7 +201,10 @@ function RouteComponent() {
               onClick={openSelectStudentModal}>
               {selectedStudent ? selectedStudent.name : '학생을 선택해주세요'}
             </h2>
-            <IconButton variant='right' onClick={openSelectStudentModal} />
+            <IcRight
+              onClick={openSelectStudentModal}
+              className='h-[3.6rem] w-[3.6rem] cursor-pointer'
+            />
           </div>
           <div className='flex items-center justify-center gap-1200'>
             <IconButton variant='left' onClick={handleClickPrevMonth} />
