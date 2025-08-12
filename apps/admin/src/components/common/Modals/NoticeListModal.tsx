@@ -1,7 +1,6 @@
 import { Button, IconButton } from '@components';
 import { getNotice } from '@apis';
 import { components } from '@schema';
-import { IcDeleteSm } from '@svg';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 
@@ -42,49 +41,94 @@ const NoticeListModal = ({ selectedStudent, onClose }: Props) => {
   }
 
   return (
-    <div className='w-[70dvw] p-800'>
+    <div className='w-[80dvw] max-w-[120rem] p-800'>
       <h2 className='font-bold-24 mb-600 text-black'>공지 목록</h2>
 
-      <div className='max-h-[50rem] overflow-y-auto'>
+      {/* 메인 콘텐츠 */}
+      <div className='max-h-[70rem] overflow-hidden'>
         {notices.length === 0 ? (
-          <div className='bg-lightgray100 rounded-200 flex h-[20rem] items-center justify-center'>
-            <p className='font-medium-16 text-lightgray500'>등록된 공지가 없습니다.</p>
+          <div className='bg-lightgray100 rounded-200 flex h-[40rem] items-center justify-center'>
+            <p className='font-medium-16 text-lightgray500 mb-200'>등록된 공지가 없습니다</p>
           </div>
         ) : (
-          <div className='grid grid-cols-2 gap-200'>
-            <div className='bg-lightgray100 rounded-400 space-y-300 p-800'>
-              {notices.map((notice) => (
-                <div
-                  key={notice.id}
-                  className={`rounded-200 flex cursor-pointer items-center gap-400 bg-white px-400 py-200 ${
-                    selectedNotice?.id === notice.id
-                      ? 'border-lightgray500 border'
-                      : 'border border-transparent'
-                  }`}
-                  onClick={() => setSelectedNotice(notice)}>
-                  <span className='font-medium-16 text-lightgray500'>
-                    {dayjs(notice.startAt).format('YYYYMMDD')}~
-                    {dayjs(notice.endAt).format('YYYYMMDD')}
-                  </span>
-                  <span className='font-medium-16 flex-1 truncate'>{notice.content}</span>
-                  <IconButton variant='delete' onClick={() => handleDeleteNotice(notice.id)} />
+          <div className='grid h-full grid-cols-2 gap-200'>
+            <div className='bg-lightgray100 rounded-400 overflow-hidden p-800'>
+              <div className='max-h-[50rem] overflow-y-auto'>
+                <div className='space-y-200'>
+                  {notices.map((notice) => (
+                    <div
+                      key={notice.id}
+                      className={`rounded-200 cursor-pointer border bg-white ${
+                        selectedNotice?.id === notice.id
+                          ? 'border-lightgray500'
+                          : 'hover:border-lightgray300 border-transparent'
+                      }`}
+                      onClick={() => setSelectedNotice(notice)}>
+                      <div className='p-400'>
+                        <div className='flex items-center justify-between gap-400'>
+                          <div className='min-w-0 flex-1'>
+                            <div className='mb-200 flex items-center gap-200'>
+                              <span className='font-medium-12 text-midgray100 rounded-300 bg-lightgray100 px-300 py-100'>
+                                {dayjs(notice.startAt).format('YY.MM.DD')} ~{' '}
+                                {dayjs(notice.endAt).format('YY.MM.DD')}
+                              </span>
+                            </div>
+                            <p className='font-medium-16 line-clamp-2 pl-100 text-black'>
+                              {notice.content}
+                            </p>
+                          </div>
+                          <div className='flex-shrink-0'>
+                            <IconButton
+                              variant='delete'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteNotice(notice.id);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-            <div className='bg-lightgray100 rounded-400 p-800'>
-              {selectedNotice ? (
-                <div className='font-medium-16 text-black'>{selectedNotice.content}</div>
-              ) : (
-                <div className='font-medium-16 text-lightgray500'>
-                  자세히 볼 공지를 좌측에서 선택해주세요
-                </div>
-              )}
+            {/* 공지 내용 */}
+            <div className='rounded-400 bg-lightgray100 overflow-hidden p-800'>
+              <div className='h-full max-h-[50rem] overflow-y-auto'>
+                {selectedNotice ? (
+                  <div className='space-y-600'>
+                    <div>
+                      <div className='mb-200 flex items-center gap-400'>
+                        <span className='font-medium-14 text-lightgray600'>공지 기간</span>
+                      </div>
+                      <p className='font-medium-16 mb-800 text-black'>
+                        {dayjs(selectedNotice.startAt).format('YYYY년 M월 D일')} ~{' '}
+                        {dayjs(selectedNotice.endAt).format('YYYY년 M월 D일')}
+                      </p>
+                      <div className='mb-200 flex items-center gap-400'>
+                        <span className='font-medium-14 text-lightgray600'>공지 내용</span>
+                      </div>
+                      <p className='font-medium-16 whitespace-pre-wrap text-black'>
+                        {selectedNotice.content}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className='flex h-full min-h-[30rem]'>
+                    <p className='font-medium-16 text-lightgray500 mb-200'>
+                      자세히 볼 공지를 좌측에서 선택해주세요
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      <div className='mt-600 flex justify-end pt-600'>
+      {/* 푸터 */}
+      <div className='border-lightgray200 mt-800 flex justify-end border-t pt-600'>
         <Button variant='dark' onClick={onClose}>
           완료
         </Button>
