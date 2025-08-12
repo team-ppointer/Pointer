@@ -197,7 +197,8 @@ function RouteComponent() {
             <h2
               className={`font-bold-32 cursor-pointer ${
                 selectedStudent ? 'text-black' : 'text-lightgray500'
-              }`}>
+              }`}
+              onClick={openSelectStudentModal}>
               {selectedStudent ? selectedStudent.name : '학생을 선택해주세요'}
             </h2>
             <IconButton variant='right' onClick={openSelectStudentModal} />
