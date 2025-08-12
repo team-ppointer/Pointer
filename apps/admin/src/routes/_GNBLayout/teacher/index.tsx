@@ -3,8 +3,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Button, FloatingButton, Header, Input, Modal, TwoButtonModalTemplate } from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
-import { getTeacher } from '@apis';
-import { useModal } from '@hooks';
+import { deleteTeacher, getTeacher } from '@apis';
+import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
 
 import { TeacherCard } from '@/components/teacher';
@@ -15,6 +15,7 @@ export const Route = createFileRoute('/_GNBLayout/teacher/')({
 });
 
 function RouteComponent() {
+  const { invalidateAll } = useInvalidate();
   const [selectedTeacherId, setSelectedTeacherId] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [editingTeacher, setEditingTeacher] = useState<components['schemas']['TeacherResp'] | null>(
@@ -36,9 +37,46 @@ function RouteComponent() {
 
   // api
   const { data: teacherList } = getTeacher({ query: searchQuery });
+  const { mutate: deleteTeacherMutation } = deleteTeacher();
 
   const handleClickSearch = (data: { query: string }) => {
     setSearchQuery(data.query.trim());
+  };
+
+  const handleClickDelete = async () => {
+    let completedDeletions = 0;
+    const totalDeletions = selectedTeacherId.length;
+
+    selectedTeacherId.forEach((teacherId) => {
+      deleteTeacherMutation(
+        {
+          params: {
+            path: {
+              teacherId,
+            },
+          },
+        },
+        {
+          onSuccess: () => {
+            completedDeletions++;
+            if (completedDeletions === totalDeletions) {
+              invalidateAll();
+              closeDeleteModal();
+              setSelectedTeacherId([]);
+            }
+          },
+          onError: (error) => {
+            console.error('Failed to delete teacher:', error);
+            completedDeletions++;
+            if (completedDeletions === totalDeletions) {
+              invalidateAll();
+              closeDeleteModal();
+              setSelectedTeacherId([]);
+            }
+          },
+        }
+      );
+    });
   };
 
   const toggleTeacher = (id: number) => {
@@ -96,7 +134,10 @@ function RouteComponent() {
                 isChecked={isChecked}
                 toggleTeacher={toggleTeacher}
                 onModify={() => handleModifyTeacher(teacher)}
-                onDelete={() => openDeleteModal()}
+                onDelete={() => {
+                  setSelectedTeacherId([teacher.id]);
+                  openDeleteModal();
+                }}
               />
             );
           })}
@@ -113,7 +154,7 @@ function RouteComponent() {
           leftButtonText='아니오'
           rightButtonText='예'
           handleClickLeftButton={closeDeleteModal}
-          handleClickRightButton={closeDeleteModal}
+          handleClickRightButton={() => handleClickDelete()}
         />
       </Modal>
     </>

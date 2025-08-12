@@ -45,25 +45,28 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
   const updateStudentAssignments = async () => {
     if (!teacher) return;
 
-    updateTeacherStudent(
-      {
-        params: {
-          path: { teacherId: teacher.id },
+    return new Promise<void>((resolve, reject) => {
+      updateTeacherStudent(
+        {
+          params: {
+            path: { teacherId: teacher.id },
+          },
+          body: {
+            students: selectedStudents.map((s) => s.id),
+          },
         },
-        body: {
-          students: selectedStudents.map((s) => s.id),
-        },
-      },
-      {
-        onSuccess: () => {
-          invalidate.invalidateAll();
-          onClose();
-        },
-        onError: (error) => {
-          console.error('Failed to update teacher student:', error);
-        },
-      }
-    );
+        {
+          onSuccess: () => {
+            invalidate.invalidateAll();
+            resolve();
+          },
+          onError: (error) => {
+            console.error('Failed to update teacher student:', error);
+            reject(error);
+          },
+        }
+      );
+    });
   };
 
   const onSubmit = async (data: FormData) => {
@@ -94,17 +97,15 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
           body: updateBody,
         },
         {
-          onSuccess: () => {
-            updateStudentAssignments()
-              .then(() => {
-                invalidate.invalidateAll();
-                onClose();
-              })
-              .catch((error) => {
-                console.error('Failed to update student assignments:', error);
-                invalidate.invalidateAll();
-                onClose();
-              });
+          onSuccess: async () => {
+            try {
+              await updateStudentAssignments();
+              onClose();
+            } catch (error) {
+              console.error('Failed to update student assignments:', error);
+              invalidate.invalidateAll();
+              onClose();
+            }
           },
           onError: (error) => {
             console.error('Failed to update teacher:', error);
