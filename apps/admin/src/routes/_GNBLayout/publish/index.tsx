@@ -10,7 +10,7 @@ import {
   ProgressModal,
 } from '@components';
 import { HTMLAttributes, useState } from 'react';
-import { IcDeleteSm, IcRight } from '@svg';
+import { IcDeleteSm, IcRight, IcMore } from '@svg';
 import { Link } from '@tanstack/react-router';
 import { deletePublish, getPublish, getPublishById, getStudent } from '@apis';
 import { useInvalidate, useModal } from '@hooks';
@@ -18,7 +18,6 @@ import { components } from '@schema';
 import dayjs from 'dayjs';
 
 import SelectStudentModal from '@/components/common/Modals/SelectStudentModal';
-
 import 'dayjs/locale/ko';
 
 dayjs.locale('ko');
@@ -98,7 +97,12 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
                 <div className='cursor-pointer' onClick={openDeleteModal}>
                   <IcDeleteSm width={24} height={24} />
                 </div>
-                <IconButton variant='view' onClick={openProgressModal} />
+                <IcMore
+                  width={24}
+                  height={24}
+                  className='cursor-pointer'
+                  onClick={openProgressModal}
+                />
               </>
             )}
           </div>
