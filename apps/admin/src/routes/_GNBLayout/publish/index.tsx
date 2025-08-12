@@ -192,7 +192,7 @@ function RouteComponent() {
   return (
     <>
       <div className='w-full'>
-        <div className='mb-[7.4rem] flex items-center justify-between'>
+        <div className='mb-[7.4rem] grid grid-cols-3 items-center'>
           <div className='flex items-center gap-400'>
             <h2
               className={`font-bold-32 cursor-pointer ${
@@ -209,13 +209,17 @@ function RouteComponent() {
             </h2>
             <IconButton variant='right' onClick={handleClickNextMonth} />
           </div>
-          <div className='flex items-center gap-400'>
-            <Button variant='light' onClick={openNoticeListModal}>
-              공지 목록
-            </Button>
-            <Button variant='dark' onClick={openCreateNoticeModal}>
-              공지 작성
-            </Button>
+          <div className='flex items-center justify-end gap-400'>
+            {selectedStudent && (
+              <>
+                <Button variant='light' onClick={openNoticeListModal}>
+                  공지 목록
+                </Button>
+                <Button variant='dark' onClick={openCreateNoticeModal}>
+                  공지 작성
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
