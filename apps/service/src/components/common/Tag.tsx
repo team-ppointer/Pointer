@@ -11,6 +11,7 @@ const Tag = ({ variant = 'gray', sizeType = 'medium', children }: Props) => {
     green: 'bg-lightgreen text-green',
     red: 'bg-lightred text-red',
     gray: 'bg-lightgray300 text-lightgray500',
+    yellow: 'bg-lightyellow text-yellow',
   };
 
   const sizeTypeStyles = {
