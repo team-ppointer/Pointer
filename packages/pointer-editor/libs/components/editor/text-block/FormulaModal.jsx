@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import katex from 'katex';
+
 import 'katex/dist/katex.min.css';
+import FormulaSymbolDropdown from '../FormulaSymbolDropdown';
 
 const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
   const [formula, setFormula] = useState(initialValue);
   const [preview, setPreview] = useState('');
+  const inputRef = useRef(null);
 
   useEffect(() => {
     setFormula(initialValue);
@@ -65,10 +68,15 @@ const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
           zIndex: 10000,
         }}>
         <h3 style={{ margin: '0 0 15px 0' }}>LaTeX 수식 입력</h3>
+        <FormulaSymbolDropdown
+          onInsert={(symbol) => setFormula((prev) => prev + symbol)}
+          inputRef={inputRef}
+        />
 
         <div style={{ marginBottom: '10px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>수식:</label>
           <input
+            ref={inputRef}
             type='text'
             value={formula}
             onChange={(e) => setFormula(e.target.value)}

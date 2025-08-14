@@ -1,0 +1,34 @@
+import { memo } from "react";
+const ContainsIcon = (props) => (
+  <svg
+    width="19"
+    height="18"
+    viewBox="0 0 19 18"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="19" height="18" fill="url(#pattern0_296_34513)" />
+    <defs>
+      <pattern
+        id="pattern0_296_34513"
+        patternContentUnits="objectBoundingBox"
+        width="1"
+        height="1"
+      >
+        <use
+          xlinkHref="#image0_296_34513"
+          transform="matrix(0.0112782 0 0 0.0119048 -0.0018797 0)"
+        />
+      </pattern>
+      <image
+        id="image0_296_34513"
+        width="89"
+        height="84"
+        preserveAspectRatio="none"
+        xlinkHref="data:image/png;base64,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"
+      />
+    </defs>
+  </svg>
+);
+
+export default memo(ContainsIcon);
