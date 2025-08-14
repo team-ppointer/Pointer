@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, FloatingButton, Header, Input, Modal, TwoButtonModalTemplate } from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
@@ -46,9 +46,18 @@ function RouteComponent() {
     );
   };
 
-  const { register, handleSubmit } = useForm<{
+  const { register, handleSubmit, watch } = useForm<{
     query: string;
   }>();
+
+  const watchedQuery = watch('query');
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      setSearchQuery((watchedQuery ?? '').trim());
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [watchedQuery]);
 
   const handleClickSearch = (data: { query: string }) => {
     setSearchQuery(data.query.trim());
