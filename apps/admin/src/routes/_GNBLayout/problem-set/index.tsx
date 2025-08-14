@@ -13,7 +13,7 @@ import {
 import { useInvalidate, useModal } from '@hooks';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { GetProblemSetSearchParams } from '@types';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 export const Route = createFileRoute('/_GNBLayout/problem-set/')({
@@ -25,7 +25,7 @@ function RouteComponent() {
   const { navigate } = useRouter();
 
   const [searchQuery, setSearchQuery] = useState<GetProblemSetSearchParams>({});
-  const { register, handleSubmit, reset } = useForm<GetProblemSetSearchParams>();
+  const { register, handleSubmit, reset, watch } = useForm<GetProblemSetSearchParams>();
   const {
     isOpen: isDeleteModalOpen,
     openModal: openDeleteModal,
@@ -37,6 +37,33 @@ function RouteComponent() {
   const { data: problemSetList } = getProblemSetSearch(searchQuery);
   const { mutate: mutatePostProblemSet } = postProblemSet();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
+
+  const watchedSetTitle = watch('setTitle');
+  const watchedProblemTitle = watch('problemTitle');
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      const trimmedSetTitle = (watchedSetTitle ?? '').toString().trim();
+      const trimmedProblemTitle = (watchedProblemTitle ?? '').toString().trim();
+
+      setSearchQuery((prev) => {
+        const nextQuery: GetProblemSetSearchParams = {
+          ...prev,
+          setTitle: trimmedSetTitle || undefined,
+          problemTitle: trimmedProblemTitle || undefined,
+        };
+
+        const cleaned = Object.fromEntries(
+          Object.entries(nextQuery).filter(([, value]) =>
+            Array.isArray(value) ? value.length > 0 : Boolean(value)
+          )
+        ) as GetProblemSetSearchParams;
+
+        return cleaned;
+      });
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [watchedSetTitle, watchedProblemTitle]);
 
   const handleClickSearch = (data: GetProblemSetSearchParams) => {
     const filteredData = Object.fromEntries(
