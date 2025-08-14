@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { AnswerInput, ComponentWithLabel, Input, SectionCard, Tag, Button } from '@components';
 import {
   Controller,
@@ -88,6 +88,26 @@ export const MainProblemSection = ({
   });
 
   const watchedAnswer = useWatch({ control, name: 'answer' });
+  const watchedRecommendedTimeSec = useWatch({ control, name: 'recommendedTimeSec' });
+
+  const minutes = Math.floor((watchedRecommendedTimeSec || 0) / 60);
+  const seconds = Math.max(0, (watchedRecommendedTimeSec || 0) % 60);
+
+  const handleChangeMinutes = (e: ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.trim();
+    const nextMinutes = raw === '' ? 0 : Math.max(0, Number(raw));
+    const nextTotal = nextMinutes * 60 + seconds;
+    setValue('recommendedTimeSec', nextTotal, { shouldDirty: true, shouldValidate: true });
+  };
+
+  const handleChangeSeconds = (e: ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.trim();
+    let nextSeconds = raw === '' ? 0 : Math.max(0, Number(raw));
+    if (!Number.isFinite(nextSeconds)) nextSeconds = 0;
+    if (nextSeconds > 59) nextSeconds = 59;
+    const nextTotal = minutes * 60 + nextSeconds;
+    setValue('recommendedTimeSec', nextTotal, { shouldDirty: true, shouldValidate: true });
+  };
 
   const formatBlocks = (blocks: unknown[]): ContentBlockUpdateRequest[] => {
     return blocks.map((block, index) => {
@@ -219,13 +239,33 @@ export const MainProblemSection = ({
                       errors?.recommendedTimeSec
                         ? 'border-red focus:border-red'
                         : 'border-lightgray500'
-                    }`}
+                    } [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0`}
+                    type='number'
+                    min={0}
+                    value={Number.isFinite(minutes) ? minutes : 0}
+                    onChange={handleChangeMinutes}
+                  />
+                  <span className='font-medium-18 text-black'>분</span>
+                  <input
+                    className={`font-bold-18 rounded-400 h-[5.6rem] w-[5.6rem] border bg-white px-400 py-200 ${
+                      errors?.recommendedTimeSec
+                        ? 'border-red focus:border-red'
+                        : 'border-lightgray500'
+                    } [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0`}
+                    type='number'
+                    min={0}
+                    max={59}
+                    value={Number.isFinite(seconds) ? seconds : 0}
+                    onChange={handleChangeSeconds}
+                  />
+                  <span className='font-medium-18 text-black'>초</span>
+                  <input
+                    type='hidden'
                     {...register('recommendedTimeSec', {
                       valueAsNumber: true,
                       required: '필수 입력 항목입니다.',
                     })}
                   />
-                  <span className='font-medium-18 text-black'>초</span>
                 </div>
               </div>
               {errors?.recommendedTimeSec && (
