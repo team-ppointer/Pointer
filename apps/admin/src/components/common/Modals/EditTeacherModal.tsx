@@ -45,25 +45,28 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
   const updateStudentAssignments = async () => {
     if (!teacher) return;
 
-    updateTeacherStudent(
-      {
-        params: {
-          path: { teacherId: teacher.id },
+    return new Promise<void>((resolve, reject) => {
+      updateTeacherStudent(
+        {
+          params: {
+            path: { teacherId: teacher.id },
+          },
+          body: {
+            students: selectedStudents.map((s) => s.id),
+          },
         },
-        body: {
-          students: selectedStudents.map((s) => s.id),
-        },
-      },
-      {
-        onSuccess: () => {
-          invalidate.invalidateAll();
-          onClose();
-        },
-        onError: (error) => {
-          console.error('Failed to update teacher student:', error);
-        },
-      }
-    );
+        {
+          onSuccess: () => {
+            invalidate.invalidateAll();
+            resolve();
+          },
+          onError: (error) => {
+            console.error('Failed to update teacher student:', error);
+            reject(error);
+          },
+        }
+      );
+    });
   };
 
   const onSubmit = async (data: FormData) => {
@@ -94,17 +97,15 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
           body: updateBody,
         },
         {
-          onSuccess: () => {
-            updateStudentAssignments()
-              .then(() => {
-                invalidate.invalidateAll();
-                onClose();
-              })
-              .catch((error) => {
-                console.error('Failed to update student assignments:', error);
-                invalidate.invalidateAll();
-                onClose();
-              });
+          onSuccess: async () => {
+            try {
+              await updateStudentAssignments();
+              onClose();
+            } catch (error) {
+              console.error('Failed to update student assignments:', error);
+              invalidate.invalidateAll();
+              onClose();
+            }
           },
           onError: (error) => {
             console.error('Failed to update teacher:', error);
@@ -163,6 +164,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
             label='비밀번호'
             placeholder='비밀번호를 입력해주세요.'
             type='password'
+            showPasswordToggle
             {...register('password', { required: '비밀번호는 필수입니다.' })}
           />
           <div className='mt-[5.6rem] flex justify-end gap-400'>
@@ -200,6 +202,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
             label='비밀번호'
             placeholder='새 비밀번호를 입력해주세요.'
             type='password'
+            showPasswordToggle
             {...register('password')}
           />
           <div className='flex flex-col gap-300'>
