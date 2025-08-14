@@ -1,15 +1,23 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { Button, FloatingButton, Header, Input, Modal, TwoButtonModalTemplate } from '@components';
+import {
+  Button,
+  EditCategoryModal,
+  EditConceptModal,
+  FloatingButton,
+  Header,
+  Input,
+  Modal,
+  TwoButtonModalTemplate,
+} from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
 import { IcPencil } from '@svg';
-import { getConcept, getConceptCategory, deleteConcept } from '@apis';
+import { getConcept, getConceptCategory, deleteConcept, putConceptCategory } from '@apis';
 import { useModal, useInvalidate } from '@hooks';
 
-import type { components } from '@/types/api/schema';
 import { ConceptTagCard } from '@/components/conceptTags';
-import EditConceptModal from '@/components/common/Modals/EditConceptModal';
+import type { components } from '@/types/api/schema';
 
 export const Route = createFileRoute('/_GNBLayout/concept-tags/')({
   component: RouteComponent,
@@ -22,6 +30,9 @@ function RouteComponent() {
   const [selectedConceptForEdit, setSelectedConceptForEdit] = useState<
     components['schemas']['ConceptResp'] | null
   >(null);
+  const [selectedCategoryForEdit, setSelectedCategoryForEdit] = useState<
+    components['schemas']['ConceptCategoryResp'] | null
+  >(null);
   const [isMultipleDelete, setIsMultipleDelete] = useState<boolean>(false);
   const {
     isOpen: isDeleteModalOpen,
@@ -33,10 +44,16 @@ function RouteComponent() {
     openModal: openEditConceptModal,
     closeModal: closeEditConceptModal,
   } = useModal();
+  const {
+    isOpen: isEditCategoryModalOpen,
+    openModal: openEditCategoryModal,
+    closeModal: closeEditCategoryModal,
+  } = useModal();
 
   // api
   const { data: concepts } = getConcept({ query: searchQuery });
   const { data: conceptCategories } = getConceptCategory();
+  const { mutateAsync: updateCategoryAsync } = putConceptCategory();
   const { invalidateAll } = useInvalidate();
   const deleteConceptMutation = deleteConcept();
 
@@ -139,7 +156,15 @@ function RouteComponent() {
             <article>
               <div className='mb-[4rem] flex items-center gap-300'>
                 <h4 className='font-bold-24 text-black'>{category.name}</h4>
-                <IcPencil className='cursor-pointer' width={24} height={24} onClick={() => {}} />
+                <IcPencil
+                  className='cursor-pointer'
+                  width={24}
+                  height={24}
+                  onClick={() => {
+                    setSelectedCategoryForEdit(category);
+                    openEditCategoryModal();
+                  }}
+                />
               </div>
               <div className='grid grid-cols-3 gap-[4rem]'>
                 {concepts?.data
@@ -211,6 +236,32 @@ function RouteComponent() {
             closeEditConceptModal();
           }}
           concept={selectedConceptForEdit}
+        />
+      </Modal>
+      <Modal
+        isOpen={isEditCategoryModalOpen}
+        onClose={() => {
+          closeEditCategoryModal();
+          setSelectedCategoryForEdit(null);
+        }}>
+        <EditCategoryModal
+          onClose={() => {
+            closeEditCategoryModal();
+            setSelectedCategoryForEdit(null);
+          }}
+          defaultName={selectedCategoryForEdit ? selectedCategoryForEdit.name : undefined}
+          onSubmit={async ({ name }) => {
+            if (!selectedCategoryForEdit) return;
+            await updateCategoryAsync({
+              params: {
+                path: { categoryId: selectedCategoryForEdit.id },
+              },
+              body: { name },
+            });
+            closeEditCategoryModal();
+            setSelectedCategoryForEdit(null);
+            invalidateAll();
+          }}
         />
       </Modal>
     </>
