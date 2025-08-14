@@ -1,5 +1,5 @@
 'use client';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
@@ -25,7 +25,7 @@ const Page = () => {
     studentId: string;
   }>();
   const router = useRouter();
-  const { childProblemLength } = useChildProblemContext();
+  const { childProblemLength, initStep } = useChildProblemContext();
   const { invalidateAll } = useInvalidate();
   const problemViewerRef = useRef<HTMLDivElement>(null);
 
@@ -38,6 +38,11 @@ const Page = () => {
   if (!problemData) {
     return;
   }
+
+  useEffect(() => {
+    initStep();
+  }, []);
+
   const { no, recommendedTimeSec, problemContent, childProblems, submitAnswer, answer } =
     problemData;
   const childProblemId = childProblems[0]?.id || 0;
@@ -117,7 +122,7 @@ const Page = () => {
           </div>
           <NavigationFooter
             prevLabel={'문제 리스트'}
-            nextLabel={childProblemLength > 0 ? '새끼 문제 1-1번' : ''}
+            nextLabel={childProblemLength > 0 ? `새끼 문제 ${no}-1번` : ''}
             onClickPrev={() => {
               router.back();
             }}
