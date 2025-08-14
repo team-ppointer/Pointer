@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
@@ -16,7 +16,6 @@ const Page = () => {
   const childNumber = searchParams.get('childNumber');
 
   const { no, childProblems, problemContent, pointings } = useReportContext();
-  console.log(no, childProblems, problemContent, pointings);
 
   // 1단계: 포인팅만 보여줌 (포인팅 질문 + 버튼)
   // 2단계: 포인팅 + 처방 보여줌 (처방 질문 + 버튼 활성화)
@@ -39,6 +38,23 @@ const Page = () => {
     newSteps[index] = 2;
     setPointingSteps(newSteps);
   };
+
+  useEffect(() => {
+    if (pointingsContents !== undefined) {
+      console.log(pointingsContents);
+      let newSteps = [];
+      for(let i = 0; i < pointingsContents.length; i++) {
+        if (pointingsContents[i].isUnderstood === undefined || pointingsContents[i].isUnderstood === null) {
+          newSteps[i] = 1;
+        } else {
+          newSteps[i] = 3;
+          setVisibleCount(visibleCount+1);
+        }
+      }
+      console.log(newSteps);
+      setPointingSteps(newSteps);
+    }
+  }, [pointingsContents]);
 
   const handlePrescriptionAnswer = async (index: number, isUnderstood: boolean) => {
     const pointingId = pointingsContents[index].id || pointingsContents[index].id;
