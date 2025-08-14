@@ -74,7 +74,6 @@ function RouteComponent() {
   const problemType = watch('problemType');
   const concepts = watch('concepts');
   const selectedAnswerType = watch('answerType');
-  const selectedAnswer = watch('answer');
 
   const {
     fields: childProblems,
@@ -298,7 +297,6 @@ function RouteComponent() {
                 setValue={setValue}
                 concepts={concepts}
                 selectedAnswerType={selectedAnswerType}
-                selectedAnswer={selectedAnswer}
                 tagsNameMap={tagsNameMap}
                 fetchedProblemData={undefined}
                 onRemoveTag={handleRemoveTag}

@@ -76,8 +76,10 @@ function RouteComponent() {
     setValue,
     reset,
     clearErrors,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: transformToProblemUpdateRequest({} as ProblemInfoResp),
   });
 
@@ -336,7 +338,6 @@ function RouteComponent() {
             setValue={setValue}
             concepts={concepts}
             selectedAnswerType={selectedAnswerType}
-            selectedAnswer={selectedAnswer}
             tagsNameMap={tagsNameMap}
             fetchedProblemData={fetchedProblemData}
             onRemoveTag={handleRemoveTag}
@@ -368,7 +369,7 @@ function RouteComponent() {
           />
           <TipSection setValue={setValue} fetchedProblemData={fetchedProblemData} />
         </div>
-        <FloatingButton>저장하기</FloatingButton>
+        <FloatingButton disabled={!isValid}>저장하기</FloatingButton>
       </form>
       <Modal isOpen={isTagModalOpen} onClose={closeTagModal}>
         <TagSelectModal
