@@ -4,7 +4,7 @@ import { useModal } from '@hooks';
 import { components } from '@schema';
 import { IcDown } from '@svg';
 import { GetProblemsSearchParams } from '@types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
 
@@ -20,7 +20,35 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
   const [searchQuery, setSearchQuery] = useState<GetProblemsSearchParams>({});
   const [selectedTagList, setSelectedTagList] = useState<number[]>([]);
 
-  const { register, handleSubmit, reset } = useForm<GetProblemsSearchParams>();
+  const { register, handleSubmit, reset, watch } = useForm<GetProblemsSearchParams>();
+
+  const watchedCustomId = watch('customId');
+  const watchedTitle = watch('title');
+
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      const trimmedCustomId = (watchedCustomId ?? '').toString().trim();
+      const trimmedTitle = (watchedTitle ?? '').toString().trim();
+
+      setSearchQuery((prev) => {
+        const nextQuery: GetProblemsSearchParams = {
+          ...prev,
+          customId: trimmedCustomId || undefined,
+          title: trimmedTitle || undefined,
+        };
+
+        const cleaned = Object.fromEntries(
+          Object.entries(nextQuery).filter(([, value]) =>
+            Array.isArray(value) ? value.length > 0 : Boolean(value)
+          )
+        ) as GetProblemsSearchParams;
+
+        return cleaned;
+      });
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [watchedCustomId, watchedTitle]);
 
   const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
   const { data: tagsData } = getConcept();
