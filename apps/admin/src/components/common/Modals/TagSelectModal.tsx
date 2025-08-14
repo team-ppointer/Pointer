@@ -40,13 +40,13 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
   }, [searchInput]);
 
   return (
-    <div className='flex w-[70dvw] flex-col gap-[3.2rem] px-[6.4rem] py-[4.8rem]'>
+    <div className='flex w-[70dvw] flex-col gap-800 px-1600 py-1200'>
       <h2 className='font-bold-24 text-black'>문항 개념 태그 검색</h2>
       <div className='flex w-full items-center justify-between'>
         <div className='w-[42.4rem]'>
           <Input {...register('searchInput')} placeholder='개념 태그를 입력해주세요.' />
         </div>
-        <div className='flex gap-[1.6rem]'>
+        <div className='flex gap-400'>
           <Button type='button' variant='light' onClick={() => setModalSelectedTag([])}>
             초기화
           </Button>
@@ -56,7 +56,7 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
         </div>
       </div>
       {(modalSelectedTag || []).length > 0 && (
-        <div className='flex flex-wrap gap-[0.8rem]'>
+        <div className='flex flex-wrap gap-200'>
           {modalSelectedTag?.map((tag) => (
             <Tag
               key={tag}
@@ -70,7 +70,7 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
           ))}
         </div>
       )}
-      <div className='flex flex-wrap gap-[0.8rem]'>
+      <div className='flex flex-wrap gap-200'>
         {searchedTagList?.map((tag) => (
           <Tag
             key={tag.id}

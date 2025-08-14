@@ -5,27 +5,27 @@ interface ProblemCardProps {
 
 const ProblemCard = ({ children }: ProblemCardProps) => {
   return (
-    <section className='relative flex min-h-[67rem] w-full min-w-[48rem] flex-col gap-[3.2rem] rounded-[16px] bg-white p-[3.2rem]'>
+    <section className='rounded-400 relative flex min-h-[67rem] w-full min-w-[48rem] flex-col gap-800 bg-white p-800'>
       {children}
     </section>
   );
 };
 
 const CardTextSection = ({ children }: { children: React.ReactNode }) => {
-  return <div className='flex flex-col gap-[1.6rem]'>{children}</div>;
+  return <div className='flex flex-col gap-400'>{children}</div>;
 };
 
 const CardTitle = ({ title }: { title: string }) => {
-  return <h3 className='font-bold-24 flex items-center gap-[1.6rem]'>{title}</h3>;
+  return <h3 className='font-bold-24 flex items-center gap-400'>{title}</h3>;
 };
 
 const CardButtonSection = ({ children }: { children: React.ReactNode }) => {
-  return <div className='absolute top-[3.2rem] right-[3.2rem] flex gap-[1.6rem]'>{children}</div>;
+  return <div className='absolute top-800 right-800 flex gap-400'>{children}</div>;
 };
 
 const CardInfo = ({ label, content }: { label: string; content?: string }) => {
   return (
-    <div className='flex gap-[1.6rem]'>
+    <div className='flex gap-400'>
       <span className='font-medium-18 text-midgray200 min-w-[6.7rem]'>{label}</span>
       <span className='font-medium-18 flex-1 truncate text-black'>{content}</span>
     </div>
@@ -45,9 +45,9 @@ const CardImage = ({ src, height }: { src?: string; height: string }) => {
 
 const CardTagSection = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='flex gap-[1.6rem]'>
+    <div className='flex gap-400'>
       <span className='font-medium-18 text-midgray200 min-w-[6.7rem]'>개념 태그</span>
-      <div className='flex flex-wrap gap-[0.8rem]'>{children}</div>
+      <div className='flex flex-wrap gap-200'>{children}</div>
     </div>
   );
 };

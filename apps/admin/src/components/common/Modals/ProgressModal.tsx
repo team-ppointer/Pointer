@@ -71,22 +71,22 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
   };
 
   return (
-    <div className='w-[90vw] max-w-[120rem] rounded-[16px] bg-white p-[3.2rem]'>
-      <h2 className='font-bold-24 mb-[2.4rem] text-black'>{publishData.publishAt} 진행도</h2>
-      <div className='grid h-[60dvh] grid-cols-2 gap-[2.4rem] overflow-y-auto'>
-        <div className='bg-lightgray100 flex w-full flex-col rounded-[1.6rem] p-[3.2rem]'>
-          <h2 className='font-bold-20 mb-[3.2rem] text-black'>숙제 완료도</h2>
+    <div className='rounded-400 w-[90vw] max-w-[120rem] bg-white p-800'>
+      <h2 className='font-bold-24 mb-600 text-black'>{publishData.publishAt} 진행도</h2>
+      <div className='grid h-[60dvh] grid-cols-2 gap-600 overflow-y-auto'>
+        <div className='bg-lightgray100 rounded-400 flex w-full flex-col p-800'>
+          <h2 className='font-bold-20 mb-800 text-black'>숙제 완료도</h2>
           <div className='flex-1 overflow-y-auto'>
             {publishData.data.map((problemGroup, index) => (
               <div
                 key={problemGroup.problemId}
-                className={`mb-[1.2rem] cursor-pointer rounded-[8px] border px-[1.6rem] py-[0.8rem] transition-colors ${
+                className={`rounded-200 mb-300 cursor-pointer border px-400 py-200 transition-colors ${
                   selectedProblemIndex === index
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 bg-white hover:bg-gray-50'
                 }`}
                 onClick={() => setSelectedProblemIndex(index)}>
-                <div className='flex w-full items-center justify-between gap-[0.8rem]'>
+                <div className='flex w-full items-center justify-between gap-200'>
                   <span className='font-medium-16 text-lightgray500'>{problemGroup.no}</span>
                   <div className='font-medium-16 block flex-1 truncate text-black'>
                     {problemGroup.problem.title}
@@ -104,14 +104,14 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
           </div>
         </div>
 
-        <div className='bg-lightgray100 flex w-full flex-col rounded-[1.6rem] p-[3.2rem]'>
-          <h3 className='font-bold-18 mb-[2.4rem] text-black'>{selectedProblem?.problem.title}</h3>
-          <div className='grid w-full grid-cols-2 gap-[2.4rem]'>
-            <div className='flex flex-col gap-[1.2rem] rounded-[1.6rem] bg-white p-[3.2rem]'>
+        <div className='bg-lightgray100 rounded-400 flex w-full flex-col p-800'>
+          <h3 className='font-bold-18 mb-600 text-black'>{selectedProblem?.problem.title}</h3>
+          <div className='grid w-full grid-cols-2 gap-600'>
+            <div className='rounded-400 flex flex-col gap-300 bg-white p-800'>
               <div className='flex items-center justify-between'>
                 <h4 className='font-medium-16 text-black'>메인 문제</h4>
                 <div
-                  className={`font-medium-12 mr-[0.8rem] rounded-full px-[0.8rem] py-[0.4rem] ${getStatusBadgeStyle(
+                  className={`font-medium-12 mr-200 rounded-full px-200 py-100 ${getStatusBadgeStyle(
                     selectedProblem?.problem.progress
                   )}`}>
                   {getStatusText(selectedProblem?.problem.progress)}
@@ -129,11 +129,11 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
                 />
               </div>
             </div>
-            <div className='flex flex-col gap-[1.2rem] rounded-[1.6rem] bg-white p-[3.2rem]'>
+            <div className='rounded-400 flex flex-col gap-300 bg-white p-800'>
               <div className='flex items-center justify-between'>
                 <h4 className='font-medium-16 text-black'>새끼 문제</h4>
                 <div
-                  className={`font-medium-12 mr-[0.8rem] rounded-full px-[0.8rem] py-[0.4rem] ${getStatusBadgeStyle(
+                  className={`font-medium-12 mr-200 rounded-full px-200 py-100 ${getStatusBadgeStyle(
                     selectedProblem?.childProblems[0]?.progress
                   )}`}>
                   {getStatusText(selectedProblem?.childProblems[0]?.progress)}
@@ -152,24 +152,22 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
               </div>
             </div>
 
-            <div className='col-span-2 space-y-[1.6rem] rounded-[1.6rem] bg-white p-[3.2rem]'>
-              <div className='mb-[2.4rem]'>
+            <div className='rounded-400 col-span-2 space-y-400 bg-white p-800'>
+              <div className='mb-600'>
                 <h4 className='font-medium-16 text-black'>새끼 문제 포인팅</h4>
               </div>
 
               {selectedProblem?.childProblems && selectedProblem.childProblems.length > 0 ? (
                 <div className='space-y-[1.6rem]'>
                   {selectedProblem.childProblems.map((childProblem, index) => (
-                    <div
-                      key={childProblem.id}
-                      className='rounded-[8px] border border-gray-200 p-[1.6rem]'>
-                      <div className='mb-[1.2rem] flex items-center justify-between'>
+                    <div key={childProblem.id} className='rounded-200 border border-gray-200 p-400'>
+                      <div className='mb-300 flex items-center justify-between'>
                         <span className='font-medium-14 text-gray-800'>
                           새끼 문제 {childProblem.no}
                         </span>
                         <div className='flex items-center'>
                           <div
-                            className={`font-medium-12 mr-[0.8rem] rounded-full px-[0.8rem] py-[0.4rem] ${getStatusBadgeStyle(
+                            className={`font-medium-12 mr-200 rounded-full px-200 py-100 ${getStatusBadgeStyle(
                               childProblem.progress
                             )}`}>
                             {getStatusText(childProblem.progress)}
@@ -178,17 +176,15 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
                       </div>
 
                       {childProblem.pointings && childProblem.pointings.length > 0 && (
-                        <div className='space-y-[0.8rem]'>
+                        <div className='space-y-200'>
                           {childProblem.pointings.map((pointing) => (
-                            <div
-                              key={pointing.id}
-                              className='bg-lightgray100 rounded-[6px] p-[1.2rem]'>
+                            <div key={pointing.id} className='bg-lightgray100 rounded-200 p-300'>
                               <div className='flex items-center justify-between'>
                                 <span className='font-medium-12 text-gray-600'>
                                   {pointing.isUnderstood ? 'O' : 'X'}
                                 </span>
                               </div>
-                              <div className='font-medium-12 mt-[0.6rem] text-gray-800'>
+                              <div className='font-medium-12 mt-200 text-gray-800'>
                                 Question
                                 <br />
                                 {pointing.questionContent.blocks.map((block) => {
@@ -221,12 +217,12 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
               )}
             </div>
             {selectedProblem?.problem.pointings && selectedProblem.problem.pointings.length > 0 && (
-              <div className='col-span-2 space-y-[1.6rem] rounded-[1.6rem] bg-white p-[3.2rem]'>
-                <div className='mb-[2.4rem]'>
+              <div className='rounded-400 col-span-2 space-y-400 bg-white p-800'>
+                <div className='mb-600'>
                   <h4 className='font-medium-16 text-black'>메인 문제 포인팅</h4>
                 </div>
                 {selectedProblem.problem.pointings.map((pointing, index) => (
-                  <div key={pointing.id} className='bg-lightgray100 rounded-[8px] p-[1.2rem]'>
+                  <div key={pointing.id} className='bg-lightgray100 rounded-200 p-300'>
                     <div className='flex items-center justify-between'>
                       <span className='font-medium-12 text-gray-600'>
                         {pointing.isUnderstood ? 'O' : 'X'}
@@ -256,7 +252,7 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
           </div>
         </div>
       </div>
-      <div className='mt-[2.4rem] flex justify-end pt-[2.4rem]'>
+      <div className='mt-600 flex justify-end pt-600'>
         <Button variant='dark' onClick={onClose}>
           닫기
         </Button>

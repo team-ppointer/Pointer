@@ -38,12 +38,12 @@ const StudentSearchModal = ({
   };
 
   return (
-    <div className='w-[70dvw] px-[6.4rem] py-[4.8rem]'>
+    <div className='w-[70dvw] px-1600 py-1200'>
       <h2 className='font-bold-24 text-black'>담당 학생 검색</h2>
-      <form className='mt-[3.2rem] flex flex-col gap-[3.2rem]'>
+      <form className='mt-800 flex flex-col gap-800'>
         <div className='flex items-center justify-between'>
           <SearchInput placeholder='학생 이름을 입력해주세요.' sizeType='long' />
-          <div className='flex justify-end gap-[1.6rem]'>
+          <div className='flex justify-end gap-400'>
             <Button type='button' variant='light' onClick={handleReset}>
               초기화
             </Button>
@@ -52,7 +52,7 @@ const StudentSearchModal = ({
             </Button>
           </div>
         </div>
-        <div className='flex flex-wrap gap-[0.8rem]'>
+        <div className='flex flex-wrap gap-200'>
           {selectedStudents.map((student) => (
             <Tag
               key={student.id}
@@ -63,7 +63,7 @@ const StudentSearchModal = ({
             />
           ))}
         </div>
-        <div className='flex flex-wrap gap-[0.8rem]'>
+        <div className='flex flex-wrap gap-200'>
           {studentList?.data
             .filter((student) => !selectedStudents.some((s) => s.id === student.id))
             .map((student) => (

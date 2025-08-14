@@ -401,7 +401,7 @@ function RouteComponent() {
         deleteButton='세트 삭제'
         onClickDelete={handleClickSetDelete}
       />
-      <div className='mt-[6.4rem] flex justify-between'>
+      <div className='mt-1600 flex justify-between'>
         <div className='w-[81.5rem]'>
           <ComponentWithLabel label='세트 제목'>
             <Input
@@ -413,7 +413,7 @@ function RouteComponent() {
           </ComponentWithLabel>
         </div>
 
-        <div className='flex items-center gap-[2.4rem]'>
+        <div className='flex items-center gap-600'>
           <StatusToggle
             selectedStatus={confirmStatus}
             onSelect={(status) => {
@@ -422,7 +422,7 @@ function RouteComponent() {
               }
             }}
           />
-          <div className='flex items-center gap-[0.8rem]'>
+          <div className='flex items-center gap-200'>
             <Button variant='light'>미리보기</Button>
             <Button variant='dark' onClick={handleSubmit(handleClickSave)}>
               저장하기
@@ -430,7 +430,7 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
+      <div className='mt-1200 grid w-full auto-cols-[48rem] grid-flow-col gap-800 overflow-auto'>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
             items={problemSummaries.map((item) => item.problem.id)}

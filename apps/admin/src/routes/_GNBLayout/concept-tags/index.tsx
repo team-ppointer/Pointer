@@ -106,15 +106,15 @@ function RouteComponent() {
     <>
       <Header title='개념 태그 검색' />
       <form
-        className='my-[4.8rem] flex items-end justify-between gap-[3.2rem]'
+        className='my-1200 flex items-end justify-between gap-800'
         onSubmit={handleSubmit(handleClickSearch)}>
         <Input placeholder='검색어를 입력해주세요' {...register('query', { required: false })} />
         <Button variant='dark'>검색</Button>
       </form>
       <Divider />
-      <div className='my-[4.8rem] flex items-center justify-between'>
+      <div className='my-1200 flex items-center justify-between'>
         <h2 className='font-bold-32 text-black'>개념 태그 리스트</h2>
-        <div className='flex gap-[1.6rem]'>
+        <div className='flex gap-400'>
           <Button sizeType='fit' variant='light' onClick={() => setSelectedTag([])}>
             전체 선택 해제
           </Button>
@@ -124,11 +124,11 @@ function RouteComponent() {
         </div>
       </div>
 
-      <section className='mb-[8rem] flex flex-col gap-[4.8rem]'>
+      <section className='mb-[8rem] flex flex-col gap-1200'>
         {conceptCategories?.data.map((category) =>
           concepts?.data.some((concept) => concept.category.id === category.id) ? (
             <article>
-              <div className='mb-[4rem] flex items-center gap-[1.2rem]'>
+              <div className='mb-[4rem] flex items-center gap-300'>
                 <h4 className='font-bold-24 text-black'>{category.name}</h4>
                 <IcPencil className='cursor-pointer' width={24} height={24} onClick={() => {}} />
               </div>

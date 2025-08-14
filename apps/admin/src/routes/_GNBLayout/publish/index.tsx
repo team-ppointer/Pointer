@@ -10,15 +10,14 @@ import {
   ProgressModal,
 } from '@components';
 import { HTMLAttributes, useState } from 'react';
-import { IcDeleteSm } from '@svg';
+import { IcDeleteSm, IcRight, IcMore } from '@svg';
 import { Link } from '@tanstack/react-router';
 import { deletePublish, getPublish, getPublishById, getStudent } from '@apis';
-import { useInvalidate, useModal } from '@hooks';
+import { useInvalidate, useModal, useSelectedStudent } from '@hooks';
 import { components } from '@schema';
 import dayjs from 'dayjs';
 
 import SelectStudentModal from '@/components/common/Modals/SelectStudentModal';
-
 import 'dayjs/locale/ko';
 
 dayjs.locale('ko');
@@ -49,7 +48,7 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
   const { data: publishDetailData } = getPublishById({ id: publishId || 0 });
 
   const today = dayjs().startOf('day');
-  const isPast = dayjs(fullDate).isBefore(today, 'day');
+  // const isPast = dayjs(fullDate).isBefore(today, 'day');
   const isToday = dayjs(fullDate).isSame(today, 'day');
   const isSunday = dayOfWeek === 0;
   const isSaturday = dayOfWeek === 6;
@@ -98,7 +97,12 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
                 <div className='cursor-pointer' onClick={openDeleteModal}>
                   <IcDeleteSm width={24} height={24} />
                 </div>
-                <IconButton variant='view' onClick={openProgressModal} />
+                <IcMore
+                  width={24}
+                  height={24}
+                  className='cursor-pointer'
+                  onClick={openProgressModal}
+                />
               </>
             )}
           </div>
@@ -112,7 +116,7 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
             <p className={`font-bold-18 h-full w-full text-black`}>{title}</p>
           </Link>
         ) : (
-          !isPast &&
+          // !isPast &&
           selectedStudent && (
             <Link
               to={`/publish/register/$publishDate/$studentId`}
@@ -150,9 +154,7 @@ export const Route = createFileRoute('/_GNBLayout/publish/')({
 
 function RouteComponent() {
   const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
-  const [selectedStudent, setSelectedStudent] = useState<
-    components['schemas']['StudentResp'] | null
-  >(null);
+  const { selectedStudent, setSelectedStudent } = useSelectedStudent();
   const { data: studentList } = getStudent({ query: '' });
 
   const {
@@ -192,30 +194,38 @@ function RouteComponent() {
   return (
     <>
       <div className='w-full'>
-        <div className='mb-[7.4rem] flex items-center justify-between'>
-          <div className='flex items-center gap-[1.6rem]'>
+        <div className='mb-[7.4rem] grid grid-cols-3 items-center'>
+          <div className='flex items-center gap-400'>
             <h2
               className={`font-bold-32 cursor-pointer ${
                 selectedStudent ? 'text-black' : 'text-lightgray500'
-              }`}>
+              }`}
+              onClick={openSelectStudentModal}>
               {selectedStudent ? selectedStudent.name : '학생을 선택해주세요'}
             </h2>
-            <IconButton variant='right' onClick={openSelectStudentModal} />
+            <IcRight
+              onClick={openSelectStudentModal}
+              className='h-[3.6rem] w-[3.6rem] cursor-pointer'
+            />
           </div>
-          <div className='flex items-center justify-center gap-[4.8rem]'>
+          <div className='flex items-center justify-center gap-1200'>
             <IconButton variant='left' onClick={handleClickPrevMonth} />
             <h2 className='font-bold-32 cursor-pointer' onClick={handleClickCurrentMonth}>
               {currentMonth.format('YYYY년 M월')}
             </h2>
             <IconButton variant='right' onClick={handleClickNextMonth} />
           </div>
-          <div className='flex items-center gap-[1.6rem]'>
-            <Button variant='light' onClick={openNoticeListModal}>
-              공지 목록
-            </Button>
-            <Button variant='dark' onClick={openCreateNoticeModal}>
-              공지 작성
-            </Button>
+          <div className='flex items-center justify-end gap-400'>
+            {selectedStudent && (
+              <>
+                <Button variant='light' onClick={openNoticeListModal}>
+                  공지 목록
+                </Button>
+                <Button variant='dark' onClick={openCreateNoticeModal}>
+                  공지 작성
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -229,9 +239,9 @@ function RouteComponent() {
           ))}
         </div>
 
-        <div className='grid grid-cols-7 gap-[0.8rem]'>
+        <div className='grid grid-cols-7 gap-200'>
           {Array.from({ length: firstDayOfMonth }).map((_, index) => {
-            return <div key={index} className='h-[15rem] rounded-[4px] bg-white'></div>;
+            return <div key={index} className='rounded-100 h-[15rem] bg-white'></div>;
           })}
 
           {daysArray.map((day) => {
@@ -255,7 +265,7 @@ function RouteComponent() {
           })}
 
           {Array.from({ length: 6 - lastDayOfMonth }).map((_, index) => {
-            return <div key={index} className='h-[15rem] rounded-[4px] bg-white'></div>;
+            return <div key={index} className='rounded-100 h-[15rem] bg-white'></div>;
           })}
         </div>
       </div>
@@ -263,7 +273,13 @@ function RouteComponent() {
         <SelectStudentModal
           students={studentList?.data ?? []}
           selectedStudent={selectedStudent}
-          setSelectedStudent={setSelectedStudent}
+          setSelectedStudent={(student) => {
+            if (typeof student === 'function') {
+              setSelectedStudent(student(selectedStudent));
+            } else {
+              setSelectedStudent(student);
+            }
+          }}
           onApply={closeSelectStudentModal}
         />
       </Modal>

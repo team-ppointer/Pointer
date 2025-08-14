@@ -62,12 +62,12 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
 
   return (
     <>
-      <div className='h-[90dvh] w-[90dvw] px-[6.4rem] py-[4.8rem]'>
+      <div className='h-[90dvh] w-[90dvw] px-1600 py-1200'>
         <h2 className='font-bold-24 text-black'>문항 검색</h2>
         <form
-          className='mt-[3.2rem] flex items-end justify-between'
+          className='mt-800 flex items-end justify-between'
           onSubmit={handleSubmit(handleClickSearch)}>
-          <div className='flex gap-[2.4rem]'>
+          <div className='flex gap-600'>
             <SearchInput
               label='문항 ID'
               placeholder='입력해주세요.'
@@ -79,10 +79,10 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
               placeholder='입력해주세요.'
               {...register('title', { required: false })}
             />
-            <div className='flex flex-col gap-[1.2rem]'>
+            <div className='flex flex-col gap-300'>
               <span className='font-medium-18 text-black'>문항 개념 태그</span>
               <div
-                className='border-lightgray500 flex h-[5.6rem] w-[42.4rem] cursor-pointer items-center justify-between rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]'
+                className='border-lightgray500 rounded-400 flex h-[5.6rem] w-[42.4rem] cursor-pointer items-center justify-between border bg-white px-400 py-200'
                 onClick={() => {
                   openModal();
                 }}>
@@ -91,7 +91,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
               </div>
             </div>
           </div>
-          <div className='flex gap-[1.6rem]'>
+          <div className='flex gap-400'>
             <Button variant='light' type='reset' onClick={handleResetQuery}>
               초기화
             </Button>
@@ -99,7 +99,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
           </div>
         </form>
         {selectedTagList.length > 0 && (
-          <div className='mt-[4.8rem] flex flex-wrap gap-[0.8rem]'>
+          <div className='mt-1200 flex flex-wrap gap-200'>
             {selectedTagList.map((tag) => (
               <Tag
                 key={tag}
@@ -113,11 +113,11 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
         )}
 
         {isLoading ? (
-          <div className='mt-[6.4rem] flex w-full items-center justify-center'>
+          <div className='mt-1600 flex w-full items-center justify-center'>
             <PulseLoader color='#222324' aria-label='Loading Spinner' />
           </div>
         ) : (
-          <section className='mt-[6.4rem] grid grid-cols-3 gap-x-[2.4rem] gap-y-[4.8rem] pb-[4.8rem]'>
+          <section className='mt-1600 grid grid-cols-3 gap-x-600 gap-y-1200 pb-1200'>
             {problemList?.data.map((problem) => {
               const { customId, title, memo, concepts } = problem;
               const mainProblemImageUrl = problem.problemContent?.blocks?.find(
@@ -126,7 +126,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
               return (
                 <div
                   key={problem.id}
-                  className='border-lightgray500 rounded-[16px] border'
+                  className='border-lightgray500 rounded-400 border'
                   onClick={() => onClickCard(problem)}>
                   <ProblemCard>
                     <ProblemCard.TextSection>

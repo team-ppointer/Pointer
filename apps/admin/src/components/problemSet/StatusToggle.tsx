@@ -7,7 +7,7 @@ interface StatusToggleProps {
 
 const StatusToggle = ({ selectedStatus, onSelect }: StatusToggleProps) => {
   return (
-    <div className='flex h-fit w-auto gap-[0.8rem] rounded-[8px] bg-white p-[0.4rem]'>
+    <div className='rounded-200 flex h-fit w-auto gap-200 bg-white p-100'>
       <Button
         variant={selectedStatus === 'DOING' ? 'light' : 'dimmed'}
         onClick={() => onSelect('DOING')}>

@@ -49,7 +49,7 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
   return (
     <div className='relative h-[5.6rem] w-full'>
       <div
-        className={`border-lightgray500 absolute z-30 min-h-[5.6rem] w-full rounded-[16px] border bg-white px-[1.6rem] py-[0.8rem]`}>
+        className={`border-lightgray500 rounded-400 absolute z-30 min-h-[5.6rem] w-full border bg-white px-400 py-200`}>
         <div className='flex justify-between gap-[0.9rem]'>
           {practiceTest ? (
             <div className='font-bold-24 w-full'>{practiceTestName}</div>
@@ -62,16 +62,16 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
             />
           )}
 
-          <div className='flex items-center gap-[0.8rem]'>
+          <div className='flex items-center gap-200'>
             {practiceTest && (
               <div onClick={(e) => handleSelectPracticeTest(e, undefined)}>
                 <IcCloseCircle width={24} height={24} />
               </div>
             )}
             {isOpen ? (
-              <IcUp className='mt-[0.6rem]' width={24} height={24} onClick={toggleOpen} />
+              <IcUp className='mt-150' width={24} height={24} onClick={toggleOpen} />
             ) : (
-              <IcDown className='mt-[0.6rem]' width={24} height={24} onClick={toggleOpen} />
+              <IcDown className='mt-150' width={24} height={24} onClick={toggleOpen} />
             )}
           </div>
         </div>
@@ -79,7 +79,7 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
           <>
             <div className='bg-lightgray500 my-[1rem] h-[1px] w-full' />
             <div>
-              <div className='flex flex-col gap-[1.2rem]'>
+              <div className='flex flex-col gap-300'>
                 {filteredResult?.map((exam) => (
                   <div
                     key={exam.id}
