@@ -3,9 +3,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Button, FloatingButton, Header, Input, Modal, TwoButtonModalTemplate } from '@components';
 import { useForm } from 'react-hook-form';
 import { Divider } from '@repo/pointer-design-system/components';
-import { deleteTeacher, getTeacher } from '@apis';
-import { useInvalidate, useModal } from '@hooks';
+import { $api, deleteTeacher, getTeacher } from '@apis';
+import { useModal } from '@hooks';
 import { components } from '@schema';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { TeacherCard } from '@/components/teacher';
 import EditTeacherModal from '@/components/common/Modals/EditTeacherModal';
@@ -15,7 +16,6 @@ export const Route = createFileRoute('/_GNBLayout/teacher/')({
 });
 
 function RouteComponent() {
-  const { invalidateAll } = useInvalidate();
   const [selectedTeacherId, setSelectedTeacherId] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [editingTeacher, setEditingTeacher] = useState<components['schemas']['TeacherResp'] | null>(
@@ -37,47 +37,76 @@ function RouteComponent() {
 
   // api
   const { data: teacherList } = getTeacher({ query: searchQuery });
-  const { mutate: deleteTeacherMutation } = deleteTeacher();
+  const { mutateAsync: deleteTeacherMutateAsync } = deleteTeacher();
+  const queryClient = useQueryClient();
 
   const handleClickSearch = (data: { query: string }) => {
     setSearchQuery(data.query.trim());
   };
 
   const handleClickDelete = async () => {
-    let completedDeletions = 0;
-    const totalDeletions = selectedTeacherId.length;
+    const idsToDelete = [...selectedTeacherId];
+    if (idsToDelete.length === 0) return;
 
-    selectedTeacherId.forEach((teacherId) => {
-      deleteTeacherMutation(
-        {
+    const teacherNameById = new Map<number, string>(
+      (teacherList?.data ?? []).map((teacher) => [teacher.id, teacher.name])
+    );
+
+    const teacherQueryKey = $api.queryOptions('get', '/api/admin/teacher', {
+      params: {
+        query: {
+          query: searchQuery,
+        },
+      },
+    }).queryKey;
+
+    const results = await Promise.allSettled(
+      idsToDelete.map((teacherId) =>
+        deleteTeacherMutateAsync({
           params: {
             path: {
               teacherId,
             },
           },
-        },
-        {
-          onSuccess: () => {
-            completedDeletions++;
-            if (completedDeletions === totalDeletions) {
-              invalidateAll();
-              closeDeleteModal();
-              setSelectedTeacherId([]);
-            }
-          },
-          onError: (error: Error) => {
-            console.error('Failed to delete teacher:', error);
-            alert(error.message);
-            completedDeletions++;
-            if (completedDeletions === totalDeletions) {
-              invalidateAll();
-              closeDeleteModal();
-              setSelectedTeacherId([]);
-            }
-          },
+        })
+      )
+    );
+
+    const succeededIds: number[] = [];
+    const failedMessages: string[] = [];
+
+    results.forEach((result, index) => {
+      const id = idsToDelete[index]!;
+      const displayName = teacherNameById.get(id) ?? `ID ${id}`;
+      if (result.status === 'fulfilled') {
+        succeededIds.push(id);
+      } else {
+        const errorMessage = (result.reason as Error)?.message ?? '삭제 실패';
+        failedMessages.push(`${displayName}: ${errorMessage}`);
+      }
+    });
+
+    if (succeededIds.length > 0) {
+      queryClient.setQueryData<components['schemas']['PageRespTeacherResp'] | undefined>(
+        teacherQueryKey,
+        (oldData) => {
+          if (!oldData || !oldData.data) return oldData;
+          return {
+            ...oldData,
+            data: oldData.data.filter((teacher) => !succeededIds.includes(teacher.id)),
+          };
         }
       );
-    });
+    }
+
+    closeDeleteModal();
+    setSelectedTeacherId((prev) => prev.filter((id) => !succeededIds.includes(id)));
+
+    if (failedMessages.length > 0) {
+      alert(failedMessages.join('\n'));
+    }
+
+    queryClient.invalidateQueries({ queryKey: teacherQueryKey });
   };
 
   const toggleTeacher = (id: number) => {
