@@ -662,8 +662,19 @@ const TextBlockEditor = memo(
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              alignItems: 'center',
+              mb: 2,
+              width: '100%',
+            }}>
             <Button
+              sx={{
+                flex: 1,
+                minWidth: 0,
+              }}
               variant={state.isBold ? 'contained' : 'outlined'}
               size='small'
               onClick={() => {
@@ -675,6 +686,10 @@ const TextBlockEditor = memo(
               <BoldIcon width={10} height={14} />
             </Button>
             <Button
+              sx={{
+                flex: 1,
+                minWidth: 0,
+              }}
               variant={state.isItalic ? 'contained' : 'outlined'}
               size='small'
               onClick={() => {
@@ -686,6 +701,10 @@ const TextBlockEditor = memo(
               <ItalicIcon width={10} height={12} />
             </Button>
             <Button
+              sx={{
+                flex: 1,
+                minWidth: 0,
+              }}
               variant={state.isUnderline ? 'contained' : 'outlined'}
               size='small'
               onClick={() => {
@@ -697,12 +716,20 @@ const TextBlockEditor = memo(
               <UnderlineIcon width={16} height={16} />
             </Button>
             <Button
+              sx={{
+                flex: 1,
+                minWidth: 0,
+              }}
               variant={state.hasColor ? 'contained' : 'outlined'}
               size='small'
               onClick={handleColor}>
               <ColorIcon width={16} height={16} />
             </Button>
             <Button
+              sx={{
+                flex: 1,
+                minWidth: 0,
+              }}
               variant={state.hasBorder ? 'contained' : 'outlined'}
               size='small'
               onClick={() => {
