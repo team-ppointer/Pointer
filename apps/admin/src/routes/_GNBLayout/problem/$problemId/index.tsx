@@ -272,11 +272,7 @@ function RouteComponent() {
         }}
       />
       <form onSubmit={handleSubmit(handleSubmitUpdate)}>
-        <Header
-          title={`문제 ID : ${problemCustomId}`}
-          deleteButton='문제 삭제'
-          onClickDelete={openDeleteModal}
-        />
+        <Header title='문제 수정' deleteButton='문제 삭제' onClickDelete={openDeleteModal} />
         <ProblemEssentialInput>
           <Controller
             control={control}
@@ -328,6 +324,12 @@ function RouteComponent() {
           <ProblemEssentialInput.ProblemError
             isError={Boolean(errors.practiceTestId || errors.practiceTestNo)}
             errorMessage='모의고사와 문제 번호는 필수 입력 항목입니다.'
+          />
+
+          <ProblemEssentialInput.ProblemID
+            {...register('customId', {
+              required: '문제 ID는 필수 입력 항목입니다.',
+            })}
           />
         </ProblemEssentialInput>
         <div className='mt-1200 flex flex-col gap-1200'>
