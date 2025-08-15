@@ -174,6 +174,12 @@ const ProblemViewer = memo(
               variant='body1'
               component='div'
               sx={{
+                fontFamily: 'Pretendard',
+                fontWeight: 500,
+                fontSize: '16px',
+                lineHeight: '150%',
+                letterSpacing: '0%',
+                color: '#1E1E21',
                 mb: 1, // 2에서 1로 줄임
                 tabSize: 4,
                 MozTabSize: 4,

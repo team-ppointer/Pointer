@@ -1,16 +1,23 @@
 import { memo } from 'react';
 
-const SvgUnderline = ({ title, titleId, ...props }) => (
-  <svg fill='none' xmlns='http://www.w3.org/2000/svg' aria-labelledby={titleId} {...props}>
-    {title ? <title id={titleId}>{title}</title> : null}
+const UnderlineIcon = (props) => (
+  <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
     <path
-      d='M13.3337 13.3337H2.66699M11.8098 3.4289V7.23842C11.8098 9.34236 10.1043 11.0479 8.00033 11.0479C5.89638 11.0479 4.1908 9.34236 4.1908 7.23842V3.4289M3.04794 2.66699H5.33366M10.667 2.66699L12.9527 2.66699'
+      d='M4 0.5H20C21.933 0.5 23.5 2.067 23.5 4V20C23.5 21.933 21.933 23.5 20 23.5H4C2.067 23.5 0.5 21.933 0.5 20V4C0.5 2.067 2.067 0.5 4 0.5Z'
+      fill='white'
+    />
+    <path
+      d='M4 0.5H20C21.933 0.5 23.5 2.067 23.5 4V20C23.5 21.933 21.933 23.5 20 23.5H4C2.067 23.5 0.5 21.933 0.5 20V4C0.5 2.067 2.067 0.5 4 0.5Z'
+      stroke='#C6CAD4'
+    />
+    <path
+      d='M17.3346 17.3337H6.66797M15.8108 7.4289V11.2384C15.8108 13.3424 14.1052 15.0479 12.0013 15.0479C9.89736 15.0479 8.19178 13.3424 8.19178 11.2384V7.4289M7.04892 6.66699H9.33464M14.668 6.66699L16.9537 6.66699'
       stroke='#1E1E21'
-      strokeWidth={1.33333}
-      strokeLinecap='round'
-      strokeLinejoin='round'
+      stroke-width='1.33333'
+      stroke-linecap='round'
+      stroke-linejoin='round'
     />
   </svg>
 );
-const Memo = memo(SvgUnderline);
-export default Memo;
+
+export default memo(UnderlineIcon);

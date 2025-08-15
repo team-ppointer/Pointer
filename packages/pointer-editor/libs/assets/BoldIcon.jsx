@@ -1,14 +1,21 @@
 import { memo } from 'react';
 
 const SvgBold = ({ title, titleId, ...props }) => (
-  <svg fill='none' xmlns='http://www.w3.org/2000/svg' aria-labelledby={titleId} {...props}>
-    {title ? <title id={titleId}>{title}</title> : null}
+  <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
     <path
-      d='M1 7.00033V12.3337H6.4C7.83594 12.3337 9 11.1398 9 9.66699C9 8.19423 7.83594 7.00033 6.4 7.00033H1ZM1 7.00033H5.6C7.03594 7.00033 8.2 5.80642 8.2 4.33366C8.2 2.8609 7.03594 1.66699 5.6 1.66699H1V7.00033Z'
+      d='M4 0.5H20C21.933 0.5 23.5 2.067 23.5 4V20C23.5 21.933 21.933 23.5 20 23.5H4C2.067 23.5 0.5 21.933 0.5 20V4C0.5 2.067 2.067 0.5 4 0.5Z'
+      fill='white'
+    />
+    <path
+      d='M4 0.5H20C21.933 0.5 23.5 2.067 23.5 4V20C23.5 21.933 21.933 23.5 20 23.5H4C2.067 23.5 0.5 21.933 0.5 20V4C0.5 2.067 2.067 0.5 4 0.5Z'
+      stroke='#C6CAD4'
+    />
+    <path
+      d='M8 12.0003V17.3337H13.4C14.8359 17.3337 16 16.1398 16 14.667C16 13.1942 14.8359 12.0003 13.4 12.0003H8ZM8 12.0003H12.6C14.0359 12.0003 15.2 10.8064 15.2 9.33366C15.2 7.8609 14.0359 6.66699 12.6 6.66699H8V12.0003Z'
       stroke='#1E1E21'
-      strokeWidth={2}
-      strokeLinecap='round'
-      strokeLinejoin='round'
+      stroke-width='2'
+      stroke-linecap='round'
+      stroke-linejoin='round'
     />
   </svg>
 );

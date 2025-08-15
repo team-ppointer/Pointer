@@ -2,10 +2,22 @@
 
 @layer base {
   html {
-
   }
 
   body {
     overflow-x: auto;
   }
+}
+
+.quill-no-border .ql-container {
+  border: none !important;
+}
+
+.quill-no-border .ql-editor {
+  border: none !important;
+  outline: none !important;
+}
+
+.quill-no-border .ql-toolbar {
+  border: none !important;
 }

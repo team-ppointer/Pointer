@@ -2,6 +2,7 @@ import { useEffect, useRef, useReducer, useCallback, useMemo, memo, useState } f
 import {
   Box,
   Button,
+  IconButton,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -85,7 +86,6 @@ const parseStyleString = (styleString) => {
   const result = {
     alignment: 'left',
     hasBorder: false,
-    borderStyle: '1px solid black', // 기본값
     innerPadding: 'medium',
     isBold: false,
     isItalic: false,
@@ -657,7 +657,7 @@ const TextBlockEditor = memo(
                 }}
                 startIcon={<Functions />}
                 title='수식 삽입 (⌘+M / Ctrl+Shift+M)'>
-                수식 삽입 (⌘+Shift+M / Ctrl+Shift+M)
+                <span style={{ fontSize: '12px' }}>수식 삽입 (⌘+Shift+M / Ctrl+Shift+M)</span>
               </Button>
             </Box>
           </Box>
@@ -666,161 +666,111 @@ const TextBlockEditor = memo(
             sx={{
               display: 'flex',
               gap: 1,
-              alignItems: 'center',
-              mb: 2,
-              width: '100%',
             }}>
-            <Button
-              sx={{
-                flex: 1,
-                minWidth: 0,
-              }}
-              variant={state.isBold ? 'contained' : 'outlined'}
+            <IconButton
               size='small'
+              disableRipple
+              sx={{
+                color: state.hasBorder ? '#3E3F45' : '#9CA3AF',
+                backgroundColor: state.hasBorder ? '#E5E7EB' : 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+              }}
+              onClick={() => {
+                const newBorderState = !state.hasBorder;
+                dispatch({ type: actionTypes.SET_BORDER, payload: newBorderState });
+                if (!newBorderState) {
+                  dispatch({ type: actionTypes.SET_INNER_PADDING, payload: 'medium' });
+                }
+                const content = getContent();
+                const currentStyle = generateCurrentStyle();
+                updateBlock(content, currentStyle);
+              }}>
+              <BoxIcon />
+            </IconButton>
+
+            <IconButton
+              size='small'
+              disableRipple
+              sx={{
+                color: state.isBold ? '#3E3F45' : '#9CA3AF',
+                backgroundColor: state.isBold ? '#E5E7EB' : 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+              }}
               onClick={() => {
                 dispatch({ type: actionTypes.SET_BOLD, payload: !state.isBold });
                 const content = getContent();
                 const currentStyle = generateCurrentStyle();
                 updateBlock(content, currentStyle);
               }}>
-              <BoldIcon width={10} height={14} />
-            </Button>
-            <Button
-              sx={{
-                flex: 1,
-                minWidth: 0,
-              }}
-              variant={state.isItalic ? 'contained' : 'outlined'}
+              <BoldIcon />
+            </IconButton>
+
+            <IconButton
               size='small'
+              disableRipple
+              sx={{
+                color: state.isItalic ? '#3E3F45' : '#9CA3AF',
+                backgroundColor: state.isItalic ? '#E5E7EB' : 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+              }}
               onClick={() => {
                 dispatch({ type: actionTypes.SET_ITALIC, payload: !state.isItalic });
                 const content = getContent();
                 const currentStyle = generateCurrentStyle();
                 updateBlock(content, currentStyle);
               }}>
-              <ItalicIcon width={10} height={12} />
-            </Button>
-            <Button
-              sx={{
-                flex: 1,
-                minWidth: 0,
-              }}
-              variant={state.isUnderline ? 'contained' : 'outlined'}
+              <ItalicIcon />
+            </IconButton>
+
+            <IconButton
               size='small'
+              disableRipple
+              sx={{
+                color: state.isUnderline ? '#3E3F45' : '#9CA3AF',
+                backgroundColor: state.isUnderline ? '#E5E7EB' : 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+              }}
               onClick={() => {
                 dispatch({ type: actionTypes.SET_UNDERLINE, payload: !state.isUnderline });
                 const content = getContent();
                 const currentStyle = generateCurrentStyle();
                 updateBlock(content, currentStyle);
               }}>
-              <UnderlineIcon width={16} height={16} />
-            </Button>
-            <Button
-              sx={{
-                flex: 1,
-                minWidth: 0,
-              }}
-              variant={state.hasColor ? 'contained' : 'outlined'}
+              <UnderlineIcon />
+            </IconButton>
+
+            <IconButton
               size='small'
+              disableRipple
+              sx={{
+                color: state.hasColor ? '#3E3F45' : '#9CA3AF',
+                backgroundColor: state.hasColor ? '#E5E7EB' : 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+              }}
               onClick={handleColor}>
-              <ColorIcon width={16} height={16} />
-            </Button>
-            <Button
-              sx={{
-                flex: 1,
-                minWidth: 0,
-              }}
-              variant={state.hasBorder ? 'contained' : 'outlined'}
-              size='small'
-              onClick={() => {
-                const newBorderState = !state.hasBorder;
-                dispatch({ type: actionTypes.SET_BORDER, payload: newBorderState });
-
-                // border를 끄면 padding도 기본값으로 돌아가게
-                if (!newBorderState) {
-                  dispatch({ type: actionTypes.SET_INNER_PADDING, payload: 'medium' });
-                }
-
-                const content = getContent();
-                const currentStyle = generateCurrentStyle();
-                updateBlock(content, currentStyle);
-              }}>
-              <BoxIcon width={14} height={14} />
-            </Button>
-          </Box>
-
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', mt: 1 }}>
-            {/* 정렬 옵션 */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant='body2' sx={{ minWidth: 40 }}>
-                정렬:
-              </Typography>
-              <ToggleButtonGroup
-                value={state.alignment}
-                exclusive
-                onChange={(e, newAlignment) => {
-                  if (newAlignment !== null) {
-                    dispatch({ type: actionTypes.SET_ALIGNMENT, payload: newAlignment });
-                    // 스타일 즉시 반영
-                    const content = getContent();
-                    const currentStyle = generateCurrentStyle();
-                    updateBlock(content, currentStyle);
-                  }
-                }}
-                size='small'>
-                <ToggleButton value='left' aria-label='왼쪽 정렬'>
-                  <FormatAlignLeft />
-                </ToggleButton>
-                <ToggleButton value='center' aria-label='가운데 정렬'>
-                  <FormatAlignCenter />
-                </ToggleButton>
-                <ToggleButton value='right' aria-label='오른쪽 정렬'>
-                  <FormatAlignRight />
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-
-            {/* 내부 여백 선택 */}
-            {state.hasBorder && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant='body2' sx={{ minWidth: 60 }}>
-                  내부 여백:
-                </Typography>
-                <ToggleButtonGroup
-                  value={state.innerPadding}
-                  exclusive
-                  onChange={(e, newPadding) => {
-                    if (newPadding !== null) {
-                      dispatch({ type: actionTypes.SET_INNER_PADDING, payload: newPadding });
-                      const content = getContent();
-                      const currentStyle = generateCurrentStyle();
-                      updateBlock(content, currentStyle);
-                    }
-                  }}
-                  size='small'>
-                  <ToggleButton value='small' aria-label='작게'>
-                    <Typography variant='caption'>작게</Typography>
-                  </ToggleButton>
-                  <ToggleButton value='medium' aria-label='보통'>
-                    <Typography variant='caption'>보통</Typography>
-                  </ToggleButton>
-                  <ToggleButton value='large' aria-label='크게'>
-                    <Typography variant='caption'>크게</Typography>
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-            )}
+              <ColorIcon />
+            </IconButton>
           </Box>
         </Box>
 
         {/* Quill 에디터 컨테이너 */}
         <div
           ref={containerRef}
+          className='quill-no-border'
           style={{
-            height: '300px',
-            border: '1px solid #e0e0e0', // 항상 고정
-            borderRadius: '4px',
-            padding: '16px', // 항상 고정
+            height: '150px',
+            borderRadius: '10px',
+            background: '#F7F7F7',
           }}
         />
 
