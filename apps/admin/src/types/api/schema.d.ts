@@ -33,7 +33,8 @@ export interface paths {
     /** 수정 */
     put: operations['update'];
     post?: never;
-    delete?: never;
+    /** 삭제 */
+    delete: operations['delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -52,7 +53,7 @@ export interface paths {
     put: operations['update_1'];
     post?: never;
     /** Q&A 삭제 */
-    delete: operations['delete'];
+    delete: operations['delete_1'];
     options?: never;
     head?: never;
     patch?: never;
@@ -177,24 +178,7 @@ export interface paths {
     put: operations['update_4'];
     post?: never;
     /** 삭제 */
-    delete: operations['delete_1'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/admin/problem-set/{id}/status': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** 수정 */
-    put: operations['update_5'];
-    post?: never;
-    delete?: never;
+    delete: operations['delete_2'];
     options?: never;
     head?: never;
     patch?: never;
@@ -226,10 +210,10 @@ export interface paths {
     };
     get?: never;
     /** 수정 */
-    put: operations['update_6'];
+    put: operations['update_5'];
     post?: never;
     /** 삭제 */
-    delete: operations['delete_2'];
+    delete: operations['delete_3'];
     options?: never;
     head?: never;
     patch?: never;
@@ -244,9 +228,10 @@ export interface paths {
     };
     get?: never;
     /** 수정 */
-    put: operations['update_7'];
+    put: operations['update_6'];
     post?: never;
-    delete?: never;
+    /** 삭제 */
+    delete: operations['delete_4'];
     options?: never;
     head?: never;
     patch?: never;
@@ -261,10 +246,10 @@ export interface paths {
     };
     get?: never;
     /** 개념태그 수정 */
-    put: operations['update_8'];
+    put: operations['update_7'];
     post?: never;
     /** 개념태그 삭제 */
-    delete: operations['delete_3'];
+    delete: operations['delete_5'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1092,7 +1077,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_4'];
+    delete: operations['delete_6'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1160,7 +1145,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_5'];
+    delete: operations['delete_7'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1177,7 +1162,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 선생님 삭제 */
-    delete: operations['delete_6'];
+    delete: operations['delete_8'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1530,10 +1515,6 @@ export interface components {
       status: 'CONFIRMED' | 'DOING';
       firstProblem: components['schemas']['ProblemMetaResp'];
       problems: components['schemas']['ProblemSetItemResp'][];
-    };
-    ProblemSetUpdateStatusReq: {
-      /** @enum {string} */
-      status: 'CONFIRMED' | 'DOING';
     };
     Request: {
       /** Format: int32 */
@@ -2083,6 +2064,26 @@ export interface operations {
       };
     };
   };
+  delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   getById: {
     parameters: {
       query?: never;
@@ -2131,7 +2132,7 @@ export interface operations {
       };
     };
   };
-  delete: {
+  delete_1: {
     parameters: {
       query?: never;
       header?: never;
@@ -2433,7 +2434,7 @@ export interface operations {
       };
     };
   };
-  delete_1: {
+  delete_2: {
     parameters: {
       query?: never;
       header?: never;
@@ -2450,32 +2451,6 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
-      };
-    };
-  };
-  update_5: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProblemSetUpdateStatusReq'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['ProblemSetResp'];
-        };
       };
     };
   };
@@ -2501,7 +2476,7 @@ export interface operations {
       };
     };
   };
-  update_6: {
+  update_5: {
     parameters: {
       query?: never;
       header?: never;
@@ -2527,7 +2502,7 @@ export interface operations {
       };
     };
   };
-  delete_2: {
+  delete_3: {
     parameters: {
       query?: never;
       header?: never;
@@ -2547,7 +2522,7 @@ export interface operations {
       };
     };
   };
-  update_7: {
+  update_6: {
     parameters: {
       query?: never;
       header?: never;
@@ -2573,7 +2548,27 @@ export interface operations {
       };
     };
   };
-  update_8: {
+  delete_4: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -2599,7 +2594,7 @@ export interface operations {
       };
     };
   };
-  delete_3: {
+  delete_5: {
     parameters: {
       query?: never;
       header?: never;
@@ -3989,7 +3984,7 @@ export interface operations {
       };
     };
   };
-  delete_4: {
+  delete_6: {
     parameters: {
       query?: never;
       header?: never;
@@ -4069,7 +4064,7 @@ export interface operations {
       };
     };
   };
-  delete_5: {
+  delete_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -4089,7 +4084,7 @@ export interface operations {
       };
     };
   };
-  delete_6: {
+  delete_8: {
     parameters: {
       query?: never;
       header?: never;
