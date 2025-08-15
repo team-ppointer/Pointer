@@ -164,7 +164,7 @@ function RouteComponent() {
               (error as { response?: { data?: unknown } }).response?.data
             );
           }
-          toast.error('저장에 실패했습니다');
+          toast.error((error as { message?: string })?.message || '저장에 실패했습니다');
         },
       }
     );

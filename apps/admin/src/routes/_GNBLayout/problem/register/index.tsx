@@ -113,7 +113,7 @@ function RouteComponent() {
         },
         onError: (error: unknown) => {
           console.error('생성 실패 상세:', error);
-          toast.error('생성에 실패했습니다');
+          toast.error((error as { message?: string })?.message || '생성에 실패했습니다');
         },
       }
     );
