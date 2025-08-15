@@ -8,6 +8,7 @@ export interface ProblemContextType {
   childProblemLength: number;
   onPrev: () => void;
   onNext: () => void;
+  initStep: () => void;
 }
 
 export const ProblemContext = createContext<ProblemContextType | null>(null);
@@ -66,10 +67,15 @@ export const ProblemProvider = ({ children }: { children: React.ReactNode }) => 
     }
   };
 
+  const initStep = () => {
+    setStep(0);
+  };
+
   const contextValue: ProblemContextType = {
     childProblemLength: childProblems.length,
     onPrev,
     onNext,
+    initStep,
   };
 
   return <ProblemContext.Provider value={contextValue}>{children}</ProblemContext.Provider>;

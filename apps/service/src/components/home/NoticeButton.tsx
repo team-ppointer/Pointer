@@ -6,9 +6,10 @@ import { useGetNoticeUnreadCount } from '@/apis/controller/home';
 const NoticeButton = () => {
   const { data } = useGetNoticeUnreadCount();
   const { totalCount = 0, unreadCount = 0, latestNotice } = data ?? {};
+  console.log(data);
   return (
     <Link
-      href={unreadCount !== 0 ? '/notice-modal' : '/'}
+      href='/notice-modal'
       scroll={false}
       className='relative flex h-full min-w-[12rem] flex-1 flex-col gap-[1.2rem] rounded-[1.6rem] bg-white px-[2.4rem] py-[2.0rem]'>
       {unreadCount > 0 && (
@@ -27,7 +28,9 @@ const NoticeButton = () => {
         <span className='font-medium-14 text-lightgray500'>공지가 없습니다</span>
       ) : (
         <div className='flex w-full flex-col gap-[0.8rem]'>
-          <span className='font-medium-14 truncate text-black'>{latestNotice?.content}</span>
+          <span className='font-medium-14 truncate text-black'>
+            {latestNotice ? latestNotice.content : '공지를 모두 읽었어요'}
+          </span>
         </div>
       )}
     </Link>

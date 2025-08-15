@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import PulseLoader from 'react-spinners/PulseLoader';
 
@@ -36,15 +36,26 @@ const Page = () => {
 
   const title = getQnaTitle(type);
 
-  const parentQuery = useGetProblemById({ publishId: +publishId, problemId: problemId ?? -1 });
-
-  const childQuery = useGetChildProblemById(publishId, childProblemId || -1);
+  let parentQuery = undefined;
+  let childQuery = undefined;
+  if(type.includes('CHILD')) {
+    childQuery = useGetChildProblemById(publishId, childProblemId || -1);
+  } else {
+    parentQuery = useGetProblemById({ publishId: +publishId, problemId: problemId ?? -1 });
+  }
 
   // 메인 문제인 경우와 자식 문제인 경우를 구분하여 데이터를 가져옴
   // parentQuery는 메인 문제의 데이터를 가져오고, childQuery는 자식 문제의 데이터를 가져옴
   const response =
     (parentQuery?.data as components['schemas']['ProblemWithStudyInfoResp']) ??
     (childQuery?.data as components['schemas']['ChildProblemWithStudyInfoResp']);
+
+  // response가 로드되면 로딩 상태를 false로 변경
+  useEffect(() => {
+    if (response !== undefined) {
+      setIsLoading(false);
+    }
+  }, [response]);
 
   const handleTextareaOnChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -85,7 +96,13 @@ const Page = () => {
           }
           if (result.response.status !== 200) {
             setIsLoading(false);
-            showToast.error('질문 등록에 실패했습니다. 다시 시도해주세요.');
+            if (result.response.status === 400) {
+              console.log(result);
+              const errorMsg = (result.error as unknown as { message: string })?.message || '질문 등록에 실패했습니다. 다시 시도해주세요.';
+              showToast.error(errorMsg);
+            } else {
+              showToast.error('질문 등록에 실패했습니다. 다시 시도해주세요.');
+            }
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -110,7 +127,13 @@ const Page = () => {
       }
       if (result.response.status !== 200) {
         setIsLoading(false);
-        showToast.error('질문 등록에 실패했습니다. 다시 시도해주세요.');
+        if (result.response.status === 400) {
+          console.log(result);
+          const errorMsg = (result.error as unknown as { message: string })?.message || '질문 등록에 실패했습니다. 다시 시도해주세요.';
+          showToast.error(errorMsg);
+        } else {
+          showToast.error('질문 등록에 실패했습니다. 다시 시도해주세요.');
+        }
       }
     }
   };

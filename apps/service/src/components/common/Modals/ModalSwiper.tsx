@@ -14,8 +14,9 @@ type NoticeResp = components['schemas']['NoticeResp'];
 const ModalSwiper = () => {
   const router = useRouter();
   const { data: getNoticeData, refetch } = useGetNotice();
+  console.log(getNoticeData);
   const { refetch: refetchUnreadCount } = useGetNoticeUnreadCount();
-  const noticeSets = getNoticeData?.data.filter((notice) => !notice.isRead) || [];
+  const noticeSets = getNoticeData?.data || []; //.filter((notice) => !notice.isRead) || [];
   const unreadNotices = noticeSets.filter((notice) => !notice.isRead);
 
   const onClickConfirm = async (noticeId: number) => {
@@ -41,11 +42,11 @@ const ModalSwiper = () => {
           </BaseModalTemplate.Content>
           <BaseModalTemplate.ButtonSection>
             <BaseModalTemplate.Button
-              variant='blue'
+              variant={notice.isRead ? 'light' : 'blue'}
               onClick={() => {
                 onClickConfirm(notice.id);
               }}>
-              확인
+              {notice.isRead ? '이미 읽은 공지에요' : '읽음 처리 하기'}
             </BaseModalTemplate.Button>
           </BaseModalTemplate.ButtonSection>
         </BaseModalTemplate>

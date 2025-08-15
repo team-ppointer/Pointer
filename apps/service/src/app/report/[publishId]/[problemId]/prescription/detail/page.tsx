@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
@@ -38,6 +38,23 @@ const Page = () => {
     newSteps[index] = 2;
     setPointingSteps(newSteps);
   };
+
+  useEffect(() => {
+    if (pointingsContents !== undefined) {
+      console.log(pointingsContents);
+      let newSteps = [];
+      for(let i = 0; i < pointingsContents.length; i++) {
+        if (pointingsContents[i].isUnderstood === undefined || pointingsContents[i].isUnderstood === null) {
+          newSteps[i] = 1;
+        } else {
+          newSteps[i] = 3;
+          setVisibleCount(visibleCount+1);
+        }
+      }
+      console.log(newSteps);
+      setPointingSteps(newSteps);
+    }
+  }, [pointingsContents]);
 
   const handlePrescriptionAnswer = async (index: number, isUnderstood: boolean) => {
     const pointingId = pointingsContents[index].id || pointingsContents[index].id;

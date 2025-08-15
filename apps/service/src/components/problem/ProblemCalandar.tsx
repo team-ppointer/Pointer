@@ -72,12 +72,13 @@ const ProblemCalandar = () => {
 
   const weekdaysArray: number[] = Array.from({ length: daysInMonth }, (_, i) => i + 1)
     .map((day) => {
-      const date = currentDay.date(day);
-      const dayOfWeek = date.day(); // 0: 일요일, 6: 토요일
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-        return day;
-      }
-      return null;
+      // const date = currentDay.date(day);
+      // const dayOfWeek = date.day(); // 0: 일요일, 6: 토요일
+      // if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      //   return day;
+      // }
+      // return null;
+      return day;
     })
     .filter((day) => day !== null);
 
@@ -110,29 +111,31 @@ const ProblemCalandar = () => {
       </div>
       <div className='flex flex-col gap-[2.4rem]'>
         <div className='flex w-full flex-col items-center gap-[2rem] rounded-[16px] bg-white px-[3.2rem] py-[2.4rem]'>
-          <div className='grid w-[26.8rem] grid-cols-5 gap-[1.2rem]'>
-            {['월', '화', '수', '목', '금'].map((day) => (
+          <div className='grid w-[30rem] grid-cols-7 gap-[2.4rem]'>
+            {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
               <div key={day} className={`font-medium-12 text-midgray100 text-center`}>
                 {`${day}`}
               </div>
             ))}
           </div>
 
-          <div className='grid w-[26.8rem] grid-cols-5 gap-[1.2rem]'>
-            {Array.from({ length: firstWeekdayOfMonth - 1 }).map((_, index) => {
-              return <div key={index} className='h-[4.4rem] rounded-[4px] bg-white'></div>;
-            })}
-
-            {weekdaysArray.map((day) => {
+          <div className='grid w-[30rem] grid-cols-7 gap-[2.4rem] justify-items-center'>
+            {Array.from({ length: 42 }).map((_, index) => {
+              const dayNumber = index - firstWeekdayOfMonth + 1;
+              
+              if (dayNumber <= 0 || dayNumber > daysInMonth) {
+                return <div key={index} className='h-[4.4rem] rounded-[4px] bg-white'></div>;
+              }
+              
               return (
                 <div
-                  key={day}
-                  className={`font-medium-16 flex h-[4.4rem] w-[4.4rem] items-center justify-center rounded-[16px] text-white ${progressColor(day)}`}
-                  onClick={() => handleClickDay(day)}>
-                  {publishedDataArray[day] === undefined ? (
+                  key={index}
+                  className={`font-medium-16 flex h-[3.5rem] w-[3.5rem] items-center justify-center rounded-[16px] text-white ${progressColor(dayNumber)}`}
+                  onClick={() => handleClickDay(dayNumber)}>
+                  {publishedDataArray[dayNumber] === undefined ? (
                     <IcMinus width={24} height={24} />
                   ) : (
-                    <span>{day}</span>
+                    <span>{dayNumber}</span>
                   )}
                 </div>
               );

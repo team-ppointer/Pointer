@@ -17,7 +17,8 @@ interface PointingImageContainerProps {
 
 const PointingImageContainer = ({ contents, variant, pointingId }: PointingImageContainerProps) => {
   const router = useRouter();
-  const { publishId, childProblemId, type, problemId } = useReportContext();
+  const { publishId, childNumber, childProblems, type, problemId } = useReportContext();
+  const childProblemId = childProblems[childNumber ? childNumber - 1 : 0]?.id;
 
   const handleClickQuestion = () => {
     if (type === 'child' && childProblemId) {
@@ -26,7 +27,7 @@ const PointingImageContainer = ({ contents, variant, pointingId }: PointingImage
           ? 'CHILD_PROBLEM_POINTING_QUESTION'
           : 'CHILD_PROBLEM_POINTING_COMMENT';
       router.push(
-        `/qna/ask?publishId=${publishId}&childProblemId=${problemId}&pointingId=${pointingId}&type=${questionType}`
+        `/qna/ask?publishId=${publishId}&childProblemId=${childProblemId}&pointingId=${pointingId}&type=${questionType}`
       );
       return;
     }

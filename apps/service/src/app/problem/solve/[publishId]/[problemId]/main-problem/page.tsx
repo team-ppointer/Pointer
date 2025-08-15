@@ -27,14 +27,16 @@ import { IcCommentCheck20, IcQuestion18, IcCopyBig } from '@svg';
 const statusLabel: Record<string, string> = {
   CORRECT: '정답',
   INCORRECT: '오답',
+  SEMI_CORRECT: '세모',
   RETRY_CORRECT: '정답',
   NOT_STARTED: '시작전',
 };
 
-const statusColor: Record<string, 'green' | 'red' | 'gray'> = {
+const statusColor: Record<string, 'green' | 'red' | 'gray' | 'yellow'> = {
   CORRECT: 'green',
   INCORRECT: 'red',
   RETRY_CORRECT: 'green',
+  SEMI_CORRECT: 'yellow',
   NOT_STARTED: 'gray',
 };
 

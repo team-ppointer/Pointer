@@ -13,7 +13,7 @@ export interface ReportContextType extends ProblemInfoResp {
   publishId: number;
   problemId: number;
   type?: string | null;
-  childProblemId?: number;
+  childNumber?: number;
   isLoading: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error?: any;
@@ -47,7 +47,7 @@ export const ReportProvider = ({ children }: { children: React.ReactNode }) => {
     publishId: +publishId,
     problemId: +problemId,
     type: type || null,
-    childProblemId: childNumber ? +childNumber : undefined,
+    childNumber: childNumber ? +childNumber : undefined,
     isLoading,
     error,
   };
