@@ -50,13 +50,15 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
     <div className='relative h-[5.6rem] w-full'>
       <div
         className={`border-lightgray500 rounded-400 absolute z-30 min-h-[5.6rem] w-full border bg-white px-400 py-200`}>
-        <div className='flex justify-between gap-[0.9rem]'>
+        <div className='flex min-h-[4rem] items-center justify-between gap-[0.9rem]'>
           {practiceTest ? (
-            <div className='font-bold-24 w-full'>{practiceTestName}</div>
+            <div className='font-bold-18 w-full cursor-pointer' onClick={toggleOpen}>
+              {practiceTestName}
+            </div>
           ) : (
             <input
               {...register('search')}
-              className='font-bold-24 w-full outline-none'
+              className='font-bold-18 w-full outline-none'
               placeholder={'입력해주세요'}
               onFocus={() => setIsOpen(true)}
             />
@@ -65,13 +67,13 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
           <div className='flex items-center gap-200'>
             {practiceTest && (
               <div onClick={(e) => handleSelectPracticeTest(e, undefined)}>
-                <IcCloseCircle width={24} height={24} />
+                <IcCloseCircle width={24} height={24} className='cursor-pointer' />
               </div>
             )}
             {isOpen ? (
-              <IcUp className='mt-150' width={24} height={24} onClick={toggleOpen} />
+              <IcUp className='cursor-pointer' width={24} height={24} onClick={toggleOpen} />
             ) : (
-              <IcDown className='mt-150' width={24} height={24} onClick={toggleOpen} />
+              <IcDown className='cursor-pointer' width={24} height={24} onClick={toggleOpen} />
             )}
           </div>
         </div>
