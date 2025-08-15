@@ -187,6 +187,9 @@ export const MainProblemSection = ({
                 />
               ))}
             <Tag label='태그 추가하기' onClick={onOpenTagModal} color='lightgray' />
+            {concepts && concepts?.length === 0 && (
+              <p className='font-medium-14 text-red mt-200'>태그를 추가해주세요.</p>
+            )}
           </div>
         </ComponentWithLabel>
 
