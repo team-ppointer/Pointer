@@ -41,7 +41,7 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
 
   return (
     <div className='flex w-[70dvw] flex-col gap-800 px-1600 py-1200'>
-      <h2 className='font-bold-24 text-black'>문항 개념 태그 검색</h2>
+      <h2 className='font-bold-24 text-black'>문제 개념 태그 검색</h2>
       <div className='flex w-full items-center justify-between'>
         <div className='w-[42.4rem]'>
           <Input {...register('searchInput')} placeholder='개념 태그를 입력해주세요.' />

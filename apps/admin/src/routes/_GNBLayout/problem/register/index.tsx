@@ -70,11 +70,9 @@ function RouteComponent() {
   } = useForm({
     defaultValues: transformToProblemUpdateRequest({} as ProblemInfoResp),
   });
-  const { data: customIdData } = getCustomId();
   const problemType = watch('problemType');
   const concepts = watch('concepts');
   const selectedAnswerType = watch('answerType');
-  const selectedAnswer = watch('answer');
 
   const {
     fields: childProblems,
@@ -90,11 +88,8 @@ function RouteComponent() {
   };
 
   const handleClickSave = (data: ProblemPostRequest) => {
-    const customId = customIdData?.customId || 'temp-id';
-
     const completeData: ProblemPostRequest = {
       ...data,
-      customId: customId,
       // answer 필드를 숫자로 변환 (메인 문제)
       answer: typeof data.answer === 'string' ? parseInt(data.answer, 10) : data.answer,
       // childProblems의 answer 필드도 숫자로 변환
@@ -118,7 +113,7 @@ function RouteComponent() {
         },
         onError: (error: unknown) => {
           console.error('생성 실패 상세:', error);
-          toast.error('생성에 실패했습니다');
+          toast.error((error as { message?: string })?.message || '생성에 실패했습니다');
         },
       }
     );
@@ -217,11 +212,7 @@ function RouteComponent() {
         }}
       />
       <form onSubmit={handleSubmit(handleClickSave)}>
-        {showDetailSections ? (
-          <Header title={`문제 ID : ${customIdData?.customId}`} />
-        ) : (
-          <Header title='문항 등록' />
-        )}
+        <Header title='문제 등록' />
         <ProblemEssentialInput>
           <Controller
             control={control}
@@ -246,7 +237,7 @@ function RouteComponent() {
                 control={control}
                 name='practiceTestId'
                 rules={{
-                  required: '모의고사와 문항 번호는 필수 입력 항목입니다.',
+                  required: '모의고사와 문제 번호는 필수 입력 항목입니다.',
                 }}
                 render={({ field }) => (
                   <ProblemEssentialInput.PracticeTest
@@ -265,14 +256,19 @@ function RouteComponent() {
               <ProblemEssentialInput.PraticeTestNumber
                 {...register('practiceTestNo', {
                   valueAsNumber: true,
-                  required: '모의고사와 문항 번호는 필수 입력 항목입니다.',
+                  required: '모의고사와 문제 번호는 필수 입력 항목입니다.',
                 })}
               />
             </ProblemEssentialInput.PracticeTestSection>
           )}
           <ProblemEssentialInput.ProblemError
             isError={Boolean(errors.practiceTestId || errors.practiceTestNo)}
-            errorMessage='모의고사와 문항 번호는 필수 입력 항목입니다.'
+            errorMessage='모의고사와 문제 번호는 필수 입력 항목입니다.'
+          />
+          <ProblemEssentialInput.ProblemID
+            {...register('customId', {
+              required: '문제 ID는 필수 입력 항목입니다.',
+            })}
           />
         </ProblemEssentialInput>
 
@@ -298,7 +294,6 @@ function RouteComponent() {
                 setValue={setValue}
                 concepts={concepts}
                 selectedAnswerType={selectedAnswerType}
-                selectedAnswer={selectedAnswer}
                 tagsNameMap={tagsNameMap}
                 fetchedProblemData={undefined}
                 onRemoveTag={handleRemoveTag}

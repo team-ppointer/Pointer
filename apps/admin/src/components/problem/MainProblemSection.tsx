@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { AnswerInput, ComponentWithLabel, Input, SectionCard, Tag, Button } from '@components';
 import {
   Controller,
@@ -6,6 +6,7 @@ import {
   UseFormRegister,
   FieldErrors,
   UseFormSetValue,
+  useWatch,
 } from 'react-hook-form';
 import { components } from '@schema';
 import EditorModal from '@repo/pointer-editor/EditorModal';
@@ -24,7 +25,6 @@ interface MainProblemSectionProps {
   setValue: UseFormSetValue<ProblemUpdateRequest>;
   concepts?: number[] | undefined;
   selectedAnswerType?: ProblemAnswerType;
-  selectedAnswer?: number;
   tagsNameMap?: Record<number, string>;
   fetchedProblemData?: ProblemInfoResp;
   onRemoveTag?: (tag: number) => void;
@@ -34,11 +34,10 @@ interface MainProblemSectionProps {
 export const MainProblemSection = ({
   control,
   register,
-  errors: _errors,
+  errors,
   setValue,
   concepts,
   selectedAnswerType,
-  selectedAnswer,
   tagsNameMap = {},
   fetchedProblemData,
   onRemoveTag,
@@ -83,17 +82,52 @@ export const MainProblemSection = ({
     setIsPointingCommentModalOpen(false);
   };
 
+  // answerType 변경 시 사용자 상호작용에서만 answer 초기화하도록 onChange에 훅을 건다
+  const answerTypeRegister = register('answerType', {
+    required: '필수 입력 항목입니다.',
+  });
+
+  const watchedAnswer = useWatch({
+    control,
+    name: 'answer',
+    defaultValue: fetchedProblemData?.answer ?? 1,
+  });
+  const watchedRecommendedTimeSec = useWatch({
+    control,
+    name: 'recommendedTimeSec',
+    defaultValue: fetchedProblemData?.recommendedTimeSec ?? 0,
+  });
+
+  const minutes = Math.floor((watchedRecommendedTimeSec || 0) / 60);
+  const seconds = Math.max(0, (watchedRecommendedTimeSec || 0) % 60);
+
+  const handleChangeMinutes = (e: ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.trim();
+    const nextMinutes = raw === '' ? 0 : Math.max(0, Number(raw));
+    const nextTotal = nextMinutes * 60 + seconds;
+    setValue('recommendedTimeSec', nextTotal, { shouldDirty: true, shouldValidate: true });
+  };
+
+  const handleChangeSeconds = (e: ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.trim();
+    let nextSeconds = raw === '' ? 0 : Math.max(0, Number(raw));
+    if (!Number.isFinite(nextSeconds)) nextSeconds = 0;
+    if (nextSeconds > 59) nextSeconds = 59;
+    const nextTotal = minutes * 60 + nextSeconds;
+    setValue('recommendedTimeSec', nextTotal, { shouldDirty: true, shouldValidate: true });
+  };
+
   const formatBlocks = (blocks: unknown[]): ContentBlockUpdateRequest[] => {
     return blocks.map((block, index) => {
       const blockData = block as {
-        // id?: number;
+        id?: number;
         type?: 'TEXT' | 'IMAGE';
         data?: string;
         content?: string;
       };
 
       return {
-        // id: blockData.id || 0,
+        id: blockData.id ?? 0,
         rank: index,
         type: blockData.type,
         data: blockData.data || blockData.content,
@@ -129,64 +163,126 @@ export const MainProblemSection = ({
       <h3 className='font-bold-32 mb-12 text-black'>메인 문제 등록</h3>
       <div className='flex flex-col gap-800'>
         <ComponentWithLabel label='메인 문제 타이틀 입력' labelWidth='15.4rem'>
-          <Input {...register('title')} />
+          <Input
+            {...register('title', { required: '필수 입력 항목입니다.' })}
+            className={`${errors?.title ? 'border-red focus:border-red' : ''}`}
+          />
+          {errors?.title && (
+            <p className='font-medium-14 text-red mt-200'>
+              {(errors.title as { message?: string })?.message || '필수 입력 항목입니다.'}
+            </p>
+          )}
         </ComponentWithLabel>
-        {concepts !== undefined && onRemoveTag && onOpenTagModal && (
-          <ComponentWithLabel label='메인 문제 개념 태그' labelWidth='15.4rem'>
-            <div className='flex flex-wrap gap-200'>
-              {concepts &&
-                concepts?.length > 0 &&
-                concepts.map((tag) => (
-                  <Tag
-                    key={tag}
-                    label={tagsNameMap[tag] ?? ''}
-                    removable
-                    color='dark'
-                    onClick={() => onRemoveTag(tag)}
-                  />
-                ))}
-              <Tag label='태그 추가하기' onClick={onOpenTagModal} color='lightgray' />
-            </div>
-          </ComponentWithLabel>
-        )}
-        {selectedAnswerType !== undefined && selectedAnswer !== undefined && (
-          <ComponentWithLabel label='메인 문제 답 입력' labelWidth='15.4rem'>
+        <ComponentWithLabel label='메인 문제 개념 태그' labelWidth='15.4rem'>
+          <div className='flex flex-wrap gap-200'>
+            {concepts &&
+              concepts?.length > 0 &&
+              concepts.map((tag) => (
+                <Tag
+                  key={tag}
+                  label={tagsNameMap[tag] ?? ''}
+                  removable
+                  color='dark'
+                  onClick={() => onRemoveTag?.(tag)}
+                />
+              ))}
+            <Tag label='태그 추가하기' onClick={onOpenTagModal} color='lightgray' />
+            {concepts && concepts?.length === 0 && (
+              <p className='font-medium-14 text-red mt-200'>태그를 추가해주세요.</p>
+            )}
+          </div>
+        </ComponentWithLabel>
+
+        <ComponentWithLabel label='메인 문제 답 입력' labelWidth='15.4rem'>
+          <div className='rounded-400 w-full'>
             <AnswerInput>
               <AnswerInput.AnswerTypeSection
                 selectedAnswerType={selectedAnswerType}
-                {...register('answerType')}
+                {...answerTypeRegister}
+                onChange={(e) => {
+                  answerTypeRegister.onChange(e);
+                }}
               />
               <AnswerInput.AnswerInputSection
                 selectedAnswerType={selectedAnswerType}
-                selectedAnswer={selectedAnswer}
-                {...register('answer', { valueAsNumber: true })}
+                selectedAnswer={watchedAnswer}
+                isError={Boolean(errors?.answer)}
+                {...register('answer', {
+                  valueAsNumber: true,
+                  required: '필수 입력 항목입니다.',
+                })}
               />
             </AnswerInput>
-          </ComponentWithLabel>
-        )}
+          </div>
+          {(errors?.answerType || errors?.answer) && (
+            <p className='font-medium-14 text-red mt-200'>필수 입력 항목입니다.</p>
+          )}
+        </ComponentWithLabel>
+
         <div className='flex w-full items-center justify-between'>
           <ComponentWithLabel label='메인 문제 난도 선택' labelWidth='15.4rem'>
-            <Controller
-              control={control}
-              name='difficulty'
-              render={({ field }) => (
-                <LevelSelect selectedLevel={field.value} onChange={field.onChange} />
-              )}
-            />
+            <div className={`${errors?.difficulty ? 'border-red rounded-400 border p-400' : ''}`}>
+              <Controller
+                control={control}
+                name='difficulty'
+                rules={{ required: '필수 입력 항목입니다.' }}
+                render={({ field }) => (
+                  <LevelSelect selectedLevel={field.value} onChange={field.onChange} />
+                )}
+              />
+            </div>
+            {errors?.difficulty && (
+              <p className='font-medium-14 text-red mt-200'>
+                {(errors.difficulty as { message?: string })?.message || '필수 입력 항목입니다.'}
+              </p>
+            )}
           </ComponentWithLabel>
           <div>
             <ComponentWithLabel label='권장 시간 입력'>
               <div className='flex gap-600'>
                 <div className='flex items-center gap-400'>
                   <input
-                    className='font-bold-18 border-lightgray500 rounded-400 h-[5.6rem] w-[5.6rem] border bg-white px-400 py-200'
-                    {...register('recommendedTimeSec', {
-                      valueAsNumber: true,
-                    })}
+                    className={`font-bold-18 rounded-400 h-[5.6rem] w-[5.6rem] border bg-white px-400 py-200 ${
+                      errors?.recommendedTimeSec
+                        ? 'border-red focus:border-red'
+                        : 'border-lightgray500'
+                    } [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0`}
+                    type='number'
+                    min={0}
+                    value={Number.isFinite(minutes) ? minutes : 0}
+                    onChange={handleChangeMinutes}
+                  />
+                  <span className='font-medium-18 text-black'>분</span>
+                  <input
+                    className={`font-bold-18 rounded-400 h-[5.6rem] w-[5.6rem] border bg-white px-400 py-200 ${
+                      errors?.recommendedTimeSec
+                        ? 'border-red focus:border-red'
+                        : 'border-lightgray500'
+                    } [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0`}
+                    type='number'
+                    min={0}
+                    max={59}
+                    value={Number.isFinite(seconds) ? seconds : 0}
+                    onChange={handleChangeSeconds}
                   />
                   <span className='font-medium-18 text-black'>초</span>
+                  <input
+                    type='hidden'
+                    {...register('recommendedTimeSec', {
+                      valueAsNumber: true,
+                      validate: (v) =>
+                        (v !== undefined && v !== null && !Number.isNaN(v)) ||
+                        '필수 입력 항목입니다.',
+                    })}
+                  />
                 </div>
               </div>
+              {errors?.recommendedTimeSec && (
+                <p className='font-medium-14 text-red mt-200'>
+                  {(errors.recommendedTimeSec as { message?: string })?.message ||
+                    '필수 입력 항목입니다.'}
+                </p>
+              )}
             </ComponentWithLabel>
           </div>
         </div>

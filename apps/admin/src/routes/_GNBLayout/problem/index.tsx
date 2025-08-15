@@ -15,7 +15,7 @@ import { useInvalidate, useModal } from '@hooks';
 import { IcDown } from '@svg';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { GetProblemsSearchParams } from '@types';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
 
@@ -38,13 +38,40 @@ function RouteComponent() {
   const [searchQuery, setSearchQuery] = useState<GetProblemsSearchParams>({});
   const [selectedTagList, setSelectedTagList] = useState<number[]>([]);
 
-  const { register, handleSubmit, reset } = useForm<GetProblemsSearchParams>();
+  const { register, handleSubmit, reset, watch } = useForm<GetProblemsSearchParams>();
 
   const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
   const { mutate: mutateDeleteProblem } = deleteProblem();
   const { data: tagsData } = getConcept();
   const allTagList = tagsData?.data || [];
   const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
+
+  const watchedCustomId = watch('customId');
+  const watchedTitle = watch('title');
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      const trimmedCustomId = (watchedCustomId ?? '').toString().trim();
+      const trimmedTitle = (watchedTitle ?? '').toString().trim();
+
+      setSearchQuery((prev) => {
+        const nextQuery: GetProblemsSearchParams = {
+          ...prev,
+          customId: trimmedCustomId || undefined,
+          title: trimmedTitle || undefined,
+        };
+
+        const cleaned = Object.fromEntries(
+          Object.entries(nextQuery).filter(([, value]) =>
+            Array.isArray(value) ? value.length > 0 : Boolean(value)
+          )
+        ) as GetProblemsSearchParams;
+
+        return cleaned;
+      });
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [watchedCustomId, watchedTitle]);
 
   const handleClickDelete = (e: React.MouseEvent<HTMLButtonElement>, problemId: string) => {
     e.stopPropagation();
@@ -109,24 +136,24 @@ function RouteComponent() {
 
   return (
     <>
-      <Header title='문항 목록' />
+      <Header title='문제 목록' />
       <form
         className='mt-1200 flex items-end justify-between gap-400'
         onSubmit={handleSubmit(handleClickSearch)}>
         <div className='flex gap-600'>
           <SearchInput
-            label='문항 ID'
+            label='문제 ID'
             placeholder='입력해주세요.'
             {...register('customId', { required: false })}
           />
           <SearchInput
-            label='문항 타이틀'
+            label='문제 타이틀'
             sizeType='long'
             placeholder='입력해주세요.'
             {...register('title', { required: false })}
           />
           <div className='flex w-full flex-col gap-300'>
-            <span className='font-medium-18 text-black'>문항 개념 태그</span>
+            <span className='font-medium-18 text-black'>문제 개념 태그</span>
             <div
               className='border-lightgray500 rounded-400 flex h-[5.6rem] w-full max-w-[42.4rem] cursor-pointer items-center justify-between border bg-white px-400 py-200'
               onClick={() => {
@@ -181,9 +208,9 @@ function RouteComponent() {
                   params={{ problemId: problemId.toString() }}>
                   <ProblemCard>
                     <ProblemCard.TextSection>
-                      <ProblemCard.Info label='문항 ID' content={customId} />
-                      <ProblemCard.Info label='문항 타이틀' content={title} />
-                      <ProblemCard.Info label='문항 메모' content={memo} />
+                      <ProblemCard.Info label='문제 ID' content={customId} />
+                      <ProblemCard.Info label='문제 타이틀' content={title} />
+                      <ProblemCard.Info label='문제 메모' content={memo} />
                     </ProblemCard.TextSection>
 
                     <ProblemCard.ButtonSection>
@@ -212,7 +239,7 @@ function RouteComponent() {
 
       <FloatingButton>
         <Link to='/problem/register' className='flex h-full w-full items-center justify-center'>
-          새로운 문항 등록하기
+          새로운 문제 등록하기
         </Link>
       </FloatingButton>
       <Modal isOpen={isOpen} onClose={closeModal}>
@@ -224,7 +251,7 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
         <TwoButtonModalTemplate
-          text='문항을 삭제할까요?'
+          text='문제을 삭제할까요?'
           leftButtonText='아니오'
           rightButtonText='예'
           handleClickLeftButton={closeDeleteModal}

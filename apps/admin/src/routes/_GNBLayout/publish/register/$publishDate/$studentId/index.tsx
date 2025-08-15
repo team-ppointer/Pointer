@@ -11,7 +11,7 @@ import {
 import { useInvalidate } from '@hooks';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { GetProblemSetSearchParams } from '@types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 
@@ -36,7 +36,34 @@ function RouteComponent() {
   const { data: problemSetList } = getProblemSetSearch(searchQuery);
   const { mutate: mutatePostPublish } = postPublish();
 
-  const { register, handleSubmit, reset } = useForm<GetProblemSetSearchParams>();
+  const { register, handleSubmit, reset, watch } = useForm<GetProblemSetSearchParams>();
+
+  const watchedSetTitle = watch('setTitle');
+  const watchedProblemTitle = watch('problemTitle');
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      const trimmedSetTitle = (watchedSetTitle ?? '').toString().trim();
+      const trimmedProblemTitle = (watchedProblemTitle ?? '').toString().trim();
+
+      setSearchQuery((prev) => {
+        const nextQuery: GetProblemSetSearchParams = {
+          ...prev,
+          setTitle: trimmedSetTitle || undefined,
+          problemTitle: trimmedProblemTitle || undefined,
+        };
+
+        const cleaned = Object.fromEntries(
+          Object.entries(nextQuery).filter(([, value]) =>
+            Array.isArray(value) ? value.length > 0 : Boolean(value)
+          )
+        ) as GetProblemSetSearchParams;
+
+        return cleaned;
+      });
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [watchedSetTitle, watchedProblemTitle]);
 
   const handleClickSearch = (data: GetProblemSetSearchParams) => {
     const filteredData = Object.fromEntries(
@@ -108,7 +135,7 @@ function RouteComponent() {
           />
           <SearchInput
             sizeType='long'
-            label='문항 타이틀'
+            label='문제 타이틀'
             placeholder='입력해주세요.'
             {...register('problemTitle', { required: false })}
           />

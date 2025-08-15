@@ -75,17 +75,18 @@ function RouteComponent() {
     watch,
     setValue,
     reset,
+    trigger,
     clearErrors,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: transformToProblemUpdateRequest({} as ProblemInfoResp),
   });
 
-  const problemCustomId = fetchedProblemData?.customId ?? '';
   const problemType = watch('problemType');
   const concepts = watch('concepts');
   const selectedAnswerType = watch('answerType');
-  const selectedAnswer = watch('answer');
 
   const {
     fields: childProblems,
@@ -163,7 +164,7 @@ function RouteComponent() {
               (error as { response?: { data?: unknown } }).response?.data
             );
           }
-          toast.error('저장에 실패했습니다');
+          toast.error((error as { message?: string })?.message || '저장에 실패했습니다');
         },
       }
     );
@@ -249,6 +250,8 @@ function RouteComponent() {
   useEffect(() => {
     if (fetchedProblemData) {
       reset(transformToProblemUpdateRequest(fetchedProblemData));
+      // API에서 불러온 기본값으로 폼을 초기화한 뒤 유효성 검사를 트리거하여 저장 버튼 활성화 상태 반영
+      trigger();
     }
   }, [fetchedProblemData]);
 
@@ -270,11 +273,7 @@ function RouteComponent() {
         }}
       />
       <form onSubmit={handleSubmit(handleSubmitUpdate)}>
-        <Header
-          title={`문제 ID : ${problemCustomId}`}
-          deleteButton='문제 삭제'
-          onClickDelete={openDeleteModal}
-        />
+        <Header title='문제 수정' deleteButton='문제 삭제' onClickDelete={openDeleteModal} />
         <ProblemEssentialInput>
           <Controller
             control={control}
@@ -327,6 +326,12 @@ function RouteComponent() {
             isError={Boolean(errors.practiceTestId || errors.practiceTestNo)}
             errorMessage='모의고사와 문제 번호는 필수 입력 항목입니다.'
           />
+
+          <ProblemEssentialInput.ProblemID
+            {...register('customId', {
+              required: '문제 ID는 필수 입력 항목입니다.',
+            })}
+          />
         </ProblemEssentialInput>
         <div className='mt-1200 flex flex-col gap-1200'>
           <MainProblemSection
@@ -336,7 +341,6 @@ function RouteComponent() {
             setValue={setValue}
             concepts={concepts}
             selectedAnswerType={selectedAnswerType}
-            selectedAnswer={selectedAnswer}
             tagsNameMap={tagsNameMap}
             fetchedProblemData={fetchedProblemData}
             onRemoveTag={handleRemoveTag}
@@ -368,7 +372,7 @@ function RouteComponent() {
           />
           <TipSection setValue={setValue} fetchedProblemData={fetchedProblemData} />
         </div>
-        <FloatingButton>저장하기</FloatingButton>
+        <FloatingButton disabled={!isValid}>저장하기</FloatingButton>
       </form>
       <Modal isOpen={isTagModalOpen} onClose={closeTagModal}>
         <TagSelectModal

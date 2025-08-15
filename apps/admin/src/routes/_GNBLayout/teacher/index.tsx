@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { Button, FloatingButton, Header, Input, Modal, TwoButtonModalTemplate } from '@components';
 import { useForm } from 'react-hook-form';
@@ -31,7 +31,7 @@ function RouteComponent() {
     openModal: openDeleteModal,
     closeModal: closeDeleteModal,
   } = useModal();
-  const { register, handleSubmit } = useForm<{
+  const { register, handleSubmit, watch } = useForm<{
     query: string;
   }>();
 
@@ -39,6 +39,15 @@ function RouteComponent() {
   const { data: teacherList } = getTeacher({ query: searchQuery });
   const { mutateAsync: deleteTeacherMutateAsync } = deleteTeacher();
   const queryClient = useQueryClient();
+
+  const watchedQuery = watch('query');
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      setSearchQuery((watchedQuery ?? '').trim());
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [watchedQuery]);
 
   const handleClickSearch = (data: { query: string }) => {
     setSearchQuery(data.query.trim());

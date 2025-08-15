@@ -58,7 +58,7 @@ const CardEmptyView = ({ onClick }: { onClick: () => void }) => {
       className='flex h-full w-full cursor-pointer items-center justify-center'
       onClick={onClick}
       onPointerDown={(e) => e.stopPropagation()}>
-      <span className='font-bold-24 text-lightgray500 text-center whitespace-pre-line'>{`여기를 클릭해\n문항을 추가해주세요.`}</span>
+      <span className='font-bold-24 text-lightgray500 text-center whitespace-pre-line'>{`여기를 클릭해\n문제을 추가해주세요.`}</span>
     </div>
   );
 };
