@@ -28,7 +28,14 @@ const AnswerTypeSection = forwardRef<HTMLInputElement, AnswerTypeSectionProps>(
       <div className='flex gap-200'>
         {AnswerTypeList.map((answerType) => (
           <label key={answerType}>
-            <input type='radio' className='hidden' ref={ref} value={answerType} {...props} />
+            <input
+              type='radio'
+              className='hidden'
+              ref={ref}
+              value={answerType}
+              checked={answerType === selectedAnswerType}
+              {...props}
+            />
             <div
               className={`rounded-200 flex h-[5.6rem] w-[5.6rem] cursor-pointer items-center justify-center ${answerType === selectedAnswerType ? 'bg-midgray200 text-white' : 'bg-lightgray300 text-lightgray500'} `}>
               <span className='font-medium-18'>
@@ -53,7 +60,14 @@ const AnswerInputSection = forwardRef<HTMLInputElement, AnswerInputSectionProps>
           <div className='flex items-center justify-between gap-200'>
             {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
               <label key={num}>
-                <input type='radio' className='hidden' value={num} ref={ref} {...props} />
+                <input
+                  type='radio'
+                  className='hidden'
+                  value={num}
+                  ref={ref}
+                  checked={Number(selectedAnswer) === num}
+                  {...props}
+                />
                 <div
                   className={`flex h-[5.6rem] w-[5.6rem] cursor-pointer items-center justify-center rounded-full ${
                     Number(selectedAnswer) === num

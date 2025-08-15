@@ -87,8 +87,16 @@ export const MainProblemSection = ({
     required: '필수 입력 항목입니다.',
   });
 
-  const watchedAnswer = useWatch({ control, name: 'answer' });
-  const watchedRecommendedTimeSec = useWatch({ control, name: 'recommendedTimeSec' });
+  const watchedAnswer = useWatch({
+    control,
+    name: 'answer',
+    defaultValue: fetchedProblemData?.answer ?? 1,
+  });
+  const watchedRecommendedTimeSec = useWatch({
+    control,
+    name: 'recommendedTimeSec',
+    defaultValue: fetchedProblemData?.recommendedTimeSec ?? 0,
+  });
 
   const minutes = Math.floor((watchedRecommendedTimeSec || 0) / 60);
   const seconds = Math.max(0, (watchedRecommendedTimeSec || 0) % 60);
@@ -190,10 +198,6 @@ export const MainProblemSection = ({
                 {...answerTypeRegister}
                 onChange={(e) => {
                   answerTypeRegister.onChange(e);
-                  setValue('answer', undefined as unknown as number, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  });
                 }}
               />
               <AnswerInput.AnswerInputSection
@@ -263,7 +267,9 @@ export const MainProblemSection = ({
                     type='hidden'
                     {...register('recommendedTimeSec', {
                       valueAsNumber: true,
-                      required: '필수 입력 항목입니다.',
+                      validate: (v) =>
+                        (v !== undefined && v !== null && !Number.isNaN(v)) ||
+                        '필수 입력 항목입니다.',
                     })}
                   />
                 </div>

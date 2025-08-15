@@ -75,6 +75,7 @@ function RouteComponent() {
     watch,
     setValue,
     reset,
+    trigger,
     clearErrors,
     formState: { errors, isValid },
   } = useForm({
@@ -83,11 +84,9 @@ function RouteComponent() {
     defaultValues: transformToProblemUpdateRequest({} as ProblemInfoResp),
   });
 
-  const problemCustomId = fetchedProblemData?.customId ?? '';
   const problemType = watch('problemType');
   const concepts = watch('concepts');
   const selectedAnswerType = watch('answerType');
-  const selectedAnswer = watch('answer');
 
   const {
     fields: childProblems,
@@ -251,6 +250,8 @@ function RouteComponent() {
   useEffect(() => {
     if (fetchedProblemData) {
       reset(transformToProblemUpdateRequest(fetchedProblemData));
+      // API에서 불러온 기본값으로 폼을 초기화한 뒤 유효성 검사를 트리거하여 저장 버튼 활성화 상태 반영
+      trigger();
     }
   }, [fetchedProblemData]);
 
