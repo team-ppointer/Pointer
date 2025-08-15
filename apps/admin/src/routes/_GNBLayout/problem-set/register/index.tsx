@@ -266,10 +266,10 @@ function RouteComponent() {
                   ) : problem ? (
                     <>
                       <ProblemCard.TextSection>
-                        <ProblemCard.Title title={`문항 ${index + 1}`} />
-                        <ProblemCard.Info label='문항 ID' content={problem.customId} />
-                        <ProblemCard.Info label='문항 타이틀' content={problem.title} />
-                        <ProblemCard.Info label='문항 메모' content={problem.memo} />
+                        <ProblemCard.Title title={`문제 ${index + 1}`} />
+                        <ProblemCard.Info label='문제 ID' content={problem.customId} />
+                        <ProblemCard.Info label='문제 타이틀' content={problem.title} />
+                        <ProblemCard.Info label='문제 메모' content={problem.memo} />
                         <ProblemCard.TagSection>
                           {problem.concepts?.map((concept: { name: string }, tagIndex: number) => {
                             return <Tag key={`${concept.name}-${tagIndex}`} label={concept.name} />;

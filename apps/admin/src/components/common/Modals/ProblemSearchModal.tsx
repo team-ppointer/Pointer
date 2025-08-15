@@ -91,24 +91,24 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
   return (
     <>
       <div className='h-[90dvh] w-[90dvw] px-1600 py-1200'>
-        <h2 className='font-bold-24 text-black'>문항 검색</h2>
+        <h2 className='font-bold-24 text-black'>문제 검색</h2>
         <form
           className='mt-800 flex items-end justify-between'
           onSubmit={handleSubmit(handleClickSearch)}>
           <div className='flex gap-600'>
             <SearchInput
-              label='문항 ID'
+              label='문제 ID'
               placeholder='입력해주세요.'
               {...register('customId', { required: false })}
             />
             <SearchInput
-              label='문항 타이틀'
+              label='문제 타이틀'
               sizeType='long'
               placeholder='입력해주세요.'
               {...register('title', { required: false })}
             />
             <div className='flex flex-col gap-300'>
-              <span className='font-medium-18 text-black'>문항 개념 태그</span>
+              <span className='font-medium-18 text-black'>문제 개념 태그</span>
               <div
                 className='border-lightgray500 rounded-400 flex h-[5.6rem] w-[42.4rem] cursor-pointer items-center justify-between border bg-white px-400 py-200'
                 onClick={() => {
@@ -158,9 +158,9 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
                   onClick={() => onClickCard(problem)}>
                   <ProblemCard>
                     <ProblemCard.TextSection>
-                      <ProblemCard.Info label='문항 ID' content={customId} />
-                      <ProblemCard.Info label='문항 타이틀' content={title} />
-                      <ProblemCard.Info label='문항 메모' content={memo} />
+                      <ProblemCard.Info label='문제 ID' content={customId} />
+                      <ProblemCard.Info label='문제 타이틀' content={title} />
+                      <ProblemCard.Info label='문제 메모' content={memo} />
                     </ProblemCard.TextSection>
 
                     <ProblemCard.CardImage src={mainProblemImageUrl ?? ''} height={'34.4rem'} />

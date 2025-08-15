@@ -237,7 +237,7 @@ function RouteComponent() {
                 control={control}
                 name='practiceTestId'
                 rules={{
-                  required: '모의고사와 문항 번호는 필수 입력 항목입니다.',
+                  required: '모의고사와 문제 번호는 필수 입력 항목입니다.',
                 }}
                 render={({ field }) => (
                   <ProblemEssentialInput.PracticeTest
@@ -256,14 +256,14 @@ function RouteComponent() {
               <ProblemEssentialInput.PraticeTestNumber
                 {...register('practiceTestNo', {
                   valueAsNumber: true,
-                  required: '모의고사와 문항 번호는 필수 입력 항목입니다.',
+                  required: '모의고사와 문제 번호는 필수 입력 항목입니다.',
                 })}
               />
             </ProblemEssentialInput.PracticeTestSection>
           )}
           <ProblemEssentialInput.ProblemError
             isError={Boolean(errors.practiceTestId || errors.practiceTestNo)}
-            errorMessage='모의고사와 문항 번호는 필수 입력 항목입니다.'
+            errorMessage='모의고사와 문제 번호는 필수 입력 항목입니다.'
           />
           <ProblemEssentialInput.ProblemID
             {...register('customId', {

@@ -59,7 +59,7 @@ const PracticeTestSection = ({ children }: { children: React.ReactNode }) => {
 
 const PracticeTest = ({ practiceTest, handlePracticeTest }: PracticeTestProps) => {
   return (
-    <ComponentWithLabel label='메인 문항 모의고사 '>
+    <ComponentWithLabel label='메인 문제 모의고사 '>
       <PracticeTestSelect practiceTest={practiceTest} handlePracticeTest={handlePracticeTest} />
     </ComponentWithLabel>
   );
@@ -68,7 +68,7 @@ const PracticeTest = ({ practiceTest, handlePracticeTest }: PracticeTestProps) =
 const PraticeTestNumber = forwardRef<HTMLInputElement>(({ ...props }, ref) => {
   return (
     <div className='flex'>
-      <ComponentWithLabel label='메인 문항 번호 입력'>
+      <ComponentWithLabel label='메인 문제 번호 입력'>
         <Input ref={ref} placeholder={'입력해주세요'} {...props} />
       </ComponentWithLabel>
     </div>

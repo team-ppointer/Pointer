@@ -166,7 +166,7 @@ function RouteComponent() {
   };
 
   const createModifyError = () => {
-    setErrorMessage('컨펌된 세트는 문항을 수정할 수 없어요');
+    setErrorMessage('컨펌된 세트는 문제을 수정할 수 없어요');
     openErrorModal();
   };
 
@@ -260,7 +260,7 @@ function RouteComponent() {
 
   const handleAddProblemSummary = (index: number, problemMeta: ProblemMetaResp) => {
     if (problemSummaries.map((item) => item.problem.id).includes(problemMeta.id)) {
-      setErrorMessage('이미 추가된 문항이에요');
+      setErrorMessage('이미 추가된 문제이에요');
       openErrorModal();
       return;
     }
@@ -279,7 +279,7 @@ function RouteComponent() {
 
   const handleClickSave = async (data: ProblemSetUpdateRequest) => {
     if (problemSummaries.length === 0) {
-      setErrorMessage('적어도 1개의 문항을 등록해주세요');
+      setErrorMessage('적어도 1개의 문제을 등록해주세요');
       openErrorModal();
       return;
     }
@@ -397,7 +397,7 @@ function RouteComponent() {
       />
       <Header
         title='세트 수정하기'
-        description={`문항을 잡고 드래그해서 순서를 바꿀 수 있어요\n컨펌된 세트도 타이틀 수정이 가능해요`}
+        description={`문제을 잡고 드래그해서 순서를 바꿀 수 있어요\n컨펌된 세트도 타이틀 수정이 가능해요`}
         deleteButton='세트 삭제'
         onClickDelete={handleClickSetDelete}
       />
@@ -454,10 +454,10 @@ function RouteComponent() {
                   ) : (
                     <>
                       <ProblemCard.TextSection>
-                        <ProblemCard.Title title={`문항 ${index + 1}`} />
-                        <ProblemCard.Info label='문항 ID' content={problem.customId} />
-                        <ProblemCard.Info label='문항 타이틀' content={problem.title} />
-                        <ProblemCard.Info label='문항 메모' content={problem.memo} />
+                        <ProblemCard.Title title={`문제 ${index + 1}`} />
+                        <ProblemCard.Info label='문제 ID' content={problem.customId} />
+                        <ProblemCard.Info label='문제 타이틀' content={problem.title} />
+                        <ProblemCard.Info label='문제 메모' content={problem.memo} />
                         <ProblemCard.TagSection>
                           {problem.concepts?.map((concept, tagIndex) => {
                             return <Tag key={`${concept.name}-${tagIndex}`} label={concept.name} />;
@@ -504,7 +504,7 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isProblemDeleteModalOpen} onClose={closeProblemDeleteModal}>
         <TwoButtonModalTemplate
-          text='문항을 세트에서 제외할까요??'
+          text='문제을 세트에서 제외할까요??'
           leftButtonText='아니오'
           rightButtonText='예'
           handleClickLeftButton={closeProblemDeleteModal}

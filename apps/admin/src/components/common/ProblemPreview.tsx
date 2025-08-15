@@ -24,8 +24,8 @@ const ProblemPreview = ({ title, memo, imgSrc }: ProblemPreviewProps) => {
   return (
     <div className='flex w-[48rem] min-w-[28rem] flex-col gap-400'>
       <div className='flex flex-col gap-200'>
-        <LabelAndText label='문항 타이틀' text={title} />
-        <LabelAndText label='문항 메모' text={memo} />
+        <LabelAndText label='문제 타이틀' text={title} />
+        <LabelAndText label='문제 메모' text={memo} />
       </div>
       <div>
         <img

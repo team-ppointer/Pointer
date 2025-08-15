@@ -118,7 +118,7 @@ function RouteComponent() {
           />
           <SearchInput
             sizeType='long'
-            label='문항 타이틀'
+            label='문제 타이틀'
             placeholder='입력해주세요.'
             {...register('problemTitle', { required: false })}
           />
