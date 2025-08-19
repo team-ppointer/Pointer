@@ -2,18 +2,14 @@ import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import {
   Box,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Slider,
   Typography,
-  Button,
-  CircularProgress,
   Alert,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
-import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 
+import { MinusIcon, PlusIcon, CloudUploadIcon } from '../../../assets';
 import { getFileUploadUrl, uploadFileToS3 } from '../../../api/fileUpload';
 
 const ImageBlockEditor = memo(({ initialData, onChange }) => {
@@ -163,30 +159,27 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
   };
 
   return (
-    <>
-      {/* 이미지 설정 영역 */}
-      <Box sx={{ mb: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant='h6' component='h3'>
-            이미지 블록
-          </Typography>
-        </Box>
+    <Box sx={{ display: 'flex', minHeight: '300px', gap: 2 }}>
+      {/* 왼쪽 설정 영역 */}
+      <Box sx={{ flex: 1, py: 2 }}>
+        {/* 이미지 선택 혹은 교체 섹션 */}
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ display: 'flex', mb: 2 }}>
+            <Typography
+              variant='subtitle2'
+              sx={{
+                fontFamily: 'Pretendard',
+                fontWeight: 500,
+                fontSize: '14px',
+                lineHeight: '150%',
+                letterSpacing: '0%',
+                color: '#1E1E21',
+              }}>
+              이미지 선택 혹은 교체
+            </Typography>
+          </Box>
 
-        <TextField
-          fullWidth
-          size='small'
-          label='이미지 URL'
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder='https://example.com/image.jpg'
-          sx={{ mb: 1 }}
-        />
-
-        {/* 파일 업로드 섹션 */}
-        <Box sx={{ mb: 2, textAlign: 'center' }}>
-          <Typography variant='caption' display='block' gutterBottom color='text.secondary'>
-            또는 파일을 업로드하세요
-          </Typography>
+          {/* 파일 input (숨김) */}
           <input
             ref={fileInputRef}
             type='file'
@@ -194,15 +187,74 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
             style={{ display: 'none' }}
             onChange={handleFileSelect}
           />
-          <Button
-            variant='outlined'
+
+          {/* URL 입력 필드 + 업로드 버튼 통합 */}
+          <TextField
+            fullWidth
             size='small'
-            startIcon={isUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
-            onClick={handleUploadClick}
-            disabled={isUploading}
-            sx={{ mb: 1 }}>
-            {isUploading ? '업로드 중...' : '파일 선택'}
-          </Button>
+            placeholder='이미지를 선택해 주세요'
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            sx={{
+              justifyContent: 'center',
+              backgroundColor: '#F7F7F7',
+              borderRadius: '10px',
+              height: '56px',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  border: 'none',
+                },
+                '&:hover fieldset': {
+                  border: 'none',
+                },
+                '&.Mui-focused fieldset': {
+                  border: 'none',
+                },
+              },
+              '& .MuiOutlinedInput-input': {
+                fontFamily: 'Pretendard',
+                fontWeight: 500,
+                fontSize: '16px',
+                lineHeight: '150%',
+                letterSpacing: '0%',
+                color: '#1E1E21',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              },
+              '& .MuiOutlinedInput-input::placeholder': {
+                fontFamily: 'Pretendard',
+                fontWeight: 500,
+                fontSize: '16px',
+                lineHeight: '150%',
+                letterSpacing: '0%',
+                color: '#C6CAD4',
+                opacity: 1,
+              },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <IconButton
+                    onClick={handleUploadClick}
+                    disabled={isUploading}
+                    sx={{
+                      padding: 0,
+                      marginRight: 0,
+                      marginLeft: 2,
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                      '&:active': {
+                        backgroundColor: 'transparent',
+                      },
+                    }}>
+                    <CloudUploadIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
 
           {uploadError && (
             <Alert severity='error' sx={{ mt: 1 }}>
@@ -211,74 +263,161 @@ const ImageBlockEditor = memo(({ initialData, onChange }) => {
           )}
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
-          <FormControl size='small' sx={{ minWidth: 80 }}>
-            <InputLabel>테두리</InputLabel>
-            <Select
-              value={borderStyle}
-              label='테두리'
-              onChange={(e) => setBorderStyle(e.target.value)}
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    zIndex: 9999,
-                  },
-                },
-                disablePortal: true,
-                keepMounted: false,
-              }}
-              sx={{ zIndex: 9999 }}>
-              <MenuItem value='none'>없음</MenuItem>
-              <MenuItem value='1px solid #ccc'>얇은 회색</MenuItem>
-              <MenuItem value='2px solid #000'>굵은 검정</MenuItem>
-              <MenuItem value='1px dashed #999'>점선</MenuItem>
-            </Select>
-          </FormControl>
-
-          <Box sx={{ flex: 1, ml: 2 }}>
-            <Typography variant='caption' display='block' gutterBottom>
-              이미지 크기: {width}%
+        {/* 이미지 크기 조절 섹션 */}
+        <Box>
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography
+              variant='subtitle2'
+              sx={{
+                fontFamily: 'Pretendard',
+                fontWeight: 500,
+                fontSize: '14px',
+                lineHeight: '150%',
+                letterSpacing: '0%',
+                color: '#1E1E21',
+              }}>
+              이미지 크기 조절
             </Typography>
+
+            <Typography
+              variant='subtitle2'
+              sx={{
+                fontFamily: 'Pretendard',
+                fontWeight: 500,
+                fontSize: '14px',
+                lineHeight: '150%',
+                letterSpacing: '0%',
+                color: '#1E1E21',
+              }}>
+              {width}%
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: '#F7F7F7',
+              borderRadius: '10px',
+              height: '56px',
+              gap: 0,
+            }}>
+            <IconButton
+              onClick={() => setWidth(Math.min(100, width - 5))}
+              disableRipple
+              sx={{
+                padding: 0,
+                marginRight: 0,
+                marginLeft: 2,
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+                '&:active': {
+                  backgroundColor: 'transparent',
+                },
+              }}>
+              <MinusIcon />
+            </IconButton>
             <Slider
               value={width}
               onChange={(e, newValue) => setWidth(newValue)}
               min={10}
               max={100}
               step={5}
-              size='small'
-              valueLabelDisplay='auto'
+              sx={{
+                flex: 1,
+                height: 2,
+                '& .MuiSlider-rail': {
+                  backgroundColor: '#C6CAD4',
+                },
+                '& .MuiSlider-thumb': {
+                  height: 16,
+                  width: 16,
+                  backgroundColor: '#1E1E21',
+                  border: 'none',
+                  '&:hover': {
+                    boxShadow: 'none',
+                  },
+                  '&.Mui-focusVisible': {
+                    boxShadow: 'none',
+                  },
+                },
+              }}
             />
+            <IconButton
+              onClick={() => setWidth(Math.min(100, width + 5))}
+              disableRipple
+              sx={{
+                padding: 0,
+                marginLeft: 0,
+                marginRight: 2,
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+                '&:active': {
+                  backgroundColor: 'transparent',
+                },
+              }}>
+              <PlusIcon />
+            </IconButton>
           </Box>
         </Box>
       </Box>
 
-      {/* 미리보기 */}
-      {imageUrl && (
+      {/* 오른쪽 미리보기 영역 */}
+      <Box
+        sx={{
+          flex: 1,
+          py: 2,
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
         <Box
           sx={{
-            mt: 1,
-            p: 1,
-            border: '1px dashed #ccc',
-            borderRadius: 1,
-            textAlign: 'center',
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '10px',
+            minHeight: '200px',
+            backgroundColor: '#fafafa',
           }}>
-          <Typography variant='caption' display='block' gutterBottom>
-            미리보기:
-          </Typography>
-          <img
-            src={imageUrl}
-            alt='미리보기'
-            style={getImageStyle()}
-            onError={(e) => {
-              e.target.style.display = 'none';
-            }}
-            onLoad={(e) => {
-              e.target.style.display = 'block';
-            }}
-          />
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt='미리보기'
+              style={{
+                ...getImageStyle(),
+                maxWidth: '100%',
+                maxHeight: '100%',
+              }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+              onLoad={(e) => {
+                e.target.style.display = 'block';
+              }}
+            />
+          ) : (
+            <Typography
+              variant='body2'
+              sx={{
+                fontFamily: 'Pretendard',
+                fontWeight: 500,
+                fontSize: '16px',
+                lineHeight: '150%',
+                letterSpacing: '0%',
+                textAlign: 'center',
+                color: '#C6CAD4',
+                whiteSpace: 'pre-line',
+              }}>
+              {'이미지\n미리보기'}
+            </Typography>
+          )}
         </Box>
-      )}
-    </>
+      </Box>
+    </Box>
   );
 });
 

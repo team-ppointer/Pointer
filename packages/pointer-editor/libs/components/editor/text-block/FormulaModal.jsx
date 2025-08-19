@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import katex from 'katex';
+
 import 'katex/dist/katex.min.css';
+import FormulaSymbolDropdown from '../FormulaSymbolDropdown';
 
 const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
   const [formula, setFormula] = useState(initialValue);
   const [preview, setPreview] = useState('');
+  const inputRef = useRef(null);
 
   useEffect(() => {
     setFormula(initialValue);
@@ -64,11 +67,30 @@ const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           zIndex: 10000,
         }}>
-        <h3 style={{ margin: '0 0 15px 0' }}>LaTeX 수식 입력</h3>
+        <h3
+          style={{
+            margin: '0 0 15px 0',
+            fontFamily: 'Pretendard',
+            fontWeight: 700,
+            fontSize: '20px',
+            lineHeight: '150%',
+            letterSpacing: '0%',
+            color: '#1E1E21',
+          }}>
+          LaTeX 수식 입력
+        </h3>
+        <FormulaSymbolDropdown
+          onInsert={(symbol) => setFormula((prev) => prev + symbol)}
+          inputRef={inputRef}
+        />
 
         <div style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>수식:</label>
+          <label
+            style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '16px' }}>
+            수식:
+          </label>
           <input
+            ref={inputRef}
             type='text'
             value={formula}
             onChange={(e) => setFormula(e.target.value)}
@@ -86,7 +108,13 @@ const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
         </div>
 
         <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '5px',
+              fontWeight: 'bold',
+              fontSize: '16px',
+            }}>
             미리보기:
           </label>
           <div
@@ -109,8 +137,11 @@ const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
               padding: '8px 16px',
               border: '1px solid #ccc',
               backgroundColor: 'white',
-              borderRadius: '4px',
+              borderRadius: '10px',
               cursor: 'pointer',
+              fontSize: '18px',
+              width: '120px',
+              height: '56px',
             }}>
             취소
           </button>
@@ -118,11 +149,14 @@ const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
             onClick={handleSave}
             style={{
               padding: '8px 16px',
-              backgroundColor: '#007bff',
+              backgroundColor: '#3E3F45',
               color: 'white',
               border: 'none',
-              borderRadius: '4px',
+              borderRadius: '10px',
               cursor: 'pointer',
+              fontSize: '18px',
+              width: '120px',
+              height: '56px',
             }}>
             삽입
           </button>

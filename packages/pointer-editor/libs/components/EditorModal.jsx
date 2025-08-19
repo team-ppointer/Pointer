@@ -1,11 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Box, Paper, Typography, Button, IconButton, Divider } from '@mui/material';
 import {
-  TextFields,
-  Image as ImageIcon,
-  Delete as DeleteIcon,
-  DragHandle as DragHandleIcon,
-} from '@mui/icons-material';
+  Box,
+  Paper,
+  Typography,
+  Button,
+  IconButton,
+  createTheme,
+  ThemeProvider,
+} from '@mui/material';
 import {
   DndContext,
   closestCenter,
@@ -23,9 +25,21 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+import { DeleteIcon, DragHandleIcon, ImageIcon, TextIcon } from '../assets';
+
 import TextBlockEditor from './editor/text-block/TextBlockEditor';
 import ImageBlockEditor from './editor/image-block/ImageBlockEditor';
 import ProblemViewer from './viewer/ProblemViewer';
+
+// 테마 생성
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#3E3F45',
+      contrastText: '#ffffff',
+    },
+  },
+});
 
 // 개별 블럭 에디터 (드래그 가능)
 function SortableBlock({ id, block, onUpdate, onDelete }) {
@@ -50,13 +64,30 @@ function SortableBlock({ id, block, onUpdate, onDelete }) {
       ref={setNodeRef}
       style={style}
       data-block-id={id}
+      elevation={0}
       sx={{
         mb: { xs: 1, md: 2 },
         p: { xs: 1, md: 2 },
         position: 'relative',
-        border: isDragging ? '2px dashed #1976d2' : '1px solid #e0e0e0',
+        border: isDragging ? '2px dashed #1976d2' : 'none',
+        borderRadius: '10px',
       }}>
-      <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 1, zIndex: 1000 }}>
+      <Typography
+        sx={{
+          position: 'absolute',
+          top: 16,
+          left: 16,
+          fontFamily: 'Pretendard',
+          fontWeight: 700,
+          fontSize: '14px',
+          lineHeight: '150%',
+          letterSpacing: '0%',
+          color: '#1E1E21',
+          zIndex: 1000,
+        }}>
+        {block.type === 'TEXT' ? '텍스트 블록' : '이미지 블록'}
+      </Typography>
+      <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', zIndex: 1000 }}>
         <IconButton size='small' {...attributes} {...listeners}>
           <DragHandleIcon />
         </IconButton>
@@ -200,19 +231,22 @@ function LocalDraggableBlockEditor({ blocks, setBlocks }) {
       sx={{
         p: { xs: 1, md: 2 },
         minHeight: { xs: '40vh', md: '50vh' },
-        background: '#fafbfc',
+        background: '#F7F7F7',
         borderRadius: 3,
-        border: '1px solid #eee',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
       }}>
       <Box sx={{ flexShrink: 0 }}>
         <Typography
-          variant='h6'
           sx={{
             mb: { xs: 1, md: 2 },
-            fontSize: { xs: '1rem', md: '1.25rem' },
+            fontFamily: 'Inter',
+            fontWeight: 700,
+            fontSize: '20px',
+            lineHeight: '150%',
+            letterSpacing: '0%',
+            color: '#1E1E21',
           }}>
           블록 추가
         </Typography>
@@ -222,21 +256,46 @@ function LocalDraggableBlockEditor({ blocks, setBlocks }) {
             gap: { xs: 1, md: 2 },
             mb: { xs: 1, md: 2 },
             flexDirection: { xs: 'column', sm: 'row' },
+            width: '100%',
           }}>
           <Button
             variant='outlined'
-            startIcon={<TextFields />}
-            onClick={() => handleAddBlock('TEXT')}>
-            텍스트 블록 추가
-          </Button>
-          <Button
-            variant='contained'
             startIcon={<ImageIcon />}
-            onClick={() => handleAddBlock('IMAGE')}>
+            onClick={() => handleAddBlock('IMAGE')}
+            sx={{
+              flex: 1,
+              fontFamily: 'Pretendard',
+              fontWeight: 500,
+              fontSize: '18px',
+              lineHeight: '150%',
+              letterSpacing: '0%',
+              backgroundColor: '#3E3F45',
+              color: '#FFFFFF',
+              height: '56px',
+              borderRadius: '10px',
+            }}>
             이미지 블록 추가
           </Button>
+          <Button
+            variant='outlined'
+            startIcon={<TextIcon />}
+            onClick={() => handleAddBlock('TEXT')}
+            sx={{
+              flex: 1,
+              fontFamily: 'Pretendard',
+              fontWeight: 500,
+              fontSize: '18px',
+              lineHeight: '150%',
+              letterSpacing: '0%',
+              borderColor: '#C6CAD4',
+              color: '#1E1E21',
+              height: '56px',
+              borderRadius: '10px',
+              backgroundColor: '#FFFFFF',
+            }}>
+            텍스트 블록 추가
+          </Button>
         </Box>
-        <Divider sx={{ mb: 2 }} />
       </Box>
       <Box
         sx={{
@@ -308,7 +367,6 @@ function EditorModal({ blocks, onClose, onSave }) {
         return { id, ...blockWithoutId };
       }
     });
-    // 부모 컴포넌트에게 blocks 데이터 전달
     if (onSave) {
       onSave(blocksForSave);
     }
@@ -318,82 +376,131 @@ function EditorModal({ blocks, onClose, onSave }) {
   };
 
   return (
-    <Box
-      sx={{
-        width: '100vw',
-        height: '100vh',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        bgcolor: 'rgba(0,0,0,0.08)',
-        zIndex: 2000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-      <Paper
+    <ThemeProvider theme={theme}>
+      <Box
         sx={{
-          width: { xs: '95vw', md: '90vw', lg: '85vw' },
-          height: { xs: '95vh', md: '90vh' },
-          p: { xs: 2, md: 4 },
+          width: '100vw',
+          height: '100vh',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bgcolor: 'rgba(0,0,0,0.5)',
+          zIndex: 2000,
           display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
+          alignItems: 'center',
+          justifyContent: 'center',
         }}>
-        <Typography variant='h5' sx={{ mb: 2 }}>
-          문제 입력
-        </Typography>
-        <Box
+        <Paper
           sx={{
+            width: { xs: '95vw', md: '90vw', lg: '85vw' },
+            height: { xs: '95vh', md: '90vh' },
+            p: { xs: 2, md: 4 },
             display: 'flex',
-            gap: { xs: 2, md: 4 },
-            flex: 1,
-            minHeight: 0,
-            flexDirection: 'row',
+            flexDirection: 'column',
+            gap: 2,
+            borderRadius: '10px',
           }}>
-          {/* 좌측: 블럭 에디터 */}
+          <Typography
+            sx={{
+              mb: 2,
+              fontFamily: 'Pretendard',
+              fontWeight: 700,
+              fontSize: '24px',
+              lineHeight: '150%',
+              letterSpacing: '0%',
+              color: '#1E1E21',
+            }}>
+            문제 입력
+          </Typography>
           <Box
             sx={{
-              flex: 1,
-              minWidth: 0,
               display: 'flex',
-              flexDirection: 'column',
-              height: '100%',
-              overflow: 'auto',
+              gap: { xs: 2, md: 4 },
+              flex: 1,
+              minHeight: 0,
+              flexDirection: 'row',
             }}>
-            <LocalDraggableBlockEditor blocks={internalBlocks} setBlocks={setInternalBlocks} />
+            {/* 좌측: 블럭 에디터 */}
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                overflow: 'auto',
+              }}>
+              <LocalDraggableBlockEditor blocks={internalBlocks} setBlocks={setInternalBlocks} />
+            </Box>
+            {/* 우측: 미리보기 */}
+            <Box
+              sx={{
+                flex: 1,
+                bgcolor: '#f7f7f7',
+                borderRadius: 3,
+                p: { xs: 2, md: 3 },
+                overflow: 'auto',
+                height: '100%',
+              }}>
+              <Typography
+                sx={{
+                  mb: { xs: 1, md: 2 },
+                  fontFamily: 'Inter',
+                  fontWeight: 700,
+                  fontSize: '20px',
+                  lineHeight: '150%',
+                  letterSpacing: '0%',
+                  color: '#1E1E21',
+                }}>
+                미리보기
+              </Typography>
+              <ProblemViewer problem={problem} />
+            </Box>
           </Box>
-          {/* 우측: 미리보기 */}
           <Box
             sx={{
-              flex: { xs: 1, sm: 1.5 },
-              minWidth: 0,
-              bgcolor: '#f7f7f7',
-              borderRadius: 3,
-              p: { xs: 2, md: 3 },
-              overflow: 'auto',
-              height: '100%',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: { xs: 1, md: 2 },
+              mt: { xs: 1, md: 2 },
+              flexDirection: { xs: 'column', sm: 'row' },
             }}>
-            <ProblemViewer problem={problem} />
+            <Button
+              variant='outlined'
+              onClick={onClose}
+              style={{
+                padding: '8px 16px',
+                border: '1px solid #ccc',
+                backgroundColor: 'white',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '18px',
+                width: '120px',
+                height: '56px',
+              }}>
+              취소
+            </Button>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleSave}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#3E3F45',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '18px',
+                width: '120px',
+                height: '56px',
+              }}>
+              저장
+            </Button>
           </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: { xs: 1, md: 2 },
-            mt: { xs: 1, md: 2 },
-            flexDirection: { xs: 'column', sm: 'row' },
-          }}>
-          <Button variant='outlined' onClick={onClose}>
-            취소
-          </Button>
-          <Button variant='contained' color='primary' onClick={handleSave}>
-            저장
-          </Button>
-        </Box>
-      </Paper>
-    </Box>
+        </Paper>
+      </Box>
+    </ThemeProvider>
   );
 }
 
