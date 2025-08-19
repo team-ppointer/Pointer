@@ -233,9 +233,9 @@ export const ChildProblemSection = ({
     <SectionCard>
       <div className='flex items-baseline gap-[1.6rem]'>
         <h3 className='font-bold-32 text-black'>새끼 문제 등록</h3>
-        <p className='font-medium-14 text-lightgray500'>
+        {/* <p className='font-medium-14 text-lightgray500'>
           새끼 문제은 저장 후 항목 추가가 불가능해요
-        </p>
+        </p> */}
       </div>
 
       <div className='mt-800 flex flex-col gap-1600'>

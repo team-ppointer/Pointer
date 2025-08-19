@@ -289,7 +289,7 @@ function RouteComponent() {
           fontSize: '1.6rem',
         }}
       />
-      <form onSubmit={handleSubmit(handleSubmitUpdate)}>
+      <form onSubmit={handleSubmit(handleSubmitUpdate)} className='pb-[10rem]'>
         <Header title='문제 수정' deleteButton='문제 삭제' onClickDelete={openDeleteModal} />
         <ProblemEssentialInput>
           <Controller
