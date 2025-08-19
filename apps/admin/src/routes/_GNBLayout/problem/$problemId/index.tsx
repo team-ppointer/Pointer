@@ -124,6 +124,23 @@ function RouteComponent() {
       // 이미지 ID가 undefined인 경우 명시적으로 undefined로 설정 (삭제 의미)
       mainAnalysisImageId: data.mainAnalysisImageId ?? undefined,
       mainHandAnalysisImageId: data.mainHandAnalysisImageId ?? undefined,
+      // 메인 포인팅 정규화 (id/answer 등 가공 및 no 재정렬)
+      pointings: (data.pointings || [])
+        .filter((p) => p)
+        .map((p, idx) => ({
+          ...p,
+          // id: p?.id && typeof p.id === 'string' ? undefined : p?.id,
+          no: idx + 1,
+          questionContent: {
+            // id: p?.questionContent?.id ?? undefined,
+            blocks: p?.questionContent?.blocks || [],
+          },
+          commentContent: {
+            // id: p?.commentContent?.id ?? undefined,
+            blocks: p?.commentContent?.blocks || [],
+          },
+          concepts: p?.concepts || [],
+        })),
       childProblems: data.childProblems?.map((child) => ({
         ...child,
         id: child.id && typeof child.id === 'string' ? undefined : child.id, // 새로 생성되는 경우 undefined로 명시
@@ -215,7 +232,7 @@ function RouteComponent() {
     // 현재 pointings 배열을 가져와서 새로운 pointing 추가 (id 보존)
     const currentPointings = watch(`childProblems.${childProblemIndex}.pointings`) || [];
     const newPointing: components['schemas']['PointingUpdateRequest'] = {
-      id: undefined, // 새로 생성되는 경우 undefined
+      // id: undefined, // 새로 생성되는 경우 undefined
       no: currentPointings.length + 1,
       questionContent: { blocks: [] },
       commentContent: { blocks: [] },

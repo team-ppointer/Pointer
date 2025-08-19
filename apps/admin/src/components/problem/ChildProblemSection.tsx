@@ -108,7 +108,7 @@ export const ChildProblemSection = ({
       };
 
       return {
-        // id: blockData.id || 0,
+        // id: blockData.id ?? 0,
         rank: index,
         type: blockData.type,
         data: blockData.data || blockData.content,
@@ -291,6 +291,7 @@ export const ChildProblemSection = ({
                     <AnswerInput.AnswerInputSection
                       selectedAnswerType={watchedAnswerType}
                       selectedAnswer={watchedAnswer}
+                      isError={false}
                       {...register(`childProblems.${index}.answer`, { valueAsNumber: true })}
                     />
                   </AnswerInput>
