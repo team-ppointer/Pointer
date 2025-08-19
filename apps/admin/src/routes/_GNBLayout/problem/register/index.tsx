@@ -286,7 +286,7 @@ function RouteComponent() {
 
         {showDetailSections && (
           <>
-            <div className='mt-[4.8rem] flex flex-col gap-[4.8rem]'>
+            <div className='mt-[4.8rem] flex flex-col gap-[4.8rem] pb-[10rem]'>
               <MainProblemSection
                 control={control}
                 register={register}
