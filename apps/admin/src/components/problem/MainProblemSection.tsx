@@ -299,7 +299,7 @@ export const MainProblemSection = ({
         </ComponentWithLabel>
 
         <div className='grid grid-cols-2 gap-1200'>
-          <div>
+          {/* <div>
             <ComponentWithLabel label='메인 문제 분석 선택' direction='column'>
               <Controller
                 control={control}
@@ -334,7 +334,7 @@ export const MainProblemSection = ({
                 )}
               />
             </ComponentWithLabel>
-          </div>
+          </div> */}
           <div>
             <ComponentWithLabel label='포인팅 질문' labelWidth='15.4rem' direction='column'>
               <Button
