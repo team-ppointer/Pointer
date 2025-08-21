@@ -294,29 +294,27 @@ const editorReducer = (state, action) => {
 // $...$를 <span class="ql-formula" data-value="..."></span>로 변환 (내부에 KaTeX HTML 포함)
 function latexToQuillFormulaHtml(text) {
   if (!text) return '';
-  // 1. $...$를 모두 변환
 
-  // text를 개행 단위로 분리 (p태그 단위)
-  const splitText = text.split('\n');
+  // text를 개행 단위로 분리하여 각 라인을 p 태그로 감싸기
+  const lines = text.split('\n');
 
-  let html = '';
-  for (let i = 0; i < splitText.length; i++) {
-    html += `${splitText[i]}`;
-  }
+  const processedLines = lines.map((line) => {
+    // 각 라인에서 $...$를 수식으로 변환
+    const processedLine = line.replace(/\$([^\$]+)\$/g, (match, formula) => {
+      let katexHtml = '';
+      try {
+        katexHtml = katex.renderToString(formula, { throwOnError: false, displayMode: true });
+      } catch {
+        katexHtml = '';
+      }
+      return `<span class="ql-formula" data-value="${formula}">\u200B<span contenteditable="false"><span class="inline-display-math">${katexHtml}</span></span>\u200B</span>`;
+    });
 
-  html = html.replace(/\$([^\$]+)\$/g, (match, formula) => {
-    let katexHtml = '';
-    try {
-      katexHtml = katex.renderToString(formula, { throwOnError: false, displayMode: true });
-    } catch {
-      katexHtml = '';
-    }
-    return `<span class="ql-formula" data-value="${formula}">\uFEFF<span contenteditable="false"><span class="inline-display-math">${katexHtml}</span></span>\uFEFF</span>`;
+    return processedLine;
   });
-  // 3. 연속 공백을 &nbsp;로 변환 (HTML 태그 내부는 제외)
-  html = html.replace(/  +/g, (spaces) => '&nbsp;'.repeat(spaces.length));
-  // 4. 전체를 하나의 p태그로 감싸기
-  return html;
+
+  // 각 라인을 p 태그로 감싸서 반환
+  return processedLines.map((line) => `<p>${line}</p>`).join('');
 }
 
 // Quill HTML을 $$...$$ LaTeX 텍스트로 변환하는 함수

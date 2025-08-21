@@ -272,14 +272,23 @@ const useQuillEditor = ({
     insertFormula: (formula, range) => {
       if (!quillRef.current) return;
 
+      const quill = quillRef.current;
+      let katexHtml = '';
+      try {
+        katexHtml = katex.renderToString(formula, { throwOnError: false, displayMode: true });
+      } catch {
+        katexHtml = '';
+      }
+      const html = `<span class=\"ql-formula\" data-value=\"${formula}\">\u200B<span contenteditable=\"false\"><span class=\"inline-display-math\">${katexHtml}</span></span>\u200B</span>`;
+
       if (range) {
-        quillRef.current.deleteText(range.index, range.length);
-        quillRef.current.insertEmbed(range.index, 'formula', formula);
-        quillRef.current.setSelection(range.index + 1);
+        quill.deleteText(range.index, range.length);
+        quill.clipboard.dangerouslyPasteHTML(range.index, html);
+        quill.setSelection(range.index + 1);
       } else {
-        const length = quillRef.current.getLength();
-        quillRef.current.insertEmbed(length - 1, 'formula', formula);
-        quillRef.current.setSelection(length);
+        const index = quill.getSelection()?.index ?? quill.getLength() - 1;
+        quill.clipboard.dangerouslyPasteHTML(index, html);
+        quill.setSelection(index + 1);
       }
     },
     insertHtml: (html) => {
