@@ -8,7 +8,9 @@ import ProblemSecretCard from './ProblemCard/ProblemSecretCard';
 import ProblemEmptyCard from './ProblemCard/ProblemEmptyCard';
 import StudentSelectButton from './StudentSelectButton';
 import NoticeForm from './NoticeForm';
+import DiagnosisButton from './DiagnosisButton';
 export {
+  DiagnosisButton,
   NoticeForm,
   HomeHeader,
   NoticeButton,
