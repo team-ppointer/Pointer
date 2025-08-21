@@ -16,7 +16,7 @@ const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
   useEffect(() => {
     if (formula) {
       try {
-        const rendered = katex.renderToString(formula, { throwOnError: false });
+        const rendered = katex.renderToString(formula, { throwOnError: false, displayMode: true });
         setPreview(rendered);
       } catch {
         setPreview('수식 오류');
@@ -102,6 +102,7 @@ const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
               border: '1px solid #ccc',
               borderRadius: '4px',
               fontSize: '14px',
+              fontFamily: 'monospace',
             }}
             autoFocus
           />

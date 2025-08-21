@@ -304,11 +304,11 @@ function latexToQuillFormulaHtml(text) {
   html = html.replace(/\$([^\$]+)\$/g, (match, formula) => {
     let katexHtml = '';
     try {
-      katexHtml = katex.renderToString(formula, { throwOnError: false });
+      katexHtml = katex.renderToString(formula, { throwOnError: false, displayMode: true });
     } catch {
       katexHtml = '';
     }
-    return `<span class="ql-formula" data-value="${formula}">\uFEFF<span contenteditable="false">${katexHtml}</span>\uFEFF</span>`;
+    return `<span class="ql-formula" data-value="${formula}">\uFEFF<span contenteditable="false"><span class="inline-display-math">${katexHtml}</span></span>\uFEFF</span>`;
   });
   // 3. 연속 공백을 &nbsp;로 변환 (HTML 태그 내부는 제외)
   html = html.replace(/  +/g, (spaces) => '&nbsp;'.repeat(spaces.length));
@@ -640,6 +640,11 @@ const TextBlockEditor = memo(
 
     return (
       <>
+        <style>{`
+          .quill-no-border .inline-display-math { display: inline-block; vertical-align: middle; }
+          .quill-no-border .inline-display-math .katex-display { display: inline-block; margin: 0; text-align: left; }
+          .quill-no-border .inline-display-math .katex-display > .katex { display: inline-block; }
+        `}</style>
         {/* 스타일 옵션 영역 */}
         <Box sx={{ mb: 1 }}>
           <Box

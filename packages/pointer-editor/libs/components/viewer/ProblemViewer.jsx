@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Container, Paper, Typography, Box, CircularProgress } from '@mui/material';
 import 'katex/dist/katex.min.css';
-import { BlockMath, InlineMath } from 'react-katex';
+import { BlockMath } from 'react-katex';
 
 const ProblemViewer = memo(
   ({ problem, loading = false }) => {
@@ -92,7 +92,11 @@ const ProblemViewer = memo(
             if (match.index > lastIndex) {
               splitParts.push(part.substring(lastIndex, match.index));
             }
-            splitParts.push(<InlineMath key={`inline-${match.index}`} math={match[1]} />);
+            splitParts.push(
+              <span key={`inline-${match.index}`} className='inline-display-math'>
+                <BlockMath math={`\\displaystyle ${match[1]}`} />
+              </span>
+            );
             lastIndex = match.index + match[0].length;
           }
 
@@ -190,6 +194,18 @@ const ProblemViewer = memo(
                 '& .katex-display': {
                   margin: '1.5em 0',
                 },
+                '& .inline-display-math': {
+                  display: 'inline-block',
+                  verticalAlign: 'middle',
+                },
+                '& .inline-display-math .katex-display': {
+                  display: 'inline-block',
+                  margin: 0,
+                  textAlign: 'left',
+                },
+                '& .inline-display-math .katex-display > .katex': {
+                  display: 'inline-block',
+                },
                 '& img': {
                   maxWidth: '100%',
                   height: 'auto',
@@ -281,6 +297,18 @@ const ProblemViewer = memo(
                   },
                   '& .katex-display': {
                     margin: '1.5em 0',
+                  },
+                  '& .inline-display-math': {
+                    display: 'inline-block',
+                    verticalAlign: 'middle',
+                  },
+                  '& .inline-display-math .katex-display': {
+                    display: 'inline-block',
+                    margin: 0,
+                    textAlign: 'left',
+                  },
+                  '& .inline-display-math .katex-display > .katex': {
+                    display: 'inline-block',
                   },
                 }}>
                 {renderMathContent(problem.problem_content)}
