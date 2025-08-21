@@ -160,6 +160,80 @@ const useQuillEditor = ({
 
     quill.on(Quill.events.TEXT_CHANGE, handleTextChange);
 
+    const handleCopy = (e) => {
+      try {
+        const range = quill.getSelection();
+        if (!range || range.length === 0) return;
+        const delta = quill.getContents(range.index, range.length);
+        let plain = '';
+        (delta.ops || []).forEach((op) => {
+          const insert = op.insert;
+          if (insert == null) return;
+          if (typeof insert === 'string') {
+            plain += insert;
+          } else if (insert.formula) {
+            plain += `$${insert.formula}$`;
+          }
+        });
+
+        if (plain) {
+          e.preventDefault();
+          let html = '';
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount > 0) {
+            const container = document.createElement('div');
+            for (let i = 0; i < sel.rangeCount; i++) {
+              container.appendChild(sel.getRangeAt(i).cloneContents());
+            }
+            html = container.innerHTML;
+          }
+          e.clipboardData.setData('text/plain', plain);
+          if (html) e.clipboardData.setData('text/html', html);
+        }
+      } catch {}
+    };
+
+    const handlePaste = (e) => {
+      try {
+        const text = e.clipboardData?.getData('text/plain') || '';
+        if (!text || !/\$\$[\s\S]*?\$\$/.test(text)) return;
+
+        e.preventDefault();
+        const range = quill.getSelection();
+        if (range && range.length) {
+          quill.deleteText(range.index, range.length);
+        }
+        const insertIndex = range ? range.index : quill.getLength() - 1;
+
+        let cursor = insertIndex;
+        const regex = /\$\$([\s\S]*?)\$\$/g;
+        let lastIndex = 0;
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+          const before = text.slice(lastIndex, match.index);
+          if (before) {
+            quill.insertText(cursor, before);
+            cursor += before.length;
+          }
+          const formula = match[1];
+          if (formula) {
+            quill.insertEmbed(cursor, 'formula', formula);
+            cursor += 1;
+          }
+          lastIndex = match.index + match[0].length;
+        }
+        const tail = text.slice(lastIndex);
+        if (tail) {
+          quill.insertText(cursor, tail);
+          cursor += tail.length;
+        }
+        quill.setSelection(cursor);
+      } catch {}
+    };
+
+    editorContainer.addEventListener('copy', handleCopy);
+    editorContainer.addEventListener('paste', handlePaste);
+
     // 수식 클릭 이벤트 핸들러
     const handleFormulaClick = (e) => {
       const formulaElement = e.target.closest('.ql-formula');
@@ -185,6 +259,8 @@ const useQuillEditor = ({
       if (container && editorContainer.parentNode === container) {
         container.removeChild(editorContainer);
       }
+      editorContainer.removeEventListener('copy', handleCopy);
+      editorContainer.removeEventListener('paste', handlePaste);
       quillRef.current = null;
     };
   }, []); // 의존성 배열을 비워서 한 번만 실행
@@ -196,15 +272,32 @@ const useQuillEditor = ({
     insertFormula: (formula, range) => {
       if (!quillRef.current) return;
 
-      if (range) {
-        quillRef.current.deleteText(range.index, range.length);
-        quillRef.current.insertEmbed(range.index, 'formula', formula);
-        quillRef.current.setSelection(range.index + 1);
-      } else {
-        const length = quillRef.current.getLength();
-        quillRef.current.insertEmbed(length - 1, 'formula', formula);
-        quillRef.current.setSelection(length);
+      const quill = quillRef.current;
+      let katexHtml = '';
+      try {
+        katexHtml = katex.renderToString(formula, { throwOnError: false, displayMode: true });
+      } catch {
+        katexHtml = '';
       }
+      const html = `<span class=\"ql-formula\" data-value=\"${formula}\">\u200B<span contenteditable=\"false\"><span class=\"inline-display-math\">${katexHtml}</span></span>\u200B</span>`;
+
+      if (range) {
+        quill.deleteText(range.index, range.length);
+        quill.clipboard.dangerouslyPasteHTML(range.index, html);
+        quill.setSelection(range.index + 1);
+      } else {
+        const index = quill.getSelection()?.index ?? quill.getLength() - 1;
+        quill.clipboard.dangerouslyPasteHTML(index, html);
+        quill.setSelection(index + 1);
+      }
+    },
+    insertHtml: (html) => {
+      if (!quillRef.current || !html) return;
+      const quill = quillRef.current;
+      const range = quill.getSelection();
+      const index = range ? range.index : quill.getLength() - 1;
+      // Use Quill clipboard to paste sanitized HTML at the current cursor (or end)
+      quill.clipboard.dangerouslyPasteHTML(index, html);
     },
     insertImage: isInsertableImage
       ? (imageUrl) => {

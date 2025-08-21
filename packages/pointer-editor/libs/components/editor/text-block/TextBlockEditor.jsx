@@ -3,24 +3,27 @@ import {
   Box,
   Button,
   IconButton,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
+  Alert,
 } from '@mui/material';
-import {
-  Functions,
-  FormatAlignLeft,
-  FormatAlignCenter,
-  FormatAlignRight,
-} from '@mui/icons-material';
+import { Functions, CheckCircle } from '@mui/icons-material';
 import katex from 'katex';
 
-import { BoldIcon, ItalicIcon, UnderlineIcon, ColorIcon, BoxIcon } from '../../../assets';
+import { recognizeImageWithMathpix, convertMathpixToDollar } from '../../../api/ocr';
+import { getFileUploadUrl, uploadFileToS3 } from '../../../api/fileUpload';
+import {
+  BoldIcon,
+  ItalicIcon,
+  UnderlineIcon,
+  ColorIcon,
+  BoxIcon,
+  CloudUploadIcon,
+} from '../../../assets';
 
 import useQuillEditor from './hooks/useQuillEditor';
 import FormulaModal from './FormulaModal';
@@ -291,29 +294,27 @@ const editorReducer = (state, action) => {
 // $...$를 <span class="ql-formula" data-value="..."></span>로 변환 (내부에 KaTeX HTML 포함)
 function latexToQuillFormulaHtml(text) {
   if (!text) return '';
-  // 1. $...$를 모두 변환
 
-  // text를 개행 단위로 분리 (p태그 단위)
-  const splitText = text.split('\n');
+  // text를 개행 단위로 분리하여 각 라인을 p 태그로 감싸기
+  const lines = text.split('\n');
 
-  let html = '';
-  for (let i = 0; i < splitText.length; i++) {
-    html += `<p>${splitText[i]}</p>`;
-  }
+  const processedLines = lines.map((line) => {
+    // 각 라인에서 $...$를 수식으로 변환
+    const processedLine = line.replace(/\$([^\$]+)\$/g, (match, formula) => {
+      let katexHtml = '';
+      try {
+        katexHtml = katex.renderToString(formula, { throwOnError: false, displayMode: true });
+      } catch {
+        katexHtml = '';
+      }
+      return `<span class="ql-formula" data-value="${formula}">\u200B<span contenteditable="false"><span class="inline-display-math">${katexHtml}</span></span>\u200B</span>`;
+    });
 
-  html = html.replace(/\$([^\$]+)\$/g, (match, formula) => {
-    let katexHtml = '';
-    try {
-      katexHtml = katex.renderToString(formula, { throwOnError: false });
-    } catch {
-      katexHtml = '';
-    }
-    return `<span class="ql-formula" data-value="${formula}">\uFEFF<span contenteditable="false">${katexHtml}</span>\uFEFF</span>`;
+    return processedLine;
   });
-  // 3. 연속 공백을 &nbsp;로 변환 (HTML 태그 내부는 제외)
-  html = html.replace(/  +/g, (spaces) => '&nbsp;'.repeat(spaces.length));
-  // 4. 전체를 하나의 p태그로 감싸기
-  return html;
+
+  // 각 라인을 p 태그로 감싸서 반환
+  return processedLines.map((line) => `<p>${line}</p>`).join('');
 }
 
 // Quill HTML을 $$...$$ LaTeX 텍스트로 변환하는 함수
@@ -510,7 +511,7 @@ const TextBlockEditor = memo(
     }, []);
 
     // Quill 에디터 초기화 - renderingData 사용
-    const { getSelection, insertFormula, getContent, insertImage } = useQuillEditor({
+    const { getSelection, insertFormula, getContent, insertImage, insertHtml } = useQuillEditor({
       containerRef,
       initialContent: renderingData.content, // 렌더링용 데이터 사용
       onTextChange: handleTextChange,
@@ -579,6 +580,106 @@ const TextBlockEditor = memo(
       updateBlock,
     ]);
 
+    // OCR 이미지 업로드용 상태 및 핸들러
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadError, setUploadError] = useState('');
+    const [isDragging, setIsDragging] = useState(false);
+    const [ocrImageUrl, setOcrImageUrl] = useState('');
+    const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+    const [ocrError, setOcrError] = useState('');
+    const fileInputRef = useRef(null);
+
+    const runOcr = useCallback(
+      async (imageUrl) => {
+        setOcrError('');
+        setIsOcrProcessing(true);
+        try {
+          const json = await recognizeImageWithMathpix(imageUrl);
+          console.log(json);
+          const converted = convertMathpixToDollar(json.text || '');
+          console.log(converted);
+          const html = latexToQuillFormulaHtml(converted);
+          insertHtml?.(html);
+
+          setUploadError('');
+          setOcrError('');
+          setOcrImageUrl('');
+          setIsOcrProcessing(false);
+        } catch (e) {
+          console.error(e);
+          setOcrError(e?.message || 'OCR 처리 중 오류가 발생했습니다.');
+          setIsOcrProcessing(false);
+        }
+      },
+      [convertMathpixToDollar, insertHtml]
+    );
+
+    const startUpload = useCallback(
+      async (file) => {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+          setUploadError('이미지 파일만 업로드할 수 있어요.');
+          return;
+        }
+        setUploadError('');
+        setIsUploading(true);
+        try {
+          const result = await getFileUploadUrl({ fileName: file.name });
+          await uploadFileToS3({
+            uploadUrl: result.uploadUrl,
+            contentDisposition: result.contentDisposition,
+            file,
+          });
+          setOcrImageUrl(result.file.url);
+          await runOcr(result.file.url);
+        } catch (error) {
+          console.error('이미지 업로드 실패:', error);
+          setUploadError(error?.message || '이미지 업로드에 실패했습니다.');
+        } finally {
+          setIsUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+      },
+      [runOcr]
+    );
+
+    const handleFileSelect = useCallback(
+      (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        void startUpload(file);
+      },
+      [startUpload]
+    );
+
+    const handleUploadClick = useCallback(() => {
+      fileInputRef.current?.click();
+    }, []);
+
+    const handleDragOver = useCallback((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(true);
+    }, []);
+
+    const handleDragLeave = useCallback((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+    }, []);
+
+    const handleDrop = useCallback(
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+        const file = e.dataTransfer?.files?.[0];
+        if (!file) return;
+        void startUpload(file);
+      },
+      [startUpload]
+    );
+
     const handleFormulaSave = (formula) => {
       if (formula) {
         const range = savedRangeRef.current;
@@ -640,25 +741,97 @@ const TextBlockEditor = memo(
 
     return (
       <>
+        <style>{`
+          .quill-no-border .inline-display-math { display: inline-block; vertical-align: middle; }
+          .quill-no-border .inline-display-math .katex-display { display: inline-block; margin: 0; text-align: left; }
+          .quill-no-border .inline-display-math .katex-display > .katex { display: inline-block; }
+        `}</style>
         {/* 스타일 옵션 영역 */}
         <Box sx={{ mb: 1 }}>
-          <Box
-            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                variant='outlined'
-                size='small'
-                onClick={() => {
-                  savedRangeRef.current = getSelection();
-                  dispatch({
-                    type: actionTypes.OPEN_FORMULA_MODAL,
-                    payload: { formula: '', isEdit: false },
-                  });
-                }}
-                startIcon={<Functions />}
-                title='수식 삽입 (⌘+M / Ctrl+Shift+M)'>
-                <span style={{ fontSize: '12px' }}>수식 삽입 (⌘+Shift+M / Ctrl+Shift+M)</span>
-              </Button>
+          <Box sx={{ mb: 1 }}>
+            <Typography
+              variant='subtitle2'
+              sx={{
+                fontFamily: 'Pretendard',
+                fontWeight: 600,
+                fontSize: '13px',
+                lineHeight: '150%',
+                color: '#1E1E21',
+                mb: 1,
+              }}>
+              OCR
+            </Typography>
+            {/* 파일 input (숨김) */}
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='image/*'
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+            />
+
+            {/* 드롭존 */}
+            <Box
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 1,
+                backgroundColor: uploadError || ocrError ? '#FEE2E2' : '#F7F7F7',
+                borderRadius: '10px',
+                border: isDragging
+                  ? '2px solid #1E1E21'
+                  : uploadError || ocrError
+                    ? '2px solid #FEE2E2'
+                    : '2px dashed #C6CAD4',
+                cursor: 'pointer',
+                textAlign: 'center',
+                padding: '12px 12px',
+                transition: 'all 0.2s ease',
+              }}
+              onClick={handleUploadClick}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {(isUploading || isOcrProcessing) && (
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 16,
+                      border: '2px solid #E5E7EB',
+                      borderTop: '2px solid #3E3F45',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      '@keyframes spin': {
+                        '0%': { transform: 'rotate(0deg)' },
+                        '100%': { transform: 'rotate(360deg)' },
+                      },
+                    }}
+                  />
+                )}
+                <Typography
+                  variant='body2'
+                  sx={{
+                    fontFamily: 'Pretendard',
+                    fontWeight: 500,
+                    fontSize: '14px',
+                    color: '#3E3F45',
+                  }}>
+                  {isOcrProcessing
+                    ? 'OCR 처리 중...'
+                    : isUploading
+                      ? '업로드 중...'
+                      : uploadError
+                        ? uploadError
+                        : ocrError
+                          ? ocrError
+                          : '이미지를 여기에 드래그 앤 드롭하거나 클릭하여 업로드'}
+                </Typography>
+              </Box>
+              {!isOcrProcessing && !isUploading && !ocrImageUrl && (
+                <CloudUploadIcon width={28} height={28} />
+              )}
             </Box>
           </Box>
 
@@ -760,6 +933,31 @@ const TextBlockEditor = memo(
               onClick={handleColor}>
               <ColorIcon />
             </IconButton>
+
+            <Button
+              variant='outlined'
+              sx={{
+                color: '#000000',
+                border: '1px solid #C6CAD4',
+                backgroundColor: 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+                height: '24px',
+                marginTop: '5px',
+                marginLeft: '5px',
+                padding: '0 5px',
+              }}
+              onClick={() => {
+                savedRangeRef.current = getSelection();
+                dispatch({
+                  type: actionTypes.OPEN_FORMULA_MODAL,
+                  payload: { formula: '', isEdit: false },
+                });
+              }}>
+              <Functions sx={{ marginRight: '2px' }} />
+              <span style={{ fontSize: '10px' }}>수식 삽입 (Ctrl+Shift+M)</span>
+            </Button>
           </Box>
         </Box>
 
