@@ -224,27 +224,27 @@ const categories = [
     symbols: [
       {
         icon: <AlphaIcon />,
-        latex: 'α',
+        latex: '\\alpha',
       },
       {
         icon: <BetaIcon />,
-        latex: 'β',
+        latex: '\\beta',
       },
       {
         icon: <GammaIcon />,
-        latex: 'γ',
+        latex: '\\gamma',
       },
       {
         icon: <ThetaIcon />,
-        latex: 'θ',
+        latex: '\\theta',
       },
       {
         icon: <PiIcon />,
-        latex: 'π',
+        latex: '\\pi',
       },
       {
         icon: <OmegaIcon />,
-        latex: 'ω',
+        latex: '\\omega',
       },
     ],
   },
@@ -253,67 +253,67 @@ const categories = [
     symbols: [
       {
         icon: <SmallSigmaIcon />,
-        latex: '∑',
+        latex: '\\Sigma',
       },
       {
         icon: <SmallProductIcon />,
-        latex: '∏',
+        latex: '\\Pi',
       },
       {
         icon: <SmallInterIcon />,
-        latex: '∩',
+        latex: '\\cap',
       },
       {
         icon: <UnionIcon />,
-        latex: '∪',
+        latex: '\\cup',
       },
       {
         icon: <SubsetIcon />,
-        latex: '⊂',
+        latex: '\\subset',
       },
       {
         icon: <SupersetIcon />,
-        latex: '⊃',
+        latex: '\\supset',
       },
       {
         icon: <SubsetEqIcon />,
-        latex: '⊆',
+        latex: '\\subseteq',
       },
       {
         icon: <SupersetEqIcon />,
-        latex: '⊇',
+        latex: '\\supseteq',
       },
       {
         icon: <ElementOfIcon />,
-        latex: '∈',
+        latex: '\\in',
       },
       {
         icon: <ContainsIcon />,
-        latex: '∋',
+        latex: '\\ni',
       },
       {
         icon: <LessEqualIcon />,
-        latex: '≤',
+        latex: '\\leq',
       },
       {
         icon: <GreaterEqualIcon />,
-        latex: '≥',
+        latex: '\\geq',
       },
       {
         icon: <MuchLessIcon />,
-        latex: '≪',
+        latex: '\\ll',
       },
       {
         icon: <MuchGreaterIcon />,
-        latex: '≫',
+        latex: '\\gg',
       },
       {
         icon: <PrecedesIcon />,
-        latex: '<',
+        latex: '\\prec',
       },
       {
         icon: <SucceedsIcon />,
-        latex: '>',
+        latex: '\\succ',
       },
     ],
   },
@@ -322,51 +322,51 @@ const categories = [
     symbols: [
       {
         icon: <PlusMinusIcon />,
-        latex: '±',
+        latex: '\\pm',
       },
       {
         icon: <MinusPlusIcon />,
-        latex: '∓',
+        latex: '\\mp',
       },
       {
         icon: <TimesIcon />,
-        latex: '×',
+        latex: '\\times',
       },
       {
         icon: <DivideIcon />,
-        latex: '÷',
+        latex: '\\div',
       },
       {
         icon: <CircleOperatorIcon />,
-        latex: '∘',
+        latex: '\\circ',
       },
       {
         icon: <DegreeIcon />,
-        latex: '°',
+        latex: '\\degree',
       },
       {
         icon: <ThereforeIcon />,
-        latex: '∴',
+        latex: '\\therefore',
       },
       {
         icon: <BecauseIcon />,
-        latex: '∵',
+        latex: '\\because',
       },
       {
         icon: <NotEqualIcon />,
-        latex: '≠',
+        latex: '\\neq',
       },
       {
         icon: <SimilarEqualIcon />,
-        latex: '∼',
+        latex: '\\sim',
       },
       {
         icon: <CongruentIcon />,
-        latex: '≃',
+        latex: '\\cong',
       },
       {
         icon: <InfinityIcon />,
-        latex: '∞',
+        latex: '\\infty',
       },
     ],
   },
@@ -375,11 +375,11 @@ const categories = [
     symbols: [
       {
         icon: <TriangleIcon />,
-        latex: '△',
+        latex: '\\triangle',
       },
       {
         icon: <AngleIcon />,
-        latex: '∠',
+        latex: '\\angle',
       },
     ],
   },
@@ -392,19 +392,19 @@ const categories = [
     symbols: [
       {
         icon: <LimIcon />,
-        latex: 'lim _{ } { }',
+        latex: '\\lim_{ } { }',
       },
       {
         icon: <LimArrowIcon />,
-        latex: 'lim _{ -> } { }',
+        latex: '\\lim_{ \\to } { }',
       },
       {
         icon: <LimToZeroIcon />,
-        latex: 'lim _{ ->0} { }',
+        latex: '\\lim_{ \\to 0} { }',
       },
       {
         icon: <LimToInfinityIcon />,
-        latex: 'lim _{ ->inf} { }',
+        latex: '\\lim_{ \\to \\infty} { }',
       },
     ],
   },
