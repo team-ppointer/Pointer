@@ -47,8 +47,8 @@ export const recognizeImageWithMathpix = async (imageUrl) => {
 export const convertMathpixToDollar = (text) => {
   if (!text) return '';
   let output = text;
-  output = output.replace(/\\\[([\s\S]*?)\\\]/g, (_m, p1) => `$${p1}$`);
-  output = output.replace(/\\\(([\s\S]*?)\\\)/g, (_m, p1) => `$${p1}$`);
+  output = output.replace(/\\\[([\s\S]*?)\\\]/g, (_m, p1) => `$${p1.replace(/\s+/g, ' ').trim()}$`);
+  output = output.replace(/\\\(([\s\S]*?)\\\)/g, (_m, p1) => `$${p1.replace(/\s+/g, ' ').trim()}$`);
   return output;
 };
 
