@@ -14,6 +14,8 @@ import {
 import { Functions } from '@mui/icons-material';
 import katex from 'katex';
 
+import { recognizeImageWithMathpix, convertMathpixToDollar } from '../../../api/ocr';
+import { getFileUploadUrl, uploadFileToS3 } from '../../../api/fileUpload';
 import {
   BoldIcon,
   ItalicIcon,
@@ -22,7 +24,6 @@ import {
   BoxIcon,
   CloudUploadIcon,
 } from '../../../assets';
-import { getFileUploadUrl, uploadFileToS3 } from '../../../api/fileUpload';
 
 import useQuillEditor from './hooks/useQuillEditor';
 import FormulaModal from './FormulaModal';
@@ -590,61 +591,12 @@ const TextBlockEditor = memo(
     const [ocrError, setOcrError] = useState('');
     const fileInputRef = useRef(null);
 
-    // Mathpix 텍스트의 \( .. \), \[ .. \] 구문을 $..$, $$..$$ 로 변환
-    const convertMathpixToDollar = useCallback((text) => {
-      if (!text) return '';
-      let output = text;
-      output = output.replace(/\\\[([\s\S]*?)\\\]/g, (_m, p1) => `$${p1}$`);
-      output = output.replace(/\\\(([\s\S]*?)\\\)/g, (_m, p1) => `$${p1}$`);
-      return output;
-    }, []);
-
-    const getMathpixKeys = () => {
-      const g = typeof globalThis !== 'undefined' ? globalThis : window;
-      const viteEnv =
-        typeof import.meta !== 'undefined' && import.meta && import.meta.env
-          ? import.meta.env
-          : undefined;
-      const appId =
-        (g && g.__MATHPIX_APP_ID) ||
-        (viteEnv && viteEnv.VITE_MATHPIX_APP_ID) ||
-        (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_MATHPIX_APP_ID) ||
-        '';
-      const appKey =
-        (g && g.__MATHPIX_API_KEY) ||
-        (viteEnv && viteEnv.VITE_MATHPIX_API_KEY) ||
-        (typeof process !== 'undefined' &&
-          process.env &&
-          process.env.NEXT_PUBLIC_MATHPIX_API_KEY) ||
-        '';
-      if (!appId || !appKey) throw new Error('Mathpix API 환경값이 설정되지 않았습니다.');
-      return { appId, appKey };
-    };
-
     const runOcr = useCallback(
       async (imageUrl) => {
         setOcrError('');
         setIsOcrProcessing(true);
         try {
-          const { appId, appKey } = getMathpixKeys();
-          const res = await fetch('https://api.mathpix.com/v3/text', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              app_id: appId,
-              app_key: appKey,
-            },
-            body: JSON.stringify({
-              src: imageUrl,
-              formats: ['text', 'latex_styled'],
-              metadata: { improve_mathpix: false },
-            }),
-          });
-          if (!res.ok) {
-            const errText = await res.text().catch(() => '');
-            throw new Error(`Mathpix 요청 실패: ${res.status} ${res.statusText} ${errText}`);
-          }
-          const json = await res.json();
+          const json = await recognizeImageWithMathpix(imageUrl);
           console.log(json);
           const converted = convertMathpixToDollar(json.text || '');
           console.log(converted);
