@@ -11,7 +11,7 @@ import {
   TextField,
   Alert,
 } from '@mui/material';
-import { Functions } from '@mui/icons-material';
+import { Functions, CheckCircle } from '@mui/icons-material';
 import katex from 'katex';
 
 import { recognizeImageWithMathpix, convertMathpixToDollar } from '../../../api/ocr';
@@ -600,10 +600,14 @@ const TextBlockEditor = memo(
           console.log(converted);
           const html = latexToQuillFormulaHtml(converted);
           insertHtml?.(html);
+
+          setUploadError('');
+          setOcrError('');
+          setOcrImageUrl('');
+          setIsOcrProcessing(false);
         } catch (e) {
           console.error(e);
           setOcrError(e?.message || 'OCR 처리 중 오류가 발생했습니다.');
-        } finally {
           setIsOcrProcessing(false);
         }
       },
@@ -776,53 +780,59 @@ const TextBlockEditor = memo(
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: 1,
-                backgroundColor: '#F7F7F7',
+                backgroundColor: uploadError || ocrError ? '#FEE2E2' : '#F7F7F7',
                 borderRadius: '10px',
-                border: isDragging ? '2px solid #1E1E21' : '2px dashed #C6CAD4',
-                transition: 'border-color 0.15s ease',
+                border: isDragging
+                  ? '2px solid #1E1E21'
+                  : uploadError || ocrError
+                    ? '2px solid #FEE2E2'
+                    : '2px dashed #C6CAD4',
                 cursor: 'pointer',
                 textAlign: 'center',
                 padding: '12px 12px',
+                transition: 'all 0.2s ease',
               }}
               onClick={handleUploadClick}>
-              <Typography
-                variant='body2'
-                sx={{
-                  fontFamily: 'Pretendard',
-                  fontWeight: 500,
-                  fontSize: '14px',
-                  color: '#3E3F45',
-                }}>
-                이미지를 여기에 드래그 앤 드롭하거나 클릭하여 업로드
-              </Typography>
-              <CloudUploadIcon width={28} height={28} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {(isUploading || isOcrProcessing) && (
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 16,
+                      border: '2px solid #E5E7EB',
+                      borderTop: '2px solid #3E3F45',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      '@keyframes spin': {
+                        '0%': { transform: 'rotate(0deg)' },
+                        '100%': { transform: 'rotate(360deg)' },
+                      },
+                    }}
+                  />
+                )}
+                <Typography
+                  variant='body2'
+                  sx={{
+                    fontFamily: 'Pretendard',
+                    fontWeight: 500,
+                    fontSize: '14px',
+                    color: '#3E3F45',
+                  }}>
+                  {isOcrProcessing
+                    ? 'OCR 처리 중...'
+                    : isUploading
+                      ? '업로드 중...'
+                      : uploadError
+                        ? uploadError
+                        : ocrError
+                          ? ocrError
+                          : '이미지를 여기에 드래그 앤 드롭하거나 클릭하여 업로드'}
+                </Typography>
+              </Box>
+              {!isOcrProcessing && !isUploading && !ocrImageUrl && (
+                <CloudUploadIcon width={28} height={28} />
+              )}
             </Box>
-
-            {isUploading && (
-              <Typography variant='caption' sx={{ display: 'block', mt: 0.5, color: '#6B7280' }}>
-                업로드 중...
-              </Typography>
-            )}
-            {ocrImageUrl && !isUploading && (
-              <Typography variant='caption' sx={{ display: 'block', mt: 0.5, color: '#10B981' }}>
-                업로드 완료
-              </Typography>
-            )}
-            {isOcrProcessing && (
-              <Typography variant='caption' sx={{ display: 'block', mt: 0.5, color: '#6B7280' }}>
-                OCR 처리 중...
-              </Typography>
-            )}
-            {uploadError && (
-              <Alert severity='error' sx={{ mt: 1 }}>
-                {uploadError}
-              </Alert>
-            )}
-            {ocrError && (
-              <Alert severity='error' sx={{ mt: 1 }}>
-                {ocrError}
-              </Alert>
-            )}
           </Box>
 
           <Box
