@@ -237,6 +237,25 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/diagnosis/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생 진단 상세보기 */
+    get: operations['getById_1'];
+    /** 수정 */
+    put: operations['update_7'];
+    post?: never;
+    /** 삭제 */
+    delete: operations['delete_5'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/concept/{conceptId}': {
     parameters: {
       query?: never;
@@ -246,10 +265,10 @@ export interface paths {
     };
     get?: never;
     /** 개념태그 수정 */
-    put: operations['update_7'];
+    put: operations['update_8'];
     post?: never;
     /** 개념태그 삭제 */
-    delete: operations['delete_5'];
+    delete: operations['delete_6'];
     options?: never;
     head?: never;
     patch?: never;
@@ -621,6 +640,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/diagnosis': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생 진단 가져오기 */
+    get: operations['gets_1'];
+    put?: never;
+    /** 생성 */
+    post: operations['create_8'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/concept': {
     parameters: {
       query?: never;
@@ -632,7 +669,7 @@ export interface paths {
     get: operations['search_5'];
     put?: never;
     /** 개념태그 생성 */
-    post: operations['create_8'];
+    post: operations['create_9'];
     delete?: never;
     options?: never;
     head?: never;
@@ -835,7 +872,7 @@ export interface paths {
       cookie?: never;
     };
     /** Q&A 목록 조회 */
-    get: operations['gets_1'];
+    get: operations['gets_2'];
     put?: never;
     post?: never;
     delete?: never;
@@ -852,7 +889,7 @@ export interface paths {
       cookie?: never;
     };
     /** Q&A 상세 조회 */
-    get: operations['getById_1'];
+    get: operations['getById_2'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1031,6 +1068,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/diagnosis': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 내 진단 리스트 가져오기 */
+    get: operations['gets_3'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/diagnosis/last': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 내 최신 진단 가져오기 */
+    get: operations['getById_3'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/diagnosis/detail/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생 진단 상세보기 */
+    get: operations['getById_4'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/common/auth/refresh': {
     parameters: {
       query?: never;
@@ -1073,11 +1161,11 @@ export interface paths {
       cookie?: never;
     };
     /** 상세 조회 */
-    get: operations['getById_2'];
+    get: operations['getById_5'];
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_6'];
+    delete: operations['delete_7'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1145,7 +1233,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_7'];
+    delete: operations['delete_8'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1162,7 +1250,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 선생님 삭제 */
-    delete: operations['delete_8'];
+    delete: operations['delete_9'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1525,6 +1613,18 @@ export interface components {
       grade: number;
       name: string;
     };
+    DiagnosisUpdateReq: {
+      content?: string;
+    };
+    DiagnosisResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int64 */
+      studentId?: number;
+      /** Format: date-time */
+      createdAt?: string;
+      content?: string;
+    };
     ConceptUpdateRequest: {
       name: string;
       /** Format: int64 */
@@ -1853,6 +1953,11 @@ export interface components {
       grade: number;
       name: string;
     };
+    DiagnosisCreateReq: {
+      /** Format: int64 */
+      studentId?: number;
+      content?: string;
+    };
     ConceptCreateRequest: {
       name: string;
       /** Format: int64 */
@@ -1914,6 +2019,11 @@ export interface components {
       /** Format: int64 */
       unreadCount?: number;
       latestNotice?: components['schemas']['NoticeResp'];
+    };
+    ListRespDiagnosisResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['DiagnosisResp'][];
     };
     PageRespTeacherResp: {
       /** Format: int32 */
@@ -2568,7 +2678,75 @@ export interface operations {
       };
     };
   };
+  getById_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
   update_7: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DiagnosisUpdateReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
+  delete_5: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_8: {
     parameters: {
       query?: never;
       header?: never;
@@ -2594,7 +2772,7 @@ export interface operations {
       };
     };
   };
-  delete_5: {
+  delete_6: {
     parameters: {
       query?: never;
       header?: never;
@@ -3328,6 +3506,52 @@ export interface operations {
       };
     };
   };
+  gets_1: {
+    parameters: {
+      query: {
+        studentId: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespDiagnosisResp'];
+        };
+      };
+    };
+  };
+  create_8: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DiagnosisCreateReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
   search_5: {
     parameters: {
       query?: {
@@ -3352,7 +3576,7 @@ export interface operations {
       };
     };
   };
-  create_8: {
+  create_9: {
     parameters: {
       query?: never;
       header?: never;
@@ -3661,7 +3885,7 @@ export interface operations {
       };
     };
   };
-  gets_1: {
+  gets_2: {
     parameters: {
       query?: {
         query?: string;
@@ -3683,7 +3907,7 @@ export interface operations {
       };
     };
   };
-  getById_1: {
+  getById_2: {
     parameters: {
       query?: never;
       header?: never;
@@ -3918,6 +4142,68 @@ export interface operations {
       };
     };
   };
+  gets_3: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespDiagnosisResp'];
+        };
+      };
+    };
+  };
+  getById_3: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
+  getById_4: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
   refresh_3: {
     parameters: {
       query?: never;
@@ -3962,7 +4248,7 @@ export interface operations {
       };
     };
   };
-  getById_2: {
+  getById_5: {
     parameters: {
       query?: never;
       header?: never;
@@ -3984,7 +4270,7 @@ export interface operations {
       };
     };
   };
-  delete_6: {
+  delete_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -4064,7 +4350,7 @@ export interface operations {
       };
     };
   };
-  delete_7: {
+  delete_8: {
     parameters: {
       query?: never;
       header?: never;
@@ -4084,7 +4370,7 @@ export interface operations {
       };
     };
   };
-  delete_8: {
+  delete_9: {
     parameters: {
       query?: never;
       header?: never;
