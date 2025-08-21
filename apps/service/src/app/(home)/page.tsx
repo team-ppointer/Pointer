@@ -44,11 +44,11 @@ const Page = () => {
           <DiagnosisButton />
       </main>
 
-      <div className='mt-[2rem] pb-[3.3rem]'>
+      <div className='mt-[1.2rem] pb-[3.3rem]'>
         {isLoading ? (
           <div className='h-[456px] w-full' />
         ) : problemSets.length > 0 ? (
-          <div className='flex h-[456px] items-center justify-center'>
+          <div className='flex h-[calc(100dvh-38rem)] items-center justify-center overflow-auto'>
             <ProblemSwiper problemSets={problemSets} onProblemSelect={setSelectedProblem} />
           </div>
         ) : (
