@@ -206,6 +206,14 @@ const useQuillEditor = ({
         quillRef.current.setSelection(length);
       }
     },
+    insertHtml: (html) => {
+      if (!quillRef.current || !html) return;
+      const quill = quillRef.current;
+      const range = quill.getSelection();
+      const index = range ? range.index : quill.getLength() - 1;
+      // Use Quill clipboard to paste sanitized HTML at the current cursor (or end)
+      quill.clipboard.dangerouslyPasteHTML(index, html);
+    },
     insertImage: isInsertableImage
       ? (imageUrl) => {
           if (!quillRef.current) return;
