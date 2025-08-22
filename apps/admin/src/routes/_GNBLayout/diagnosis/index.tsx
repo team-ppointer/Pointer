@@ -98,6 +98,20 @@ function RouteComponent() {
     }
   };
 
+  const handleEditingContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= 1000) {
+      setEditingContent(value);
+    }
+  };
+
+  const handleNewDiagnosisContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= 1000) {
+      setNewDiagnosisContent(value);
+    }
+  };
+
   const handleSaveEdit = async () => {
     if (!selectedDiagnosisId || !selectedStudent) return;
 
@@ -294,15 +308,20 @@ function RouteComponent() {
 
                     <div className='flex-1'>
                       {isEditing ? (
-                        <textarea
-                          value={editingContent}
-                          onChange={(e) => setEditingContent(e.target.value)}
-                          className='rounded-200 border-lightgray400 bg-lightgray100 font-medium-16 focus:border-main h-full w-full resize-none border p-800 focus:outline-none'
-                          placeholder='진단 내용을 입력하세요...'
-                        />
+                        <div className='relative h-full'>
+                          <textarea
+                            value={editingContent}
+                            onChange={handleEditingContentChange}
+                            className='rounded-200 border-lightgray400 bg-lightgray100 font-medium-16 focus:border-main h-full w-full resize-none border p-800 pb-1600 focus:outline-none'
+                            placeholder='진단 내용을 입력하세요...'
+                          />
+                          <div className='text-midgray100 font-medium-14 absolute right-800 bottom-800'>
+                            {editingContent.length}/1000
+                          </div>
+                        </div>
                       ) : (
                         <div className='rounded-200 border-lightgray300 font-medium-16 h-full w-full overflow-y-auto border p-800'>
-                          <div className='font-medium-16 leading-relaxed whitespace-pre-wrap text-black'>
+                          <div className='font-medium-16 leading-relaxed break-all text-black'>
                             {selectedDiagnosisDetail.content || '진단 내용이 없습니다.'}
                           </div>
                         </div>
@@ -340,12 +359,17 @@ function RouteComponent() {
       <Modal isOpen={isCreateModalOpen} onClose={closeCreateModal}>
         <div className='w-[80rem] px-1600 py-1200'>
           <h3 className='font-bold-24 mb-1200 text-black'>새 진단 추가</h3>
-          <textarea
-            value={newDiagnosisContent}
-            onChange={(e) => setNewDiagnosisContent(e.target.value)}
-            className='rounded-400 border-lightgray500 font-medium-16 mb-1200 h-[30rem] w-full resize-none border p-800'
-            placeholder='진단 내용을 입력하세요...'
-          />
+          <div className='relative mb-200'>
+            <textarea
+              value={newDiagnosisContent}
+              onChange={handleNewDiagnosisContentChange}
+              className='rounded-400 border-lightgray500 font-medium-16 h-[30rem] w-full resize-none border p-800'
+              placeholder='진단 내용을 입력하세요...'
+            />
+          </div>
+          <div className='text-midgray100 font-medium-14 mr-100 mb-800 text-right'>
+            {newDiagnosisContent.length}/1000
+          </div>
           <div className='flex justify-end gap-400'>
             <Button variant='light' onClick={closeCreateModal}>
               취소
