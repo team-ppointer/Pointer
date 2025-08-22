@@ -29,7 +29,11 @@ const DiagnosisButton = () => {
         </span>
         {latestDiagnosis?.createdAt && (
           <span className='font-medium-12 text-lightgray500'>
-            {new Date(latestDiagnosis.createdAt).toLocaleDateString()}
+            {new Date(latestDiagnosis.createdAt).toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </span>
         )}
       </div>

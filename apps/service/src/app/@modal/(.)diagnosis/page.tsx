@@ -19,7 +19,12 @@ const DiagnosisCard = ({
       onClick={() => setIsExpanded(!isExpanded)}>
       <div className='flex items-center justify-between'>
         <span className='font-medium-14 text-midgray100'>
-          {item.createdAt && new Date(item.createdAt).toLocaleDateString()}
+          {item.createdAt &&
+            new Date(item.createdAt).toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
         </span>
         <div
           className={`flex-shrink-0 transition-transform duration-200 ${
@@ -98,11 +103,12 @@ const Page = () => {
           {diagnosis?.data?.map((item, index) => (
             <DiagnosisCard key={item.id} item={item} index={index} />
           ))}
-          {!diagnosis || diagnosis.data.length === 0 && (
-            <div className='flex items-center justify-center p-[4.8rem]'>
-              <span className='font-medium-14 text-midgray100'>진단 결과가 없어요</span>
-            </div>
-          )}
+          {!diagnosis ||
+            (diagnosis.data.length === 0 && (
+              <div className='flex items-center justify-center p-[4.8rem]'>
+                <span className='font-medium-14 text-midgray100'>진단 결과가 없어요</span>
+              </div>
+            ))}
         </div>
       </div>
     </div>
