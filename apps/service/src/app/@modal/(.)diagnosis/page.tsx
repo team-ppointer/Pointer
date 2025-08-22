@@ -98,7 +98,7 @@ const Page = () => {
           {diagnosis?.data?.map((item, index) => (
             <DiagnosisCard key={item.id} item={item} index={index} />
           ))}
-          {!diagnosis && (
+          {!diagnosis || diagnosis.data.length === 0 && (
             <div className='flex items-center justify-center p-[4.8rem]'>
               <span className='font-medium-14 text-midgray100'>진단 결과가 없어요</span>
             </div>
