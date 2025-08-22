@@ -69,6 +69,7 @@ const useQuillEditor = ({
   onTextChange,
   onFormulaClick,
   onInitialized,
+  onImagePaste, // 이미지 붙여넣기 핸들러 추가
   isInsertableImage = false,
 }) => {
   const quillRef = useRef(null);
@@ -195,6 +196,24 @@ const useQuillEditor = ({
 
     const handlePaste = (e) => {
       try {
+        // 클립보드에서 이미지 확인
+        const items = e.clipboardData?.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            // 이미지 타입인지 확인
+            if (item.type.startsWith('image/')) {
+              e.preventDefault();
+              const file = item.getAsFile();
+              if (file && onImagePaste) {
+                onImagePaste(file);
+                return;
+              }
+            }
+          }
+        }
+
+        // 이미지가 없으면 기존 텍스트/수식 처리
         const text = e.clipboardData?.getData('text/plain') || '';
         if (!text || !/\$\$[\s\S]*?\$\$/.test(text)) return;
 

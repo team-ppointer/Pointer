@@ -361,6 +361,7 @@ const TextBlockEditor = memo(
   ({ initialData, onChange, blockId, isInsertableImage = false }) => {
     const containerRef = useRef(null);
     const savedRangeRef = useRef(null);
+    const insertHtmlRef = useRef(null);
 
     // useReducer로 상태 관리 통합
     const [state, dispatch] = useReducer(editorReducer, initialState);
@@ -513,15 +514,124 @@ const TextBlockEditor = memo(
       dispatch({ type: actionTypes.SET_INITIALIZED, payload: true });
     }, []);
 
-    // Quill 에디터 초기화 - renderingData 사용
+    // externalData.style 변경 감지 및 상태 업데이트 (prop 변경 시)
+    useEffect(() => {
+      dispatch({
+        type: actionTypes.SET_STYLE_FROM_INITIAL_DATA,
+        payload: { styleString: externalData.style },
+      });
+    }, [externalData.style]);
+
+    // OCR 이미지 업로드용 상태 및 핸들러
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadError, setUploadError] = useState('');
+    const [isDragging, setIsDragging] = useState(false);
+    const [ocrImageUrl, setOcrImageUrl] = useState('');
+    const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+    const [ocrError, setOcrError] = useState('');
+    const fileInputRef = useRef(null);
+
+    const runOcr = useCallback(async (imageUrl) => {
+      setOcrError('');
+      setIsOcrProcessing(true);
+      try {
+        const result = await recognizeImageWithMathpix(imageUrl);
+
+        const reconstructed = composeTextFromLineData(result.line_data);
+        const baseText = reconstructed || result.text || '';
+        const converted = convertMathpixToDollar(baseText);
+
+        const html = latexToQuillFormulaHtml(converted);
+        if (insertHtmlRef.current) {
+          insertHtmlRef.current(html);
+        }
+
+        if (containerRef.current) {
+          const editor = containerRef.current.querySelector('.ql-editor');
+          if (editor) {
+            const images = editor.querySelectorAll('img');
+            images.forEach((img) => img.remove());
+          }
+        }
+
+        setUploadError('');
+        setOcrError('');
+        setOcrImageUrl('');
+        setIsOcrProcessing(false);
+      } catch (e) {
+        setOcrError(e?.message || 'OCR 처리 중 오류가 발생했습니다.');
+        setIsOcrProcessing(false);
+      }
+    }, []);
+
+    const startUpload = useCallback(
+      async (file) => {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+          setUploadError('이미지 파일만 업로드할 수 있어요.');
+          return;
+        }
+        setUploadError('');
+        setIsUploading(true);
+        try {
+          const result = await getFileUploadUrl({ fileName: file.name });
+          await uploadFileToS3({
+            uploadUrl: result.uploadUrl,
+            contentDisposition: result.contentDisposition,
+            file,
+          });
+          setOcrImageUrl(result.file.url);
+          await runOcr(result.file.url);
+        } catch (error) {
+          setUploadError(error?.message || '이미지 업로드에 실패했습니다.');
+        } finally {
+          setIsUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+      },
+      [runOcr]
+    );
+
+    const handleImagePaste = useCallback(
+      async (file) => {
+        if (!file || !file.type.startsWith('image/')) {
+          return;
+        }
+
+        setUploadError('');
+        setIsUploading(true);
+        try {
+          const result = await getFileUploadUrl({ fileName: file.name });
+          await uploadFileToS3({
+            uploadUrl: result.uploadUrl,
+            contentDisposition: result.contentDisposition,
+            file,
+          });
+          setOcrImageUrl(result.file.url);
+          await runOcr(result.file.url);
+        } catch (error) {
+          setUploadError(error?.message || '이미지 업로드에 실패했습니다.');
+        } finally {
+          setIsUploading(false);
+        }
+      },
+      [runOcr]
+    );
+
+    // Quill 에디터 초기화 - renderingData 사용 (handleImagePaste 이후에 정의)
     const { getSelection, insertFormula, getContent, insertImage, insertHtml } = useQuillEditor({
       containerRef,
       initialContent: renderingData.content, // 렌더링용 데이터 사용
       onTextChange: handleTextChange,
       onFormulaClick: handleFormulaClick,
       onInitialized: handleEditorInitialized,
+      onImagePaste: handleImagePaste,
       isInsertableImage,
     });
+
+    useEffect(() => {
+      insertHtmlRef.current = insertHtml;
+    }, [insertHtml]);
 
     // 키보드 단축키 핸들러 (useQuillEditor 이후에 정의)
     const handleKeyDown = useCallback(
@@ -556,14 +666,6 @@ const TextBlockEditor = memo(
       }
     }, [getSelection, handleKeyDown]);
 
-    // externalData.style 변경 감지 및 상태 업데이트 (prop 변경 시)
-    useEffect(() => {
-      dispatch({
-        type: actionTypes.SET_STYLE_FROM_INITIAL_DATA,
-        payload: { styleString: externalData.style },
-      });
-    }, [externalData.style]);
-
     // 스타일 변경 시에만 업데이트 (사용자가 스타일을 변경했을 때)
     useEffect(() => {
       if (state.isInitialized && state.isStyleUpdatedByUser) {
@@ -583,68 +685,38 @@ const TextBlockEditor = memo(
       updateBlock,
     ]);
 
-    // OCR 이미지 업로드용 상태 및 핸들러
-    const [isUploading, setIsUploading] = useState(false);
-    const [uploadError, setUploadError] = useState('');
-    const [isDragging, setIsDragging] = useState(false);
-    const [ocrImageUrl, setOcrImageUrl] = useState('');
-    const [isOcrProcessing, setIsOcrProcessing] = useState(false);
-    const [ocrError, setOcrError] = useState('');
-    const fileInputRef = useRef(null);
+    // 스타일 변경 핸들러들
+    const handleBorderToggle = useCallback(() => {
+      const newBorderState = !state.hasBorder;
+      dispatch({ type: actionTypes.SET_BORDER, payload: newBorderState });
+      if (!newBorderState) {
+        dispatch({ type: actionTypes.SET_INNER_PADDING, payload: 'medium' });
+      }
+      const content = getContent();
+      const currentStyle = generateCurrentStyle();
+      updateBlock(content, currentStyle);
+    }, [state.hasBorder, getContent, generateCurrentStyle, updateBlock]);
 
-    const runOcr = useCallback(
-      async (imageUrl) => {
-        setOcrError('');
-        setIsOcrProcessing(true);
-        try {
-          const result = await recognizeImageWithMathpix(imageUrl);
+    const handleBoldToggle = useCallback(() => {
+      dispatch({ type: actionTypes.SET_BOLD, payload: !state.isBold });
+      const content = getContent();
+      const currentStyle = generateCurrentStyle();
+      updateBlock(content, currentStyle);
+    }, [state.isBold, getContent, generateCurrentStyle, updateBlock]);
 
-          const reconstructed = composeTextFromLineData(result.line_data);
-          const baseText = reconstructed || result.text || '';
-          const converted = convertMathpixToDollar(baseText);
+    const handleItalicToggle = useCallback(() => {
+      dispatch({ type: actionTypes.SET_ITALIC, payload: !state.isItalic });
+      const content = getContent();
+      const currentStyle = generateCurrentStyle();
+      updateBlock(content, currentStyle);
+    }, [state.isItalic, getContent, generateCurrentStyle, updateBlock]);
 
-          const html = latexToQuillFormulaHtml(converted);
-          insertHtml?.(html);
-
-          setUploadError('');
-          setOcrError('');
-          setOcrImageUrl('');
-          setIsOcrProcessing(false);
-        } catch (e) {
-          setOcrError(e?.message || 'OCR 처리 중 오류가 발생했습니다.');
-          setIsOcrProcessing(false);
-        }
-      },
-      [insertHtml]
-    );
-
-    const startUpload = useCallback(
-      async (file) => {
-        if (!file) return;
-        if (!file.type.startsWith('image/')) {
-          setUploadError('이미지 파일만 업로드할 수 있어요.');
-          return;
-        }
-        setUploadError('');
-        setIsUploading(true);
-        try {
-          const result = await getFileUploadUrl({ fileName: file.name });
-          await uploadFileToS3({
-            uploadUrl: result.uploadUrl,
-            contentDisposition: result.contentDisposition,
-            file,
-          });
-          setOcrImageUrl(result.file.url);
-          await runOcr(result.file.url);
-        } catch (error) {
-          setUploadError(error?.message || '이미지 업로드에 실패했습니다.');
-        } finally {
-          setIsUploading(false);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-        }
-      },
-      [runOcr]
-    );
+    const handleUnderlineToggle = useCallback(() => {
+      dispatch({ type: actionTypes.SET_UNDERLINE, payload: !state.isUnderline });
+      const content = getContent();
+      const currentStyle = generateCurrentStyle();
+      updateBlock(content, currentStyle);
+    }, [state.isUnderline, getContent, generateCurrentStyle, updateBlock]);
 
     const handleFileSelect = useCallback(
       (event) => {
@@ -853,16 +925,7 @@ const TextBlockEditor = memo(
                   backgroundColor: 'transparent',
                 },
               }}
-              onClick={() => {
-                const newBorderState = !state.hasBorder;
-                dispatch({ type: actionTypes.SET_BORDER, payload: newBorderState });
-                if (!newBorderState) {
-                  dispatch({ type: actionTypes.SET_INNER_PADDING, payload: 'medium' });
-                }
-                const content = getContent();
-                const currentStyle = generateCurrentStyle();
-                updateBlock(content, currentStyle);
-              }}>
+              onClick={handleBorderToggle}>
               <BoxIcon />
             </IconButton>
 
@@ -876,12 +939,7 @@ const TextBlockEditor = memo(
                   backgroundColor: 'transparent',
                 },
               }}
-              onClick={() => {
-                dispatch({ type: actionTypes.SET_BOLD, payload: !state.isBold });
-                const content = getContent();
-                const currentStyle = generateCurrentStyle();
-                updateBlock(content, currentStyle);
-              }}>
+              onClick={handleBoldToggle}>
               <BoldIcon />
             </IconButton>
 
@@ -895,12 +953,7 @@ const TextBlockEditor = memo(
                   backgroundColor: 'transparent',
                 },
               }}
-              onClick={() => {
-                dispatch({ type: actionTypes.SET_ITALIC, payload: !state.isItalic });
-                const content = getContent();
-                const currentStyle = generateCurrentStyle();
-                updateBlock(content, currentStyle);
-              }}>
+              onClick={handleItalicToggle}>
               <ItalicIcon />
             </IconButton>
 
@@ -914,12 +967,7 @@ const TextBlockEditor = memo(
                   backgroundColor: 'transparent',
                 },
               }}
-              onClick={() => {
-                dispatch({ type: actionTypes.SET_UNDERLINE, payload: !state.isUnderline });
-                const content = getContent();
-                const currentStyle = generateCurrentStyle();
-                updateBlock(content, currentStyle);
-              }}>
+              onClick={handleUnderlineToggle}>
               <UnderlineIcon />
             </IconButton>
 
