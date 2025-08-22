@@ -16,6 +16,12 @@ import { components } from '@schema';
 import { useQueryClient } from '@tanstack/react-query';
 import { IcDelete, IcPencil, IcPlus } from '@svg';
 
+const convertUTCToKST = (utcDateString: string) => {
+  const utcDate = new Date(utcDateString);
+  const kstDate = new Date(utcDate.getTime() + 9 * 60 * 60 * 1000);
+  return kstDate;
+};
+
 export const Route = createFileRoute('/_GNBLayout/diagnosis/')({
   component: RouteComponent,
 });
@@ -199,11 +205,11 @@ function RouteComponent() {
                           ? 'bg-lightgray100 border-lightgray400'
                           : 'hover:bg-lightgray100 border-lightgray300 bg-white'
                       }`}>
-                      <div className={`font-medium-14 mb-150 line-clamp-2`}>
-                        {diagnosis.content?.substring(0, 80)}...
+                      <div className={`font-medium-14 ellipsis mb-150 line-clamp-1`}>
+                        {diagnosis.content}
                       </div>
                       <div className={`font-medium-12 text-midgray100`}>
-                        {new Date(diagnosis.createdAt || '').toLocaleDateString('ko-KR', {
+                        {convertUTCToKST(diagnosis.createdAt || '').toLocaleDateString('ko-KR', {
                           month: 'short',
                           day: 'numeric',
                         })}
@@ -238,16 +244,15 @@ function RouteComponent() {
                       <div>
                         <h3 className='font-bold-20 mb-100 text-black'>진단 상세</h3>
                         <div className='font-medium-14 text-midgray100'>
-                          {new Date(selectedDiagnosisDetail.createdAt || '').toLocaleDateString(
-                            'ko-KR',
-                            {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }
-                          )}
+                          {convertUTCToKST(
+                            selectedDiagnosisDetail.createdAt || ''
+                          ).toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
                         </div>
                       </div>
                       <div className='flex gap-300'>
