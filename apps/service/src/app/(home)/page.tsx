@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { BottomFixedArea, Button } from '@components';
 import { IcCalendar, IcQuestionWhite } from '@svg';
 import { showToast, trackEvent } from '@utils';
-import { HomeHeader, NoticeButton, ProblemSwiper, WeekProgress } from '@/components/home';
+import { DiagnosisButton, HomeHeader, NoticeButton, ProblemSwiper } from '@/components/home';
 import { useGetWeeklyPublish } from '@/apis';
 
 const Page = () => {
@@ -39,18 +39,16 @@ const Page = () => {
   return (
     <>
       <HomeHeader />
-      <main className='flex flex-col px-[2rem] pt-[6rem]'>
-        <div className='flex h-[12rem] w-full items-center gap-[1.2rem] pt-[1.6rem]'>
+      <main className='flex flex-col gap-[1.2rem] px-[2rem] pt-[7.6rem]'>
           <NoticeButton />
-          <WeekProgress />
-        </div>
+          <DiagnosisButton />
       </main>
 
-      <div className='mt-[2rem] pb-[3.3rem]'>
+      <div className='mt-[1.2rem] pb-[3.3rem]'>
         {isLoading ? (
           <div className='h-[456px] w-full' />
         ) : problemSets.length > 0 ? (
-          <div className='flex h-[456px] items-center justify-center'>
+          <div className='flex h-[calc(100dvh-38rem)] items-center justify-center overflow-auto'>
             <ProblemSwiper problemSets={problemSets} onProblemSelect={setSelectedProblem} />
           </div>
         ) : (
@@ -60,12 +58,12 @@ const Page = () => {
         )}
       </div>
       <BottomFixedArea zIndex={10}>
-        <footer className='flex flex-col gap-[1rem] px-[2rem] pt-[2.4rem] pb-[3.3rem]'>
-          <Button variant='light' onClick={handleClickAllProblem}>
+        <footer className='flex gap-[1rem] px-[2rem] pb-[3.3rem] pt-[2.4rem]'>
+          <Button variant='light' onClick={handleClickAllProblem} className='w-auto flex-1'>
             <IcCalendar width={24} height={24} />
             날짜별로 보기
           </Button>
-          <Button variant='blue' onClick={handleClickQnA}>
+          <Button variant='blue' onClick={handleClickQnA} className='w-auto flex-1'>
             <IcQuestionWhite width={24} height={24} />
             QnA 바로가기
           </Button>

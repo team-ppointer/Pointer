@@ -1,9 +1,16 @@
 @import 'swiper/css';
 @import 'swiper/css/pagination';
 
+.mySwiper {
+  position: absolute;
+  width: 100dvw !important;
+}
+
 .swiper-slide {
-  width: 31.2rem !important;
-  height: 43.1rem !important;
+  width: calc(100dvw - 4rem) !important;
+  max-width: calc(768px - 4rem) !important;
+  height: calc(100dvh - 38rem - 2.5rem) !important;
+  max-height: calc(100dvh - 38rem - 2.5rem) !important;
 }
 
 .swiper-pagination {

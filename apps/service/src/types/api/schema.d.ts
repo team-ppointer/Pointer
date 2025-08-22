@@ -33,7 +33,8 @@ export interface paths {
     /** 수정 */
     put: operations['update'];
     post?: never;
-    delete?: never;
+    /** 삭제 */
+    delete: operations['delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -52,7 +53,7 @@ export interface paths {
     put: operations['update_1'];
     post?: never;
     /** Q&A 삭제 */
-    delete: operations['delete'];
+    delete: operations['delete_1'];
     options?: never;
     head?: never;
     patch?: never;
@@ -128,6 +129,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/teacher/student/{teacherId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 담당 학생 수정 */
+    put: operations['assignStudentsToTeacher'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/problem/{id}': {
     parameters: {
       query?: never;
@@ -160,24 +178,7 @@ export interface paths {
     put: operations['update_4'];
     post?: never;
     /** 삭제 */
-    delete: operations['delete_1'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/admin/problem-set/{id}/status': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** 수정 */
-    put: operations['update_5'];
-    post?: never;
-    delete?: never;
+    delete: operations['delete_2'];
     options?: never;
     head?: never;
     patch?: never;
@@ -209,10 +210,10 @@ export interface paths {
     };
     get?: never;
     /** 수정 */
-    put: operations['update_6'];
+    put: operations['update_5'];
     post?: never;
     /** 삭제 */
-    delete: operations['delete_2'];
+    delete: operations['delete_3'];
     options?: never;
     head?: never;
     patch?: never;
@@ -227,9 +228,29 @@ export interface paths {
     };
     get?: never;
     /** 수정 */
+    put: operations['update_6'];
+    post?: never;
+    /** 삭제 */
+    delete: operations['delete_4'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/diagnosis/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생 진단 상세보기 */
+    get: operations['getById_1'];
+    /** 수정 */
     put: operations['update_7'];
     post?: never;
-    delete?: never;
+    /** 삭제 */
+    delete: operations['delete_5'];
     options?: never;
     head?: never;
     patch?: never;
@@ -247,7 +268,7 @@ export interface paths {
     put: operations['update_8'];
     post?: never;
     /** 개념태그 삭제 */
-    delete: operations['delete_3'];
+    delete: operations['delete_6'];
     options?: never;
     head?: never;
     patch?: never;
@@ -518,28 +539,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** 전체 조회 */
-    get: operations['gets_1'];
+    /** 검색 */
+    get: operations['search'];
     put?: never;
     /** 생성 */
     post: operations['create_3'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/admin/teacher/assign/{teacherId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** 선생님에게 학생 배정 */
-    post: operations['assignStudentsToTeacher'];
     delete?: never;
     options?: never;
     head?: never;
@@ -554,7 +558,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search'];
+    get: operations['search_1'];
     put?: never;
     /** 생성 */
     post: operations['create_4'];
@@ -572,7 +576,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_1'];
+    get: operations['search_2'];
     put?: never;
     /** 생성 */
     post: operations['createProblem'];
@@ -590,7 +594,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_2'];
+    get: operations['search_3'];
     put?: never;
     /** 생성 */
     post: operations['create_5'];
@@ -608,7 +612,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_3'];
+    get: operations['search_4'];
     put?: never;
     /** 생성 */
     post: operations['create_6'];
@@ -636,6 +640,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/diagnosis': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생 진단 가져오기 */
+    get: operations['gets_1'];
+    put?: never;
+    /** 생성 */
+    post: operations['create_8'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/concept': {
     parameters: {
       query?: never;
@@ -644,10 +666,10 @@ export interface paths {
       cookie?: never;
     };
     /** 개념 태그 검색 */
-    get: operations['search_4'];
+    get: operations['search_5'];
     put?: never;
     /** 개념태그 생성 */
-    post: operations['create_8'];
+    post: operations['create_9'];
     delete?: never;
     options?: never;
     head?: never;
@@ -731,7 +753,7 @@ export interface paths {
       cookie?: never;
     };
     /** 학생 주간 발행(숙제) 조회 */
-    get: operations['search_5'];
+    get: operations['search_6'];
     put?: never;
     post?: never;
     delete?: never;
@@ -867,7 +889,7 @@ export interface paths {
       cookie?: never;
     };
     /** Q&A 상세 조회 */
-    get: operations['getById_1'];
+    get: operations['getById_2'];
     put?: never;
     post?: never;
     delete?: never;
@@ -918,7 +940,7 @@ export interface paths {
       cookie?: never;
     };
     /** 주간 발행(숙제) 조회 */
-    get: operations['search_6'];
+    get: operations['search_7'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1046,6 +1068,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/diagnosis': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 내 진단 리스트 가져오기 */
+    get: operations['gets_3'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/diagnosis/last': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 내 최신 진단 가져오기 */
+    get: operations['getById_3'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/diagnosis/detail/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생 진단 상세보기 */
+    get: operations['getById_4'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/common/auth/refresh': {
     parameters: {
       query?: never;
@@ -1071,7 +1144,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_7'];
+    get: operations['search_8'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1088,11 +1161,28 @@ export interface paths {
       cookie?: never;
     };
     /** 상세 조회 */
-    get: operations['getById_2'];
+    get: operations['getById_5'];
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_4'];
+    delete: operations['delete_7'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/problem/custom-id/generate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** unique customId 받기 */
+    get: operations['getCustomId'];
+    put?: never;
+    post?: never;
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -1143,13 +1233,13 @@ export interface paths {
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_5'];
+    delete: operations['delete_8'];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/admin/teacher/{teacherId}/{studentId}': {
+  '/api/admin/teacher/{teacherId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -1159,8 +1249,8 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** 선생님으로부터 학생 제거 */
-    delete: operations['removeStudentFromTeacher'];
+    /** 선생님 삭제 */
+    delete: operations['delete_9'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1322,6 +1412,9 @@ export interface components {
       name: string;
       email: string;
       students: components['schemas']['StudentResp'][];
+    };
+    TeacherStudentAssignReq: {
+      students: number[];
     };
     'ChildProblemUpdateDTO.Request': {
       /** Format: int64 */
@@ -1511,10 +1604,6 @@ export interface components {
       firstProblem: components['schemas']['ProblemMetaResp'];
       problems: components['schemas']['ProblemSetItemResp'][];
     };
-    ProblemSetUpdateStatusReq: {
-      /** @enum {string} */
-      status: 'CONFIRMED' | 'DOING';
-    };
     Request: {
       /** Format: int32 */
       year: number;
@@ -1523,6 +1612,18 @@ export interface components {
       /** Format: int32 */
       grade: number;
       name: string;
+    };
+    DiagnosisUpdateReq: {
+      content?: string;
+    };
+    DiagnosisResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int64 */
+      studentId?: number;
+      /** Format: date-time */
+      createdAt?: string;
+      content?: string;
     };
     ConceptUpdateRequest: {
       name: string;
@@ -1685,9 +1786,6 @@ export interface components {
       name: string;
       email: string;
       password: string;
-    };
-    TeacherStudentAssignReq: {
-      students: number[];
     };
     PublishCreateRequest: {
       /** Format: int64 */
@@ -1855,6 +1953,11 @@ export interface components {
       grade: number;
       name: string;
     };
+    DiagnosisCreateReq: {
+      /** Format: int64 */
+      studentId?: number;
+      content?: string;
+    };
     ConceptCreateRequest: {
       name: string;
       /** Format: int64 */
@@ -1917,9 +2020,18 @@ export interface components {
       unreadCount?: number;
       latestNotice?: components['schemas']['NoticeResp'];
     };
-    ListRespTeacherResp: {
+    ListRespDiagnosisResp: {
       /** Format: int32 */
       total: number;
+      data: components['schemas']['DiagnosisResp'][];
+    };
+    PageRespTeacherResp: {
+      /** Format: int32 */
+      page: number;
+      /** Format: int32 */
+      size: number;
+      /** Format: int32 */
+      lastPage: number;
       data: components['schemas']['TeacherResp'][];
     };
     PageRespStudentResp: {
@@ -1939,6 +2051,9 @@ export interface components {
       /** Format: int32 */
       lastPage: number;
       data: components['schemas']['ProblemMetaResp'][];
+    };
+    ProblemCustomIdResp: {
+      customId?: string;
     };
     PageRespProblemSetResp: {
       /** Format: int32 */
@@ -2059,6 +2174,26 @@ export interface operations {
       };
     };
   };
+  delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   getById: {
     parameters: {
       query?: never;
@@ -2107,7 +2242,7 @@ export interface operations {
       };
     };
   };
-  delete: {
+  delete_1: {
     parameters: {
       query?: never;
       header?: never;
@@ -2267,6 +2402,32 @@ export interface operations {
       };
     };
   };
+  assignStudentsToTeacher: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        teacherId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TeacherStudentAssignReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['TeacherResp'];
+        };
+      };
+    };
+  };
   getProblem: {
     parameters: {
       query?: never;
@@ -2383,7 +2544,7 @@ export interface operations {
       };
     };
   };
-  delete_1: {
+  delete_2: {
     parameters: {
       query?: never;
       header?: never;
@@ -2400,32 +2561,6 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
-      };
-    };
-  };
-  update_5: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProblemSetUpdateStatusReq'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['ProblemSetResp'];
-        };
       };
     };
   };
@@ -2451,7 +2586,7 @@ export interface operations {
       };
     };
   };
-  update_6: {
+  update_5: {
     parameters: {
       query?: never;
       header?: never;
@@ -2477,7 +2612,7 @@ export interface operations {
       };
     };
   };
-  delete_2: {
+  delete_3: {
     parameters: {
       query?: never;
       header?: never;
@@ -2497,7 +2632,7 @@ export interface operations {
       };
     };
   };
-  update_7: {
+  update_6: {
     parameters: {
       query?: never;
       header?: never;
@@ -2520,6 +2655,94 @@ export interface operations {
         content: {
           '*/*': components['schemas']['NoticeResp'];
         };
+      };
+    };
+  };
+  delete_4: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getById_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
+  update_7: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DiagnosisUpdateReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
+  delete_5: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -2549,7 +2772,7 @@ export interface operations {
       };
     };
   };
-  delete_3: {
+  delete_6: {
     parameters: {
       query?: never;
       header?: never;
@@ -2991,9 +3214,13 @@ export interface operations {
       };
     };
   };
-  gets_1: {
+  search: {
     parameters: {
-      query?: never;
+      query?: {
+        query?: string;
+        page?: number;
+        size?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -3006,7 +3233,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespTeacherResp'];
+          '*/*': components['schemas']['PageRespTeacherResp'];
         };
       };
     };
@@ -3035,33 +3262,7 @@ export interface operations {
       };
     };
   };
-  assignStudentsToTeacher: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        teacherId: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['TeacherStudentAssignReq'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['TeacherResp'];
-        };
-      };
-    };
-  };
-  search: {
+  search_1: {
     parameters: {
       query?: {
         year?: number;
@@ -3109,7 +3310,7 @@ export interface operations {
       };
     };
   };
-  search_1: {
+  search_2: {
     parameters: {
       query?: {
         customId?: string;
@@ -3159,7 +3360,7 @@ export interface operations {
       };
     };
   };
-  search_2: {
+  search_3: {
     parameters: {
       query?: {
         setTitle?: string;
@@ -3208,7 +3409,7 @@ export interface operations {
       };
     };
   };
-  search_3: {
+  search_4: {
     parameters: {
       query?: {
         query?: string;
@@ -3305,7 +3506,53 @@ export interface operations {
       };
     };
   };
-  search_4: {
+  gets_1: {
+    parameters: {
+      query: {
+        studentId: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespDiagnosisResp'];
+        };
+      };
+    };
+  };
+  create_8: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DiagnosisCreateReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
+  search_5: {
     parameters: {
       query?: {
         query?: string;
@@ -3329,7 +3576,7 @@ export interface operations {
       };
     };
   };
-  create_8: {
+  create_9: {
     parameters: {
       query?: never;
       header?: never;
@@ -3478,7 +3725,7 @@ export interface operations {
       };
     };
   };
-  search_5: {
+  search_6: {
     parameters: {
       query: {
         studentId: number;
@@ -3660,7 +3907,7 @@ export interface operations {
       };
     };
   };
-  getById_1: {
+  getById_2: {
     parameters: {
       query?: never;
       header?: never;
@@ -3724,7 +3971,7 @@ export interface operations {
       };
     };
   };
-  search_6: {
+  search_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -3895,6 +4142,68 @@ export interface operations {
       };
     };
   };
+  gets_3: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespDiagnosisResp'];
+        };
+      };
+    };
+  };
+  getById_3: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
+  getById_4: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
   refresh_3: {
     parameters: {
       query?: never;
@@ -3915,7 +4224,7 @@ export interface operations {
       };
     };
   };
-  search_7: {
+  search_8: {
     parameters: {
       query?: {
         query?: string;
@@ -3939,7 +4248,7 @@ export interface operations {
       };
     };
   };
-  getById_2: {
+  getById_5: {
     parameters: {
       query?: never;
       header?: never;
@@ -3961,7 +4270,7 @@ export interface operations {
       };
     };
   };
-  delete_4: {
+  delete_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -3978,6 +4287,26 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  getCustomId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemCustomIdResp'];
+        };
       };
     };
   };
@@ -4021,7 +4350,7 @@ export interface operations {
       };
     };
   };
-  delete_5: {
+  delete_8: {
     parameters: {
       query?: never;
       header?: never;
@@ -4041,13 +4370,12 @@ export interface operations {
       };
     };
   };
-  removeStudentFromTeacher: {
+  delete_9: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         teacherId: number;
-        studentId: number;
       };
       cookie?: never;
     };
@@ -4058,9 +4386,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          '*/*': components['schemas']['TeacherResp'];
-        };
+        content?: never;
       };
     };
   };
