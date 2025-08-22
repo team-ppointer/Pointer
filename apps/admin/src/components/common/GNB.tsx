@@ -1,6 +1,6 @@
 import { HTMLAttributes } from 'react';
 import { Link } from '@tanstack/react-router';
-import { IcCloseSmallWhite, IcFolder, IcList, IcMore, IcPublish, IcTag, IcTeacher } from '@svg';
+import { IcFolder, IcList, IcPublish, IcTag, IcTeacher } from '@svg';
 
 interface GNBMenuProps extends HTMLAttributes<HTMLDivElement> {
   isSelected: boolean;
@@ -104,7 +104,7 @@ const GNB = () => {
               }}>
               {({ isActive }) => (
                 <GNBMenu isSelected={isActive}>
-                  <IcCloseSmallWhite width={24} height={24} />
+                  <IcTeacher width={24} height={24} />
                   <span>학생 진단</span>
                 </GNBMenu>
               )}
