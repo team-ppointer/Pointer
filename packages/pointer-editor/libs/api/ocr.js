@@ -34,6 +34,12 @@ export const recognizeImageWithMathpix = async (imageUrl) => {
       src: imageUrl,
       formats: ['text', 'latex_styled'],
       metadata: { improve_mathpix: false },
+      include_line_data: true,
+      format_options: {
+        text: {
+          transform: [],
+        },
+      },
     }),
   });
   if (!res.ok) {
@@ -52,6 +58,16 @@ export const convertMathpixToDollar = (text) => {
   return output;
 };
 
+export function composeTextFromLineData(lineData) {
+  if (!Array.isArray(lineData) || lineData.length === 0) return '';
+  const pieces = lineData.map((item) => {
+    const raw = typeof item?.text === 'string' ? item.text : '';
+    const normalized = raw.replace(/\r\n/g, '\n').replace(/[\t ]+$/gm, '');
+    return normalized.replace(/^\n+|\n+$/g, '');
+  });
+  return pieces.join('\n');
+}
+
 export const recognizeAndConvertMathpixText = async (imageUrl) => {
   const json = await recognizeImageWithMathpix(imageUrl);
   const converted = convertMathpixToDollar(json.text || '');
@@ -63,4 +79,5 @@ export default {
   recognizeImageWithMathpix,
   convertMathpixToDollar,
   recognizeAndConvertMathpixText,
+  composeTextFromLineData,
 };
