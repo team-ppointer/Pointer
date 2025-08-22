@@ -71,3 +71,11 @@ export interface GetStudentParams {
   page?: number;
   size?: number;
 }
+
+export interface GetDiagnosisByIdParams {
+  id: number;
+}
+
+export interface GetDiagnosisParams {
+  studentId: number;
+}

@@ -96,6 +96,20 @@ const GNB = () => {
               )}
             </Link>
           </li>
+          <li>
+            <Link
+              to='/diagnosis'
+              activeProps={{
+                className: 'active',
+              }}>
+              {({ isActive }) => (
+                <GNBMenu isSelected={isActive}>
+                  <IcTeacher width={24} height={24} />
+                  <span>학생 진단</span>
+                </GNBMenu>
+              )}
+            </Link>
+          </li>
         </ul>
       </nav>
     </div>

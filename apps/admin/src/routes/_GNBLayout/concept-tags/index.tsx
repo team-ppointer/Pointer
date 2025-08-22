@@ -157,7 +157,7 @@ function RouteComponent() {
               <div className='mb-[4rem] flex items-center gap-300'>
                 <h4 className='font-bold-24 text-black'>{category.name}</h4>
                 <IcPencil
-                  className='cursor-pointer'
+                  className='text-midgray100 cursor-pointer'
                   width={24}
                   height={24}
                   onClick={() => {
