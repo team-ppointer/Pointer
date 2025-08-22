@@ -38,6 +38,23 @@ const formulaStyles = `
     -moz-tab-size: 0;
     white-space: pre-wrap;
     text-indent: 0 !important;
+    min-height: inherit;
+  }
+  
+  .ql-container {
+    min-height: inherit;
+    height: auto !important;
+  }
+  
+  .quill-no-border .ql-container {
+    border: none;
+    min-height: inherit;
+    height: auto !important;
+  }
+  
+  .quill-no-border .ql-editor {
+    padding: 12px;
+    min-height: calc(150px - 24px);
   }
   
   .ql-editor img {
@@ -73,6 +90,7 @@ const useQuillEditor = ({
   isInsertableImage = false,
 }) => {
   const quillRef = useRef(null);
+  const adjustContainerHeightRef = useRef(null);
 
   useEffect(() => {
     // CSS 스타일을 한 번만 추가
@@ -153,13 +171,41 @@ const useQuillEditor = ({
     // 초기화 완료 콜백
     onInitialized?.();
 
+    // 컨테이너 높이 계산
+    const adjustContainerHeight = () => {
+      if (!container || !quill) return;
+
+      const editor = quill.root;
+      const qlContainer = container.querySelector('.ql-container');
+
+      if (editor && qlContainer) {
+        const editorScrollHeight = editor.scrollHeight;
+        const minHeight = 150;
+
+        const adjustedHeight = Math.max(minHeight, editorScrollHeight + 24);
+
+        container.style.height = `${adjustedHeight}px`;
+        qlContainer.style.height = `${adjustedHeight}px`;
+
+        editor.style.minHeight = `${minHeight - 24}px`;
+      }
+    };
+
+    adjustContainerHeightRef.current = adjustContainerHeight;
+
     // 텍스트 변경 이벤트 핸들러
     const handleTextChange = () => {
       const content = quill.root.innerHTML;
       onTextChange?.(content);
+
+      // DOM 업데이트 후 높이 조정
+      setTimeout(() => adjustContainerHeightRef.current?.(), 0);
     };
 
     quill.on(Quill.events.TEXT_CHANGE, handleTextChange);
+
+    // DOM 업데이트 후 높이 조정
+    setTimeout(() => adjustContainerHeightRef.current?.(), 0);
 
     const handleCopy = (e) => {
       try {
@@ -309,6 +355,9 @@ const useQuillEditor = ({
         quill.clipboard.dangerouslyPasteHTML(index, html);
         quill.setSelection(index + 1);
       }
+
+      // DOM 업데이트 후 높이 조정
+      setTimeout(() => adjustContainerHeightRef.current?.(), 0);
     },
     insertHtml: (html) => {
       if (!quillRef.current || !html) return;
@@ -317,6 +366,9 @@ const useQuillEditor = ({
       const index = range ? range.index : quill.getLength() - 1;
       // Use Quill clipboard to paste sanitized HTML at the current cursor (or end)
       quill.clipboard.dangerouslyPasteHTML(index, html);
+
+      // DOM 업데이트 후 높이 조정
+      setTimeout(() => adjustContainerHeightRef.current?.(), 0);
     },
     insertImage: isInsertableImage
       ? (imageUrl) => {
@@ -334,6 +386,9 @@ const useQuillEditor = ({
             quillRef.current.insertEmbed(length - 1, 'image', imageUrl);
             quillRef.current.setSelection(length);
           }
+
+          // DOM 업데이트 후 높이 조정
+          setTimeout(() => adjustContainerHeightRef.current?.(), 0);
         }
       : undefined,
     getContent: () => quillRef.current?.root.innerHTML || '',

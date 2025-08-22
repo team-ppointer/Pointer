@@ -1017,7 +1017,7 @@ const TextBlockEditor = memo(
           ref={containerRef}
           className='quill-no-border'
           style={{
-            height: '150px',
+            minHeight: '150px',
             borderRadius: '10px',
             background: '#F7F7F7',
           }}
