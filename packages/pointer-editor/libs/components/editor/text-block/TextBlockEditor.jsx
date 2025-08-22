@@ -9,12 +9,15 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Alert,
 } from '@mui/material';
-import { Functions, CheckCircle } from '@mui/icons-material';
+import { Functions } from '@mui/icons-material';
 import katex from 'katex';
 
-import { recognizeImageWithMathpix, convertMathpixToDollar } from '../../../api/ocr';
+import {
+  recognizeImageWithMathpix,
+  convertMathpixToDollar,
+  composeTextFromLineData,
+} from '../../../api/ocr';
 import { getFileUploadUrl, uploadFileToS3 } from '../../../api/fileUpload';
 import {
   BoldIcon,
@@ -594,10 +597,12 @@ const TextBlockEditor = memo(
         setOcrError('');
         setIsOcrProcessing(true);
         try {
-          const json = await recognizeImageWithMathpix(imageUrl);
-          console.log(json);
-          const converted = convertMathpixToDollar(json.text || '');
-          console.log(converted);
+          const result = await recognizeImageWithMathpix(imageUrl);
+
+          const reconstructed = composeTextFromLineData(result.line_data);
+          const baseText = reconstructed || result.text || '';
+          const converted = convertMathpixToDollar(baseText);
+
           const html = latexToQuillFormulaHtml(converted);
           insertHtml?.(html);
 
@@ -606,12 +611,11 @@ const TextBlockEditor = memo(
           setOcrImageUrl('');
           setIsOcrProcessing(false);
         } catch (e) {
-          console.error(e);
           setOcrError(e?.message || 'OCR 처리 중 오류가 발생했습니다.');
           setIsOcrProcessing(false);
         }
       },
-      [convertMathpixToDollar, insertHtml]
+      [insertHtml]
     );
 
     const startUpload = useCallback(
@@ -633,7 +637,6 @@ const TextBlockEditor = memo(
           setOcrImageUrl(result.file.url);
           await runOcr(result.file.url);
         } catch (error) {
-          console.error('이미지 업로드 실패:', error);
           setUploadError(error?.message || '이미지 업로드에 실패했습니다.');
         } finally {
           setIsUploading(false);
