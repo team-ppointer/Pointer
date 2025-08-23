@@ -3,6 +3,7 @@ import { ComponentWithLabel, SectionCard, Button } from '@components';
 import { UseFormSetValue } from 'react-hook-form';
 import { components } from '@schema';
 import EditorModal from '@repo/pointer-editor/EditorModal';
+import { postOcr } from '@apis';
 
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 type ProblemInfoResp = components['schemas']['ProblemInfoResp'];
@@ -14,6 +15,7 @@ interface TipSectionProps {
 }
 
 export const TipSection = ({ setValue, fetchedProblemData }: TipSectionProps) => {
+  const ocrMutation = postOcr();
   const [isReadingTipModalOpen, setIsReadingTipModalOpen] = useState(false);
   const [isOneStepMoreModalOpen, setIsOneStepMoreModalOpen] = useState(false);
 
@@ -115,6 +117,7 @@ export const TipSection = ({ setValue, fetchedProblemData }: TipSectionProps) =>
           blocks={tempReadingTipBlocks || fetchedProblemData?.readingTipContent?.blocks || []}
           onSave={handleSaveReadingTip}
           onClose={handleCloseReadingTipModal}
+          ocrApiCall={ocrMutation.mutateAsync}
         />
       )}
 
@@ -124,6 +127,7 @@ export const TipSection = ({ setValue, fetchedProblemData }: TipSectionProps) =>
           blocks={tempOneStepMoreBlocks || fetchedProblemData?.oneStepMoreContent?.blocks || []}
           onSave={handleSaveOneStepMore}
           onClose={handleCloseOneStepMoreModal}
+          ocrApiCall={ocrMutation.mutateAsync}
         />
       )}
     </SectionCard>
