@@ -42,7 +42,7 @@ const theme = createTheme({
 });
 
 // 개별 블럭 에디터 (드래그 가능)
-function SortableBlock({ id, block, onUpdate, onDelete }) {
+function SortableBlock({ id, block, onUpdate, onDelete, ocrApiCall }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
   });
@@ -104,6 +104,7 @@ function SortableBlock({ id, block, onUpdate, onDelete }) {
             }
             blockId={id}
             problemId='modal'
+            ocrApiCall={ocrApiCall}
           />
         ) : block.type === 'IMAGE' ? (
           <ImageBlockEditor
@@ -121,7 +122,7 @@ function SortableBlock({ id, block, onUpdate, onDelete }) {
 }
 
 // 블럭 에디터 (Context 없이 상태/props만)
-function LocalDraggableBlockEditor({ blocks, setBlocks }) {
+function LocalDraggableBlockEditor({ blocks, setBlocks, ocrApiCall }) {
   const [, setAnchorEl] = useState(null);
   const lastAddedBlockId = useRef(null);
   const editorContainerRef = useRef(null);
@@ -162,6 +163,7 @@ function LocalDraggableBlockEditor({ blocks, setBlocks }) {
         style:
           type === 'TEXT' ? 'text-align: left; padding: 16px;' : 'text-align: center; width: 50%;',
         rank: blocks.length,
+        ocrApiCall,
       };
       lastAddedBlockId.current = newBlockId;
       setBlocks((prev) => [...prev, newBlock]);
@@ -320,6 +322,7 @@ function LocalDraggableBlockEditor({ blocks, setBlocks }) {
                   block={block}
                   onUpdate={handleUpdateBlock}
                   onDelete={handleDeleteBlock}
+                  ocrApiCall={ocrApiCall}
                 />
               ))}
             </SortableContext>
@@ -330,7 +333,7 @@ function LocalDraggableBlockEditor({ blocks, setBlocks }) {
   );
 }
 
-function EditorModal({ blocks, onClose, onSave }) {
+function EditorModal({ blocks, onClose, onSave, ocrApiCall }) {
   // body 스크롤 방지
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -430,7 +433,11 @@ function EditorModal({ blocks, onClose, onSave }) {
                 height: '100%',
                 overflow: 'auto',
               }}>
-              <LocalDraggableBlockEditor blocks={internalBlocks} setBlocks={setInternalBlocks} />
+              <LocalDraggableBlockEditor
+                blocks={internalBlocks}
+                setBlocks={setInternalBlocks}
+                ocrApiCall={ocrApiCall}
+              />
             </Box>
             {/* 우측: 미리보기 */}
             <Box

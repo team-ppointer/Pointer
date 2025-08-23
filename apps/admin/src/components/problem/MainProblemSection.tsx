@@ -21,6 +21,7 @@ import { components } from '@schema';
 import EditorModal from '@repo/pointer-editor/EditorModal';
 import { IcDelete, IcPlus } from '@svg';
 import { useModal } from '@hooks';
+import { postOcr } from '@apis';
 
 import { LevelSelect, TextArea } from '@/components/problem';
 import { ProblemAnswerType } from '@/types/component';
@@ -54,6 +55,7 @@ export const MainProblemSection = ({
   onRemoveTag,
   onOpenTagModal,
 }: MainProblemSectionProps) => {
+  const ocrMutation = postOcr();
   const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
   const [isPointingQuestionModalOpen, setIsPointingQuestionModalOpen] = useState(false);
   const [isPointingCommentModalOpen, setIsPointingCommentModalOpen] = useState(false);
@@ -512,6 +514,7 @@ export const MainProblemSection = ({
           blocks={tempMainProblemBlocks || fetchedProblemData?.problemContent?.blocks || []}
           onSave={handleSaveEditor}
           onClose={handleCloseEditorModal}
+          ocrApiCall={ocrMutation.mutateAsync}
         />
       )}
 
@@ -526,6 +529,7 @@ export const MainProblemSection = ({
           }
           onSave={handleSavePointingQuestion}
           onClose={handleClosePointingQuestionModal}
+          ocrApiCall={ocrMutation.mutateAsync}
         />
       )}
 
@@ -540,6 +544,7 @@ export const MainProblemSection = ({
           }
           onSave={handleSavePointingComment}
           onClose={handleClosePointingCommentModal}
+          ocrApiCall={ocrMutation.mutateAsync}
         />
       )}
 

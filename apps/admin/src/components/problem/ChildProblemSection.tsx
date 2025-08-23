@@ -11,6 +11,7 @@ import {
 import { Control, UseFormRegister, UseFormWatch, UseFormSetValue } from 'react-hook-form';
 import { components } from '@schema';
 import EditorModal from '@repo/pointer-editor/EditorModal';
+import { postOcr } from '@apis';
 
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 type ChildProblem = components['schemas']['ChildProblemUpdateDTO.Request'];
@@ -54,6 +55,7 @@ export const ChildProblemSection = ({
   onDeletePointing,
   onOpenPointingTagModal,
 }: ChildProblemSectionProps) => {
+  const ocrMutation = postOcr();
   // EditorModal 상태 관리
   const [editorModalState, setEditorModalState] = useState<{
     isOpen: boolean;
@@ -396,6 +398,7 @@ export const ChildProblemSection = ({
           blocks={getEditorBlocks()}
           onSave={handleSaveEditor}
           onClose={handleCloseEditorModal}
+          ocrApiCall={ocrMutation.mutateAsync}
         />
       )}
     </SectionCard>
