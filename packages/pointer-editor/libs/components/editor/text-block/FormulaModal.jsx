@@ -4,6 +4,18 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import FormulaSymbolDropdown from '../FormulaSymbolDropdown';
 
+const preprocessFormula = (formula) => {
+  return formula
+    .replace(/([a-zA-Z0-9\)])</g, '$1 <')
+    .replace(/<([a-zA-Z0-9\(])/g, '< $1')
+    .replace(/([a-zA-Z0-9\)])>/g, '$1 >')
+    .replace(/>([a-zA-Z0-9\(])/g, '> $1')
+    .replace(/([a-zA-Z0-9\)])=/g, '$1 =')
+    .replace(/=([a-zA-Z0-9\(])/g, '= $1')
+    .replace(/([a-zA-Z0-9\)])\\\\/g, '$1 \\\\')
+    .replace(/\\\\([a-zA-Z0-9\(])/g, '\\\\ $1');
+};
+
 const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
   const [formula, setFormula] = useState(initialValue);
   const [preview, setPreview] = useState('');
@@ -27,7 +39,8 @@ const FormulaModal = ({ isOpen, onClose, onSave, initialValue = '' }) => {
   }, [formula]);
 
   const handleSave = () => {
-    onSave(formula);
+    const processedFormula = preprocessFormula(formula);
+    onSave(processedFormula);
     onClose();
     setFormula('');
   };
