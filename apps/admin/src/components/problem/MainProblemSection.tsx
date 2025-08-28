@@ -156,14 +156,14 @@ export const MainProblemSection = ({
   const formatBlocks = (blocks: unknown[]): ContentBlockUpdateRequest[] => {
     return blocks.map((block, index) => {
       const blockData = block as {
-        // id?: number;
+        id?: number;
         type?: 'TEXT' | 'IMAGE';
         data?: string;
         content?: string;
       };
 
       return {
-        // id: blockData.id ?? 0,
+        id: blockData.id ?? 0,
         rank: index,
         type: blockData.type,
         data: blockData.data || blockData.content,
@@ -280,16 +280,13 @@ export const MainProblemSection = ({
               <AnswerInput>
                 <AnswerInput.AnswerTypeSection
                   selectedAnswerType={selectedAnswerType}
-                  {...answerTypeRegister}
-                  onChange={(e) => {
-                    answerTypeRegister.onChange(e);
-                  }}
+                  registration={answerTypeRegister}
                 />
                 <AnswerInput.AnswerInputSection
                   selectedAnswerType={selectedAnswerType}
                   selectedAnswer={watchedAnswer}
                   isError={Boolean(errors?.answer)}
-                  {...register('answer', {
+                  registration={register('answer', {
                     valueAsNumber: true,
                     required: '필수 입력 항목입니다.',
                   })}
