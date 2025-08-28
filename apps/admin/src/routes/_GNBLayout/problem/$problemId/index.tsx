@@ -3,7 +3,7 @@ import { components } from '@schema';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Controller, SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { deleteProblem, getConcept, getProblemById, putProblemById } from '@apis';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { transformToProblemUpdateRequest } from '@utils';
 import { useInvalidate, useModal } from '@hooks';
 import { Slide, ToastContainer, toast } from 'react-toastify';
@@ -29,6 +29,50 @@ function RouteComponent() {
   const { invalidateAll } = useInvalidate();
   const { navigate } = useRouter();
   const { problemId } = Route.useParams();
+  // Note: All modals and related state are handled inside ProblemForm after data is loaded
+
+  // api
+  const { data: fetchedProblemData } = getProblemById({ id: Number(problemId) });
+  const { mutate: mutateUpdateProblem } = putProblemById();
+  const { mutate: mutateDeleteProblem } = deleteProblem();
+  const { data: tagsData } = getConcept();
+  const allTagList = tagsData?.data || [];
+  const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
+
+  // Early return while loading to avoid double-render default flicker
+  if (!fetchedProblemData) {
+    return null;
+  }
+
+  return (
+    <ProblemForm
+      key={fetchedProblemData?.id}
+      fetchedProblemData={fetchedProblemData}
+      mutateUpdateProblem={mutateUpdateProblem}
+      mutateDeleteProblem={mutateDeleteProblem}
+      navigate={navigate}
+      invalidateAll={invalidateAll}
+      tagsNameMap={tagsNameMap}
+    />
+  );
+}
+
+function ProblemForm({
+  fetchedProblemData,
+  mutateUpdateProblem,
+  mutateDeleteProblem,
+  navigate,
+  invalidateAll,
+  tagsNameMap,
+}: {
+  fetchedProblemData: ProblemInfoResp;
+  mutateUpdateProblem: ReturnType<typeof putProblemById>['mutate'];
+  mutateDeleteProblem: ReturnType<typeof deleteProblem>['mutate'];
+  navigate: ReturnType<typeof useRouter>['navigate'];
+  invalidateAll: ReturnType<typeof useInvalidate>['invalidateAll'];
+  tagsNameMap: Record<number, string>;
+}) {
+  const { problemId } = Route.useParams();
   const { isOpen: isTagModalOpen, openModal: openTagModal, closeModal: closeTagModal } = useModal();
   const {
     isOpen: isChildTagModalOpen,
@@ -50,7 +94,6 @@ function RouteComponent() {
     openModal: openCreatePracticeTestModal,
     closeModal: closeCreatePracticeTestModal,
   } = useModal();
-
   const [currentChildTagList, setCurrentChildTagList] = useState<number[]>([]);
   const [currentChildIndex, setCurrentChildIndex] = useState<number>();
   const [currentPointingTagList, setCurrentPointingTagList] = useState<number[]>([]);
@@ -59,29 +102,19 @@ function RouteComponent() {
     pointingIndex: number;
   }>();
 
-  // api
-  const { data: fetchedProblemData } = getProblemById({ id: Number(problemId) });
-  const { mutate: mutateUpdateProblem } = putProblemById();
-  const { mutate: mutateDeleteProblem } = deleteProblem();
-  const { data: tagsData } = getConcept();
-  const allTagList = tagsData?.data || [];
-  const tagsNameMap = Object.fromEntries(allTagList.map((tag) => [tag.id, tag.name]));
-
-  // RHF
+  // RHF - initialize with server values on first mount
   const {
     register,
     handleSubmit,
     control,
     watch,
     setValue,
-    reset,
-    trigger,
     clearErrors,
     formState: { errors, isValid },
-  } = useForm({
+  } = useForm<ProblemUpdateRequest>({
     mode: 'onChange',
     reValidateMode: 'onChange',
-    defaultValues: transformToProblemUpdateRequest({} as ProblemInfoResp),
+    defaultValues: transformToProblemUpdateRequest(fetchedProblemData),
   });
 
   const problemType = watch('problemType');
@@ -262,15 +295,6 @@ function RouteComponent() {
     // setValue를 사용해서 pointing의 concepts 필드만 업데이트 (id 보존)
     setValue(`childProblems.${childIndex}.pointings.${pIndex}.concepts`, [...tagList]);
   };
-
-  // useEffect
-  useEffect(() => {
-    if (fetchedProblemData) {
-      reset(transformToProblemUpdateRequest(fetchedProblemData));
-      // API에서 불러온 기본값으로 폼을 초기화한 뒤 유효성 검사를 트리거하여 저장 버튼 활성화 상태 반영
-      trigger();
-    }
-  }, [fetchedProblemData]);
 
   return (
     <>

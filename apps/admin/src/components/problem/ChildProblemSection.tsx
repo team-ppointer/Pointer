@@ -288,13 +288,15 @@ export const ChildProblemSection = ({
                   <AnswerInput>
                     <AnswerInput.AnswerTypeSection
                       selectedAnswerType={watchedAnswerType}
-                      {...register(`childProblems.${index}.answerType`)}
+                      registration={register(`childProblems.${index}.answerType`)}
                     />
                     <AnswerInput.AnswerInputSection
                       selectedAnswerType={watchedAnswerType}
                       selectedAnswer={watchedAnswer}
                       isError={false}
-                      {...register(`childProblems.${index}.answer`, { valueAsNumber: true })}
+                      registration={register(`childProblems.${index}.answer`, {
+                        valueAsNumber: true,
+                      })}
                     />
                   </AnswerInput>
                 </ComponentWithLabel>
