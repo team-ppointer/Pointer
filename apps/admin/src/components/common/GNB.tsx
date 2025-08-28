@@ -12,7 +12,7 @@ const GNBMenu = ({ isSelected, children }: GNBMenuProps) => {
 
   return (
     <div
-      className={`font-medium-18 flex h-[4.8rem] w-full items-center justify-start gap-400 ${bgStyles} rounded-200 px-400 py-300 text-white`}>
+      className={`font-medium-16 flex h-[4.0rem] w-full items-center justify-start gap-[1.2rem] ${bgStyles} rounded-200 px-400 py-200 text-white`}>
       {children}
     </div>
   );
@@ -20,9 +20,13 @@ const GNBMenu = ({ isSelected, children }: GNBMenuProps) => {
 
 const GNB = () => {
   return (
-    <div className='bg-darkgray100 fixed top-0 z-40 min-h-[100dvh] w-[24rem] px-400 pt-800'>
-      <div className='mb-800'>
-        <img src='/images/logo.png' alt='로고이미지' className='mx-[0.8rem] h-[3.2rem]' />
+    <div className='bg-darkgray100 fixed top-0 z-40 min-h-[100dvh] w-[20rem] px-400 pt-800'>
+      <div className='mb-[3.2rem]'>
+        <img
+          src='/images/logo.png'
+          alt='로고이미지'
+          className='mx-[0.8rem] w-[10rem] brightness-0 invert'
+        />
       </div>
       <nav>
         <ul>
@@ -34,7 +38,7 @@ const GNB = () => {
               }}>
               {({ isActive }) => (
                 <GNBMenu isSelected={isActive}>
-                  <IcPublish width={24} height={24} />
+                  <IcPublish width={18} height={18} />
                   <span>발행</span>
                 </GNBMenu>
               )}
@@ -48,7 +52,7 @@ const GNB = () => {
               }}>
               {({ isActive }) => (
                 <GNBMenu isSelected={isActive}>
-                  <IcFolder width={24} height={24} />
+                  <IcFolder width={18} height={18} />
                   <span>세트</span>
                 </GNBMenu>
               )}
@@ -62,7 +66,7 @@ const GNB = () => {
               }}>
               {({ isActive }) => (
                 <GNBMenu isSelected={isActive}>
-                  <IcList width={24} height={24} />
+                  <IcList width={18} height={18} />
                   <span>문제</span>
                 </GNBMenu>
               )}
@@ -76,7 +80,7 @@ const GNB = () => {
               }}>
               {({ isActive }) => (
                 <GNBMenu isSelected={isActive}>
-                  <IcTag width={24} height={24} />
+                  <IcTag width={18} height={18} />
                   <span>개념 태그</span>
                 </GNBMenu>
               )}
@@ -90,7 +94,7 @@ const GNB = () => {
               }}>
               {({ isActive }) => (
                 <GNBMenu isSelected={isActive}>
-                  <IcTeacher width={24} height={24} />
+                  <IcTeacher width={18} height={18} />
                   <span>과외 선생 정보</span>
                 </GNBMenu>
               )}
@@ -104,7 +108,7 @@ const GNB = () => {
               }}>
               {({ isActive }) => (
                 <GNBMenu isSelected={isActive}>
-                  <IcTeacher width={24} height={24} />
+                  <IcTeacher width={18} height={18} />
                   <span>학생 진단</span>
                 </GNBMenu>
               )}
