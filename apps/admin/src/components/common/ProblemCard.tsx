@@ -5,7 +5,7 @@ interface ProblemCardProps {
 
 const ProblemCard = ({ children }: ProblemCardProps) => {
   return (
-    <section className='rounded-400 relative flex min-h-[67rem] w-full min-w-[48rem] flex-col gap-800 bg-white p-800'>
+    <section className='border-lightgray400 relative flex h-full w-full flex-col gap-[1.2rem] rounded-[0.8rem] border bg-white px-[1.6rem] py-[1.2rem]'>
       {children}
     </section>
   );
@@ -15,19 +15,32 @@ const CardTextSection = ({ children }: { children: React.ReactNode }) => {
   return <div className='flex flex-col gap-400'>{children}</div>;
 };
 
-const CardTitle = ({ title }: { title: string }) => {
-  return <h3 className='font-bold-24 flex items-center gap-400'>{title}</h3>;
+const CardTitle = ({ customId, title }: { customId: string; title: string }) => {
+  return (
+    <div className='flex flex-col gap-[0.2rem]'>
+      <span className='font-medium-12 text-lightgray500'>문제 타이틀</span>
+      <div className='flex gap-[0.4rem]'>
+        <span className='font-medium-12 bg-lightgray400 flex-shrink-0 rounded-[0.4rem] px-[0.4rem] py-[0.2rem] text-black'>
+          {customId}
+        </span>
+        <span className='font-medium-14 flex-1 truncate text-black'>{title}</span>
+      </div>
+    </div>
+  );
 };
 
 const CardButtonSection = ({ children }: { children: React.ReactNode }) => {
-  return <div className='absolute top-800 right-800 flex gap-400'>{children}</div>;
+  return <div className='absolute top-[1.2rem] right-[1.6rem] flex'>{children}</div>;
 };
 
 const CardInfo = ({ label, content }: { label: string; content?: string }) => {
   return (
-    <div className='flex gap-400'>
-      <span className='font-medium-18 text-midgray200 min-w-[6.7rem]'>{label}</span>
-      <span className='font-medium-18 flex-1 truncate text-black'>{content}</span>
+    <div className='flex flex-col gap-[0.2rem]'>
+      <span className='font-medium-12 text-lightgray500'>{label}</span>
+      <span
+        className={`font-medium-14 flex-1 ${label === '문제' ? 'line-clamp-2' : 'line-clamp-1'} text-black`}>
+        {content}
+      </span>
     </div>
   );
 };

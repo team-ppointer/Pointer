@@ -155,4 +155,53 @@
   .font-medium-12 {
     @apply font-pretendard text-[1.2rem] leading-[150%] font-medium;
   }
+
+  /* New Font Styles */
+  /* Heading */
+  .font-32b-heading {
+    @apply font-pretendard text-[3.2rem] leading-[150%] font-bold;
+  }
+  .font-24b-heading {
+    @apply font-pretendard text-[2.4rem] leading-[150%] font-bold;
+  }
+  .font-18b-heading {
+    @apply font-pretendard text-[1.8rem] leading-[150%] font-bold;
+  }
+  .font-16b-heading {
+    @apply font-pretendard text-[1.6rem] leading-[150%] font-bold;
+  }
+
+  /* Title */
+  .font-20b-title {
+    @apply font-pretendard text-[2.0rem] leading-[150%] font-bold;
+  }
+  .font-18b-title {
+    @apply font-pretendard text-[1.8rem] leading-[150%] font-bold;
+  }
+  .font-16b-title {
+    @apply font-pretendard text-[1.6rem] leading-[150%] font-bold;
+  }
+  .font-14b-title {
+    @apply font-pretendard text-[1.4rem] leading-[150%] font-bold;
+  }
+
+  /* Body */
+  .font-18m-body {
+    @apply font-pretendard text-[1.8rem] leading-[150%] font-medium;
+  }
+  .font-16m-body {
+    @apply font-pretendard text-[1.6rem] leading-[150%] font-medium;
+  }
+  .font-14m-body {
+    @apply font-pretendard text-[1.4rem] leading-[150%] font-medium;
+  }
+  
+  /* Caption */
+  .font-12m-caption {
+    @apply font-pretendard text-[1.2rem] leading-[150%] font-medium;
+  }
+  .font-10m-caption {
+    @apply font-pretendard text-[1.0rem] leading-[150%] font-medium;
+  }
+  
 }

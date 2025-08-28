@@ -17,13 +17,13 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const baseStyles =
-    'rounded-200 font-medium-18 flex items-center justify-center whitespace-nowrap break-keep';
+    'rounded-[0.8rem] font-14m-body flex items-center justify-center whitespace-nowrap break-keep';
 
   const sizeStyles = {
-    short: 'min-w-[12rem] w-[12rem] h-[5.6rem]',
-    long: 'min-w-[34.8rem] w-[34.8rem] h-[5.6rem]',
-    fit: 'w-fit h-[5.6rem] px-400',
-    full: 'w-full h-[5.6rem]',
+    short: 'min-w-[9.6rem] w-[9.6rem] h-[4.0rem]',
+    long: 'min-w-[34.8rem] w-[34.8rem] h-[4.0rem]',
+    fit: 'w-fit h-[4.0rem] px-[1.6rem]',
+    full: 'w-full h-[4.0rem]',
   };
 
   const variantStyles = {
