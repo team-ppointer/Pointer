@@ -180,19 +180,40 @@ const ProblemViewer = memo(
               sx={{
                 fontFamily: 'Pretendard',
                 fontWeight: 500,
-                fontSize: '16px',
-                lineHeight: '150%',
+                fontSize: '14px',
+                lineHeight: '220%',
                 letterSpacing: '0%',
                 color: '#1E1E21',
-                mb: 1, // 2에서 1로 줄임
+                mb: 2,
                 tabSize: 4,
                 MozTabSize: 4,
                 whiteSpace: 'pre-wrap',
                 '& .katex': {
-                  fontSize: '1.2em',
+                  fontSize: '0.9em',
                 },
                 '& .katex-display': {
-                  margin: '1.5em 0',
+                  margin: '2em 0',
+                },
+                '& .katex .arraystretch': {
+                  lineHeight: '3.0 !important',
+                },
+                '& .katex .base': {
+                  lineHeight: '2.8 !important',
+                },
+                '& .katex .mtable': {
+                  lineHeight: '3.0 !important',
+                },
+                '& .katex .arraycolsep': {
+                  width: '1.2em !important',
+                },
+                '& .katex .mtable > .arraycolsep': {
+                  width: '1.8em !important',
+                },
+                '& .katex .mtable .mtr': {
+                  height: '4em !important',
+                },
+                '& .katex .aligned': {
+                  lineHeight: '3.5 !important',
                 },
                 '& .inline-display-math': {
                   display: 'inline-block',
@@ -293,10 +314,31 @@ const ProblemViewer = memo(
                 component='div'
                 sx={{
                   '& .katex': {
-                    fontSize: '1.2em',
+                    fontSize: '0.9em',
                   },
                   '& .katex-display': {
-                    margin: '1.5em 0',
+                    margin: '2em 0',
+                  },
+                  '& .katex .arraystretch': {
+                    lineHeight: '3.0 !important',
+                  },
+                  '& .katex .base': {
+                    lineHeight: '2.8 !important',
+                  },
+                  '& .katex .mtable': {
+                    lineHeight: '3.0 !important',
+                  },
+                  '& .katex .arraycolsep': {
+                    width: '1.2em !important',
+                  },
+                  '& .katex .mtable > .arraycolsep': {
+                    width: '1.8em !important',
+                  },
+                  '& .katex .mtable .mtr': {
+                    height: '4em !important',
+                  },
+                  '& .katex .aligned': {
+                    lineHeight: '3.5 !important',
                   },
                   '& .inline-display-math': {
                     display: 'inline-block',
