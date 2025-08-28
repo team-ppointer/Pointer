@@ -156,14 +156,14 @@ export const MainProblemSection = ({
   const formatBlocks = (blocks: unknown[]): ContentBlockUpdateRequest[] => {
     return blocks.map((block, index) => {
       const blockData = block as {
-        id?: number;
+        // id?: number;
         type?: 'TEXT' | 'IMAGE';
         data?: string;
         content?: string;
       };
 
       return {
-        id: blockData.id ?? 0,
+        // id: blockData.id ?? 0,
         rank: index,
         type: blockData.type,
         data: blockData.data || blockData.content,
