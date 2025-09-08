@@ -1447,12 +1447,13 @@ export interface components {
     };
     ContentBlockUpdateRequest: {
       /** Format: int64 */
-      id: number;
+      id?: number;
       /** Format: int32 */
       rank: number;
       /** @enum {string} */
       type?: 'TEXT' | 'IMAGE';
       data?: string;
+      style?: string;
     };
     ContentUpdateRequest: {
       /** Format: int64 */
@@ -2006,7 +2007,7 @@ export interface components {
       total: number;
       data: components['schemas']['StudentResp'][];
     };
-    PageRespNotListQnAGroupByWeekResp: {
+    '5j4k1Ye12dXiFMLSJpD7gFrLbv4QcUrRoKHsgo32kRFr': {
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -3035,7 +3036,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['PageRespNotListQnAGroupByWeekResp'];
+          '*/*': components['schemas']['5j4k1Ye12dXiFMLSJpD7gFrLbv4QcUrRoKHsgo32kRFr'];
         };
       };
     };
@@ -3942,7 +3943,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['PageRespNotListQnAGroupByWeekResp'];
+          '*/*': components['schemas']['5j4k1Ye12dXiFMLSJpD7gFrLbv4QcUrRoKHsgo32kRFr'];
         };
       };
     };
