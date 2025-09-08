@@ -18,10 +18,6 @@ const Page = () => {
     );
   };
 
-  if (!mainAnalysisImage || !readingTipContent) {
-    return <></>;
-  }
-
   return (
     <>
       <Header title='문제를 읽어내려갈 때' iconType='back' />
@@ -40,16 +36,18 @@ const Page = () => {
                 질문하기
               </SmallButton>
             </div>
-            <ImageContainer>
-              <Image
-                src={mainAnalysisImage.url ?? ''}
-                alt='analysis'
-                className={`w-full object-contain`}
-                width={700}
-                height={200}
-                priority
-              />
-            </ImageContainer>
+            {mainAnalysisImage && (
+              <ImageContainer>
+                <Image
+                  src={mainAnalysisImage.url ?? ''}
+                  alt='analysis'
+                  className={`w-full object-contain`}
+                  width={700}
+                  height={200}
+                  priority
+                />
+              </ImageContainer>
+            )}
           </div>
           <div className='flex w-full flex-col gap-[1.2rem]'>
             <h2 className='font-bold-16 text-main my-[0.8rem]'>문제를 읽어내려갈 때</h2>

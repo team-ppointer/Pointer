@@ -250,8 +250,10 @@ const Page = () => {
         <MainAnswerCheckBottomSheetTemplate
           result={result}
           onClose={handleClickSolveAgain}
+          hasChildProblem={false}
           handleClickStepSolve={handleClickStepSolve}
           handleClickShowReport={handleClickShowReport}
+          handleClickPointing={handleClickPointing}
         />
       </BottomSheet>
     </>
