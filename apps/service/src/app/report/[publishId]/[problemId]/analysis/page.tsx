@@ -43,10 +43,6 @@ const Page = () => {
     router.push(`/qna/ask?publishId=${publishId}&problemId=${problemId}&type=${type}`);
   };
 
-  if (!mainAnalysisImage || !mainHandAnalysisImage) {
-    return <></>;
-  }
-
   return (
     <>
       <ProgressHeader />
@@ -62,32 +58,38 @@ const Page = () => {
           </div>
         </header>
         <div className='mt-[2.4rem] flex flex-col gap-[1.6rem]'>
-          <TabMenu
-            leftMenu='분석'
-            rightMenu='손해설'
-            selectedTab={selectedTab}
-            onTabChange={handleClickTab}
-          />
-          <ImageContainer className={`${selectedTab === '분석' ? 'block' : 'hidden'}`}>
-            <Image
-              src={mainAnalysisImage.url ?? ''}
-              alt='analysis'
-              className={`w-full object-contain`}
-              width={700}
-              height={200}
-              priority
+          {(mainAnalysisImage || mainHandAnalysisImage) && (
+            <TabMenu
+              leftMenu='분석'
+              rightMenu='손해설'
+              selectedTab={selectedTab}
+              onTabChange={handleClickTab}
             />
-          </ImageContainer>
-          <ImageContainer className={`${selectedTab === '손해설' ? 'block' : 'hidden'}`}>
-            <Image
-              src={mainHandAnalysisImage.url ?? ''}
-              alt='handWriting'
-              className={`w-full object-contain`}
-              width={700}
-              height={200}
-              priority
-            />
-          </ImageContainer>
+          )}
+          {mainAnalysisImage && (
+            <ImageContainer className={`${selectedTab === '분석' ? 'block' : 'hidden'}`}>
+              <Image
+                src={mainAnalysisImage.url ?? ''}
+                alt='analysis'
+                className={`w-full object-contain`}
+                width={700}
+                height={200}
+                priority
+              />
+            </ImageContainer>
+          )}
+          {mainHandAnalysisImage && (
+            <ImageContainer className={`${selectedTab === '손해설' ? 'block' : 'hidden'}`}>
+              <Image
+                src={mainHandAnalysisImage.url ?? ''}
+                alt='handWriting'
+                className={`w-full object-contain`}
+                width={700}
+                height={200}
+                priority
+              />
+            </ImageContainer>
+          )}
           <div className='flex items-center justify-end'>
             <SmallButton
               className='flex flex-row gap-[4px]'
