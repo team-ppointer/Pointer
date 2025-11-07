@@ -28,6 +28,7 @@
     "dayjs": "^1.11.13",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.553.0",
     "openapi-fetch": "^0.13.4",
     "openapi-react-query": "^0.3.0",
     "react": "^19.0.0",
