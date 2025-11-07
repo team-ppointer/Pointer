@@ -41,6 +41,7 @@ export interface GetProblemsSearchParams {
   customId?: string;
   title?: string;
   concepts?: number[];
+  problemType?: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
   page?: number;
   size?: number;
 }

@@ -4,7 +4,6 @@ import getProblemSetById from './getProblemSetById';
 import getProblemSetSearch from './getProblemSetSearch';
 import postProblemSet from './postProblemSet';
 import putProblemSet from './putProblemSet';
-import putProblemSetStatus from './putProblemSetStatus';
 import putProblemSetToggleStatus from './putProblemSetToggleStatus';
 
 export {
@@ -14,6 +13,5 @@ export {
   getProblemSetSearch,
   postProblemSet,
   putProblemSet,
-  putProblemSetStatus,
   putProblemSetToggleStatus,
 };
