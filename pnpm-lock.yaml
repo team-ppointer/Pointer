@@ -81,8 +81,8 @@ importers:
         specifier: ^1.98.4
         version: 1.125.0(@tanstack/react-router@1.125.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tanstack/router-core@1.125.0)(csstype@3.1.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(solid-js@1.9.7)(tiny-invariant@1.3.3)
       '@team-ppointer/pointer-editor-v2':
-        specifier: ^2.0.1
-        version: 2.0.1(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
+        specifier: ^2.1.0
+        version: 2.1.0(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -104,6 +104,9 @@ importers:
       openapi-react-query:
         specifier: ^0.3.0
         version: 0.3.2(@tanstack/react-query@5.81.5(react@19.1.0))(openapi-fetch@0.13.8)
+      progressive-blur:
+        specifier: ^1.0.0
+        version: 1.0.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -2413,8 +2416,8 @@ packages:
     resolution: {integrity: sha512-3nuYsTyaq6ZN7jRZ9z6Gj3GXZqBOqOT0yzd/WZ33ZFfv4yVNIvsa5Lw+M1j3sgyEAxKMqGu/FaNi7FCjr3yOdw==}
     engines: {node: '>=12'}
 
-  '@team-ppointer/pointer-editor-v2@2.0.1':
-    resolution: {integrity: sha512-e7+S9wv1Liv/YLy7VxICz52/vOpgCmA2iVdU4MlPQLoQb8AyUud0gIUugjuzX/gwKysCA5KAO4qIoN1TOr4A6g==, tarball: https://npm.pkg.github.com/download/@team-ppointer/pointer-editor-v2/2.0.1/365db585946941f6318220830253554801d51986}
+  '@team-ppointer/pointer-editor-v2@2.1.0':
+    resolution: {integrity: sha512-tfUxpfBEMvBxmmMnJ4F+YSmFWc2ib0QPKkB2tnp9oQmlr15DidZgxGGl89A/Mb04Ju7FQU+G+NNbILjk6QvEoQ==, tarball: https://npm.pkg.github.com/download/@team-ppointer/pointer-editor-v2/2.1.0/8037f50b1cd8f11ed9ab92cf49d7ae37211f0a11}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
@@ -4806,6 +4809,12 @@ packages:
     resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
+
+  progressive-blur@1.0.0:
+    resolution: {integrity: sha512-BZkJJHksqsxt9eJ+bv5ptXyUDa+ZbpOzdGJNJVxFo2qF0u+Y38E1oKWidt6JIaHCM1xk9o8LSjf9TbtHpbx9WQ==}
+    peerDependencies:
+      react: ^18.2.0
+      react-dom: ^18.2.0
 
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -7927,7 +7936,7 @@ snapshots:
 
   '@tanstack/virtual-file-routes@1.121.21': {}
 
-  '@team-ppointer/pointer-editor-v2@2.0.1(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))':
+  '@team-ppointer/pointer-editor-v2@2.1.0(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))':
     dependencies:
       '@floating-ui/dom': 1.7.4
       '@floating-ui/react': 0.27.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -10698,6 +10707,11 @@ snapshots:
       prettier: 3.6.2
 
   prettier@3.6.2: {}
+
+  progressive-blur@1.0.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   prop-types@15.8.1:
     dependencies:
