@@ -12,10 +12,7 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
-  BookOpen,
-  UserCircle,
   AlertCircle,
-  Folder,
   Package,
 } from 'lucide-react';
 
@@ -148,8 +145,8 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
           ) : !selectedStudent ? (
             <div className='flex h-full items-center justify-center text-center'>
               <div className='flex flex-col items-center gap-2'>
-                <UserCircle className='h-8 w-8 text-gray-300' />
-                <span className='text-xs text-gray-400'>학생 선택 필요</span>
+                {/* <UserCircle className='h-8 w-8 text-gray-300' />
+                <span className='text-xs text-gray-400'>학생 선택 필요</span> */}
               </div>
             </div>
           ) : null}
@@ -197,10 +194,6 @@ function RouteComponent() {
     studentId: selectedStudent?.id,
   });
   const publishData = publishDataResponse?.data ?? [];
-
-  // 통계 계산
-  const totalPublished = publishData.length;
-  const thisMonthDays = daysInMonth;
 
   return (
     <div className='min-h-screen bg-gray-50'>

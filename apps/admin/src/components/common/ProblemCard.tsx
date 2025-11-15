@@ -1,5 +1,5 @@
-import { InlineProblemViewer, ProblemViewer } from '@team-ppointer/pointer-editor-v2';
-import { FileText, Trash2, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { ProblemViewer } from '@team-ppointer/pointer-editor-v2';
+import { Trash2, MessageSquare } from 'lucide-react';
 
 interface ProblemCardProps {
   customId: string;

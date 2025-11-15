@@ -86,15 +86,11 @@ const PracticeTestSelect = ({ practiceTest, handlePracticeTest }: PracticeTestSe
               type='button'
               onClick={toggleOpen}
               className='rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600'>
-              {isOpen ? (
-                <ChevronUp className='h-4 w-4' />
-              ) : (
-                <ChevronDown className='h-4 w-4' />
-              )}
+              {isOpen ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
             </button>
           </div>
         </div>
-        
+
         {isOpen && (
           <div className='animate-in fade-in slide-in-from-top-2 border-t border-gray-100 duration-200'>
             <div className='max-h-60 overflow-y-auto p-2'>

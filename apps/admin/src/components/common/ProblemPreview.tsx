@@ -1,5 +1,4 @@
-import { FileText, MessageSquare } from 'lucide-react';
-import { InlineProblemViewer, ProblemViewer } from '@team-ppointer/pointer-editor-v2';
+import { ProblemViewer } from '@team-ppointer/pointer-editor-v2';
 
 interface ProblemPreviewProps {
   title: string;

@@ -20,7 +20,6 @@ import {
   X,
   Calendar,
   Clock,
-  User,
   AlertCircle,
 } from 'lucide-react';
 

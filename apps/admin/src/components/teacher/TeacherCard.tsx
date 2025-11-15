@@ -50,7 +50,9 @@ const TeacherCard = ({
             />
           </div>
           <div className='flex min-w-0 flex-1 items-center gap-2'>
-            <UserCircle className={`h-5 w-5 flex-shrink-0 ${isChecked ? 'text-main' : 'text-gray-400'}`} />
+            <UserCircle
+              className={`h-5 w-5 flex-shrink-0 ${isChecked ? 'text-main' : 'text-gray-400'}`}
+            />
             <span
               className={`truncate text-base font-semibold transition-colors duration-200 ${
                 isChecked ? 'text-main' : 'text-gray-900'

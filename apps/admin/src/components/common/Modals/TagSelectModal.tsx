@@ -44,7 +44,7 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
     <div className='flex w-[70dvw] max-w-4xl flex-col gap-6 px-8 py-6'>
       {/* Header */}
       <div className='flex items-center gap-3'>
-        <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-main'>
+        <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
           <TagIcon className='h-5 w-5 text-white' />
         </div>
         <h2 className='text-xl font-bold text-gray-900'>문제 개념 태그 검색</h2>
@@ -70,7 +70,7 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
           </button>
           <button
             onClick={handleClickApply}
-            className='flex items-center gap-2 rounded-xl bg-main px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-main/90'>
+            className='bg-main hover:bg-main/90 flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200'>
             적용
           </button>
         </div>
@@ -81,7 +81,7 @@ const TagSelectModal = ({ onClose, selectedTagList, handleChangeTagList }: TagSe
         <div className='rounded-xl border border-gray-200 bg-gray-50 p-4'>
           <div className='mb-3 flex items-center gap-2'>
             <span className='text-sm font-semibold text-gray-700'>선택된 태그</span>
-            <span className='inline-flex h-5 min-w-5 items-center justify-center rounded-lg bg-main px-2 text-xs font-bold text-white'>
+            <span className='bg-main inline-flex h-5 min-w-5 items-center justify-center rounded-lg px-2 text-xs font-bold text-white'>
               {modalSelectedTag.length}
             </span>
           </div>
