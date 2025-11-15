@@ -18,9 +18,9 @@ import {
   Trash2,
   Save,
   X,
-  Calendar,
   Clock,
   AlertCircle,
+  ChartNoAxesCombined,
 } from 'lucide-react';
 
 const convertUTCToKST = (utcDateString: string) => {
@@ -177,22 +177,20 @@ function RouteComponent() {
           </div>
         ) : (
           <div className='overflow-hidden rounded-2xl border border-gray-200 bg-white'>
-            <div className='flex h-[80rem]'>
+            <div className='grid h-[calc(100dvh-12rem)] grid-cols-2'>
               {/* Diagnosis List */}
-              <div className='w-1/3 overflow-y-auto border-r border-gray-200 p-6'>
-                <div className='mb-6'>
-                  <div className='mb-4 flex items-center gap-3'>
-                    <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
-                      <FileText className='h-5 w-5 text-white' />
-                    </div>
-                    <div>
-                      <h3 className='text-lg font-bold text-gray-900'>진단 목록</h3>
-                      <p className='text-sm text-gray-500'>{diagnosisList?.data?.length || 0}개</p>
-                    </div>
+              <div className='overflow-y-auto border-r border-gray-200 p-6'>
+                <div className='mb-4 flex items-center gap-3'>
+                  <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
+                    <ChartNoAxesCombined className='h-5 w-5 text-white' />
+                  </div>
+                  <div>
+                    <h3 className='text-lg font-bold text-gray-900'>진단 목록</h3>
+                    <p className='text-sm text-gray-500'>{diagnosisList?.data?.length || 0}개</p>
                   </div>
                 </div>
 
-                <div className='space-y-3'>
+                <div className='max-h-[60rem] space-y-3 overflow-y-auto'>
                   {diagnosisList?.data?.map((diagnosis) => (
                     <div
                       key={diagnosis.id}
@@ -206,7 +204,7 @@ function RouteComponent() {
                         {diagnosis.content}
                       </div>
                       <div className='flex items-center gap-2 text-xs text-gray-500'>
-                        <Calendar className='h-3.5 w-3.5' />
+                        <Clock className='h-3.5 w-3.5' />
                         {convertUTCToKST(diagnosis.createdAt || '').toLocaleDateString('ko-KR', {
                           month: 'short',
                           day: 'numeric',
@@ -216,27 +214,26 @@ function RouteComponent() {
                   ))}
 
                   {(!diagnosisList?.data || diagnosisList.data.length === 0) && (
-                    <div className='py-[20rem] text-center'>
-                      <FileText className='mx-auto mb-4 h-12 w-12 text-gray-300' />
-                      <div className='text-sm font-medium text-gray-400'>진단 정보가 없습니다</div>
+                    <div className='flex min-h-[400px] items-center justify-center'>
+                      <div className='text-center'>
+                        <FileText className='mx-auto mb-4 h-12 w-12 text-gray-300' />
+                        <div className='text-sm font-medium text-gray-400'>
+                          진단 정보가 없습니다
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Diagnosis Detail */}
-              <div className='flex-1 p-6'>
+              <div className='p-6'>
                 {selectedDiagnosisDetail ? (
                   <div className='flex h-full flex-col'>
                     <div className='mb-6 flex items-center justify-between'>
-                      <div>
-                        <div className='mb-2 flex items-center gap-3'>
-                          <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
-                            <FileText className='h-5 w-5 text-white' />
-                          </div>
-                          <h3 className='text-xl font-bold text-gray-900'>진단 상세</h3>
-                        </div>
-                        <div className='ml-[3.25rem] flex items-center gap-2 text-sm text-gray-500'>
+                      <div className='flex flex-col gap-0.5'>
+                        <h3 className='text-lg font-bold text-gray-900'>진단 상세</h3>
+                        <div className='flex items-center gap-2 text-sm text-gray-500'>
                           <Clock className='h-3.5 w-3.5' />
                           {convertUTCToKST(
                             selectedDiagnosisDetail.createdAt || ''
@@ -313,8 +310,8 @@ function RouteComponent() {
                 ) : (
                   <div className='flex h-full items-center justify-center'>
                     <div className='text-center'>
-                      <FileText className='mx-auto mb-4 h-16 w-16 text-gray-300' />
-                      <div className='mb-2 text-xl font-bold text-gray-400'>
+                      <FileText className='mx-auto mb-4 h-12 w-12 text-gray-300' />
+                      <div className='mb-2 text-sm font-medium text-gray-400'>
                         진단을 선택해주세요
                       </div>
                       <div className='text-sm text-gray-400'>
@@ -345,7 +342,7 @@ function RouteComponent() {
         <div className='w-[60rem] rounded-2xl bg-white p-8'>
           <div className='mb-6 flex items-center gap-3'>
             <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
-              <Plus className='h-5 w-5 text-white' />
+              <ChartNoAxesCombined className='h-5 w-5 text-white' />
             </div>
             <h3 className='text-xl font-bold text-gray-900'>새 진단 추가</h3>
           </div>
@@ -353,13 +350,14 @@ function RouteComponent() {
             <textarea
               value={newDiagnosisContent}
               onChange={handleNewDiagnosisContentChange}
-              className='focus:border-main focus:ring-main/20 h-[30rem] w-full resize-none rounded-xl border border-gray-200 p-6 text-sm transition-all duration-200 hover:border-gray-300 focus:bg-white focus:ring-2 focus:outline-none'
+              className='focus:border-main focus:ring-main/20 h-[30rem] w-full resize-none rounded-xl border border-gray-200 p-6 pb-16 text-sm transition-all duration-200 hover:border-gray-300 focus:bg-white focus:ring-2 focus:outline-none'
               placeholder='진단 내용을 입력하세요...'
             />
+            <div className='absolute right-6 bottom-6 text-sm font-medium text-gray-400'>
+              {newDiagnosisContent.length}/1000
+            </div>
           </div>
-          <div className='mb-6 text-right text-sm font-medium text-gray-400'>
-            {newDiagnosisContent.length}/1000
-          </div>
+          <div className='mb-6'></div>
           <div className='flex justify-end gap-3'>
             <button
               type='button'
