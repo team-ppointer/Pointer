@@ -15,6 +15,7 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
+  Pencil,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/_GNBLayout/problem-set/')({
@@ -178,7 +179,12 @@ function RouteComponent() {
                 key={problemSet.id}
                 className='overflow-hidden rounded-2xl border border-gray-200 bg-white'>
                 {/* Set Header */}
-                <div className='border-b border-gray-100 px-6 py-5'>
+                <div
+                  className='cursor-pointer border-b border-gray-100 px-6 py-5 transition-all duration-200 hover:bg-gray-50'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleSetExpanded(problemSet.id);
+                  }}>
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
                       <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
@@ -192,20 +198,14 @@ function RouteComponent() {
                     <div className='flex items-center gap-2'>
                       <button
                         type='button'
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleSetExpanded(problemSet.id);
-                        }}
-                        className='flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
+                        className='flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
                         {isExpanded ? (
                           <>
                             <ChevronUp className='h-4 w-4' />
-                            접기
                           </>
                         ) : (
                           <>
                             <ChevronDown className='h-4 w-4' />
-                            펼치기
                           </>
                         )}
                       </button>
@@ -224,7 +224,7 @@ function RouteComponent() {
                           problemSetId: problemSet.id?.toString(),
                         }}
                         className='flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
-                        <ChevronRight className='h-4 w-4' />
+                        <Pencil className='h-4 w-4' />
                       </Link>
                     </div>
                   </div>
