@@ -12,6 +12,7 @@ import {
   ChartNoAxesCombined,
   Users,
   Megaphone,
+  Tags,
 } from 'lucide-react';
 import { getStudent } from '@apis';
 import { useSelectedStudent } from '@hooks';
@@ -239,7 +240,7 @@ const GNB = () => {
 
               <NavItem
                 to='/concept-tags'
-                icon={<Tag className='h-5 w-5' />}
+                icon={<Tags className='h-5 w-5' />}
                 label='개념 태그'
                 isCollapsed={isCollapsed}
               />
