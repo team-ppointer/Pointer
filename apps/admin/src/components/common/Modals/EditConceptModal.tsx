@@ -1,5 +1,5 @@
-import { Button, SearchInput } from '@components';
-import { IcCloseCircle, IcDown, IcUp } from '@svg';
+import { Button, Input } from '@components';
+import { X, ChevronDown, ChevronUp, FolderPlus, Tag as TagIcon, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getConceptCategory, postConcept, postConceptCategory, putConcept } from '@apis';
 
@@ -124,100 +124,141 @@ const EditConceptModal = ({ onClose, onSave, concept }: Props) => {
   };
 
   return (
-    <>
-      <div className='w-4xl px-1600 py-1200'>
-        <h2 className='font-bold-24 text-black'>
-          {isEditMode ? '개념 태그 수정' : '개념 태그 등록'}
-        </h2>
-        <form className='mt-16 flex flex-col gap-800' onSubmit={() => {}}>
-          <div className='flex flex-col gap-300'>
-            <span className='font-medium-18 text-black'>개념 태그 대분류</span>
-            <div className='relative h-[5.6rem] w-full'>
-              <div
-                className={`border-lightgray500 rounded-400 absolute z-30 flex min-h-[5.6rem] w-full flex-col justify-center border bg-white px-400 py-800`}>
-                <div className='flex min-h-[4rem] items-center justify-between gap-[0.9rem]'>
-                  {selectedConceptCategory ? (
-                    <span className='font-medium-18'>
-                      {
-                        conceptCategories?.data.find(
-                          (conceptCategory) => conceptCategory.id === selectedConceptCategory
-                        )?.name
-                      }
-                    </span>
-                  ) : (
-                    <input
-                      // {...register('search')}
-                      className='font-medium-18 outline-none'
-                      placeholder={'입력해주세요'}
-                      onFocus={() => setIsOpen(true)}
-                      onChange={handleSearch}
-                      value={searchQuery}
-                    />
-                  )}
+    <div className='w-[560px] rounded-2xl bg-white p-8'>
+      {/* Header */}
+      <div className='mb-6 flex items-center justify-between'>
+        <div className='flex items-center gap-3'>
+          <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/30'>
+            <TagIcon className='h-5 w-5 text-white' />
+          </div>
+          <h2 className='text-2xl font-bold text-gray-900'>
+            {isEditMode ? '개념 태그 수정' : '새 개념 태그 등록'}
+          </h2>
+        </div>
+      </div>
 
-                  <div className='flex items-center gap-200'>
-                    {selectedConceptCategory && (
-                      <div onClick={(e) => handleSelectConceptCategory(e, undefined)}>
-                        <IcCloseCircle width={24} height={24} className='cursor-pointer' />
-                      </div>
-                    )}
-                    {isOpen ? (
-                      <IcUp
-                        width={24}
-                        height={24}
-                        onClick={toggleOpen}
-                        className='cursor-pointer'
-                      />
-                    ) : (
-                      <IcDown
-                        width={24}
-                        height={24}
-                        onClick={toggleOpen}
-                        className='cursor-pointer'
-                      />
-                    )}
-                  </div>
-                </div>
-                {isOpen && (
-                  <>
-                    <div className='bg-lightgray500 mt-200 mb-[1rem] h-[1px] w-full' />
-                    <div>
-                      <div className='flex flex-col gap-300'>
-                        {conceptCategories?.data
-                          .filter((conceptCategory) => conceptCategory.name.includes(searchQuery))
-                          .map((conceptCategory) => (
-                            <div
-                              key={conceptCategory.id}
-                              className='font-medium-14 cursor-pointer text-black'
-                              onClick={(e) => handleSelectConceptCategory(e, conceptCategory.id)}>
-                              {conceptCategory.name}
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  </>
+      <form
+        className='space-y-6'
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSave();
+        }}>
+        {/* Category Selection */}
+        <div className='space-y-2'>
+          <label className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
+            <FolderPlus className='h-4 w-4' />
+            카테고리
+          </label>
+          <div className='relative'>
+            <div
+              className={`focus-within:border-main focus-within:ring-main/20 relative rounded-xl border-2 bg-white transition-all duration-200 focus-within:ring-4 ${
+                isOpen ? 'border-main ring-main/20 ring-4' : 'border-gray-200'
+              }`}>
+              <div className='flex items-center justify-between px-4 py-3'>
+                {selectedConceptCategory ? (
+                  <span className='text-sm font-medium text-gray-900'>
+                    {
+                      conceptCategories?.data.find(
+                        (conceptCategory) => conceptCategory.id === selectedConceptCategory
+                      )?.name
+                    }
+                  </span>
+                ) : (
+                  <input
+                    className='w-full text-sm font-medium text-gray-900 outline-none placeholder:text-gray-400'
+                    placeholder='카테고리를 선택하거나 입력해주세요'
+                    onFocus={() => setIsOpen(true)}
+                    onChange={handleSearch}
+                    value={searchQuery}
+                  />
                 )}
+
+                <div className='flex items-center gap-2'>
+                  {selectedConceptCategory && (
+                    <button
+                      type='button'
+                      onClick={(e) => handleSelectConceptCategory(e, undefined)}
+                      className='flex h-6 w-6 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600'>
+                      <X className='h-4 w-4' />
+                    </button>
+                  )}
+                  <button
+                    type='button'
+                    onClick={toggleOpen}
+                    className='text-main flex h-6 w-6 items-center justify-center rounded-lg transition-colors hover:bg-blue-50'>
+                    {isOpen ? (
+                      <ChevronUp className='h-5 w-5' />
+                    ) : (
+                      <ChevronDown className='h-5 w-5' />
+                    )}
+                  </button>
+                </div>
               </div>
+
+              {isOpen && (
+                <div className='max-h-60 overflow-y-auto border-t border-gray-200 bg-gray-50/50'>
+                  {conceptCategories?.data.filter((conceptCategory) =>
+                    conceptCategory.name.includes(searchQuery)
+                  ).length === 0 ? (
+                    <div className='px-4 py-6 text-center'>
+                      <AlertCircle className='mx-auto mb-2 h-8 w-8 text-gray-400' />
+                      <p className='text-sm font-medium text-gray-600'>검색 결과가 없습니다</p>
+                      {searchQuery && (
+                        <p className='mt-1 text-xs text-gray-500'>
+                          &quot;{searchQuery}&quot; 카테고리가 자동으로 생성됩니다
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className='p-2'>
+                      {conceptCategories?.data
+                        .filter((conceptCategory) => conceptCategory.name.includes(searchQuery))
+                        .map((conceptCategory) => (
+                          <button
+                            key={conceptCategory.id}
+                            type='button'
+                            onClick={(e) => handleSelectConceptCategory(e, conceptCategory.id)}
+                            className={`hover:bg-main/10 hover:text-main w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm font-medium transition-all duration-200 ${
+                              selectedConceptCategory === conceptCategory.id
+                                ? 'bg-main/10 text-main'
+                                : 'text-gray-700'
+                            }`}>
+                            {conceptCategory.name}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-          <SearchInput
-            sizeType='full'
-            label='개념 태그 이름'
-            placeholder='입력해주세요.'
+        </div>
+
+        {/* Concept Name Input */}
+        <div className='space-y-2'>
+          <label className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
+            <TagIcon className='h-4 w-4' />
+            개념 태그 이름
+          </label>
+          <Input
+            placeholder='개념 태그 이름을 입력해주세요'
             value={conceptName}
             onChange={(e) => setConceptName(e.target.value)}
+            autoFocus={isEditMode}
           />
-          <div className='mt-[5.6rem] flex justify-end gap-400'>
-            <Button type='button' variant='light' onClick={onClose}>
-              취소
-            </Button>
-            <Button type='button' variant='dark' onClick={handleSave}>
-              {isEditMode ? '수정' : '저장'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </>
+        </div>
+
+        {/* Action Buttons */}
+        <div className='flex justify-end gap-3 pt-4'>
+          <Button type='button' variant='light' onClick={onClose}>
+            취소
+          </Button>
+          <Button type='submit' variant='dark'>
+            {isEditMode ? '수정 완료' : '등록하기'}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 
