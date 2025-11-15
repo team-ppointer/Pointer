@@ -6,6 +6,8 @@ import TextArea from './TextArea';
 import { MainProblemSection } from './MainProblemSection';
 import { ChildProblemSection } from './ChildProblemSection';
 import { TipSection } from './TipSection';
+import { EditorField } from './EditorField';
+import { ProblemPointingInput } from './ProblemPointingInput';
 
 export {
   ImageUpload,
@@ -16,4 +18,6 @@ export {
   MainProblemSection,
   ChildProblemSection,
   TipSection,
+  EditorField,
+  ProblemPointingInput,
 };
