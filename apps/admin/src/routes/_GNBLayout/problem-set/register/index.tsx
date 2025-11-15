@@ -328,8 +328,8 @@ function RouteComponent() {
                     const problem = item.problem;
 
                     return problem.id === 0 ? (
-                      <div key={`empty-${index}`}>
-                        <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
+                      <div key={`empty-${index}`} className='text-gray-500'>
+                        등록된 문제가 없습니다. 문제를 추가해주세요.
                       </div>
                     ) : (
                       <div key={`${problem.id}-${index}`}>
