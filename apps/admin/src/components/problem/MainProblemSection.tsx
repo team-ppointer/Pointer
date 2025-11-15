@@ -211,10 +211,10 @@ const RecommendedTimeInput: FC<RecommendedTimeInputProps> = ({
   return (
     <ComponentWithLabel label='권장 시간' labelWidth='4rem'>
       <div className='space-y-3'>
-        <div className='flex items-center gap-4'>
-          <div className='flex items-center gap-3'>
+        <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-2'>
             <input
-              className={`h-16 w-16 rounded-xl border bg-white px-3 py-2 text-center text-xl font-bold transition-all duration-200 ${
+              className={`h-[45.8px] w-[45.8px] rounded-xl border bg-white text-center text-sm font-semibold transition-all duration-200 focus:outline-none ${
                 errors?.recommendedTimeSec
                   ? 'border-red-300 bg-red-50/30 focus:border-red-500 focus:ring-2 focus:ring-red-100'
                   : 'focus:border-main focus:ring-main/20 border-gray-200 hover:border-gray-300 focus:ring-2'
@@ -223,12 +223,13 @@ const RecommendedTimeInput: FC<RecommendedTimeInputProps> = ({
               min={0}
               value={Number.isFinite(minutes) ? minutes : 0}
               onChange={handleChangeMinutes}
+              placeholder='0'
             />
-            <span className='text-base font-semibold text-gray-700'>분</span>
+            <span className='text-sm font-semibold text-gray-700'>분</span>
           </div>
-          <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-2'>
             <input
-              className={`h-16 w-16 rounded-xl border bg-white px-3 py-2 text-center text-xl font-bold transition-all duration-200 ${
+              className={`h-[45.8px] w-[45.8px] rounded-xl border bg-white text-center text-sm font-semibold transition-all duration-200 focus:outline-none ${
                 errors?.recommendedTimeSec
                   ? 'border-red-300 bg-red-50/30 focus:border-red-500 focus:ring-2 focus:ring-red-100'
                   : 'focus:border-main focus:ring-main/20 border-gray-200 hover:border-gray-300 focus:ring-2'
@@ -238,8 +239,9 @@ const RecommendedTimeInput: FC<RecommendedTimeInputProps> = ({
               max={59}
               value={Number.isFinite(seconds) ? seconds : 0}
               onChange={handleChangeSeconds}
+              placeholder='0'
             />
-            <span className='text-base font-semibold text-gray-700'>초</span>
+            <span className='text-sm font-semibold text-gray-700'>초</span>
           </div>
           <input type='hidden' {...recommendedTimeRegistration} />
         </div>

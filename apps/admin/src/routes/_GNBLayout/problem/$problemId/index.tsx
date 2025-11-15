@@ -138,6 +138,7 @@ function ProblemForm({
       pointings: sanitizedPointings,
       mainAnalysisImageId: data.mainAnalysisImageId ?? undefined,
       mainHandAnalysisImageId: data.mainHandAnalysisImageId ?? undefined,
+      childProblems: [],
     };
 
     mutateUpdateProblem(
@@ -254,11 +255,50 @@ function ProblemForm({
                       required: '문제 제목은 필수 입력 항목입니다.',
                     })}
                   />
-                  <ProblemEssentialInput.ProblemType
-                    enabled={false}
-                    defaultValue={fetchedProblemData.problemType}
-                  />
+                  <div className='flex gap-4'>
+                    <ProblemEssentialInput.ProblemType
+                      enabled={false}
+                      defaultValue={fetchedProblemData.problemType}
+                    />
 
+                    {fetchedProblemData.problemType === 'CHILD_PROBLEM' && (
+                      <div className='flex items-center justify-between space-x-2'>
+                        <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                          <Link2 className='text-main h-4 w-4' />
+                          부모 문제 연결
+                        </div>
+                        <div className='flex flex-wrap items-center gap-2'>
+                          {selectedParentProblem ? (
+                            <div className='rounded-xl bg-blue-50 px-3 py-2.5 text-sm font-semibold text-blue-700'>
+                              {selectedParentProblem.customId
+                                ? `${selectedParentProblem.customId} · ${selectedParentProblem.title ?? ''}`
+                                : selectedParentProblem.title || `ID ${selectedParentProblem.id}`}
+                            </div>
+                          ) : (
+                            <span className='text-sm text-gray-500'>
+                              연결된 부모 문제가 없습니다.
+                            </span>
+                          )}
+                          <Button
+                            type='button'
+                            variant='light'
+                            sizeType='fit'
+                            onClick={openParentSelectModal}>
+                            부모 문제 선택
+                          </Button>
+                          {selectedParentProblem && (
+                            <Button
+                              type='button'
+                              variant='danger'
+                              sizeType='fit'
+                              onClick={handleClearParentProblem}>
+                              연결 해제
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   {/* <div className='grid gap-4 md:grid-cols-2'>
                     <div className='space-y-2'>
                       <span className='text-sm font-semibold text-gray-600'>출제 유형</span>
@@ -271,44 +311,6 @@ function ProblemForm({
                       </div>
                     </div>
                   </div> */}
-
-                  {fetchedProblemData.problemType === 'CHILD_PROBLEM' && (
-                    <div className='space-y-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4'>
-                      <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
-                        <Link2 className='text-main h-4 w-4' />
-                        부모 문제 연결
-                      </div>
-                      <div className='flex flex-wrap items-center gap-3'>
-                        {selectedParentProblem ? (
-                          <div className='rounded-xl bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700'>
-                            {selectedParentProblem.customId
-                              ? `${selectedParentProblem.customId} · ${selectedParentProblem.title ?? ''}`
-                              : selectedParentProblem.title || `ID ${selectedParentProblem.id}`}
-                          </div>
-                        ) : (
-                          <span className='text-sm text-gray-500'>
-                            연결된 부모 문제가 없습니다.
-                          </span>
-                        )}
-                        <Button
-                          type='button'
-                          variant='light'
-                          sizeType='fit'
-                          onClick={openParentSelectModal}>
-                          부모 문제 선택
-                        </Button>
-                        {selectedParentProblem && (
-                          <Button
-                            type='button'
-                            variant='danger'
-                            sizeType='fit'
-                            onClick={handleClearParentProblem}>
-                            연결 해제
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </ProblemEssentialInput>
               </div>
             </div>
