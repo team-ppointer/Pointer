@@ -23,6 +23,7 @@ import {
   Filter,
   Box,
   RotateCcw,
+  Tags,
 } from 'lucide-react';
 
 import { ConceptTagCard } from '@/components/conceptTags';
@@ -221,7 +222,7 @@ function RouteComponent() {
                       ? 'bg-main border-main text-white'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                   }`}>
-                  <Box className='h-4 w-4' />
+                  <Tags className='h-4 w-4' />
                   전체 ({concepts?.data.length || 0})
                 </button>
                 {availableCategories.map((category) => {
@@ -236,7 +237,7 @@ function RouteComponent() {
                           ? 'bg-main border-main text-white'
                           : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                       }`}>
-                      <FolderOpen className='h-4 w-4' />
+                      <Tags className='h-4 w-4' />
                       {category.name} ({count})
                     </button>
                   );
@@ -297,10 +298,10 @@ function RouteComponent() {
                   <div
                     key={category.id}
                     className='overflow-hidden rounded-2xl border border-gray-200 bg-white'>
-                    <div className='flex items-center justify-between border-b border-gray-100 bg-gray-50 px-6 py-4'>
+                    <div className='flex items-center justify-between px-5 pt-5'>
                       <div className='flex items-center gap-3'>
-                        <div className='flex h-9 w-9 items-center justify-center rounded-xl bg-gray-600'>
-                          <FolderOpen className='h-4 w-4 text-white' />
+                        <div className='bg-main flex h-9 w-9 items-center justify-center rounded-xl'>
+                          <Tags className='h-4 w-4 text-white' />
                         </div>
                         <h4 className='text-lg font-bold text-gray-900'>{category.name}</h4>
                         <span className='text-main bg-main/10 rounded-lg px-2.5 py-1 text-xs font-bold'>
