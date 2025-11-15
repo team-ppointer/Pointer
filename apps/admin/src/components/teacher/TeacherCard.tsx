@@ -1,4 +1,4 @@
-import { UserCircle, Mail, Users, Pencil, Trash2, Check } from 'lucide-react';
+import { Mail, Users, Pencil, Trash2, Check } from 'lucide-react';
 
 interface Props {
   name: string;
@@ -23,10 +23,8 @@ const TeacherCard = ({
 }: Props) => {
   return (
     <div
-      className={`group relative overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-200 ${
-        isChecked
-          ? 'border-main bg-main/5'
-          : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+      className={`group relative overflow-hidden rounded-xl border bg-white transition-all duration-200 ${
+        isChecked ? 'border-main bg-main/5' : 'border-gray-200 hover:border-gray-300'
       }`}>
       <div className='p-5'>
         {/* Header with checkbox and name */}
@@ -38,21 +36,18 @@ const TeacherCard = ({
             className='peer hidden'
           />
           <div
-            className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border transition-all duration-200 ${
+            className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg border transition-all duration-200 ${
               isChecked
                 ? 'border-main bg-main'
                 : 'border-gray-300 bg-white group-hover:border-gray-400'
             }`}>
             <Check
-              className={`h-4 w-4 text-white transition-all duration-200 ${
+              className={`h-3.5 w-3.5 text-white transition-all duration-200 ${
                 isChecked ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
               }`}
             />
           </div>
           <div className='flex min-w-0 flex-1 items-center gap-2'>
-            <UserCircle
-              className={`h-5 w-5 flex-shrink-0 ${isChecked ? 'text-main' : 'text-gray-400'}`}
-            />
             <span
               className={`truncate text-base font-semibold transition-colors duration-200 ${
                 isChecked ? 'text-main' : 'text-gray-900'

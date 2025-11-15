@@ -151,7 +151,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
           <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
             <Plus className='h-5 w-5 text-white' />
           </div>
-          <h3 className='text-xl font-bold text-gray-900'>새로운 선생 등록</h3>
+          <h3 className='text-xl font-bold text-gray-900'>과외 선생 등록</h3>
         </div>
 
         <form className='space-y-6' onSubmit={handleSubmit(onCreateSubmit)}>
@@ -168,10 +168,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
               <Mail className='h-4 w-4 text-gray-500' />
               아이디 (이메일)
             </label>
-            <Input
-              placeholder='아이디를 입력해주세요'
-              {...register('email', { required: true })}
-            />
+            <Input placeholder='아이디를 입력해주세요' {...register('email', { required: true })} />
           </div>
 
           <div>
@@ -188,7 +185,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
               <button
                 type='button'
                 onClick={() => setShowPassword(!showPassword)}
-                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600'>
+                className='absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600'>
                 {showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
               </button>
             </div>
@@ -236,10 +233,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
               <Mail className='h-4 w-4 text-gray-500' />
               아이디 (이메일)
             </label>
-            <Input
-              placeholder='아이디를 입력해주세요'
-              {...register('email', { required: true })}
-            />
+            <Input placeholder='아이디를 입력해주세요' {...register('email', { required: true })} />
           </div>
 
           <div>
@@ -256,7 +250,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
               <button
                 type='button'
                 onClick={() => setShowPassword(!showPassword)}
-                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600'>
+                className='absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600'>
                 {showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
               </button>
             </div>

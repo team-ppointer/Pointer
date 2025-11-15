@@ -9,7 +9,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   Search,
   Plus,
-  UserCircle,
   Mail,
   Users,
   Trash2,
@@ -158,7 +157,7 @@ function RouteComponent() {
       {/* Header */}
       <Header title='과외 선생 정보'>
         <Header.Button Icon={Plus} color='main' onClick={openEditTeacherModal}>
-          선생 등록
+          과외 선생 등록
         </Header.Button>
       </Header>
 
@@ -170,7 +169,7 @@ function RouteComponent() {
               <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
                 <Search className='h-5 w-5 text-white' />
               </div>
-              선생 검색
+              과외 선생 검색
             </h2>
           </div>
 
@@ -186,7 +185,7 @@ function RouteComponent() {
               <button
                 type='button'
                 onClick={handleResetSearch}
-                className='flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
+                className='flex h-[45.8px] items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
                 <RotateCcw className='h-4 w-4' />
                 초기화
               </button>
@@ -197,11 +196,6 @@ function RouteComponent() {
         {/* Control Bar */}
         <div className='mb-6 flex flex-wrap items-center justify-between gap-4'>
           <div className='flex items-center gap-4'>
-            <div className='flex items-center gap-2'>
-              <UserCircle className='text-main h-5 w-5' />
-              <h3 className='text-lg font-bold text-gray-900'>선생 목록</h3>
-            </div>
-            <div className='h-6 w-px bg-gray-300' />
             <span className='text-sm font-medium text-gray-600'>
               {teacherList?.data?.length || 0}명
             </span>
@@ -280,7 +274,6 @@ function RouteComponent() {
                         </td>
                         <td className='px-6 py-4'>
                           <div className='flex items-center gap-2'>
-                            <UserCircle className='text-main h-5 w-5' />
                             <span className='text-sm font-semibold text-gray-900'>
                               {teacher.name}
                             </span>
