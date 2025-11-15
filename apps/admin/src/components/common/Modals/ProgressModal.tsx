@@ -1,286 +1,325 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
+import { InlineProblemViewer, ProblemViewer } from '@team-ppointer/pointer-editor-v2';
 import { components } from '@schema';
-import { IcCloseCircle } from '@svg';
-import { Button, IconButton } from '@components';
+import { parseEditorContent } from '@utils';
+import { Calendar, CheckCircle2, Clock, FileText, Package, X } from 'lucide-react';
+
+import 'dayjs/locale/ko';
+
+dayjs.locale('ko');
 
 interface ProgressModalProps {
   publishData: components['schemas']['PublishResp'];
   onClose: () => void;
 }
 
+type PublishProgress = components['schemas']['PublishResp']['progress'];
+type StudyStatus = components['schemas']['ProblemWithStudyInfoResp']['progress'];
+
+const PROGRESS_META: Record<PublishProgress, { label: string; className: string }> = {
+  DONE: {
+    label: '완료',
+    className: 'border-green-200 bg-green-50 text-green-700',
+  },
+  DOING: {
+    label: '진행 중',
+    className: 'border-amber-200 bg-amber-50 text-amber-700',
+  },
+  NONE: {
+    label: '시작 전',
+    className: 'border-gray-200 bg-gray-50 text-gray-600',
+  },
+};
+
+const STATUS_META: Record<NonNullable<StudyStatus>, { label: string; className: string }> = {
+  CORRECT: { label: '정답', className: 'border-green-200 bg-green-50 text-green-700' },
+  INCORRECT: { label: '오답', className: 'border-red-200 bg-red-50 text-red-600' },
+  SEMI_CORRECT: {
+    label: '부분 정답',
+    className: 'border-amber-200 bg-amber-50 text-amber-700',
+  },
+  NONE: { label: '미제출', className: 'border-gray-200 bg-gray-50 text-gray-600' },
+};
+
+const UNDERSTAND_META = {
+  true: {
+    label: '이해',
+    className: 'border-green-200 bg-green-50 text-green-700',
+  },
+  false: {
+    label: '미이해',
+    className: 'border-red-200 bg-red-50 text-red-600',
+  },
+};
+
+const getStatusMeta = (status?: StudyStatus) => {
+  if (!status) return STATUS_META.NONE;
+  return STATUS_META[status];
+};
+
+const getUnderstandMeta = (value?: boolean) => UNDERSTAND_META[value ? 'true' : 'false'];
+
+const toInlineContent = (raw?: string | null) => JSON.stringify(parseEditorContent(raw));
+
 const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
-  const [selectedProblemIndex, setSelectedProblemIndex] = useState(0);
-  const [selectedChildProblemIndex, setSelectedChildProblemIndex] = useState(0);
-  const [selectedChildPointingIndex, setSelectedChildPointingIndex] = useState(0);
-  const [selectedMainPointingIndex, setSelectedMainPointingIndex] = useState(0);
-  const selectedProblem = publishData.data[selectedProblemIndex];
+  const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
 
-  const getProgressText = (progress: 'DONE' | 'DOING' | 'NONE') => {
-    switch (progress) {
-      case 'DONE':
-        return '완료';
-      case 'DOING':
-        return '미완';
-      case 'NONE':
-        return '시작 전';
-      default:
-        return '시작 전';
+  useEffect(() => {
+    if (selectedGroupIndex >= publishData.data.length) {
+      setSelectedGroupIndex(0);
     }
-  };
+  }, [publishData.data.length, selectedGroupIndex]);
 
-  const getProgressBadgeStyle = (progress: 'DONE' | 'DOING' | 'NONE') => {
-    switch (progress) {
-      case 'DONE':
-        return 'text-green';
-      case 'DOING':
-        return 'text-yellow';
-      case 'NONE':
-        return 'text-gray-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
+  const summary = useMemo(() => {
+    const total = publishData.data.length;
+    const done = publishData.data.filter((group) => group.progress === 'DONE').length;
+    const doing = publishData.data.filter((group) => group.progress === 'DOING').length;
+    const progressRate = total === 0 ? 0 : Math.round((done / total) * 100);
+    return { total, done, doing, progressRate };
+  }, [publishData.data]);
 
-  const getStatusText = (status: 'NONE' | 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | undefined) => {
-    switch (status) {
-      case 'CORRECT':
-        return 'O';
-      case 'INCORRECT':
-        return 'X';
-      case 'SEMI_CORRECT':
-        return '△';
-      case 'NONE':
-        return '-';
-      default:
-        return '-';
-    }
-  };
-
-  const getStatusBadgeStyle = (
-    status: 'NONE' | 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | undefined
-  ) => {
-    switch (status) {
-      case 'CORRECT':
-        return 'text-green';
-      case 'INCORRECT':
-        return 'text-red';
-      case 'SEMI_CORRECT':
-        return 'text-yellow';
-      case 'NONE':
-        return 'text-gray-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
+  const selectedGroup = publishData.data[selectedGroupIndex];
+  const mainProblem = selectedGroup?.problem;
+  const childProblems = selectedGroup?.childProblems ?? [];
 
   return (
-    <div className='rounded-400 w-[90vw] max-w-[120rem] bg-white p-800'>
-      <h2 className='font-bold-24 mb-600 text-black'>{publishData.publishAt} 진행도</h2>
-      <div className='grid h-[60dvh] grid-cols-2 gap-600 overflow-y-auto'>
-        <div className='bg-lightgray100 flex w-full flex-col rounded-[0.8rem] px-[2.4rem] py-[2rem]'>
-          <h2 className='font-16b-heading mb-[2rem] text-black'>숙제 완료도</h2>
-          <div className='flex-1 overflow-y-auto'>
-            {publishData.data.map((problemGroup, index) => (
-              <div
-                key={problemGroup.problemId}
-                className={`rounded-200 mb-200 cursor-pointer border bg-white px-[1.2rem] py-200 transition-colors ${
-                  selectedProblemIndex === index
-                    ? 'border-lightgray500'
-                    : 'border-transparent hover:bg-gray-50'
-                }`}
-                onClick={() => setSelectedProblemIndex(index)}>
-                <div className='flex w-full items-center justify-between gap-200'>
-                  <span className='font-12m-caption text-lightgray500 bg-lightgray200 rounded-[0.4rem] px-[0.4rem] py-[0.2rem]'>
-                    {problemGroup.no}
-                  </span>
-                  <div className='font-14m-body block flex-1 truncate text-black'>
-                    {problemGroup.problem.title}
-                  </div>
-                  <span
-                    className={`font-14m-body whitespace-nowrap ${getProgressBadgeStyle(
-                      problemGroup.progress
-                    )}`}>
-                    {getProgressText(problemGroup.progress)}
-                  </span>
-                </div>
-              </div>
-            ))}
+    <div className='w-[90vw] max-w-7xl rounded-2xl border border-gray-200 bg-white'>
+      {/* Header */}
+      <div className='sticky top-0 z-10 flex items-center justify-between bg-white/70 px-8 py-6 shadow-md/5 backdrop-blur-md'>
+        <div className='flex items-center gap-4'>
+          <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
+            <Package className='h-5 w-5 text-white' />
+          </div>
+          <div>
+            <h2 className='text-2xl font-bold text-gray-900'>{publishData.problemSet.title}</h2>
+            <p className='text-sm text-gray-500'>
+              {dayjs(publishData.publishAt).format('YYYY년 M월 D일')}
+            </p>
           </div>
         </div>
-
-        <div className='bg-lightgray100 flex w-full flex-col rounded-[0.8rem] px-[2.4rem] py-[2rem]'>
-          <h3 className='font-16b-heading mb-600 text-black'>{selectedProblem?.problem.title}</h3>
-          <div className='flex flex-col gap-200'>
-            <div className='rounded-200 flex flex-col gap-300 bg-white p-400'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-300'>
-                  <h4 className='font-bold-16 text-black'>새끼 문제</h4>
-                  <div className='flex items-center gap-100'>
-                    {selectedProblem?.childProblems.map((childProblem, index) => (
-                      <button
-                        key={childProblem.id}
-                        onClick={() => setSelectedChildProblemIndex(index)}
-                        className={`font-medium-14 h-[2.4rem] w-[2.4rem] rounded-[0.4rem] ${
-                          selectedChildProblemIndex === index
-                            ? 'bg-midgray200 text-white'
-                            : 'bg-lightgray300 text-lightgray500'
-                        }`}>
-                        {index + 1}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div
-                  className={`font-18m-body mr-200 rounded-full px-200 py-100 ${getStatusBadgeStyle(
-                    selectedProblem?.childProblems[selectedChildProblemIndex]?.progress
-                  )}`}>
-                  {getStatusText(
-                    selectedProblem?.childProblems[selectedChildProblemIndex]?.progress
-                  )}
-                </div>
-              </div>
-              {selectedProblem?.childProblems && selectedProblem?.childProblems.length > 0 ? (
-                <p className='font-medium-14 line-clamp-2 text-black'>
-                  {selectedProblem?.childProblems[
-                    selectedChildProblemIndex
-                  ]?.problemContent.blocks.map((block) => {
-                    if (block.type === 'TEXT') {
-                      return block.data;
-                    }
-                    return null;
-                  })}
-                </p>
-              ) : (
-                <p className='font-medium-14 text-lightgray500 text-center'>새끼 문제가 없어요</p>
-              )}
-            </div>
-
-            <div className='rounded-200 flex flex-col gap-300 bg-white p-400'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-300'>
-                  <h4 className='font-bold-16 text-black'>새끼 문제 포인팅</h4>
-                  <div className='flex items-center gap-100'>
-                    {selectedProblem?.childProblems[selectedChildProblemIndex]?.pointings.map(
-                      (pointing, index) => (
-                        <button
-                          key={pointing.id}
-                          onClick={() => setSelectedChildPointingIndex(index)}
-                          className={`font-medium-14 h-[2.4rem] w-[2.4rem] rounded-[0.4rem] ${
-                            selectedChildPointingIndex === index
-                              ? 'bg-midgray200 text-white'
-                              : 'bg-lightgray300 text-lightgray500'
-                          }`}>
-                          {index + 1}
-                        </button>
-                      )
-                    )}
-                  </div>
-                </div>
-              </div>
-              {selectedProblem?.childProblems && selectedProblem?.childProblems.length > 0 ? (
-                <div className='flex items-center justify-between'>
-                  <p className='font-medium-14 line-clamp-2 text-black'>
-                    {selectedProblem?.childProblems[selectedChildProblemIndex]?.pointings[
-                      selectedChildPointingIndex
-                    ]?.questionContent.blocks.map((block) => {
-                      if (block.type === 'TEXT') {
-                        return block.data;
-                      }
-                      return null;
-                    })}
-                  </p>
-                  <div
-                    className={`font-18m-body mr-200 rounded-full px-200 py-100 ${
-                      selectedProblem?.childProblems[selectedChildProblemIndex]?.pointings[
-                        selectedChildPointingIndex
-                      ]?.isUnderstood
-                        ? 'text-green'
-                        : 'text-red'
-                    }`}>
-                    {selectedProblem?.childProblems[selectedChildProblemIndex]?.pointings[
-                      selectedChildPointingIndex
-                    ]?.isUnderstood
-                      ? 'O'
-                      : 'X'}
-                  </div>
-                </div>
-              ) : (
-                <p className='font-medium-14 text-lightgray500 text-center'>새끼 문제가 없어요</p>
-              )}
-            </div>
-
-            <hr className='border-lightgray300' />
-
-            <div className='rounded-200 flex flex-col gap-300 bg-white p-400'>
-              <div className='flex items-center justify-between'>
-                <h4 className='font-bold-16 text-black'>메인 문제</h4>
-                <div
-                  className={`font-18m-body mr-200 rounded-full px-200 py-100 ${getStatusBadgeStyle(
-                    selectedProblem?.problem.progress
-                  )}`}>
-                  {getStatusText(selectedProblem?.problem.progress)}
-                </div>
-              </div>
-              <p className='font-medium-14 line-clamp-2 text-black'>
-                {selectedProblem?.problem.problemContent.blocks.map((block) => {
-                  if (block.type === 'TEXT') {
-                    return block.data;
-                  }
-                  return null;
-                })}
-              </p>
-            </div>
-
-            <div className='rounded-200 flex flex-col gap-300 bg-white p-400'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-300'>
-                  <h4 className='font-bold-16 text-black'>메인 문제 포인팅</h4>
-                  <div className='flex items-center gap-100'>
-                    {selectedProblem?.problem.pointings.map((pointing, index) => (
-                      <button
-                        key={pointing.id}
-                        onClick={() => setSelectedMainPointingIndex(index)}
-                        className={`font-medium-14 h-[2.4rem] w-[2.4rem] rounded-[0.4rem] ${
-                          selectedMainPointingIndex === index
-                            ? 'bg-midgray200 text-white'
-                            : 'bg-lightgray300 text-lightgray500'
-                        }`}>
-                        {index + 1}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className='flex items-center justify-between'>
-                <p className='font-medium-14 line-clamp-2 text-black'>
-                  {selectedProblem?.problem.pointings[
-                    selectedMainPointingIndex
-                  ]?.questionContent.blocks.map((block) => {
-                    if (block.type === 'TEXT') {
-                      return block.data;
-                    }
-                    return null;
-                  })}
-                </p>
-                <div
-                  className={`font-18m-body mr-200 rounded-full px-200 py-100 ${
-                    selectedProblem?.problem.pointings[selectedMainPointingIndex]?.isUnderstood
-                      ? 'text-green'
-                      : 'text-red'
-                  }`}>
-                  {selectedProblem?.problem.pointings[selectedMainPointingIndex]?.isUnderstood
-                    ? 'O'
-                    : 'X'}
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className='flex items-center gap-3'>
+          <span
+            className={`inline-flex items-center rounded-lg border px-3 py-1.5 text-sm font-semibold ${PROGRESS_META[publishData.progress].className}`}>
+            {PROGRESS_META[publishData.progress].label}
+          </span>
+          <button
+            type='button'
+            onClick={onClose}
+            className='flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-600'>
+            <X className='h-4 w-4' />
+          </button>
         </div>
       </div>
-      <div className='mt-600 flex justify-end pt-600'>
-        <Button variant='dark' onClick={onClose}>
-          닫기
-        </Button>
+
+      {/* Content */}
+      <div className='grid lg:grid-cols-[280px_1fr]'>
+        {/* Problem List */}
+        <aside className='flex flex-col gap-3 border-r border-gray-200 py-8 pr-4 pl-6'>
+          <div className='flex items-center justify-between'>
+            <h3 className='text-sm font-semibold text-gray-700'>문제 목록</h3>
+            <span className='text-xs text-gray-500'>{summary.total}개</span>
+          </div>
+          {publishData.data.length === 0 ? (
+            <div className='flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500'>
+              발행된 문제가 없습니다.
+            </div>
+          ) : (
+            <div className='flex max-h-[calc(100vh-400px)] flex-col gap-2 overflow-y-auto pr-1'>
+              {publishData.data.map((problemGroup, index) => {
+                const isActive = selectedGroupIndex === index;
+                return (
+                  <button
+                    key={problemGroup.problemId}
+                    type='button'
+                    onClick={() => setSelectedGroupIndex(index)}
+                    className={`rounded-xl border px-3 py-3 text-left transition-all duration-200 ${
+                      isActive
+                        ? 'border-main bg-main/5 text-main'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                    }`}>
+                    <div className='flex items-start justify-between gap-2'>
+                      <div className='flex-1'>
+                        <p
+                          className={`text-xs font-semibold tracking-wide uppercase ${isActive ? 'text-main' : 'text-gray-400'}`}>
+                          문제 {problemGroup.no}
+                        </p>
+                        <p
+                          className={`mt-1 line-clamp-2 text-sm font-semibold ${isActive ? 'text-main' : 'text-gray-900'}`}>
+                          {problemGroup.problem.title || '제목 없음'}
+                        </p>
+                        <p className='mt-1 text-xs text-gray-500'>
+                          새끼 문제 {problemGroup.childProblems.length}개
+                        </p>
+                      </div>
+                      <span
+                        className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${PROGRESS_META[problemGroup.progress].className}`}>
+                        {PROGRESS_META[problemGroup.progress].label}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </aside>
+
+        {/* Problem Detail - Side by Side */}
+        {!selectedGroup ? (
+          <div className='flex min-h-[320px] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 py-8 text-center'>
+            <FileText className='h-12 w-12 text-gray-300' />
+            <div>
+              <p className='text-base font-semibold text-gray-900'>문제를 선택해 주세요</p>
+              <p className='text-sm text-gray-500'>
+                왼쪽 목록에서 살펴볼 문제를 선택할 수 있습니다
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className='grid xl:grid-cols-2'>
+            {/* Main Problem */}
+            <div className='flex flex-col gap-4 border-r border-gray-200 px-6 py-8'>
+              <div className='flex items-center justify-between'>
+                <h3 className='text-sm font-semibold text-gray-700'>메인 문제</h3>
+                {mainProblem && (
+                  <span
+                    className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-semibold ${getStatusMeta(mainProblem.progress).className}`}>
+                    {getStatusMeta(mainProblem.progress).label}
+                  </span>
+                )}
+              </div>
+
+              <div className='flex flex-col gap-4 overflow-y-auto rounded-xl border border-gray-200 bg-white p-5'>
+                <h4 className='mt-1 text-base font-bold text-gray-900'>
+                  {mainProblem?.title || '제목 없음'}
+                </h4>
+
+                <div className='rounded-xl border border-gray-100 bg-gray-50'>
+                  <ProblemViewer content={parseEditorContent(mainProblem?.problemContent)} />
+                </div>
+
+                {/* Main Pointings */}
+                {mainProblem?.pointings && mainProblem.pointings.length > 0 && (
+                  <div className='border-t border-gray-100 pt-4'>
+                    <div className='mb-3 flex items-center justify-between'>
+                      <h4 className='text-sm font-semibold text-gray-700'>포인팅</h4>
+                      <span className='text-xs text-gray-500'>
+                        {mainProblem.pointings.length}개
+                      </span>
+                    </div>
+                    <div className='space-y-2'>
+                      {mainProblem.pointings.map((pointing) => {
+                        const understandMeta = getUnderstandMeta(pointing.isUnderstood);
+                        return (
+                          <div
+                            key={pointing.id}
+                            className='rounded-lg border border-gray-100 bg-gray-50 p-3'>
+                            <div className='flex items-start gap-3'>
+                              <div className='flex-1 text-sm text-gray-900'>
+                                <InlineProblemViewer maxLine={3}>
+                                  {toInlineContent(pointing.questionContent)}
+                                </InlineProblemViewer>
+                              </div>
+                              <span
+                                className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${understandMeta.className}`}>
+                                {understandMeta.label}
+                              </span>
+                            </div>
+                            {pointing.commentContent && (
+                              <div className='mt-2 border-t border-gray-100 pt-2 text-xs text-gray-500'>
+                                <InlineProblemViewer maxLine={2}>
+                                  {toInlineContent(pointing.commentContent)}
+                                </InlineProblemViewer>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Child Problems */}
+            <div className='flex flex-col gap-4 px-6 py-8'>
+              <div className='flex items-center justify-between'>
+                <h3 className='text-sm font-semibold text-gray-700'>새끼 문제</h3>
+                <span className='text-xs text-gray-500'>{childProblems.length}개</span>
+              </div>
+
+              {childProblems.length > 0 ? (
+                <div className='flex flex-col gap-3 overflow-y-auto'>
+                  {childProblems.map((child, index) => (
+                    <div
+                      key={child.id ?? index}
+                      className='rounded-xl border border-gray-200 bg-white p-4'>
+                      <div className='mb-3 flex items-start justify-between gap-3'>
+                        <div>
+                          <p className='text-xs font-semibold tracking-wide text-gray-400 uppercase'>
+                            새끼 문제 {index + 1}
+                          </p>
+                          <h5 className='mt-1 text-sm font-semibold text-gray-900'>
+                            {child.title || child.parentProblemTitle || '제목 없음'}
+                          </h5>
+                        </div>
+                        <span
+                          className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${getStatusMeta(child.progress).className}`}>
+                          {getStatusMeta(child.progress).label}
+                        </span>
+                      </div>
+                      <div className='rounded-lg border border-gray-100 bg-gray-50 text-sm text-gray-900'>
+                        <ProblemViewer content={parseEditorContent(child.problemContent)} />
+                      </div>
+
+                      {/* Child Pointings */}
+                      {child.pointings && child.pointings.length > 0 && (
+                        <div className='mt-3 border-t border-gray-100 pt-3'>
+                          <p className='mb-2 text-xs font-semibold text-gray-500'>
+                            포인팅 {child.pointings.length}개
+                          </p>
+                          <div className='space-y-2'>
+                            {child.pointings.map((pointing) => {
+                              const understandMeta = getUnderstandMeta(pointing.isUnderstood);
+                              return (
+                                <div
+                                  key={pointing.id}
+                                  className='rounded-lg border border-gray-100 bg-gray-50 p-3'>
+                                  <div className='flex items-start gap-3'>
+                                    <div className='flex-1 text-sm text-gray-900'>
+                                      <InlineProblemViewer maxLine={3}>
+                                        {toInlineContent(pointing.questionContent)}
+                                      </InlineProblemViewer>
+                                    </div>
+                                    <span
+                                      className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${understandMeta.className}`}>
+                                      {understandMeta.label}
+                                    </span>
+                                  </div>
+                                  {pointing.commentContent && (
+                                    <div className='mt-2 border-t border-gray-100 pt-2 text-xs text-gray-500'>
+                                      <InlineProblemViewer maxLine={2}>
+                                        {toInlineContent(pointing.commentContent)}
+                                      </InlineProblemViewer>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className='flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 text-center text-sm text-gray-500'>
+                  새끼 문제가 없습니다.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
