@@ -1,9 +1,10 @@
-import { Button, Modal, SearchInput, Tag } from '@components';
+import { Input, Modal } from '@components';
 import { useForm } from 'react-hook-form';
 import { putTeacher, postTeacher, putTeacherStudent } from '@apis';
 import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
 import { useState } from 'react';
+import { UserCircle, Mail, Lock, Users, Plus, X, Eye, EyeOff } from 'lucide-react';
 
 import StudentSearchModal from './StudentSearchModal';
 
@@ -28,6 +29,7 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
   });
 
   const { isOpen, openModal, closeModal } = useModal();
+  const [showPassword, setShowPassword] = useState(false);
 
   const [selectedStudents, setSelectedStudents] = useState<components['schemas']['StudentResp'][]>(
     teacher?.students || []
@@ -144,36 +146,66 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
 
   if (!teacher) {
     return (
-      <div className='w-4xl px-1600 py-1200'>
-        <h2 className='font-bold-24 text-black'>새로운 아이디 등록</h2>
-        <form className='mt-16 flex flex-col gap-800' onSubmit={handleSubmit(onCreateSubmit)}>
-          <SearchInput
-            sizeType='full'
-            label='이름'
-            placeholder='이름을 입력해주세요.'
-            {...register('name', { required: '이름은 필수입니다.' })}
-          />
-          <SearchInput
-            sizeType='full'
-            label='아이디'
-            placeholder='아이디를 입력해주세요.'
-            {...register('email', { required: '아이디는 필수입니다.' })}
-          />
-          <SearchInput
-            sizeType='full'
-            label='비밀번호'
-            placeholder='비밀번호를 입력해주세요.'
-            type='password'
-            showPasswordToggle
-            {...register('password', { required: '비밀번호는 필수입니다.' })}
-          />
-          <div className='mt-[5.6rem] flex justify-end gap-400'>
-            <Button type='button' variant='light' onClick={onClose}>
+      <div className='w-[600px] rounded-2xl bg-white p-8'>
+        <div className='mb-6 flex items-center gap-3'>
+          <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
+            <Plus className='h-5 w-5 text-white' />
+          </div>
+          <h3 className='text-xl font-bold text-gray-900'>새로운 선생 등록</h3>
+        </div>
+
+        <form className='space-y-6' onSubmit={handleSubmit(onCreateSubmit)}>
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <UserCircle className='h-4 w-4 text-gray-500' />
+              이름
+            </label>
+            <Input placeholder='이름을 입력해주세요' {...register('name', { required: true })} />
+          </div>
+
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <Mail className='h-4 w-4 text-gray-500' />
+              아이디 (이메일)
+            </label>
+            <Input
+              placeholder='아이디를 입력해주세요'
+              {...register('email', { required: true })}
+            />
+          </div>
+
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <Lock className='h-4 w-4 text-gray-500' />
+              비밀번호
+            </label>
+            <div className='relative'>
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                placeholder='비밀번호를 입력해주세요'
+                {...register('password', { required: true })}
+              />
+              <button
+                type='button'
+                onClick={() => setShowPassword(!showPassword)}
+                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600'>
+                {showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
+              </button>
+            </div>
+          </div>
+
+          <div className='flex justify-end gap-3 pt-4'>
+            <button
+              type='button'
+              onClick={onClose}
+              className='flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
               취소
-            </Button>
-            <Button type='submit' variant='dark'>
+            </button>
+            <button
+              type='submit'
+              className='hover:bg-main/90 bg-main flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200'>
               등록
-            </Button>
+            </button>
           </div>
         </form>
       </div>
@@ -182,51 +214,93 @@ const EditTeacherModal = ({ teacher, onClose }: Props) => {
 
   return (
     <>
-      <div className='w-4xl px-1600 py-1200'>
-        <h2 className='font-bold-24 text-black'>과외 선생 정보 수정</h2>
-        <form className='mt-16 flex flex-col gap-800' onSubmit={handleSubmit(onSubmit)}>
-          <SearchInput
-            sizeType='full'
-            label='이름'
-            placeholder='이름을 입력해주세요.'
-            {...register('name', { required: '이름은 필수입니다.' })}
-          />
-          <SearchInput
-            sizeType='full'
-            label='아이디'
-            placeholder='아이디를 입력해주세요.'
-            {...register('email', { required: '아이디는 필수입니다.' })}
-          />
-          <SearchInput
-            sizeType='full'
-            label='비밀번호'
-            placeholder='새 비밀번호를 입력해주세요.'
-            type='password'
-            showPasswordToggle
-            {...register('password')}
-          />
-          <div className='flex flex-col gap-300'>
-            <span className='font-medium-18 text-black'>담당학생</span>
-            <div className='flex flex-wrap gap-200'>
+      <div className='w-[600px] rounded-2xl bg-white p-8'>
+        <div className='mb-6 flex items-center gap-3'>
+          <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
+            <UserCircle className='h-5 w-5 text-white' />
+          </div>
+          <h3 className='text-xl font-bold text-gray-900'>선생 정보 수정</h3>
+        </div>
+
+        <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <UserCircle className='h-4 w-4 text-gray-500' />
+              이름
+            </label>
+            <Input placeholder='이름을 입력해주세요' {...register('name', { required: true })} />
+          </div>
+
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <Mail className='h-4 w-4 text-gray-500' />
+              아이디 (이메일)
+            </label>
+            <Input
+              placeholder='아이디를 입력해주세요'
+              {...register('email', { required: true })}
+            />
+          </div>
+
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <Lock className='h-4 w-4 text-gray-500' />
+              비밀번호
+            </label>
+            <div className='relative'>
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                placeholder='새 비밀번호를 입력해주세요 (변경 시만)'
+                {...register('password')}
+              />
+              <button
+                type='button'
+                onClick={() => setShowPassword(!showPassword)}
+                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600'>
+                {showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
+              </button>
+            </div>
+            <p className='mt-1 text-xs text-gray-500'>비밀번호를 변경하지 않으려면 비워두세요</p>
+          </div>
+
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <Users className='h-4 w-4 text-gray-500' />
+              담당 학생
+            </label>
+            <div className='flex flex-wrap gap-2'>
               {selectedStudents.map((student) => (
-                <Tag
+                <button
                   key={student.id}
-                  label={student.name}
-                  color='dark'
-                  removable
+                  type='button'
                   onClick={() => handleRemoveStudent(student.id)}
-                />
+                  className='text-main border-main/20 bg-main/10 hover:border-main/40 hover:bg-main/20 flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-all duration-200'>
+                  {student.name}
+                  <X className='h-3.5 w-3.5' />
+                </button>
               ))}
-              <Tag label='학생 추가하기' color='lightgray' onClick={openModal} />
+              <button
+                type='button'
+                onClick={openModal}
+                className='flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
+                <Plus className='h-3.5 w-3.5' />
+                학생 추가
+              </button>
             </div>
           </div>
-          <div className='mt-[5.6rem] flex justify-end gap-400'>
-            <Button type='button' variant='light' onClick={onClose}>
+
+          <div className='flex justify-end gap-3 pt-4'>
+            <button
+              type='button'
+              onClick={onClose}
+              className='flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
               취소
-            </Button>
-            <Button type='submit' variant='dark'>
+            </button>
+            <button
+              type='submit'
+              className='hover:bg-main/90 bg-main flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200'>
               수정
-            </Button>
+            </button>
           </div>
         </form>
       </div>
