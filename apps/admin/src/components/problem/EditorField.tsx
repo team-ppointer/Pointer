@@ -87,3 +87,5 @@ export const EditorField = <TFieldValues extends FieldValues>({
     />
   );
 };
+
+export default EditorField;
