@@ -198,19 +198,6 @@ function RouteComponent() {
                     <div className='flex items-center gap-2'>
                       <button
                         type='button'
-                        className='flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
-                        {isExpanded ? (
-                          <>
-                            <ChevronUp className='h-4 w-4' />
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDown className='h-4 w-4' />
-                          </>
-                        )}
-                      </button>
-                      <button
-                        type='button'
                         onClick={(e) => {
                           e.preventDefault();
                           handleClickDelete(problemSet.id);
@@ -226,6 +213,19 @@ function RouteComponent() {
                         className='flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
                         <Pencil className='h-4 w-4' />
                       </Link>
+                      <button
+                        type='button'
+                        className='flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
+                        {isExpanded ? (
+                          <>
+                            <ChevronUp className='h-4 w-4' />
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className='h-4 w-4' />
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>
