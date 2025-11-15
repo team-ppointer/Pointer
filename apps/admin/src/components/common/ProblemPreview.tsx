@@ -1,38 +1,24 @@
-interface LabelAndText {
-  label: string;
-  text: string;
-}
+import { FileText, MessageSquare } from 'lucide-react';
+import { InlineProblemViewer, ProblemViewer } from '@team-ppointer/pointer-editor-v2';
 
 interface ProblemPreviewProps {
   title: string;
   memo: string;
-  imgSrc: string;
+  problemContent: string;
 }
 
-const LabelAndText = ({ label, text }: LabelAndText) => {
+const ProblemPreview = ({ title, memo, problemContent }: ProblemPreviewProps) => {
   return (
-    <div className='flex gap-200'>
-      <div className='font-medium-12 bg-lightgray300 text-midgray200 rounded-100 flex h-[2.1rem] w-[6.7rem] min-w-[6.7rem] items-center justify-center truncate'>
-        {label}
-      </div>
-      <span className='font-medium-14 truncate text-black'>{text}</span>
-    </div>
-  );
-};
+    <div className='group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-200 hover:border-gray-300 hover:shadow-sm'>
+      {/* Image Section */}
 
-const ProblemPreview = ({ title, memo, imgSrc }: ProblemPreviewProps) => {
-  return (
-    <div className='flex w-[48rem] min-w-[28rem] flex-col gap-400'>
-      <div className='flex flex-col gap-200'>
-        <LabelAndText label='문제 타이틀' text={title} />
-        <LabelAndText label='문제 메모' text={memo} />
+      {/* Content Section */}
+      <div className='flex flex-1 flex-col justify-center gap-0.5 p-4'>
+        <p className='line-clamp-2 text-sm font-semibold text-gray-900'>{title || '제목 없음'}</p>
+        <p className='line-clamp-2 text-xs text-gray-600'>{memo}</p>
       </div>
-      <div>
-        <img
-          src={imgSrc ? imgSrc : '/images/image-placeholder.svg'}
-          alt='problem-thumbnail'
-          className='h-[23rem] w-full object-contain'
-        />
+      <div className='relative h-60 overflow-hidden bg-gray-50'>
+        <ProblemViewer content={JSON.parse(problemContent)} />
       </div>
     </div>
   );
