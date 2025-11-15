@@ -5,7 +5,6 @@ import Header from './Header';
 import SegmentedControl from './SegmentedControl';
 import ProblemCard from './ProblemCard';
 import ProblemPreview from './ProblemPreview';
-import SectionCard from './SectionCard';
 import Tag from './Tag';
 
 export {
@@ -16,7 +15,6 @@ export {
   SegmentedControl,
   ProblemCard,
   ProblemPreview,
-  SectionCard,
   Tag,
 };
 export * from './Buttons';
