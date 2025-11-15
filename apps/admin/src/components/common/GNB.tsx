@@ -8,9 +8,10 @@ import {
   Search,
   ChevronDown,
   ChevronRight,
-  Bell,
-  UserRound,
   Package,
+  ChartNoAxesCombined,
+  Users,
+  Megaphone,
 } from 'lucide-react';
 import { getStudent } from '@apis';
 import { useSelectedStudent } from '@hooks';
@@ -140,7 +141,7 @@ const GNB = () => {
                   } ${isCollapsed ? 'w-12' : ''}`}>
                   <div
                     className={`flex h-5 w-5 flex-shrink-0 items-center justify-center transition-transform duration-300 ${studentSearchOpen ? 'text-main' : 'text-gray-600'}`}>
-                    <UserRound className='h-5 w-5' />
+                    <GraduationCap className='h-5 w-5' />
                   </div>
                   {!isCollapsed && (
                     <>
@@ -205,14 +206,14 @@ const GNB = () => {
 
               <NavItem
                 to='/notice'
-                icon={<Bell className='h-5 w-5' />}
+                icon={<Megaphone className='h-5 w-5' />}
                 label='공지'
                 isCollapsed={isCollapsed}
               />
 
               <NavItem
                 to='/diagnosis'
-                icon={<GraduationCap className='h-5 w-5' />}
+                icon={<ChartNoAxesCombined className='h-5 w-5' />}
                 label='학생 진단'
                 isCollapsed={isCollapsed}
               />
@@ -249,7 +250,7 @@ const GNB = () => {
               <SectionTitle isCollapsed={isCollapsed}>선생님 관리</SectionTitle>
               <NavItem
                 to='/teacher'
-                icon={<GraduationCap className='h-5 w-5' />}
+                icon={<Users className='h-5 w-5' />}
                 label='과외 선생 정보'
                 isCollapsed={isCollapsed}
               />
