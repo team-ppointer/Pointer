@@ -56,6 +56,7 @@ const Page = () => {
 
   // apis
   const { data, isLoading } = useGetChildProblemById(+publishId, +childProblemId);
+  console.log('data', data);
   const { no = 1, problemContent, answerType = 'MULTIPLE_CHOICE', answer, progress } = data ?? {};
   const problemNo = (data as { problemNo?: number } | undefined)?.problemNo;
 
@@ -74,7 +75,7 @@ const Page = () => {
   };
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
-    const { data } = await postProblemSubmit(+publishId, null, +childProblemId, +answer);
+    const { data } = await postProblemSubmit(+publishId, +childProblemId, +answer);
     const resultData = data?.progress;
     invalidateAll();
 
@@ -128,7 +129,7 @@ const Page = () => {
 
   const handleClickSkipButton = async () => {
     trackEvent('problem_child_solve_modal_skip_button_click');
-    await postProblemSubmit(+publishId, null, +childProblemId, null);
+    await postProblemSubmit(+publishId, +childProblemId, null);
     invalidateAll();
     onNext();
   };

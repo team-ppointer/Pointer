@@ -56,7 +56,7 @@ const Page = () => {
   const minutes = Math.floor(recommendedTimeSec / 60);
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
-    const { data } = await postProblemSubmit(+publishId, +problemId, null, +answer);
+    const { data } = await postProblemSubmit(+publishId, +problemId, +answer);
 
     if (!data) {
       showToast.error('정답 제출에 실패했습니다. 다시 시도해주세요.');

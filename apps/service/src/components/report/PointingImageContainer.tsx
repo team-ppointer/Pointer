@@ -6,7 +6,6 @@ import { components } from '@schema';
 import { ProblemViewer, SmallButton } from '@components';
 import { useReportContext } from '@/hooks/report';
 
-
 interface PointingImageContainerProps {
   contents: string;
   variant: 'pointing' | 'prescription';

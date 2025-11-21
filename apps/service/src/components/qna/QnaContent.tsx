@@ -6,8 +6,7 @@ import { components } from '@schema';
 type QnaContentProps = {
   type: string;
   pointingId?: number;
-  data: components['schemas']['ProblemWithStudyInfoResp'] &
-    components['schemas']['ChildProblemWithStudyInfoResp'];
+  data: components['schemas']['ProblemWithStudyInfoResp'];
 };
 
 const QnaContent = ({ type, pointingId, data }: QnaContentProps) => {
