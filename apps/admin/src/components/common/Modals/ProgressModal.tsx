@@ -194,8 +194,11 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
                   {mainProblem?.title || '제목 없음'}
                 </h4>
 
-                <div className='rounded-xl border border-gray-100 bg-gray-50'>
-                  <ProblemViewer content={parseEditorContent(mainProblem?.problemContent)} />
+                <div className='overflow-hidden rounded-xl border border-gray-200 bg-gray-50'>
+                  <ProblemViewer
+                    content={parseEditorContent(mainProblem?.problemContent)}
+                    padding={24}
+                  />
                 </div>
 
                 {/* Main Pointings */}
@@ -268,8 +271,11 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
                           {getStatusMeta(child.progress).label}
                         </span>
                       </div>
-                      <div className='rounded-lg border border-gray-100 bg-gray-50 text-sm text-gray-900'>
-                        <ProblemViewer content={parseEditorContent(child.problemContent)} />
+                      <div className='overflow-hidden rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-900'>
+                        <ProblemViewer
+                          content={parseEditorContent(child.problemContent)}
+                          padding={24}
+                        />
                       </div>
 
                       {/* Child Pointings */}

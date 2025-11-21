@@ -128,7 +128,7 @@ export const ProblemPointingInput = ({
 
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                   <ComponentWithLabel label='질문' labelWidth='4rem' direction='column'>
-                    <div>
+                    <div className='overflow-hidden rounded-xl border border-gray-200'>
                       <EditorField
                         control={control}
                         name={`pointings.${index}.questionContent`}
@@ -137,7 +137,7 @@ export const ProblemPointingInput = ({
                     </div>
                   </ComponentWithLabel>
                   <ComponentWithLabel label='처방' labelWidth='4rem' direction='column'>
-                    <div>
+                    <div className='overflow-hidden rounded-xl border border-gray-200'>
                       <EditorField
                         control={control}
                         name={`pointings.${index}.commentContent`}

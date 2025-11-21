@@ -266,7 +266,7 @@ const ProblemContentEditor: FC<ProblemContentEditorProps> = ({ control }) => {
 
   return (
     <ComponentWithLabel label='문제 내용' labelWidth='4rem' direction='column'>
-      <div>
+      <div className='overflow-hidden rounded-xl border border-gray-200'>
         <EditorField control={control} name='problemContent' ocrApiCall={ocrMutation.mutateAsync} />
       </div>
     </ComponentWithLabel>
@@ -279,7 +279,7 @@ interface MemoInputProps {
 
 const MemoInput: FC<MemoInputProps> = ({ register }) => {
   return (
-    <ComponentWithLabel label='메모 작성' labelWidth='4rem'>
+    <ComponentWithLabel label='메모 작성' labelWidth='4rem' direction='column'>
       <div className='relative'>
         <TextArea
           placeholder='여기에 메모를 작성해주세요. (선택사항)'

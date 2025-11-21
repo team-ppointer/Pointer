@@ -47,7 +47,7 @@ const ProblemCard = ({
 
         {/* Problem Text */}
         <div className='relative w-full'>
-          <ProblemViewer content={JSON.parse(problemText)} />
+          <ProblemViewer content={JSON.parse(problemText)} padding={4} />
         </div>
         {/* Memo */}
         {memo && (

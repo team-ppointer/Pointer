@@ -299,7 +299,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
                         key={problem.id}
                         className='cursor-pointer overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-200 hover:border-gray-300 hover:shadow-sm'
                         onClick={() => onClickCard(problem)}>
-                        <div className='flex flex-1 flex-col justify-center gap-0.5 p-4'>
+                        <div className='flex flex-1 flex-col justify-center gap-0.5 border-b border-gray-200 p-4'>
                           <div className='flex items-center gap-2'>
                             <span className='bg-main/10 text-main inline-flex rounded-lg px-2 py-1 font-mono text-xs font-semibold'>
                               {customId || '-'}
@@ -311,7 +311,7 @@ const ProblemSearchModal = ({ onClickCard }: ProblemSearchModalProps) => {
                           <p className='line-clamp-2 text-xs text-gray-600'>{memo}</p>
                         </div>
                         <div className='relative h-60 overflow-hidden bg-gray-50'>
-                          <ProblemViewer content={JSON.parse(problemContent)} />
+                          <ProblemViewer content={JSON.parse(problemContent)} padding={24} />
                         </div>
                       </div>
                     );

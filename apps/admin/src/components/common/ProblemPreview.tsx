@@ -12,12 +12,12 @@ const ProblemPreview = ({ title, memo, problemContent }: ProblemPreviewProps) =>
       {/* Image Section */}
 
       {/* Content Section */}
-      <div className='flex flex-1 flex-col justify-center gap-0.5 p-4'>
+      <div className='flex flex-1 flex-col justify-center gap-0.5 border-b border-gray-200 p-4'>
         <p className='line-clamp-2 text-sm font-semibold text-gray-900'>{title || '제목 없음'}</p>
         <p className='line-clamp-2 text-xs text-gray-600'>{memo}</p>
       </div>
       <div className='relative h-60 overflow-hidden bg-gray-50'>
-        <ProblemViewer content={JSON.parse(problemContent)} />
+        <ProblemViewer content={JSON.parse(problemContent)} padding={22} />
       </div>
     </div>
   );

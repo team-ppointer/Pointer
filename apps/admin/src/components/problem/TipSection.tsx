@@ -25,7 +25,7 @@ const ReadingTipCard: FC<ReadingTipCardProps> = ({ control }) => {
 
   return (
     <ComponentWithLabel label='문제를 읽어내려 갈 때' labelWidth='12rem' direction='column'>
-      <div>
+      <div className='overflow-hidden rounded-xl border border-gray-200'>
         <EditorField
           control={control}
           name='readingTipContent'
@@ -45,7 +45,7 @@ const OneStepMoreCard: FC<OneStepMoreCardProps> = ({ control }) => {
 
   return (
     <ComponentWithLabel label='한 걸음 더' labelWidth='15.4rem' direction='column'>
-      <div>
+      <div className='overflow-hidden rounded-xl border border-gray-200'>
         <EditorField
           control={control}
           name='oneStepMoreContent'
