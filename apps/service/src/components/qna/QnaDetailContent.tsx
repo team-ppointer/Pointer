@@ -1,9 +1,9 @@
 'use client';
 
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import { ProblemViewer } from '@components';
 import { formatDateToSlash, getWeekNum } from '@utils';
 import { components } from '@schema';
 
@@ -31,7 +31,7 @@ const QnaDetailContent = ({
       <div className='flex w-full flex-col items-start justify-start gap-[0.8rem]'>
         <p className={`text-${titleColor} font-medium-12`}>해당 페이지</p>
         <p className={`font-medium-16 text-${contentColor}`}>{title}</p>
-        <ProblemViewer problem={content} loading={false} />
+        <ProblemViewer content={JSON.parse(content ?? '')} />
       </div>
       <Divider color={user === 'student' ? 'sub1' : 'background'} />
       <div className='flex w-full flex-col items-start justify-start gap-[0.8rem]'>

@@ -2,7 +2,6 @@
 import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { useGetProblemById, postProblemSubmit } from '@apis';
 import {
@@ -14,6 +13,7 @@ import {
   NavigationFooter,
   TimeTag,
   ImageContainer,
+  ProblemViewer,
   MainAnswerCheckBottomSheetTemplate,
   BottomSheet,
   BottomFixedArea,
@@ -160,13 +160,9 @@ const Page = () => {
             )}
           </div>
           <ImageContainer className='relative mt-[1.2rem]'>
-            <ProblemViewer
-              problem={problemContent}
-              className='h-full w-full'
-              width={700}
-              height={200}
-              loading={false}
-            />
+            <div className='h-full w-full'>
+              <ProblemViewer content={JSON.parse(problemContent ?? '')} />
+            </div>
           </ImageContainer>
           <div className='mt-[1.2rem] mb-[0.4rem] flex items-center justify-end gap-[0.6rem]'>
             <SmallButton

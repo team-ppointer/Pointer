@@ -1,10 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { useParams, useRouter } from 'next/navigation';
 
-import { Header, ImageContainer, SmallButton } from '@components';
+import { Header, ImageContainer, ProblemViewer, SmallButton } from '@components';
 import { useReportContext } from '@/hooks/report';
 import { IcQuestion18 } from '@svg';
 
@@ -52,7 +51,7 @@ const Page = () => {
           <div className='flex w-full flex-col gap-[1.2rem]'>
             <h2 className='font-bold-16 text-main my-[0.8rem]'>문제를 읽어내려갈 때</h2>
             <ImageContainer>
-              <ProblemViewer problem={readingTipContent} />
+              <ProblemViewer content={JSON.parse(readingTipContent ?? '')} />
             </ImageContainer>
           </div>
         </div>

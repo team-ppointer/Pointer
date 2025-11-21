@@ -1,10 +1,9 @@
 'use client';
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { useParams, usePathname } from 'next/dist/client/components/navigation';
 
-import { Button, Divider, Tag } from '@components';
+import { Button, Divider, ProblemViewer, Tag } from '@components';
 import { IcSolve } from '@svg';
 import { components } from '@schema';
 
@@ -77,7 +76,7 @@ const DayProblemCard = ({ dayProblemData }: { dayProblemData: AllProblemGetRespo
             ))}
           </ul>
           <div className='flex w-full flex-col items-center justify-center rounded-[1.6rem] bg-white'>
-            <ProblemViewer problem={problemSet.firstProblem.problemContent} loading={false} />
+            <ProblemViewer content={JSON.parse(problemSet.firstProblem.problemContent)} />
           </div>
         </div>
       </div>

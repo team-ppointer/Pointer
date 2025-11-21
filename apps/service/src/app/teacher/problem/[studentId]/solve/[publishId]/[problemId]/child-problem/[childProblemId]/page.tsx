@@ -1,7 +1,6 @@
 'use client';
 import { useRef } from 'react';
 import { useParams } from 'next/navigation';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { copyImageToClipboard, showToast } from '@utils';
 import { useGetChildProblemTeacherById, useGetProblemTeacherById } from '@apis';
@@ -13,6 +12,7 @@ import {
   BottomFixedArea,
   PortalModal,
   ProblemPreviewModalTemplate,
+  ProblemViewer,
 } from '@components';
 import { useChildProblemContext } from '@/hooks/problem';
 import { trackEvent } from '@utils';
@@ -91,7 +91,7 @@ const Page = () => {
             </h1>
           </div>
           <ImageContainer className='relative mt-[1.2rem]' ref={problemViewerRef}>
-            <ProblemViewer problem={problemContent} loading={false} />
+            <ProblemViewer content={JSON.parse(problemContent ?? '')} />
           </ImageContainer>
           <div className='mt-[1.2rem] mb-[0.4rem] flex items-center justify-end gap-[0.6rem]'>
             <SmallButton

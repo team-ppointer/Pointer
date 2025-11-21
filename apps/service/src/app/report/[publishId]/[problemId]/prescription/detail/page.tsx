@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
-import { Header, ImageContainer } from '@components';
+import { Header, ImageContainer, ProblemViewer } from '@components';
 import { useReportContext } from '@/hooks/report';
 import postPointingSubmit from '@/apis/controller/submit/postPointingSubmit';
 import { PointingCard } from '@/components/report';
@@ -43,12 +42,15 @@ const Page = () => {
     if (pointingsContents !== undefined) {
       console.log(pointingsContents);
       let newSteps = [];
-      for(let i = 0; i < pointingsContents.length; i++) {
-        if (pointingsContents[i].isUnderstood === undefined || pointingsContents[i].isUnderstood === null) {
+      for (let i = 0; i < pointingsContents.length; i++) {
+        if (
+          pointingsContents[i].isUnderstood === undefined ||
+          pointingsContents[i].isUnderstood === null
+        ) {
           newSteps[i] = 1;
         } else {
           newSteps[i] = 3;
-          setVisibleCount(visibleCount+1);
+          setVisibleCount(visibleCount + 1);
         }
       }
       console.log(newSteps);
@@ -86,7 +88,7 @@ const Page = () => {
 
       <div className='px-[2rem] pt-[6rem] pb-[2rem]'>
         <ImageContainer className='w-full'>
-          <ProblemViewer problem={problemContentsViewer} loading={false} />
+          <ProblemViewer content={JSON.parse(problemContentsViewer ?? '')} />
         </ImageContainer>
       </div>
 

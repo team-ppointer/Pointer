@@ -2,7 +2,6 @@
 import { useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { clsx } from 'clsx';
 
 import { useGetProblemById, postProblemSubmit } from '@apis';
@@ -14,6 +13,7 @@ import {
   SmallButton,
   TimeTag,
   ImageContainer,
+  ProblemViewer,
   MainAnswerCheckBottomSheetTemplate,
   BottomSheet,
   BottomFixedArea,
@@ -138,7 +138,7 @@ const Page = () => {
             {!localResult && progress === 'NONE' && <Tag sizeType='medium'>미완</Tag>}
           </div>
           <ImageContainer className='relative mt-[1.2rem]' ref={problemViewerRef}>
-            <ProblemViewer problem={problemContent} loading={false} />
+            <ProblemViewer content={JSON.parse(problemContent ?? '')} />
           </ImageContainer>
 
           {hasChildProblem && (
