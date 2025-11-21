@@ -81,8 +81,8 @@ importers:
         specifier: ^1.98.4
         version: 1.125.0(@tanstack/react-router@1.125.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tanstack/router-core@1.125.0)(csstype@3.1.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(solid-js@1.9.7)(tiny-invariant@1.3.3)
       '@team-ppointer/pointer-editor-v2':
-        specifier: ^2.2.0
-        version: 2.2.0(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
+        specifier: ^2.2.1
+        version: 2.2.1(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -196,8 +196,8 @@ importers:
         specifier: ^5.66.0
         version: 5.81.5(@tanstack/react-query@5.81.5(react@19.1.0))(react@19.1.0)
       '@team-ppointer/pointer-editor-v2':
-        specifier: ^2.2.0
-        version: 2.2.0(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
+        specifier: ^2.2.1
+        version: 2.2.1(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2419,8 +2419,8 @@ packages:
     resolution: {integrity: sha512-3nuYsTyaq6ZN7jRZ9z6Gj3GXZqBOqOT0yzd/WZ33ZFfv4yVNIvsa5Lw+M1j3sgyEAxKMqGu/FaNi7FCjr3yOdw==}
     engines: {node: '>=12'}
 
-  '@team-ppointer/pointer-editor-v2@2.2.0':
-    resolution: {integrity: sha512-cQkpvjDBhVc89ncxDc2QMCa1e8LoG95Cwt9MdUY9HYCca6ATL7TWLXA1VQCWBeuV718VrcHHPg6ReQSuFjoH8g==, tarball: https://npm.pkg.github.com/download/@team-ppointer/pointer-editor-v2/2.2.0/d69b0293ad2a7706c91d225d638cccaa79bc90aa}
+  '@team-ppointer/pointer-editor-v2@2.2.1':
+    resolution: {integrity: sha512-6gUBFGSuUETFWyZDu/u9u4WduCdRhwl0NuhBgQo/fMdoGLX5PZbTAxN3uRgMirJ6bSV/7e7VlvK+mZW/fmJb/g==, tarball: https://npm.pkg.github.com/download/@team-ppointer/pointer-editor-v2/2.2.1/dfb29998aa872cbfbff0b178ab8119b4b9e950d0}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
@@ -7939,7 +7939,7 @@ snapshots:
 
   '@tanstack/virtual-file-routes@1.121.21': {}
 
-  '@team-ppointer/pointer-editor-v2@2.2.0(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))':
+  '@team-ppointer/pointer-editor-v2@2.2.1(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))':
     dependencies:
       '@floating-ui/dom': 1.7.4
       '@floating-ui/react': 0.27.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

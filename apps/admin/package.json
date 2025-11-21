@@ -23,7 +23,7 @@
     "@tanstack/react-query-devtools": "^5.66.0",
     "@tanstack/react-router": "^1.98.4",
     "@tanstack/router-devtools": "^1.98.4",
-    "@team-ppointer/pointer-editor-v2": "^2.2.0",
+    "@team-ppointer/pointer-editor-v2": "^2.2.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "immer": "^10.1.1",
