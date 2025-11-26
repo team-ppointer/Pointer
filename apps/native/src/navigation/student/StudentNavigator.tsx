@@ -20,11 +20,8 @@ const Tab = createBottomTabNavigator<StudentTabParamList>();
 
 const BrandHeader = () => (
   <SafeAreaView edges={['top']} className='bg-blue-100'>
-    <View className='flex-row justify-between px-[128px] py-[14px]'>
-      <Image
-        className='h-[40px] w-[150px]'
-        source={require('../../../assets/images/pointer-logo.png')}
-      />
+    <View className='flex-row justify-between px-6 py-3.5 md:px-[60px] lg:px-32'>
+      <Image className='h-[40px]' source={require('../../../assets/images/pointer-logo.png')} />
       <View className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
         <Bell className='h-[24px]' style={{ aspectRatio: 1 }} color='#0C0C0D' />
       </View>
@@ -53,7 +50,7 @@ const StudentNavigator = () => {
         headerShown: false,
         tabBarLabelPosition: 'below-icon',
         tabBarStyle: {
-          height: 76 + insets.bottom,
+          height: 60 + insets.bottom,
           paddingHorizontal: 226,
           gap: 10,
           backgroundColor: newColors['gray-100'],
@@ -61,7 +58,7 @@ const StudentNavigator = () => {
           elevation: 0,
           shadowOpacity: 0,
           paddingTop: 4,
-          paddingBottom: 20 + insets.bottom,
+          paddingBottom: 4 + insets.bottom,
         },
       }}>
       <Tab.Screen
