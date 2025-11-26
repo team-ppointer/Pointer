@@ -1,14 +1,16 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import NotificationItem from '@/components/common/NotificationItem';
 import Container from '@/components/common/Container';
 import TeacherIcon from '@/components/system/icons/TeacherIcon';
 import Svg, { Path } from 'react-native-svg';
 import LearningStatus from '../components/LearningStatus';
+import ProblemCalendar from '../components/ProblemCalendar';
+import ProblemSet from '../components/ProblemSet';
 
 const HomeScreen = () => {
   return (
-    <>
+    <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
       {/* Header Container */}
       <View className='mx-auto w-full bg-blue-100'>
         {/* Notification Container */}
@@ -38,8 +40,14 @@ const HomeScreen = () => {
           content='이번주에는 두 다항함수의 공통 접선 문제 유형이 취약한거 같아. 접점에서 두 다항함수의 접선이 같다는걸 생각하면서 문제를 풀어보자!'
         />
       </View>
-      
-    </>
+      <Container className='gap-[16px] pt-[24px]'>
+        <Text className='text-24b text-gray-900'>날짜별 문제 리스트</Text>
+        <View className='flex-row items-start gap-[20px]'>
+          <ProblemCalendar />
+          <ProblemSet />
+        </View>
+      </Container>
+    </ScrollView>
   );
 };
 
