@@ -19,10 +19,7 @@ const navigationTheme: Theme = {
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    Pretendard: require('./assets/fonts/Pretendard-Regular.ttf'),
-    PretendardMedium: require('./assets/fonts/Pretendard-Medium.ttf'),
-    PretendardSemiBold: require('./assets/fonts/Pretendard-SemiBold.ttf'),
-    PretendardBold: require('./assets/fonts/Pretendard-Bold.ttf'),
+    PretendardVariable: require('./assets/fonts/PretendardVariable.ttf'),
   });
 
   if (!fontsLoaded) {
