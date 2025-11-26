@@ -13,7 +13,7 @@ const navigationTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: newColors['blue-100'],
+    background: newColors['gray-100'],
     card: newColors['blue-100'],
   },
 };
@@ -26,7 +26,7 @@ export default function App() {
   if (!fontsLoaded) {
     return (
       <SafeAreaProvider>
-        <View className='flex-1 items-center justify-center bg-blue-100'>
+        <View className='flex-1 items-center justify-center'>
           <ActivityIndicator size='small' color={newColors['blue-500']} />
         </View>
       </SafeAreaProvider>
