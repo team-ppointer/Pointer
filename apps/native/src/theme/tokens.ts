@@ -51,7 +51,7 @@ export const newColors = {
 
   // Colors
   'green-100': '#E7F6E5', // 기존 light green
-  'green-500': '#0FB700', // 기존 green
+  'green-500': '#0C9200', // 기존 green
   'red-100': '#FCE4E4', // 기존 light red
   'red-400': '#FF3B30', // 기존 red-delete
   'red-500': '#D20000', // 기존 red
@@ -62,8 +62,8 @@ export const newColors = {
   'blue-700': '#123FC6', // 기존 blue300
 
   // Brand Colors
-  'primary-100': '#E9EBF8', // 기존 sub color1
-  'primary-200': '#C5CEFF', // 기존 sub color2
+  'primary-100': '#E9EBF8', // 기존 sub color2
+  'primary-200': '#C5CEFF', // 기존 sub color1
   'primary-500': '#617AF9', // 기존 main color
   'primary-600': '#526BEA', // 기존 main color2
   'secondary-100': '#FFF4CC', // 기존 light yellow
@@ -101,6 +101,7 @@ export const fontSize = {
   '13m': ['13px', { fontWeight: '500', lineHeight: '20px' }],
   '13r': ['13px', { fontWeight: '400', lineHeight: '20px' }],
 
+  '12sb': ['12px', { fontWeight: '600', lineHeight: '18px' }],
   '12m': ['12px', { fontWeight: '500', lineHeight: '18px' }],
   '12r': ['12px', { fontWeight: '400', lineHeight: '18px' }],
 
