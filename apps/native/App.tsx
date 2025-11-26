@@ -4,6 +4,7 @@ import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/nati
 import { ActivityIndicator, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import './src/app/providers/global.css';
 
@@ -26,16 +27,20 @@ export default function App() {
 
   if (!fontsLoaded) {
     return (
-      <View className='flex-1 items-center justify-center bg-[#ECF0FB]'>
-        <ActivityIndicator size='small' color='#3A67EE' />
-      </View>
+      <SafeAreaProvider>
+        <View className='flex-1 items-center justify-center bg-[#ECF0FB]'>
+          <ActivityIndicator size='small' color='#3A67EE' />
+        </View>
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <NavigationContainer theme={navigationTheme}>
-      <StatusBar style='dark' />
-      <RootNavigator />
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer theme={navigationTheme}>
+        <StatusBar style='dark' />
+        <RootNavigator />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
