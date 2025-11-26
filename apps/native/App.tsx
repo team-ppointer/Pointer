@@ -6,14 +6,15 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
+import { newColors } from './src/theme/tokens';
 import './src/app/providers/global.css';
 
 const navigationTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#ECF0FB',
-    card: '#ECF0FB',
+    background: newColors['blue-100'],
+    card: newColors['blue-100'],
   },
 };
 
@@ -25,8 +26,8 @@ export default function App() {
   if (!fontsLoaded) {
     return (
       <SafeAreaProvider>
-        <View className='flex-1 items-center justify-center bg-[#ECF0FB]'>
-          <ActivityIndicator size='small' color='#3A67EE' />
+        <View className='flex-1 items-center justify-center bg-blue-100'>
+          <ActivityIndicator size='small' color={newColors['blue-500']} />
         </View>
       </SafeAreaProvider>
     );

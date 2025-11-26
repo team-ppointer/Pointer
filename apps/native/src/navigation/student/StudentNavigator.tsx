@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, Image } from 'react-native';
 import { Bell, Bookmark, Home, Menu, MessageCircleMore } from 'lucide-react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { newColors } from '@/theme/tokens';
 import HomeScreen from '../../features/student/home/screens/HomeScreen';
 import ScrapScreen from '../../features/student/scrap/screens/ScrapScreen';
 import QnaScreen from '../../features/student/qna/screens/QnaScreen';
@@ -18,7 +19,7 @@ export type StudentTabParamList = {
 const Tab = createBottomTabNavigator<StudentTabParamList>();
 
 const BrandHeader = () => (
-  <SafeAreaView edges={['top']} className='bg-[#ECF0FB]'>
+  <SafeAreaView edges={['top']} className='bg-blue-100'>
     <View className='flex-row justify-between px-[128px] py-[14px]'>
       <Image
         className='h-[40px] w-[150px]'
@@ -35,10 +36,9 @@ const tabLabel =
   (label: string) =>
   ({ focused }: { focused: boolean }) => (
     <Text
+      className='text-14sb'
       style={{
-        color: focused ? '#617AF9' : '#3E3F45',
-        fontFamily: 'PretendardBold',
-        fontSize: 14,
+        color: focused ? newColors['primary-500'] : newColors['gray-800'],
       }}>
       {label}
     </Text>
@@ -56,7 +56,7 @@ const StudentNavigator = () => {
           height: 76 + insets.bottom,
           paddingHorizontal: 226,
           gap: 10,
-          backgroundColor: '#F8F9FC',
+          backgroundColor: newColors['gray-100'],
           borderTopWidth: 0,
           elevation: 0,
           shadowOpacity: 0,
@@ -71,7 +71,9 @@ const StudentNavigator = () => {
           header: () => <BrandHeader />,
           headerShown: true,
           tabBarLabel: tabLabel('홈'),
-          tabBarIcon: ({ focused }) => <Home color={focused ? '#617AF9' : '#3E3F45'} size={22} />,
+          tabBarIcon: ({ focused }) => (
+            <Home color={focused ? newColors['primary-500'] : newColors['gray-800']} size={22} />
+          ),
         }}
       />
       <Tab.Screen
@@ -80,7 +82,10 @@ const StudentNavigator = () => {
         options={{
           tabBarLabel: tabLabel('스크랩'),
           tabBarIcon: ({ focused }) => (
-            <Bookmark color={focused ? '#617AF9' : '#3E3F45'} size={22} />
+            <Bookmark
+              color={focused ? newColors['primary-500'] : newColors['gray-800']}
+              size={22}
+            />
           ),
         }}
       />
@@ -90,7 +95,10 @@ const StudentNavigator = () => {
         options={{
           tabBarLabel: tabLabel('QnA'),
           tabBarIcon: ({ focused }) => (
-            <MessageCircleMore color={focused ? '#617AF9' : '#3E3F45'} size={22} />
+            <MessageCircleMore
+              color={focused ? newColors['primary-500'] : newColors['gray-800']}
+              size={22}
+            />
           ),
         }}
       />
@@ -99,7 +107,9 @@ const StudentNavigator = () => {
         component={MenuScreen}
         options={{
           tabBarLabel: tabLabel('전체 메뉴'),
-          tabBarIcon: ({ focused }) => <Menu color={focused ? '#617AF9' : '#3E3F45'} size={22} />,
+          tabBarIcon: ({ focused }) => (
+            <Menu color={focused ? newColors['primary-500'] : newColors['gray-800']} size={22} />
+          ),
         }}
       />
     </Tab.Navigator>
