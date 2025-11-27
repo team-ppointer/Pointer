@@ -1,10 +1,15 @@
 import Container from '@/components/common/Container';
 import NotificationItem from '@/components/common/NotificationItem';
 import NoNotificationBellIcon from '@/components/system/icons/NoNotificationAlertIcon';
-import NotificationBellGradientIcon from '@/components/system/icons/NoNotificationAlertIcon';
+import { RootStackParamList } from '@/navigation/RootNavigator';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+// import { useNotificationNavigation } from '@/hooks/useNotificationNavigator';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 
 const NotificationScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
       <View className='mx-auto w-full'>
@@ -15,7 +20,11 @@ const NotificationScreen = () => {
             title='공지 제목이 작성돼요.'
             time='12월 4일'
             hasShadow={true}>
-            <NotificationItem.Button variant='ghost'>더보기</NotificationItem.Button>
+            <NotificationItem.Button
+              variant='ghost'
+              onPress={() => navigation.push('NotificationDetail')}>
+              더보기
+            </NotificationItem.Button>
           </NotificationItem>
           <NotificationItem
             icon='megaphone'
