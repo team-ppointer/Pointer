@@ -1,6 +1,7 @@
 import Container from '@/components/common/Container';
 import NotificationItem from '@/components/common/NotificationItem';
-import { ChevronRight } from 'lucide-react-native';
+import NoNotificationBellIcon from '@/components/system/icons/NoNotificationAlertIcon';
+import NotificationBellGradientIcon from '@/components/system/icons/NoNotificationAlertIcon';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 
 const NotificationScreen = () => {
@@ -28,11 +29,12 @@ const NotificationScreen = () => {
           <View className='flex-row items-center justify-between'>
             <Text className='text-20b text-gray-900'>알림</Text>
             <Pressable className='px-2'>
-              <Text className='text-12sb text-blue-500'>모두 읽음</Text>
+              {/* <Text className='text-12sb text-blue-500'>모두 읽음</Text> */}
+              <Text className='text-12sb text-gray-500'>모두 읽음</Text>
             </Pressable>
           </View>
 
-          <NotificationItem
+          {/* <NotificationItem
             icon='message'
             title='12월 첫째 주 출제진의 피드백이 도착했어요.'
             time='오늘 16:48'
@@ -56,7 +58,12 @@ const NotificationScreen = () => {
             time='12월 2일'
             hasShadow={true}>
             <NotificationItem.Button>문제풀기</NotificationItem.Button>
-          </NotificationItem>
+          </NotificationItem> */}
+
+          <View className='flex-col items-center gap-[10px] py-[30px]'>
+            <NoNotificationBellIcon />
+            <Text className='text-20b text-gray-800'>받은 알림이 없어요.</Text>
+          </View>
         </Container>
       </View>
       <Container className='flex-1 items-center justify-center gap-[10px] pb-[100px] pt-[20px]'>
