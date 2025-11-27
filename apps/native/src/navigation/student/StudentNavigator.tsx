@@ -16,6 +16,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../RootNavigator';
 import NotificationScreen from '@/features/student/home/screens/NotificationsScreen';
+import AlertButtonIcon from '@/components/system/icons/AlertBellButtonIcon';
 
 export type StudentTabParamList = {
   Home: undefined;
@@ -37,7 +38,8 @@ const BrandHeader = () => {
         <TouchableOpacity
           onPress={goToNotifications}
           className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
-          <Bell className='h-[24px]' style={{ aspectRatio: 1 }} color='#0C0C0D' />
+          {/* <Bell className='h-[24px]' style={{ aspectRatio: 1 }} color='#0C0C0D' /> */}
+          <AlertButtonIcon></AlertButtonIcon> {/* Check for verify icon in actual UI */}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
