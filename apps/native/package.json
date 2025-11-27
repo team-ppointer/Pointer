@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "openapi": "pnpm dlx openapi-typescript https://dev.api.math-pointer.com/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -17,6 +18,8 @@
     "@react-navigation/native": "^7.1.8",
     "@react-navigation/native-stack": "^7.8.0",
     "@react-navigation/stack": "^7.1.1",
+    "@tanstack/react-query": "^5.66.0",
+    "dotenv": "^17.2.3",
     "expo": "~54.0.25",
     "expo-asset": "^12.0.10",
     "expo-constants": "~18.0.10",
@@ -33,6 +36,8 @@
     "expo-web-browser": "~15.0.9",
     "lucide-react-native": "^0.554.0",
     "nativewind": "^4.2.1",
+    "openapi-fetch": "^0.13.4",
+    "openapi-react-query": "^0.3.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
@@ -48,10 +53,13 @@
   "devDependencies": {
     "@babel/runtime": "^7.28.4",
     "@expo/metro": "^54.1.0",
+    "@tanstack/eslint-plugin-query": "^5.66.0",
     "@types/minimatch": "^5.1.2",
+    "@types/node": "^20",
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "openapi-typescript": "^7.6.1",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "react-refresh": "^0.18.0",
     "tailwindcss": "^3.4.17",
