@@ -2,13 +2,17 @@ import React from 'react';
 import { ScrollView, View, Text } from 'react-native';
 import NotificationItem from '@/components/common/NotificationItem';
 import Container from '@/components/common/Container';
-import TeacherIcon from '@/components/system/icons/TeacherIcon';
-import Svg, { Path } from 'react-native-svg';
 import LearningStatus from '../components/LearningStatus';
 import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';
+// import { useNotificationNavigation } from '@/hooks/useNotificationNavigator';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/navigation/RootNavigator';
 
 const HomeScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
       {/* Header Container */}
@@ -29,7 +33,11 @@ const HomeScreen = () => {
             title='공지 제목이 작성돼요.'
             time='12월 4일'
             hasShadow={true}>
-            <NotificationItem.Button variant='ghost'>더보기</NotificationItem.Button>
+            <NotificationItem.Button
+              variant='ghost'
+              onPress={() => navigation.push('NotificationDetail')}>
+              더보기
+            </NotificationItem.Button>
           </NotificationItem>
         </Container>
 

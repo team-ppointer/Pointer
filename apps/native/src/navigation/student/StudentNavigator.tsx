@@ -13,10 +13,12 @@ import {
   NativeStackHeaderProps,
   NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
+// import { useNotificationNavigation } from '@/hooks/useNotificationNavigator';
+import NotificationScreen from '@/features/student/home/screens/notifications/NotificationsScreen';
+import AlertButtonIcon from '@/components/system/icons/AlertBellButtonIcon';
+import NotificationDetailScreen from '@/features/student/home/screens/notifications/NotificationDetailScreen';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../RootNavigator';
-import NotificationScreen from '@/features/student/home/screens/NotificationsScreen';
-import AlertButtonIcon from '@/components/system/icons/AlertBellButtonIcon';
 
 export type StudentTabParamList = {
   Home: undefined;
@@ -28,15 +30,12 @@ export type StudentTabParamList = {
 const BrandHeader = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const goToNotifications = () => {
-    navigation.push('Notifications');
-  };
   return (
     <SafeAreaView edges={['top']} className='bg-blue-100'>
       <View className='flex-row justify-between px-6 py-3.5 md:px-[60px] lg:px-32'>
         <Image className='h-[40px]' source={require('../../../assets/images/pointer-logo.png')} />
         <TouchableOpacity
-          onPress={goToNotifications}
+          onPress={() => navigation.push('Notifications')}
           className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
           {/* <Bell className='h-[24px]' style={{ aspectRatio: 1 }} color='#0C0C0D' /> */}
           <AlertButtonIcon></AlertButtonIcon> {/* Check for verify icon in actual UI */}
@@ -46,26 +45,35 @@ const BrandHeader = () => {
   );
 };
 
-const NotificationHeader = ({ navigation, back }: NativeStackHeaderProps) => {
+interface NotificationHeaderProps extends NativeStackHeaderProps {
+  title: string;
+}
+
+// const NotificationHeader = ({ navigation, back, title }: NotificationHeaderProps) => {
+const NotificationHeader = ({ back, title }: NotificationHeaderProps) => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   return (
     <SafeAreaView edges={['top']} className=''>
       <View className='flex-row items-center justify-between px-5 py-3.5'>
         {back ? (
-          <TouchableOpacity onPress={navigation.goBack} className='p-2'>
+          <TouchableOpacity onPress={() => navigation.goBack()} className='p-2'>
             <ChevronLeft className='text-black' size={32} />
           </TouchableOpacity>
         ) : (
-          <View className='h-[48px] w-[48px] gap-[10px]' /> // 빈 공간
+          <View className='h-[48px] w-[48px] gap-[10px]' />
         )}
         <Text className='text-20b text-gray-900' style={{ lineHeight: 30 }}>
-          알림
+          {title}
         </Text>
-        <View className='h-[48px] w-[48px] gap-[10px]' /> // 오른쪽 빈 공간
+        <View className='h-[48px] w-[48px] gap-[10px]' />
       </View>
     </SafeAreaView>
   );
 };
-/* StackNavigator for Home <-> Notifications */
+
+{
+  /* StackNavigator for Home <-> Notifications */
+}
 
 const Stack = createNativeStackNavigator();
 
@@ -75,18 +83,25 @@ const HomeStack = () => {
       <Stack.Screen
         name='HomeMain'
         component={HomeScreen}
-        options={{ header: () => <BrandHeader /> }} // 홈만 BrandHeader
+        options={{ header: () => <BrandHeader /> }}
       />
       <Stack.Screen
         name='Notifications'
         component={NotificationScreen}
-        options={{ header: (props) => <NotificationHeader {...props} /> }} // 알림 화면은 기본 헤더
+        options={{ header: (props) => <NotificationHeader title={'알림'} {...props} /> }}
+      />
+      <Stack.Screen
+        name='NotificationDetail'
+        component={NotificationDetailScreen}
+        options={{ header: (props) => <NotificationHeader title={'공지'} {...props} /> }}
       />
     </Stack.Navigator>
   );
 };
 
-/* StudentNavigator for Tabs */
+{
+  /* StudentNavigator for Tabs */
+}
 
 const Tab = createBottomTabNavigator<StudentTabParamList>();
 
