@@ -4,12 +4,12 @@ import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/nati
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import RootNavigator from './src/navigation/RootNavigator';
-import { colors } from './src/theme/tokens';
-import './src/app/providers/global.css';
-import './src/app/providers/api';
-import { LoadingScreen } from '@/components/common/LoadingScreen';
-import { useLoadAssets } from '@/hooks/useAssets';
+import RootNavigator from '@navigation/RootNavigator';
+import { colors } from '@theme/tokens';
+import '@/app/providers/global.css';
+import '@/app/providers/api';
+import { LoadingScreen } from '@components/common';
+import { useLoadAssets } from '@hooks';
 
 const queryClient = new QueryClient();
 

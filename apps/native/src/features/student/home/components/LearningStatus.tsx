@@ -1,4 +1,4 @@
-import Container from '@components/common/Container';
+import { Container } from '@components/common';
 import { Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { TeacherIcon } from '@components/system/icons';

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 
-import { LoadingScreen } from '@components/common/LoadingScreen';
+import { LoadingScreen } from '@components/common';
 import type { RootStackParamList } from '@navigation/RootNavigator';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';

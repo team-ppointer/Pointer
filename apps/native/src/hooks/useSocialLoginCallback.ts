@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 
-export function useSocialLoginCallback() {
+const useSocialLoginCallback = () => {
   const { setSessionStatus, setRole } = useAuthStore();
 
   useEffect(() => {
@@ -42,4 +42,6 @@ export function useSocialLoginCallback() {
       sub.remove();
     };
   }, [setSessionStatus, setRole]);
-}
+};
+
+export default useSocialLoginCallback;

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
-import TextButton from '@components/common/TextButton';
+import { TextButton } from '@components/common';
 import { components } from '@schema';
 import { colors } from '@theme/tokens';
 

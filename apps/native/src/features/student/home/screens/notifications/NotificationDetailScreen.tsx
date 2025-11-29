@@ -1,4 +1,4 @@
-import Container from '@/components/common/Container';
+import { Container } from '@components/common';
 import { View, Text, ScrollView, Image } from 'react-native';
 
 const NotificationDetailScreen = () => {

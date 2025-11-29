@@ -1,6 +1,5 @@
 import { Text, View, Image, Linking } from 'react-native';
-import Container from '@components/common/Container';
-import TextButton from '@components/common/TextButton';
+import { Container, TextButton } from '@components/common';
 import { postSocialLogin } from '@apis';
 import { env, setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';

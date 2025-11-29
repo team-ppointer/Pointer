@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text } from 'react-native';
-import NotificationItem from '@components/common/NotificationItem';
-import Container from '@components/common/Container';
+import { NotificationItem, Container } from '@components/common';
 import LearningStatus from '../components/LearningStatus';
 import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';

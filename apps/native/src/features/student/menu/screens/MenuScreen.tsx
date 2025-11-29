@@ -3,8 +3,7 @@ import { Text } from 'react-native';
 
 import { useGetUserInfo } from '@apis';
 import { useAuthStore } from '@stores';
-import Container from '@components/common/Container';
-import TextButton from '@components/common/TextButton';
+import { Container, TextButton } from '@components/common';
 
 const MenuScreen = () => {
   const signOut = useAuthStore((state) => state.signOut);

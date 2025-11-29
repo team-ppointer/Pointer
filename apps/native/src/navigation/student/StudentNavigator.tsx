@@ -4,10 +4,10 @@ import { Text, View, Image, TouchableOpacity } from 'react-native';
 import { Bell, Bookmark, ChevronLeft, Home, Menu, MessageCircleMore } from 'lucide-react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
-import HomeScreen from '../../features/student/home/screens/HomeScreen';
-import ScrapScreen from '../../features/student/scrap/screens/ScrapScreen';
-import QnaScreen from '../../features/student/qna/screens/QnaScreen';
-import MenuScreen from '../../features/student/menu/screens/MenuScreen';
+import { HomeScreen } from '@features/student/home';
+import { ScrapScreen } from '@features/student/scrap';
+import { QnaScreen } from '@features/student/qna';
+import { MenuScreen } from '@features/student/menu';
 import {
   createNativeStackNavigator,
   NativeStackHeaderProps,
