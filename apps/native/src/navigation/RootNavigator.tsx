@@ -13,8 +13,6 @@ export type RootStackParamList = {
   Splash: undefined;
   Auth: undefined;
   StudentApp: undefined;
-  Notifications: undefined;
-  NotificationDetail: undefined;
   AuthCallback: undefined;
 };
 
