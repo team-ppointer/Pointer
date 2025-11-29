@@ -1,17 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text } from 'react-native';
-import NotificationItem from '@/components/common/NotificationItem';
-import Container from '@/components/common/Container';
+import NotificationItem from '@components/common/NotificationItem';
+import Container from '@components/common/Container';
 import LearningStatus from '../components/LearningStatus';
 import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';
-// import { useNotificationNavigation } from '@/hooks/useNotificationNavigator';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@/navigation/RootNavigator';
+import { RootStackParamList } from '@navigation/RootNavigator';
+import { useGetNotice, useGetLastDiagnosis, useGetMonthlyPublish, useGetPublishDetail } from '@apis';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedPublishId, setSelectedPublishId] = useState<number>(-1);
+
+  const { data: noticeData } = useGetNotice();
+  const { data: diagnosisData } = useGetLastDiagnosis();
+  const { data: studyData } = useGetMonthlyPublish({
+    year: selectedMonth.getFullYear(),
+    month: selectedMonth.getMonth() + 1,
+  });
+
+  useEffect(() => {
+    if (studyData?.data) {
+      const selectedDateString = `${selectedDate.getFullYear()}-${String(
+        selectedDate.getMonth() + 1
+      ).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+      setSelectedPublishId(
+        studyData.data.find((item) => item.publishAt === selectedDateString)?.id ?? -1
+      );
+    } else {
+      setSelectedPublishId(-1);
+    }
+  }, [studyData, selectedDate]);
+  const { data: publishDetailData } = useGetPublishDetail(selectedPublishId);
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+    if (
+      date.getFullYear() !== selectedMonth.getFullYear() ||
+      date.getMonth() !== selectedMonth.getMonth()
+    ) {
+      setSelectedMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
@@ -30,8 +64,8 @@ const HomeScreen = () => {
 
           <NotificationItem
             icon='megaphone'
-            title='공지 제목이 작성돼요.'
-            time='12월 4일'
+            title={noticeData?.data[0].content ?? ''}
+            time={noticeData?.data[0].startAt ?? ''}
             hasShadow={true}>
             <NotificationItem.Button
               variant='ghost'
@@ -44,15 +78,25 @@ const HomeScreen = () => {
         {/* Learning Status Container */}
         <LearningStatus
           studentName='테스트'
-          date='11월 04일'
-          content='이번주에는 두 다항함수의 공통 접선 문제 유형이 취약한거 같아. 접점에서 두 다항함수의 접선이 같다는걸 생각하면서 문제를 풀어보자!'
+          date={diagnosisData?.createdAt ?? ''}
+          content={diagnosisData?.content ?? ''}
         />
       </View>
       <Container className='gap-[16px] pt-[24px]'>
         <Text className='text-24b text-gray-900'>날짜별 문제 리스트</Text>
         <View className='flex-row items-start gap-[20px]'>
-          <ProblemCalendar />
-          <ProblemSet />
+          <ProblemCalendar
+            selectedMonth={selectedMonth}
+            selectedDate={selectedDate}
+            onChangeMonth={setSelectedMonth}
+            onDateSelect={handleDateChange}
+            studyData={studyData?.data ?? []}
+          />
+          <ProblemSet
+            publishDetail={publishDetailData ?? undefined}
+            selectedDate={selectedDate}
+            onDateChange={handleDateChange}
+          />
         </View>
       </Container>
     </ScrollView>
