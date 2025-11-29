@@ -13,7 +13,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import TextButton from '@components/common/TextButton';
 import { components } from '@schema';
-import { newColors } from '@theme/tokens';
+import { colors } from '@theme/tokens';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {
@@ -54,14 +54,14 @@ const Navigation = ({ title, subtitle, onPressPrev, onPressNext }: NavigationPro
   return (
     <View className='flex-row items-center justify-between px-[24px]'>
       <Pressable className='p-[8px]' onPress={onPressPrev}>
-        <ChevronLeftIcon color={newColors['gray-700']} size={32} strokeWidth={1.5} />
+        <ChevronLeftIcon color={colors['gray-700']} size={32} strokeWidth={1.5} />
       </Pressable>
       <View className='flex-col items-center'>
-        <Text className='text-13r text-[#1E1E21] opacity-60'>{subtitle}</Text>
+        <Text className='text-13r text-black opacity-60'>{subtitle}</Text>
         <Text className='text-18b text-gray-900'>{title}</Text>
       </View>
       <Pressable className='p-[8px]' onPress={onPressNext}>
-        <ChevronRightIcon color={newColors['gray-700']} size={32} strokeWidth={1.5} />
+        <ChevronRightIcon color={colors['gray-700']} size={32} strokeWidth={1.5} />
       </Pressable>
     </View>
   );
@@ -72,10 +72,10 @@ const Divider = () => {
 };
 
 const ProblemStatusIcon: Record<ProblemProgress, { Icon: typeof CircleIcon; color: string }> = {
-  CORRECT: { Icon: CircleIcon, color: newColors['green-500'] },
-  SEMI_CORRECT: { Icon: TriangleIcon, color: newColors['secondary-500'] },
-  INCORRECT: { Icon: XIcon, color: newColors['red-500'] },
-  NONE: { Icon: MinusIcon, color: newColors['gray-700'] },
+  CORRECT: { Icon: CircleIcon, color: colors['green-500'] },
+  SEMI_CORRECT: { Icon: TriangleIcon, color: colors['secondary-500'] },
+  INCORRECT: { Icon: XIcon, color: colors['red-500'] },
+  NONE: { Icon: MinusIcon, color: colors['gray-700'] },
 };
 
 const groupStatusMeta: Record<
@@ -113,7 +113,7 @@ const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
 
   return (
     <View className='h-[42px] flex-row items-center justify-between'>
-      <Text className='text-14r text-[#1E1E21]'>{title}</Text>
+      <Text className='text-14r text-black'>{title}</Text>
       <View className='p-[4px]'>
         <Icon color={color} size={20} strokeWidth={2.5} />
       </View>
@@ -142,14 +142,14 @@ const ProblemList = ({ group, index, isExpanded, onToggle }: ProblemListProps) =
   return (
     <View className='flex-col px-[24px]'>
       <View className='mb-[8px] flex-row items-center justify-between'>
-        <Text className='text-16b mr-[12px] text-[#1E1E21]'>{`${index + 1}번`}</Text>
+        <Text className='text-16b mr-[12px] text-black'>{`${index + 1}번`}</Text>
         <Text className={`text-12sb mr-auto ${statusMeta.badgeClass}`}>{statusMeta.label}</Text>
         <TextButton variant={statusMeta.buttonVariant}>{statusMeta.buttonLabel}</TextButton>
         <Pressable className='ml-[8px] p-[4px]' onPress={onToggle}>
           {isExpanded ? (
-            <ChevronUpIcon color={newColors['gray-700']} size={20} strokeWidth={1.5} />
+            <ChevronUpIcon color={colors['gray-700']} size={20} strokeWidth={1.5} />
           ) : (
-            <ChevronDownIcon color={newColors['gray-700']} size={20} strokeWidth={1.5} />
+            <ChevronDownIcon color={colors['gray-700']} size={20} strokeWidth={1.5} />
           )}
         </Pressable>
       </View>

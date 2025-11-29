@@ -1,43 +1,6 @@
 export const colors = {
-  // Grayscale
-  'light-gray-500': '#C6CAD4',
-  'light-gray-400': '#DFE2E7',
-  'light-gray-300': '#EDEEF2',
-  'light-gray-200': '#F3F5FB',
-  'light-gray-100': '#F8F9FC',
+  black: '#1E1E21',
 
-  'mid-gray-200': '#6B6F77',
-  'mid-gray-100': '#9FA4AE',
-
-  'dark-gray-200': '#222224',
-  'dark-gray-100': '#3E3F45',
-
-  background: '#F8F9FC',
-
-  // Colors
-  green: '#0FB700',
-  'light-green': '#E1F5DF',
-
-  red: '#D20000',
-  'light-red': '#FCE4E4',
-  'red-delete': '#FF3B30',
-
-  'blue-100': '#3A67EE',
-  'blue-200': '#2653DA',
-  'blue-300': '#123FC6',
-  'light-blue-100': '#ECF0FB',
-  'light-blue-200': '#D6E1FF',
-
-  // Brand Colors
-  main: '#617AF9',
-  'main-2': '#526BEA',
-  'sub-1': '#C5CEFF',
-  'sub-2': '#E9EBF8',
-  yellow: '#E59C00',
-  'light-yellow': '#FFF4CC',
-};
-
-export const newColors = {
   // Grayscale
   'gray-100': '#F8F9FC', // 기존 lightgray100
   'gray-200': '#F3F5FB', // 기존 lightgray200

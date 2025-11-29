@@ -1,4 +1,4 @@
-import { newColors } from '@/theme/tokens';
+import { colors } from '@/theme/tokens';
 import { BookOpenText, LucideIcon, Megaphone, MessageCircleMore } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -15,7 +15,7 @@ const iconConfigs: Record<IconType, IconConfig> = {
   megaphone: {
     Icon: Megaphone,
     bgClass: 'bg-secondary-100',
-    iconColor: newColors['secondary-500'],
+    iconColor: colors['secondary-500'],
   },
   message: {
     Icon: MessageCircleMore,
@@ -25,12 +25,12 @@ const iconConfigs: Record<IconType, IconConfig> = {
   book: {
     Icon: BookOpenText,
     bgClass: 'bg-[#D6E1FF]',
-    iconColor: newColors['blue-500'],
+    iconColor: colors['blue-500'],
   },
   'book-white': {
     Icon: BookOpenText,
     bgClass: 'bg-white',
-    iconColor: newColors['blue-500'],
+    iconColor: colors['blue-500'],
   },
 };
 
@@ -110,7 +110,7 @@ const NotificationItem = ({
           )}
         </View>
         <View>
-          <Text className='text-16sb mb-[2px] text-[#1E1E21]'>{title}</Text>
+          <Text className='text-16sb mb-[2px] text-black'>{title}</Text>
           <Text className='text-12m text-gray-700'>{time}</Text>
         </View>
       </View>

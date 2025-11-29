@@ -3,7 +3,7 @@ import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/b
 import { Text, View, Image, TouchableOpacity } from 'react-native';
 import { Bell, Bookmark, ChevronLeft, Home, Menu, MessageCircleMore } from 'lucide-react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { newColors } from '@/theme/tokens';
+import { colors } from '@/theme/tokens';
 import HomeScreen from '../../features/student/home/screens/HomeScreen';
 import ScrapScreen from '../../features/student/scrap/screens/ScrapScreen';
 import QnaScreen from '../../features/student/qna/screens/QnaScreen';
@@ -173,7 +173,7 @@ const MainTabBar = ({ state, navigation }: BottomTabBarProps) => {
                 <View className='h-[32px] w-[32px] items-center justify-center'>
                   <IconComponent
                     size={22}
-                    color={isFocused ? newColors['primary-500'] : newColors['gray-800']}
+                    color={isFocused ? colors['primary-500'] : colors['gray-800']}
                   />
                 </View>
               )}
