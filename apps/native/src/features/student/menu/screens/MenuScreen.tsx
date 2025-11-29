@@ -1,11 +1,38 @@
-import React from 'react';
-import { Text, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { Text } from 'react-native';
+
+import { useGetUserInfo } from '@apis';
+import { useAuthStore } from '@stores';
+import Container from '@components/common/Container';
+import TextButton from '@components/common/TextButton';
 
 const MenuScreen = () => {
+  const signOut = useAuthStore((state) => state.signOut);
+  const { data, isLoading, isError } = useGetUserInfo('student');
+  const userInfo = data ?? null;
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Failed to sign out', error);
+    }
+  }, [signOut]);
+
   return (
-    <View className='flex-1 items-center justify-center bg-blue-100'>
-      <Text className='text-18sb text-[#1E1E21]'>전체 메뉴</Text>
-    </View>
+    <Container className='flex-1 gap-6 px-6 py-12'>
+      <Text className='text-18sb text-black'>전체 메뉴</Text>
+      {isLoading ? (
+        <Text>유저 정보 fetch 중...</Text>
+      ) : isError ? (
+        <Text>유저 정보 fetch 실패</Text>
+      ) : userInfo ? (
+          <Text>{`name: ${userInfo.name}\ngrade: ${userInfo.grade}\nisFirstLogin: ${userInfo.isFirstLogin.toString()}`}</Text>
+      ) : (
+        <Text>auth 정보 없음</Text>
+      )}
+      <TextButton onPress={handleLogout}>로그아웃</TextButton>
+    </Container>
   );
 };
 
