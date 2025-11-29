@@ -15,8 +15,8 @@ import {
 } from '@react-navigation/native-stack';
 // import { useNotificationNavigation } from '@/hooks/useNotificationNavigator';
 import NotificationScreen from '@/features/student/home/screens/notifications/NotificationsScreen';
-import AlertButtonIcon from '@/components/system/icons/AlertBellButtonIcon';
-import NotificationDetailScreen from '@/features/student/home/screens/notifications/NotificationDetailScreen';
+import { AlertBellButtonIcon } from '@components/system/icons';
+import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../RootNavigator';
 
@@ -38,7 +38,8 @@ const BrandHeader = () => {
           onPress={() => navigation.push('Notifications')}
           className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
           {/* <Bell className='h-[24px]' style={{ aspectRatio: 1 }} color='#0C0C0D' /> */}
-          <AlertButtonIcon></AlertButtonIcon> {/* Check for verify icon in actual UI */}
+          <AlertBellButtonIcon></AlertBellButtonIcon>
+          {/* Check for verify icon in actual UI */}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

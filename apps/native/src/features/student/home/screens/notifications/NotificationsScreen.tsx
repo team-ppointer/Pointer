@@ -1,7 +1,7 @@
-import Container from '@/components/common/Container';
-import NotificationItem from '@/components/common/NotificationItem';
-import NoNotificationBellIcon from '@/components/system/icons/NoNotificationAlertIcon';
-import { RootStackParamList } from '@/navigation/RootNavigator';
+import Container from '@components/common/Container';
+import NotificationItem from '@components/common/NotificationItem';
+import { NoNotificationBellIcon } from '@components/system/icons';
+import { RootStackParamList } from '@navigation/RootNavigator';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 // import { useNotificationNavigation } from '@/hooks/useNotificationNavigator';
