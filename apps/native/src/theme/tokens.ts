@@ -71,7 +71,7 @@ export const newColors = {
 };
 
 export const fontFamily = {
-  pretendard: ['PretendardVariable'],
+  pretendard: ['Pretendard'],
 };
 
 export const fontSize = {
