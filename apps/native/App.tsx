@@ -1,13 +1,17 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
-import { ActivityIndicator, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import RootNavigator from './src/navigation/RootNavigator';
 import { newColors } from './src/theme/tokens';
 import './src/app/providers/global.css';
+import './src/app/providers/api';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { useLoadAssets } from '@/hooks/useAssets';
+
+const queryClient = new QueryClient();
 
 const navigationTheme: Theme = {
   ...DefaultTheme,
@@ -19,26 +23,20 @@ const navigationTheme: Theme = {
 };
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    PretendardVariable: require('./assets/fonts/PretendardVariable.ttf'),
-  });
+  const { loading } = useLoadAssets();
 
-  if (!fontsLoaded) {
-    return (
-      <SafeAreaProvider>
-        <View className='flex-1 items-center justify-center'>
-          <ActivityIndicator size='small' color={newColors['blue-500']} />
-        </View>
-      </SafeAreaProvider>
-    );
+  if (loading) {
+    return <LoadingScreen />;
   }
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer theme={navigationTheme}>
-        <StatusBar style='dark' />
-        <RootNavigator />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <NavigationContainer theme={navigationTheme}>
+          <StatusBar style='dark' />
+          <RootNavigator />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }
