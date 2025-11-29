@@ -2,7 +2,7 @@ import DateTimePicker, {
   DateTimePickerAndroid,
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { type ComponentType, useMemo, useState } from 'react';
+import { type ChangeEvent, type ComponentType, useEffect, useMemo, useState } from 'react';
 import { Modal, Platform, Pressable, Text, View } from 'react-native';
 
 import {
@@ -159,6 +159,9 @@ const ProblemCalendar = ({
   onDateSelect,
 }: ProblemCalendarProps) => {
   const [isPickerVisible, setPickerVisible] = useState(false);
+  const isAndroid = Platform.OS === 'android';
+  const isIOS = Platform.OS === 'ios';
+  const isWeb = Platform.OS === 'web';
 
   const progressByDate = useMemo(() => {
     return studyData.reduce<Record<string, CalendarProgress>>((acc, publish) => {
@@ -202,10 +205,7 @@ const ProblemCalendar = ({
   };
 
   const handleSelectToday = () => {
-    const today = new Date();
-    const monthDate = new Date(today.getFullYear(), today.getMonth(), 1);
-    onChangeMonth(monthDate);
-    onDateSelect(today);
+    applyDateSelection(new Date());
   };
 
   const pickerValue = new Date(
@@ -213,28 +213,42 @@ const ProblemCalendar = ({
     selectedMonth.getMonth(),
     selectedDate.getDate()
   );
+  const [webPickerDate, setWebPickerDate] = useState(pickerValue);
+
+  useEffect(() => {
+    setWebPickerDate(pickerValue);
+  }, [pickerValue]);
+
+  const applyDateSelection = (date: Date) => {
+    const maxDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    const safeDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      Math.min(date.getDate(), maxDay)
+    );
+    const nextMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+
+    onChangeMonth(nextMonth);
+    onDateSelect(safeDate);
+  };
 
   const handleMonthPickerChange = (event: DateTimePickerEvent, date?: Date) => {
     if (event.type === 'dismissed' || !date) {
-      if (Platform.OS === 'ios') {
+      if (isIOS) {
         setPickerVisible(false);
       }
       return;
     }
 
-    const nextMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-    const nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    applyDateSelection(date);
 
-    onChangeMonth(nextMonth);
-    onDateSelect(nextDate);
-
-    if (Platform.OS === 'android') {
+    if (isAndroid) {
       setPickerVisible(false);
     }
   };
 
   const handleOpenMonthPicker = () => {
-    if (Platform.OS === 'android') {
+    if (isAndroid) {
       DateTimePickerAndroid.open({
         mode: 'date',
         display: 'calendar',
@@ -243,11 +257,38 @@ const ProblemCalendar = ({
       });
       return;
     }
+    setWebPickerDate(pickerValue);
     setPickerVisible(true);
   };
 
   const handleClosePicker = () => {
     setPickerVisible(false);
+    setWebPickerDate(pickerValue);
+  };
+
+  const handleConfirmWebPicker = () => {
+    applyDateSelection(webPickerDate);
+    handleClosePicker();
+  };
+
+  const handleWebInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    if (!value) {
+      return;
+    }
+    const [yearString, monthString] = value.split('-');
+    const year = Number(yearString);
+    const monthIndex = Number(monthString) - 1;
+
+    if (Number.isNaN(year) || Number.isNaN(monthIndex) || monthIndex < 0) {
+      return;
+    }
+
+    const baseDay = webPickerDate.getDate();
+    const maxDay = new Date(year, monthIndex + 1, 0).getDate();
+    const nextDate = new Date(year, monthIndex, Math.min(baseDay, maxDay));
+
+    setWebPickerDate(nextDate);
   };
 
   const monthLabel = `${selectedMonth.getFullYear()}년 ${selectedMonth.getMonth() + 1}월`;
@@ -261,7 +302,7 @@ const ProblemCalendar = ({
       />
       <Calendar cells={cells} onSelectDate={handleSelectDate} />
       <CalendarLegend />
-      {Platform.OS === 'ios' && isPickerVisible && (
+      {(isIOS || isWeb) && isPickerVisible && (
         <Modal
           transparent
           animationType='fade'
@@ -270,17 +311,26 @@ const ProblemCalendar = ({
           <View className='flex-1 justify-end bg-[#0B112466]'>
             <Pressable className='flex-1' onPress={handleClosePicker} />
             <View className='mx-[20px] mb-[32px] rounded-[16px] bg-white p-[20px]'>
-              <View className='h-fit w-fit items-center justify-center'>
-                <DateTimePicker
-                  mode='date'
-                  display='spinner'
-                  value={pickerValue}
-                  onChange={handleMonthPickerChange}
-                />
+              <View className='h-fit w-full items-center justify-center'>
+                {isIOS ? (
+                  <DateTimePicker
+                    mode='date'
+                    display='spinner'
+                    value={pickerValue}
+                    onChange={handleMonthPickerChange}
+                  />
+                ) : (
+                  <input
+                    type='month'
+                    className='text-16r w-full rounded-[8px] border border-gray-200 px-[12px] py-[10px] text-gray-900 outline-none'
+                    value={`${webPickerDate.getFullYear()}-${String(webPickerDate.getMonth() + 1).padStart(2, '0')}`}
+                    onChange={handleWebInputChange}
+                  />
+                )}
               </View>
               <Pressable
                 className='bg-primary-500 mt-[12px] rounded-[8px] px-[16px] py-[10px]'
-                onPress={handleClosePicker}>
+                onPress={isWeb ? handleConfirmWebPicker : handleClosePicker}>
                 <Text className='text-14m text-center text-white'>완료</Text>
               </Pressable>
             </View>
