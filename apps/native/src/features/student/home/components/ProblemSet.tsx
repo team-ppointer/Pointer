@@ -193,7 +193,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
   };
 
   return (
-    <View className='flex-1 basis-1/2 gap-[24px] rounded-[12px] bg-white pb-[24px] pt-[16px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
+    <View className='gap-[24px] rounded-[12px] bg-white pb-[24px] pt-[16px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)] md:flex-1 md:basis-1/2'>
       <Navigation
         title={title}
         subtitle={subtitle}

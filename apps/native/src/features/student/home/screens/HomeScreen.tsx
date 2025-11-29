@@ -84,7 +84,7 @@ const HomeScreen = () => {
       </View>
       <Container className='gap-[16px] pt-[24px]'>
         <Text className='text-24b text-gray-900'>날짜별 문제 리스트</Text>
-        <View className='flex-row items-start gap-[20px]'>
+        <View className='flex-col md:flex-row md:items-start gap-[20px]'>
           <ProblemCalendar
             selectedMonth={selectedMonth}
             selectedDate={selectedDate}

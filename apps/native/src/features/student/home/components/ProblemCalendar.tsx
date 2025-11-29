@@ -253,7 +253,7 @@ const ProblemCalendar = ({
   const monthLabel = `${selectedMonth.getFullYear()}년 ${selectedMonth.getMonth() + 1}월`;
 
   return (
-    <View className='flex-1 basis-1/2 gap-[20px] rounded-[12px] bg-white p-[20px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
+    <View className='gap-[20px] rounded-[12px] bg-white p-[20px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)] md:flex-1 md:basis-1/2'>
       <CalendarHeader
         label={monthLabel}
         onSelectMonth={handleOpenMonthPicker}
