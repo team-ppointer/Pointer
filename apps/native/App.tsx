@@ -22,6 +22,15 @@ const navigationTheme: Theme = {
   },
 };
 
+const linking = {
+  prefixes: ['pointer://', 'http://localhost:3000'],
+  config: {
+    screens: {
+      AuthCallback: 'auth/callback',
+    },
+  },
+};
+
 export default function App() {
   const { loading } = useLoadAssets();
 
@@ -32,7 +41,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <NavigationContainer theme={navigationTheme}>
+        <NavigationContainer theme={navigationTheme} linking={linking}>
           <StatusBar style='dark' />
           <RootNavigator />
         </NavigationContainer>
