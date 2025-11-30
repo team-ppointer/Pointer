@@ -4,11 +4,12 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
+import { LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
 import ResultSheet from '../components/ResultSheet';
+import BottomActionBar from '../components/BottomActionBar';
 
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import WritingArea from '../components/WritingArea';
@@ -115,45 +116,36 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           onSheetChange={handleSheetVisibility}
           onSheetAnimate={handleSheetAnimate}
         />
-        <View
-          className='border-t border-gray-300 bg-white pt-[10px]'
-          style={{ paddingBottom: 10 + insets.bottom }}
-          onLayout={handleBottomBarLayout}>
-          <Container className='flex-row items-center gap-[10px]'>
-            {isKeyboardVisible ? (
-              <>
-                <Pressable
-                  className='h-[42px] max-w-[220px] flex-1 items-center justify-center rounded-[8px] border border-gray-500 bg-gray-100 px-[18px] py-[10px]'
-                  onPress={handleIDontKnow}>
-                  <Text className='text-14m text-gray-900'>잘 모르겠어요</Text>
-                </Pressable>
-                <Pressable
-                  className='bg-primary-500 h-[42px] flex-1 items-center justify-center rounded-[8px] px-[18px]'
-                  onPress={handleSubmitAnswer}>
-                  <Text className='text-16m text-white'>제출하기</Text>
-                </Pressable>
-              </>
-            ) : (
-              <>
-                <Pressable
-                  className='items-center justify-center rounded-[8px] bg-gray-200 px-[18px] py-[10px]'
-                  onPress={() => {}}>
-                  <BookmarkIcon size={22} color={colors['gray-700']} />
-                </Pressable>
-                <Pressable
-                  className='items-center justify-center rounded-[8px] bg-gray-200 px-[18px] py-[10px]'
-                  onPress={() => {}}>
-                  <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-                </Pressable>
-                <Pressable
-                  className='bg-primary-500 h-[42px] flex-1 items-center justify-center rounded-[8px] px-[18px]'
-                  onPress={toggleKeyboard}>
-                  <Text className='text-16m text-white'>답 입력하기</Text>
-                </Pressable>
-              </>
-            )}
-          </Container>
-        </View>
+        <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
+          {isKeyboardVisible ? (
+            <>
+              <BottomActionBar.Button
+                className='h-[42px] max-w-[220px] flex-1 border border-gray-500 bg-gray-100'
+                onPress={handleIDontKnow}>
+                <Text className='text-14m text-gray-900'>잘 모르겠어요</Text>
+              </BottomActionBar.Button>
+              <BottomActionBar.Button
+                className='bg-primary-500 h-[42px] flex-1'
+                onPress={handleSubmitAnswer}>
+                <Text className='text-16m text-white'>제출하기</Text>
+              </BottomActionBar.Button>
+            </>
+          ) : (
+            <>
+              <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
+                <BookmarkIcon size={22} color={colors['gray-700']} />
+              </BottomActionBar.Button>
+              <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
+                <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
+              </BottomActionBar.Button>
+              <BottomActionBar.Button
+                className='bg-primary-500 h-[42px] flex-1'
+                onPress={toggleKeyboard}>
+                <Text className='text-16m text-white'>답 입력하기</Text>
+              </BottomActionBar.Button>
+            </>
+          )}
+        </BottomActionBar>
       </SafeAreaView>
       <View pointerEvents='box-none' style={StyleSheet.absoluteFill}>
         <ResultSheet

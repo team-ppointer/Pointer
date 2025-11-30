@@ -3,6 +3,7 @@ import { LayoutChangeEvent, Pressable, Text, View } from 'react-native';
 import { Container } from '@components/common';
 import Header from '../components/Header';
 import WritingArea from '../components/WritingArea';
+import BottomActionBar from '../components/BottomActionBar';
 import { BookmarkIcon, MessageCircleMoreIcon, XIcon } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
@@ -64,33 +65,20 @@ const PointingScreen = ({
             </View>
           </View>
         </Container>
-        <View
-          className='border-t border-gray-300 bg-white pt-[10px]'
-          style={{ paddingBottom: 10 + insets.bottom }}
-          onLayout={handleBottomBarLayout}>
-          <Container className='flex-row items-center gap-[10px]'>
-            <Pressable
-              className='items-center justify-center rounded-[8px] bg-gray-200 px-[18px] py-[10px]'
-              onPress={() => {}}>
-              <BookmarkIcon size={22} color={colors['gray-700']} />
-            </Pressable>
-            <Pressable
-              className='items-center justify-center rounded-[8px] bg-gray-200 px-[18px] py-[10px]'
-              onPress={() => {}}>
-              <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-            </Pressable>
-            <Pressable
-              className='bg-primary-200 h-[42px] flex-1 items-center justify-center rounded-[8px] px-[18px]'
-              onPress={() => {}}>
-              <Text className='text-16m text-black'>네</Text>
-            </Pressable>
-            <Pressable
-              className='bg-primary-500 h-[42px] flex-1 items-center justify-center rounded-[8px] px-[18px]'
-              onPress={() => {}}>
-              <Text className='text-16m text-white'>아니오</Text>
-            </Pressable>
-          </Container>
-        </View>
+        <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
+          <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
+            <BookmarkIcon size={22} color={colors['gray-700']} />
+          </BottomActionBar.Button>
+          <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
+            <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
+          </BottomActionBar.Button>
+          <BottomActionBar.Button className='bg-primary-200 h-[42px] flex-1' onPress={() => {}}>
+            <Text className='text-16m text-black'>네</Text>
+          </BottomActionBar.Button>
+          <BottomActionBar.Button className='bg-primary-500 h-[42px] flex-1' onPress={() => {}}>
+            <Text className='text-16m text-white'>아니오</Text>
+          </BottomActionBar.Button>
+        </BottomActionBar>
       </SafeAreaView>
       {/* <View pointerEvents='box-none' style={StyleSheet.absoluteFill}>
       </View> */}
