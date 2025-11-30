@@ -10,6 +10,7 @@ import '@/app/providers/global.css';
 import '@/app/providers/api';
 import { LoadingScreen } from '@components/common';
 import { useLoadAssets } from '@hooks';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const queryClient = new QueryClient();
 
@@ -40,12 +41,14 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <NavigationContainer theme={navigationTheme} linking={linking}>
-          <StatusBar style='dark' />
-          <RootNavigator />
-        </NavigationContainer>
-      </SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <NavigationContainer theme={navigationTheme} linking={linking}>
+            <StatusBar style='dark' />
+            <RootNavigator />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
     </QueryClientProvider>
   );
 }
