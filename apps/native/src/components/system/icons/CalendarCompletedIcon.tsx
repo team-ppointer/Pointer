@@ -1,9 +1,10 @@
 import React from 'react';
 import { Path, Svg } from 'react-native-svg';
 import type { LucideIcon, LucideProps } from 'lucide-react-native';
+import { colors } from '@/theme/tokens';
 
 const CalendarCompletedIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
-  ({ color = '#33B428', size = 24, strokeWidth = 2, ...rest }, ref) => {
+  ({ color = colors['green-500'], size = 24, strokeWidth = 2, ...rest }, ref) => {
     const resolvedStrokeWidth = Number(strokeWidth);
 
     return (
@@ -29,5 +30,3 @@ const CalendarCompletedIcon = React.forwardRef<React.ComponentRef<typeof Svg>, L
 ) as LucideIcon;
 
 export default CalendarCompletedIcon;
-
-

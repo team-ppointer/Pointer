@@ -1,7 +1,7 @@
-import Container from '@/components/common/Container';
+import Container from '@components/common/Container';
 import { Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import TeacherIcon from '@/components/system/icons/TeacherIcon';
+import { TeacherIcon } from '@components/system/icons';
 
 interface TextBubbleProps {
   date: string;
@@ -22,7 +22,7 @@ const TextBubble = ({ date, content }: TextBubbleProps) => {
 
       <View className='w-full gap-[8px] rounded-[12px] bg-white px-[22px] py-[19px]'>
         <Text className='text-12r text-gray-700'>{date}</Text>
-        <Text className='text-16m text-[#1E1E21]'>{content}</Text>
+        <Text className='text-16m text-black'>{content}</Text>
       </View>
     </View>
   );
@@ -46,7 +46,7 @@ const LearningStatus = ({ studentName, date, content }: LearningStatusProps) => 
           </View>
           <Text className='text-12m text-gray-900'>출제진</Text>
         </View>
-        
+
         <TextBubble date={date} content={content} />
       </View>
     </Container>

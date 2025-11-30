@@ -1,4 +1,4 @@
-import { newColors } from '@/theme/tokens';
+import { colors } from '@/theme/tokens';
 import { BookOpenText, LucideIcon, Megaphone, MessageCircleMore } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -15,7 +15,7 @@ const iconConfigs: Record<IconType, IconConfig> = {
   megaphone: {
     Icon: Megaphone,
     bgClass: 'bg-secondary-100',
-    iconColor: newColors['secondary-500'],
+    iconColor: colors['secondary-500'],
   },
   message: {
     Icon: MessageCircleMore,
@@ -25,12 +25,12 @@ const iconConfigs: Record<IconType, IconConfig> = {
   book: {
     Icon: BookOpenText,
     bgClass: 'bg-[#D6E1FF]',
-    iconColor: newColors['blue-500'],
+    iconColor: colors['blue-500'],
   },
   'book-white': {
     Icon: BookOpenText,
     bgClass: 'bg-white',
-    iconColor: newColors['blue-500'],
+    iconColor: colors['blue-500'],
   },
 };
 
@@ -103,14 +103,14 @@ const NotificationItem = ({
     <View
       className={`h-[76px] flex-row items-center justify-between gap-[10px] rounded-[12px] border p-[16px] ${variantStyles[variant]} ${hasShadow ? 'shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]' : ''}`}>
       <View className='flex-1 flex-row items-center gap-[12px]'>
-        <View className=''>
+        <View className='flex-shrink-0'>
           <IconContainer type={icon} />
           {hasBadge && (
             <View className='absolute right-0 top-0 h-[10px] w-[10px] rounded-full bg-[#E75043]'></View>
           )}
         </View>
-        <View>
-          <Text className='text-16sb mb-[2px] text-[#1E1E21]'>{title}</Text>
+        <View className='flex-1'>
+          <Text className='text-16sb mb-[2px] text-black truncate' numberOfLines={1}>{title}</Text>
           <Text className='text-12m text-gray-700'>{time}</Text>
         </View>
       </View>

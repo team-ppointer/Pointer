@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-import { newColors, fontFamily, fontSize, screens } from './src/theme/tokens';
+import { colors, fontFamily, fontSize, screens } from './src/theme/tokens';
 
 module.exports = {
   darkMode: 'class',
@@ -7,7 +7,7 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
-      colors: newColors,
+      colors,
       fontFamily,
       fontSize,
       screens,
