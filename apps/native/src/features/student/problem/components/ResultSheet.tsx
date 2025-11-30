@@ -10,7 +10,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import CorrectIcon from './icons/CorrectIcon';
 import IncorrectIcon from './icons/IncorrectIcon';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type ResultSheetProps = {
   bottomInset: number;
@@ -21,7 +20,6 @@ type ResultSheetProps = {
 
 const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
   ({ bottomInset, isCorrect, onSheetChange, onSheetAnimate }, ref) => {
-    const insets = useSafeAreaInsets();
 
     const renderBackdrop = useCallback(
       (props: BottomSheetBackdropProps) => (
