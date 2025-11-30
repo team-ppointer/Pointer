@@ -12,4 +12,5 @@ export type StudentRootStackParamList = {
   Notifications: undefined;
   NotificationDetail: undefined;
   Problem: undefined;
+  Pointing: undefined;
 };
