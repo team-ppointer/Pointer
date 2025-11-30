@@ -26,10 +26,12 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   }, []);
 
   const openKeyboard = useCallback(() => {
+    setKeyboardVisible(true);
     bottomSheetRef.current?.expand();
   }, []);
 
   const closeKeyboard = useCallback(() => {
+    setKeyboardVisible(false);
     bottomSheetRef.current?.close();
   }, []);
 
@@ -55,11 +57,13 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   }, []);
 
   const handleSheetVisibility = useCallback((isOpen: boolean) => {
-    setKeyboardVisible(isOpen);
+    if (!isOpen) {
+      setKeyboardVisible(false);
+    }
   }, []);
 
-  const handleCloseKeyboard = useCallback(() => {
-    setKeyboardVisible(false);
+  const handleSheetAnimate = useCallback((fromIndex: number, toIndex: number) => {
+    setKeyboardVisible(toIndex >= 0);
   }, []);
 
   return (
@@ -84,6 +88,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
         onSubmit={handleSubmitAnswer}
         onClose={closeKeyboard}
         onSheetChange={handleSheetVisibility}
+        onSheetAnimate={handleSheetAnimate}
       />
       <View
         className='border-t border-gray-300 bg-white pt-[10px]'

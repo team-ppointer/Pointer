@@ -17,10 +17,23 @@ type AnswerKeyboardSheetProps = {
   onSubmit: () => void;
   onClose: () => void;
   onSheetChange: (isOpen: boolean) => void;
+  onSheetAnimate?: (fromIndex: number, toIndex: number) => void;
 };
 
 const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
-  ({ bottomInset, value, onAppendDigit, onDelete, onSubmit, onClose, onSheetChange }, ref) => {
+  (
+    {
+      bottomInset,
+      value,
+      onAppendDigit,
+      onDelete,
+      onSubmit,
+      onClose,
+      onSheetChange,
+      onSheetAnimate,
+    },
+    ref
+  ) => {
     const renderBackdrop = useCallback(
       (props: BottomSheetBackdropProps) => (
         <BottomSheetBackdrop
@@ -61,7 +74,8 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
         enablePanDownToClose
         handleIndicatorStyle={styles.handleIndicator}
         backgroundStyle={styles.sheetBackground}
-        onChange={handleSheetChange}>
+        onChange={handleSheetChange}
+        onAnimate={onSheetAnimate}>
         <BottomSheetView className='bg-gray-300 px-[4px] pb-[20px]'>
           <Container>
             <View className='mb-[20px] justify-center rounded-[8px] border border-gray-400 bg-white px-[12px] py-[8px]'>
