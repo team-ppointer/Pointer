@@ -10,16 +10,19 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import CorrectIcon from './icons/CorrectIcon';
 import IncorrectIcon from './icons/IncorrectIcon';
+import { StudentRootStackParamList } from '@/navigation/student/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type ResultSheetProps = {
   bottomInset: number;
   isCorrect: boolean;
   onSheetChange: (isOpen: boolean) => void;
   onSheetAnimate?: (fromIndex: number, toIndex: number) => void;
+  navigation?: NativeStackNavigationProp<StudentRootStackParamList, 'Problem'>;
 };
 
 const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
-  ({ bottomInset, isCorrect, onSheetChange, onSheetAnimate }, ref) => {
+  ({ bottomInset, isCorrect, onSheetChange, onSheetAnimate, navigation }, ref) => {
 
     const renderBackdrop = useCallback(
       (props: BottomSheetBackdropProps) => (
@@ -69,7 +72,7 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
               )}
               <Pressable
                 className='bg-primary-500 h-[42px] w-full items-center justify-center rounded-[8px] px-[18px]'
-                onPress={() => {}}>
+                onPress={() => navigation?.navigate('Pointing')}>
                 <Text className='text-16m text-white'>포인팅 학습하기</Text>
               </Pressable>
             </Container>

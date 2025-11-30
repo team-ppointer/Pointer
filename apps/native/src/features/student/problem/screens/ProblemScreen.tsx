@@ -94,7 +94,11 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
 
           {/* Problem */}
           <View className='my-[10px] min-h-[200px] rounded-[8px] bg-white p-[20px]'>
-            <Text className='text-13r text-gray-900'>문제 내용</Text>
+            <Text className='text-13r text-gray-900'>
+              문제가 보여지는 영역입니다. 문제가 보여지는 영역입니다. 문제가 보여지는 영역입니다.
+              문제가 보여지는 영역입니다. 문제가 보여지는 영역입니다. 문제가 보여지는 영역입니다.
+              문제가 보여지는 영역입니다. 문제가 보여지는 영역입니다.{' '}
+            </Text>
           </View>
 
           {/* Writing Area */}
@@ -158,6 +162,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           isCorrect={isAnswerCorrect}
           onSheetChange={handleResultSheetVisibility}
           onSheetAnimate={handleResultSheetAnimate}
+          navigation={navigation}
         />
       </View>
     </View>
