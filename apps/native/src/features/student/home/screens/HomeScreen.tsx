@@ -63,7 +63,9 @@ const HomeScreen = () => {
             title='오늘의 문제 세트가 도착했어요.'
             time='오늘 12:00'
             hasShadow={true}>
-            <NotificationItem.Button onPress={() => {}}>문제풀기</NotificationItem.Button>
+            <NotificationItem.Button onPress={() => navigation.navigate('Problem')}>
+              문제풀기
+            </NotificationItem.Button>
           </NotificationItem>
 
           <NotificationItem

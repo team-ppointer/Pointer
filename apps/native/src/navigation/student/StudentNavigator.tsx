@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
+import { ProblemScreen } from '@features/student/problem';
 import StudentTabs from './StudentTabs';
 import { StudentRootStackParamList } from './types';
 import NotificationHeader from './components/NotificationHeader';
@@ -28,6 +29,7 @@ const StudentNavigator = () => {
           header: (props) => <NotificationHeader title='공지' {...props} />,
         }}
       />
+      <StudentRootStack.Screen name='Problem' component={ProblemScreen} />
     </StudentRootStack.Navigator>
   );
 };
