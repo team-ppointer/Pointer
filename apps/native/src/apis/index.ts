@@ -1,6 +1,7 @@
 import { client, TanstackQueryClient } from './client';
+import authMiddleware from './authMiddleware';
 
-export { client, TanstackQueryClient };
+export { client, TanstackQueryClient, authMiddleware };
 
 // controllers
 export * from './controller/auth';
