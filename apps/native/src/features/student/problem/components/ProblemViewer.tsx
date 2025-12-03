@@ -1,8 +1,8 @@
-import { View, Text } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { serializeJSONToHTML } from '../utils/serializeJSONToHTML';
 
 async function loadFontAsBase64() {
@@ -24,6 +24,11 @@ interface ProblemViewerProps {
 
 const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemViewerProps) => {
   const [webViewHeight, setWebViewHeight] = useState(minHeight);
+  const [isContentLoading, setIsContentLoading] = useState(true);
+
+  useEffect(() => {
+    setIsContentLoading(true);
+  }, [problemContent]);
 
   const GET_WEBVIEW_HEIGHT_SCRIPT = `
     (function () {
@@ -241,21 +246,44 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
 <body>
   ${serializeJSONToHTML(problemContent)}
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      var spans = document.querySelectorAll('span[data-type="inline-math"]');
-      spans.forEach(function (el) {
-        var latex = el.getAttribute("data-latex") || "";
-        try {
-          window.katex.render(latex, el, {
-            throwOnError: false,
-            displayMode: true,
-          });
-        } catch (e) {
-          console.error("katex error", e, latex);
-          el.textContent = latex;
+    (function () {
+      function notifyReactNativeContentReady() {
+        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: "contentReady" }));
         }
-      });
-    });
+      }
+
+      function renderInlineMath() {
+        var spans = document.querySelectorAll('span[data-type="inline-math"]');
+        spans.forEach(function (el) {
+          var latex = el.getAttribute("data-latex") || "";
+          try {
+            if (window.katex && window.katex.render) {
+              window.katex.render(latex, el, {
+                throwOnError: false,
+                displayMode: true,
+              });
+            } else {
+              el.textContent = latex;
+            }
+          } catch (e) {
+            console.error("katex error", e, latex);
+            el.textContent = latex;
+          }
+        });
+      }
+
+      function init() {
+        renderInlineMath();
+        notifyReactNativeContentReady();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    })();
   </script>
 </body>
 
@@ -263,7 +291,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
 `;
 
   return (
-    <View style={{ height: webViewHeight, minHeight }}>
+    <View style={{ height: webViewHeight, minHeight, position: 'relative' }}>
       <WebView
         originWhitelist={['*']}
         injectedJavaScript={GET_WEBVIEW_HEIGHT_SCRIPT}
@@ -273,13 +301,36 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
             if (data.type === 'setHeight') {
               setWebViewHeight(Math.max(minHeight, data.height));
             }
+            if (data.type === 'contentReady') {
+              setIsContentLoading(false);
+            }
           } catch {}
         }}
         source={{ html: HTML_TEMPLATE }}
-        style={{ height: webViewHeight, backgroundColor: 'transparent' }}
+        style={{
+          height: webViewHeight,
+          backgroundColor: 'transparent',
+          opacity: isContentLoading ? 0 : 1,
+        }}
         containerStyle={{ backgroundColor: 'transparent' }}
         androidLayerType='software'
       />
+      {isContentLoading && (
+        <View
+          pointerEvents='none'
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'transparent',
+          }}>
+          <ActivityIndicator />
+        </View>
+      )}
     </View>
   );
 };
