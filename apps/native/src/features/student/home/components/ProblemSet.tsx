@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -9,11 +9,15 @@ import {
   TriangleIcon,
   XIcon,
 } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 
 import { TextButton } from '@components/common';
 import { components } from '@schema';
 import { colors } from '@theme/tokens';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { StudentRootStackParamList } from '@navigation/student/types';
+import { useProblemSessionStore } from '@stores/problemSessionStore';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {
@@ -46,6 +50,7 @@ interface ProblemListProps {
   index: number;
   isExpanded: boolean;
   onToggle: () => void;
+  onActionPress?: (group: PublishGroup) => void;
 }
 
 const WEEKDAY_LABELS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
@@ -85,6 +90,7 @@ const groupStatusMeta: Record<
     badgeClass: string;
     buttonLabel: string;
     buttonVariant: 'blue' | 'gray' | 'outline';
+    actionable: boolean;
   }
 > = {
   DONE: {
@@ -92,18 +98,21 @@ const groupStatusMeta: Record<
     badgeClass: 'text-green-500',
     buttonLabel: '포인팅 모아보기',
     buttonVariant: 'outline',
+    actionable: false,
   },
   DOING: {
     label: '학습 중',
     badgeClass: 'text-blue-500',
     buttonLabel: '이어서 풀기',
     buttonVariant: 'gray',
+    actionable: true,
   },
   NONE: {
     label: '학습 전',
     badgeClass: 'text-gray-800',
     buttonLabel: '문제 풀기',
     buttonVariant: 'blue',
+    actionable: true,
   },
 };
 
@@ -121,8 +130,14 @@ const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
   );
 };
 
-const ProblemList = ({ group, index, isExpanded, onToggle }: ProblemListProps) => {
+const ProblemList = ({ group, index, isExpanded, onToggle, onActionPress }: ProblemListProps) => {
   const statusMeta = groupStatusMeta[group.progress];
+  const handlePress = useCallback(() => {
+    if (!statusMeta.actionable) {
+      return;
+    }
+    onActionPress?.(group);
+  }, [group, onActionPress, statusMeta.actionable]);
   const problems = useMemo(() => {
     const childProblems = group.childProblems ?? [];
     return [
@@ -144,7 +159,9 @@ const ProblemList = ({ group, index, isExpanded, onToggle }: ProblemListProps) =
       <View className='mb-[8px] flex-row items-center justify-between'>
         <Text className='text-16b mr-[12px] text-black'>{`${index + 1}번`}</Text>
         <Text className={`text-12sb mr-auto ${statusMeta.badgeClass}`}>{statusMeta.label}</Text>
-        <TextButton variant={statusMeta.buttonVariant}>{statusMeta.buttonLabel}</TextButton>
+        <TextButton variant={statusMeta.buttonVariant} onPress={handlePress}>
+          {statusMeta.buttonLabel}
+        </TextButton>
         <Pressable className='ml-[8px] p-[4px]' onPress={onToggle}>
           {isExpanded ? (
             <ChevronUpIcon color={colors['gray-700']} size={20} strokeWidth={1.5} />
@@ -171,6 +188,7 @@ const formatPublishDate = (publishAt?: string, fallbackDate?: Date) => {
 };
 
 const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetProps) => {
+  const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
   const groups = publishDetail?.data ?? [];
   const title = publishDetail?.problemSet?.title ?? '미출제';
@@ -178,6 +196,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
     (publishDetail?.problemSet as ProblemSetWithOptionalPublishAt | undefined)?.publishAt ??
     publishDetail?.publishAt;
   const subtitle = formatPublishDate(publishAt, selectedDate);
+  const publishId = publishDetail?.id;
 
   const handleToggleGroup = (key: number) => {
     setExpandedGroups((prev) => {
@@ -191,6 +210,23 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
     nextDate.setDate(nextDate.getDate() + offset);
     onDateChange(nextDate);
   };
+
+  const startSession = useProblemSessionStore((state) => state.init);
+
+  const handleStartFlow = useCallback(
+    (group: PublishGroup) => {
+      if (!group) {
+        Alert.alert('진행할 문제가 없어요.');
+        return;
+      }
+      startSession(group, {
+        publishId,
+        publishAt,
+      });
+      navigation.navigate('Problem');
+    },
+    [navigation, publishAt, publishId, startSession]
+  );
 
   return (
     <View className='gap-[24px] rounded-[12px] bg-white pb-[24px] pt-[16px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)] md:flex-1 md:basis-1/2'>
@@ -215,6 +251,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
                 index={index}
                 isExpanded={isExpanded}
                 onToggle={() => handleToggleGroup(key)}
+                onActionPress={handleStartFlow}
               />
               {index < groups.length - 1 && <Divider />}
             </View>
