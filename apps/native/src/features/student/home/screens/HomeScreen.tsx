@@ -6,6 +6,7 @@ import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAuthStore } from '@stores';
 import {
   useGetNotice,
   useGetLastDiagnosis,
@@ -19,6 +20,7 @@ const HomeScreen = () => {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedPublishId, setSelectedPublishId] = useState<number>(-1);
+  const studentName = useAuthStore((state) => state.studentProfile?.name);
 
   const { data: noticeData } = useGetNotice();
   const { data: diagnosisData } = useGetLastDiagnosis();
@@ -63,9 +65,7 @@ const HomeScreen = () => {
             title='오늘의 문제 세트가 도착했어요.'
             time='오늘 12:00'
             hasShadow={true}>
-            <NotificationItem.Button onPress={() => navigation.navigate('Problem')}>
-              문제풀기
-            </NotificationItem.Button>
+            <NotificationItem.Button onPress={() => {}}>문제풀기</NotificationItem.Button>
           </NotificationItem>
 
           <NotificationItem
@@ -83,7 +83,7 @@ const HomeScreen = () => {
 
         {/* Learning Status Container */}
         <LearningStatus
-          studentName='테스트'
+          studentName={studentName ?? ''}
           date={diagnosisData?.createdAt ?? ''}
           content={diagnosisData?.content ?? ''}
         />
