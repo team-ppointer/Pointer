@@ -1,5 +1,5 @@
 import { Container } from '@components/common';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { LayoutChangeEvent, Pressable, PressableProps, View } from 'react-native';
 
 type BottomActionBarProps = {
@@ -13,8 +13,8 @@ type BottomActionBarButtonProps = PressableProps & {
   children?: ReactNode;
 };
 
-type BottomActionBarComponent = ((props: BottomActionBarProps) => JSX.Element) & {
-  Button: (props: BottomActionBarButtonProps) => JSX.Element;
+type BottomActionBarComponent = ((props: BottomActionBarProps) => React.ReactElement) & {
+  Button: (props: BottomActionBarButtonProps) => React.ReactElement;
 };
 
 const combineClassName = (...classNames: Array<string | undefined>) =>
@@ -24,7 +24,7 @@ const BottomActionBarButton = ({ className, children, ...rest }: BottomActionBar
   <Pressable
     className={combineClassName(
       'items-center justify-center rounded-[8px] px-[18px] py-[10px]',
-      className,
+      className
     )}
     {...rest}>
     {children}
@@ -43,4 +43,3 @@ const BottomActionBar = (({ bottomInset = 0, onLayout, children }: BottomActionB
 BottomActionBar.Button = BottomActionBarButton;
 
 export default BottomActionBar;
-
