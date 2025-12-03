@@ -56,7 +56,7 @@ const HomeScreen = () => {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
       {/* Header Container */}
-      <View className='mx-auto w-full bg-blue-100'>
+      <View className='mx-auto w-full bg-blue-100 pt-[100vh] -mt-[100vh]'>
         {/* Notification Container */}
         <Container className='gap-[10px] pt-[16px]'>
           <NotificationItem
