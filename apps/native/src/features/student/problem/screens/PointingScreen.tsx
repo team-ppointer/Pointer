@@ -1,5 +1,5 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
+import { Alert, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import { Container } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
@@ -8,6 +8,7 @@ import { colors } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { postPointing } from '@apis';
 import {
   selectCurrentProblem,
   selectCurrentPointing,
@@ -26,6 +27,8 @@ const PointingScreen = ({
   navigation,
 }: Partial<NativeStackScreenProps<StudentRootStackParamList, 'Pointing'>>) => {
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
+  const [hasSubmittedUnderstanding, setHasSubmittedUnderstanding] = useState(false);
+  const [isSubmittingUnderstanding, setIsSubmittingUnderstanding] = useState(false);
   const insets = useSafeAreaInsets();
 
   const phase = useProblemSessionStore(selectPhase);
@@ -110,6 +113,30 @@ const PointingScreen = ({
     goHome();
   }, [goHome]);
 
+  useEffect(() => {
+    setHasSubmittedUnderstanding(pointing?.isUnderstood != null);
+    setIsSubmittingUnderstanding(false);
+  }, [pointing?.id]);
+
+  const handleUnderstandSelection = useCallback(
+    async (isUnderstood: boolean) => {
+      if (!pointing?.id || isSubmittingUnderstanding) {
+        return;
+      }
+      try {
+        setIsSubmittingUnderstanding(true);
+        await postPointing(pointing.id, isUnderstood);
+        setHasSubmittedUnderstanding(true);
+      } catch (error) {
+        console.error('Failed to submit pointing feedback', error);
+        Alert.alert('학습 여부를 저장할 수 없어요.', '잠시 후 다시 시도해주세요.');
+      } finally {
+        setIsSubmittingUnderstanding(false);
+      }
+    },
+    [isSubmittingUnderstanding, pointing?.id]
+  );
+
   const ctaLabel = useMemo(() => {
     if (index + 1 < total) {
       return '다음 포인팅';
@@ -182,11 +209,28 @@ const PointingScreen = ({
           <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
             <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
           </BottomActionBar.Button>
-          <BottomActionBar.Button
-            className='bg-primary-500 h-[42px] flex-1'
-            onPress={handleCtaPress}>
-            <Text className='text-16m text-white'>{ctaLabel}</Text>
-          </BottomActionBar.Button>
+          {hasSubmittedUnderstanding ? (
+            <BottomActionBar.Button
+              className='bg-primary-500 h-[42px] flex-1'
+              onPress={handleCtaPress}>
+              <Text className='text-16m text-white'>{ctaLabel}</Text>
+            </BottomActionBar.Button>
+          ) : (
+            <View className='flex-1 flex-row gap-[10px]'>
+              <BottomActionBar.Button
+                className={`bg-primary-200 h-[42px] flex-1 ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                disabled={isSubmittingUnderstanding}
+                onPress={() => handleUnderstandSelection(true)}>
+                <Text className='text-16m text-black'>네</Text>
+              </BottomActionBar.Button>
+              <BottomActionBar.Button
+                className={`bg-primary-500 h-[42px] flex-1 ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                disabled={isSubmittingUnderstanding}
+                onPress={() => handleUnderstandSelection(false)}>
+                <Text className='text-16m text-white'>아니오</Text>
+              </BottomActionBar.Button>
+            </View>
+          )}
         </BottomActionBar>
       </SafeAreaView>
     </View>
