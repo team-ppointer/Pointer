@@ -15,6 +15,7 @@ import ResultSheet from '../components/ResultSheet';
 import WritingArea from '../components/WritingArea';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
+import { components } from '@schema';
 import {
   selectChildIndex,
   selectCurrentProblem,
@@ -30,6 +31,8 @@ import ProblemViewer from '../components/ProblemViewer';
 
 type ProblemScreenProps = Partial<NativeStackScreenProps<StudentRootStackParamList, 'Problem'>>;
 
+type ProblemProgress = components['schemas']['ProblemWithStudyInfoResp']['progress'];
+
 const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -41,6 +44,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [incorrectAttemptCount, setIncorrectAttemptCount] = useState(0);
+  const [problemProgress, setProblemProgress] = useState<ProblemProgress | null>(null);
 
   const phase = useProblemSessionStore(selectPhase);
   const currentProblem = useProblemSessionStore(selectCurrentProblem);
@@ -109,6 +113,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setIncorrectAttemptCount(0);
   }, [currentProblem?.id]);
 
+  useEffect(() => {
+    setProblemProgress(currentProblem?.progress ?? null);
+  }, [currentProblem?.id, currentProblem?.progress]);
+
   const handleBottomBarLayout = useCallback((event: LayoutChangeEvent) => {
     setBottomBarHeight(event.nativeEvent.layout.height);
   }, []);
@@ -171,6 +179,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
 
       const { isCorrect } = response.data;
       setIsAnswerCorrect(isCorrect);
+      setProblemProgress(isCorrect ? 'CORRECT' : 'INCORRECT');
       setIncorrectAttemptCount((prev) => (isCorrect ? 0 : prev + 1));
       closeKeyboard();
       openResultSheet();
@@ -285,7 +294,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           {subtitle ? <Header.Subtitle>{subtitle}</Header.Subtitle> : null}
           <Header.TitleGroup>
             <Header.Title>{problemTitle}</Header.Title>
-            <Header.Status status={currentProblem?.progress} />
+            <Header.Status status={problemProgress ?? currentProblem?.progress} />
           </Header.TitleGroup>
         </Header>
 
