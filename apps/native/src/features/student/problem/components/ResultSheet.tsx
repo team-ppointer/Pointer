@@ -10,27 +10,39 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import CorrectIcon from './icons/CorrectIcon';
 import IncorrectIcon from './icons/IncorrectIcon';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type ResultSheetProps = {
   bottomInset: number;
   isCorrect: boolean;
+  primaryButtonLabel: string;
+  onPressPrimary: () => void;
+  secondaryButtonLabel?: string;
+  onPressSecondary?: () => void;
   onSheetChange: (isOpen: boolean) => void;
   onSheetAnimate?: (fromIndex: number, toIndex: number) => void;
-  navigation?: NativeStackNavigationProp<StudentRootStackParamList, 'Problem'>;
 };
 
 const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
-  ({ bottomInset, isCorrect, onSheetChange, onSheetAnimate, navigation }, ref) => {
-
+  (
+    {
+      bottomInset,
+      isCorrect,
+      primaryButtonLabel,
+      onPressPrimary,
+      secondaryButtonLabel,
+      onPressSecondary,
+      onSheetChange,
+      onSheetAnimate,
+    },
+    ref
+  ) => {
     const renderBackdrop = useCallback(
       (props: BottomSheetBackdropProps) => (
         <BottomSheetBackdrop
           {...props}
           appearsOnIndex={0}
           disappearsOnIndex={-1}
-          // pressBehavior='none'
+          pressBehavior='none'
           enableTouchThrough={false}
         />
       ),
@@ -63,17 +75,17 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
           </View>
           <View className='py-[10px]'>
             <Container className='flex-col items-center gap-[10px]'>
-              {!isCorrect && (
+              {secondaryButtonLabel && onPressSecondary ? (
                 <Pressable
-                  className='h-[42px] w-full items-center justify-center rounded-[8px] border border-gray-500 bg-gray-100 px-[18px]'
-                  onPress={() => {}}>
-                  <Text className='text-16m text-black'>다시 풀어보기</Text>
+                  className='h-[42px] w-full items-center justify-center rounded-[8px] border border-gray-500 px-[18px]'
+                  onPress={onPressSecondary}>
+                  <Text className='text-16m text-gray-900'>{secondaryButtonLabel}</Text>
                 </Pressable>
-              )}
+              ) : null}
               <Pressable
                 className='bg-primary-500 h-[42px] w-full items-center justify-center rounded-[8px] px-[18px]'
-                onPress={() => navigation?.navigate('Pointing')}>
-                <Text className='text-16m text-white'>포인팅 학습하기</Text>
+                onPress={onPressPrimary}>
+                <Text className='text-16m text-white'>{primaryButtonLabel}</Text>
               </Pressable>
             </Container>
           </View>
