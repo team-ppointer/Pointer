@@ -1,4 +1,7 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
+import { components } from '@schema';
+
+type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
 
 export type StudentTabParamList = {
   Home: undefined;
@@ -14,4 +17,9 @@ export type StudentRootStackParamList = {
   Problem: undefined;
   Pointing: undefined;
   Analysis: undefined;
+  AllPointings: {
+    group: PublishProblemGroupResp;
+    publishAt?: string;
+    problemSetTitle?: string;
+  };
 };

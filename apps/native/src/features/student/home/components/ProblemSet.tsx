@@ -98,7 +98,7 @@ const groupStatusMeta: Record<
     badgeClass: 'text-green-500',
     buttonLabel: '포인팅 모아보기',
     buttonVariant: 'outline',
-    actionable: false,
+    actionable: true,
   },
   DOING: {
     label: '학습 중',
@@ -213,8 +213,16 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
 
   const startSession = useProblemSessionStore((state) => state.init);
 
-  const handleStartFlow = useCallback(
+  const handleGroupAction = useCallback(
     (group: PublishGroup) => {
+      if (group.progress === 'DONE') {
+        navigation.navigate('AllPointings', {
+          group,
+          publishAt,
+          problemSetTitle: title,
+        });
+        return;
+      }
       if (!group) {
         Alert.alert('진행할 문제가 없어요.');
         return;
@@ -225,7 +233,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
       });
       navigation.navigate('Problem');
     },
-    [navigation, publishAt, publishId, startSession]
+    [navigation, publishAt, publishId, startSession, title]
   );
 
   return (
@@ -251,7 +259,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
                 index={index}
                 isExpanded={isExpanded}
                 onToggle={() => handleToggleGroup(key)}
-                onActionPress={handleStartFlow}
+                onActionPress={handleGroupAction}
               />
               {index < groups.length - 1 && <Divider />}
             </View>
