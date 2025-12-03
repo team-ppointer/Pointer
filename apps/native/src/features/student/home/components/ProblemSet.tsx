@@ -156,7 +156,7 @@ const ProblemList = ({ group, index, isExpanded, onToggle, onActionPress }: Prob
 
   return (
     <View className='flex-col px-[24px]'>
-      <View className='mb-[8px] flex-row items-center justify-between'>
+      <View className={`flex-row items-center justify-between ${isExpanded ? 'mb-[8px]' : ''}`}>
         <Text className='text-16b mr-[12px] text-black'>{`${index + 1}번`}</Text>
         <Text className={`text-12sb mr-auto ${statusMeta.badgeClass}`}>{statusMeta.label}</Text>
         <TextButton variant={statusMeta.buttonVariant} onPress={handlePress}>
@@ -200,7 +200,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
 
   const handleToggleGroup = (key: number) => {
     setExpandedGroups((prev) => {
-      const isCurrentlyExpanded = prev[key] ?? true;
+      const isCurrentlyExpanded = prev[key] ?? false;
       return { ...prev, [key]: !isCurrentlyExpanded };
     });
   };
@@ -251,7 +251,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
       ) : (
         groups.map((group, index) => {
           const key = group.problemId ?? index;
-          const isExpanded = expandedGroups[key] ?? true;
+          const isExpanded = expandedGroups[key] ?? false;
           return (
             <View key={key} className='gap-[24px]'>
               <ProblemList
