@@ -1,12 +1,12 @@
 import { Container, NotificationItem } from '@components/common';
 import { NoNotificationBellIcon } from '@components/system/icons';
-import { RootStackParamList } from '@navigation/RootNavigator';
+import { StudentRootStackParamList } from '@navigation/student/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 
 const NotificationScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
