@@ -6,10 +6,21 @@ import { LoadingScreen } from '@components/common';
 import type { RootStackParamList } from '@navigation/RootNavigator';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
+import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
+
+const shouldStartOnboarding = (flag: string | null) => {
+  if (flag === null) {
+    return true;
+  }
+
+  return flag.toLowerCase() !== 'false';
+};
 
 const AuthCallbackScreen = () => {
   const { setSessionStatus, setRole } = useAuthStore();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const startOnboarding = useOnboardingStore((state) => state.start);
+  const completeOnboarding = useOnboardingStore((state) => state.complete);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -29,11 +40,18 @@ const AuthCallbackScreen = () => {
 
     setRole('student');
     setSessionStatus('authenticated');
+
+    if (shouldStartOnboarding(isFirstLogin)) {
+      startOnboarding();
+    } else {
+      completeOnboarding();
+    }
+
     navigation.reset({
       index: 0,
       routes: [{ name: 'StudentApp' }],
     });
-  }, [navigation, setRole, setSessionStatus]);
+  }, [navigation, setRole, setSessionStatus, completeOnboarding, startOnboarding]);
 
   return <LoadingScreen label='로그인 중입니다...' />;
 };
