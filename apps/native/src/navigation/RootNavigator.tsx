@@ -2,19 +2,17 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
-import StudentNavigator from './student/StudentNavigator';
-import { AuthNavigator } from './auth/AuthNavigator';
+import StudentNavigator from '@navigation/student/StudentNavigator';
+import AuthNavigator from '@navigation/auth/AuthNavigator';
 import { useAuthStore } from '@stores';
-import { LoadingScreen } from '@components/common/LoadingScreen';
-import AuthCallbackScreen from '@features/auth/callback/screens/AuthCallbackScreen';
-import { useSocialLoginCallback } from '@hooks/useSocialLoginCallback';
+import { LoadingScreen } from '@components/common';
+import { AuthCallbackScreen } from '@features/auth/callback';
+import { useSocialLoginCallback } from '@hooks';
 
 export type RootStackParamList = {
   Splash: undefined;
   Auth: undefined;
   StudentApp: undefined;
-  Notifications: undefined;
-  NotificationDetail: undefined;
   AuthCallback: undefined;
 };
 

@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text } from 'react-native';
-import NotificationItem from '@components/common/NotificationItem';
-import Container from '@components/common/Container';
+import { NotificationItem, Container } from '@components/common';
 import LearningStatus from '../components/LearningStatus';
 import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@navigation/RootNavigator';
-import { useGetNotice, useGetLastDiagnosis, useGetMonthlyPublish, useGetPublishDetail } from '@apis';
+import { useAuthStore } from '@stores';
+import {
+  useGetNotice,
+  useGetLastDiagnosis,
+  useGetMonthlyPublish,
+  useGetPublishDetail,
+} from '@apis';
+import { StudentRootStackParamList } from '@navigation/student/types';
 
 const HomeScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedPublishId, setSelectedPublishId] = useState<number>(-1);
+  const studentName = useAuthStore((state) => state.studentProfile?.name);
 
   const { data: noticeData } = useGetNotice();
   const { data: diagnosisData } = useGetLastDiagnosis();
@@ -50,7 +56,7 @@ const HomeScreen = () => {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
       {/* Header Container */}
-      <View className='mx-auto w-full bg-blue-100'>
+      <View className='mx-auto w-full bg-blue-100 pt-[100vh] -mt-[100vh]'>
         {/* Notification Container */}
         <Container className='gap-[10px] pt-[16px]'>
           <NotificationItem
@@ -59,7 +65,7 @@ const HomeScreen = () => {
             title='오늘의 문제 세트가 도착했어요.'
             time='오늘 12:00'
             hasShadow={true}>
-            <NotificationItem.Button>문제풀기</NotificationItem.Button>
+            <NotificationItem.Button onPress={() => {}}>문제풀기</NotificationItem.Button>
           </NotificationItem>
 
           <NotificationItem
@@ -69,7 +75,7 @@ const HomeScreen = () => {
             hasShadow={true}>
             <NotificationItem.Button
               variant='ghost'
-              onPress={() => navigation.push('NotificationDetail')}>
+              onPress={() => navigation.navigate('NotificationDetail')}>
               더보기
             </NotificationItem.Button>
           </NotificationItem>
@@ -77,14 +83,14 @@ const HomeScreen = () => {
 
         {/* Learning Status Container */}
         <LearningStatus
-          studentName='테스트'
+          studentName={studentName ?? ''}
           date={diagnosisData?.createdAt ?? ''}
           content={diagnosisData?.content ?? ''}
         />
       </View>
       <Container className='gap-[16px] pt-[24px]'>
         <Text className='text-24b text-gray-900'>날짜별 문제 리스트</Text>
-        <View className='flex-col md:flex-row md:items-start gap-[20px]'>
+        <View className='flex-col gap-[20px] md:flex-row md:items-start'>
           <ProblemCalendar
             selectedMonth={selectedMonth}
             selectedDate={selectedDate}

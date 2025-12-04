@@ -9,7 +9,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
   // no-op if already prevented
 });
 
-export const useLoadAssets = () => {
+const useLoadAssets = () => {
   const [isReady, setIsReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
@@ -48,3 +48,5 @@ export const useLoadAssets = () => {
 
   return { isReady, fontsLoaded, loading: !isReady || !fontsLoaded };
 };
+
+export default useLoadAssets;

@@ -1,5 +1,3 @@
-import { client } from '@/apis';
-import authMiddleware from '@/apis/authMiddleware';
+import { client, authMiddleware } from '@apis';
 
 client.use(authMiddleware);
-

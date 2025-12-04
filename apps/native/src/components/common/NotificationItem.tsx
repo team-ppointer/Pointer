@@ -1,4 +1,4 @@
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 import { BookOpenText, LucideIcon, Megaphone, MessageCircleMore } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';

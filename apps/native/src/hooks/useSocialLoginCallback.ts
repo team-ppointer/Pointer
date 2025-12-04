@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 
-export function useSocialLoginCallback() {
+const useSocialLoginCallback = () => {
   const { setSessionStatus, setRole } = useAuthStore();
 
   useEffect(() => {
@@ -13,10 +13,11 @@ export function useSocialLoginCallback() {
 
       const parsed = Linking.parse(url);
 
-      const isPointerScheme = parsed.scheme === 'pointer' && parsed.path === 'auth/callback';
-      const isWebPath = Platform.OS === 'web' && parsed.path === '/auth/callback';
+      const isExpoGoScheme = parsed.scheme === 'exp' && parsed.path?.includes('auth/callback');
+      const isPointerScheme = parsed.scheme === 'pointer' && parsed.path?.includes('auth/callback');
+      const isWebPath = Platform.OS === 'web' && parsed.path?.includes('/auth/callback');
 
-      if (!isPointerScheme && !isWebPath) return;
+      if (!isExpoGoScheme && !isPointerScheme && !isWebPath) return;
 
       const { success, isFirstLogin, accessToken, refreshToken } = parsed.queryParams ?? {};
 
@@ -42,4 +43,6 @@ export function useSocialLoginCallback() {
       sub.remove();
     };
   }, [setSessionStatus, setRole]);
-}
+};
+
+export default useSocialLoginCallback;

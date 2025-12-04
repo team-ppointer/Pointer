@@ -1,10 +1,8 @@
-import Container from '@components/common/Container';
-import NotificationItem from '@components/common/NotificationItem';
+import { Container, NotificationItem } from '@components/common';
 import { NoNotificationBellIcon } from '@components/system/icons';
 import { RootStackParamList } from '@navigation/RootNavigator';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-// import { useNotificationNavigation } from '@/hooks/useNotificationNavigator';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 
 const NotificationScreen = () => {
