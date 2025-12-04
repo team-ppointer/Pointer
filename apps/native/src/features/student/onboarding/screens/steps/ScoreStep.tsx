@@ -33,7 +33,7 @@ const ScoreStep = ({ navigation }: OnboardingScreenProps<'Score'>) => {
       ctaDisabled={!score}
       skipLabel='건너뛰기'
       onSkip={handleSkip}>
-      <View className='gap-[10px] mb-[32px]'>
+      <View className='mb-[32px] gap-[10px]'>
         {scoreRows.map((row, rowIndex) => (
           <View key={`score-row-${rowIndex}`} className='flex-row gap-[10px]'>
             {row.map((option) => (
