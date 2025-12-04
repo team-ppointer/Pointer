@@ -3,6 +3,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
 import { ProblemScreen, PointingScreen, AnalysisScreen, AllPointingsScreen } from '@features/student/problem';
+import OnboardingScreen from '@features/student/onboarding/screens/OnboardingScreen';
+import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
+import { useAuthStore } from '@stores';
 import StudentTabs from './StudentTabs';
 import { StudentRootStackParamList } from './types';
 import NotificationHeader from './components/NotificationHeader';
@@ -10,6 +13,17 @@ import NotificationHeader from './components/NotificationHeader';
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();
 
 const StudentNavigator = () => {
+  const onboardingStatus = useOnboardingStore((state) => state.status);
+  const studentGrade = useAuthStore((state) => state.studentProfile?.grade);
+
+  const shouldShowOnboarding =
+    onboardingStatus === 'in-progress' ||
+    (!studentGrade && onboardingStatus !== 'completed');
+
+  if (shouldShowOnboarding) {
+    return <OnboardingScreen />;
+  }
+
   return (
     <StudentRootStack.Navigator screenOptions={{ headerShown: false }}>
       <StudentRootStack.Screen name='StudentTabs' component={StudentTabs} />

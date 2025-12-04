@@ -10,12 +10,14 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { colors } from '@theme/tokens';
 import { MailIcon, ChevronRightIcon } from 'lucide-react-native';
 import TermsConsentSheet from '../components/TermsConsentSheet';
+import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 
 const LoginScreen = () => {
   const { setSessionStatus, setRole } = useAuthStore();
   const [pendingSocial, setPendingSocial] = useState<'KAKAO' | 'GOOGLE' | null>(null);
   const termsSheetRef = useRef<BottomSheet>(null);
   const { bottom: bottomInset } = useSafeAreaInsets();
+  const startOnboarding = useOnboardingStore((state) => state.start);
 
   const handleLoginClick = async (social: 'KAKAO' | 'GOOGLE') => {
     try {
@@ -86,6 +88,7 @@ const LoginScreen = () => {
               setAccessToken(accessToken);
               if (refreshToken) setRefreshToken(refreshToken);
 
+              startOnboarding();
               setRole('student');
               setSessionStatus('authenticated');
             }}>
