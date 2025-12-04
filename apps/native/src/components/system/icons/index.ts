@@ -11,6 +11,8 @@ import NoNotificationBellIcon from './NoNotificationBellIcon';
 import TeacherIcon from './TeacherIcon';
 import KakaoIcon from './KakaoIcon';
 import GoogleIcon from './GoogleIcon';
+import CircleXFilledIcon from './CircleXFilledIcon';
+import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
 
 export {
   AlertBellButtonIcon,
@@ -26,4 +28,6 @@ export {
   TeacherIcon,
   KakaoIcon,
   GoogleIcon,
+  CircleXFilledIcon,
+  MessageSquareWarningFilledIcon,
 };
