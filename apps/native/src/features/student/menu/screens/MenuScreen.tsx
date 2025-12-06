@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { Text } from 'react-native';
 
-import { useGetUserInfo } from '@apis';
+import { useGetUserInfo } from '@apis/student';
 import { useAuthStore } from '@stores';
 import { Container, TextButton } from '@components/common';
 

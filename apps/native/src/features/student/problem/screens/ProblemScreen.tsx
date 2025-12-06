@@ -1,5 +1,5 @@
 import { colors } from '@/theme/tokens';
-import { postAnswer } from '@apis';
+import { postAnswer } from '@apis/student';
 import { Container } from '@components/common';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -14,7 +14,7 @@ import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
 import ResultSheet from '../components/ResultSheet';
 import WritingArea from '../components/WritingArea';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
+import { useInvalidateStudyData } from '@hooks';
 import { components } from '@schema';
 import {
   selectChildIndex,

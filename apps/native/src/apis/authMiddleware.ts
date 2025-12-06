@@ -15,7 +15,7 @@ import {
   setTeacherName,
   setTeacherRefreshToken,
 } from '@utils/auth';
-import { postRefreshToken } from '@apis/controller/auth';
+import { postRefreshToken } from '@apis/student';
 // import { postTeacherRefreshToken } from '@apis/controller-teacher/auth';
 import { env } from '@utils';
 
@@ -64,19 +64,15 @@ const reissueStudentToken = async () => {
 
 const reissueTeacherToken = async () => {
   // let accessToken = getTeacherAccessToken();
-
   // if (accessToken) {
   //   return accessToken;
   // }
-
   // const result = await postTeacherRefreshToken();
-
   // if (!result.isSuccess || !result.data) {
   //   console.warn('Teacher token refresh failed, clearing credentials.');
   //   await clearAuthState();
   //   return null;
   // }
-
   // if (result.data?.token.accessToken) {
   //   accessToken = result.data.token.accessToken;
   //   await setTeacherAccessToken(accessToken);

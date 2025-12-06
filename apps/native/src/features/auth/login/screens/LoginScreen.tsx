@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Text, View, Image, Linking, Pressable } from 'react-native';
 import { Container } from '@components/common';
-import { postSocialLogin } from '@apis';
+import { postSocialLogin } from '@apis/student';
 import { env, setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 import { GoogleIcon, KakaoIcon } from '@components/system/icons';
