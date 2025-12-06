@@ -327,6 +327,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/teacher/me/push/token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 푸시 토큰 등록/갱신 */
+    post: operations['updatePushToken'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/teacher/me/push/allow/toggle': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 푸시 알림 허용 토글 */
+    post: operations['toggleAllowPush'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/teacher/auth/refresh': {
     parameters: {
       query?: never;
@@ -447,7 +481,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/auth/register/social': {
+  '/api/student/me/push/token': {
     parameters: {
       query?: never;
       header?: never;
@@ -456,8 +490,76 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** 소셜 로그인 이후, 정보 등록 */
-    post: operations['registerSocial'];
+    /** 푸시 토큰 등록/갱신 */
+    post: operations['updatePushToken_1'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/me/push/allow/toggle': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 푸시 알림 허용 토글 */
+    post: operations['toggleAllowPush_1'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/me/password': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 비밀번호 변경 */
+    post: operations['changePassword'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/signup/local': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** [학생] 이메일 회원가입 */
+    post: operations['signup'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/register': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 초기 정보 등록 */
+    post: operations['register'];
     delete?: never;
     options?: never;
     head?: never;
@@ -515,6 +617,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/auth/phone/verify': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 휴대폰 인증 코드 검증 */
+    post: operations['verify'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/phone/send': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 휴대폰 인증 코드 발송 */
+    post: operations['send'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/phone/resend': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 휴대폰 인증 코드 재발송 */
+    post: operations['resend'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/user': {
     parameters: {
       query?: never;
@@ -544,6 +697,23 @@ export interface paths {
     put?: never;
     /** 생성 */
     post: operations['create_3'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/school/batch': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 학교 정보 업로드 batch */
+    post: operations['batch'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1082,6 +1252,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/school': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 검색 (유사도 상위순 7개 반환) */
+    get: operations['search_8'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/notice': {
     parameters: {
       query?: never;
@@ -1167,6 +1354,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/auth/email/exists': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** [학생] 이메일 중복확인 */
+    get: operations['existsByEmail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/common/auth/refresh': {
     parameters: {
       query?: never;
@@ -1192,7 +1396,7 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_8'];
+    get: operations['search_9'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1415,22 +1619,78 @@ export interface components {
       isRead: boolean;
       content: string;
     };
+    SchoolResp: {
+      /** Format: int64 */
+      id: number;
+      name?: string;
+      sido?: string;
+    };
     StudentResp: {
       /** Format: int64 */
       id: number;
+      isGteFourteen?: boolean;
+      isAgreeServiceUsage?: boolean;
+      isAgreePersonalInformation?: boolean;
+      isAgreeReceiveMarketing?: boolean;
+      /** Format: date-time */
+      agreeAt?: string;
+      email: string;
       name: string;
+      /** Format: date */
+      birth?: string;
+      /** @enum {string} */
+      gender?: 'MALE' | 'FEMALE';
+      phoneNumber?: string;
+      /** @enum {string} */
+      mobileCarrier?: 'KT' | 'SKT' | 'LG' | 'KT_MVNO' | 'SKT_MVNO' | 'LG_MVNO';
+      /** Format: date-time */
+      phoneNumberVerifiedAt?: string;
+      /** @enum {string} */
+      grade: 'ONE' | 'TWO' | 'THREE' | 'N_TIME';
+      /** @enum {string} */
+      selectSubject?: 'MIJUKBUN' | 'HWAKTONG' | 'KEEHA';
+      school?: components['schemas']['SchoolResp'];
       /** Format: int32 */
-      grade: number;
+      level?: number;
+      nickname?: string;
+      isAllowPush?: boolean;
+      /** @enum {string} */
+      provider?: 'KAKAO' | 'GOOGLE';
+      providerId?: string;
       isFirstLogin: boolean;
+      /** Format: int64 */
+      teacherId?: number;
+      teacherName?: string;
     };
     QnAUpdateRequest: {
       question: string;
       images?: number[];
     };
     StudentUpdateRequest: {
-      name: string;
+      isGteFourteen?: boolean;
+      isAgreeServiceUsage?: boolean;
+      isAgreePersonalInformation?: boolean;
+      isAgreeReceiveMarketing?: boolean;
+      email?: string;
+      name?: string;
+      /** Format: date */
+      birth?: string;
+      /** @enum {string} */
+      gender?: 'MALE' | 'FEMALE';
+      phoneNumber?: string;
+      /** @enum {string} */
+      mobileCarrier?: 'KT' | 'SKT' | 'LG' | 'KT_MVNO' | 'SKT_MVNO' | 'LG_MVNO';
+      /** Format: date-time */
+      phoneNumberVerifiedAt?: string;
+      /** @enum {string} */
+      grade?: 'ONE' | 'TWO' | 'THREE' | 'N_TIME';
+      /** @enum {string} */
+      selectSubject?: 'MIJUKBUN' | 'HWAKTONG' | 'KEEHA';
+      /** Format: int64 */
+      schoolId?: number;
       /** Format: int32 */
-      grade: number;
+      level?: number;
+      nickname?: string;
     };
     TeacherUpdateRequest: {
       name: string;
@@ -1443,22 +1703,10 @@ export interface components {
       name: string;
       email: string;
       students: components['schemas']['StudentResp'][];
+      isAllowPush?: boolean;
     };
     TeacherStudentAssignReq: {
       students: number[];
-    };
-    'ChildProblemUpdateDTO.Request': {
-      /** Format: int64 */
-      id?: number;
-      /** Format: int32 */
-      no?: number;
-      problemContent?: string;
-      /** @enum {string} */
-      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
-      /** Format: int32 */
-      answer?: number;
-      concepts?: number[];
-      pointings?: components['schemas']['PointingUpdateRequest'][];
     };
     PointingUpdateRequest: {
       /** Format: int64 */
@@ -1497,7 +1745,6 @@ export interface components {
       mainHandAnalysisImageId?: number;
       readingTipContent?: string;
       oneStepMoreContent?: string;
-      childProblems?: components['schemas']['ChildProblemUpdateDTO.Request'][];
     };
     ConceptCategoryResp: {
       /** Format: int64 */
@@ -1663,6 +1910,9 @@ export interface components {
       /** Format: int64 */
       studentId: number;
     };
+    'TeacherPushDTO.UpdateTokenRequest': {
+      fcmToken: string;
+    };
     RefreshReq: {
       refreshToken: string;
     };
@@ -1676,6 +1926,7 @@ export interface components {
       name: string;
       email: string;
       students: components['schemas']['StudentResp'][];
+      isAllowPush?: boolean;
       token?: components['schemas']['JwtResp'];
     };
     TeacherLoginReq: {
@@ -1757,14 +2008,79 @@ export interface components {
       id: number;
       isExist: boolean;
     };
+    'StudentPushDTO.UpdateTokenRequest': {
+      fcmToken: string;
+    };
+    'StudentPasswordDTO.UpdatePasswordRequest': {
+      newPassword: string;
+    };
+    StudentSignupReq: {
+      email: string;
+      password: string;
+    };
     StudentTokenResp: {
       /** Format: int64 */
       id: number;
+      isGteFourteen?: boolean;
+      isAgreeServiceUsage?: boolean;
+      isAgreePersonalInformation?: boolean;
+      isAgreeReceiveMarketing?: boolean;
+      /** Format: date-time */
+      agreeAt?: string;
+      email: string;
       name: string;
+      /** Format: date */
+      birth?: string;
+      /** @enum {string} */
+      gender?: 'MALE' | 'FEMALE';
+      phoneNumber?: string;
+      /** @enum {string} */
+      mobileCarrier?: 'KT' | 'SKT' | 'LG' | 'KT_MVNO' | 'SKT_MVNO' | 'LG_MVNO';
+      /** Format: date-time */
+      phoneNumberVerifiedAt?: string;
+      /** @enum {string} */
+      grade: 'ONE' | 'TWO' | 'THREE' | 'N_TIME';
+      /** @enum {string} */
+      selectSubject?: 'MIJUKBUN' | 'HWAKTONG' | 'KEEHA';
+      school?: components['schemas']['SchoolResp'];
       /** Format: int32 */
-      grade: number;
+      level?: number;
+      nickname?: string;
+      isAllowPush?: boolean;
+      /** @enum {string} */
+      provider?: 'KAKAO' | 'GOOGLE';
+      providerId?: string;
       isFirstLogin: boolean;
+      /** Format: int64 */
+      teacherId?: number;
+      teacherName?: string;
       token: components['schemas']['JwtResp'];
+    };
+    'StudentInitialRegisterDTO.Req': {
+      isGteFourteen: boolean;
+      isAgreeServiceUsage: boolean;
+      isAgreePersonalInformation: boolean;
+      isAgreeReceiveMarketing?: boolean;
+      email?: string;
+      name: string;
+      /** Format: date */
+      birth?: string;
+      /** @enum {string} */
+      gender?: 'MALE' | 'FEMALE';
+      phoneNumber?: string;
+      /** @enum {string} */
+      mobileCarrier?: 'KT' | 'SKT' | 'LG' | 'KT_MVNO' | 'SKT_MVNO' | 'LG_MVNO';
+      /** Format: date-time */
+      phoneNumberVerifiedAt?: string;
+      /** @enum {string} */
+      grade: 'ONE' | 'TWO' | 'THREE' | 'N_TIME';
+      /** @enum {string} */
+      selectSubject?: 'MIJUKBUN' | 'HWAKTONG' | 'KEEHA';
+      /** Format: int64 */
+      schoolId?: number;
+      /** Format: int32 */
+      level?: number;
+      nickname?: string;
     };
     SocialLoginReq: {
       /** @enum {string} */
@@ -1784,6 +2100,33 @@ export interface components {
       contentDisposition: string;
       uploadUrl: string;
     };
+    /** @description 휴대폰 인증 코드 검증 요청 */
+    PhoneAuthVerifyRequest: {
+      /** @description 휴대폰 번호 */
+      phone: string;
+      /** @description 인증 용도 (예: signup, reset-password 등) */
+      purpose?: string;
+      /** @description 인증 코드 */
+      code: string;
+    };
+    SimpleSuccessResp: {
+      success?: boolean;
+      message?: string;
+    };
+    /** @description 휴대폰 인증 코드 발송 요청 */
+    PhoneAuthSendRequest: {
+      /** @description 휴대폰 번호 */
+      phone: string;
+      /** @description 인증 용도 (예: signup, reset-password 등) */
+      purpose?: string;
+    };
+    /** @description 휴대폰 인증 코드 재발송 요청 */
+    PhoneAuthResendRequest: {
+      /** @description 휴대폰 번호 */
+      phone: string;
+      /** @description 인증 용도 (예: signup, reset-password 등) */
+      purpose?: string;
+    };
     AdminCreateRequest: {
       email: string;
       password: string;
@@ -1792,6 +2135,10 @@ export interface components {
       name: string;
       email: string;
       password: string;
+    };
+    SchoolSaveRespDTO: {
+      /** Format: int32 */
+      count?: number;
     };
     PublishCreateRequest: {
       /** Format: int64 */
@@ -2008,6 +2355,11 @@ export interface components {
       total: number;
       data: components['schemas']['NoticeResp'][];
     };
+    ListRespSchoolResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['SchoolResp'][];
+    };
     NoticeUnreadCountResp: {
       /** Format: int64 */
       totalCount?: number;
@@ -2019,6 +2371,9 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['DiagnosisResp'][];
+    };
+    BooleanResp: {
+      value: boolean;
     };
     PageRespTeacherResp: {
       /** Format: int32 */
@@ -2903,6 +3258,50 @@ export interface operations {
       };
     };
   };
+  updatePushToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TeacherPushDTO.UpdateTokenRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['TeacherResp'];
+        };
+      };
+    };
+  };
+  toggleAllowPush: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['TeacherResp'];
+        };
+      };
+    };
+  };
   refresh: {
     parameters: {
       query?: never;
@@ -3091,7 +3490,7 @@ export interface operations {
       };
     };
   };
-  registerSocial: {
+  updatePushToken_1: {
     parameters: {
       query?: never;
       header?: never;
@@ -3100,7 +3499,99 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['StudentUpdateRequest'];
+        'application/json': components['schemas']['StudentPushDTO.UpdateTokenRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentResp'];
+        };
+      };
+    };
+  };
+  toggleAllowPush_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentResp'];
+        };
+      };
+    };
+  };
+  changePassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentPasswordDTO.UpdatePasswordRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentResp'];
+        };
+      };
+    };
+  };
+  signup: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentSignupReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentTokenResp'];
+        };
+      };
+    };
+  };
+  register: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentInitialRegisterDTO.Req'];
       };
     };
     responses: {
@@ -3187,6 +3678,78 @@ export interface operations {
       };
     };
   };
+  verify: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PhoneAuthVerifyRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['SimpleSuccessResp'];
+        };
+      };
+    };
+  };
+  send: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PhoneAuthSendRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['SimpleSuccessResp'];
+        };
+      };
+    };
+  };
+  resend: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PhoneAuthResendRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['SimpleSuccessResp'];
+        };
+      };
+    };
+  };
   create_2: {
     parameters: {
       query?: never;
@@ -3253,6 +3816,33 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['TeacherResp'];
+        };
+      };
+    };
+  };
+  batch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'multipart/form-data': {
+          /** Format: binary */
+          file: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['SchoolSaveRespDTO'];
         };
       };
     };
@@ -4159,6 +4749,28 @@ export interface operations {
       };
     };
   };
+  search_8: {
+    parameters: {
+      query?: {
+        query?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespSchoolResp'];
+        };
+      };
+    };
+  };
   getsAvailable_1: {
     parameters: {
       query?: never;
@@ -4261,6 +4873,28 @@ export interface operations {
       };
     };
   };
+  existsByEmail: {
+    parameters: {
+      query: {
+        email: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['BooleanResp'];
+        };
+      };
+    };
+  };
   refresh_3: {
     parameters: {
       query?: never;
@@ -4281,7 +4915,7 @@ export interface operations {
       };
     };
   };
-  search_8: {
+  search_9: {
     parameters: {
       query?: {
         query?: string;
