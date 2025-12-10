@@ -9,6 +9,8 @@ import HomeFilledIcon from './HomeFilledIcon';
 import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
 import NoNotificationBellIcon from './NoNotificationBellIcon';
 import TeacherIcon from './TeacherIcon';
+import CircleCheckDashed from './CircleCheckDashed';
+import ChevronUpFilledIcon from './ChevronUpFilledIcon';
 
 export {
   AlertBellButtonIcon,
@@ -18,8 +20,10 @@ export {
   CalendarNotStartedIcon,
   CalendarUnavailableIcon,
   ChevronDownFilledIcon,
+  ChevronUpFilledIcon,
   HomeFilledIcon,
   MessageCircleMoreFilledIcon,
   NoNotificationBellIcon,
   TeacherIcon,
+  CircleCheckDashed,
 };
