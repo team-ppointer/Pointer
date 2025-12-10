@@ -22,4 +22,7 @@ export type StudentRootStackParamList = {
     publishAt?: string;
     problemSetTitle?: string;
   };
+  Scrap: undefined;
+  SearchScrap: undefined;
+  DeletedScrap: undefined;
 };
