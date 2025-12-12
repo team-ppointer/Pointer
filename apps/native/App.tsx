@@ -11,6 +11,8 @@ import '@/app/providers/api';
 import { LoadingScreen } from '@components/common';
 import { useLoadAssets } from '@hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
+import { toastConfig } from '@/features/student/scrap/components/Modal/Toast';
 
 const queryClient = new QueryClient();
 
@@ -46,6 +48,7 @@ export default function App() {
           <NavigationContainer theme={navigationTheme} linking={linking}>
             <StatusBar style='dark' />
             <RootNavigator />
+            <Toast config={toastConfig} />
           </NavigationContainer>
         </SafeAreaProvider>
       </GestureHandlerRootView>
