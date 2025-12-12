@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, Search, Trash2 } from 'lucide-react-native';
 import { CircleCheckDashed } from '@/components/system/icons';
-import { State } from '../utils/reducer';
+import { State } from '../../utils/reducer';
 import { colors } from '@/theme/tokens';
 
 interface ScrapHeaderProps {
