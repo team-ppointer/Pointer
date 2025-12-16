@@ -5,17 +5,18 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { DummyItem, SearchScrapGrid } from '../components/ScrapItemGrid';
-import { useScrapStore } from '@/stores/scrapDataStore';
-import { SearchResultItem } from '../components/ScrapItem';
+import { SearchScrapGrid } from '../components/ScrapCardGrid';
+import { useScrapStore, useSearchHistoryStore, SearchResult } from '@/stores/scrapDataStore';
+import SearchScrapHeader from '../components/Header/SearchHeader';
 
 const SearchScrapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [query, setQuery] = useState('');
   const searchByTitle = useScrapStore((state) => state.searchByTitle);
-  const [results, setResults] = useState<SearchResultItem[]>([]);
+  const { keywords, addKeyword, removeKeyword, clear } = useSearchHistoryStore();
+  const [results, setResults] = useState<SearchResult[]>([]);
 
   useEffect(() => {
     if (query.trim().length === 0) {
@@ -25,52 +26,50 @@ const SearchScrapScreen = () => {
     }
   }, [query]);
 
+  const onSearch = () => {
+    if (!query.trim()) return;
+
+    addKeyword(query);
+    setResults(searchByTitle(query));
+  };
+
   return (
-    <View className='w-full flex-1 bg-gray-100'>
-      <SafeAreaView edges={['top']} className='bg-gray-100'>
-        <View className='flex-row items-center justify-between px-5 py-3.5'>
-          <View className='flex-1 flex-row justify-center rounded-[8px] border-[1px] border-gray-500 bg-white px-3.5 py-2'>
-            <TextInput
-              className='text-18m flex-1 text-black'
-              placeholder='스크랩 제목을 검색하세요.'
-              multiline={false}
-              textAlignVertical='top'
-              placeholderTextColor={colors['gray-500']}
-              allowFontScaling={false}
-              numberOfLines={1}
-              value={query}
-              onChangeText={setQuery}
-              onEndEditing={() => {}}
-            />
-            {query.length > 0 && (
-              <Pressable
-                className='items-center justify-center gap-[10px] rounded-[100px] bg-gray-400 p-0.5'
-                onPress={() => setQuery('')}>
-                <X size={20} color={'#3E3F45'} />
-              </Pressable>
-            )}
-          </View>
-          {navigation.canGoBack() ? (
-            <Pressable onPress={() => navigation.goBack()} className='p-2'>
-              <View className='items-center justify-center gap-[10px]'>
-                <ChevronLeft className='text-black' size={32} />
-              </View>
-            </Pressable>
-          ) : (
-            <View className='h-[48px] w-[48px] gap-[10px]' />
-          )}
-        </View>
-      </SafeAreaView>
-      <Container className='flex-row items-end justify-between py-[10px]'>
+    <View className='w-full bg-gray-100'>
+      <SearchScrapHeader
+        navigateback={navigation}
+        query={query}
+        setQuery={setQuery}
+        onSubmitEditing={onSearch}
+      />
+      <Container className='flex-col justify-between py-[10px]'>
         {query.length === 0 ? (
-          <>
+          <View className='w-full flex-row items-center justify-between'>
             <Text className='text-16m rounded-1 gap-0.5 p-1 text-gray-900'>최근 검색어</Text>
-            <Pressable className='gap-[10px] px-2'>
+            <Pressable className='gap-[10px] px-2' onPress={() => clear()}>
               <Text className='text-12sb text-blue-500'>전체 지우기</Text>
             </Pressable>
-          </>
+          </View>
         ) : (
           <Text className='text-16m rounded-1 gap-0.5 p-1 text-gray-900'>검색 결과</Text>
+        )}
+        {query.length === 0 && (
+          <ScrollView
+            className='py-[10px]'
+            horizontal={true}
+            contentContainerClassName='gap-[10px]'>
+            {keywords.map((item, i) => (
+              <View
+                key={i}
+                className='w-fit flex-row items-center gap-2.5 rounded-[50px] bg-gray-300 px-[14px] py-2'>
+                <Pressable onPress={() => setQuery(item)}>
+                  <Text className='text-16m text-[#1E1E21]'>{item}</Text>
+                </Pressable>
+                <Pressable onPress={() => removeKeyword(item)}>
+                  <X size={20} color='#9FA4AE' />
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
         )}
       </Container>
       <Container className='flex-row items-end justify-between py-[10px]'>
