@@ -2,10 +2,12 @@ import { colors } from '@/theme/tokens';
 import { Plus } from 'lucide-react-native';
 import { Pressable, View, Text, Image } from 'react-native';
 import TooltipPopover, { AddItemTooltipBox, ReviewItemTooltipBox } from './Modal/TooltipBox';
-import Popover from 'react-native-popover-view';
 import { Placement } from 'react-native-popover-view/dist/Types';
 import { ChevronDownFilledIcon } from '@/components/system/icons';
-import { FolderOverrides, ItemProps } from './ScrapItem';
+import { ScrapListItemProps } from './ScrapCard';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StudentRootStackParamList } from '@/navigation/student/types';
 
 export const ScrapAddItem = () => {
   return (
@@ -13,22 +15,26 @@ export const ScrapAddItem = () => {
       placement={Placement.BOTTOM}
       children={<AddItemTooltipBox />}
       from={
-        <Pressable className={`w-full items-center gap-3 rounded-[10px] p-[10px]`}>
+        <View className={`w-full items-center gap-3 rounded-[10px] p-[10px]`}>
           <View className='h-[145.5px] w-[145.5px] items-center justify-center border-[1.5px] border-dashed border-gray-600 p-[44px]'>
             <Plus size={24} color={colors['gray-600']} />
           </View>
           <View className={`w-full flex-col px-[6px]`}>
             <Text className='text-16sb text-[#1E1E21]'>추가하기</Text>
           </View>
-        </Pressable>
+        </View>
       }
     />
   );
 };
 
-export const ScrapReviewItem = ({ props }: { props: ItemProps & FolderOverrides }) => {
+export const ScrapReviewItem = ({ props }: { props: ScrapListItemProps }) => {
+  const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
+
   return (
-    <Pressable className={`w-full items-center gap-3 rounded-[10px] p-[10px]`}>
+    <Pressable
+      className={`w-full items-center gap-3 rounded-[10px] p-[10px]`}
+      onPress={() => navigation.push('ScrapContent', { id: props.id })}>
       <Image
         source={require('../../../../../assets/images/scrap-review-note-cover.png')}
         resizeMode='contain'
@@ -41,11 +47,13 @@ export const ScrapReviewItem = ({ props }: { props: ItemProps & FolderOverrides 
               {props.title}
             </Text>
             <TooltipPopover
-              children={<ReviewItemTooltipBox props={props} />}
+              children={(close) => <ReviewItemTooltipBox props={props} onClose={close} />}
               from={<ChevronDownFilledIcon />}
             />
           </View>
-          <Text className='text-12m text-gray-700'>{props.amount}</Text>
+          {props.type === 'FOLDER' && (
+            <Text className='text-12m text-gray-700'>{props.contents.length}</Text>
+          )}
         </View>
         <Text className='text-10r text-gray-700'>{props.timestamp}</Text>
       </View>
