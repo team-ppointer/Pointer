@@ -1,4 +1,4 @@
-import { DummyItem } from '../components/ScrapItemGrid';
+import { ScrapItem } from '@/types/test/types';
 
 const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -6,38 +6,41 @@ const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max 
 const randomTitle = () => '이름' + randomInt(1, 1000);
 
 // SCRAP 아이템 랜덤 생성
-const createRandomScrap = (): DummyItem => ({
+const createRandomScrap = ({
+  parentFolderId = undefined,
+}: {
+  parentFolderId?: string;
+}): ScrapItem => ({
   id: randomInt(1000, 9999).toString(),
   type: 'SCRAP',
   title: randomTitle() + '스크랩',
   timestamp: 202511000000 - randomInt(0, 100000),
+  parentFolderId: parentFolderId,
 });
 
 // FOLDER 안에 SCRAP 몇 개 넣기
-const createRandomFolder = (id: string, title?: string): DummyItem => {
+const createRandomFolder = (id: string, title?: string): ScrapItem => {
   const count = randomInt(2, 5); // 2~5개
-  const contents = Array.from({ length: count }, () => createRandomScrap());
+  const contents = Array.from({ length: count }, () => createRandomScrap({ parentFolderId: id }));
 
   return {
     id,
     type: 'FOLDER',
     title: title ?? randomTitle() + '폴더',
-    amount: contents.length,
     timestamp: 202510000000 - randomInt(0, 100000),
     contents,
   };
 };
 
 // 데이터 생성
-export const folderDummy: DummyItem[] = [
+export const folderDummy: ScrapItem[] = [
   // REVIEW 폴더 고정
   {
     id: 'REVIEW',
     type: 'FOLDER',
     title: '오답노트',
-    amount: 3,
     timestamp: 202410191130,
-    contents: Array.from({ length: 3 }, () => createRandomScrap()),
+    contents: Array.from({ length: 3 }, () => createRandomScrap({ parentFolderId: 'REVIEW' })),
   },
   // 랜덤 FOLDER/SCRAP 12개
   ...Array.from({ length: 12 }, (_, i) => {
@@ -47,7 +50,7 @@ export const folderDummy: DummyItem[] = [
       return createRandomFolder(id);
     } else {
       // SCRAP
-      return createRandomScrap();
+      return createRandomScrap({});
     }
   }),
 ];
