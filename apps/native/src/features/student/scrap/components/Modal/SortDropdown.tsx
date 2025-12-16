@@ -17,12 +17,18 @@ export const orderList: OrderItem[] = [
   { label: '최신순', value: 'DATE' },
 ];
 
+export const orderContent: OrderItem[] = [
+  { label: '이름순', value: 'TITLE' },
+  { label: '최신순', value: 'DATE' },
+];
+
 interface SortDropdownProps {
+  ordertype: 'LIST' | 'CONTENT';
   orderValue: SortKey;
   setOrderValue: (value: SortKey) => void;
 }
 
-const SortDropdown: React.FC<SortDropdownProps> = ({ orderValue, setOrderValue }) => {
+const SortDropdown: React.FC<SortDropdownProps> = ({ ordertype, orderValue, setOrderValue }) => {
   const [isFocus, setIsFocus] = useState(false);
 
   return (
@@ -32,7 +38,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({ orderValue, setOrderValue }
       itemContainerStyle={styles.itemContainer}
       placeholderStyle={styles.placeholder}
       selectedTextStyle={{ ...styles.selectedText, textAlign: 'right' }}
-      data={orderList}
+      data={ordertype === 'LIST' ? orderList : orderContent}
       labelField='label'
       valueField='value'
       value={orderValue}
