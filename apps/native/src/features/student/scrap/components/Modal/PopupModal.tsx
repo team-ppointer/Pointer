@@ -20,7 +20,7 @@ const PopUpModal = ({
         setVisibleState(false);
       }}>
       <TouchableWithoutFeedback onPress={() => setVisibleState(false)}>
-        <View className={`flex-1 items-center justify-center bg-black ${className}`}>
+        <View className={`flex-1 items-center justify-center bg-black/40 ${className}`}>
           <TouchableWithoutFeedback onPress={() => {}}>{children}</TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
