@@ -52,7 +52,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
       onPress={() => {
         if (state.isSelecting) return;
 
-        if (props.type === 'FOLDER') navigation.push('ScrapContentList', { id: props.id });
+        if (props.type === 'FOLDER') navigation.push('ScrapContent', { id: props.id });
       }}>
       <View className='h-[145.5px] w-[145.5px] rounded-[10px] bg-gray-600' />
 
@@ -105,7 +105,7 @@ export const SearchResultCard = ({ item, parentFolderName }: SearchResultCardPro
     <Pressable
       className='w-full items-center gap-3 rounded-[10px] p-[10px]'
       onPress={() => {
-        if (item.type === 'FOLDER') navigation.push('ScrapContentList', { id: item.id });
+        if (item.type === 'FOLDER') navigation.push('ScrapContent', { id: item.id });
       }}>
       <View className='h-[145.5px] w-[145.5px] rounded-[10px] bg-gray-600' />
 
