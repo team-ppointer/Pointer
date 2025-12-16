@@ -1,13 +1,17 @@
 import { Container } from '@/components/common';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Pressable } from 'react-native';
-import { ArrowRightLeft, Search, Trash2 } from 'lucide-react-native';
+import { ArrowRightLeft, ChevronLeft, Search, Trash2 } from 'lucide-react-native';
 import { CircleCheckDashed } from '@/components/system/icons';
 import { State } from '../../utils/reducer';
 import { colors } from '@/theme/tokens';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StudentRootStackParamList } from '@/navigation/student/types';
 
 interface ScrapHeaderProps {
-  ruducerState: State;
+  navigateback?: NativeStackNavigationProp<StudentRootStackParamList>;
+  title?: string;
+  reducerState: State;
   navigateSearchPress?: () => void;
   navigateTrashPress?: () => void;
   onEnterSelection?: () => void;
@@ -19,7 +23,9 @@ interface ScrapHeaderProps {
 }
 
 const ScrapHeader = ({
-  ruducerState,
+  navigateback,
+  title = '스크랩',
+  reducerState,
   navigateSearchPress,
   navigateTrashPress,
   onEnterSelection,
@@ -29,14 +35,21 @@ const ScrapHeader = ({
   isAllSelected,
   onSelectAll,
 }: ScrapHeaderProps) => {
-  const isActionEnabled = ruducerState.selectedItems.length > 0;
+  const isActionEnabled = reducerState.selectedItems.length > 0;
   return (
     <SafeAreaView
       edges={['top']}
-      className={`bg-${!ruducerState.isSelecting ? 'background' : 'gray-200'}`}>
-      {!ruducerState.isSelecting && (
+      className={`bg-${!reducerState.isSelecting ? 'background' : 'gray-200'}`}>
+      {!reducerState.isSelecting && (
         <Container className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
-          <Text className='text-20b text-gray-900'>스크랩</Text>
+          {navigateback && navigateback.canGoBack() && (
+            <Pressable onPress={() => navigateback.goBack()} className='p-2'>
+              <View className='items-center justify-center gap-[10px]'>
+                <ChevronLeft className='text-black' size={32} />
+              </View>
+            </Pressable>
+          )}
+          <Text className='text-20b text-gray-900'>{title}</Text>
           <View className='flex-row items-center gap-1'>
             <Pressable
               className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
@@ -57,7 +70,7 @@ const ScrapHeader = ({
         </Container>
       )}
 
-      {ruducerState.isSelecting && (
+      {reducerState.isSelecting && (
         <View className='flex-col border-b border-gray-400 bg-gray-200'>
           <View className='flex-row justify-between px-5 py-0.5'>
             <Pressable onPress={onSelectAll}>
@@ -77,7 +90,7 @@ const ScrapHeader = ({
               onPress={() => {
                 if (isActionEnabled && onMove) onMove();
               }}
-              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${ruducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
+              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <ArrowRightLeft size={24} color={colors['primary-500']} />
               <Text className='text-12m text-primary-500'>이동하기</Text>
             </Pressable>
@@ -85,7 +98,7 @@ const ScrapHeader = ({
               onPress={() => {
                 if (isActionEnabled && onDelete) onDelete();
               }}
-              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${ruducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
+              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Trash2 size={24} color={colors['red-400']} />
               <Text className='text-12m text-red-400'>삭제하기</Text>
             </Pressable>
