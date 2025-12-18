@@ -70,7 +70,7 @@ const DeletedScrapScreen = () => {
               };
             });
 
-            await restoreTrash({ items } as any);
+            await restoreTrash({ items });
             dispatch({ type: 'CLEAR_SELECTION' });
             showToast('success', '선택된 파일들이 복구되었습니다.');
           } catch (error) {
@@ -134,7 +134,7 @@ const DeletedScrapScreen = () => {
                     };
                   });
 
-                  await permanentDelete({ items } as any);
+                  await permanentDelete({ items });
                   dispatch({ type: 'CLEAR_SELECTION' });
                   setIsDeleteModalVisible(false);
                   showToast('success', '영구 삭제되었습니다.');
