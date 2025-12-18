@@ -41,7 +41,9 @@ const DeletedScrapHeader = ({
       {!reducerState.isSelecting && (
         <Container className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
           {navigateback.canGoBack() ? (
-            <Pressable onPress={() => navigateback.goBack()} className='p-2'>
+            <Pressable
+              onPress={() => navigateback.goBack()}
+              className='p-2 md:right-[48px] lg:right-[96px]'>
               <View className='items-center justify-center gap-[10px]'>
                 <ChevronLeft className='text-black' size={32} />
               </View>
