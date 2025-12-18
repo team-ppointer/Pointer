@@ -11,7 +11,11 @@ import {
 import StudentTabs from './StudentTabs';
 import { StudentRootStackParamList } from './types';
 import NotificationHeader from './components/NotificationHeader';
-import { DeletedScrapScreen, ScrapScreen, SearchScrapScreen } from '@/features/student/scrap';
+import {
+  DeletedScrapScreen,
+  ScrapScreen,
+  SearchScrapScreen,
+} from '@/features/student/scrap';
 import ScrapContentScreen from '@/features/student/scrap/screens/ScrapContentScreen';
 
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();

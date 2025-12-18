@@ -1,4 +1,3 @@
-import { FolderCardProps } from '@/features/student/scrap/components/ScrapCard';
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import { components } from '@schema';
 
@@ -30,3 +29,4 @@ export type StudentRootStackParamList = {
   SearchScrap: undefined;
   DeletedScrap: undefined;
 };
+
