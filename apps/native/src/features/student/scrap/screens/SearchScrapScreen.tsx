@@ -5,32 +5,36 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { SearchScrapGrid } from '../components/ScrapCardGrid';
-import { useScrapStore, useSearchHistoryStore, SearchResult } from '@/stores/scrapDataStore';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { SearchScrapGrid } from '../components/Card/ScrapCardGrid';
+import { useSearchHistoryStore } from '@/stores/scrapDataStore';
 import SearchScrapHeader from '../components/Header/SearchHeader';
+import { useSearchScraps } from '@/apis';
 
 const SearchScrapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [query, setQuery] = useState('');
-  const searchByTitle = useScrapStore((state) => state.searchByTitle);
+  const [shouldSearch, setShouldSearch] = useState(false);
   const { keywords, addKeyword, removeKeyword, clear } = useSearchHistoryStore();
-  const [results, setResults] = useState<SearchResult[]>([]);
 
-  useEffect(() => {
-    if (query.trim().length === 0) {
-      setResults([]);
-    } else {
-      setResults(searchByTitle(query));
-    }
-  }, [query]);
+  // API 검색
+  const { data: searchData } = useSearchScraps(
+    {
+      query: query.trim(),
+      filter: 'ALL',
+      sort: 'CREATED_AT',
+      order: 'DESC',
+    },
+    // 쿼리가 있을 때만 검색
+    query.trim().length > 0
+  );
+
+  const results = searchData?.data || [];
 
   const onSearch = () => {
     if (!query.trim()) return;
-
     addKeyword(query);
-    setResults(searchByTitle(query));
+    setShouldSearch(true);
   };
 
   return (

@@ -1,48 +1,46 @@
-import React, { useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useMemo, useReducer, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import DeletedScrapHeader from '../components/Header/DeletedHeader';
 import { reducer, initialSelectionState } from '../utils/reducer';
 import { useNavigation } from '@react-navigation/native';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useScrapStore, useTrashStore } from '@/stores/scrapDataStore';
-import { TrashItem } from '@/types/test/types';
 import { Container, LoadingScreen } from '@/components/common';
-import { TrashScrapGrid } from '../components/ScrapCardGrid';
+import { TrashScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Modal/SortDropdown';
-import { SortKey, SortOrder, sortScrapData } from '../utils/sortScrap';
-import { ChevronDownFilledIcon, ChevronUpFilledIcon } from '@/components/system/icons';
+import { sortScrapData } from '../utils/sortScrap';
+import type { UISortKey, SortOrder } from '../utils/types';
 import PopUpModal from '../components/Modal/PopupModal';
 import { showToast } from '../components/Modal/Toast';
+import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
 
 const DeletedScrapScreen = () => {
   const [reducerState, dispatch] = useReducer(reducer, initialSelectionState);
-  const [fetchloading, setFetchLoading] = useState(false);
-  const [sortKey, setSortKey] = useState<SortKey>('TYPE'); // 기본: 유형순
-  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC'); // 기본: 오름차순
+  const [sortKey, setSortKey] = useState<UISortKey>('TYPE');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
 
-  const fetchdata = useTrashStore((state) => state.data);
-  const deleteForever = useTrashStore((state) => state.deleteForever);
-  const restoreFromTrash = useTrashStore((state) => state.restoreFromTrash);
-  const restoreToScrap = useScrapStore((state) => state.restoreItem);
+  // API 호출
+  const { data: trashData, isLoading } = useGetTrash();
+  const { mutateAsync: restoreTrash } = useRestoreTrash();
+  const { mutateAsync: permanentDelete } = usePermanentDeleteTrash();
 
-  useEffect(() => {
-    setFetchLoading(true);
+  const trashItems = trashData?.data || [];
 
-    const timer = setTimeout(() => {
-      setFetchLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [fetchdata]);
-
-  // 정렬된 데이터를 useMemo로 계산
+  /**
+   * 휴지통 아이템 정렬
+   * API의 TrashItemResp는 createdAt이 없으므로 deletedAt을 createdAt으로 사용
+   */
   const sortedData = useMemo(() => {
-    return sortScrapData(fetchdata, sortKey, sortOrder);
-  }, [fetchdata, sortKey, sortOrder]);
+    const itemsWithCreatedAt = trashItems.map((item) => ({
+      ...item,
+      createdAt: item.deletedAt,
+    }));
+
+    return sortScrapData(itemsWithCreatedAt, sortKey, sortOrder);
+  }, [trashItems, sortKey, sortOrder]);
 
   return (
     <View className='w-full flex-1 bg-gray-100'>
@@ -64,12 +62,15 @@ const DeletedScrapScreen = () => {
         }}
         onRestore={async () => {
           try {
-            const itemsToRestore = fetchdata.filter((item: { id: string }) =>
-              reducerState.selectedItems.includes(item.id)
-            );
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            itemsToRestore.forEach((item) => restoreToScrap(item));
-            restoreFromTrash(reducerState.selectedItems);
+            const items = reducerState.selectedItems.map((id) => {
+              const item = trashItems.find((item) => item.id === id);
+              return {
+                id,
+                type: item?.type || ('SCRAP' as const),
+              };
+            });
+
+            await restoreTrash({ items } as any);
             dispatch({ type: 'CLEAR_SELECTION' });
             showToast('success', '선택된 파일들이 복구되었습니다.');
           } catch (error) {
@@ -78,16 +79,20 @@ const DeletedScrapScreen = () => {
         }}
       />
       <View className='bg-gray-100'>
-        <Container className='items-end gap-[10px] py-[10px]'>
-          <View className='flex-row items-center justify-between'>
-            <SortDropdown ordertype={'LIST'} orderValue={sortKey} setOrderValue={setSortKey} />
-            <Pressable onPress={() => setSortOrder((prev) => (prev === 'ASC' ? 'DESC' : 'ASC'))}>
-              {sortOrder === 'ASC' ? <ChevronUpFilledIcon /> : <ChevronDownFilledIcon />}
-            </Pressable>
-          </View>
+        <Container className='flex-row items-center justify-between gap-[10px] py-[10px]'>
+          <Text className='text-14r text-gray-600'>
+            휴지통의 스크랩은 30일 이후에 영구적으로 삭제됩니다.
+          </Text>
+          <SortDropdown
+            ordertype={'LIST'}
+            orderValue={sortKey}
+            setOrderValue={setSortKey}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+          />
         </Container>
         <Container className='pb-[120px] pt-4'>
-          {fetchloading ? (
+          {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <TrashScrapGrid data={sortedData} reducerState={reducerState} dispatch={dispatch} />
@@ -119,9 +124,17 @@ const DeletedScrapScreen = () => {
             </Pressable>
             <Pressable
               className='flex-1 items-center justify-center rounded-[12px] border border-gray-500 bg-red-400 py-[12px]'
-              onPress={() => {
+              onPress={async () => {
                 try {
-                  deleteForever(reducerState.selectedItems);
+                  const items = reducerState.selectedItems.map((id) => {
+                    const item = trashItems.find((item) => item.id === id);
+                    return {
+                      id,
+                      type: item?.type || ('SCRAP' as const),
+                    };
+                  });
+
+                  await permanentDelete({ items } as any);
                   dispatch({ type: 'CLEAR_SELECTION' });
                   setIsDeleteModalVisible(false);
                   showToast('success', '영구 삭제되었습니다.');

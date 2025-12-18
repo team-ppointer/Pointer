@@ -2,39 +2,37 @@ import { Container, LoadingScreen } from '@/components/common';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useReducer, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import React, { useMemo, useReducer, useState } from 'react';
+import { View } from 'react-native';
 import { reducer, initialSelectionState } from '../utils/reducer';
 import ScrapHeader from '../components/Header/ScrapHeader';
-import { ScrapGrid } from '../components/ScrapCardGrid';
+import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Modal/SortDropdown';
-import { SortKey, SortOrder, sortScrapData } from '../utils/sortScrap';
-import { ChevronDownFilledIcon, ChevronUpFilledIcon } from '@/components/system/icons';
-import { useScrapStore, useTrashStore } from '@/stores';
+import { sortScrapData, mapUIKeyToAPIKey } from '../utils/sortScrap';
+import type { UISortKey, SortOrder } from '../utils/types';
 import { showToast } from '../components/Modal/Toast';
-import { folderDummy } from '../utils/testdataset';
+import { useSearchScraps, useDeleteScrap } from '@/apis';
 
 const ScrapScreen = () => {
   const [reducerState, dispatch] = useReducer(reducer, initialSelectionState);
-  const [fetchloading, setFetchLoading] = useState(false);
-  const [sortKey, setSortKey] = useState<SortKey>('TYPE'); // 기본: 유형순
-  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC'); // 기본: 오름차순
+  const [sortKey, setSortKey] = useState<UISortKey>('DATE');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
 
-  const data = useScrapStore((state) => state.data);
-  const setData = useScrapStore((state) => state.setData);
-  const deleteItem = useScrapStore((state) => state.deleteItem);
-  const addToTrash = useTrashStore((state) => state.addToTrash);
+  const {
+    data: searchData,
+    isLoading,
+    refetch,
+  } = useSearchScraps({
+    filter: 'ALL',
+    sort: mapUIKeyToAPIKey(sortKey),
+    order: sortOrder,
+  });
+  const { mutateAsync: deleteScrap } = useDeleteScrap();
 
-  useEffect(() => {
-    setFetchLoading(true);
+  const data = searchData?.data || [];
 
-    setTimeout(() => {
-      setData(folderDummy); // 초기값 세팅
-      setFetchLoading(false);
-    }, 200);
-  }, []);
-
+  // 클라이언트 사이드 정렬 (TYPE 정렬 등 추가 정렬 로직 적용)
   const sortedData = useMemo(
     () => sortScrapData(data, sortKey, sortOrder),
     [data, sortKey, sortOrder]
@@ -64,29 +62,44 @@ const ScrapScreen = () => {
           }
         }}
         onDelete={async () => {
-          setFetchLoading(true);
+          if (reducerState.selectedItems.length === 0) {
+            showToast('error', '삭제할 항목을 선택해주세요.');
+            return;
+          }
+
           try {
-            const items = data.filter((i) => reducerState.selectedItems.includes(i.id));
-            addToTrash(items);
-            deleteItem(reducerState.selectedItems);
-          } finally {
-            setFetchLoading(false);
+            const items = reducerState.selectedItems.map((id) => {
+              const item = data.find((item) => item.id === id);
+              return {
+                id: id,
+                type: (item?.type || 'SCRAP') as 'FOLDER' | 'SCRAP',
+              };
+            });
+
+            await deleteScrap({ items });
+
+            // 데이터 다시 불러오기
+            await refetch();
+
             dispatch({ type: 'CLEAR_SELECTION' });
             showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
+          } catch (error: any) {
+            showToast('error', '삭제 중 오류가 발생했습니다.');
           }
         }}
       />
       <View className='bg-gray-100'>
         <Container className='items-end gap-[10px] py-[10px]'>
-          <View className='flex-row items-center justify-between'>
-            <SortDropdown ordertype={'LIST'} orderValue={sortKey} setOrderValue={setSortKey} />
-            <Pressable onPress={() => setSortOrder((prev) => (prev === 'ASC' ? 'DESC' : 'ASC'))}>
-              {sortOrder === 'ASC' ? <ChevronUpFilledIcon /> : <ChevronDownFilledIcon />}
-            </Pressable>
-          </View>
+          <SortDropdown
+            ordertype={'LIST'}
+            orderValue={sortKey}
+            setOrderValue={setSortKey}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+          />
         </Container>
         <Container className='pb-[120px] pt-4'>
-          {fetchloading ? (
+          {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <ScrapGrid
