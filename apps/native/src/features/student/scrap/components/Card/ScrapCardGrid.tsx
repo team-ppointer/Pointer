@@ -1,9 +1,11 @@
 import { FlatList, View } from 'react-native';
-import { Action, State } from '../utils/reducer';
-import { ScrapCard, SearchResultCard, TrashCard } from './ScrapCard';
+import { Action, State } from '../../utils/reducer';
+import { ScrapCard } from './cards/ScrapCard';
+import { SearchResultCard } from './cards/SearchResultCard';
+import { TrashCard } from './cards/TrashCard';
 import { ScrapAddItem, ScrapReviewItem } from './ScrapHeadCard';
-import { ScrapItem, TrashItem } from '@/types/test/types';
-import { useGridLayout } from '../utils/gridLayout';
+import { ScrapItem, TrashItem } from '@/features/student/scrap/utils/types';
+import { useGridLayout } from '../../utils/gridLayout';
 
 /**
  * ADD item type for ScrapGrid
@@ -78,27 +80,12 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
 
         const scrapItem = item as ScrapItem;
 
-        // Handle REVIEW item
-        if (scrapItem.id === 'REVIEW') {
-          return (
-            <View style={spacingStyle}>
-              <ScrapReviewItem
-                props={{
-                  ...scrapItem,
-                  timestamp: new Date(scrapItem.timestamp).toLocaleDateString('ko-KR'),
-                }}
-              />
-            </View>
-          );
-        }
-
         // Handle regular scrap items
-        // Convert ScrapItem to ScrapListItemProps format
+        // ScrapItem from API already has the correct structure
         return (
           <View style={spacingStyle}>
             <ScrapCard
               {...scrapItem}
-              timestamp={new Date(scrapItem.timestamp).toLocaleDateString('ko-KR')}
               reducerState={reducerState}
               onCheckPress={() => dispatch?.({ type: 'SELECTING_ITEM', id: scrapItem.id })}
             />
@@ -109,17 +96,19 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
   );
 };
 
+/**
+ * 검색 결과 그리드 Props
+ */
 interface SearchScrapGridProps {
-  data: Array<{ item: ScrapItem; parentFolderName?: string }>;
+  data: ScrapItem[];
 }
+
+/**
+ * 검색 결과 그리드 컴포넌트
+ */
 export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
   const { numColumns, gap } = useGridLayout();
-  const mappedData = data.map((item) => ({
-    ...item.item,
-    parentFolderName: item.parentFolderName,
-  }));
-
-  const finalData = addPlaceholders(mappedData, numColumns);
+  const finalData = addPlaceholders(data, numColumns);
 
   return (
     <FlatList
@@ -148,11 +137,11 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
           return <View style={spacingStyle} />;
         }
 
-        const scrapItem = item as ScrapItem & { parentFolderName?: string };
+        const scrapItem = item as ScrapItem;
 
         return (
           <View style={spacingStyle}>
-            <SearchResultCard item={scrapItem} parentFolderName={scrapItem.parentFolderName} />
+            <SearchResultCard item={scrapItem} />
           </View>
         );
       }}
