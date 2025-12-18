@@ -1,0 +1,25 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { client } from '@/apis/client';
+import { paths } from '@/types/api/schema';
+
+type CreateFolderRequest =
+  paths['/api/student/scrap/folder']['post']['requestBody']['content']['application/json'];
+type CreateFolderResponse =
+  paths['/api/student/scrap/folder']['post']['responses']['200']['content']['*/*'];
+
+export const useCreateFolder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: CreateFolderRequest): Promise<CreateFolderResponse> => {
+      const { data } = await client.POST('/api/student/scrap/folder', {
+        body: request,
+      });
+      return data as CreateFolderResponse;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['scrap', 'folders'] });
+      queryClient.invalidateQueries({ queryKey: ['scrap', 'search'] });
+    },
+  });
+};
