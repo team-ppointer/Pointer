@@ -1,20 +1,26 @@
 /**
- * Selection state for scrap items
+ * 스크랩 아이템 선택 상태 관리
+ * API 스키마에 맞게 id를 number로 통일
  */
 export interface State {
+  /** 선택 모드 활성화 여부 */
   isSelecting: boolean;
-  selectedItems: string[];
+  /** 선택된 아이템 ID 목록 (number[]) */
+  selectedItems: number[];
 }
 
+/**
+ * 선택 액션 타입
+ */
 export type Action =
   | { type: 'ENTER_SELECTION' }
   | { type: 'EXIT_SELECTION' }
-  | { type: 'SELECTING_ITEM'; id: string }
-  | { type: 'SELECT_ALL'; allIds: string[] }
+  | { type: 'SELECTING_ITEM'; id: number }
+  | { type: 'SELECT_ALL'; allIds: number[] }
   | { type: 'CLEAR_SELECTION' };
 
 /**
- * Initial state for selection reducer
+ * 초기 선택 상태
  */
 export const initialSelectionState: State = {
   isSelecting: false,
@@ -22,10 +28,10 @@ export const initialSelectionState: State = {
 };
 
 /**
- * Reducer for managing selection state of scrap items
- * @param state - Current selection state
- * @param action - Action to perform
- * @returns New selection state
+ * 선택 상태 리듀서
+ * @param state - 현재 선택 상태
+ * @param action - 수행할 액션
+ * @returns 새로운 선택 상태
  */
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -54,7 +60,7 @@ export function reducer(state: State, action: Action): State {
       return { ...state, selectedItems: [] };
 
     default: {
-      // Exhaustive check: ensures all action types are handled
+      // Exhaustive check: 모든 액션 타입이 처리되었는지 확인
       const _exhaustive: never = action;
       return state;
     }
