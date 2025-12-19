@@ -1,12 +1,17 @@
 /**
  * 스크랩 아이템 선택 상태 관리
- * API 스키마에 맞게 id를 number로 통일
+ * id와 type을 함께 저장하여 같은 id를 가진 FOLDER와 SCRAP을 구분
  */
+export type SelectedItem = {
+  id: number;
+  type: 'FOLDER' | 'SCRAP';
+};
+
 export interface State {
   /** 선택 모드 활성화 여부 */
   isSelecting: boolean;
-  /** 선택된 아이템 ID 목록 (number[]) */
-  selectedItems: number[];
+  /** 선택된 아이템 목록 (id와 type을 함께 저장) */
+  selectedItems: SelectedItem[];
 }
 
 /**
@@ -15,8 +20,8 @@ export interface State {
 export type Action =
   | { type: 'ENTER_SELECTION' }
   | { type: 'EXIT_SELECTION' }
-  | { type: 'SELECTING_ITEM'; id: number }
-  | { type: 'SELECT_ALL'; allIds: number[] }
+  | { type: 'SELECTING_ITEM'; id: number; itemType: 'FOLDER' | 'SCRAP' }
+  | { type: 'SELECT_ALL'; allItems: SelectedItem[] }
   | { type: 'CLEAR_SELECTION' };
 
 /**
@@ -26,6 +31,17 @@ export const initialSelectionState: State = {
   isSelecting: false,
   selectedItems: [],
 };
+
+/**
+ * 선택된 아이템인지 확인하는 헬퍼 함수
+ */
+export function isItemSelected(
+  selectedItems: SelectedItem[],
+  id: number,
+  type: 'FOLDER' | 'SCRAP'
+): boolean {
+  return selectedItems.some((item) => item.id === id && item.type === type);
+}
 
 /**
  * 선택 상태 리듀서
@@ -42,19 +58,19 @@ export function reducer(state: State, action: Action): State {
       return { ...state, isSelecting: false, selectedItems: [] };
 
     case 'SELECTING_ITEM': {
-      const { id } = action;
-      const exists = state.selectedItems.includes(id);
+      const { id, itemType } = action;
+      const exists = isItemSelected(state.selectedItems, id, itemType);
 
       return {
         ...state,
         selectedItems: exists
-          ? state.selectedItems.filter((i) => i !== id)
-          : [...state.selectedItems, id],
+          ? state.selectedItems.filter((item) => !(item.id === id && item.type === itemType))
+          : [...state.selectedItems, { id, type: itemType }],
       };
     }
 
     case 'SELECT_ALL':
-      return { ...state, selectedItems: action.allIds };
+      return { ...state, selectedItems: action.allItems };
 
     case 'CLEAR_SELECTION':
       return { ...state, selectedItems: [] };

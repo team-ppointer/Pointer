@@ -87,7 +87,7 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
             <ScrapCard
               {...scrapItem}
               reducerState={reducerState}
-              onCheckPress={() => dispatch?.({ type: 'SELECTING_ITEM', id: scrapItem.id })}
+              onCheckPress={() => dispatch?.({ type: 'SELECTING_ITEM', id: scrapItem.id, itemType: scrapItem.type })}
             />
           </View>
         );
@@ -193,7 +193,7 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
             <TrashCard
               item={trashItem}
               reducerState={reducerState}
-              onCheckPress={() => dispatch({ type: 'SELECTING_ITEM', id: trashItem.id })}
+              onCheckPress={() => dispatch({ type: 'SELECTING_ITEM', id: trashItem.id, itemType: trashItem.type })}
             />
           </View>
         );

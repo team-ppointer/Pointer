@@ -29,10 +29,6 @@ const DeletedScrapScreen = () => {
 
   const trashItems = trashData?.data || [];
 
-  /**
-   * 휴지통 아이템 정렬
-   * API의 TrashItemResp는 createdAt이 없으므로 deletedAt을 createdAt으로 사용
-   */
   const sortedData = useMemo(() => {
     const itemsWithCreatedAt = trashItems.map((item) => ({
       ...item,
@@ -48,10 +44,10 @@ const DeletedScrapScreen = () => {
         navigateback={navigation}
         reducerState={reducerState}
         onSelectAll={() => {
-          const allIds = sortedData.map((item) => item.id);
+          const allItems = sortedData.map((item) => ({ id: item.id, type: item.type }));
           const isAllSelected =
             reducerState.selectedItems.length === sortedData.length && sortedData.length > 0;
-          dispatch({ type: 'SELECT_ALL', allIds: isAllSelected ? [] : allIds });
+          dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
         }}
         onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
         onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
@@ -62,13 +58,7 @@ const DeletedScrapScreen = () => {
         }}
         onRestore={async () => {
           try {
-            const items = reducerState.selectedItems.map((id) => {
-              const item = trashItems.find((item) => item.id === id);
-              return {
-                id,
-                type: item?.type || ('SCRAP' as const),
-              };
-            });
+            const items = reducerState.selectedItems;
 
             await restoreTrash({ items });
             dispatch({ type: 'CLEAR_SELECTION' });
@@ -126,13 +116,7 @@ const DeletedScrapScreen = () => {
               className='flex-1 items-center justify-center rounded-[12px] border border-gray-500 bg-red-400 py-[12px]'
               onPress={async () => {
                 try {
-                  const items = reducerState.selectedItems.map((id) => {
-                    const item = trashItems.find((item) => item.id === id);
-                    return {
-                      id,
-                      type: item?.type || ('SCRAP' as const),
-                    };
-                  });
+                  const items = reducerState.selectedItems;
 
                   await permanentDelete({ items });
                   dispatch({ type: 'CLEAR_SELECTION' });

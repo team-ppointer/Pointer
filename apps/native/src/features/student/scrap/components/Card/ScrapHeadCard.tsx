@@ -41,12 +41,14 @@ export const ScrapAddItem = () => {
       try {
         await createFolder({ name: folderName });
         setFolderName('');
+        setSelectedImage('');
         setIsFolderModalVisible(false);
         setTimeout(() => {
           showToast('success', '폴더가 추가되었습니다.');
         }, 300);
       } catch (error) {
         showToast('error', '폴더 추가에 실패했습니다.');
+        setSelectedImage('');
       }
     } else {
       showToast('error', '폴더 이름을 입력해주세요.');
@@ -89,6 +91,7 @@ export const ScrapAddItem = () => {
         visible={isFolderModalVisible}
         onCancel={() => {
           setFolderName('');
+          setSelectedImage('');
           setIsFolderModalVisible(false);
         }}
         onClose={() => {

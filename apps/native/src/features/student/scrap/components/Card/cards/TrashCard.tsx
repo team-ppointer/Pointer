@@ -7,6 +7,7 @@ import PopUpModal from '../../Modal/PopupModal';
 import { showToast } from '../../Modal/Toast';
 import { usePermanentDeleteTrash } from '@/apis';
 import type { SelectableUIProps } from '../types';
+import { isItemSelected } from '../../../utils/reducer';
 
 export interface TrashCardProps extends SelectableUIProps {
   item: TrashItem;
@@ -17,7 +18,7 @@ export interface TrashCardProps extends SelectableUIProps {
  */
 export const TrashCard = ({ item, reducerState, onCheckPress }: TrashCardProps) => {
   const state = reducerState ?? { isSelecting: false, selectedItems: [] };
-  const isSelected = state.selectedItems.includes(item.id);
+  const isSelected = isItemSelected(state.selectedItems, item.id, item.type);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const { mutateAsync: permanentDelete } = usePermanentDeleteTrash();
 
@@ -110,4 +111,3 @@ export const TrashCard = ({ item, reducerState, onCheckPress }: TrashCardProps) 
     </>
   );
 };
-
