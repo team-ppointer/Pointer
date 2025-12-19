@@ -24,13 +24,24 @@ const ScrapScreen = () => {
     isLoading,
     refetch,
   } = useSearchScraps({
-    filter: 'ALL',
     sort: mapUIKeyToAPIKey(sortKey),
     order: sortOrder,
   });
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
-  const data = searchData?.data || [];
+  // ScrapSearchResp는 folders와 scraps를 각각 반환하므로 합쳐야 함
+  const data = useMemo(() => {
+    if (!searchData) return [];
+    const folders = (searchData.folders || []).map((folder) => ({
+      type: 'FOLDER' as const,
+      id: folder.id,
+      name: folder.name,
+      scrapCount: folder.scrapCount,
+      createdAt: folder.createdAt,
+    }));
+    const scraps = searchData.scraps || [];
+    return [...folders, ...scraps];
+  }, [searchData]);
 
   // 클라이언트 사이드 정렬 (TYPE 정렬 등 추가 정렬 로직 적용)
   const sortedData = useMemo(
@@ -50,12 +61,12 @@ const ScrapScreen = () => {
         onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
         isAllSelected={isAllSelected}
         onSelectAll={() => {
-          const allIds = data.map((item) => item.id);
-          dispatch({ type: 'SELECT_ALL', allIds: isAllSelected ? [] : allIds });
+          const allItems = data.map((item) => ({ id: item.id, type: item.type }));
+          dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
         }}
         onMove={() => {
-          const selectedFolders = data.filter(
-            (item) => reducerState.selectedItems.includes(item.id) && item.type === 'FOLDER'
+          const selectedFolders = reducerState.selectedItems.filter(
+            (selected) => selected.type === 'FOLDER'
           );
           if (selectedFolders.length > 0) {
             showToast('error', '스크랩만 이동이 가능합니다.');
@@ -68,13 +79,7 @@ const ScrapScreen = () => {
           }
 
           try {
-            const items = reducerState.selectedItems.map((id) => {
-              const item = data.find((item) => item.id === id);
-              return {
-                id: id,
-                type: (item?.type || 'SCRAP') as 'FOLDER' | 'SCRAP',
-              };
-            });
+            const items = reducerState.selectedItems;
 
             await deleteScrap({ items });
 

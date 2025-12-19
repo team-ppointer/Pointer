@@ -4,7 +4,7 @@ import { paths, components } from '@/types/api/schema';
  * API 응답 타입 추출
  */
 type ScrapSearchResponse =
-  paths['/api/student/scrap/search/all']['get']['responses']['200']['content']['*/*'];
+  paths['/api/student/scrap/search']['get']['responses']['200']['content']['*/*'];
 type TrashResponse = paths['/api/student/scrap/trash']['get']['responses']['200']['content']['*/*'];
 
 /**

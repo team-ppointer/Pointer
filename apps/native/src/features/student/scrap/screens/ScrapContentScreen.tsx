@@ -11,7 +11,7 @@ import { Container, LoadingScreen } from '@/components/common';
 import SortDropdown from '../components/Modal/SortDropdown';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import { showToast } from '../components/Modal/Toast';
-import { useSearchScraps, useDeleteScrap, useGetFolders } from '@/apis';
+import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
 
 type ScrapContentRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -26,12 +26,7 @@ const ScrapContentScreen = () => {
 
   // API 호출
   const { data: foldersData } = useGetFolders();
-  const { data: contentsData, isLoading, refetch } = useSearchScraps({
-    folderId: Number(id),
-    filter: 'SCRAP',
-    sort: mapUIKeyToAPIKey(sortKey),
-    order: sortOrder,
-  });
+  const { data: contentsData, isLoading } = useGetScrapsByFolder(Number(id));
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // 폴더 정보 가져오기
@@ -39,7 +34,10 @@ const ScrapContentScreen = () => {
   const contents = contentsData?.data || [];
 
   // 정렬된 데이터
-  const sortedData = useMemo(() => sortScrapData(contents, sortKey, sortOrder), [contents, sortKey, sortOrder]);
+  const sortedData = useMemo(
+    () => sortScrapData(contents, sortKey, sortOrder),
+    [contents, sortKey, sortOrder]
+  );
 
   const isAllSelected =
     reducerState.selectedItems.length === contents.length && contents.length > 0;
@@ -54,9 +52,15 @@ const ScrapContentScreen = () => {
         navigateTrashPress={() => navigation.push('DeletedScrap')}
         onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
         onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
+        isAllSelected={isAllSelected}
         onSelectAll={() => {
-          const allIds = contents.map((item) => item.id);
-          dispatch({ type: 'SELECT_ALL', allIds: isAllSelected ? [] : allIds });
+          const allItems = contents.map((item) => ({ id: item.id, type: item.type }));
+          dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
+        }}
+        onMove={() => {
+          // 폴더 내부에서는 스크랩만 있으므로 이동 기능은 필요 없지만,
+          // 일관성을 위해 빈 함수로 제공
+          showToast('info', '이동 기능은 준비 중입니다.');
         }}
         onDelete={async () => {
           if (reducerState.selectedItems.length === 0) {
@@ -65,15 +69,9 @@ const ScrapContentScreen = () => {
           }
 
           try {
-            const items = reducerState.selectedItems.map((itemId) => ({
-              id: itemId,
-              type: 'SCRAP' as 'FOLDER' | 'SCRAP',
-            }));
+            const items = reducerState.selectedItems;
 
             await deleteScrap({ items });
-
-            // 데이터 다시 불러오기
-            await refetch();
 
             dispatch({ type: 'CLEAR_SELECTION' });
             showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
