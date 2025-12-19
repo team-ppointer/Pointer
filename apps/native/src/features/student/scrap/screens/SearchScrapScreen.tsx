@@ -7,34 +7,55 @@ import { ChevronLeft, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SearchScrapGrid } from '../components/Card/ScrapCardGrid';
-import { useSearchHistoryStore } from '@/stores/scrapDataStore';
+import { useSearchHistoryStore } from '@/stores/searchHistoryStore';
 import SearchScrapHeader from '../components/Header/SearchHeader';
 import { useSearchScraps } from '@/apis';
 
 const SearchScrapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [query, setQuery] = useState('');
-  const [shouldSearch, setShouldSearch] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const { keywords, addKeyword, removeKeyword, clear } = useSearchHistoryStore();
 
-  // API 검색
+  // 디바운스: 입력이 멈춘 후 300ms 후에 검색어 업데이트
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // API 검색 (디바운스된 쿼리 사용)
   const { data: searchData } = useSearchScraps(
     {
-      query: query.trim(),
-      filter: 'ALL',
+      query: debouncedQuery,
       sort: 'CREATED_AT',
       order: 'DESC',
     },
     // 쿼리가 있을 때만 검색
-    query.trim().length > 0
+    debouncedQuery.length > 0
   );
 
-  const results = searchData?.data || [];
+  // ScrapSearchResp는 folders와 scraps를 각각 반환하므로 합쳐야 함
+  const results = React.useMemo(() => {
+    if (!searchData) return [];
+    const folders = (searchData.folders || []).map((folder) => ({
+      type: 'FOLDER' as const,
+      id: folder.id,
+      name: folder.name,
+      scrapCount: folder.scrapCount,
+      createdAt: folder.createdAt,
+    }));
+    const scraps = searchData.scraps || [];
+    return [...folders, ...scraps];
+  }, [searchData]);
 
   const onSearch = () => {
     if (!query.trim()) return;
     addKeyword(query);
-    setShouldSearch(true);
+    // 검색 버튼을 누르면 즉시 검색
+    setDebouncedQuery(query.trim());
   };
 
   return (
