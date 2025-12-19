@@ -134,7 +134,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** 폴더 상세 조회 */
+    get: operations['getFolderDetail'];
     /** 폴더 수정 */
     put: operations['updateFolder'];
     post?: never;
@@ -1569,15 +1570,32 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/scrap/search/all': {
+  '/api/student/scrap/search': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** 검색 (폴더 + 루트 스크랩, 필터/검색/정렬) */
-    get: operations['searchScrapsAll'];
+    /** 검색 (폴더 + 스크랩 각각 반환) */
+    get: operations['searchScraps'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/scrap/folder/{folderId}/scraps': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 폴더 내 스크랩 목록 조회 */
+    get: operations['getScrapsByFolder'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1853,6 +1871,22 @@ export interface paths {
     };
     /** 학생 별 유효 공지사항(현재 학생이 볼 수 있는 공지사항) 조회 */
     get: operations['getsAvailable_2'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/auth/issue-admin-token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['issueTemporaryToken'];
     put?: never;
     post?: never;
     delete?: never;
@@ -3118,11 +3152,6 @@ export interface components {
        */
       daysUntilPermanentDelete: number;
     };
-    ListRespScrapListItemResp: {
-      /** Format: int32 */
-      total: number;
-      data: components['schemas']['ScrapListItemResp'][];
-    };
     /** @description 스크랩/폴더 목록 아이템 */
     ScrapListItemResp: {
       /**
@@ -3150,10 +3179,22 @@ export interface components {
        */
       createdAt: string;
     };
+    /** @description 스크랩 검색 응답 */
+    ScrapSearchResp: {
+      /** @description 검색된 폴더 목록 */
+      folders: components['schemas']['ScrapFolderResp'][];
+      /** @description 검색된 스크랩 목록 */
+      scraps: components['schemas']['ScrapListItemResp'][];
+    };
     ListRespScrapFolderResp: {
       /** Format: int32 */
       total: number;
       data: components['schemas']['ScrapFolderResp'][];
+    };
+    ListRespScrapListItemResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ScrapListItemResp'][];
     };
     ListRespSchoolResp: {
       /** Format: int32 */
@@ -3548,6 +3589,28 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ListRespScrapDetailResp'];
+        };
+      };
+    };
+  };
+  getFolderDetail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ScrapFolderResp'];
         };
       };
     };
@@ -6147,7 +6210,18 @@ export interface operations {
   };
   getTrash: {
     parameters: {
-      query?: never;
+      query?: {
+        /**
+         * @description 정렬 필드 (CREATED_AT/NAME/TYPE)
+         * @example CREATED_AT
+         */
+        sort?: 'CREATED_AT' | 'NAME' | 'TYPE' | 'SIMILARITY';
+        /**
+         * @description 정렬 방향 (ASC/DESC)
+         * @example DESC
+         */
+        order?: 'ASC' | 'DESC';
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -6187,39 +6261,48 @@ export interface operations {
       };
     };
   };
-  searchScrapsAll: {
+  searchScraps: {
     parameters: {
       query?: {
-        /**
-         * @description 폴더 ID (null이면 루트 스크랩)
-         * @example 1
-         */
+        /** @description 폴더 ID (null이면 루트 스크랩) */
         folderId?: number;
-        /**
-         * @description 검색어 (폴더명, 문제 제목)
-         * @example 미적분
-         */
+        /** @description 검색어 (폴더명, 문제 제목) */
         query?: string;
         /**
-         * @description 필터 (ALL/FOLDER/SCRAP)
-         * @example ALL
-         */
-        filter?: 'ALL' | 'FOLDER' | 'SCRAP';
-        /**
-         * @description 정렬 필드 (CREATED_AT/NAME)
+         * @description 정렬 필드 (CREATED_AT/NAME/TYPE/SIMILARITY)
          * @example CREATED_AT
          */
-        sort?: 'CREATED_AT' | 'NAME';
+        sort?: 'CREATED_AT' | 'NAME' | 'TYPE' | 'SIMILARITY';
         /**
          * @description 정렬 방향 (ASC/DESC)
          * @example DESC
          */
         order?: 'ASC' | 'DESC';
-        page?: number;
-        size?: number;
       };
       header?: never;
       path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ScrapSearchResp'];
+        };
+      };
+    };
+  };
+  getScrapsByFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        folderId: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -6591,6 +6674,29 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ListRespNoticeResp'];
+        };
+      };
+    };
+  };
+  issueTemporaryToken: {
+    parameters: {
+      query: {
+        id: number;
+        type: 'ADMIN' | 'STUDENT' | 'TEACHER';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['JwtResp'];
         };
       };
     };
