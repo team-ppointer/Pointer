@@ -3,6 +3,7 @@ export * from './useGetScrapDetail';
 export * from './useGetFolders';
 export * from './useGetTrash';
 export * from './useSearchScraps';
+export * from './useGetScrapsByFolder';
 export * from './useGetHandwriting';
 
 // POST APIs
