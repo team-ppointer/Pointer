@@ -28,5 +28,7 @@ export type StudentRootStackParamList = {
   };
   SearchScrap: undefined;
   DeletedScrap: undefined;
+  ScrapContentDetail: {
+    id: string;
+  };
 };
-

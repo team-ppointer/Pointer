@@ -11,12 +11,9 @@ import {
 import StudentTabs from './StudentTabs';
 import { StudentRootStackParamList } from './types';
 import NotificationHeader from './components/NotificationHeader';
-import {
-  DeletedScrapScreen,
-  ScrapScreen,
-  SearchScrapScreen,
-} from '@/features/student/scrap';
+import { DeletedScrapScreen, ScrapScreen, SearchScrapScreen } from '@/features/student/scrap';
 import ScrapContentScreen from '@/features/student/scrap/screens/ScrapContentScreen';
+import ScrapContentDetailScreen from '@/features/student/scrap/screens/ScrapDetailContentScreen';
 
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();
 
@@ -48,6 +45,7 @@ const StudentNavigator = () => {
       <StudentRootStack.Screen name='ScrapContent' component={ScrapContentScreen} />
       <StudentRootStack.Screen name='DeletedScrap' component={DeletedScrapScreen} />
       <StudentRootStack.Screen name='SearchScrap' component={SearchScrapScreen} />
+      <StudentRootStack.Screen name='ScrapContentDetail' component={ScrapContentDetailScreen} />
     </StudentRootStack.Navigator>
   );
 };

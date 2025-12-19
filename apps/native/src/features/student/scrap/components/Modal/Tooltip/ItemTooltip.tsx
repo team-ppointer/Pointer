@@ -14,6 +14,7 @@ import {
   useGetScrapDetail,
   useGetFolders,
 } from '@/apis';
+import { useNoteStore } from '@/stores/scrapNoteStore';
 
 export interface ItemTooltipProps {
   props: ScrapListItemProps;
@@ -22,6 +23,8 @@ export interface ItemTooltipProps {
 
 export const ItemTooltip = ({ props, onClose }: ItemTooltipProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
+
+  const openNote = useNoteStore((state) => state.openNote);
 
   // API hooks
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
@@ -86,8 +89,8 @@ export const ItemTooltip = ({ props, onClose }: ItemTooltipProps) => {
             if (props.type === 'FOLDER') {
               navigation.push('ScrapContent', { id: String(props.id) });
             } else {
-              // TODO: 스크랩 열기 기능 구현
-              showToast('info', '스크랩 열기 기능은 준비 중입니다.');
+              openNote({ id: props.id, title: props.name });
+              navigation.push('ScrapContentDetail', { id: String(props.id) });
             }
           }, 100);
         }}>
