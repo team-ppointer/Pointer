@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { client } from '@/apis/client';
+import { client, TanstackQueryClient } from '@/apis/client';
 import { paths } from '@/types/api/schema';
 
 type PermanentDeleteRequest =
@@ -15,7 +15,10 @@ export const usePermanentDeleteTrash = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['scrap', 'trash'] });
+      // 휴지통 목록 갱신
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/scrap/trash').queryKey,
+      });
     },
   });
 };
