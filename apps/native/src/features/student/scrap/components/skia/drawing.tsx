@@ -5,6 +5,7 @@ import React, {
   useState,
   useCallback,
   useMemo,
+  useEffect,
 } from 'react';
 import {
   View,
@@ -14,6 +15,8 @@ import {
   Pressable,
   Text as RNText,
   ScrollView,
+  Keyboard,
+  Platform,
 } from 'react-native';
 import {
   Canvas,
@@ -42,7 +45,13 @@ export type TextItem = {
 export type DrawingCanvasRef = {
   clear: () => void;
   undo: () => void;
+  redo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
   getStrokes: () => Stroke[];
+  setStrokes: (strokes: Stroke[]) => void;
+  getTexts: () => TextItem[];
+  setTexts: (texts: TextItem[]) => void;
 };
 
 type Props = {
@@ -79,11 +88,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       value: string;
     } | null>(null);
     const textInputRef = useRef<TextInput>(null);
+    const scrollViewRef = useRef<ScrollView>(null);
     const containerLayout = useRef<{ x: number; y: number; width: number; height: number } | null>(
       null
     );
     const canvasHeight = useRef<number>(800); // 기본 캔버스 높이
     const maxY = useRef<number>(0); // 그려진 내용의 최대 Y 좌표
+    const keyboardHeight = useRef<number>(0); // 키보드 높이
 
     // 호버 좌표를 저장할 SharedValue (성능을 위해 스레드 분리)
     const hoverX = useSharedValue(0);
@@ -93,12 +104,151 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const livePath = useRef<SkPath>(Skia.Path.Make());
     const currentPoints = useRef<Point[]>([]);
     const strokesRef = useRef<Stroke[]>([]);
+    const textsRef = useRef<TextItem[]>([]);
     const eraserPoints = useRef<Point[]>([]);
     const lastEraserTime = useRef<number>(0);
     const ERASER_THROTTLE_MS = 16; // ~60fps
 
+    // 히스토리 관리 (모든 동작에 대한 undo 지원)
+    type HistoryState = { strokes: Stroke[]; texts: TextItem[] };
+    const historyRef = useRef<HistoryState[]>([]);
+    const historyIndexRef = useRef<number>(-1);
+
+    // 현재 상태를 히스토리에 저장
+    const saveToHistory = useCallback(() => {
+      const currentState: HistoryState = {
+        strokes: JSON.parse(JSON.stringify(strokesRef.current)), // deep copy
+        texts: JSON.parse(JSON.stringify(textsRef.current)), // deep copy
+      };
+
+      // 현재 인덱스 이후의 히스토리 제거 (새 동작이 발생하면 redo 불가)
+      historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
+
+      // 새 상태 추가
+      historyRef.current.push(currentState);
+      historyIndexRef.current = historyRef.current.length - 1;
+
+      // 히스토리 크기 제한 (메모리 관리)
+      if (historyRef.current.length > 50) {
+        historyRef.current.shift();
+        historyIndexRef.current--;
+      }
+    }, []);
+
+    // 히스토리에서 상태 복원
+    const restoreFromHistory = useCallback(
+      (index: number) => {
+        if (index < 0 || index >= historyRef.current.length) return;
+
+        const state = historyRef.current[index];
+        const newPaths = state.strokes.map((stroke) => buildSmoothPath(stroke.points));
+
+        setStrokes(state.strokes);
+        setPaths(newPaths);
+        setTexts(state.texts);
+        strokesRef.current = state.strokes;
+        textsRef.current = state.texts;
+
+        // 최대 Y 좌표 재계산
+        let maxYValue = 0;
+        if (state.strokes.length > 0) {
+          const strokesMaxY = Math.max(
+            ...state.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+          );
+          maxYValue = Math.max(maxYValue, strokesMaxY);
+        }
+        if (state.texts.length > 0) {
+          const textsMaxY = Math.max(...state.texts.map((text) => text.y));
+          maxYValue = Math.max(maxYValue, textsMaxY);
+        }
+
+        if (maxYValue > 0) {
+          maxY.current = maxYValue;
+          canvasHeight.current = Math.max(800, maxY.current + 200);
+        } else {
+          maxY.current = 0;
+          canvasHeight.current = 800;
+        }
+
+        onChange?.(state.strokes);
+        setTick((t) => t + 1);
+      },
+      [onChange]
+    );
+
     // 폰트 로드
     const font = useFont(require('@assets/fonts/PretendardVariable.ttf'), textFontSize);
+
+    const loadStrokes = useCallback(
+      (newStrokes: Stroke[]) => {
+        // strokes와 paths를 함께 업데이트
+        const newPaths = newStrokes.map((stroke) => buildSmoothPath(stroke.points));
+        setStrokes(newStrokes);
+        setPaths(newPaths);
+        strokesRef.current = newStrokes;
+
+        // 최대 Y 좌표 계산
+        if (newStrokes.length > 0) {
+          const maxYValue = Math.max(
+            ...newStrokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+          );
+          maxY.current = maxYValue;
+          canvasHeight.current = Math.max(800, maxYValue + 200);
+        } else {
+          maxY.current = 0;
+          canvasHeight.current = 800;
+        }
+
+        setTick((t) => t + 1);
+        onChange?.(newStrokes);
+
+        // 히스토리 초기화 및 초기 상태 저장 (외부에서 로드한 경우)
+        historyRef.current = [];
+        historyIndexRef.current = -1;
+        // 초기 상태를 히스토리에 저장
+        setTimeout(() => {
+          const initialState: HistoryState = {
+            strokes: JSON.parse(JSON.stringify(newStrokes)),
+            texts: JSON.parse(JSON.stringify(textsRef.current)),
+          };
+          historyRef.current = [initialState];
+          historyIndexRef.current = 0;
+        }, 0);
+      },
+      [onChange]
+    );
+
+    const loadTexts = useCallback((newTexts: TextItem[]) => {
+      setTexts(newTexts);
+      textsRef.current = newTexts;
+
+      // 최대 Y 좌표 계산 (strokes와 texts 모두 고려)
+      let maxYValue = 0;
+
+      // strokes의 최대 Y 계산
+      if (strokesRef.current.length > 0) {
+        const strokesMaxY = Math.max(
+          ...strokesRef.current.flatMap((stroke) => stroke.points.map((p) => p.y))
+        );
+        maxYValue = Math.max(maxYValue, strokesMaxY);
+      }
+
+      // texts의 최대 Y 계산
+      if (newTexts.length > 0) {
+        const textsMaxY = Math.max(...newTexts.map((text) => text.y));
+        maxYValue = Math.max(maxYValue, textsMaxY);
+      }
+
+      if (maxYValue > 0) {
+        maxY.current = maxYValue;
+        canvasHeight.current = Math.max(800, maxY.current + 200);
+      } else {
+        maxY.current = 0;
+        canvasHeight.current = 800;
+      }
+
+      setTick((t) => t + 1);
+    }, []);
 
     const addPoint = useCallback((x: number, y: number) => {
       currentPoints.current.push({ x, y });
@@ -149,12 +299,16 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         strokesRef.current = next;
         onChange?.(next);
         setTick((t) => t + 1);
+
+        // 히스토리에 저장
+        setTimeout(() => saveToHistory(), 0);
+
         return next;
       });
 
       currentPoints.current = [];
       livePath.current = Skia.Path.Make();
-    }, [strokeColor, strokeWidth, onChange]);
+    }, [strokeColor, strokeWidth, onChange, saveToHistory]);
 
     // 지우개: 터치한 위치에서 가까운 점들을 제거
     const eraseAtPoint = useCallback(
@@ -189,13 +343,17 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             strokesRef.current = nextStrokes;
             onChange?.(nextStrokes);
             setTick((t) => t + 1);
+
+            // 히스토리에 저장 (지우개 동작)
+            setTimeout(() => saveToHistory(), 0);
+
             return nextStrokes;
           }
 
           return prevStrokes;
         });
       },
-      [eraserSize, onChange]
+      [eraserSize, onChange, saveToHistory]
     );
 
     const addEraserPoint = useCallback(
@@ -219,7 +377,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     }, []);
 
     const deleteText = useCallback((textId: string) => {
-      setTexts((prev) => prev.filter((t) => t.id !== textId));
+      setTexts((prev) => {
+        const next = prev.filter((t) => t.id !== textId);
+        textsRef.current = next;
+        return next;
+      });
       setTick((t) => t + 1);
     }, []);
 
@@ -251,6 +413,70 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       [texts, textFontSize]
     );
 
+    // 텍스트 박스 영역과 겹치는 strokes를 밀어내기 (stroke 전체를 이동하여 모양 유지)
+    const pushStrokesAwayFromTextArea = useCallback(
+      (textX: number, textY: number, textHeight: number) => {
+        const padding = 16;
+        const textTop = textY - textHeight - padding;
+        const textBottom = textY + padding;
+
+        setStrokes((prevStrokes) => {
+          let hasChanges = false;
+          const updatedStrokes = prevStrokes.map((stroke) => {
+            // stroke의 최소/최대 Y 좌표 계산
+            const strokeMinY = Math.min(...stroke.points.map((p) => p.y));
+            const strokeMaxY = Math.max(...stroke.points.map((p) => p.y));
+
+            // stroke가 텍스트 박스 영역과 겹치는지 확인
+            const overlapsTop = strokeMaxY >= textTop && strokeMaxY <= textBottom;
+            const overlapsBottom = strokeMinY >= textTop && strokeMinY <= textBottom;
+            const overlapsMiddle = strokeMinY <= textTop && strokeMaxY >= textBottom;
+
+            if (overlapsTop || overlapsBottom || overlapsMiddle) {
+              hasChanges = true;
+
+              // stroke의 중심 Y 좌표 계산
+              const strokeCenterY = (strokeMinY + strokeMaxY) / 2;
+
+              // 이동 거리 계산
+              let offsetY = 0;
+              if (strokeCenterY < textY) {
+                // 텍스트 박스 위쪽에 있으면 위로 이동
+                offsetY = textTop - strokeMaxY - 1;
+              } else {
+                // 텍스트 박스 아래쪽에 있으면 아래로 이동
+                offsetY = textBottom - strokeMinY + 1;
+              }
+
+              // stroke의 모든 점을 동일한 거리만큼 이동 (모양 유지)
+              const updatedPoints = stroke.points.map((point) => ({
+                ...point,
+                y: point.y + offsetY,
+              }));
+
+              return { ...stroke, points: updatedPoints };
+            }
+            return stroke;
+          });
+
+          if (hasChanges) {
+            // paths 재생성
+            const newPaths = updatedStrokes.map((stroke) => buildSmoothPath(stroke.points));
+            setPaths(newPaths);
+            strokesRef.current = updatedStrokes;
+            onChange?.(updatedStrokes);
+            setTick((t) => t + 1);
+
+            // 히스토리에 저장 (strokes 이동)
+            setTimeout(() => saveToHistory(), 0);
+          }
+
+          return hasChanges ? updatedStrokes : prevStrokes;
+        });
+      },
+      [onChange, saveToHistory]
+    );
+
     const addText = useCallback(
       (x: number, y: number) => {
         // 기존 텍스트 주변 16px 내에서는 새 텍스트 박스 생성 안 함
@@ -265,6 +491,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           Math.min(y, (containerLayout.current?.height || 400) - padding)
         );
 
+        // 텍스트 박스 영역과 겹치는 strokes를 밀어내기
+        pushStrokesAwayFromTextArea(x, adjustedY, textFontSize);
+
         const textId = Date.now().toString();
         setActiveTextInput({
           id: textId,
@@ -273,12 +502,57 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           value: '',
         });
 
-        // TextInput 포커스
+        // TextInput 포커스 및 키보드 처리
         setTimeout(() => {
           textInputRef.current?.focus();
+
+          // 키보드가 올라올 때 텍스트 입력 위치로 스크롤
+          const showListener = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+            (e) => {
+              keyboardHeight.current = e.endCoordinates.height;
+
+              // 약간의 지연 후 스크롤 (레이아웃 업데이트 대기)
+              setTimeout(() => {
+                if (!containerLayout.current) return;
+
+                // 텍스트 입력 위치 계산 (ScrollView 내부 기준)
+                const textInputY = adjustedY;
+                const screenHeight = Dimensions.get('window').height;
+                const keyboardTop = screenHeight - e.endCoordinates.height;
+
+                // 컨테이너의 절대 위치 계산
+                const containerY = containerLayout.current.y;
+                const textInputAbsoluteY = containerY + textInputY;
+                const textInputBottom = textInputAbsoluteY + textFontSize + 40; // 텍스트 높이 + 여백
+
+                // 키보드가 텍스트 입력을 가릴 수 있는지 확인
+                if (textInputBottom > keyboardTop) {
+                  // 스크롤할 거리 계산 (키보드 위로 여유 공간 확보)
+                  const scrollOffset = textInputBottom - keyboardTop + 20;
+
+                  // ScrollView를 스크롤
+                  scrollViewRef.current?.scrollTo({
+                    y: Math.max(0, scrollOffset),
+                    animated: true,
+                  });
+                }
+              }, 100);
+            }
+          );
+
+          // 키보드가 내려갈 때 리스너 제거
+          const hideListener = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+            () => {
+              keyboardHeight.current = 0;
+              showListener.remove();
+              hideListener.remove();
+            }
+          );
         }, 100);
       },
-      [isNearExistingText]
+      [isNearExistingText, pushStrokesAwayFromTextArea, textFontSize]
     );
 
     const confirmTextInput = useCallback(() => {
@@ -296,11 +570,19 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           maxY.current = activeTextInput.y;
           canvasHeight.current = Math.max(800, maxY.current + 200);
         }
-        setTexts((prev) => [...prev, newText]);
+        setTexts((prev) => {
+          const next = [...prev, newText];
+          textsRef.current = next;
+
+          // 히스토리에 저장 (텍스트 추가)
+          setTimeout(() => saveToHistory(), 0);
+
+          return next;
+        });
         setTick((t) => t + 1);
       }
       setActiveTextInput(null);
-    }, [activeTextInput, textFontSize, strokeColor]);
+    }, [activeTextInput, textFontSize, strokeColor, saveToHistory]);
 
     const handleTextInputBlur = useCallback(() => {
       if (activeTextInput) {
@@ -324,28 +606,44 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         return;
       }
 
-      // 텍스트가 있으면 텍스트부터 제거, 없으면 스트로크 제거
-      setTexts((prev) => {
-        if (prev.length > 0) {
-          setTick((t) => t + 1);
-          return prev.slice(0, -1);
-        }
-        return prev;
-      });
-
-      if (texts.length === 0) {
-        setStrokes((prev) => {
-          if (prev.length === 0) return prev;
-          const next = prev.slice(0, -1);
-          // paths도 함께 업데이트
-          setPaths((prevPaths) => prevPaths.slice(0, -1));
-          strokesRef.current = next;
-          onChange?.(next);
-          setTick((t) => t + 1);
-          return next;
-        });
+      // 히스토리에서 이전 상태로 복원
+      if (historyIndexRef.current > 0) {
+        historyIndexRef.current--;
+        restoreFromHistory(historyIndexRef.current);
+      } else if (historyIndexRef.current === 0) {
+        // 첫 번째 상태로 복원 (빈 상태)
+        historyIndexRef.current = -1;
+        restoreFromHistory(0);
       }
-    }, [onChange, texts.length, activeTextInput]);
+      // historyIndexRef.current === -1이면 undo할 히스토리가 없음
+    }, [activeTextInput, restoreFromHistory]);
+
+    const redo = useCallback(() => {
+      // 활성 텍스트 입력이 있으면 redo 불가
+      if (activeTextInput) {
+        return;
+      }
+
+      // 히스토리에서 다음 상태로 복원
+      const nextIndex = historyIndexRef.current + 1;
+      if (nextIndex < historyRef.current.length) {
+        historyIndexRef.current = nextIndex;
+        restoreFromHistory(nextIndex);
+      }
+      // nextIndex >= historyRef.current.length이면 redo할 히스토리가 없음
+    }, [activeTextInput, restoreFromHistory]);
+
+    // 초기 상태를 히스토리에 저장
+    useEffect(() => {
+      if (historyRef.current.length === 0) {
+        const initialState: HistoryState = {
+          strokes: [],
+          texts: [],
+        };
+        historyRef.current = [initialState];
+        historyIndexRef.current = 0;
+      }
+    }, []);
 
     useImperativeHandle(ref, () => ({
       clear() {
@@ -354,13 +652,40 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         setTexts([]);
         setActiveTextInput(null);
         strokesRef.current = [];
+        textsRef.current = [];
         livePath.current = Skia.Path.Make();
         maxY.current = 0;
         canvasHeight.current = 800;
         setTick((t) => t + 1);
+        onChange?.([]);
+
+        // 히스토리 초기화
+        historyRef.current = [];
+        historyIndexRef.current = -1;
       },
       undo,
+      redo,
+      canUndo: () => {
+        // 활성 텍스트 입력이 있으면 undo 가능
+        if (activeTextInput) return true;
+        // 히스토리 인덱스가 0보다 크면 undo 가능 (이전 상태가 있음)
+        if (historyIndexRef.current > 0) return true;
+        // 초기 상태만 있고 실제 변경이 없으면 undo 불가능
+        // 히스토리가 1개만 있으면 (초기 상태만) undo 불가능
+        if (historyRef.current.length === 1) return false;
+        // 히스토리가 2개 이상이면 undo 가능
+        return historyIndexRef.current === 0 && historyRef.current.length > 1;
+      },
+      canRedo: () => {
+        // 활성 텍스트 입력이 있으면 redo 불가
+        if (activeTextInput) return false;
+        // 다음 히스토리가 있으면 redo 가능
+        return historyIndexRef.current + 1 < historyRef.current.length;
+      },
       getStrokes: () => strokesRef.current,
+      setStrokes: loadStrokes,
+      getTexts: () => textsRef.current,
+      setTexts: loadTexts,
     }));
 
     const tap = useMemo(
@@ -550,10 +875,12 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
     return (
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
-        nestedScrollEnabled={true}>
+        nestedScrollEnabled={true}
+        keyboardShouldPersistTaps='handled'>
         <GestureDetector gesture={composedGesture}>
           <View
             style={styles.container}
