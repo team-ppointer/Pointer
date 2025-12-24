@@ -1,4 +1,4 @@
-import { FlatList, View } from 'react-native';
+import { Dimensions, FlatList, View } from 'react-native';
 import { Action, State } from '../../utils/reducer';
 import { ScrapCard } from './cards/ScrapCard';
 import { SearchResultCard } from './cards/SearchResultCard';
@@ -6,6 +6,7 @@ import { TrashCard } from './cards/TrashCard';
 import { ScrapAddItem, ScrapReviewItem } from './ScrapHeadCard';
 import { ScrapItem, TrashItem } from '@/features/student/scrap/utils/types';
 import { useGridLayout } from '../../utils/gridLayout';
+import { useState } from 'react';
 
 /**
  * ADD item type for ScrapGrid
@@ -37,7 +38,8 @@ interface ScrapGridProps {
   dispatch: React.Dispatch<Action>;
 }
 export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
-  const { numColumns, gap } = useGridLayout();
+  const [containerWidth, setContainerWidth] = useState(0);
+  const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
   const finalData = addPlaceholders(data, numColumns);
 
   return (
@@ -45,6 +47,12 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
       key={numColumns}
       data={finalData}
       numColumns={numColumns}
+      onLayout={(e) => {
+        const width = Math.floor(e.nativeEvent.layout.width);
+        if (width > 0 && width !== containerWidth) {
+          setContainerWidth(width);
+        }
+      }}
       keyExtractor={(item) =>
         // item may be a ScrapItem/TrashItem or a placeholder item
         'id' in item && item.id !== undefined ? String(item.id) : Math.random().toString()
@@ -55,7 +63,8 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
         const isLastColumn = (index + 1) % numColumns === 0;
 
         const spacingStyle = {
-          flex: 1,
+          width: itemWidth,
+          height: itemHeight,
           marginRight: isLastColumn ? 0 : gap,
         };
 
@@ -80,14 +89,18 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
 
         const scrapItem = item as ScrapItem;
 
-        // Handle regular scrap items
-        // ScrapItem from API already has the correct structure
         return (
           <View style={spacingStyle}>
             <ScrapCard
               {...scrapItem}
               reducerState={reducerState}
-              onCheckPress={() => dispatch?.({ type: 'SELECTING_ITEM', id: scrapItem.id, itemType: scrapItem.type })}
+              onCheckPress={() =>
+                dispatch?.({
+                  type: 'SELECTING_ITEM',
+                  id: scrapItem.id,
+                  itemType: scrapItem.type,
+                })
+              }
             />
           </View>
         );
@@ -193,7 +206,9 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
             <TrashCard
               item={trashItem}
               reducerState={reducerState}
-              onCheckPress={() => dispatch({ type: 'SELECTING_ITEM', id: trashItem.id, itemType: trashItem.type })}
+              onCheckPress={() =>
+                dispatch({ type: 'SELECTING_ITEM', id: trashItem.id, itemType: trashItem.type })
+              }
             />
           </View>
         );
