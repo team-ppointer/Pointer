@@ -1,5 +1,5 @@
 import { Pressable, View, Text, Image } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { Check } from 'lucide-react-native';
 import { ChevronDownFilledIcon } from '@/components/system/icons';
 import { TooltipPopover, ItemTooltipBox } from '../../Modal/Tooltip';
@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { ScrapListItemProps } from '../types';
 import { isItemSelected } from '../../../utils/reducer';
 import { useNoteStore, Note } from '@/stores/scrapNoteStore';
+import { MoveScrapModal } from '../../Modal/MoveScrapModal';
 
 export const ScrapCard = (props: ScrapListItemProps) => {
   const state = props.reducerState ?? { isSelecting: false, selectedItems: [] };
@@ -16,19 +17,23 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
 
+  const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
+
   const thumbnailUrl = props.type === 'SCRAP' ? props.thumbnailUrl : undefined;
 
   const cardContent = (
-    <View className='w-full items-center gap-3 rounded-[10px] p-[10px]'>
-      {thumbnailUrl ? (
-        <Image
-          source={{ uri: thumbnailUrl }}
-          className='h-[145.5px] w-[145.5px] rounded-[10px]'
-          resizeMode='cover'
-        />
-      ) : (
-        <View className='h-[145.5px] w-[145.5px] rounded-[10px] bg-gray-600' />
-      )}
+    <View className='h-full w-full items-center gap-3 rounded-[10px] p-[10px]'>
+      <View className='h-[116px] w-full'>
+        {thumbnailUrl ? (
+          <Image
+            source={{ uri: thumbnailUrl }}
+            resizeMode='cover'
+            style={{ width: '100%', height: '100%' }}
+          />
+        ) : (
+          <View className='h-full w-full rounded-[10px] bg-gray-600' />
+        )}
+      </View>
 
       {state.isSelecting && (
         <Pressable
@@ -44,25 +49,37 @@ export const ScrapCard = (props: ScrapListItemProps) => {
       )}
 
       <View className='w-full px-[6px]'>
-        <View className='flex-row justify-between'>
-          <View className='flex-[0.9] flex-row gap-0.5'>
-            <Text className='text-16sb text-[#1E1E21]' numberOfLines={2}>
-              {props.name}
-            </Text>
-            {!state.isSelecting && (
-              <TooltipPopover
-                from={<ChevronDownFilledIcon />}
-                children={(close) => <ItemTooltipBox props={props} onClose={close} />}
-              />
-            )}
-          </View>
+        <View className='flex-row items-start justify-between gap-0.5'>
+          <Text className='text-16sb flex-1 text-[#1E1E21]' numberOfLines={2}>
+            {props.name}
+          </Text>
+          {!state.isSelecting && (
+            <TooltipPopover
+              from={<ChevronDownFilledIcon />}
+              children={(close) => (
+                <ItemTooltipBox
+                  props={props}
+                  onClose={close}
+                  onMovePress={() => setIsMoveModalVisible(true)}
+                />
+              )}
+            />
+          )}
+          <MoveScrapModal
+            visible={isMoveModalVisible}
+            onClose={() => setIsMoveModalVisible(false)}
+            selectedItems={[{ id: props.id, type: props.type }]}
+            onSuccess={() => {
+              // 이동 성공 후 필요한 경우 데이터 갱신
+            }}
+          />
           {props.type === 'FOLDER' && props.scrapCount !== undefined && (
             <Text className='text-12m text-gray-700'>{props.scrapCount}</Text>
           )}
         </View>
 
         <Text className='text-10r text-gray-700'>
-          {new Date(props.createdAt).toLocaleDateString()}
+          {new Date(props.createdAt).toLocaleDateString('ko-kr')}
         </Text>
       </View>
     </View>
@@ -77,10 +94,10 @@ export const ScrapCard = (props: ScrapListItemProps) => {
         }
 
         if (props.type === 'FOLDER') {
-          navigation.push('ScrapContent', { id: String(props.id) });
+          navigation.push('ScrapContent', { id: props.id });
         } else if (props.type === 'SCRAP') {
           openNote({ id: props.id, title: props.name });
-          navigation.push('ScrapContentDetail', { id: String(props.id) });
+          navigation.push('ScrapContentDetail', { id: props.id });
         }
       }}>
       {cardContent}

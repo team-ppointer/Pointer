@@ -77,8 +77,8 @@ export const ScrapAddItem = () => {
           />
         )}
         from={
-          <View className={`w-full items-center gap-3 rounded-[10px] p-[10px]`}>
-            <View className='h-[145.5px] w-[145.5px] items-center justify-center border-[1.5px] border-dashed border-gray-600 p-[44px]'>
+          <View className={`h-full w-full items-center gap-3 rounded-[10px] p-[10px]`}>
+            <View className='items-center justify-center border-[1.5px] border-dashed border-gray-600 p-[44px]'>
               <Plus size={24} color={colors['gray-600']} />
             </View>
             <View className={`w-full flex-col px-[6px]`}>
@@ -161,7 +161,7 @@ export const ScrapReviewItem = ({ props }: { props: ScrapListItemProps }) => {
   return (
     <Pressable
       className={`w-full items-center gap-3 rounded-[10px] p-[10px]`}
-      onPress={() => navigation.push('ScrapContent', { id: String(props.id) })}>
+      onPress={() => navigation.push('ScrapContent', { id: props.id })}>
       <View className={`w-full flex-col px-[6px]`}>
         <View className='h-[145.5px] w-[145.5px] rounded-[10px] bg-gray-600' />
 
