@@ -26,7 +26,7 @@ const ScrapContentScreen = () => {
 
   // API 호출
   const { data: foldersData } = useGetFolders();
-  const { data: contentsData, isLoading } = useGetScrapsByFolder(Number(id));
+  const { data: contentsData, isLoading } = useGetScrapsByFolder(id);
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // 폴더 정보 가져오기
