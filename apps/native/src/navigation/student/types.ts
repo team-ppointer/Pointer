@@ -24,11 +24,11 @@ export type StudentRootStackParamList = {
   };
   Scrap: undefined;
   ScrapContent: {
-    id: string;
+    id: number;
   };
   SearchScrap: undefined;
   DeletedScrap: undefined;
   ScrapContentDetail: {
-    id: string;
+    id: number;
   };
 };
