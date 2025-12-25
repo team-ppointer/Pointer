@@ -1,6 +1,6 @@
 import { Camera, Image, Images, FolderPlus } from 'lucide-react-native';
 import { View, Text, Pressable, Alert } from 'react-native';
-import { openCamera, openImageLibrary } from '../../../utils/imagePicker';
+import { openCamera, openImageLibrary } from '../../utils/imagePicker';
 import { useGetPreSignedUrl } from '@/apis/controller/common';
 import { useCreateScrapFromImage } from '@/apis';
 

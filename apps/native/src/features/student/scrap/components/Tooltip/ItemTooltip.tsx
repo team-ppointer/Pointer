@@ -2,8 +2,8 @@ import { colors } from '@/theme/tokens';
 import { FileSymlink, FolderOpen, ImagePlay, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { TextInput, View, Text, Pressable } from 'react-native';
-import { showToast } from '../Toast';
-import { ScrapListItemProps } from '../../Card/types';
+import { showToast } from '../Modal/Toast';
+import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StudentRootStackParamList } from '@/navigation/student/types';
@@ -15,13 +15,15 @@ import {
   useGetFolders,
 } from '@/apis';
 import { useNoteStore } from '@/stores/scrapNoteStore';
+import { useGetPreSignedUrl } from '@/apis/controller/common/postGetPreSignedUrl';
 
 export interface ItemTooltipProps {
   props: ScrapListItemProps;
   onClose?: () => void;
+  onMovePress?: () => void; // 추가
 }
 
-export const ItemTooltip = ({ props, onClose }: ItemTooltipProps) => {
+export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
 
   const openNote = useNoteStore((state) => state.openNote);
@@ -34,6 +36,35 @@ export const ItemTooltip = ({ props, onClose }: ItemTooltipProps) => {
   // 스크랩 상세 정보 가져오기 (필요한 경우)
   const { data: scrapDetail } = useGetScrapDetail(Number(props.id), props.type === 'SCRAP');
   const { data: foldersData } = useGetFolders();
+
+  const { mutate: getPreSignedUrl } = useGetPreSignedUrl();
+
+  // S3에 파일 업로드
+  const uploadFileToS3 = async (
+    uploadUrl: string,
+    fileUri: string,
+    contentDisposition: string
+  ): Promise<boolean> => {
+    try {
+      // React Native에서 파일 읽기
+      const response = await fetch(fileUri);
+      const blob = await response.blob();
+
+      // S3에 PUT 요청
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'content-disposition': contentDisposition,
+        },
+        body: blob,
+      });
+
+      return uploadResponse.ok;
+    } catch (error) {
+      console.error('S3 업로드 실패:', error);
+      return false;
+    }
+  };
 
   // 초기 제목 설정
   const initialTitle =
@@ -87,10 +118,10 @@ export const ItemTooltip = ({ props, onClose }: ItemTooltipProps) => {
           handleClose();
           setTimeout(() => {
             if (props.type === 'FOLDER') {
-              navigation.push('ScrapContent', { id: String(props.id) });
+              navigation.push('ScrapContent', { id: props.id });
             } else {
               openNote({ id: props.id, title: props.name });
-              navigation.push('ScrapContentDetail', { id: String(props.id) });
+              navigation.push('ScrapContentDetail', { id: props.id });
             }
           }, 100);
         }}>
@@ -101,19 +132,25 @@ export const ItemTooltip = ({ props, onClose }: ItemTooltipProps) => {
           <Text className='text-16r text-black'>스크랩 열기</Text>
         )}
       </Pressable>
-      <View className='flex-1 flex-row items-center gap-2 border-b-[0.5px] border-gray-500 pl-4 pr-[26px]'>
-        {props.type === 'FOLDER' ? (
-          <>
-            <ImagePlay size={20} />
-            <Text className='text-16r text-black'>표지 변경하기</Text>
-          </>
-        ) : (
-          <>
-            <FileSymlink size={20} />
-            <Text className='text-16r text-black'>폴더 이동하기</Text>
-          </>
-        )}
-      </View>
+      {props.type === 'FOLDER' && (
+        <Pressable className='flex-1 flex-row items-center gap-2 border-b-[0.5px] border-gray-500 pl-4 pr-[26px]'>
+          <ImagePlay size={20} />
+          <Text className='text-16r text-black'>표지 변경하기</Text>
+        </Pressable>
+      )}
+      {props.type === 'SCRAP' && (
+        <Pressable
+          className='flex-1 flex-row items-center gap-2 border-b-[0.5px] border-gray-500 pl-4 pr-[26px]'
+          onPress={() => {
+            handleClose();
+            setTimeout(() => {
+              onMovePress?.();
+            }, 100);
+          }}>
+          <FileSymlink size={20} />
+          <Text className='text-16r text-black'>폴더 이동하기</Text>
+        </Pressable>
+      )}
       <Pressable
         className='flex-1 flex-row items-center gap-2 pl-4 pr-[26px]'
         onPress={async () => {

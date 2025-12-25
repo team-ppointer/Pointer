@@ -1,7 +1,7 @@
 import { colors } from '@/theme/tokens';
 import { Trash2, Undo2 } from 'lucide-react-native';
 import { View, Text, Pressable } from 'react-native';
-import { showToast } from '../Toast';
+import { showToast } from '../Modal/Toast';
 import { TrashItem } from '@/features/student/scrap/utils/types';
 import { useRestoreTrash } from '@/apis';
 

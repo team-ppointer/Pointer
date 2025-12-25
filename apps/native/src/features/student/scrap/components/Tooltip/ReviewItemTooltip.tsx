@@ -1,6 +1,6 @@
 import { FolderOpen } from 'lucide-react-native';
 import { View, Text, Pressable } from 'react-native';
-import { ScrapListItemProps } from '../../Card/types';
+import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StudentRootStackParamList } from '@/navigation/student/types';
@@ -32,7 +32,7 @@ export const ReviewItemTooltip = ({ props, onClose }: ReviewItemTooltipProps) =>
           handleClose();
           // Popover가 닫히는 시간을 주기 위해 약간의 지연
           setTimeout(() => {
-            navigation.push('ScrapContent', { id: String(props.id) });
+            navigation.push('ScrapContent', { id: props.id });
           }, 100);
         }}>
         <FolderOpen size={20} />
