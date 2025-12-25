@@ -3,7 +3,7 @@ import { Action, State } from '../../utils/reducer';
 import { ScrapCard } from './cards/ScrapCard';
 import { SearchResultCard } from './cards/SearchResultCard';
 import { TrashCard } from './cards/TrashCard';
-import { ScrapAddItem, ScrapReviewItem } from './ScrapHeadCard';
+import { ScrapAddItem, ScrapReviewItem } from './cards/ScrapHeadCard';
 import { ScrapItem, TrashItem } from '@/features/student/scrap/utils/types';
 import { useGridLayout } from '../../utils/gridLayout';
 import { useState } from 'react';
@@ -120,7 +120,8 @@ interface SearchScrapGridProps {
  * 검색 결과 그리드 컴포넌트
  */
 export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
-  const { numColumns, gap } = useGridLayout();
+  const [containerWidth, setContainerWidth] = useState(0);
+  const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
   const finalData = addPlaceholders(data, numColumns);
 
   return (
@@ -128,7 +129,14 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
       key={numColumns}
       data={finalData}
       numColumns={numColumns}
+      onLayout={(e) => {
+        const width = Math.floor(e.nativeEvent.layout.width);
+        if (width > 0 && width !== containerWidth) {
+          setContainerWidth(width);
+        }
+      }}
       keyExtractor={(item) =>
+        // item may be a ScrapItem/TrashItem or a placeholder item
         'id' in item && item.id !== undefined ? String(item.id) : Math.random().toString()
       }
       contentContainerStyle={{ paddingBottom: 120 }}
@@ -137,9 +145,15 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
         const isLastColumn = (index + 1) % numColumns === 0;
 
         const spacingStyle = {
-          flex: 1,
+          width: itemWidth,
+          height: itemHeight,
           marginRight: isLastColumn ? 0 : gap,
         };
+
+        // Check for placeholder first
+        if ('placeholder' in item && item.placeholder) {
+          return <View style={spacingStyle} />;
+        }
 
         if ('placeholder' in item && item.placeholder) {
           return <View style={spacingStyle} />;
@@ -169,7 +183,8 @@ interface TrashScrapGridProps {
 }
 
 export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridProps) => {
-  const { numColumns, gap } = useGridLayout();
+  const [containerWidth, setContainerWidth] = useState(0);
+  const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
   const finalData = addPlaceholders(data, numColumns);
 
   return (
@@ -177,7 +192,14 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
       key={numColumns}
       data={finalData}
       numColumns={numColumns}
+      onLayout={(e) => {
+        const width = Math.floor(e.nativeEvent.layout.width);
+        if (width > 0 && width !== containerWidth) {
+          setContainerWidth(width);
+        }
+      }}
       keyExtractor={(item) =>
+        // item may be a ScrapItem/TrashItem or a placeholder item
         'id' in item && item.id !== undefined ? String(item.id) : Math.random().toString()
       }
       contentContainerStyle={{ paddingBottom: 120 }}
@@ -186,9 +208,15 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
         const isLastColumn = (index + 1) % numColumns === 0;
 
         const spacingStyle = {
-          flex: 1,
+          width: itemWidth,
+          height: itemHeight,
           marginRight: isLastColumn ? 0 : gap,
         };
+
+        // Check for placeholder first
+        if ('placeholder' in item && item.placeholder) {
+          return <View style={spacingStyle} />;
+        }
 
         if ('placeholder' in item && item.placeholder) {
           return <View style={spacingStyle} />;
