@@ -12,6 +12,7 @@ import SortDropdown from '../components/Modal/SortDropdown';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import { showToast } from '../components/Modal/Toast';
 import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
+import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
 
 type ScrapContentRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -23,10 +24,11 @@ const ScrapContentScreen = () => {
   const [sortKey, setSortKey] = useState<UISortKey>('TITLE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
+  const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
 
   // API 호출
   const { data: foldersData } = useGetFolders();
-  const { data: contentsData, isLoading } = useGetScrapsByFolder(id);
+  const { data: contentsData, isLoading, refetch } = useGetScrapsByFolder(id);
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // 폴더 정보 가져오기
@@ -58,9 +60,18 @@ const ScrapContentScreen = () => {
           dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
         }}
         onMove={() => {
-          // 폴더 내부에서는 스크랩만 있으므로 이동 기능은 필요 없지만,
-          // 일관성을 위해 빈 함수로 제공
-          showToast('info', '이동 기능은 준비 중입니다.');
+          const selectedFolders = reducerState.selectedItems.filter(
+            (selected) => selected.type === 'FOLDER'
+          );
+          if (selectedFolders.length > 0) {
+            showToast('error', '스크랩만 이동이 가능합니다.');
+            return;
+          }
+          if (reducerState.selectedItems.length === 0) {
+            showToast('error', '이동할 스크랩을 선택해주세요.');
+            return;
+          }
+          setIsMoveModalVisible(true);
         }}
         onDelete={async () => {
           if (reducerState.selectedItems.length === 0) {
@@ -98,6 +109,15 @@ const ScrapContentScreen = () => {
           )}
         </Container>
       </View>
+      <MoveScrapModal
+        visible={isMoveModalVisible}
+        onClose={() => setIsMoveModalVisible(false)}
+        selectedItems={reducerState.selectedItems}
+        onSuccess={() => {
+          dispatch({ type: 'CLEAR_SELECTION' });
+          refetch();
+        }}
+      />
     </View>
   );
 };
