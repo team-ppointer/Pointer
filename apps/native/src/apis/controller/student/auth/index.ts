@@ -1,15 +1,15 @@
-import postUserInfo from './postUserInfo';
-import postRefreshToken from './postRefreshToken';
-import putUserInfo from './putUserInfo';
-import postSocialLogin from './postSocialLogin';
-import useGetUserInfo from './useGetUserInfo';
 import deleteAccount from './deleteAccount';
+import postEmailSignup from './postEmailSignup';
+import postRefreshToken from './postRefreshToken';
+import postRegister from './postRegister';
+import postSocialLogin from './postSocialLogin';
+import useGetEmailExists from './useGetEmailExists';
 
 export {
-  postSocialLogin,
-  postUserInfo,
-  postRefreshToken,
-  putUserInfo,
-  useGetUserInfo,
   deleteAccount,
+  postEmailSignup,
+  postRefreshToken,
+  postRegister,
+  postSocialLogin,
+  useGetEmailExists,
 };

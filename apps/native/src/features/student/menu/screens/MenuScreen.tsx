@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react';
 import { Text } from 'react-native';
 
-import { useGetUserInfo } from '@apis/student';
+import { useGetMe } from '@apis/student';
 import { useAuthStore } from '@stores';
 import { Container, TextButton } from '@components/common';
 
 const MenuScreen = () => {
   const signOut = useAuthStore((state) => state.signOut);
-  const { data, isLoading, isError } = useGetUserInfo('student');
+  const { data, isLoading, isError } = useGetMe();
   const userInfo = data ?? null;
 
   const handleLogout = useCallback(async () => {
