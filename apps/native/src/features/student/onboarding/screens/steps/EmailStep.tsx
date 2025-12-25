@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
-import { duplicateEmailSamples } from '../../constants';
 import type { OnboardingScreenProps } from '../types';
+import { useDebounce } from '@hooks';
+import useGetEmailExists from '@apis/controller/student/auth/useGetEmailExists';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -13,13 +14,29 @@ const EmailStep = ({ navigation }: OnboardingScreenProps<'Email'>) => {
   const [email, setEmailInput] = useState(storedEmail);
   const [error, setError] = useState<string | null>(null);
 
+  const isValidEmail = emailRegex.test(email.toLowerCase());
+  const debouncedEmail = useDebounce(email.trim().toLowerCase(), 300);
+
+  const { data: emailExistsData, isFetching } = useGetEmailExists({
+    email: debouncedEmail,
+    enabled: isValidEmail && debouncedEmail.length > 0,
+  });
+
+  const emailExists = emailExistsData?.value ?? false;
+
+  useEffect(() => {
+    if (emailExists && !isFetching) {
+      setError('이미 가입된 이메일입니다.');
+    }
+  }, [emailExists, isFetching]);
+
   const handleNext = () => {
-    if (!emailRegex.test(email.toLowerCase())) {
+    if (!isValidEmail) {
       setError('올바른 이메일 형식을 입력해 주세요.');
       return;
     }
 
-    if (duplicateEmailSamples.includes(email.toLowerCase())) {
+    if (emailExists) {
       setError('이미 가입된 이메일입니다.');
       return;
     }
@@ -28,10 +45,12 @@ const EmailStep = ({ navigation }: OnboardingScreenProps<'Email'>) => {
     navigation.navigate('Identity');
   };
 
+  const isNextDisabled = !email || isFetching || emailExists;
+
   return (
     <OnboardingLayout
       title='이메일 주소를 입력해 주세요.'
-      ctaDisabled={!email}
+      ctaDisabled={isNextDisabled}
       onPressCTA={handleNext}
       showBackButton={false}>
       <OnboardingInput

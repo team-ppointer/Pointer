@@ -7,12 +7,6 @@ export type MathSubjectValue = NonNullable<StudentInitialRegisterReq['selectSubj
 export type CarrierValue = NonNullable<StudentInitialRegisterReq['mobileCarrier']>;
 export type GenderValue = NonNullable<StudentInitialRegisterReq['gender']>;
 
-export type SchoolOption = {
-  id: string;
-  name: string;
-  region: string;
-};
-
 export const gradeOptions: Array<{ value: GradeValue; label: string }> = [
   { value: 'ONE', label: '1학년' },
   { value: 'TWO', label: '2학년' },
@@ -44,5 +38,3 @@ export const levelOptions: Array<{ value: number; label: string }> = [
   { value: 8, label: '8등급' },
   { value: 9, label: '9등급' },
 ];
-
-export const duplicateEmailSamples = ['pointer111@naver.com', 'student@pointer.com'];
