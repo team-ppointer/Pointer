@@ -21,8 +21,8 @@ export const SearchResultCard = ({ item }: SearchResultCardProps) => {
   const thumbnailUrl = item.type === 'SCRAP' ? item.thumbnailUrl : undefined;
 
   const cardContent = (
-    <View className='w-full items-center gap-3 rounded-[10px] p-[10px]'>
-      <View className='h-[145px] w-full'>
+    <View className='h-full w-full items-center gap-3 rounded-[10px] p-[10px]'>
+      <View className='max-h-[70%] w-full'>
         {thumbnailUrl ? (
           <Image
             source={{ uri: thumbnailUrl }}
@@ -45,7 +45,7 @@ export const SearchResultCard = ({ item }: SearchResultCardProps) => {
         </View>
 
         <Text className='text-10r text-gray-700'>
-          {new Date(item.createdAt).toLocaleDateString('ko-kr')}
+          {new Date(item.createdAt).toLocaleString('ko-kr')}
         </Text>
       </View>
     </View>

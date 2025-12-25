@@ -1,7 +1,7 @@
 import { Pressable, View, Text } from 'react-native';
 import React, { useState } from 'react';
 import { Check } from 'lucide-react-native';
-import { TooltipPopover, TrashItemTooltipBox } from '../../Modal/Tooltip';
+import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
 import type { TrashItem } from '@/features/student/scrap/utils/types';
 import PopUpModal from '../../Modal/PopupModal';
 import { showToast } from '../../Modal/Toast';
@@ -13,9 +13,6 @@ export interface TrashCardProps extends SelectableUIProps {
   item: TrashItem;
 }
 
-/**
- * 휴지통 카드 컴포넌트
- */
 export const TrashCard = ({ item, reducerState, onCheckPress }: TrashCardProps) => {
   const state = reducerState ?? { isSelecting: false, selectedItems: [] };
   const isSelected = isItemSelected(state.selectedItems, item.id, item.type);
@@ -23,8 +20,10 @@ export const TrashCard = ({ item, reducerState, onCheckPress }: TrashCardProps) 
   const { mutateAsync: permanentDelete } = usePermanentDeleteTrash();
 
   const cardContent = (
-    <View className='w-full items-center gap-3 rounded-[10px] p-[10px]'>
-      <View className='h-[145.5px] w-[145.5px] rounded-[10px] bg-gray-600' />
+    <View className='h-full w-full items-center gap-3 rounded-[10px] p-[10px]'>
+      <View className='max-h-[70%] w-full'>
+        <View className='h-full w-full rounded-[10px] bg-gray-600' />
+      </View>
       {state.isSelecting && (
         <Pressable
           onPress={onCheckPress}
@@ -42,9 +41,7 @@ export const TrashCard = ({ item, reducerState, onCheckPress }: TrashCardProps) 
         <Text className='text-16sb text-[#1E1E21]' numberOfLines={2}>
           {item.name}
         </Text>
-        <Text className='text-12m text-gray-700'>
-          {item.daysUntilPermanentDelete}일 후 영구 삭제
-        </Text>
+        <Text className='text-12m text-gray-700'>{item.daysUntilPermanentDelete}일 남음</Text>
       </View>
     </View>
   );
