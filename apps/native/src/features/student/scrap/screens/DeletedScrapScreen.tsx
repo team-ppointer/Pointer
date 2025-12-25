@@ -13,12 +13,14 @@ import type { UISortKey, SortOrder } from '../utils/types';
 import PopUpModal from '../components/Modal/PopupModal';
 import { showToast } from '../components/Modal/Toast';
 import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
+import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
 
 const DeletedScrapScreen = () => {
   const [reducerState, dispatch] = useReducer(reducer, initialSelectionState);
   const [sortKey, setSortKey] = useState<UISortKey>('TYPE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
 
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
 
@@ -55,6 +57,20 @@ const DeletedScrapScreen = () => {
           if (reducerState.selectedItems.length > 0) {
             setIsDeleteModalVisible(true);
           }
+        }}
+        onMove={() => {
+          const selectedFolders = reducerState.selectedItems.filter(
+            (selected) => selected.type === 'FOLDER'
+          );
+          if (selectedFolders.length > 0) {
+            showToast('error', '스크랩만 이동이 가능합니다.');
+            return;
+          }
+          if (reducerState.selectedItems.length === 0) {
+            showToast('error', '이동할 스크랩을 선택해주세요.');
+            return;
+          }
+          setIsMoveModalVisible(true);
         }}
         onRestore={async () => {
           try {
@@ -131,6 +147,14 @@ const DeletedScrapScreen = () => {
           </View>
         </View>
       </PopUpModal>
+      <MoveScrapModal
+        visible={isMoveModalVisible}
+        onClose={() => setIsMoveModalVisible(false)}
+        selectedItems={reducerState.selectedItems}
+        onSuccess={() => {
+          dispatch({ type: 'CLEAR_SELECTION' });
+        }}
+      />
     </View>
   );
 };

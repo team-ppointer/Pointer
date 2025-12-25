@@ -2,7 +2,7 @@ import { Pressable, View, Text, Image } from 'react-native';
 import React, { useState } from 'react';
 import { Check } from 'lucide-react-native';
 import { ChevronDownFilledIcon } from '@/components/system/icons';
-import { TooltipPopover, ItemTooltipBox } from '../../Modal/Tooltip';
+import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -22,8 +22,8 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const thumbnailUrl = props.type === 'SCRAP' ? props.thumbnailUrl : undefined;
 
   const cardContent = (
-    <View className='h-full w-full items-center gap-3 rounded-[10px] p-[10px]'>
-      <View className='h-[116px] w-full'>
+    <View className='h-full w-full items-center  gap-3 rounded-[10px] p-[10px]'>
+      <View className='max-h-[70%] w-full'>
         {thumbnailUrl ? (
           <Image
             source={{ uri: thumbnailUrl }}
@@ -49,39 +49,42 @@ export const ScrapCard = (props: ScrapListItemProps) => {
       )}
 
       <View className='w-full px-[6px]'>
-        <View className='flex-row items-start justify-between gap-0.5'>
-          <Text className='text-16sb flex-1 text-[#1E1E21]' numberOfLines={2}>
-            {props.name}
-          </Text>
-          {!state.isSelecting && (
-            <TooltipPopover
-              from={<ChevronDownFilledIcon />}
-              children={(close) => (
-                <ItemTooltipBox
-                  props={props}
-                  onClose={close}
-                  onMovePress={() => setIsMoveModalVisible(true)}
-                />
-              )}
-            />
-          )}
-          <MoveScrapModal
-            visible={isMoveModalVisible}
-            onClose={() => setIsMoveModalVisible(false)}
-            selectedItems={[{ id: props.id, type: props.type }]}
-            onSuccess={() => {
-              // 이동 성공 후 필요한 경우 데이터 갱신
-            }}
-          />
+        <View className='flex-row justify-between'>
+          <View className={`flex-${props.type === 'SCRAP' ? '1' : '[0.9]'} flex-row gap-0.5`}>
+            <Text className='text-16sb  text-[#1E1E21]' numberOfLines={2}>
+              {props.name}
+            </Text>
+            {!state.isSelecting && (
+              <TooltipPopover
+                from={<ChevronDownFilledIcon />}
+                children={(close) => (
+                  <ItemTooltipBox
+                    props={props}
+                    onClose={close}
+                    onMovePress={() => setIsMoveModalVisible(true)}
+                  />
+                )}
+              />
+            )}
+          </View>
           {props.type === 'FOLDER' && props.scrapCount !== undefined && (
             <Text className='text-12m text-gray-700'>{props.scrapCount}</Text>
           )}
         </View>
-
         <Text className='text-10r text-gray-700'>
-          {new Date(props.createdAt).toLocaleDateString('ko-kr')}
+          {props.type === 'SCRAP' && props.updatedAt
+            ? new Date(props.updatedAt).toLocaleString('ko-kr')
+            : new Date(props.createdAt).toLocaleString('ko-kr')}
         </Text>
       </View>
+      <MoveScrapModal
+        visible={isMoveModalVisible}
+        onClose={() => setIsMoveModalVisible(false)}
+        selectedItems={[{ id: props.id, type: props.type }]}
+        onSuccess={() => {
+          // 이동 성공 후 필요한 경우 데이터 갱신
+        }}
+      />
     </View>
   );
 
