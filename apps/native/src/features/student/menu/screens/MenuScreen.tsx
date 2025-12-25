@@ -26,7 +26,7 @@ const MenuScreen = () => {
       ) : isError ? (
         <Text>유저 정보 fetch 실패</Text>
       ) : userInfo ? (
-          <Text>{`name: ${userInfo.name}\ngrade: ${userInfo.grade}\nisFirstLogin: ${userInfo.isFirstLogin.toString()}`}</Text>
+        <Text>{JSON.stringify(userInfo).replace(/,/g, ',\n')}</Text>
       ) : (
         <Text>auth 정보 없음</Text>
       )}
