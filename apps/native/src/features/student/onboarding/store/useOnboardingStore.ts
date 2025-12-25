@@ -1,17 +1,12 @@
 import { create } from 'zustand';
-import type {
-  CarrierOption,
-  GradeValue,
-  MathSubjectValue,
-  ScoreValue,
-} from '../constants';
+import type { CarrierValue, GenderValue, GradeValue, MathSubjectValue } from '../constants';
 
 type IdentityInfo = {
   name: string;
-  registrationFront: string;
-  registrationBack: string;
-  phone: string;
-  carrier: CarrierOption | null;
+  birth: string | null; // YYYY-MM-DD format
+  gender: GenderValue | null;
+  phoneNumber: string;
+  mobileCarrier: CarrierValue | null;
 };
 
 type OnboardingStatus = 'idle' | 'in-progress' | 'completed';
@@ -21,9 +16,9 @@ type OnboardingState = {
   email: string;
   identity: IdentityInfo;
   grade: GradeValue | null;
-  mathSubject: MathSubjectValue | null;
-  school: string | null;
-  score: ScoreValue | null;
+  selectSubject: MathSubjectValue | null;
+  schoolId: number | null;
+  level: number | null;
   nickname: string;
 };
 
@@ -36,19 +31,19 @@ type OnboardingActions = {
   setEmail: (email: string) => void;
   setIdentity: (payload: Partial<IdentityInfo>) => void;
   setGrade: (grade: GradeValue) => void;
-  setMathSubject: (subject: MathSubjectValue) => void;
-  setSchool: (school: string | null) => void;
-  setScore: (score: ScoreValue | null) => void;
+  setSelectSubject: (subject: MathSubjectValue) => void;
+  setSchoolId: (schoolId: number | null) => void;
+  setLevel: (level: number | null) => void;
   setNickname: (nickname: string) => void;
   getPayload: () => OnboardingPayload;
 };
 
 const emptyIdentity: IdentityInfo = {
   name: '',
-  registrationFront: '',
-  registrationBack: '',
-  phone: '',
-  carrier: null,
+  birth: null,
+  gender: null,
+  phoneNumber: '',
+  mobileCarrier: null,
 };
 
 const initialState: OnboardingState = {
@@ -56,9 +51,9 @@ const initialState: OnboardingState = {
   email: '',
   identity: emptyIdentity,
   grade: null,
-  mathSubject: null,
-  school: null,
-  score: null,
+  selectSubject: null,
+  schoolId: null,
+  level: null,
   nickname: '',
 };
 
@@ -84,13 +79,12 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>((s
       },
     })),
   setGrade: (grade) => set({ grade }),
-  setMathSubject: (mathSubject) => set({ mathSubject }),
-  setSchool: (school) => set({ school }),
-  setScore: (score) => set({ score }),
+  setSelectSubject: (selectSubject) => set({ selectSubject }),
+  setSchoolId: (schoolId) => set({ schoolId }),
+  setLevel: (level) => set({ level }),
   setNickname: (nickname) => set({ nickname }),
   getPayload: () => {
     const { status: _status, ...payload } = get();
     return payload;
   },
 }));
-

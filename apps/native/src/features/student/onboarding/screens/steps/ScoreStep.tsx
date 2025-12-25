@@ -1,26 +1,25 @@
 import { useMemo } from 'react';
 import { View } from 'react-native';
 import { InfoCard, OnboardingLayout, OptionButton } from '../../components';
-import { scoreOptions } from '../../constants';
-import type { ScoreValue } from '../../constants';
+import { levelOptions } from '../../constants';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
 import { colors } from '@/theme/tokens';
 import { MessageSquareWarningFilledIcon } from '@components/system/icons';
 
 const ScoreStep = ({ navigation }: OnboardingScreenProps<'Score'>) => {
-  const score = useOnboardingStore((state) => state.score);
-  const setScore = useOnboardingStore((state) => state.setScore);
+  const level = useOnboardingStore((state) => state.level);
+  const setLevel = useOnboardingStore((state) => state.setLevel);
 
   const handleSkip = () => {
-    setScore(null);
+    setLevel(null);
     navigation.navigate('Nickname');
   };
 
-  const scoreRows = useMemo(() => {
-    const rows: ScoreValue[][] = [];
-    for (let i = 0; i < scoreOptions.length; i += 3) {
-      rows.push(scoreOptions.slice(i, i + 3));
+  const levelRows = useMemo(() => {
+    const rows: (typeof levelOptions)[] = [];
+    for (let i = 0; i < levelOptions.length; i += 3) {
+      rows.push(levelOptions.slice(i, i + 3));
     }
     return rows;
   }, []);
@@ -30,18 +29,18 @@ const ScoreStep = ({ navigation }: OnboardingScreenProps<'Score'>) => {
       title='최근 공식 수학 성적을 선택해 주세요.'
       description='가장 최근에 응시한 수능/모의고사 성적을 입력하면 실력을 더 정확히 파악할 수 있어요.'
       onPressCTA={() => navigation.navigate('Nickname')}
-      ctaDisabled={!score}
+      ctaDisabled={!level}
       skipLabel='건너뛰기'
       onSkip={handleSkip}>
       <View className='mb-[32px] gap-[10px]'>
-        {scoreRows.map((row, rowIndex) => (
-          <View key={`score-row-${rowIndex}`} className='flex-row gap-[10px]'>
+        {levelRows.map((row, rowIndex) => (
+          <View key={`level-row-${rowIndex}`} className='flex-row gap-[10px]'>
             {row.map((option) => (
-              <View key={option} className='flex-1'>
+              <View key={option.value} className='flex-1'>
                 <OptionButton
-                  label={option}
-                  selected={score === option}
-                  onPress={() => setScore(option)}
+                  label={option.label}
+                  selected={level === option.value}
+                  onPress={() => setLevel(option.value)}
                   isCentered
                 />
               </View>

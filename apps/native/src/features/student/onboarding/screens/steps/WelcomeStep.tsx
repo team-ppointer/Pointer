@@ -1,9 +1,12 @@
 import { View, Text } from 'react-native';
 import { MailBoxGraphic, OnboardingLayout } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
-import { gradeOptions } from '../../constants';
 import type { OnboardingScreenProps } from '../types';
 import { useAuthStore } from '@stores';
+import postRegister from '@apis/controller/student/auth/postRegister';
+import type { components } from '@schema';
+
+type StudentInitialRegisterReq = components['schemas']['StudentInitialRegisterDTO.Req'];
 
 const WelcomeStep = (_props: OnboardingScreenProps<'Welcome'>) => {
   const getPayload = useOnboardingStore((state) => state.getPayload);
@@ -13,12 +16,38 @@ const WelcomeStep = (_props: OnboardingScreenProps<'Welcome'>) => {
 
   const handleFinish = async () => {
     const payload = getPayload();
-    const gradeLabel = gradeOptions.find((option) => option.value === payload.grade)?.label ?? null;
-    await updateStudentProfile({
-      name: payload.identity.name || payload.nickname || null,
-      grade: gradeLabel,
-    });
-    complete();
+
+    const registerData: StudentInitialRegisterReq = {
+      isGteFourteen: true,
+      isAgreeServiceUsage: true,
+      isAgreePersonalInformation: true,
+      isAgreeReceiveMarketing: false,
+      email: payload.email || undefined,
+      name: payload.identity.name || payload.nickname,
+      birth: payload.identity.birth ?? undefined,
+      gender: payload.identity.gender ?? undefined,
+      phoneNumber: payload.identity.phoneNumber || undefined,
+      mobileCarrier: payload.identity.mobileCarrier ?? undefined,
+      grade: payload.grade ?? 'ONE',
+      selectSubject: payload.selectSubject ?? undefined,
+      schoolId: payload.schoolId ?? undefined,
+      level: payload.level ?? undefined,
+      nickname: payload.nickname || undefined,
+    };
+
+    try {
+      const response = await postRegister(registerData);
+
+      if (response.data) {
+        await updateStudentProfile({
+          name: payload.identity.name || payload.nickname || null,
+          grade: payload.grade,
+        });
+        complete();
+      }
+    } catch (error) {
+      console.error('Registration failed:', error);
+    }
   };
 
   return (

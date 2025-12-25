@@ -1,19 +1,11 @@
-export type GradeValue = 'grade1' | 'grade2' | 'grade3' | 'nStudent';
+import type { components } from '@schema';
 
-export type MathSubjectValue = '미적분' | '확률과 통계' | '기하';
+type StudentInitialRegisterReq = components['schemas']['StudentInitialRegisterDTO.Req'];
 
-export type CarrierOption = 'SKT' | 'KT' | 'LG U+' | '알뜰폰';
-
-export type ScoreValue =
-  | '1등급'
-  | '2등급'
-  | '3등급'
-  | '4등급'
-  | '5등급'
-  | '6등급'
-  | '7등급'
-  | '8등급'
-  | '9등급';
+export type GradeValue = NonNullable<StudentInitialRegisterReq['grade']>;
+export type MathSubjectValue = NonNullable<StudentInitialRegisterReq['selectSubject']>;
+export type CarrierValue = NonNullable<StudentInitialRegisterReq['mobileCarrier']>;
+export type GenderValue = NonNullable<StudentInitialRegisterReq['gender']>;
 
 export type SchoolOption = {
   id: string;
@@ -22,42 +14,35 @@ export type SchoolOption = {
 };
 
 export const gradeOptions: Array<{ value: GradeValue; label: string }> = [
-  { value: 'grade1', label: '1학년' },
-  { value: 'grade2', label: '2학년' },
-  { value: 'grade3', label: '3학년' },
-  { value: 'nStudent', label: 'N수생' },
+  { value: 'ONE', label: '1학년' },
+  { value: 'TWO', label: '2학년' },
+  { value: 'THREE', label: '3학년' },
+  { value: 'N_TIME', label: 'N수생' },
 ];
 
 export const mathSubjectOptions: Array<{ value: MathSubjectValue; label: string }> = [
-  { value: '미적분', label: '미적분' },
-  { value: '확률과 통계', label: '확률과 통계' },
-  { value: '기하', label: '기하' },
+  { value: 'MIJUKBUN', label: '미적분' },
+  { value: 'HWAKTONG', label: '확률과 통계' },
+  { value: 'KEEHA', label: '기하' },
 ];
 
-export const carrierOptions: CarrierOption[] = ['SKT', 'KT', 'LG U+', '알뜰폰'];
-
-export const scoreOptions: ScoreValue[] = [
-  '1등급',
-  '2등급',
-  '3등급',
-  '4등급',
-  '5등급',
-  '6등급',
-  '7등급',
-  '8등급',
-  '9등급',
+export const carrierOptions: Array<{ value: CarrierValue; label: string }> = [
+  { value: 'SKT', label: 'SKT' },
+  { value: 'KT', label: 'KT' },
+  { value: 'LG', label: 'LG U+' },
+  { value: 'SKT_MVNO', label: '알뜰폰' },
 ];
 
-export const schoolOptions: SchoolOption[] = [
-  { id: 'kyunggi-seoul', name: '경기고등학교', region: '서울' },
-  { id: 'hwaseong-gg', name: '화성고등학교', region: '경기' },
-  { id: 'daehwa-gg', name: '대화고등학교', region: '경기' },
-  { id: 'seoul-000', name: '000고등학교', region: '서울' },
-  { id: 'busan-000', name: '000고등학교', region: '부산' },
-  { id: 'daegu-000', name: '000고등학교', region: '대구' },
-  { id: 'ulsan-000', name: '000고등학교', region: '울산' },
-  { id: 'jeju-000', name: '000고등학교', region: '제주' },
+export const levelOptions: Array<{ value: number; label: string }> = [
+  { value: 1, label: '1등급' },
+  { value: 2, label: '2등급' },
+  { value: 3, label: '3등급' },
+  { value: 4, label: '4등급' },
+  { value: 5, label: '5등급' },
+  { value: 6, label: '6등급' },
+  { value: 7, label: '7등급' },
+  { value: 8, label: '8등급' },
+  { value: 9, label: '9등급' },
 ];
 
 export const duplicateEmailSamples = ['pointer111@naver.com', 'student@pointer.com'];
-

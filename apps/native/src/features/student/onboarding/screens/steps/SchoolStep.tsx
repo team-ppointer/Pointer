@@ -1,48 +1,51 @@
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Search } from 'lucide-react-native';
 import { OnboardingLayout, OnboardingInput } from '../../components';
-import { schoolOptions } from '../../constants';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
 import { colors } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
+import { useDebounce } from '@hooks';
+import useGetSchool from '@apis/controller/student/school/useGetSchool';
 
 const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
-  const school = useOnboardingStore((state) => state.school);
-  const setSchool = useOnboardingStore((state) => state.setSchool);
+  const schoolId = useOnboardingStore((state) => state.schoolId);
+  const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
 
-  const [query, setQuery] = useState(school ?? '');
+  const [query, setQuery] = useState('');
+  const [selectedLabel, setSelectedLabel] = useState('');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const normalizedOptions = useMemo(
-    () => schoolOptions.map((item) => ({ ...item, label: `${item.name}(${item.region})` })),
-    []
-  );
+  const debouncedQuery = useDebounce(query.trim(), 300);
+  const { data, isLoading } = useGetSchool({ query: debouncedQuery });
 
-  const results = useMemo(() => {
-    if (!query.trim()) return normalizedOptions;
-    return normalizedOptions.filter((option) =>
-      option.label.toLowerCase().includes(query.trim().toLowerCase())
-    );
-  }, [normalizedOptions, query]);
+  const results = data?.data ?? [];
+  const showDropdown = dropdownVisible && (results.length > 0 || isLoading);
 
-  const showDropdown = dropdownVisible && results.length > 0;
-
-  const handleSelect = (label: string) => {
-    setSchool(label);
+  const handleSelect = (id: number, name: string, sido: string) => {
+    const label = `${name}(${sido})`;
+    setSchoolId(id);
     setQuery(label);
+    setSelectedLabel(label);
     setDropdownVisible(false);
   };
 
+  const handleClear = () => {
+    setSchoolId(null);
+    setQuery('');
+    setSelectedLabel('');
+  };
+
   const handleNext = () => {
-    if (!school) return;
+    if (!schoolId) return;
     navigation.navigate('Score');
   };
 
   const handleSkip = () => {
-    setSchool(null);
+    setSchoolId(null);
     setQuery('');
+    setSelectedLabel('');
     navigation.navigate('Score');
   };
 
@@ -51,7 +54,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
       title='현재 재학중인 학교명을 입력해 주세요.'
       description='학교를 입력해 맞춤형 문제를 제공받아요.'
       onPressCTA={handleNext}
-      ctaDisabled={!school}
+      ctaDisabled={!schoolId}
       skipLabel='건너뛰기'
       onSkip={handleSkip}>
       <View>
@@ -65,40 +68,51 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
           }}
           onChangeText={(text) => {
             setQuery(text);
-            setSchool(null);
+            if (selectedLabel && text !== selectedLabel) {
+              setSchoolId(null);
+              setSelectedLabel('');
+            }
             if (!dropdownVisible) setDropdownVisible(true);
           }}
           rightAccessory={
-            school ? (
+            schoolId ? (
               <CircleXFilledIcon size={20} color={colors['gray-700']} />
             ) : (
               <Search size={20} color={colors['gray-900']} />
             )
           }
           onPressAccessory={() => {
-            if (school) {
-              setSchool(null);
-              setQuery('');
+            if (schoolId) {
+              handleClear();
             }
           }}
         />
         {showDropdown ? (
           <View className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px] shadow shadow-black/10'>
-            <ScrollView
-              keyboardShouldPersistTaps='handled'
-              style={{ maxHeight: 280 }}
-              contentContainerClassName='gap-[8px]'>
-              {results.map((item) => (
-                <Pressable
-                  key={item.id}
-                  className={`rounded-[6px] px-[10px] py-[6px] hover:bg-gray-100 active:bg-gray-200 ${
-                    school === item.label ? 'bg-gray-200' : 'bg-transparent'
-                  }`}
-                  onPress={() => handleSelect(item.label)}>
-                  <Text className='text-16m text-gray-800'>{item.label}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
+            {isLoading ? (
+              <View className='items-center justify-center py-[20px]'>
+                <ActivityIndicator size='small' color={colors['gray-500']} />
+              </View>
+            ) : (
+              <ScrollView
+                keyboardShouldPersistTaps='handled'
+                style={{ maxHeight: 280 }}
+                contentContainerClassName='gap-[8px]'>
+                {results.map((item) => {
+                  const label = `${item.name ?? ''}(${item.sido ?? ''})`;
+                  return (
+                    <Pressable
+                      key={item.id}
+                      className={`rounded-[6px] px-[10px] py-[6px] hover:bg-gray-100 active:bg-gray-200 ${
+                        schoolId === item.id ? 'bg-gray-200' : 'bg-transparent'
+                      }`}
+                      onPress={() => handleSelect(item.id, item.name ?? '', item.sido ?? '')}>
+                      <Text className='text-16m text-gray-800'>{label}</Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            )}
           </View>
         ) : null}
       </View>

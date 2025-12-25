@@ -3,19 +3,54 @@ import { Alert, Modal, Pressable, Text, View } from 'react-native';
 import { ChevronDown } from 'lucide-react-native';
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { carrierOptions } from '../../constants';
+import type { CarrierValue, GenderValue } from '../../constants';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
 import { colors } from '@/theme/tokens';
+
+type FormState = {
+  name: string;
+  registrationFront: string;
+  registrationBack: string;
+  phone: string;
+  carrier: CarrierValue | null;
+};
+
+const parseBirthDate = (registrationFront: string, registrationBack: string): string | null => {
+  if (registrationFront.length !== 6 || registrationBack.length === 0) return null;
+
+  const yy = registrationFront.slice(0, 2);
+  const mm = registrationFront.slice(2, 4);
+  const dd = registrationFront.slice(4, 6);
+  const genderCode = registrationBack[0];
+
+  // 1, 2 = 1900s, 3, 4 = 2000s
+  const century = genderCode === '1' || genderCode === '2' ? '19' : '20';
+  return `${century}${yy}-${mm}-${dd}`;
+};
+
+const parseGender = (registrationBack: string): GenderValue | null => {
+  if (registrationBack.length === 0) return null;
+  const genderCode = registrationBack[0];
+  // 1, 3 = MALE, 2, 4 = FEMALE
+  return genderCode === '1' || genderCode === '3' ? 'MALE' : 'FEMALE';
+};
 
 const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const identity = useOnboardingStore((state) => state.identity);
   const setIdentity = useOnboardingStore((state) => state.setIdentity);
 
-  const [form, setForm] = useState(identity);
+  const [form, setForm] = useState<FormState>({
+    name: identity.name,
+    registrationFront: '',
+    registrationBack: '',
+    phone: identity.phoneNumber,
+    carrier: identity.mobileCarrier,
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [carrierModalVisible, setCarrierModalVisible] = useState(false);
 
-  const updateField = (key: keyof typeof form, value: string) => {
+  const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: '' }));
   };
@@ -36,7 +71,14 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
 
   const handleNext = () => {
     if (!validate()) return;
-    setIdentity(form);
+
+    setIdentity({
+      name: form.name,
+      birth: parseBirthDate(form.registrationFront, form.registrationBack),
+      gender: parseGender(form.registrationBack),
+      phoneNumber: form.phone,
+      mobileCarrier: form.carrier,
+    });
     navigation.navigate('Grade');
   };
 
@@ -60,6 +102,11 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
     form.registrationBack.length === 7 &&
     /^010\d{7,8}$/.test(form.phone) &&
     Boolean(form.carrier);
+
+  const getCarrierLabel = (value: CarrierValue | null) => {
+    if (!value) return '';
+    return carrierOptions.find((opt) => opt.value === value)?.label ?? '';
+  };
 
   return (
     <>
@@ -119,7 +166,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
             <Text className='text-16sb mb-[8px] text-gray-900'>통신사</Text>
             <View className='relative'>
               <OnboardingInput
-                value={form.carrier ?? ''}
+                value={getCarrierLabel(form.carrier)}
                 placeholder='SKT, KT, LG U+, 알뜰폰'
                 editable={false}
                 rightAccessory={<ChevronDown color={colors['gray-900']} size={20} />}
@@ -141,13 +188,13 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
             <Text className='text-16sb mb-[12px] text-gray-900'>통신사를 선택해 주세요.</Text>
             {carrierOptions.map((carrier) => (
               <Pressable
-                key={carrier}
+                key={carrier.value}
                 className='rounded-[12px] px-[12px] py-[12px]'
                 onPress={() => {
-                  updateField('carrier', carrier);
+                  updateField('carrier', carrier.value);
                   setCarrierModalVisible(false);
                 }}>
-                <Text className='text-16m text-gray-800'>{carrier}</Text>
+                <Text className='text-16m text-gray-800'>{carrier.label}</Text>
               </Pressable>
             ))}
           </View>

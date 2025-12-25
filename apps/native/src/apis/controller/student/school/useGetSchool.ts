@@ -1,10 +1,16 @@
 import { TanstackQueryClient } from '@apis';
 
-const useGetSchool = (query: string) => {
+type Props = {
+  query: string;
+  enabled?: boolean;
+};
+
+const useGetSchool = ({ query, enabled = true }: Props) => {
   return TanstackQueryClient.useQuery('get', '/api/student/school', {
     query: {
       query,
     },
+    enabled: enabled && query.trim().length > 0,
   });
 };
 
