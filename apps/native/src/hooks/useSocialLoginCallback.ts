@@ -3,9 +3,24 @@ import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
+import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
+
+const shouldStartOnboarding = (flag?: string | string[] | null): boolean => {
+  if (flag === undefined || flag === null) {
+    return true;
+  }
+
+  if (Array.isArray(flag)) {
+    return flag.some((value) => shouldStartOnboarding(value));
+  }
+
+  return flag.toLowerCase() !== 'false';
+};
 
 const useSocialLoginCallback = () => {
   const { setSessionStatus, setRole } = useAuthStore();
+  const startOnboarding = useOnboardingStore((state) => state.start);
+  const completeOnboarding = useOnboardingStore((state) => state.complete);
 
   useEffect(() => {
     const handleUrl = (event: { url: string }) => {
@@ -31,6 +46,13 @@ const useSocialLoginCallback = () => {
 
       setRole('student');
       setSessionStatus('authenticated');
+
+      // if (shouldStartOnboarding(isFirstLogin)) {
+      if (shouldStartOnboarding('true')) {
+        startOnboarding();
+      } else {
+        completeOnboarding();
+      }
     };
 
     const sub = Linking.addEventListener('url', handleUrl);
@@ -42,7 +64,7 @@ const useSocialLoginCallback = () => {
     return () => {
       sub.remove();
     };
-  }, [setSessionStatus, setRole]);
+  }, [setSessionStatus, setRole, startOnboarding, completeOnboarding]);
 };
 
 export default useSocialLoginCallback;

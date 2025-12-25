@@ -9,6 +9,10 @@ import HomeFilledIcon from './HomeFilledIcon';
 import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
 import NoNotificationBellIcon from './NoNotificationBellIcon';
 import TeacherIcon from './TeacherIcon';
+import KakaoIcon from './KakaoIcon';
+import GoogleIcon from './GoogleIcon';
+import CircleXFilledIcon from './CircleXFilledIcon';
+import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
 
 export {
   AlertBellButtonIcon,
@@ -22,4 +26,8 @@ export {
   MessageCircleMoreFilledIcon,
   NoNotificationBellIcon,
   TeacherIcon,
+  KakaoIcon,
+  GoogleIcon,
+  CircleXFilledIcon,
+  MessageSquareWarningFilledIcon,
 };

@@ -12,7 +12,7 @@ import {
   useGetLastDiagnosis,
   useGetMonthlyPublish,
   useGetPublishDetail,
-} from '@apis';
+} from '@apis/student';
 import { StudentRootStackParamList } from '@navigation/student/types';
 
 const HomeScreen = () => {

@@ -8,7 +8,7 @@ import { colors } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { postPointing } from '@apis';
+import { postPointing } from '@apis/student';
 import {
   selectCurrentProblem,
   selectCurrentPointing,
@@ -20,7 +20,7 @@ import {
   selectPublishId,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
-import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
+import { useInvalidateStudyData } from '@hooks';
 import ProblemViewer from '../components/ProblemViewer';
 
 const PointingScreen = ({
