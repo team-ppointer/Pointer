@@ -45,6 +45,7 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
   return (
     <FlatList
       key={numColumns}
+      scrollEnabled={false}
       data={finalData}
       numColumns={numColumns}
       onLayout={(e) => {
@@ -53,12 +54,28 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
           setContainerWidth(width);
         }
       }}
-      keyExtractor={(item) =>
-        // item may be a ScrapItem/TrashItem or a placeholder item
-        'id' in item && item.id !== undefined ? String(item.id) : Math.random().toString()
-      }
+      keyExtractor={(item, index) => {
+        if ('placeholder' in item && item.placeholder) {
+          return `placeholder-${index}`;
+        }
+
+        if ('ADD' in item && item.ADD === true) {
+          return 'add-item';
+        }
+
+        if ('id' in item && 'type' in item) {
+          return `${item.type}-${item.id}`;
+        }
+
+        return `fallback-${index}`;
+      }}
       contentContainerStyle={{ paddingBottom: 120 }}
-      columnWrapperStyle={{ marginBottom: gap }}
+      columnWrapperStyle={{ marginBottom: gap * 2 }}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={10}
+      updateCellsBatchingPeriod={50}
+      windowSize={10}
+      initialNumToRender={10}
       renderItem={({ item, index }) => {
         const isLastColumn = (index + 1) % numColumns === 0;
 
@@ -77,7 +94,7 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
         if ('ADD' in item && item.ADD === true) {
           return (
             <View style={spacingStyle}>
-              <ScrapAddItem />
+              <ScrapAddItem reducerState={reducerState} />
             </View>
           );
         }
@@ -109,16 +126,10 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
   );
 };
 
-/**
- * 검색 결과 그리드 Props
- */
 interface SearchScrapGridProps {
   data: ScrapItem[];
 }
 
-/**
- * 검색 결과 그리드 컴포넌트
- */
 export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
@@ -135,12 +146,28 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
           setContainerWidth(width);
         }
       }}
-      keyExtractor={(item) =>
-        // item may be a ScrapItem/TrashItem or a placeholder item
-        'id' in item && item.id !== undefined ? String(item.id) : Math.random().toString()
-      }
+      keyExtractor={(item, index) => {
+        if ('placeholder' in item && item.placeholder) {
+          return `placeholder-${index}`;
+        }
+
+        if ('ADD' in item && item.ADD === true) {
+          return 'add-item';
+        }
+
+        if ('id' in item && 'type' in item) {
+          return `${item.type}-${item.id}`;
+        }
+
+        return `fallback-${index}`;
+      }}
       contentContainerStyle={{ paddingBottom: 120 }}
-      columnWrapperStyle={{ marginBottom: gap }}
+      columnWrapperStyle={{ marginBottom: gap * 2 }}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={10}
+      updateCellsBatchingPeriod={50}
+      windowSize={10}
+      initialNumToRender={10}
       renderItem={({ item, index }) => {
         const isLastColumn = (index + 1) % numColumns === 0;
 
@@ -150,16 +177,10 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
           marginRight: isLastColumn ? 0 : gap,
         };
 
-        // Check for placeholder first
         if ('placeholder' in item && item.placeholder) {
           return <View style={spacingStyle} />;
         }
 
-        if ('placeholder' in item && item.placeholder) {
-          return <View style={spacingStyle} />;
-        }
-
-        // Type guard: ensure item has required properties
         if (!('id' in item) || !('type' in item)) {
           return <View style={spacingStyle} />;
         }
@@ -198,12 +219,28 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
           setContainerWidth(width);
         }
       }}
-      keyExtractor={(item) =>
-        // item may be a ScrapItem/TrashItem or a placeholder item
-        'id' in item && item.id !== undefined ? String(item.id) : Math.random().toString()
-      }
+      keyExtractor={(item, index) => {
+        if ('placeholder' in item && item.placeholder) {
+          return `placeholder-${index}`;
+        }
+
+        if ('ADD' in item && item.ADD === true) {
+          return 'add-item';
+        }
+
+        if ('id' in item && 'type' in item) {
+          return `${item.type}-${item.id}`;
+        }
+
+        return `fallback-${index}`;
+      }}
       contentContainerStyle={{ paddingBottom: 120 }}
-      columnWrapperStyle={{ marginBottom: gap }}
+      columnWrapperStyle={{ marginBottom: gap * 2 }}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={10}
+      updateCellsBatchingPeriod={50}
+      windowSize={10}
+      initialNumToRender={10}
       renderItem={({ item, index }) => {
         const isLastColumn = (index + 1) % numColumns === 0;
 
