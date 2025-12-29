@@ -8,46 +8,56 @@ import { ScrapListItemProps } from '../types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StudentRootStackParamList } from '@/navigation/student/types';
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import { CreateFolderModal } from '../../Modal/CreateFolderModal';
 import { LoadQnaImageModal } from '../../Modal/LoadQnaImageModal';
+import { State } from '../../../utils/reducer';
 
-export const ScrapAddItem = () => {
+export const ScrapAddItem = ({ reducerState }: { reducerState: State }) => {
   const [isFolderModalVisible, setIsFolderModalVisible] = useState(false);
   const [isQnaImageModalVisible, setisQnaImageModalVisible] = useState(false);
+  const isSelecting = reducerState?.isSelecting ?? false;
+
+  const addItemContent = (
+    <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
+      <View className='gap-3'>
+        <View className='aspect-square w-full items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-gray-600 p-[44px]'>
+          <Plus size={24} color={colors['gray-600']} />
+        </View>
+        <View className='w-full flex-col px-1'>
+          <Text className='text-16sb text-[#1E1E21]'>추가하기</Text>
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <>
-      <TooltipPopover
-        placement={Placement.BOTTOM}
-        children={(close: () => void) => (
-          <AddItemTooltipBox
-            onClose={close}
-            onOpenFolderModal={() => {
-              close();
-              setTimeout(() => {
-                setIsFolderModalVisible(true);
-              }, 200);
-            }}
-            onOpenQnaImgModal={() => {
-              close();
-              setTimeout(() => {
-                setisQnaImageModalVisible(true);
-              }, 200);
-            }}
-          />
-        )}
-        from={
-          <View className={`h-full w-full items-center gap-3 rounded-[10px] p-[10px]`}>
-            <View className='h-[70%] w-full items-center justify-center border-[1.5px] border-dashed border-gray-600 p-[44px]'>
-              <Plus size={24} color={colors['gray-600']} />
-            </View>
-            <View className={`w-full flex-col px-[6px]`}>
-              <Text className='text-16sb text-[#1E1E21]'>추가하기</Text>
-            </View>
-          </View>
-        }
-      />
+      {isSelecting ? (
+        <View style={{ opacity: 0.5 }}>{addItemContent}</View>
+      ) : (
+        <TooltipPopover
+          placement={Placement.BOTTOM}
+          children={(close: () => void) => (
+            <AddItemTooltipBox
+              onClose={close}
+              onOpenFolderModal={() => {
+                close();
+                setTimeout(() => {
+                  setIsFolderModalVisible(true);
+                }, 200);
+              }}
+              onOpenQnaImgModal={() => {
+                close();
+                setTimeout(() => {
+                  setisQnaImageModalVisible(true);
+                }, 200);
+              }}
+            />
+          )}
+          from={addItemContent}
+        />
+      )}
       <CreateFolderModal
         visible={isFolderModalVisible}
         onClose={() => setIsFolderModalVisible(false)}

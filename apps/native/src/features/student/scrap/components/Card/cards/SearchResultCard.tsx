@@ -6,6 +6,8 @@ import type { ScrapItem } from '@/features/student/scrap/utils/types';
 import { it } from 'node:test';
 import { useGetFolderDetail } from '@/apis';
 import { useNoteStore } from '@/stores/scrapNoteStore';
+import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
+import { useMemo } from 'react';
 
 export interface SearchResultCardProps {
   item: ScrapItem;
@@ -18,35 +20,37 @@ export const SearchResultCard = ({ item }: SearchResultCardProps) => {
 
   const openNote = useNoteStore((state) => state.openNote);
 
-  const thumbnailUrl = item.type === 'SCRAP' ? item.thumbnailUrl : undefined;
+  // thumbnailUrl이 변경될 때만 source 객체 재생성
+  const imageSource = useMemo(
+    () => (item.thumbnailUrl ? { uri: item.thumbnailUrl } : undefined),
+    [item.thumbnailUrl]
+  );
 
   const cardContent = (
-    <View className='h-full w-full items-center gap-3 rounded-[10px] p-[10px]'>
-      <View className='max-h-[70%] w-full'>
-        {thumbnailUrl ? (
-          <Image
-            source={{ uri: thumbnailUrl }}
-            resizeMode='cover'
-            style={{ width: '100%', height: '100%' }}
-          />
-        ) : (
-          <View className='h-full w-full rounded-[10px] bg-gray-600' />
-        )}
-      </View>
+    <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
+      <View className='w-full gap-3'>
+        <ImageWithSkeleton
+          source={imageSource}
+          width='100%'
+          aspectRatio={1}
+          borderRadius={10}
+          resizeMode='cover'
+          uniqueId={item.id}
+          fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
+        />
+        <View className='w-full justify-between px-1'>
+          {folderName && <Text className='text-12m text-black'>{folderName}</Text>}
+          <View className='flex-row  items-center  gap-0.5'>
+            <Text className='text-16sb flex-1 text-[#1E1E21]' numberOfLines={2}>
+              {item.name}
+            </Text>
+            {item.type === 'FOLDER' && <Text className='text-12m text-gray-700'>폴더</Text>}
+          </View>
 
-      <View className='w-full px-[6px]'>
-        {folderName && <Text className='text-12m text-black'>{folderName}</Text>}
-        <View className='flex-row items-start justify-between gap-0.5'>
-          <Text className='text-16sb flex-1 text-[#1E1E21]' numberOfLines={2}>
-            {item.name}
+          <Text className='text-10r text-gray-700'>
+            {new Date(item.createdAt).toLocaleString('ko-kr')}
           </Text>
-
-          {item.type === 'FOLDER' && <Text className='text-12m text-gray-700'>폴더</Text>}
         </View>
-
-        <Text className='text-10r text-gray-700'>
-          {new Date(item.createdAt).toLocaleString('ko-kr')}
-        </Text>
       </View>
     </View>
   );
