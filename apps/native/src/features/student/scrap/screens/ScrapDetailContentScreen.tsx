@@ -20,6 +20,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  SharedValue,
   runOnJS,
 } from 'react-native-reanimated';
 import { Container, SegmentedControl, TextButton } from '@/components/common';
@@ -54,6 +55,9 @@ const ScrapContentDetailScreen = () => {
 
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes } = useNoteStore();
   const [tabLayouts, setTabLayouts] = useState<Record<number, { x: number; width: number }>>({});
+  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollX = useSharedValue(0);
+  const screenWidth = Dimensions.get('window').width;
   const [expandedSections, setExpandedSections] = useState<Record<string, { comment: boolean }>>(
     {}
   );
@@ -284,11 +288,21 @@ const ScrapContentDetailScreen = () => {
             </Pressable>
           )}
           <Text className='text-20b text-gray-900'>{scrap.name || '스크랩 상세'}</Text>
+          <Text className='text-17m text-gray-900'>{handwritingData?.updatedAt}</Text>
           <View className='h-[48px] w-[48px]' />
         </Container>
-        {openNotes.length > 0 && (
+        {openNotes.length > 1 && (
           <View className='flex-row border-b border-gray-300 bg-gray-50'>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className='flex-row'>
+            <ScrollView
+              ref={scrollViewRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className='flex-row'
+              onScroll={(event) => {
+                const offsetX = event.nativeEvent.contentOffset.x;
+                scrollX.value = offsetX; // 실시간 업데이트
+              }}
+              scrollEventThrottle={1}>
               {openNotes.map((note, index) => (
                 <DraggableTab
                   key={note.id}
@@ -305,6 +319,9 @@ const ScrapContentDetailScreen = () => {
                     reorderNotes(fromIndex, toIndex);
                   }}
                   tabLayouts={tabLayouts}
+                  scrollViewRef={scrollViewRef as React.RefObject<ScrollView>}
+                  scrollX={scrollX}
+                  screenWidth={screenWidth}
                 />
               ))}
             </ScrollView>
@@ -673,6 +690,7 @@ const ScrapContentDetailScreen = () => {
   );
 };
 
+// DraggableTabProps 인터페이스 수정
 interface DraggableTabProps {
   note: Note;
   index: number;
@@ -682,8 +700,12 @@ interface DraggableTabProps {
   onLayout: (event: LayoutChangeEvent) => void;
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   tabLayouts: Record<number, { x: number; width: number }>;
+  scrollViewRef: React.RefObject<ScrollView>;
+  scrollX: SharedValue<number>;
+  screenWidth: number;
 }
 
+// DraggableTab 컴포넌트 수정
 const DraggableTab = ({
   note,
   index,
@@ -693,21 +715,85 @@ const DraggableTab = ({
   onLayout,
   onDragEnd,
   tabLayouts,
+  scrollViewRef,
+  scrollX,
+  screenWidth,
 }: DraggableTabProps) => {
   const translateX = useSharedValue(0);
   const startX = useSharedValue(0);
   const [isDragging, setIsDragging] = useState(false);
   const { openNotes } = useNoteStore();
 
+  const autoScroll = useCallback(
+    (currentX: number) => {
+      if (!scrollViewRef.current) return;
+
+      const currentLayout = tabLayouts[note.id];
+      if (!currentLayout) return;
+
+      // 탭의 실제 화면상 위치 (스크롤 오프셋 고려)
+      const absoluteX = currentLayout.x - scrollX.value + currentX;
+      const tabRight = absoluteX + currentLayout.width;
+      const tabLeft = absoluteX;
+
+      const visibleLeft = 0;
+      const visibleRight = screenWidth;
+      const scrollThreshold = 100;
+      const scrollSpeed = 0.4;
+
+      let newScrollX = scrollX.value;
+      let shouldScroll = false;
+
+      // 오른쪽으로 스크롤
+      if (tabRight > visibleRight - scrollThreshold) {
+        const distance = tabRight - (visibleRight - scrollThreshold);
+        newScrollX = scrollX.value + distance * scrollSpeed;
+        shouldScroll = true;
+      }
+      // 왼쪽으로 스크롤
+      else if (tabLeft < visibleLeft + scrollThreshold) {
+        const distance = visibleLeft + scrollThreshold - tabLeft;
+        newScrollX = scrollX.value - distance * scrollSpeed;
+        shouldScroll = true;
+      }
+
+      if (shouldScroll && Math.abs(newScrollX - scrollX.value) > 0.5) {
+        scrollViewRef.current.scrollTo({
+          x: Math.max(0, newScrollX),
+          animated: false,
+        });
+      }
+    },
+    [tabLayouts, note.id, scrollViewRef, scrollX, screenWidth]
+  );
+
   const panGesture = Gesture.Pan()
+    .enabled(isActive) // 활성 탭일 때만 드래그 가능
     .onStart(() => {
+      // 활성 탭이 아니면 드래그 시작하지 않음
+      if (!isActive) return;
+
       startX.value = translateX.value;
       runOnJS(setIsDragging)(true);
     })
     .onUpdate((e) => {
+      // 활성 탭이 아니면 업데이트하지 않음
+      if (!isActive) return;
+
       translateX.value = startX.value + e.translationX;
+
+      // 드래그 중 자동 스크롤
+      const currentX = startX.value + e.translationX;
+      runOnJS(autoScroll)(currentX);
     })
     .onEnd((e) => {
+      // 활성 탭이 아니면 종료하지 않음
+      if (!isActive) {
+        translateX.value = withSpring(0);
+        runOnJS(setIsDragging)(false);
+        return;
+      }
+
       const finalX = startX.value + e.translationX;
       const currentLayout = tabLayouts[note.id];
 
@@ -756,18 +842,20 @@ const DraggableTab = ({
     <GestureDetector gesture={panGesture}>
       <Animated.View
         onLayout={onLayout}
-        style={animatedStyle}
+        style={[animatedStyle, { flex: 1, minWidth: 150, maxWidth: 300 }]}
         className={`flex-row items-center gap-2 border-b-2 px-4 py-2 ${
           isActive ? 'border-blue-500 bg-white' : 'border-transparent bg-gray-50'
         }`}>
         <Pressable onPress={onPress} className='flex-1 flex-row items-center gap-2'>
           <Text
             className={`text-14m ${isActive ? 'text-gray-900' : 'text-gray-600'}`}
+            ellipsizeMode='tail'
             numberOfLines={1}
-            style={{ maxWidth: 120 }}>
+            style={{ flexShrink: 1, textAlign: 'center' }}>
             {note.title}
           </Text>
         </Pressable>
+
         <Pressable
           onPress={(e) => {
             e.stopPropagation();
