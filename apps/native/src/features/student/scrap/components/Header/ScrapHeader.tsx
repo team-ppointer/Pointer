@@ -80,7 +80,7 @@ const ScrapHeader = ({
                 {!isAllSelected ? '전체 선택' : '전체 해제'}
               </Text>
             </Pressable>
-            <Text className='text-16sb text-gray-800'>스크랩</Text>
+            <Text className='text-16sb text-gray-800'>{title}</Text>
             <Pressable onPress={onExitSelection}>
               <Text className='text-14sb w-[72px] gap-[10px] rounded-[6px] px-1 text-blue-500'>
                 완료
