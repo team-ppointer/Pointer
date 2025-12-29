@@ -1,7 +1,15 @@
 import { colors } from '@/theme/tokens';
-import { FileSymlink, FolderOpen, ImagePlay, Trash2 } from 'lucide-react-native';
+import {
+  ArrowRightLeft,
+  BookImage,
+  BookOpenText,
+  FileSymlink,
+  FolderOpen,
+  ImagePlay,
+  Trash2,
+} from 'lucide-react-native';
 import { useState } from 'react';
-import { TextInput, View, Text, Pressable } from 'react-native';
+import { TextInput, View, Text, Pressable, Alert } from 'react-native';
 import { showToast } from '../Modal/Toast';
 import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
@@ -16,6 +24,9 @@ import {
 } from '@/apis';
 import { useNoteStore } from '@/stores/scrapNoteStore';
 import { useGetPreSignedUrl } from '@/apis/controller/common/postGetPreSignedUrl';
+import { openImageLibrary, openImageLibraryWithErrorHandling } from '../../utils/imagePicker';
+import { uploadFileToS3 } from '../../utils/s3Upload';
+import { uploadImageToS3 } from '../../utils/imageUpload';
 
 export interface ItemTooltipProps {
   props: ScrapListItemProps;
@@ -39,30 +50,48 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
 
   const { mutate: getPreSignedUrl } = useGetPreSignedUrl();
 
-  // S3에 파일 업로드
-  const uploadFileToS3 = async (
-    uploadUrl: string,
-    fileUri: string,
-    contentDisposition: string
-  ): Promise<boolean> => {
-    try {
-      // React Native에서 파일 읽기
-      const response = await fetch(fileUri);
-      const blob = await response.blob();
+  const handleUpdateFolderCover = async (image: any) => {
+    if (!image || !image.uri) {
+      return;
+    }
 
-      // S3에 PUT 요청
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'content-disposition': contentDisposition,
-        },
-        body: blob,
-      });
+    if (props.type !== 'FOLDER') {
+      return;
+    }
 
-      return uploadResponse.ok;
-    } catch (error) {
-      console.error('S3 업로드 실패:', error);
-      return false;
+    await uploadImageToS3(
+      image,
+      getPreSignedUrl,
+      async (result) => {
+        // 폴더 표지 업데이트
+        await updateFolder({
+          id: props.id,
+          request: {
+            name: props.name, // 기존 이름 유지
+            thumbnailImageId: result.fileId,
+          },
+        });
+        showToast('success', '표지가 변경되었습니다.');
+        handleClose();
+      },
+      (error) => {
+        showToast('error', error);
+      }
+    );
+  };
+
+  const onPressChangeCover = async () => {
+    const image = await openImageLibraryWithErrorHandling((error) => {
+      if (error.message?.includes('permission')) {
+        showToast('error', '갤러리 권한이 필요합니다.');
+      } else {
+        console.error('갤러리 오류:', error);
+        showToast('error', '갤러리를 사용할 수 없습니다.');
+      }
+    });
+
+    if (image) {
+      await handleUpdateFolderCover(image);
     }
   };
 
@@ -125,7 +154,7 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
             }
           }, 100);
         }}>
-        <FolderOpen size={20} />
+        <BookOpenText size={20} />
         {props.type === 'FOLDER' ? (
           <Text className='text-16r text-black'>폴더 열기</Text>
         ) : (
@@ -133,8 +162,10 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
         )}
       </Pressable>
       {props.type === 'FOLDER' && (
-        <Pressable className='flex-1 flex-row items-center gap-2 border-b-[0.5px] border-gray-500 pl-4 pr-[26px]'>
-          <ImagePlay size={20} />
+        <Pressable
+          className='flex-1 flex-row items-center gap-2 border-b-[0.5px] border-gray-500 pl-4 pr-[26px]'
+          onPress={onPressChangeCover}>
+          <BookImage size={20} />
           <Text className='text-16r text-black'>표지 변경하기</Text>
         </Pressable>
       )}
@@ -147,13 +178,15 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
               onMovePress?.();
             }, 100);
           }}>
-          <FileSymlink size={20} />
+          <ArrowRightLeft size={20} />
           <Text className='text-16r text-black'>폴더 이동하기</Text>
         </Pressable>
       )}
       <Pressable
         className='flex-1 flex-row items-center gap-2 pl-4 pr-[26px]'
         onPress={async () => {
+          handleClose();
+
           try {
             await deleteScrap({
               items: [
@@ -163,8 +196,6 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
                 },
               ],
             });
-
-            handleClose();
             showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
           } catch (error: any) {
             showToast('error', '삭제 중 오류가 발생했습니다.');
