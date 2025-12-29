@@ -3,23 +3,29 @@ import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import PopUpModal from './PopupModal';
 import { useCreateFolder } from '@/apis';
 import { showToast } from './Toast';
-import { openImageLibrary } from '../../utils/imagePicker';
+import { openImageLibraryWithErrorHandling } from '../../utils/imagePicker';
 import { colors } from '@/theme/tokens';
+import { useGetPreSignedUrl } from '@/apis/controller/common/postGetPreSignedUrl';
+import { uploadImageToS3 } from '../../utils/imageUpload';
+import * as ImagePicker from 'expo-image-picker';
 
 interface CreateFolderModalProps {
   visible: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  disableBackdropClose?: boolean;
 }
 
 export const CreateFolderModal = ({
   visible,
   onClose,
   onSuccess,
+  disableBackdropClose = false,
 }: CreateFolderModalProps) => {
   const [folderName, setFolderName] = useState('');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const { mutateAsync: createFolder } = useCreateFolder();
+  const { mutate: getPreSignedUrl } = useGetPreSignedUrl();
 
   // 모달이 닫힐 때 상태 초기화
   useEffect(() => {
@@ -30,9 +36,17 @@ export const CreateFolderModal = ({
   }, [visible]);
 
   const onPressGallery = async () => {
-    const image = await openImageLibrary();
+    const image = await openImageLibraryWithErrorHandling((error) => {
+      if (error.message?.includes('permission')) {
+        showToast('error', '갤러리 권한이 필요합니다.');
+      } else {
+        console.error('갤러리 오류:', error);
+        showToast('error', '갤러리를 사용할 수 없습니다.');
+      }
+    });
+
     if (image) {
-      setSelectedImage(image.uri);
+      setSelectedImage(image);
     }
   };
 
@@ -42,13 +56,44 @@ export const CreateFolderModal = ({
       return;
     }
 
-    try {
-      await createFolder({ name: folderName });
-      showToast('success', '폴더가 추가되었습니다.');
-      onSuccess?.();
-      onClose();
-    } catch (error) {
-      showToast('error', '폴더 추가에 실패했습니다.');
+    // 이미지가 있는 경우 먼저 업로드
+    if (selectedImage) {
+      const success = await uploadImageToS3(
+        selectedImage,
+        getPreSignedUrl,
+        async (result) => {
+          // 폴더 생성 (이미지 ID 포함)
+          await createFolder({
+            name: folderName,
+            thumbnailImageId: result.fileId,
+          });
+
+          showToast('success', '폴더가 추가되었습니다.');
+          onSuccess?.();
+          setTimeout(() => {
+            onClose();
+          }, 0);
+        },
+        (error) => {
+          showToast('error', error);
+        }
+      );
+
+      if (!success) {
+        return;
+      }
+    } else {
+      // 이미지가 없는 경우 이름만으로 폴더 생성
+      try {
+        await createFolder({ name: folderName });
+        showToast('success', '폴더가 추가되었습니다.');
+        onSuccess?.();
+        setTimeout(() => {
+          onClose();
+        }, 0);
+      } catch (error) {
+        showToast('error', '폴더 추가에 실패했습니다.');
+      }
     }
   };
 
@@ -73,12 +118,10 @@ export const CreateFolderModal = ({
 
         <View className='gap-[18px] p-[20px]'>
           <View className='items-center gap-[10px]'>
-            <Pressable
-              className='min-w-[136px] items-center p-[10px]'
-              onPress={onPressGallery}>
+            <Pressable className='min-w-[136px] items-center p-[10px]' onPress={onPressGallery}>
               {selectedImage ? (
                 <Image
-                  source={{ uri: selectedImage }}
+                  source={{ uri: selectedImage.uri }}
                   className='h-[136px] w-[136px] rounded-[8px]'
                   resizeMode='cover'
                 />
@@ -102,4 +145,3 @@ export const CreateFolderModal = ({
     </PopUpModal>
   );
 };
-
