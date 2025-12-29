@@ -1,5 +1,7 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { FilterType, ApiSortKey, SortOrder } from '@/features/student/scrap/utils/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface SearchHistoryStore {
   keywords: string[];
@@ -8,29 +10,35 @@ interface SearchHistoryStore {
   clear: () => void;
 }
 
-export const useSearchHistoryStore = create<SearchHistoryStore>((set) => ({
-  keywords: [],
+export const useSearchHistoryStore = create<SearchHistoryStore>()(
+  persist(
+    (set) => ({
+      keywords: [],
 
-  addKeyword: (keyword) =>
-    set((state) => {
-      const trimmed = keyword.trim();
-      if (!trimmed) return state;
+      addKeyword: (keyword) =>
+        set((state) => {
+          const trimmed = keyword.trim();
+          if (!trimmed) return state;
 
-      // 중복 제거 후 맨 앞에 추가
-      const filtered = state.keywords.filter((k) => k !== trimmed);
+          const filtered = state.keywords.filter((k) => k !== trimmed);
+          return {
+            keywords: [trimmed, ...filtered].slice(0, 10),
+          };
+        }),
 
-      return {
-        keywords: [trimmed, ...filtered].slice(0, 10), // 최대 10개
-      };
+      removeKeyword: (keyword) =>
+        set((state) => ({
+          keywords: state.keywords.filter((k) => k !== keyword),
+        })),
+
+      clear: () => set({ keywords: [] }),
     }),
-
-  removeKeyword: (keyword) =>
-    set((state) => ({
-      keywords: state.keywords.filter((k) => k !== keyword),
-    })),
-
-  clear: () => set({ keywords: [] }),
-}));
+    {
+      name: 'search-history-store',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);
 
 interface ScrapUIStore {
   /** 현재 선택된 폴더 ID */
@@ -63,13 +71,27 @@ const initialScrapUIState = {
   currentSort: 'CREATED_AT' as ApiSortKey,
   currentOrder: 'DESC' as SortOrder,
 };
+export const useScrapUIStore = create<ScrapUIStore>()(
+  persist(
+    (set) => ({
+      ...initialScrapUIState,
 
-export const useScrapUIStore = create<ScrapUIStore>((set) => ({
-  ...initialScrapUIState,
+      setCurrentFolderId: (id) => set({ currentFolderId: id }),
+      setSelectionMode: (enabled) => set({ isSelectionMode: enabled }),
+      setFilter: (filter) => set({ currentFilter: filter }),
+      setSort: (sort, order) => set({ currentSort: sort, currentOrder: order }),
 
-  setCurrentFolderId: (id) => set({ currentFolderId: id }),
-  setSelectionMode: (enabled) => set({ isSelectionMode: enabled }),
-  setFilter: (filter) => set({ currentFilter: filter }),
-  setSort: (sort, order) => set({ currentSort: sort, currentOrder: order }),
-  reset: () => set(initialScrapUIState),
-}));
+      reset: () => set(initialScrapUIState),
+    }),
+    {
+      name: 'scrap-ui-store',
+      storage: createJSONStorage(() => AsyncStorage),
+
+      partialize: (state) => ({
+        currentFilter: state.currentFilter,
+        currentSort: state.currentSort,
+        currentOrder: state.currentOrder,
+      }),
+    }
+  )
+);
