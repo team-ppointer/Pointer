@@ -11,6 +11,7 @@ import type { SelectedItem } from '../../utils/reducer';
 import { CreateFolderModal } from './CreateFolderModal';
 
 interface MoveScrapModalProps {
+  currentFolderId?: number;
   visible: boolean;
   onClose: () => void;
   selectedItems: SelectedItem[];
@@ -18,6 +19,7 @@ interface MoveScrapModalProps {
 }
 
 export const MoveScrapModal = ({
+  currentFolderId,
   visible,
   onClose,
   selectedItems,
@@ -27,8 +29,9 @@ export const MoveScrapModal = ({
     ...initialSelectionState,
     isSelecting: true, // 모달 내에서는 항상 선택 모드
   });
+
   const [isCreateFolderModalVisible, setIsCreateFolderModalVisible] = useState(false);
-  const { data: foldersData } = useGetFolders();
+  const { data: foldersData, refetch: refetchFolders } = useGetFolders();
   const { mutateAsync: moveScraps } = useMoveScraps();
 
   // 모달 상태에 따른 선택 모드 관리
@@ -45,13 +48,13 @@ export const MoveScrapModal = ({
   // 폴더만 필터링
   const folders = useMemo(() => {
     if (!foldersData?.data) return [];
-    return foldersData.data.map((folder) => ({
-      type: 'FOLDER' as const,
-      id: folder.id,
-      name: folder.name,
-      scrapCount: folder.scrapCount,
-      createdAt: folder.createdAt,
-    }));
+
+    return foldersData.data
+      .filter((folder) => folder.id !== currentFolderId)
+      .map((folder) => ({
+        ...folder,
+        type: 'FOLDER' as const,
+      }));
   }, [foldersData]);
 
   // 선택된 폴더 ID (폴더는 하나만 선택 가능)
@@ -131,7 +134,7 @@ export const MoveScrapModal = ({
           </View>
 
           <View className='gap-[18px] p-[20px]'>
-            <View className='gap-[10px] p-[10px]'>
+            <View className='gap-[10px]  p-[10px]'>
               <ScrapGrid
                 data={folders}
                 reducerState={folderSelectionState}
@@ -148,13 +151,13 @@ export const MoveScrapModal = ({
               </Pressable>
             </View>
           </View>
+          <CreateFolderModal
+            visible={isCreateFolderModalVisible}
+            onClose={() => setIsCreateFolderModalVisible(false)}
+            onSuccess={() => {}}
+          />
         </View>
       </PopUpModal>
-      <CreateFolderModal
-        visible={isCreateFolderModalVisible}
-        onClose={() => setIsCreateFolderModalVisible(false)}
-        onSuccess={() => {}}
-      />
     </>
   );
 };
