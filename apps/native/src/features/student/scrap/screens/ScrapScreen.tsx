@@ -3,16 +3,20 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useMemo, useReducer, useState } from 'react';
-import { View } from 'react-native';
+import { View, Text, ScrollView, Pressable, ImageBackground } from 'react-native';
 import { reducer, initialSelectionState } from '../utils/reducer';
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Modal/SortDropdown';
+import { useRecentScrapStore } from '@/stores/recentScrapStore';
 import { sortScrapData, mapUIKeyToAPIKey } from '../utils/sortScrap';
-import type { UISortKey, SortOrder } from '../utils/types';
+import type { UISortKey, SortOrder, ScrapSearchResponse } from '../utils/types';
 import { showToast } from '../components/Modal/Toast';
 import { useSearchScraps, useDeleteScrap } from '@/apis';
 import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
+import { useQueries } from '@tanstack/react-query';
+import { TanstackQueryClient } from '@/apis';
+import { RecentScrapCard } from '../components/Card/cards/RecentScrapCard';
 
 const ScrapScreen = () => {
   const [reducerState, dispatch] = useReducer(reducer, initialSelectionState);
@@ -20,28 +24,53 @@ const ScrapScreen = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
+  const recentScraps = useRecentScrapStore((state) => state.scrapIds);
 
-  const {
-    data: searchData,
-    isLoading,
-    refetch,
-  } = useSearchScraps({
+  const { data: searchData, isLoading } = useSearchScraps({
     sort: mapUIKeyToAPIKey(sortKey),
     order: sortOrder,
   });
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
-  // ScrapSearchResp는 folders와 scraps를 각각 반환하므로 합쳐야 함
+  const recentScrapsQueries = useQueries({
+    queries:
+      recentScraps.length > 0
+        ? recentScraps.map((scrapId) => ({
+            ...TanstackQueryClient.queryOptions('get', '/api/student/scrap/{id}', {
+              params: {
+                path: { id: scrapId },
+              },
+            }),
+            enabled: scrapId > 0 && recentScraps.length > 0,
+          }))
+        : [],
+  });
+
+  const recentScrapsData = useMemo(() => {
+    if (recentScraps.length === 0) return [];
+
+    return recentScrapsQueries
+      .map((query) => {
+        const scrapDetail = query.data;
+        if (!scrapDetail) return null;
+
+        return {
+          ...scrapDetail,
+          type: 'SCRAP' as const,
+        };
+      })
+      .filter((scrap): scrap is NonNullable<typeof scrap> => scrap !== null);
+  }, [recentScrapsQueries, recentScraps.length]);
+
+  // ScrapSearchResponse는 folders와 scraps를 각각 반환하므로 합쳐야 함
   const data = useMemo(() => {
     if (!searchData) return [];
-    const folders = (searchData.folders || []).map((folder) => ({
+    const typedSearchData = searchData as ScrapSearchResponse;
+    const folders = (typedSearchData.folders || []).map((folder) => ({
+      ...folder,
       type: 'FOLDER' as const,
-      id: folder.id,
-      name: folder.name,
-      scrapCount: folder.scrapCount,
-      createdAt: folder.createdAt,
     }));
-    const scraps = (searchData.scraps || []).filter((scrap) => scrap.folderId == null);
+    const scraps = (typedSearchData.scraps || []).filter((scrap) => scrap.folderId == null);
     return [...folders, ...scraps];
   }, [searchData]);
 
@@ -54,74 +83,85 @@ const ScrapScreen = () => {
   const isAllSelected = data.length > 0 && reducerState.selectedItems.length === data.length;
 
   return (
-    <View className='w-full flex-1 bg-gray-100'>
-      <ScrapHeader
-        reducerState={reducerState}
-        navigateSearchPress={() => navigation.push('SearchScrap')}
-        navigateTrashPress={() => navigation.push('DeletedScrap')}
-        onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
-        onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
-        isAllSelected={isAllSelected}
-        onSelectAll={() => {
-          const allItems = data.map((item) => ({ id: item.id, type: item.type }));
-          dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
-        }}
-        onMove={() => {
-          const selectedFolders = reducerState.selectedItems.filter(
-            (selected) => selected.type === 'FOLDER'
-          );
-          if (selectedFolders.length > 0) {
-            showToast('error', '스크랩만 이동이 가능합니다.');
-            return;
-          }
-          if (reducerState.selectedItems.length === 0) {
-            showToast('error', '이동할 스크랩을 선택해주세요.');
-            return;
-          }
-          setIsMoveModalVisible(true);
-        }}
-        onDelete={async () => {
-          if (reducerState.selectedItems.length === 0) {
-            showToast('error', '삭제할 항목을 선택해주세요.');
-            return;
-          }
+    <>
+      <View className='w-full flex-1 bg-gray-100'>
+        <ScrapHeader
+          reducerState={reducerState}
+          navigateSearchPress={() => navigation.push('SearchScrap')}
+          navigateTrashPress={() => navigation.push('DeletedScrap')}
+          onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
+          onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
+          isAllSelected={isAllSelected}
+          onSelectAll={() => {
+            const allItems = data.map((item) => ({ id: item.id, type: item.type }));
+            dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
+          }}
+          onMove={() => {
+            const selectedFolders = reducerState.selectedItems.filter(
+              (selected) => selected.type === 'FOLDER'
+            );
+            if (selectedFolders.length > 0) {
+              showToast('error', '스크랩만 이동이 가능합니다.');
+              return;
+            }
+            if (reducerState.selectedItems.length === 0) {
+              showToast('error', '이동할 스크랩을 선택해주세요.');
+              return;
+            }
+            setIsMoveModalVisible(true);
+          }}
+          onDelete={async () => {
+            if (reducerState.selectedItems.length === 0) {
+              showToast('error', '삭제할 항목을 선택해주세요.');
+              return;
+            }
 
-          try {
             const items = reducerState.selectedItems;
 
-            await deleteScrap({ items });
-
-            // 데이터 다시 불러오기
-            await refetch();
-
             dispatch({ type: 'CLEAR_SELECTION' });
-            showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-          } catch (error: any) {
-            showToast('error', '삭제 중 오류가 발생했습니다.');
-          }
-        }}
-      />
-      <View className='bg-gray-100'>
-        <Container className='items-end gap-[10px] py-[10px]'>
-          <SortDropdown
-            ordertype={'LIST'}
-            orderValue={sortKey}
-            setOrderValue={setSortKey}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-          />
-        </Container>
-        <Container className='pb-[120px] pt-4'>
-          {isLoading ? (
-            <LoadingScreen label='데이터를 불러오고 있습니다.' />
-          ) : (
-            <ScrapGrid
-              data={[{ ADD: true }, ...sortedData]}
-              reducerState={reducerState}
-              dispatch={dispatch}
-            />
+
+            try {
+              await deleteScrap({ items });
+              showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
+            } catch (error: any) {
+              // 에러 발생 시 롤백은 mutation의 onError에서 처리됨
+              showToast('error', '삭제 중 오류가 발생했습니다.');
+            }
+          }}
+        />
+        <ScrollView className='bg-gray-100' showsVerticalScrollIndicator={true}>
+          {recentScrapsData.length > 0 && (
+            <Container className='flex-col items-start  gap-[10px] pb-[40px] pt-[8px]'>
+              <Text className='text-16m text-gray-900'>최근 본</Text>
+              <ScrollView horizontal={true} contentContainerStyle={{ gap: 10 }}>
+                {recentScrapsData.map((scrap) => (
+                  <RecentScrapCard key={scrap.id} scrap={scrap} />
+                ))}
+              </ScrollView>
+            </Container>
           )}
-        </Container>
+          <Container className='flex-row items-center justify-between gap-[10px] py-[10px]'>
+            <Text className='text-16m text-gray-900'>전체 스크랩</Text>
+            <SortDropdown
+              ordertype={'LIST'}
+              orderValue={sortKey}
+              setOrderValue={setSortKey}
+              sortOrder={sortOrder}
+              setSortOrder={setSortOrder}
+            />
+          </Container>
+          <Container className='pb-[120px] pt-4'>
+            {isLoading ? (
+              <LoadingScreen label='데이터를 불러오고 있습니다.' />
+            ) : (
+              <ScrapGrid
+                data={[{ ADD: true }, ...sortedData]}
+                reducerState={reducerState}
+                dispatch={dispatch}
+              />
+            )}
+          </Container>
+        </ScrollView>
       </View>
       <MoveScrapModal
         visible={isMoveModalVisible}
@@ -129,10 +169,9 @@ const ScrapScreen = () => {
         selectedItems={reducerState.selectedItems}
         onSuccess={() => {
           dispatch({ type: 'CLEAR_SELECTION' });
-          refetch();
         }}
       />
-    </View>
+    </>
   );
 };
 
