@@ -25,7 +25,31 @@ export const CreateFolderModal = ({
   const [folderName, setFolderName] = useState('');
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const { mutateAsync: createFolder } = useCreateFolder();
-  const { mutate: getPreSignedUrl } = useGetPreSignedUrl();
+  const { mutate: getPreSignedUrlMutate } = useGetPreSignedUrl();
+
+  // mutate를 래핑하여 uploadImageToS3가 기대하는 형식으로 변환
+  const getPreSignedUrl = (
+    params: { fileName: string; fileType?: 'IMAGE' | 'DOCUMENT' | 'OTHER' },
+    callbacks: {
+      onSuccess: (data: {
+        uploadUrl: string;
+        contentDisposition: string;
+        file: { id: number };
+      }) => void;
+      onError: (error: any) => void;
+    }
+  ) => {
+    getPreSignedUrlMutate(params, {
+      onSuccess: (data) => {
+        callbacks.onSuccess({
+          uploadUrl: data.uploadUrl,
+          contentDisposition: data.contentDisposition,
+          file: { id: data.file.id },
+        });
+      },
+      onError: callbacks.onError,
+    });
+  };
 
   // 모달이 닫힐 때 상태 초기화
   useEffect(() => {
@@ -58,6 +82,9 @@ export const CreateFolderModal = ({
 
     // 이미지가 있는 경우 먼저 업로드
     if (selectedImage) {
+      setTimeout(() => {
+        onClose();
+      }, 0);
       const success = await uploadImageToS3(
         selectedImage,
         getPreSignedUrl,
@@ -67,12 +94,8 @@ export const CreateFolderModal = ({
             name: folderName,
             thumbnailImageId: result.fileId,
           });
-
           showToast('success', '폴더가 추가되었습니다.');
           onSuccess?.();
-          setTimeout(() => {
-            onClose();
-          }, 0);
         },
         (error) => {
           showToast('error', error);
