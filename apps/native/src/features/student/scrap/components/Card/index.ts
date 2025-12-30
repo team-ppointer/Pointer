@@ -5,14 +5,15 @@ export type {
   ScrapCardProps,
   FolderCardProps,
   ScrapListItemProps,
+  TrashScrapCardProps,
+  TrashFolderCardProps,
+  TrashListItemProps,
 } from './types';
 
 // Cards
 export { ScrapCard } from './cards/ScrapCard';
 export { SearchResultCard } from './cards/SearchResultCard';
-export type { SearchResultCardProps } from './cards/SearchResultCard';
 export { TrashCard } from './cards/TrashCard';
-export type { TrashCardProps } from './cards/TrashCard';
 
 // Grids
 export { ScrapGrid, SearchScrapGrid, TrashScrapGrid } from './ScrapCardGrid';
