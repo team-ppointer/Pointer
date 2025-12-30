@@ -43,8 +43,7 @@ export const TrashCard = (props: TrashListItemProps) => {
   }, [props.thumbnailUrl, folderTop2Thumbnail]);
 
   const cardContent = (
-    <View
-      className={`h-full w-full items-center rounded-[10px] p-[10px] ${isSelected && 'bg-gray-300'}`}>
+    <View className={`w-full items-center rounded-[10px] p-[10px] ${isSelected && 'bg-gray-300'}`}>
       <View className='gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton
@@ -113,6 +112,7 @@ export const TrashCard = (props: TrashListItemProps) => {
   return (
     <>
       <Pressable
+        className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
         onPress={() => {
           if (state.isSelecting) {
             props.onCheckPress?.();

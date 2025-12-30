@@ -20,7 +20,6 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
   const addScrap = useRecentScrapStore((state) => state.addScrap);
-
   const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
 
   // 폴더일 때 top2ScrapThumbnail 추출
@@ -49,8 +48,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   }, [props.thumbnailUrl, folderTop2Thumbnail]);
 
   const cardContent = (
-    <View
-      className={`h-full w-full items-center rounded-[10px] p-[10px] ${isSelected && 'bg-gray-300'}`}>
+    <View className='w-full items-center rounded-[10px] p-[10px]'>
       <View className='gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton
@@ -122,6 +120,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
 
   return (
     <Pressable
+      className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
       onPress={() => {
         if (state.isSelecting) {
           props.onCheckPress?.();
