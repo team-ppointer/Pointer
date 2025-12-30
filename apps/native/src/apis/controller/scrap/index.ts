@@ -20,6 +20,8 @@ export * from './postToggleScrapFromPointing';
 export * from './putUpdateScrapName';
 export * from './putUpdateScrapText';
 export * from './putUpdateFolder';
+export * from './putUpdateFolderName';
+export * from './putUpdateFolderThumbnail';
 export * from './putMoveScraps';
 export * from './putRestoreTrash';
 export * from './handwriting/putUpdateHandwriting';
