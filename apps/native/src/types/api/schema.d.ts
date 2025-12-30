@@ -40,6 +40,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/scrap/{scrapId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 스크랩 전체 수정 */
+    put: operations['updateScrap'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/scrap/{scrapId}/thumbnail': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 스크랩 썸네일 수정 (thumbnail만) */
+    put: operations['updateScrapThumbnail'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/scrap/{scrapId}/textBox': {
     parameters: {
       query?: never;
@@ -138,6 +172,40 @@ export interface paths {
     get: operations['getFolderDetail'];
     /** 폴더 수정 */
     put: operations['updateFolder'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/scrap/folder/{id}/thumbnail': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 폴더 썸네일 수정 */
+    put: operations['updateFolderThumbnail'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/scrap/folder/{id}/name': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 폴더 이름 수정 */
+    put: operations['updateFolderName'];
     post?: never;
     delete?: never;
     options?: never;
@@ -246,6 +314,24 @@ export interface paths {
     put: operations['assignStudentsToTeacher'];
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/qna/chat/{chatId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 채팅메시지 수정 */
+    put: operations['updateChat_2'];
+    post?: never;
+    /** 채팅메시지 삭제 */
+    delete: operations['deleteChat_2'];
     options?: never;
     head?: never;
     patch?: never;
@@ -552,6 +638,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/scrap/toggle/from-reading-tip': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 리딩팁 콘텐츠 스크랩 토글 */
+    post: operations['toggleScrapFromReadingTip'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/scrap/toggle/from-problem': {
     parameters: {
       query?: never;
@@ -580,6 +683,23 @@ export interface paths {
     put?: never;
     /** 포인팅 기반 스크랩 토글 (있으면 삭제, 없으면 생성) */
     post: operations['toggleScrapFromPointing'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/scrap/toggle/from-one-step-more': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 원스텝모어 콘텐츠 스크랩 토글 */
+    post: operations['toggleScrapFromOneStepMore'];
     delete?: never;
     options?: never;
     head?: never;
@@ -977,6 +1097,23 @@ export interface paths {
     put?: never;
     /** 학교 정보 업로드 batch */
     post: operations['batch'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/qna/chat': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 채팅메시지 생성 */
+    post: operations['addChat_2'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1416,6 +1553,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/teacher/qna/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Q&A 검색 (제목/채팅 분리) */
+    get: operations['search_7'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/teacher/notice/available': {
     parameters: {
       query?: never;
@@ -1458,7 +1612,7 @@ export interface paths {
       cookie?: never;
     };
     /** 주간 발행(숙제) 조회 */
-    get: operations['search_7'];
+    get: operations['search_8'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1612,7 +1766,75 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 (유사도 상위순 7개 반환) */
-    get: operations['search_8'];
+    get: operations['search_9'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/qna/{qnaId}/images': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Q&A 전체 이미지 조회 (질문 + 채팅) */
+    get: operations['getImages'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/qna/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Q&A 검색 (제목/채팅 분리) */
+    get: operations['search_10'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/qna/images': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 내가 참여한 모든 Q&A 이미지 조회 (최신순) */
+    get: operations['getAllImages'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/qna/admin-chat': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 출제진 채팅방 조회/생성 */
+    get: operations['getOrCreateAdminChatroom'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1760,6 +1982,33 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/qna/{qnaId}/subscribe': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Q&A 채팅 SSE 구독
+     * @description 클라이언트에서 SSE로 채팅/읽음 이벤트를 구독합니다.
+     *
+     *     - 요청 예: GET /api/qna/{qnaId}/subscribe?token={accessToken}
+     *     - 응답 Content-Type: text/event-stream
+     *     - 이벤트 이름:
+     *       - chat: 채팅 생성/수정/삭제 (QnAChatEvent 스키마 참조)
+     *       - read_status: 읽음 상태 변경 (QnAReadStatusEvent 스키마 참조)
+     *       - heartbeat: 초기 연결 확인
+     */
+    get: operations['subscribe'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/exception/throw': {
     parameters: {
       query?: never;
@@ -1801,7 +2050,41 @@ export interface paths {
       cookie?: never;
     };
     /** 검색 */
-    get: operations['search_9'];
+    get: operations['search_11'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/qna': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 출제진 채팅방 목록 조회 */
+    get: operations['gets_4'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/qna/{qnaId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 출제진 채팅방 상세 조회 */
+    get: operations['getById_5'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1818,7 +2101,7 @@ export interface paths {
       cookie?: never;
     };
     /** 상세 조회 */
-    get: operations['getById_5'];
+    get: operations['getById_6'];
     put?: never;
     post?: never;
     /** 삭제 */
@@ -1994,6 +2277,13 @@ export interface components {
       isMine: boolean;
       content: string;
       images: components['schemas']['UploadFileResp'][];
+      /**
+       * Format: int64
+       * @description 답장 대상 채팅 ID
+       */
+      replyToId?: number;
+      /** @description 답장 대상 채팅 내용 미리보기 */
+      replyToContent?: string;
     };
     QnAMetaResp: {
       /** Format: int64 */
@@ -2010,7 +2300,8 @@ export interface components {
         | 'PROBLEM_ONE_STEP_MORE'
         | 'CHILD_PROBLEM_CONTENT'
         | 'CHILD_PROBLEM_POINTING_QUESTION'
-        | 'CHILD_PROBLEM_POINTING_COMMENT';
+        | 'CHILD_PROBLEM_POINTING_COMMENT'
+        | 'ADMIN_CHAT';
       /** Format: date */
       publishDate: string;
       /** Format: int64 */
@@ -2018,6 +2309,13 @@ export interface components {
       /** Format: int32 */
       unreadCount?: number;
       studentName?: string;
+      /**
+       * Format: date-time
+       * @description 최신 메시지 시간
+       */
+      latestMessageTime?: string;
+      /** @description 최신 메시지 내용 미리보기 */
+      latestMessageContent?: string;
     };
     QnAResp: {
       /** Format: int64 */
@@ -2034,7 +2332,8 @@ export interface components {
         | 'PROBLEM_ONE_STEP_MORE'
         | 'CHILD_PROBLEM_CONTENT'
         | 'CHILD_PROBLEM_POINTING_QUESTION'
-        | 'CHILD_PROBLEM_POINTING_COMMENT';
+        | 'CHILD_PROBLEM_POINTING_COMMENT'
+        | 'ADMIN_CHAT';
       /** Format: date */
       publishDate: string;
       /** Format: int64 */
@@ -2042,6 +2341,13 @@ export interface components {
       /** Format: int32 */
       unreadCount?: number;
       studentName?: string;
+      /**
+       * Format: date-time
+       * @description 최신 메시지 시간
+       */
+      latestMessageTime?: string;
+      /** @description 최신 메시지 내용 미리보기 */
+      latestMessageContent?: string;
       contentTitle: string;
       content: string;
       question: string;
@@ -2055,6 +2361,8 @@ export interface components {
       id: number;
       fileName: string;
       url: string;
+      /** @enum {string} */
+      fileType: 'IMAGE' | 'DOCUMENT' | 'OTHER';
     };
     NoticeUpdateRequest: {
       title: string;
@@ -2118,10 +2426,22 @@ export interface components {
       teacherId?: number;
       teacherName?: string;
     };
-    ScrapTextBoxUpdateRequest: {
+    ScrapUpdateRequest: {
+      /**
+       * Format: int64
+       * @description 폴더 ID (null이면 루트로 이동)
+       * @example 1
+       */
+      folderId?: number;
+      /**
+       * Format: int64
+       * @description 썸네일 이미지 ID
+       * @example 456
+       */
+      thumbnailImageId?: number;
       /**
        * @description 텍스트 메모
-       * @example 메모 수정
+       * @example 수정된 메모 내용
        */
       textBox?: string;
     };
@@ -2234,6 +2554,10 @@ export interface components {
       textBox?: string;
       /** @description 포인팅 목록 */
       pointings: components['schemas']['PointingResp'][];
+      /** @description 리딩팁 스크랩 여부 */
+      isReadingTipScrapped: boolean;
+      /** @description 원스텝모어 스크랩 여부 */
+      isOneStepMoreScrapped: boolean;
       /** @description 필기 데이터 존재 여부 */
       hasHandwriting: boolean;
       /**
@@ -2257,15 +2581,38 @@ export interface components {
       /** @description 폴더 이름 */
       name: string;
       /**
-       * Format: int32
+       * Format: int64
        * @description 폴더 내 스크랩 개수
        */
       scrapCount: number;
+      /** @description 썸네일 이미지 URL */
+      thumbnailUrl?: string;
+      /** @description 최근 스크랩 2개의 썸네일 URL (최신순) */
+      top2ScrapThumbnail?: string[];
       /**
        * Format: date-time
        * @description 생성일시
        */
       createdAt: string;
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt: string;
+    };
+    ScrapThumbnailUpdateRequest: {
+      /**
+       * Format: int64
+       * @description 썸네일 이미지 ID (null이면 썸네일 삭제)
+       */
+      thumbnailImageId?: number;
+    };
+    ScrapTextBoxUpdateRequest: {
+      /**
+       * @description 텍스트 메모
+       * @example 메모 수정
+       */
+      textBox?: string;
     };
     ScrapNameUpdateRequest: {
       /**
@@ -2328,6 +2675,25 @@ export interface components {
       data: components['schemas']['ScrapDetailResp'][];
     };
     ScrapFolderUpdateRequest: {
+      /**
+       * @description 폴더 이름
+       * @example 기하 오답노트
+       */
+      name: string;
+      /**
+       * Format: int64
+       * @description 썸네일 이미지 ID
+       */
+      thumbnailImageId?: number;
+    };
+    ScrapFolderThumbnailUpdateRequest: {
+      /**
+       * Format: int64
+       * @description 썸네일 이미지 ID (null이면 썸네일 삭제)
+       */
+      thumbnailImageId?: number;
+    };
+    ScrapFolderNameUpdateRequest: {
       /**
        * @description 폴더 이름
        * @example 기하 오답노트
@@ -2513,6 +2879,11 @@ export interface components {
       qnaId: number;
       content: string;
       images?: number[];
+      /**
+       * Format: int64
+       * @description 답장 대상 채팅 ID
+       */
+      replyToId?: number;
     };
     NoticeCreateRequest: {
       title: string;
@@ -2602,7 +2973,7 @@ export interface components {
        */
       pointingIds?: number[];
     };
-    ScrapFromProblemCreateRequest: {
+    ScrapFromReadingTipCreateRequest: {
       /**
        * Format: int64
        * @description 문제 ID
@@ -2622,6 +2993,20 @@ export interface components {
       isScraped: boolean;
       scrap?: components['schemas']['ScrapDetailResp'];
     };
+    ScrapFromProblemCreateRequest: {
+      /**
+       * Format: int64
+       * @description 문제 ID
+       * @example 123
+       */
+      problemId: number;
+      /**
+       * Format: int64
+       * @description 폴더 ID (null이면 루트에 생성)
+       * @example 1
+       */
+      folderId?: number;
+    };
     ScrapFromPointingCreateRequest: {
       /**
        * Format: int64
@@ -2629,6 +3014,20 @@ export interface components {
        * @example 456
        */
       pointingId: number;
+      /**
+       * Format: int64
+       * @description 폴더 ID (null이면 루트에 생성)
+       * @example 1
+       */
+      folderId?: number;
+    };
+    ScrapFromOneStepMoreCreateRequest: {
+      /**
+       * Format: int64
+       * @description 문제 ID
+       * @example 123
+       */
+      problemId: number;
       /**
        * Format: int64
        * @description 폴더 ID (null이면 루트에 생성)
@@ -2661,6 +3060,11 @@ export interface components {
        * @example 수학 오답노트
        */
       name: string;
+      /**
+       * Format: int64
+       * @description 썸네일 이미지 ID
+       */
+      thumbnailImageId?: number;
     };
     /** @description problemId, childProblemId, pointingId 중 하나만 입력 가능 */
     QnACreateRequest: {
@@ -2677,7 +3081,8 @@ export interface components {
         | 'PROBLEM_ONE_STEP_MORE'
         | 'CHILD_PROBLEM_CONTENT'
         | 'CHILD_PROBLEM_POINTING_QUESTION'
-        | 'CHILD_PROBLEM_POINTING_COMMENT';
+        | 'CHILD_PROBLEM_POINTING_COMMENT'
+        | 'ADMIN_CHAT';
       /** Format: int64 */
       problemId?: number;
       /** Format: int64 */
@@ -2699,7 +3104,8 @@ export interface components {
         | 'PROBLEM_ONE_STEP_MORE'
         | 'CHILD_PROBLEM_CONTENT'
         | 'CHILD_PROBLEM_POINTING_QUESTION'
-        | 'CHILD_PROBLEM_POINTING_COMMENT';
+        | 'CHILD_PROBLEM_POINTING_COMMENT'
+        | 'ADMIN_CHAT';
       /**
        * Format: int64
        * @description 메인문제ID(메인 문제에 대한 질문일 경우)
@@ -2817,6 +3223,11 @@ export interface components {
     };
     PreSignedReq: {
       fileName: string;
+      /**
+       * @description 파일 유형 (지정하지 않으면 서버가 확장자로 판단)
+       * @enum {string}
+       */
+      fileType?: 'IMAGE' | 'DOCUMENT' | 'OTHER';
     };
     PreSignedResp: {
       file: components['schemas']['UploadFileResp'];
@@ -2880,6 +3291,7 @@ export interface components {
       commentContent: string;
       concepts: components['schemas']['ConceptResp'][];
       isUnderstood?: boolean;
+      isScrapped?: boolean;
     };
     ProblemRef: {
       /**
@@ -2897,6 +3309,12 @@ export interface components {
        * @description 새끼문제일 경우에만 부모문제Id
        */
       parentId?: number;
+    };
+    ProblemScrapInfo: {
+      isProblemScrapped?: boolean;
+      isReadingTipScrapped?: boolean;
+      isOneStepMoreScrapped?: boolean;
+      scrappedPointingIds?: number[];
     };
     ProblemWithStudyInfoResp: {
       /** Format: int32 */
@@ -2939,6 +3357,7 @@ export interface components {
       submitAnswer: number;
       isCorrect: boolean;
       isDone: boolean;
+      scrapInfo?: components['schemas']['ProblemScrapInfo'];
       childProblems: components['schemas']['ProblemWithStudyInfoResp'][];
       ref?: components['schemas']['ProblemRef'];
     };
@@ -3112,6 +3531,42 @@ export interface components {
       weekName?: string;
       data?: components['schemas']['QnAMetaResp'][];
     };
+    ChatSearchResultResp: {
+      /** Format: int64 */
+      qnaId?: number;
+      qnaTitle?: string;
+      /** @enum {string} */
+      qnaType?:
+        | 'PROBLEM_CONTENT'
+        | 'PROBLEM_POINTING_QUESTION'
+        | 'PROBLEM_POINTING_COMMENT'
+        | 'PROBLEM_MAIN_ANALYSIS'
+        | 'PROBLEM_MAIN_HAND_ANALYSIS'
+        | 'PROBLEM_READING_TIP_CONTENT'
+        | 'PROBLEM_ONE_STEP_MORE'
+        | 'CHILD_PROBLEM_CONTENT'
+        | 'CHILD_PROBLEM_POINTING_QUESTION'
+        | 'CHILD_PROBLEM_POINTING_COMMENT'
+        | 'ADMIN_CHAT';
+      /** Format: date */
+      publishDate?: string;
+      /** Format: int64 */
+      matchedChatId?: number;
+      matchedChatPreview?: string;
+    };
+    PageRespNotListListChatSearchResultResp: {
+      /** Format: int32 */
+      page: number;
+      /** Format: int32 */
+      size: number;
+      /** Format: int32 */
+      lastPage: number;
+      data: components['schemas']['ChatSearchResultResp'][];
+    };
+    QnASearchResp: {
+      qnaResults?: components['schemas']['PageRespNotListQnAGroupByWeekResp'];
+      chatResults?: components['schemas']['PageRespNotListListChatSearchResultResp'];
+    };
     ListRespNoticeResp: {
       /** Format: int32 */
       total: number;
@@ -3141,6 +3596,10 @@ export interface components {
        * @description 포함된 스크랩 수 (폴더인 경우)
        */
       itemCount?: number;
+      /** @description 썸네일 URL (스크랩: 스크랩 썸네일, 폴더: 폴더 썸네일) */
+      thumbnailUrl?: string;
+      /** @description 최근 스크랩 2개의 썸네일 URL (폴더인 경우) */
+      top2ScrapThumbnail?: string[];
       /**
        * Format: date-time
        * @description 삭제일시
@@ -3178,6 +3637,11 @@ export interface components {
        * @description 생성일시
        */
       createdAt: string;
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt: string;
     };
     /** @description 스크랩 검색 응답 */
     ScrapSearchResp: {
@@ -3200,6 +3664,11 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['SchoolResp'][];
+    };
+    ListRespUploadFileResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['UploadFileResp'][];
     };
     ListRespNotificationResp: {
       /** Format: int32 */
@@ -3233,6 +3702,81 @@ export interface components {
     };
     BooleanResp: {
       value: boolean;
+    };
+    /** @description Q&A 채팅 이벤트 (SSE event name: chat) */
+    QnAChatEvent: {
+      /**
+       * @description Q&A 채팅 이벤트 타입
+       * @example CREATED
+       * @enum {string}
+       */
+      type?: 'CREATED' | 'UPDATED' | 'DELETED';
+      /**
+       * Format: int64
+       * @description Q&A ID
+       * @example 1
+       */
+      qnaId?: number;
+      /**
+       * Format: int64
+       * @description 채팅 메시지 ID
+       * @example 123
+       */
+      chatId?: number;
+      /**
+       * Format: int64
+       * @description 발신자 ID
+       * @example 1
+       */
+      senderId?: number;
+      /**
+       * @description 발신자 타입
+       * @example STUDENT
+       * @enum {string}
+       */
+      senderType?: 'ADMIN' | 'STUDENT' | 'TEACHER';
+      /**
+       * @description 메시지 내용
+       * @example 안녕하세요
+       */
+      content?: string;
+      /**
+       * Format: int64
+       * @description 답장 대상 메시지 ID (답장인 경우)
+       * @example 122
+       */
+      replyToId?: number | null;
+      /**
+       * Format: date-time
+       * @description 이벤트 발생 시간
+       */
+      timestamp?: string;
+    };
+    /** @description Q&A 읽음 상태 이벤트 (SSE event name: read_status) */
+    QnAReadStatusEvent: {
+      /**
+       * Format: int64
+       * @description Q&A ID
+       * @example 1
+       */
+      qnaId?: number;
+      /**
+       * Format: int64
+       * @description 읽은 사용자 ID
+       * @example 1
+       */
+      userId?: number;
+      /**
+       * @description 사용자 타입
+       * @example TEACHER
+       * @enum {string}
+       */
+      userType?: 'ADMIN' | 'STUDENT' | 'TEACHER';
+      /**
+       * Format: date-time
+       * @description 읽은 시간
+       */
+      readAt?: string;
     };
     PageRespTeacherResp: {
       /** Format: int32 */
@@ -3424,6 +3968,58 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  updateScrap: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        scrapId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScrapUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ScrapDetailResp'];
+        };
+      };
+    };
+  };
+  updateScrapThumbnail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        scrapId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScrapThumbnailUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ScrapDetailResp'];
+        };
       };
     };
   };
@@ -3627,6 +4223,58 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['ScrapFolderUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ScrapFolderResp'];
+        };
+      };
+    };
+  };
+  updateFolderThumbnail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScrapFolderThumbnailUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ScrapFolderResp'];
+        };
+      };
+    };
+  };
+  updateFolderName: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScrapFolderNameUpdateRequest'];
       };
     };
     responses: {
@@ -3871,6 +4519,54 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['TeacherResp'];
+        };
+      };
+    };
+  };
+  updateChat_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        chatId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChatUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
+        };
+      };
+    };
+  };
+  deleteChat_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        chatId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
         };
       };
     };
@@ -4539,6 +5235,30 @@ export interface operations {
       };
     };
   };
+  toggleScrapFromReadingTip: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScrapFromReadingTipCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ScrapToggleResp'];
+        };
+      };
+    };
+  };
   toggleScrapFromProblem: {
     parameters: {
       query?: never;
@@ -4573,6 +5293,30 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['ScrapFromPointingCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ScrapToggleResp'];
+        };
+      };
+    };
+  };
+  toggleScrapFromOneStepMore: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScrapFromOneStepMoreCreateRequest'];
       };
     };
     responses: {
@@ -5256,6 +6000,30 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['SchoolSaveRespDTO'];
+        };
+      };
+    };
+  };
+  addChat_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChatCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
         };
       };
     };
@@ -6036,6 +6804,28 @@ export interface operations {
       };
     };
   };
+  search_7: {
+    parameters: {
+      query?: {
+        query?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnASearchResp'];
+        };
+      };
+    };
+  };
   getsAvailable: {
     parameters: {
       query: {
@@ -6078,7 +6868,7 @@ export interface operations {
       };
     };
   };
-  search_7: {
+  search_8: {
     parameters: {
       query?: never;
       header?: never;
@@ -6318,7 +7108,7 @@ export interface operations {
       };
     };
   };
-  search_8: {
+  search_9: {
     parameters: {
       query?: {
         query?: string;
@@ -6336,6 +7126,90 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ListRespSchoolResp'];
+        };
+      };
+    };
+  };
+  getImages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespUploadFileResp'];
+        };
+      };
+    };
+  };
+  search_10: {
+    parameters: {
+      query?: {
+        query?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnASearchResp'];
+        };
+      };
+    };
+  };
+  getAllImages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespUploadFileResp'];
+        };
+      };
+    };
+  };
+  getOrCreateAdminChatroom: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
         };
       };
     };
@@ -6507,6 +7381,38 @@ export interface operations {
       };
     };
   };
+  subscribe: {
+    parameters: {
+      query: {
+        token: string;
+      };
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description SSE 스트림 연결 성공. 드롭다운에서 이벤트 타입별 스키마를 확인하세요. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'chat (application/json)': components['schemas']['QnAChatEvent'];
+          'read_status (application/json)': components['schemas']['QnAReadStatusEvent'];
+        };
+      };
+      /** @description 토큰 검증 실패 */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   throwException: {
     parameters: {
       query?: {
@@ -6547,7 +7453,7 @@ export interface operations {
       };
     };
   };
-  search_9: {
+  search_11: {
     parameters: {
       query?: {
         query?: string;
@@ -6571,7 +7477,51 @@ export interface operations {
       };
     };
   };
+  gets_4: {
+    parameters: {
+      query?: {
+        query?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PageRespNotListQnAGroupByWeekResp'];
+        };
+      };
+    };
+  };
   getById_5: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
+        };
+      };
+    };
+  };
+  getById_6: {
     parameters: {
       query?: never;
       header?: never;
