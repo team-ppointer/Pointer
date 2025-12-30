@@ -8,7 +8,6 @@ import {
 } from '../../utils/imagePicker';
 import { useGetPreSignedUrl } from '@/apis/controller/common';
 import { useCreateScrapFromImage } from '@/apis';
-import { uploadFileToS3 } from '../../utils/s3Upload';
 import { uploadImageToS3 } from '../../utils/imageUpload';
 
 export interface AddItemTooltipProps {
@@ -22,8 +21,32 @@ export const AddItemTooltip = ({
   onOpenQnaImgModal,
   onOpenFolderModal,
 }: AddItemTooltipProps) => {
-  const { mutate: getPreSignedUrl } = useGetPreSignedUrl();
+  const { mutate: getPreSignedUrlMutate } = useGetPreSignedUrl();
   const { mutate: createScrapFromImage } = useCreateScrapFromImage();
+
+  // mutate를 래핑하여 uploadImageToS3가 기대하는 형식으로 변환
+  const getPreSignedUrl = (
+    params: { fileName: string; fileType?: 'IMAGE' | 'DOCUMENT' | 'OTHER' },
+    callbacks: {
+      onSuccess: (data: {
+        uploadUrl: string;
+        contentDisposition: string;
+        file: { id: number };
+      }) => void;
+      onError: (error: any) => void;
+    }
+  ) => {
+    getPreSignedUrlMutate(params, {
+      onSuccess: (data) => {
+        callbacks.onSuccess({
+          uploadUrl: data.uploadUrl,
+          contentDisposition: data.contentDisposition,
+          file: { id: data.file.id },
+        });
+      },
+      onError: callbacks.onError,
+    });
+  };
 
   // 이미지 선택 및 업로드 처리
   const handleImageSelect = async (image: any) => {

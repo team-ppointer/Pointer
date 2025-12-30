@@ -14,7 +14,7 @@ export interface ImageUploadResult {
  * Pre-signed URL 요청 함수 타입
  */
 type GetPreSignedUrlFn = (
-  params: { fileName: string },
+  params: { fileName: string; fileType?: 'IMAGE' | 'DOCUMENT' | 'OTHER' },
   callbacks: {
     onSuccess: (data: {
       uploadUrl: string;
@@ -46,12 +46,12 @@ export const uploadImageToS3 = async (
 
   try {
     // 파일명 추출 (없으면 기본값 사용)
-    const fileName = image.fileName || `image_${Date.now()}.jpg`;
+    const fileName = image.fileName || `${Date.now()}.jpg`;
 
     // Promise로 변환하여 await 가능하게 함
     return await new Promise<boolean>((resolve) => {
       getPreSignedUrl(
-        { fileName },
+        { fileName, fileType: 'IMAGE' },
         {
           onSuccess: async (data) => {
             try {

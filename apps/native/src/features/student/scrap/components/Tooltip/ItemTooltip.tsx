@@ -18,6 +18,8 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import {
   useUpdateScrapName,
   useUpdateFolder,
+  useUpdateFolderName,
+  useUpdateFolderThumbnail,
   useDeleteScrap,
   useGetScrapDetail,
   useGetFolders,
@@ -25,7 +27,6 @@ import {
 import { useNoteStore } from '@/stores/scrapNoteStore';
 import { useGetPreSignedUrl } from '@/apis/controller/common/postGetPreSignedUrl';
 import { openImageLibrary, openImageLibraryWithErrorHandling } from '../../utils/imagePicker';
-import { uploadFileToS3 } from '../../utils/s3Upload';
 import { uploadImageToS3 } from '../../utils/imageUpload';
 
 export interface ItemTooltipProps {
@@ -42,13 +43,39 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
   // API hooks
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
   const { mutateAsync: updateFolder } = useUpdateFolder();
+  const { mutateAsync: updateFolderName } = useUpdateFolderName();
+  const { mutateAsync: updateFolderThumbnail } = useUpdateFolderThumbnail();
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // 스크랩 상세 정보 가져오기 (필요한 경우)
   const { data: scrapDetail } = useGetScrapDetail(Number(props.id), props.type === 'SCRAP');
   const { data: foldersData } = useGetFolders();
 
-  const { mutate: getPreSignedUrl } = useGetPreSignedUrl();
+  const { mutate: getPreSignedUrlMutate } = useGetPreSignedUrl();
+
+  // mutate를 래핑하여 uploadImageToS3가 기대하는 형식으로 변환
+  const getPreSignedUrl = (
+    params: { fileName: string; fileType?: 'IMAGE' | 'DOCUMENT' | 'OTHER' },
+    callbacks: {
+      onSuccess: (data: {
+        uploadUrl: string;
+        contentDisposition: string;
+        file: { id: number };
+      }) => void;
+      onError: (error: any) => void;
+    }
+  ) => {
+    getPreSignedUrlMutate(params, {
+      onSuccess: (data) => {
+        callbacks.onSuccess({
+          uploadUrl: data.uploadUrl,
+          contentDisposition: data.contentDisposition,
+          file: { id: data.file.id },
+        });
+      },
+      onError: callbacks.onError,
+    });
+  };
 
   const handleUpdateFolderCover = async (image: any) => {
     if (!image || !image.uri) {
@@ -63,11 +90,10 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
       image,
       getPreSignedUrl,
       async (result) => {
-        // 폴더 표지 업데이트
-        await updateFolder({
+        // 폴더 썸네일만 업데이트
+        await updateFolderThumbnail({
           id: props.id,
           request: {
-            name: props.name, // 기존 이름 유지
             thumbnailImageId: result.fileId,
           },
         });
@@ -121,7 +147,7 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
               if (trimmedText.length > 0 && trimmedText !== initialTitle) {
                 try {
                   if (props.type === 'FOLDER') {
-                    await updateFolder({
+                    await updateFolderName({
                       id: props.id,
                       request: { name: trimmedText },
                     });
