@@ -26,8 +26,7 @@ export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {
       className='bg-primary-200 h-[140px] w-[140px] flex-col items-center justify-end rounded-[12px] border border-gray-300'>
       <ImageBackground
         source={{ uri: scrap.thumbnailUrl }}
-        className='rounded-t-[12px]'
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', borderRadius: 12 }}
         resizeMode='cover'
       />
       <View className='h-[100px] w-full justify-between rounded-b-[12px] bg-white p-[10px]'>

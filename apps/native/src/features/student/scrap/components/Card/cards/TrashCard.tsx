@@ -1,72 +1,127 @@
 import { Pressable, View, Text } from 'react-native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Check } from 'lucide-react-native';
+import { ChevronDownFilledIcon } from '@/components/system/icons';
 import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
-import type { TrashItem } from '@/features/student/scrap/utils/types';
 import PopUpModal from '../../Modal/PopupModal';
 import { showToast } from '../../Modal/Toast';
 import { usePermanentDeleteTrash } from '@/apis';
-import type { SelectableUIProps } from '../types';
+import type { TrashListItemProps } from '../types';
 import { isItemSelected } from '../../../utils/reducer';
+import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
+import { colors } from '@/theme/tokens';
 
-export interface TrashCardProps extends SelectableUIProps {
-  item: TrashItem;
-}
-
-export const TrashCard = ({ item, reducerState, onCheckPress }: TrashCardProps) => {
-  const state = reducerState ?? { isSelecting: false, selectedItems: [] };
-  const isSelected = isItemSelected(state.selectedItems, item.id, item.type);
+export const TrashCard = (props: TrashListItemProps) => {
+  const state = props.reducerState ?? { isSelecting: false, selectedItems: [] };
+  const isSelected = isItemSelected(state.selectedItems, props.id, props.type);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const { mutateAsync: permanentDelete } = usePermanentDeleteTrash();
 
-  const cardContent = (
-    <View className='h-full w-full items-center gap-3 rounded-[10px] p-[10px]'>
-      <View className='max-h-[70%] w-full'>
-        <View className='h-full w-full rounded-[10px] bg-gray-600' />
-      </View>
-      {state.isSelecting && (
-        <Pressable
-          onPress={onCheckPress}
-          className={
-            isSelected
-              ? 'absolute h-4 w-4 items-center justify-center rounded bg-blue-500'
-              : 'absolute h-4 w-4 items-center justify-center rounded border border-gray-700 bg-white'
-          }
-          style={{ left: 20, top: 50 }}>
-          <Check size={16} color='#F5F5F5' />
-        </Pressable>
-      )}
+  // 폴더일 때 top2ScrapThumbnail 추출
+  const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
 
-      <View className='w-full px-[6px]'>
-        <Text className='text-16sb text-[#1E1E21]' numberOfLines={2}>
-          {item.name}
-        </Text>
-        <Text className='text-12m text-gray-700'>{item.daysUntilPermanentDelete}일 남음</Text>
+  const { imageSources, isDiagonalLayout } = useMemo(() => {
+    // folderTop2Thumbnail이 있으면 그것을 우선 사용 (최대 2개, 대각선 배치)
+    if (folderTop2Thumbnail && folderTop2Thumbnail.length > 0) {
+      return {
+        imageSources: folderTop2Thumbnail.slice(0, 2).map((url) => ({ uri: url })),
+        isDiagonalLayout: true,
+      };
+    }
+
+    if (props.thumbnailUrl) {
+      return {
+        imageSources: [{ uri: props.thumbnailUrl }],
+        isDiagonalLayout: false,
+      };
+    }
+
+    return {
+      imageSources: undefined,
+      isDiagonalLayout: false,
+    };
+  }, [props.thumbnailUrl, folderTop2Thumbnail]);
+
+  const cardContent = (
+    <View
+      className={`h-full w-full items-center rounded-[10px] p-[10px] ${isSelected && 'bg-gray-300'}`}>
+      <View className='gap-3'>
+        <View className='items-center'>
+          <ImageWithSkeleton
+            key={`${props.type}-${props.id}`}
+            source={imageSources}
+            width='100%'
+            aspectRatio={1}
+            borderRadius={10}
+            resizeMode='cover'
+            uniqueId={`${props.type}-${props.id}`}
+            isDiagonalLayout={isDiagonalLayout}
+            fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
+          />
+          {state.isSelecting && (
+            <Pressable
+              onPress={props.onCheckPress}
+              className={
+                isSelected
+                  ? 'absolute h-4 w-4 items-center justify-center rounded bg-blue-500'
+                  : 'absolute h-4 w-4 items-center justify-center rounded border border-gray-700 bg-white'
+              }
+              style={{ bottom: 10 }}>
+              <Check size={16} color='#F5F5F5' />
+            </Pressable>
+          )}
+        </View>
+
+        <View className='px-1'>
+          <View className='flex-row justify-between'>
+            <View className={'flex-[0.8] flex-row gap-0.5'}>
+              <Text className='text-16sb  text-black' numberOfLines={1}>
+                {props.name}
+              </Text>
+              {!state.isSelecting && (
+                <View className='h-[24px] w-[24px]'>
+                  <TooltipPopover
+                    from={<ChevronDownFilledIcon color={colors['gray-700']} />}
+                    children={(close) => (
+                      <TrashItemTooltipBox
+                        item={props}
+                        onClose={close}
+                        onDeletePress={() => {
+                          close();
+                          setTimeout(() => {
+                            setIsDeleteModalVisible(true);
+                          }, 200);
+                        }}
+                      />
+                    )}
+                  />
+                </View>
+              )}
+            </View>
+            {props.type === 'FOLDER' && props.itemCount !== undefined && (
+              <Text className='text-12r text-blue-500'>{props.itemCount}</Text>
+            )}
+          </View>
+          <Text className='text-10r text-gray-700' numberOfLines={1}>
+            {props.daysUntilPermanentDelete}일 남음
+          </Text>
+        </View>
       </View>
     </View>
   );
 
   return (
     <>
-      {state.isSelecting ? (
-        <Pressable onPress={onCheckPress}>{cardContent}</Pressable>
-      ) : (
-        <TooltipPopover
-          from={cardContent}
-          children={(close) => (
-            <TrashItemTooltipBox
-              item={item}
-              onClose={close}
-              onDeletePress={() => {
-                close();
-                setTimeout(() => {
-                  setIsDeleteModalVisible(true);
-                }, 200);
-              }}
-            />
-          )}
-        />
-      )}
+      <Pressable
+        onPress={() => {
+          if (state.isSelecting) {
+            props.onCheckPress?.();
+            return;
+          }
+          // TrashCard는 클릭 시 아무 동작도 하지 않음
+        }}>
+        {cardContent}
+      </Pressable>
       <PopUpModal
         visibleState={isDeleteModalVisible}
         setVisibleState={setIsDeleteModalVisible}
@@ -89,8 +144,8 @@ export const TrashCard = ({ item, reducerState, onCheckPress }: TrashCardProps) 
                   await permanentDelete({
                     items: [
                       {
-                        id: Number(item.id),
-                        type: item.type as 'FOLDER' | 'SCRAP',
+                        id: Number(props.id),
+                        type: props.type as 'FOLDER' | 'SCRAP',
                       },
                     ],
                   } as any);

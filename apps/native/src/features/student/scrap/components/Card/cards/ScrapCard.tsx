@@ -23,10 +23,30 @@ export const ScrapCard = (props: ScrapListItemProps) => {
 
   const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
 
-  const imageSource = useMemo(
-    () => (props.thumbnailUrl ? { uri: props.thumbnailUrl } : undefined),
-    [props.thumbnailUrl]
-  );
+  // 폴더일 때 top2ScrapThumbnail 추출
+  const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
+
+  const { imageSources, isDiagonalLayout } = useMemo(() => {
+    // folderTop2Thumbnail이 있으면 그것을 우선 사용 (최대 2개, 대각선 배치)
+    if (folderTop2Thumbnail && folderTop2Thumbnail.length > 0) {
+      return {
+        imageSources: folderTop2Thumbnail.slice(0, 2).map((url) => ({ uri: url })),
+        isDiagonalLayout: true,
+      };
+    }
+
+    if (props.thumbnailUrl) {
+      return {
+        imageSources: [{ uri: props.thumbnailUrl }],
+        isDiagonalLayout: false,
+      };
+    }
+
+    return {
+      imageSources: undefined,
+      isDiagonalLayout: false,
+    };
+  }, [props.thumbnailUrl, folderTop2Thumbnail]);
 
   const cardContent = (
     <View
@@ -34,12 +54,14 @@ export const ScrapCard = (props: ScrapListItemProps) => {
       <View className='gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton
-            source={imageSource}
+            key={`${props.type}-${props.id}`}
+            source={imageSources}
             width='100%'
             aspectRatio={1}
             borderRadius={10}
             resizeMode='cover'
             uniqueId={`${props.type}-${props.id}`}
+            isDiagonalLayout={isDiagonalLayout}
             fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
           />
           {state.isSelecting && (

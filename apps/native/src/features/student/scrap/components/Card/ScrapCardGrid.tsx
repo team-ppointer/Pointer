@@ -138,6 +138,7 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
   return (
     <FlatList
       key={numColumns}
+      scrollEnabled={false}
       data={finalData}
       numColumns={numColumns}
       onLayout={(e) => {
@@ -161,7 +162,6 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
 
         return `fallback-${index}`;
       }}
-      contentContainerStyle={{ paddingBottom: 120 }}
       columnWrapperStyle={{ marginBottom: gap * 2 }}
       removeClippedSubviews={true}
       maxToRenderPerBatch={10}
@@ -187,9 +187,36 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
 
         const scrapItem = item as ScrapItem;
 
+        // ScrapItem을 ScrapListItemProps로 변환
+        const baseProps = {
+          id: scrapItem.id,
+          name: scrapItem.name,
+          createdAt: scrapItem.createdAt,
+          updatedAt: scrapItem.updatedAt,
+          thumbnailUrl: scrapItem.thumbnailUrl,
+        };
+
+        const searchCardProps =
+          scrapItem.type === 'FOLDER'
+            ? {
+                ...baseProps,
+                type: 'FOLDER' as const,
+                scrapCount: ('scrapCount' in scrapItem ? scrapItem.scrapCount : undefined) as
+                  | number
+                  | undefined,
+                top2ScrapThumbnail: ('top2ScrapThumbnail' in scrapItem
+                  ? scrapItem.top2ScrapThumbnail
+                  : undefined) as string[] | undefined,
+              }
+            : {
+                ...baseProps,
+                type: 'SCRAP' as const,
+                folderId: scrapItem.folderId,
+              };
+
         return (
           <View style={spacingStyle}>
-            <SearchResultCard item={scrapItem} />
+            <SearchResultCard {...searchCardProps} />
           </View>
         );
       }}
@@ -255,10 +282,6 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
           return <View style={spacingStyle} />;
         }
 
-        if ('placeholder' in item && item.placeholder) {
-          return <View style={spacingStyle} />;
-        }
-
         // Type guard: ensure item is TrashItem
         if (!('id' in item) || !('type' in item) || !('deletedAt' in item)) {
           return <View style={spacingStyle} />;
@@ -266,15 +289,38 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
 
         const trashItem = item as TrashItem;
 
+        // TrashItem을 TrashListItemProps로 변환
+        const baseProps = {
+          id: trashItem.id,
+          name: trashItem.name,
+          createdAt: trashItem.createdAt,
+          updatedAt: ('updatedAt' in trashItem ? trashItem.updatedAt : undefined) as
+            | string
+            | undefined,
+          thumbnailUrl: trashItem.thumbnailUrl,
+          daysUntilPermanentDelete: trashItem.daysUntilPermanentDelete,
+          reducerState,
+          onCheckPress: () =>
+            dispatch({ type: 'SELECTING_ITEM', id: trashItem.id, itemType: trashItem.type }),
+        };
+
+        const trashCardProps =
+          trashItem.type === 'FOLDER'
+            ? {
+                ...baseProps,
+                type: 'FOLDER' as const,
+                top2ScrapThumbnail: trashItem.top2ScrapThumbnail,
+                itemCount: trashItem.itemCount,
+              }
+            : {
+                ...baseProps,
+                type: 'SCRAP' as const,
+                folderId: undefined,
+              };
+
         return (
           <View style={spacingStyle}>
-            <TrashCard
-              item={trashItem}
-              reducerState={reducerState}
-              onCheckPress={() =>
-                dispatch({ type: 'SELECTING_ITEM', id: trashItem.id, itemType: trashItem.type })
-              }
-            />
+            <TrashCard {...trashCardProps} />
           </View>
         );
       }}
