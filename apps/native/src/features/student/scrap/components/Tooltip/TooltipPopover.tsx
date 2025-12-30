@@ -24,7 +24,13 @@ const TooltipPopover = ({
   };
 
   // from을 Pressable로 감싸서 클릭 시 열리도록 함
-  const triggerElement = <Pressable onPress={() => setIsVisible(true)}>{from}</Pressable>;
+  const triggerElement = (
+    <Pressable
+      onPress={() => setIsVisible(true)}
+      className={`${isVisible ? 'aspect-square rounded-[4px] bg-gray-400' : ''} items-center`}>
+      {from}
+    </Pressable>
+  );
 
   return (
     <Popover
