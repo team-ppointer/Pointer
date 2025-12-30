@@ -3,9 +3,10 @@ import { paths, components } from '@/types/api/schema';
 /**
  * API 응답 타입 추출
  */
-type ScrapSearchResponse =
+export type ScrapSearchResponse =
   paths['/api/student/scrap/search']['get']['responses']['200']['content']['*/*'];
-type TrashResponse = paths['/api/student/scrap/trash']['get']['responses']['200']['content']['*/*'];
+export type TrashResponse =
+  paths['/api/student/scrap/trash']['get']['responses']['200']['content']['*/*'];
 
 /**
  * API 스키마 기반 기본 타입
