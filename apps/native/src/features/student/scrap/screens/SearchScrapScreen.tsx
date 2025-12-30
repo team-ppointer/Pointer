@@ -37,18 +37,18 @@ const SearchScrapScreen = () => {
     debouncedQuery.length > 0
   );
 
-  // ScrapSearchResp는 folders와 scraps를 각각 반환하므로 합쳐야 함
-  const results = React.useMemo(() => {
+  // ScrapSearchResp는 folders와 scraps를 각각 반환하므로 분리해서 표시
+  const folders = React.useMemo(() => {
     if (!searchData) return [];
-    const folders = (searchData.folders || []).map((folder) => ({
+    return (searchData.folders || []).map((folder) => ({
+      ...folder,
       type: 'FOLDER' as const,
-      id: folder.id,
-      name: folder.name,
-      scrapCount: folder.scrapCount,
-      createdAt: folder.createdAt,
     }));
-    const scraps = searchData.scraps || [];
-    return [...folders, ...scraps];
+  }, [searchData]);
+
+  const scraps = React.useMemo(() => {
+    if (!searchData) return [];
+    return searchData.scraps || [];
   }, [searchData]);
 
   const onSearch = () => {
@@ -66,16 +66,14 @@ const SearchScrapScreen = () => {
         setQuery={setQuery}
         onSubmitEditing={onSearch}
       />
-      <Container className='flex-col justify-between py-[10px]'>
-        {query.length === 0 ? (
+      <View className='flex-col justify-between px-[20px] py-[10px]'>
+        {query.length === 0 && (
           <View className='w-full flex-row items-center justify-between'>
             <Text className='text-16m rounded-1 gap-0.5 p-1 text-gray-900'>최근 검색어</Text>
             <Pressable className='gap-[10px] px-2' onPress={() => clear()}>
               <Text className='text-12sb text-blue-500'>전체 지우기</Text>
             </Pressable>
           </View>
-        ) : (
-          <Text className='text-16m rounded-1 gap-0.5 p-1 text-gray-900'>검색 결과</Text>
         )}
         {query.length === 0 && (
           <ScrollView
@@ -96,10 +94,22 @@ const SearchScrapScreen = () => {
             ))}
           </ScrollView>
         )}
-      </Container>
-      <Container className='flex-row items-end justify-between py-[10px]'>
-        <SearchScrapGrid data={results} />
-      </Container>
+      </View>
+      <ScrollView className='px-[20px] py-[10px]'>
+        {query.length > 0 && folders.length > 0 && (
+          <View className=''>
+            <Text className='text-16m mb-[10px] text-gray-900'>폴더</Text>
+            <SearchScrapGrid data={folders} />
+          </View>
+        )}
+        <View className='h-[48px] w-full' />
+        {query.length > 0 && scraps.length > 0 && (
+          <View className=''>
+            <Text className='text-16m mb-[10px] text-gray-900'>스크랩</Text>
+            <SearchScrapGrid data={scraps} />
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 };
