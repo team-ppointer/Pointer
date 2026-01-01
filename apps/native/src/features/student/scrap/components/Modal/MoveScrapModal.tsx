@@ -127,42 +127,40 @@ export const MoveScrapModal = () => {
       visibleState={isMoveScrapModalVisible && !isCreateFolderModalVisible}
       setVisibleState={closeMoveScrapModal}>
       <View className='h-[575px] min-w-[520px] max-w-[692px] rounded-[20px] border border-gray-400 bg-white shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
-        <View className='flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[12px]'>
-          <Pressable onPress={closeMoveScrapModal}>
+        <View className='relative flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[12px]'>
+          <Pressable onPress={closeMoveScrapModal} className='items-start'>
             <Text className='text-14sb text-primary-600'>취소</Text>
           </Pressable>
-          <Text className='text-16sb items-center text-gray-900'>
-            {selectedItems.length}개 스크랩 이동하기
-          </Text>
+          <View className='absolute left-0 right-0 items-center'>
+            <Text className='text-16sb text-gray-900'>
+              {selectedItems.length}개 스크랩 이동하기
+            </Text>
+          </View>
           <Pressable
-            className='flex-row gap-1 rounded-[6px] p-1'
+            className='flex-row items-end gap-1 rounded-[6px] p-1'
             onPress={() => openCreateFolderModal()}>
             <FolderPlus size={20} color={'#3E3F45'} />
             <Text className='text-14m text-gray-800'>새로운 폴더</Text>
           </Pressable>
         </View>
 
-        <View className='gap-[18px] p-[20px]'>
-          <View className='gap-[10px]  p-[10px]'>
-            <ScrollView>
-              <ScrapGrid
-                data={folders}
-                reducerState={folderSelectionState}
-                dispatch={folderDispatch}
-              />
-            </ScrollView>
-            <Pressable
-              onPress={handleMove}
-              className={`items-center rounded-[8px] px-[20px] py-[10px] ${
-                selectedFolderId ? 'bg-primary-500' : 'bg-gray-300'
-              }`}>
-              <Text className={`text-16sb ${selectedFolderId ? 'text-white' : 'text-gray-500'}`}>
-                {selectedFolderId
-                  ? `'${folderName}' 폴더로 이동하기`
-                  : '이동할 폴더를 선택해주세요'}
-              </Text>
-            </Pressable>
-          </View>
+        <View className='flex-1 gap-[16px] p-[20px]'>
+          <ScrollView className='flex-1'>
+            <ScrapGrid
+              data={folders}
+              reducerState={folderSelectionState}
+              dispatch={folderDispatch}
+            />
+          </ScrollView>
+          <Pressable
+            onPress={handleMove}
+            className={`items-center rounded-[8px] px-[20px] py-[10px] ${
+              selectedFolderId ? 'bg-primary-500' : 'bg-gray-300'
+            }`}>
+            <Text className={`text-16sb ${selectedFolderId ? 'text-white' : 'text-gray-500'}`}>
+              {selectedFolderId ? `'${folderName}' 폴더로 이동하기` : '이동할 폴더를 선택해주세요'}
+            </Text>
+          </Pressable>
         </View>
       </View>
     </PopUpModal>
