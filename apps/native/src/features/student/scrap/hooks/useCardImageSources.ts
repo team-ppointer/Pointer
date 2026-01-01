@@ -26,18 +26,17 @@ export const useCardImageSources = (
   folderTop2Thumbnail?: string[]
 ): CardImageSourcesResult => {
   return useMemo(() => {
-    // folderTop2Thumbnail이 있으면 그것을 우선 사용 (최대 2개, 대각선 배치)
-    if (folderTop2Thumbnail && folderTop2Thumbnail.length > 0) {
-      return {
-        imageSources: folderTop2Thumbnail.slice(0, 2).map((url) => ({ uri: url })),
-        isDiagonalLayout: true,
-      };
-    }
-
     if (thumbnailUrl) {
       return {
         imageSources: [{ uri: thumbnailUrl }],
         isDiagonalLayout: false,
+      };
+    }
+
+    if (folderTop2Thumbnail && folderTop2Thumbnail.length > 0 && !thumbnailUrl) {
+      return {
+        imageSources: folderTop2Thumbnail.slice(0, 2).map((url) => ({ uri: url })),
+        isDiagonalLayout: true,
       };
     }
 
