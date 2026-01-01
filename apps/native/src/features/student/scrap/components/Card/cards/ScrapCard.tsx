@@ -1,5 +1,5 @@
 import { Pressable, View, Text, Image } from 'react-native';
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Check } from 'lucide-react-native';
 import { ChevronDownFilledIcon } from '@/components/system/icons';
 import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
@@ -13,6 +13,8 @@ import { useRecentScrapStore } from '@/stores/recentScrapStore';
 import { MoveScrapModal } from '../../Modal/MoveScrapModal';
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common';
+import { formatToMinute } from '../../../utils/formatToMinute';
+import { useScrapModal } from '../../../contexts/ScrapModalContext';
 
 export const ScrapCard = (props: ScrapListItemProps) => {
   const state = props.reducerState ?? { isSelecting: false, selectedItems: [] };
@@ -20,7 +22,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
   const addScrap = useRecentScrapStore((state) => state.addScrap);
-  const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
+  const { openMoveScrapModal } = useScrapModal();
 
   // 폴더일 때 top2ScrapThumbnail 추출
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
@@ -75,11 +77,10 @@ export const ScrapCard = (props: ScrapListItemProps) => {
             </Pressable>
           )}
         </View>
-
         <View className='px-1'>
           <View className='flex-row justify-between'>
-            <View className={'flex-[0.8] flex-row gap-0.5'}>
-              <Text className='text-16sb  text-black' numberOfLines={1}>
+            <View className={'flex-[0.8] flex-row'}>
+              <Text className='text-16sb  text-black' numberOfLines={2}>
                 {props.name}
               </Text>
               {!state.isSelecting && (
@@ -90,7 +91,12 @@ export const ScrapCard = (props: ScrapListItemProps) => {
                       <ItemTooltipBox
                         props={props}
                         onClose={close}
-                        onMovePress={() => setIsMoveModalVisible(true)}
+                        onMovePress={() => {
+                          close();
+                          openMoveScrapModal({
+                            selectedItems: [{ id: props.id, type: props.type }],
+                          });
+                        }}
                       />
                     )}
                   />
@@ -103,39 +109,34 @@ export const ScrapCard = (props: ScrapListItemProps) => {
           </View>
           <Text className='text-10r text-gray-700' numberOfLines={1}>
             {props.updatedAt
-              ? new Date(props.updatedAt).toLocaleString('ko-kr')
-              : new Date(props.createdAt).toLocaleString('ko-kr')}
+              ? formatToMinute(new Date(props.updatedAt))
+              : formatToMinute(new Date(props.createdAt))}
           </Text>
         </View>
       </View>
-
-      <MoveScrapModal
-        visible={isMoveModalVisible}
-        onClose={() => setIsMoveModalVisible(false)}
-        selectedItems={[{ id: props.id, type: props.type }]}
-        onSuccess={() => {}}
-      />
     </View>
   );
 
   return (
-    <Pressable
-      className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
-      onPress={() => {
-        if (state.isSelecting) {
-          props.onCheckPress?.();
-          return;
-        }
+    <>
+      <Pressable
+        className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
+        onPress={() => {
+          if (state.isSelecting) {
+            props.onCheckPress?.();
+            return;
+          }
 
-        if (props.type === 'FOLDER') {
-          navigation.push('ScrapContent', { id: props.id });
-        } else if (props.type === 'SCRAP') {
-          openNote({ id: props.id, title: props.name });
-          addScrap(props.id);
-          navigation.push('ScrapContentDetail', { id: props.id });
-        }
-      }}>
-      {cardContent}
-    </Pressable>
+          if (props.type === 'FOLDER') {
+            navigation.push('ScrapContent', { id: props.id });
+          } else if (props.type === 'SCRAP') {
+            openNote({ id: props.id, title: props.name });
+            addScrap(props.id);
+            navigation.push('ScrapContentDetail', { id: props.id });
+          }
+        }}>
+        {cardContent}
+      </Pressable>
+    </>
   );
 };

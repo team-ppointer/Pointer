@@ -8,15 +8,16 @@ import { ScrapListItemProps } from '../types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StudentRootStackParamList } from '@/navigation/student/types';
-import { useReducer, useState } from 'react';
+import { useState } from 'react';
 import { CreateFolderModal } from '../../Modal/CreateFolderModal';
 import { LoadQnaImageModal } from '../../Modal/LoadQnaImageModal';
 import { State } from '../../../utils/reducer';
+import { useScrapModal } from '../../../contexts/ScrapModalContext';
 
 export const ScrapAddItem = ({ reducerState }: { reducerState: State }) => {
-  const [isFolderModalVisible, setIsFolderModalVisible] = useState(false);
   const [isQnaImageModalVisible, setisQnaImageModalVisible] = useState(false);
   const isSelecting = reducerState?.isSelecting ?? false;
+  const { openCreateFolderModal } = useScrapModal();
 
   const addItemContent = (
     <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
@@ -44,7 +45,7 @@ export const ScrapAddItem = ({ reducerState }: { reducerState: State }) => {
               onOpenFolderModal={() => {
                 close();
                 setTimeout(() => {
-                  setIsFolderModalVisible(true);
+                  openCreateFolderModal();
                 }, 200);
               }}
               onOpenQnaImgModal={() => {
@@ -58,11 +59,6 @@ export const ScrapAddItem = ({ reducerState }: { reducerState: State }) => {
           from={addItemContent}
         />
       )}
-      <CreateFolderModal
-        visible={isFolderModalVisible}
-        onClose={() => setIsFolderModalVisible(false)}
-        onSuccess={() => {}}
-      />
       <LoadQnaImageModal
         visible={isQnaImageModalVisible}
         onClose={() => setisQnaImageModalVisible(false)}
