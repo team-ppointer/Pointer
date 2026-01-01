@@ -1,6 +1,6 @@
 import { colors } from '@/theme/tokens';
-import React, { useMemo } from 'react';
-import { View, Image, ImageProps, ImageStyle, DimensionValue } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Image, ImageProps, ImageStyle, DimensionValue, Animated, StyleSheet } from 'react-native';
 
 type ImageWithSkeletonProps = {
   source?: ImageProps['source'] | ImageProps['source'][];
@@ -17,6 +17,48 @@ type ImageWithSkeletonProps = {
   isDiagonalLayout?: boolean;
 };
 
+// 스켈레톤 컴포넌트
+const Skeleton = ({ borderRadius }: { borderRadius: number }) => {
+  const pulseAnim = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [pulseAnim]);
+
+  const opacity = pulseAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.7],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        StyleSheet.absoluteFill,
+        {
+          backgroundColor: colors['gray-600'],
+          borderRadius,
+          opacity,
+        },
+      ]}
+    />
+  );
+};
+
 const ImageWithSkeletonComponent = ({
   source,
   width = '100%',
@@ -30,6 +72,9 @@ const ImageWithSkeletonComponent = ({
   fallback,
   isDiagonalLayout = false,
 }: ImageWithSkeletonProps) => {
+  // 이미지 로딩 상태 관리
+  const [isLoading, setIsLoading] = useState(true);
+
   // source가 배열인지 확인
   const isSourceArray = Array.isArray(source);
 
@@ -63,13 +108,18 @@ const ImageWithSkeletonComponent = ({
   // 대각선 레이아웃이 아닐 때: 전체 영역에 단일 이미지 표시
   if (!isDiagonalLayout && imageUrls.length > 0) {
     const singleImageSource = { uri: imageUrls[0] };
+
     return (
       <View
         className={`relative w-full overflow-hidden ${className}`}
         style={[{ aspectRatio, borderRadius }, style]}>
+        {isLoading && <Skeleton borderRadius={borderRadius} />}
         <Image
           source={singleImageSource}
           resizeMode={resizeMode}
+          onLoadStart={() => setIsLoading(true)}
+          onLoadEnd={() => setIsLoading(false)}
+          onError={() => setIsLoading(false)}
           style={[
             {
               width,
@@ -93,6 +143,7 @@ const ImageWithSkeletonComponent = ({
       <View
         className={`relative w-full overflow-hidden ${className}`}
         style={[{ aspectRatio, borderRadius }, style]}>
+        {isLoading && <Skeleton borderRadius={borderRadius} />}
         {/* 왼쪽 위: 2개면 첫 번째 이미지, 1개면 회색 배경 */}
         {hasSecondImage ? (
           // 2개일 때: 왼쪽 위에 첫 번째 이미지
@@ -106,6 +157,9 @@ const ImageWithSkeletonComponent = ({
             <Image
               source={{ uri: imageUrls[0] }}
               resizeMode={resizeMode}
+              onLoadStart={() => setIsLoading(true)}
+              onLoadEnd={() => setIsLoading(false)}
+              onError={() => setIsLoading(false)}
               style={{
                 width: '100%',
                 height: '100%',
@@ -138,6 +192,9 @@ const ImageWithSkeletonComponent = ({
             <Image
               source={{ uri: imageToShow }}
               resizeMode={resizeMode}
+              onLoadStart={() => setIsLoading(true)}
+              onLoadEnd={() => setIsLoading(false)}
+              onError={() => setIsLoading(false)}
               style={{
                 width: '100%',
                 height: '100%',
@@ -154,10 +211,14 @@ const ImageWithSkeletonComponent = ({
   if (!Array.isArray(source) && source) {
     return (
       <View className={`relative w-full overflow-hidden ${className}`} style={{ aspectRatio }}>
+        {isLoading && <Skeleton borderRadius={borderRadius} />}
         <Image
           key={uniqueId}
           source={source}
           resizeMode={resizeMode}
+          onLoadStart={() => setIsLoading(true)}
+          onLoadEnd={() => setIsLoading(false)}
+          onError={() => setIsLoading(false)}
           style={[
             {
               width,
