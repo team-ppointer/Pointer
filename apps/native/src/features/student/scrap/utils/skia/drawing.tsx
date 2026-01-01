@@ -58,6 +58,7 @@ type Props = {
   strokeColor?: string;
   strokeWidth?: number;
   onChange?: (strokes: Stroke[]) => void;
+  onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
   eraserMode?: boolean;
   eraserSize?: number;
   textMode?: boolean;
@@ -70,6 +71,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       strokeColor = 'black',
       strokeWidth = 3,
       onChange,
+      onHistoryChange,
       eraserMode = false,
       eraserSize = 20,
       textMode = false,
@@ -114,6 +116,21 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const historyRef = useRef<HistoryState[]>([]);
     const historyIndexRef = useRef<number>(-1);
 
+    // 히스토리 상태 변경 알림
+    const notifyHistoryChange = useCallback(() => {
+      if (!onHistoryChange) return;
+
+      const canUndo =
+        activeTextInput !== null ||
+        historyIndexRef.current > 0 ||
+        (historyIndexRef.current === 0 && historyRef.current.length > 1);
+
+      const canRedo =
+        activeTextInput === null && historyIndexRef.current + 1 < historyRef.current.length;
+
+      onHistoryChange(canUndo, canRedo);
+    }, [onHistoryChange, activeTextInput]);
+
     // 현재 상태를 히스토리에 저장
     const saveToHistory = useCallback(() => {
       const currentState: HistoryState = {
@@ -133,7 +150,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         historyRef.current.shift();
         historyIndexRef.current--;
       }
-    }, []);
+
+      notifyHistoryChange();
+    }, [notifyHistoryChange]);
 
     // 히스토리에서 상태 복원
     const restoreFromHistory = useCallback(
@@ -172,12 +191,57 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
         onChange?.(state.strokes);
         setTick((t) => t + 1);
+        notifyHistoryChange();
       },
-      [onChange]
+      [onChange, notifyHistoryChange]
     );
 
     // 폰트 로드
     const font = useFont(require('@assets/fonts/PretendardVariable.ttf'), textFontSize);
+
+    // 텍스트의 실제 줄 수 계산 (자동 줄바꿈 포함)
+    const calculateTextLineCount = useCallback(
+      (text: string): number => {
+        if (!font) return 1;
+
+        const maxWidth = Dimensions.get('window').width * 0.5 - 40;
+        let totalLines = 0;
+
+        const paragraphs = text.split('\n');
+
+        paragraphs.forEach((paragraph) => {
+          if (!paragraph) {
+            totalLines += 1;
+            return;
+          }
+
+          const words = paragraph.split(' ');
+          let currentLine = '';
+          let paragraphLines = 0;
+
+          words.forEach((word, idx) => {
+            const testLine = currentLine ? `${currentLine} ${word}` : word;
+            const textWidth = font.measureText(testLine).width;
+
+            if (textWidth > maxWidth && currentLine) {
+              paragraphLines += 1;
+              currentLine = word;
+            } else {
+              currentLine = testLine;
+            }
+
+            if (idx === words.length - 1) {
+              paragraphLines += 1;
+            }
+          });
+
+          totalLines += paragraphLines;
+        });
+
+        return totalLines;
+      },
+      [font]
+    );
 
     const loadStrokes = useCallback(
       (newStrokes: Stroke[]) => {
@@ -250,25 +314,65 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       setTick((t) => t + 1);
     }, []);
 
-    const addPoint = useCallback((x: number, y: number) => {
-      currentPoints.current.push({ x, y });
-      // 최대 Y 좌표 업데이트
-      if (y > maxY.current) {
-        maxY.current = y;
-        // 여유 공간을 위해 200px 추가
-        canvasHeight.current = Math.max(800, maxY.current + 200);
-        setTick((t) => t + 1);
-      }
-      // 경로는 매번 재생성하되, 렌더링은 최적화
-      livePath.current = buildSmoothPath(currentPoints.current);
-      setTick((t) => t + 1);
-    }, []);
+    // 텍스트 영역과 충돌하는지 확인 (32px 여백 포함, 캔버스 전체 너비, 멀티라인 고려)
+    const isNearExistingText = useCallback(
+      (y: number): boolean => {
+        const safeDistance = 32; // 텍스트 주변 32px 보호 영역
 
-    const startStroke = useCallback((x: number, y: number) => {
-      currentPoints.current = [{ x, y }];
-      livePath.current = buildSmoothPath(currentPoints.current);
-      setTick((t) => t + 1);
-    }, []);
+        for (const textItem of texts) {
+          // 실제 줄 수 계산
+          const lineCount = calculateTextLineCount(textItem.text);
+          const totalTextHeight = lineCount * textFontSize;
+
+          // 텍스트 영역의 Y 범위 (32px 여백 포함, X는 캔버스 전체 너비)
+          const textTop = textItem.y - textFontSize - safeDistance;
+          const textBottom = textItem.y + totalTextHeight - textFontSize + safeDistance;
+
+          // Y 좌표가 텍스트 영역 내에 있으면 캔버스 전체 너비에서 필기 차단
+          if (y >= textTop && y <= textBottom) {
+            return true;
+          }
+        }
+        return false;
+      },
+      [texts, textFontSize, calculateTextLineCount]
+    );
+
+    const addPoint = useCallback(
+      (x: number, y: number) => {
+        // 텍스트 영역에서는 필기 차단
+        if (isNearExistingText(y)) {
+          return;
+        }
+
+        currentPoints.current.push({ x, y });
+        // 최대 Y 좌표 업데이트
+        if (y > maxY.current) {
+          maxY.current = y;
+          // 여유 공간을 위해 200px 추가
+          canvasHeight.current = Math.max(800, maxY.current + 200);
+          setTick((t) => t + 1);
+        }
+        // 경로는 매번 재생성하되, 렌더링은 최적화
+        livePath.current = buildSmoothPath(currentPoints.current);
+        setTick((t) => t + 1);
+      },
+      [isNearExistingText]
+    );
+
+    const startStroke = useCallback(
+      (x: number, y: number) => {
+        // 텍스트 영역에서는 필기 시작 차단
+        if (isNearExistingText(y)) {
+          return;
+        }
+
+        currentPoints.current = [{ x, y }];
+        livePath.current = buildSmoothPath(currentPoints.current);
+        setTick((t) => t + 1);
+      },
+      [isNearExistingText]
+    );
 
     const finalizeStroke = useCallback(() => {
       if (currentPoints.current.length === 0) {
@@ -385,120 +489,58 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       setTick((t) => t + 1);
     }, []);
 
-    // 텍스트 영역과 충돌하는지 확인 (16px 여백 포함)
-    const isNearExistingText = useCallback(
-      (x: number, y: number): boolean => {
-        const safeDistance = 16;
-        const buttonSize = 20;
+    // 필기(stroke) 위에 텍스트 박스를 생성할 수 있는지 확인
+    // 필기 위는 차단 (캔버스 전체 너비), 필기 아래 16px부터는 허용
+    const canAddTextAtPosition = useCallback(
+      (y: number): boolean => {
+        const minGap = 32; // 필기 아래 최소 16px 간격
 
-        for (const textItem of texts) {
-          // 텍스트 너비 추정
-          const estimatedCharWidth = textFontSize * 0.6;
-          const textWidth = textItem.text.length * estimatedCharWidth;
-          const textHeight = textFontSize;
+        for (const stroke of strokes) {
+          // stroke의 최대 Y 좌표 (가장 아래)
+          const strokeMaxY = Math.max(...stroke.points.map((p) => p.y));
 
-          // 텍스트 영역 (16px 여백 포함)
-          const textLeft = textItem.x - safeDistance;
-          const textRight = textItem.x + textWidth + safeDistance + buttonSize + 4; // X 버튼 포함
-          const textTop = textItem.y - textHeight - safeDistance;
-          const textBottom = textItem.y + safeDistance;
-
-          // 클릭한 위치가 텍스트 영역 내에 있는지 확인
-          if (x >= textLeft && x <= textRight && y >= textTop && y <= textBottom) {
-            return true;
+          // Y 좌표가 stroke보다 위에 있으면 차단 (X 좌표 무관, 캔버스 전체 너비)
+          if (y < strokeMaxY + minGap) {
+            return false; // 필기 위 또는 너무 가까움
           }
         }
-        return false;
+        return true; // 텍스트 생성 가능
       },
-      [texts, textFontSize]
-    );
-
-    // 텍스트 박스 영역과 겹치는 strokes를 밀어내기 (stroke 전체를 이동하여 모양 유지)
-    const pushStrokesAwayFromTextArea = useCallback(
-      (textX: number, textY: number, textHeight: number) => {
-        const padding = 16;
-        const textTop = textY - textHeight - padding;
-        const textBottom = textY + padding;
-
-        setStrokes((prevStrokes) => {
-          let hasChanges = false;
-          const updatedStrokes = prevStrokes.map((stroke) => {
-            // stroke의 최소/최대 Y 좌표 계산
-            const strokeMinY = Math.min(...stroke.points.map((p) => p.y));
-            const strokeMaxY = Math.max(...stroke.points.map((p) => p.y));
-
-            // stroke가 텍스트 박스 영역과 겹치는지 확인
-            const overlapsTop = strokeMaxY >= textTop && strokeMaxY <= textBottom;
-            const overlapsBottom = strokeMinY >= textTop && strokeMinY <= textBottom;
-            const overlapsMiddle = strokeMinY <= textTop && strokeMaxY >= textBottom;
-
-            if (overlapsTop || overlapsBottom || overlapsMiddle) {
-              hasChanges = true;
-
-              // stroke의 중심 Y 좌표 계산
-              const strokeCenterY = (strokeMinY + strokeMaxY) / 2;
-
-              // 이동 거리 계산
-              let offsetY = 0;
-              if (strokeCenterY < textY) {
-                // 텍스트 박스 위쪽에 있으면 위로 이동
-                offsetY = textTop - strokeMaxY - 1;
-              } else {
-                // 텍스트 박스 아래쪽에 있으면 아래로 이동
-                offsetY = textBottom - strokeMinY + 1;
-              }
-
-              // stroke의 모든 점을 동일한 거리만큼 이동 (모양 유지)
-              const updatedPoints = stroke.points.map((point) => ({
-                ...point,
-                y: point.y + offsetY,
-              }));
-
-              return { ...stroke, points: updatedPoints };
-            }
-            return stroke;
-          });
-
-          if (hasChanges) {
-            // paths 재생성
-            const newPaths = updatedStrokes.map((stroke) => buildSmoothPath(stroke.points));
-            setPaths(newPaths);
-            strokesRef.current = updatedStrokes;
-            onChange?.(updatedStrokes);
-            setTick((t) => t + 1);
-
-            // 히스토리에 저장 (strokes 이동)
-            setTimeout(() => saveToHistory(), 0);
-          }
-
-          return hasChanges ? updatedStrokes : prevStrokes;
-        });
-      },
-      [onChange, saveToHistory]
+      [strokes]
     );
 
     const addText = useCallback(
       (x: number, y: number) => {
-        // 기존 텍스트 주변 16px 내에서는 새 텍스트 박스 생성 안 함
-        if (isNearExistingText(x, y)) {
-          return;
+        const padding = 16;
+        const minGap = 32; // 필기 아래 32px
+
+        // 가장 아래쪽 stroke 찾기
+        let textY = padding; // 기본값: 캔버스 상단 16px
+
+        if (strokes.length > 0) {
+          // 모든 stroke의 최대 Y 좌표 찾기
+          const maxStrokeY = Math.max(
+            ...strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+          );
+          textY = maxStrokeY + minGap; // 가장 아래 필기 + 32px
         }
 
-        // 상하 16px 여백 고려
-        const padding = 16;
-        const adjustedY = Math.max(
-          padding,
-          Math.min(y, (containerLayout.current?.height || 400) - padding)
-        );
-
-        // 텍스트 박스 영역과 겹치는 strokes를 밀어내기
-        pushStrokesAwayFromTextArea(x, adjustedY, textFontSize);
+        // 기존 텍스트가 있으면 그 아래로 (멀티라인 고려)
+        if (texts.length > 0) {
+          const textBottoms = texts.map((text) => {
+            const lineCount = calculateTextLineCount(text.text);
+            const totalHeight = lineCount * textFontSize;
+            return text.y + totalHeight - textFontSize;
+          });
+          const maxTextBottom = Math.max(...textBottoms);
+          textY = Math.max(textY, maxTextBottom + minGap);
+        }
 
         const textId = Date.now().toString();
         setActiveTextInput({
           id: textId,
-          x: x,
-          y: adjustedY,
+          x: padding, // 항상 캔버스 왼쪽 끝(16px)에서 시작
+          y: textY, // 가장 아래 필기/텍스트 아래 32px
           value: '',
         });
 
@@ -517,7 +559,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
                 if (!containerLayout.current) return;
 
                 // 텍스트 입력 위치 계산 (ScrollView 내부 기준)
-                const textInputY = adjustedY;
+                const textInputY = textY;
                 const screenHeight = Dimensions.get('window').height;
                 const keyboardTop = screenHeight - e.endCoordinates.height;
 
@@ -552,7 +594,14 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           );
         }, 100);
       },
-      [isNearExistingText, pushStrokesAwayFromTextArea, textFontSize]
+      [
+        isNearExistingText,
+        canAddTextAtPosition,
+        strokes,
+        texts,
+        textFontSize,
+        calculateTextLineCount,
+      ]
     );
 
     const confirmTextInput = useCallback(() => {
@@ -642,8 +691,14 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         };
         historyRef.current = [initialState];
         historyIndexRef.current = 0;
+        notifyHistoryChange();
       }
-    }, []);
+    }, [notifyHistoryChange]);
+
+    // activeTextInput 상태 변경 시 히스토리 상태 알림
+    useEffect(() => {
+      notifyHistoryChange();
+    }, [activeTextInput, notifyHistoryChange]);
 
     useImperativeHandle(ref, () => ({
       clear() {
@@ -824,35 +879,69 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       [paths, strokes, strokeWidth, strokeColor]
     );
 
-    // 텍스트 렌더링 최적화
+    // 텍스트 렌더링 최적화 (멀티라인 지원 + 자동 줄바꿈)
     const renderedTexts = useMemo(
       () =>
         font
-          ? texts.map((textItem) => (
-              <Text
-                key={textItem.id}
-                x={textItem.x}
-                y={textItem.y}
-                text={textItem.text}
-                font={font}
-                color={textItem.color}
-              />
-            ))
+          ? texts.flatMap((textItem) => {
+              const maxWidth = Dimensions.get('window').width * 0.5 - 40;
+              const allLines: string[] = [];
+
+              // 먼저 명시적 줄바꿈으로 분할
+              const paragraphs = textItem.text.split('\n');
+
+              // 각 문단을 너비 기준으로 추가 분할
+              paragraphs.forEach((paragraph) => {
+                if (!paragraph) {
+                  allLines.push(''); // 빈 줄 유지
+                  return;
+                }
+
+                const words = paragraph.split(' ');
+                let currentLine = '';
+
+                words.forEach((word, idx) => {
+                  const testLine = currentLine ? `${currentLine} ${word}` : word;
+                  const textWidth = font.measureText(testLine).width;
+
+                  if (textWidth > maxWidth && currentLine) {
+                    // 현재 줄이 최대 너비를 초과하면 줄바꿈
+                    allLines.push(currentLine);
+                    currentLine = word;
+                  } else {
+                    currentLine = testLine;
+                  }
+
+                  // 마지막 단어인 경우 현재 줄 추가
+                  if (idx === words.length - 1) {
+                    allLines.push(currentLine);
+                  }
+                });
+              });
+
+              return allLines.map((line, lineIndex) => (
+                <Text
+                  key={`${textItem.id}-line-${lineIndex}`}
+                  x={textItem.x}
+                  y={textItem.y + lineIndex * textFontSize}
+                  text={line}
+                  font={font}
+                  color={textItem.color}
+                />
+              ));
+            })
           : null,
-      [texts, font]
+      [texts, font, textFontSize]
     );
 
-    // 텍스트 삭제 버튼 렌더링 (텍스트 모드일 때만)
+    // 텍스트 삭제 버튼 렌더링 (텍스트 모드일 때만, 텍스트 시작 위치에 배치)
     const renderedTextDeleteButtons = useMemo(() => {
       if (!textMode || eraserMode) return null;
 
       return texts.map((textItem) => {
-        // 텍스트 너비 추정
-        const estimatedCharWidth = textFontSize * 0.8;
-        const textWidth = textItem.text.length * estimatedCharWidth;
         const buttonSize = 20;
-        const buttonX = textItem.x + textWidth + 4;
-        const buttonY = textItem.y - textFontSize + (textFontSize - buttonSize) / 2;
+        const buttonX = textItem.x - buttonSize + 10; // 텍스트 시작 왼쪽에 배치
+        const buttonY = textItem.y - textFontSize + (textFontSize - buttonSize) / 2 + 10;
 
         return (
           <Pressable
@@ -934,7 +1023,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
                       )
                     ),
                   },
-                ]}>
+                ]}
+                onLayout={(e) => {}}>
                 <TextInput
                   ref={textInputRef}
                   style={[
@@ -977,8 +1067,7 @@ const styles = StyleSheet.create({
   textInputWrapper: {
     position: 'absolute',
     backgroundColor: 'transparent',
-    minWidth: 200,
-    maxWidth: Dimensions.get('window').width * 0.4 - 40,
+    maxWidth: Dimensions.get('window').width * 0.5 - 40,
   },
   inlineTextInput: {
     backgroundColor: 'transparent',
@@ -986,7 +1075,7 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
     textAlignVertical: 'top',
-    width: '100%',
+    width: '100%', // wrapper의 maxWidth에 맞춰서 자동 줄바꿈
   },
   deleteButton: {
     position: 'absolute',
