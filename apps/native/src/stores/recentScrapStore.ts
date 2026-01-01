@@ -23,7 +23,7 @@ export const useRecentScrapStore = create<RecentScrapStore>()(
           // 중복 제거 후 맨 앞에 추가
           const filtered = state.scrapIds.filter((id) => id !== scrapId);
           return {
-            scrapIds: [scrapId, ...filtered].slice(0, 10),
+            scrapIds: [scrapId, ...filtered].slice(0, 30),
           };
         }),
 
