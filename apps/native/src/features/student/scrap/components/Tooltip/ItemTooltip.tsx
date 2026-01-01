@@ -42,7 +42,6 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
 
   // API hooks
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
-  const { mutateAsync: updateFolder } = useUpdateFolder();
   const { mutateAsync: updateFolderName } = useUpdateFolderName();
   const { mutateAsync: updateFolderThumbnail } = useUpdateFolderThumbnail();
   const { mutateAsync: deleteScrap } = useDeleteScrap();
