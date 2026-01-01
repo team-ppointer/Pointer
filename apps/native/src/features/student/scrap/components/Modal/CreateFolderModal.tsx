@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Image, TextInput } from 'react-native';
-import PopUpModal from './PopupModal';
+import { View, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { AddFolderScreenModal } from './FullScreenModal';
 import { useCreateFolder } from '@/apis';
 import { showToast } from './Toast';
 import { openImageLibraryWithErrorHandling } from '../../utils/imagePicker';
@@ -8,20 +8,12 @@ import { colors } from '@/theme/tokens';
 import { useGetPreSignedUrl } from '@/apis/controller/common/postGetPreSignedUrl';
 import { uploadImageToS3 } from '../../utils/imageUpload';
 import * as ImagePicker from 'expo-image-picker';
+import { ImageIcon } from 'lucide-react-native';
+import { useScrapModal } from '../../contexts/ScrapModalContext';
 
-interface CreateFolderModalProps {
-  visible: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-  disableBackdropClose?: boolean;
-}
-
-export const CreateFolderModal = ({
-  visible,
-  onClose,
-  onSuccess,
-  disableBackdropClose = false,
-}: CreateFolderModalProps) => {
+export const CreateFolderModal = () => {
+  const { isCreateFolderModalVisible, closeCreateFolderModal, refetchFolders, refetchScraps } =
+    useScrapModal();
   const [folderName, setFolderName] = useState('');
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const { mutateAsync: createFolder } = useCreateFolder();
@@ -53,11 +45,11 @@ export const CreateFolderModal = ({
 
   // 모달이 닫힐 때 상태 초기화
   useEffect(() => {
-    if (!visible) {
+    if (!isCreateFolderModalVisible) {
       setFolderName('');
       setSelectedImage(null);
     }
-  }, [visible]);
+  }, [isCreateFolderModalVisible]);
 
   const onPressGallery = async () => {
     const image = await openImageLibraryWithErrorHandling((error) => {
@@ -83,7 +75,7 @@ export const CreateFolderModal = ({
     // 이미지가 있는 경우 먼저 업로드
     if (selectedImage) {
       setTimeout(() => {
-        onClose();
+        closeCreateFolderModal();
       }, 0);
       const success = await uploadImageToS3(
         selectedImage,
@@ -95,7 +87,8 @@ export const CreateFolderModal = ({
             thumbnailImageId: result.fileId,
           });
           showToast('success', '폴더가 추가되었습니다.');
-          onSuccess?.();
+          refetchFolders?.();
+          refetchScraps?.();
         },
         (error) => {
           showToast('error', error);
@@ -106,13 +99,12 @@ export const CreateFolderModal = ({
         return;
       }
     } else {
-      // 이미지가 없는 경우 이름만으로 폴더 생성
       try {
         await createFolder({ name: folderName });
         showToast('success', '폴더가 추가되었습니다.');
-        onSuccess?.();
+        refetchFolders?.();
         setTimeout(() => {
-          onClose();
+          closeCreateFolderModal();
         }, 0);
       } catch (error) {
         showToast('error', '폴더 추가에 실패했습니다.');
@@ -121,26 +113,20 @@ export const CreateFolderModal = ({
   };
 
   const handleCancel = () => {
-    setFolderName('');
-    setSelectedImage(null);
-    onClose();
+    closeCreateFolderModal();
   };
 
   return (
-    <PopUpModal visibleState={visible} setVisibleState={handleCancel}>
-      <View className='min-w-[520px] max-w-[692px] rounded-[20px] border border-gray-400 bg-white shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
-        <View className='flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[12px]'>
-          <Pressable onPress={handleCancel} className='min-w-[60px]'>
-            <Text className='text-14m text-gray-900'>취소</Text>
-          </Pressable>
-          <Text className='text-16sb text-gray-900'>새로운 폴더 생성</Text>
-          <Pressable onPress={handleCreate} className='min-w-[60px] items-end'>
-            <Text className='text-14sb text-blue-500'>완료</Text>
-          </Pressable>
-        </View>
-
-        <View className='gap-[18px] p-[20px]'>
-          <View className='items-center gap-[10px]'>
+    <AddFolderScreenModal
+      visible={isCreateFolderModalVisible}
+      onCancel={handleCancel}
+      onClose={handleCreate}>
+      <KeyboardAvoidingView
+        className='flex-1'
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+        <View className='flex-1 items-center gap-[18px] p-[20px] pt-[80px]'>
+          <View className='w-[424px] items-center gap-[20px]'>
             <Pressable className='min-w-[136px] items-center p-[10px]' onPress={onPressGallery}>
               {selectedImage ? (
                 <Image
@@ -149,7 +135,9 @@ export const CreateFolderModal = ({
                   resizeMode='cover'
                 />
               ) : (
-                <View className='h-[136px] w-[136px] bg-lime-50' />
+                <View className='bg-primary-500 h-[80px] w-[80px] items-center justify-center rounded-[10px] p-[10px]'>
+                  <ImageIcon size={48} color={'#fff'} />
+                </View>
               )}
             </Pressable>
             <View className='w-full rounded-[8px] border border-gray-400 bg-white px-3 py-2'>
@@ -164,7 +152,7 @@ export const CreateFolderModal = ({
             </View>
           </View>
         </View>
-      </View>
-    </PopUpModal>
+      </KeyboardAvoidingView>
+    </AddFolderScreenModal>
   );
 };

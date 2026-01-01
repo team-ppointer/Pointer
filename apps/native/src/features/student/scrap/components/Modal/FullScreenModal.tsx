@@ -18,11 +18,15 @@ export const AddFolderScreenModal = ({
   children,
 }: FullScreenModalProps) => {
   return (
-    <Modal animationType='fade' transparent visible={visible} onRequestClose={onClose}>
-      <BlurView className='absolute inset-0 flex-1'>
-        <SafeAreaView edges={['top']} className='flex-1 bg-[#F8F9FC80]'>
+    <Modal animationType='none' transparent visible={visible} onRequestClose={onClose}>
+      <BlurView
+        intensity={50}
+        tint='light'
+        style={{ flex: 1, backgroundColor: 'rgba(248,249,252,0.5)' }} // #F8F9FC80
+      >
+        <SafeAreaView edges={['top']} className='flex-1'>
           {/* Header */}
-          <View className='x flex-row items-center justify-between px-5 py-3'>
+          <View className='flex-row items-center justify-between  px-5 py-3'>
             <Pressable onPress={onCancel} className='min-w-[60px]'>
               <Text className='text-14m text-gray-900'>취소</Text>
             </Pressable>
@@ -35,9 +39,11 @@ export const AddFolderScreenModal = ({
               <Text className='text-14sb text-blue-500'>완료</Text>
             </Pressable>
           </View>
+
           {/* Content */}
           <View className='flex-1'>{children}</View>
         </SafeAreaView>
+
         <Toast config={toastConfig} />
       </BlurView>
     </Modal>
@@ -52,27 +58,27 @@ export const LoadQnaImageScreenModal = ({
 }: FullScreenModalProps) => {
   return (
     <Modal animationType='fade' transparent visible={visible} onRequestClose={onClose}>
-      <View className='absolute inset-0 flex-1'>
-        <SafeAreaView edges={['top']} className='flex-1 bg-gray-800'>
-          {/* Header */}
-          <View className='flex-row items-center justify-between border-b border-gray-700 px-5 py-3'>
-            <Pressable onPress={onCancel} className='min-w-[60px]'>
-              <Text className='text-14m text-white'>취소</Text>
-            </Pressable>
+      <SafeAreaView edges={['top']} className='flex-1 bg-gray-800'>
+        {/* Header */}
+        <View className='flex-row items-center justify-between border-b border-gray-700 px-5 py-3'>
+          <Pressable onPress={onCancel} className='min-w-[60px]'>
+            <Text className='text-14m text-white'>취소</Text>
+          </Pressable>
 
-            <View className='flex-1 items-center px-4'>
-              <Text className='text-16sb text-white'>QnA 사진</Text>
-            </View>
-
-            <Pressable onPress={onClose} className='min-w-[60px] items-end'>
-              <Text className='text-14sb text-white'>완료</Text>
-            </Pressable>
+          <View className='flex-1 items-center px-4'>
+            <Text className='text-16sb text-white'>QnA 사진</Text>
           </View>
-          {/* Content */}
-          <View className='flex-1'>{children}</View>
-        </SafeAreaView>
+
+          <Pressable onPress={onClose} className='min-w-[60px] items-end'>
+            <Text className='text-14sb text-blue-500'>완료</Text>
+          </Pressable>
+        </View>
+
+        {/* Content */}
+        <View className='flex-1'>{children}</View>
+
         <Toast config={toastConfig} />
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };

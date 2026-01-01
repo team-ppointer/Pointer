@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { FolderPlus } from 'lucide-react-native';
 import PopUpModal from './PopupModal';
@@ -7,43 +7,44 @@ import { useGetFolders, useMoveScraps } from '@/apis';
 import { showToast } from './Toast';
 import { reducer, initialSelectionState } from '../../utils/reducer';
 import { useReducer } from 'react';
-import type { SelectedItem } from '../../utils/reducer';
-import { CreateFolderModal } from './CreateFolderModal';
+import { useScrapModal } from '../../contexts/ScrapModalContext';
 
-interface MoveScrapModalProps {
-  currentFolderId?: number;
-  visible: boolean;
-  onClose: () => void;
-  selectedItems: SelectedItem[];
-  onSuccess?: () => void;
-}
-
-export const MoveScrapModal = ({
-  currentFolderId,
-  visible,
-  onClose,
-  selectedItems,
-  onSuccess,
-}: MoveScrapModalProps) => {
+export const MoveScrapModal = () => {
+  const {
+    isMoveScrapModalVisible,
+    moveScrapModalProps,
+    closeMoveScrapModal,
+    openCreateFolderModal,
+    setRefetchFolders,
+    refetchScraps,
+    isCreateFolderModalVisible,
+  } = useScrapModal();
+  const { currentFolderId, selectedItems } = moveScrapModalProps;
   const [folderSelectionState, dispatch] = useReducer(reducer, {
     ...initialSelectionState,
     isSelecting: true, // 모달 내에서는 항상 선택 모드
   });
 
-  const [isCreateFolderModalVisible, setIsCreateFolderModalVisible] = useState(false);
   const { data: foldersData, refetch: refetchFolders } = useGetFolders();
   const { mutateAsync: moveScraps } = useMoveScraps();
 
+  // refetchFolders를 context에 등록
+  useEffect(() => {
+    if (refetchFolders) {
+      setRefetchFolders(refetchFolders);
+    }
+  }, [refetchFolders, setRefetchFolders]);
+
   // 모달 상태에 따른 선택 모드 관리
   useEffect(() => {
-    if (visible) {
+    if (isMoveScrapModalVisible) {
       // 모달이 열릴 때 선택 모드 활성화
       dispatch({ type: 'ENTER_SELECTION' });
     } else {
       // 모달이 닫힐 때 선택 상태 초기화
       dispatch({ type: 'CLEAR_SELECTION' });
     }
-  }, [visible]);
+  }, [isMoveScrapModalVisible]);
 
   // 폴더만 필터링
   const folders = useMemo(() => {
@@ -111,53 +112,59 @@ export const MoveScrapModal = ({
 
       showToast('success', `${scrapsToMove.length}개의 스크랩이 이동되었습니다.`);
       dispatch({ type: 'CLEAR_SELECTION' });
-      onSuccess?.();
-      onClose();
+      refetchFolders?.();
+      refetchScraps?.();
+      closeMoveScrapModal();
     } catch (error) {
       showToast('error', '이동 중 오류가 발생했습니다.');
     }
   };
 
-  return (
-    <>
-      <PopUpModal visibleState={visible} setVisibleState={onClose}>
-        <View className='h-[575px] min-w-[520px] max-w-[692px] rounded-[20px] border border-gray-400 bg-white shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
-          <View className='flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[12px]'>
-            <View className='w-[80px]' />
-            <Text className='text-16sb text-gray-900'>스크랩 이동하기</Text>
-            <Pressable
-              className='flex-row gap-1 rounded-[6px] p-1'
-              onPress={() => setIsCreateFolderModalVisible(true)}>
-              <FolderPlus size={20} color={'#3E3F45'} />
-              <Text className='text-14m text-gray-800'>새로운 폴더</Text>
-            </Pressable>
-          </View>
+  const folderName = folders.find((folder) => folder.id === selectedFolderId)?.name;
 
-          <View className='gap-[18px] p-[20px]'>
-            <View className='gap-[10px]  p-[10px]'>
+  return (
+    <PopUpModal
+      visibleState={isMoveScrapModalVisible && !isCreateFolderModalVisible}
+      setVisibleState={closeMoveScrapModal}>
+      <View className='h-[575px] min-w-[520px] max-w-[692px] rounded-[20px] border border-gray-400 bg-white shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
+        <View className='flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[12px]'>
+          <Pressable onPress={closeMoveScrapModal}>
+            <Text className='text-14sb text-primary-600'>취소</Text>
+          </Pressable>
+          <Text className='text-16sb items-center text-gray-900'>
+            {selectedItems.length}개 스크랩 이동하기
+          </Text>
+          <Pressable
+            className='flex-row gap-1 rounded-[6px] p-1'
+            onPress={() => openCreateFolderModal()}>
+            <FolderPlus size={20} color={'#3E3F45'} />
+            <Text className='text-14m text-gray-800'>새로운 폴더</Text>
+          </Pressable>
+        </View>
+
+        <View className='gap-[18px] p-[20px]'>
+          <View className='gap-[10px]  p-[10px]'>
+            <ScrollView>
               <ScrapGrid
                 data={folders}
                 reducerState={folderSelectionState}
                 dispatch={folderDispatch}
               />
-              <Pressable
-                onPress={handleMove}
-                className={`items-center rounded-[8px] px-[20px] py-[10px] ${
-                  selectedFolderId ? 'bg-primary-500' : 'bg-gray-300'
-                }`}>
-                <Text className={`text-16sb ${selectedFolderId ? 'text-white' : 'text-gray-500'}`}>
-                  {selectedFolderId ? '스크랩 이동하기' : '이동할 폴더를 선택해주세요'}
-                </Text>
-              </Pressable>
-            </View>
+            </ScrollView>
+            <Pressable
+              onPress={handleMove}
+              className={`items-center rounded-[8px] px-[20px] py-[10px] ${
+                selectedFolderId ? 'bg-primary-500' : 'bg-gray-300'
+              }`}>
+              <Text className={`text-16sb ${selectedFolderId ? 'text-white' : 'text-gray-500'}`}>
+                {selectedFolderId
+                  ? `'${folderName}' 폴더로 이동하기`
+                  : '이동할 폴더를 선택해주세요'}
+              </Text>
+            </Pressable>
           </View>
-          <CreateFolderModal
-            visible={isCreateFolderModalVisible}
-            onClose={() => setIsCreateFolderModalVisible(false)}
-            onSuccess={() => {}}
-          />
         </View>
-      </PopUpModal>
-    </>
+      </View>
+    </PopUpModal>
   );
 };
