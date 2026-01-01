@@ -6,6 +6,7 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import type { ScrapDetailResp } from '@/features/student/scrap/utils/types';
 import { useNoteStore } from '@/stores/scrapNoteStore';
 import { useRecentScrapStore } from '@/stores/recentScrapStore';
+import { formatToMinute } from '../../../utils/formatToMinute';
 
 type RecentScrapCardProps = {
   scrap: ScrapDetailResp & { type: 'SCRAP' };
@@ -34,7 +35,7 @@ export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {
           {scrap.name}
         </Text>
         <Text className='text-12r text-gray-700 ' numberOfLines={1}>
-          {scrap.updatedAt}
+          {formatToMinute(new Date(scrap.updatedAt))}
         </Text>
       </View>
     </Pressable>
