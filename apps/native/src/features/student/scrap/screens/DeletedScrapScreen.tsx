@@ -59,42 +59,44 @@ const DeletedScrapScreenContent = () => {
       <DeletedScrapHeader
         navigateback={navigation}
         reducerState={reducerState}
-        onSelectAll={() => {
-          const allItems = sortedData.map((item) => ({ id: item.id, type: item.type }));
-          const isAllSelected =
-            reducerState.selectedItems.length === sortedData.length && sortedData.length > 0;
-          dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
-        }}
-        onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
-        onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
-        onDelete={() => {
-          if (reducerState.selectedItems.length > 0) {
-            setIsDeleteModalVisible(true);
-          }
-        }}
-        onMove={() => {
-          if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
-            return;
-          }
-          if (reducerState.selectedItems.length === 0) {
-            showToast('error', '이동할 스크랩을 선택해주세요.');
-            return;
-          }
-          openMoveScrapModal({
-            selectedItems: reducerState.selectedItems,
-          });
-          dispatch({ type: 'CLEAR_SELECTION' });
-        }}
-        onRestore={async () => {
-          try {
-            const items = reducerState.selectedItems;
-
-            await restoreTrash({ items });
+        actions={{
+          onSelectAll: () => {
+            const allItems = sortedData.map((item) => ({ id: item.id, type: item.type }));
+            const isAllSelected =
+              reducerState.selectedItems.length === sortedData.length && sortedData.length > 0;
+            dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
+          },
+          onEnterSelection: () => dispatch({ type: 'ENTER_SELECTION' }),
+          onExitSelection: () => dispatch({ type: 'EXIT_SELECTION' }),
+          onDelete: () => {
+            if (reducerState.selectedItems.length > 0) {
+              setIsDeleteModalVisible(true);
+            }
+          },
+          onMove: () => {
+            if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
+              return;
+            }
+            if (reducerState.selectedItems.length === 0) {
+              showToast('error', '이동할 스크랩을 선택해주세요.');
+              return;
+            }
+            openMoveScrapModal({
+              selectedItems: reducerState.selectedItems,
+            });
             dispatch({ type: 'CLEAR_SELECTION' });
-            showToast('success', '선택된 파일들이 복구되었습니다.');
-          } catch (error) {
-            showToast('error', '복구 중 오류가 발생했습니다.');
-          }
+          },
+          onRestore: async () => {
+            try {
+              const items = reducerState.selectedItems;
+
+              await restoreTrash({ items });
+              dispatch({ type: 'CLEAR_SELECTION' });
+              showToast('success', '선택된 파일들이 복구되었습니다.');
+            } catch (error) {
+              showToast('error', '복구 중 오류가 발생했습니다.');
+            }
+          },
         }}
       />
       <View className='bg-gray-100'>
