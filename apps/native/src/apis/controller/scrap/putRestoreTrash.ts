@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { client, TanstackQueryClient } from '@/apis/client';
+import { client } from '@/apis/client';
 import { paths } from '@/types/api/schema';
+import { invalidateTrashMutationQueries, SCRAP_QUERY_KEYS } from './utils';
 
 type RestoreTrashRequest =
   paths['/api/student/scrap/trash/restore']['put']['requestBody']['content']['application/json'];
@@ -15,26 +16,11 @@ export const useRestoreTrash = () => {
       });
     },
     onSuccess: () => {
-      // 휴지통 목록 갱신
-      queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/scrap/trash').queryKey,
-      });
+      // 휴지통 및 검색 쿼리 갱신
+      invalidateTrashMutationQueries(queryClient);
       // 폴더 목록 갱신
       queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/scrap/folder').queryKey,
-      });
-      // 검색 결과 갱신 (모든 검색 쿼리 무효화)
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const key = query.queryKey;
-          return (
-            Array.isArray(key) &&
-            key.length >= 2 &&
-            key[0] === 'get' &&
-            typeof key[1] === 'string' &&
-            key[1].includes('/api/student/scrap/search')
-          );
-        },
+        queryKey: SCRAP_QUERY_KEYS.folderList(),
       });
     },
   });

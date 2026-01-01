@@ -5,7 +5,7 @@ import { SearchResultCard } from './cards/SearchResultCard';
 import { TrashCard } from './cards/TrashCard';
 import { ScrapAddItem, ScrapReviewItem } from './cards/ScrapHeadCard';
 import { ScrapItem, TrashItem } from '@/features/student/scrap/utils/types';
-import { useGridLayout } from '../../utils/gridLayout';
+import { useGridLayout } from '../../utils/layout/gridLayout';
 import { useState } from 'react';
 
 /**

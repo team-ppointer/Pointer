@@ -12,7 +12,8 @@ import { useState } from 'react';
 import { CreateFolderModal } from '../../Modal/CreateFolderModal';
 import { LoadQnaImageModal } from '../../Modal/LoadQnaImageModal';
 import { State } from '../../../utils/reducer';
-import { useScrapModal } from '../../../contexts/ScrapModalContext';
+import { useScrapModal } from '../../../contexts/ScrapModalsContext';
+import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 
 export const ScrapAddItem = ({ reducerState }: { reducerState: State }) => {
   const [isQnaImageModalVisible, setisQnaImageModalVisible] = useState(false);
@@ -94,9 +95,7 @@ export const ScrapReviewItem = ({ props }: { props: ScrapListItemProps }) => {
             <Text className='text-12m text-gray-700'>{props.scrapCount}</Text>
           )}
         </View>
-        <Text className='text-10r text-gray-700'>
-          {new Date(props.createdAt).toLocaleDateString()}
-        </Text>
+        <Text className='text-10r text-gray-700'>{formatToMinute(new Date(props.createdAt))}</Text>
       </View>
     </Pressable>
   );

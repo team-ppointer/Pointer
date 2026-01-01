@@ -29,9 +29,9 @@ import { useGetHandwriting, useGetScrapDetail, useUpdateHandwriting } from '@/ap
 import { LoadingScreen } from '@/components/common';
 import ProblemViewer from '../../problem/components/ProblemViewer';
 import { useNoteStore, Note } from '@/stores/scrapNoteStore';
-import { toAlphabetSequence } from '../utils/toAlphabetSequence';
+import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
 import { components } from '@/types/api/schema';
-import DrawingCanvas, { DrawingCanvasRef, Stroke, TextItem } from '../components/skia/drawing';
+import DrawingCanvas, { DrawingCanvasRef, Stroke, TextItem } from '../utils/skia/drawing';
 
 type ScrapDetailContentRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 

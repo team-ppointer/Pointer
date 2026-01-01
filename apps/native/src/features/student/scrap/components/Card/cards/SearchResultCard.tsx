@@ -5,37 +5,19 @@ import { useNavigation } from '@react-navigation/native';
 import { useGetFolderDetail } from '@/apis';
 import { useNoteStore } from '@/stores/scrapNoteStore';
 import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
-import { useMemo } from 'react';
 import type { ScrapListItemProps } from '../types';
+import { useCardImageSources } from '../../../hooks';
+import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 
 export const SearchResultCard = (props: ScrapListItemProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-
   const openNote = useNoteStore((state) => state.openNote);
 
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
-
-  const { imageSources, isDiagonalLayout } = useMemo(() => {
-    // folderTop2Thumbnail이 있으면 그것을 우선 사용 (최대 2개, 대각선 배치)
-    if (folderTop2Thumbnail && folderTop2Thumbnail.length > 0) {
-      return {
-        imageSources: folderTop2Thumbnail.slice(0, 2).map((url) => ({ uri: url })),
-        isDiagonalLayout: true,
-      };
-    }
-
-    if (props.thumbnailUrl) {
-      return {
-        imageSources: [{ uri: props.thumbnailUrl }],
-        isDiagonalLayout: false,
-      };
-    }
-
-    return {
-      imageSources: undefined,
-      isDiagonalLayout: false,
-    };
-  }, [props.thumbnailUrl, folderTop2Thumbnail]);
+  const { imageSources, isDiagonalLayout } = useCardImageSources(
+    props.thumbnailUrl,
+    folderTop2Thumbnail
+  );
 
   const cardContent = (
     <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
@@ -65,8 +47,8 @@ export const SearchResultCard = (props: ScrapListItemProps) => {
 
           <Text className='text-10r text-gray-700' numberOfLines={1}>
             {props.updatedAt
-              ? new Date(props.updatedAt).toLocaleString('ko-kr')
-              : new Date(props.createdAt).toLocaleString('ko-kr')}
+              ? formatToMinute(new Date(props.updatedAt))
+              : formatToMinute(new Date(props.createdAt))}
           </Text>
         </View>
       </View>

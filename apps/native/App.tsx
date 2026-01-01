@@ -12,7 +12,7 @@ import { LoadingScreen } from '@components/common';
 import { useLoadAssets } from '@hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
-import { toastConfig } from '@/features/student/scrap/components/Modal/Toast';
+import { toastConfig } from '@/features/student/scrap/components/Notification/Toast';
 
 const queryClient = new QueryClient();
 

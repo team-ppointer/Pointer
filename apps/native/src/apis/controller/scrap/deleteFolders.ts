@@ -1,7 +1,13 @@
-import { useMutation, useQueryClient, QueryFilters } from '@tanstack/react-query';
-import { client, TanstackQueryClient } from '@/apis/client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { client } from '@/apis/client';
 import { paths } from '@/types/api/schema';
 import type { ScrapSearchResponse } from '@/features/student/scrap/utils/types';
+import {
+  createSearchQueryFilters,
+  rollbackOptimisticUpdate,
+  invalidateScrapSearchQueries,
+  SCRAP_QUERY_KEYS,
+} from './utils';
 
 type DeleteFoldersRequest =
   paths['/api/student/scrap/folder']['delete']['requestBody']['content']['application/json'];
@@ -20,26 +26,12 @@ export const useDeleteFolders = () => {
       const deletedFolderIds = new Set(request);
 
       // 폴더 목록 쿼리 취소 및 백업
-      const folderQueryKey = TanstackQueryClient.queryOptions(
-        'get',
-        '/api/student/scrap/folder'
-      ).queryKey;
+      const folderQueryKey = SCRAP_QUERY_KEYS.folderList();
       await queryClient.cancelQueries({ queryKey: folderQueryKey });
       const previousFolders = queryClient.getQueryData(folderQueryKey);
 
       // 검색 쿼리 취소 및 백업
-      const searchQueryFilters: QueryFilters = {
-        predicate: (query) => {
-          const key = query.queryKey;
-          return (
-            Array.isArray(key) &&
-            key.length >= 2 &&
-            key[0] === 'get' &&
-            typeof key[1] === 'string' &&
-            key[1].includes('/api/student/scrap/search')
-          );
-        },
-      };
+      const searchQueryFilters = createSearchQueryFilters();
       await queryClient.cancelQueries(searchQueryFilters);
       const previousQueries = queryClient.getQueriesData(searchQueryFilters);
 
@@ -67,40 +59,24 @@ export const useDeleteFolders = () => {
     // 에러 발생 시 롤백
     onError: (error, request, context) => {
       if (context?.previousFolders) {
-        const folderQueryKey = TanstackQueryClient.queryOptions(
-          'get',
-          '/api/student/scrap/folder'
-        ).queryKey;
+        const folderQueryKey = SCRAP_QUERY_KEYS.folderList();
         queryClient.setQueryData(folderQueryKey, context.previousFolders);
       }
       if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
+        rollbackOptimisticUpdate(queryClient, context.previousQueries);
       }
     },
     // 성공/실패 관계없이 쿼리 무효화 (백그라운드에서 최신 데이터 가져오기)
     onSettled: () => {
       // 폴더 목록 갱신
       queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/scrap/folder').queryKey,
+        queryKey: SCRAP_QUERY_KEYS.folderList(),
       });
-      // 검색 결과 갱신 (모든 검색 쿼리 무효화)
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const key = query.queryKey;
-          return (
-            Array.isArray(key) &&
-            key.length >= 2 &&
-            key[0] === 'get' &&
-            typeof key[1] === 'string' &&
-            key[1].includes('/api/student/scrap/search')
-          );
-        },
-      });
+      // 검색 결과 갱신
+      invalidateScrapSearchQueries(queryClient);
       // 휴지통 목록 갱신
       queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/scrap/trash').queryKey,
+        queryKey: SCRAP_QUERY_KEYS.trashList(),
       });
     },
   });

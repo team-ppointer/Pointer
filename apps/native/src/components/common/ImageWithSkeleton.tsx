@@ -1,85 +1,9 @@
 import { colors } from '@/theme/tokens';
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Image, ImageProps, ImageStyle, DimensionValue, ViewStyle } from 'react-native';
-import { useAnimatedStyle, useSharedValue, withRepeat } from 'react-native-reanimated';
-import Animated, { withTiming, interpolate } from 'react-native-reanimated';
-import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
-
-type ImageSkeletonProps = {
-  width?: DimensionValue;
-  height?: DimensionValue;
-  aspectRatio?: number;
-  borderRadius?: number;
-  className?: string;
-  style?: ViewStyle;
-  uniqueId?: string | number;
-};
-
-export const ImageSkeleton = ({
-  width = '100%',
-  height,
-  aspectRatio,
-  borderRadius = 10,
-  className = '',
-  style,
-  uniqueId = 'default',
-}: ImageSkeletonProps) => {
-  const shimmerTranslateX = useSharedValue(-1);
-
-  useEffect(() => {
-    shimmerTranslateX.value = -1;
-    shimmerTranslateX.value = withRepeat(withTiming(1, { duration: 1500 }), -1, false);
-  }, [shimmerTranslateX]);
-
-  const shimmerAnimatedStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(shimmerTranslateX.value, [-1, 1], [-200, 200]);
-    return {
-      transform: [{ translateX }],
-    };
-  });
-
-  return (
-    <View
-      className={`relative overflow-hidden bg-gray-300 ${className}`}
-      style={[
-        {
-          width,
-          height,
-          aspectRatio,
-          borderRadius,
-        },
-        style,
-      ]}>
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: '200%',
-            height: '100%',
-          },
-          shimmerAnimatedStyle,
-        ]}>
-        <Svg width='100%' height='100%' style={{ position: 'absolute' }}>
-          <Defs>
-            <LinearGradient id={`shimmer-${uniqueId}`} x1='0%' y1='0%' x2='100%' y2='0%'>
-              <Stop offset='0%' stopColor={colors['gray-500']} stopOpacity={1} />
-              <Stop offset='50%' stopColor={colors['gray-500']} stopOpacity={1} />
-              <Stop offset='100%' stopColor={colors['gray-500']} stopOpacity={1} />
-            </LinearGradient>
-          </Defs>
-          <Rect width='100%' height='100%' fill={`url(#shimmer-${uniqueId})`} />
-        </Svg>
-      </Animated.View>
-    </View>
-  );
-};
+import React, { useMemo } from 'react';
+import { View, Image, ImageProps, ImageStyle, DimensionValue } from 'react-native';
 
 type ImageWithSkeletonProps = {
-  source: ImageProps['source'];
+  source?: ImageProps['source'] | ImageProps['source'][];
   width?: DimensionValue;
   height?: DimensionValue;
   aspectRatio?: number;
@@ -89,6 +13,8 @@ type ImageWithSkeletonProps = {
   style?: ImageStyle;
   uniqueId?: string | number;
   fallback?: React.ReactNode;
+  /** 대각선 레이아웃 사용 여부 (true면 대각선 배치, false면 전체 영역에 표시) */
+  isDiagonalLayout?: boolean;
 };
 
 const ImageWithSkeletonComponent = ({
@@ -102,29 +28,30 @@ const ImageWithSkeletonComponent = ({
   style,
   uniqueId = 'default',
   fallback,
+  isDiagonalLayout = false,
 }: ImageWithSkeletonProps) => {
-  // source.uri를 추출하여 의존성으로 사용 (객체 참조 문제 방지)
-  const imageUri = typeof source === 'object' && source && 'uri' in source ? source.uri : null;
+  // source가 배열인지 확인
+  const isSourceArray = Array.isArray(source);
 
-  // useRef로 이미 로드된 URI 추적 (리렌더링에 영향받지 않음)
-  const loadedUriRef = useRef<string | null>(null);
-  const [isImageLoading, setIsImageLoading] = useState(() => {
-    // 이미 로드된 이미지인지 확인
-    return imageUri !== loadedUriRef.current;
-  });
+  // source 배열에서 이미지 URL 추출 (메모이제이션)
+  const imageUrls = useMemo(() => {
+    const sourceArray = isSourceArray ? source : source ? [source] : [];
+    return sourceArray
+      .map((s) => {
+        if (typeof s === 'object' && s && 'uri' in s) {
+          return s.uri as string;
+        }
+        return null;
+      })
+      .filter((uri): uri is string => uri !== null);
+  }, [source, isSourceArray]);
 
-  // imageUri가 실제로 변경되었을 때만 로딩 상태 리셋
-  useEffect(() => {
-    if (imageUri && imageUri !== loadedUriRef.current) {
-      setIsImageLoading(true);
-    }
-  }, [imageUri]);
-
+  // fallback 처리
   if (!source && fallback) {
     return <>{fallback}</>;
   }
 
-  if (!source) {
+  if (!source && imageUrls.length === 0) {
     return (
       <View
         className={`aspect-square w-full rounded-[10px] bg-gray-600 ${className}`}
@@ -133,68 +60,162 @@ const ImageWithSkeletonComponent = ({
     );
   }
 
-  return (
-    <View className={`relative w-full overflow-hidden ${className}`} style={{ aspectRatio }}>
-      {isImageLoading && (
-        <ImageSkeleton
-          width={width}
-          aspectRatio={aspectRatio}
-          borderRadius={borderRadius}
-          uniqueId={uniqueId}
-          className='absolute inset-0'
+  // 대각선 레이아웃이 아닐 때: 전체 영역에 단일 이미지 표시
+  if (!isDiagonalLayout && imageUrls.length > 0) {
+    const singleImageSource = { uri: imageUrls[0] };
+    return (
+      <View
+        className={`relative w-full overflow-hidden ${className}`}
+        style={[{ aspectRatio, borderRadius }, style]}>
+        <Image
+          source={singleImageSource}
+          resizeMode={resizeMode}
+          style={[
+            {
+              width,
+              height,
+              borderRadius,
+              aspectRatio,
+            },
+            style,
+          ]}
         />
-      )}
-      <Image
-        key={uniqueId}
-        source={source}
-        resizeMode={resizeMode}
-        style={[
-          {
-            width,
-            height,
-            borderRadius,
-            aspectRatio,
-          },
-          style,
-        ]}
-        onLoadStart={() => {
-          // 이미 로드된 이미지가 아닐 때만 로딩 상태로 변경
-          if (imageUri && imageUri !== loadedUriRef.current) {
-            setIsImageLoading(true);
-          }
-        }}
-        onLoad={() => {
-          setIsImageLoading(false);
-          if (imageUri) {
-            loadedUriRef.current = imageUri;
-          }
-        }}
-        onError={(error) => {
-          console.warn('Image load error:', error.nativeEvent?.error || 'Unknown error');
-          setIsImageLoading(false);
-          // 에러가 나도 같은 URI를 다시 로드하지 않도록 (무한 루프 방지)
-          if (imageUri) {
-            loadedUriRef.current = imageUri;
-          }
-        }}
-      />
-    </View>
+      </View>
+    );
+  }
+
+  // 대각선 레이아웃일 때: 대각선 배치
+  if (isDiagonalLayout && imageUrls.length > 0) {
+    const hasSecondImage = imageUrls.length > 1 && imageUrls[1];
+    const imageToShow = hasSecondImage ? imageUrls[1] : imageUrls[0]; // 1개면 오른쪽 아래에 표시
+
+    return (
+      <View
+        className={`relative w-full overflow-hidden ${className}`}
+        style={[{ aspectRatio, borderRadius }, style]}>
+        {/* 왼쪽 위: 2개면 첫 번째 이미지, 1개면 회색 배경 */}
+        {hasSecondImage ? (
+          // 2개일 때: 왼쪽 위에 첫 번째 이미지
+          <View
+            className='absolute left-0 top-0'
+            style={{
+              width: '80%',
+              height: '80%',
+              borderRadius: borderRadius,
+            }}>
+            <Image
+              source={{ uri: imageUrls[0] }}
+              resizeMode={resizeMode}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: borderRadius,
+              }}
+            />
+          </View>
+        ) : (
+          // 1개일 때: 왼쪽 위에 회색 배경
+          <View
+            className='absolute left-0 top-0'
+            style={{
+              width: '80%',
+              height: '80%',
+              backgroundColor: colors['gray-600'],
+              borderRadius: borderRadius,
+            }}
+          />
+        )}
+
+        {/* 오른쪽 아래: 이미지 표시 (2개면 두 번째, 1개면 첫 번째) */}
+        {imageToShow && (
+          <View
+            className='absolute bottom-0 right-0'
+            style={{
+              width: '80%',
+              height: '80%',
+              borderRadius: borderRadius,
+            }}>
+            <Image
+              source={{ uri: imageToShow }}
+              resizeMode={resizeMode}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: borderRadius,
+              }}
+            />
+          </View>
+        )}
+      </View>
+    );
+  }
+
+  // source가 배열이 아닌 단일 이미지인 경우 (기존 로직 호환성)
+  if (!Array.isArray(source) && source) {
+    return (
+      <View className={`relative w-full overflow-hidden ${className}`} style={{ aspectRatio }}>
+        <Image
+          key={uniqueId}
+          source={source}
+          resizeMode={resizeMode}
+          style={[
+            {
+              width,
+              height,
+              borderRadius,
+              aspectRatio,
+            },
+            style,
+          ]}
+        />
+      </View>
+    );
+  }
+
+  // fallback
+  return (
+    <View
+      className={`aspect-square w-full rounded-[10px] bg-gray-600 ${className}`}
+      style={style}
+    />
   );
 };
 
 // React.memo로 감싸서 props가 변경되지 않으면 리렌더링 방지
 export const ImageWithSkeleton = React.memo(ImageWithSkeletonComponent, (prevProps, nextProps) => {
-  // uniqueId와 source.uri가 같으면 리렌더링하지 않음
-  const prevUri = typeof prevProps.source === 'object' && prevProps.source && 'uri' in prevProps.source 
-    ? prevProps.source.uri 
-    : null;
-  const nextUri = typeof nextProps.source === 'object' && nextProps.source && 'uri' in nextProps.source 
-    ? nextProps.source.uri 
-    : null;
-  
+  // source가 배열인지 확인
+  const prevIsArray = Array.isArray(prevProps.source);
+  const nextIsArray = Array.isArray(nextProps.source);
+
+  // source 배열 비교
+  let sourceEqual = false;
+  if (prevIsArray && nextIsArray) {
+    const prevUris = prevProps.source
+      .map((s) => (typeof s === 'object' && s && 'uri' in s ? s.uri : null))
+      .filter((uri): uri is string => uri !== null);
+    const nextUris = nextProps.source
+      .map((s) => (typeof s === 'object' && s && 'uri' in s ? s.uri : null))
+      .filter((uri): uri is string => uri !== null);
+    sourceEqual =
+      prevUris.length === nextUris.length && prevUris.every((uri, idx) => uri === nextUris[idx]);
+  } else if (!prevIsArray && !nextIsArray) {
+    const prevUri =
+      typeof prevProps.source === 'object' && prevProps.source && 'uri' in prevProps.source
+        ? prevProps.source.uri
+        : null;
+    const nextUri =
+      typeof nextProps.source === 'object' && nextProps.source && 'uri' in nextProps.source
+        ? nextProps.source.uri
+        : null;
+    sourceEqual = prevUri === nextUri;
+  } else {
+    sourceEqual = false;
+  }
+
   return (
     prevProps.uniqueId === nextProps.uniqueId &&
-    prevUri === nextUri &&
+    sourceEqual &&
+    prevProps.isDiagonalLayout === nextProps.isDiagonalLayout &&
     prevProps.width === nextProps.width &&
     prevProps.height === nextProps.height &&
     prevProps.aspectRatio === nextProps.aspectRatio &&

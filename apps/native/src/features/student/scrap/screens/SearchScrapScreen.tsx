@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SearchScrapGrid } from '../components/Card/ScrapCardGrid';
 import { useSearchHistoryStore } from '@/stores/searchHistoryStore';
-import SearchScrapHeader from '../components/Header/SearchHeader';
+import SearchScrapHeader from '../components/Header/SearchScrapHeader';
 import { useSearchScraps } from '@/apis';
 
 const SearchScrapScreen = () => {

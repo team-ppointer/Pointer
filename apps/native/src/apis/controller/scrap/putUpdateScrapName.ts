@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { client, TanstackQueryClient } from '@/apis/client';
+import { client } from '@/apis/client';
 import { paths } from '@/types/api/schema';
+import { invalidateScrapSearchQueries, SCRAP_QUERY_KEYS } from './utils';
 
 type UpdateScrapNameRequest =
   paths['/api/student/scrap/{scrapId}/name']['put']['requestBody']['content']['application/json'];
@@ -31,25 +32,10 @@ export const useUpdateScrapName = () => {
     onSuccess: (_, { scrapId }) => {
       // 스크랩 상세 정보 갱신
       queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/scrap/{id}', {
-          params: {
-            path: { id: scrapId },
-          },
-        }).queryKey,
+        queryKey: SCRAP_QUERY_KEYS.scrapDetail(scrapId),
       });
-      // 검색 결과 갱신 (모든 검색 쿼리 무효화)
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const key = query.queryKey;
-          return (
-            Array.isArray(key) &&
-            key.length >= 2 &&
-            key[0] === 'get' &&
-            typeof key[1] === 'string' &&
-            key[1].includes('/api/student/scrap/search')
-          );
-        },
-      });
+      // 검색 결과 갱신
+      invalidateScrapSearchQueries(queryClient);
     },
   });
 };

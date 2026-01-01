@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import type { SelectedItem } from '../utils/reducer';
 
-interface ScrapModalContextValue {
+interface ScrapModalsContextValue {
   // CreateFolderModal 상태
   isCreateFolderModalVisible: boolean;
   openCreateFolderModal: () => void;
@@ -25,21 +25,30 @@ interface ScrapModalContextValue {
   setRefetchScraps: (refetch: () => void) => void;
 }
 
-const ScrapModalContext = createContext<ScrapModalContextValue | undefined>(undefined);
+// Backward compatibility
+export type ScrapModalContextValue = ScrapModalsContextValue;
 
-export const useScrapModal = () => {
-  const context = useContext(ScrapModalContext);
+const ScrapModalsContext = createContext<ScrapModalsContextValue | undefined>(undefined);
+
+// Backward compatibility
+const ScrapModalContext = ScrapModalsContext;
+
+export const useScrapModals = () => {
+  const context = useContext(ScrapModalsContext);
   if (!context) {
-    throw new Error('useScrapModal must be used within ScrapModalProvider');
+    throw new Error('useScrapModals must be used within ScrapModalsProvider');
   }
   return context;
 };
 
-interface ScrapModalProviderProps {
+// Backward compatibility
+export const useScrapModal = useScrapModals;
+
+interface ScrapModalsProviderProps {
   children: ReactNode;
 }
 
-export const ScrapModalProvider = ({ children }: ScrapModalProviderProps) => {
+export const ScrapModalsProvider = ({ children }: ScrapModalsProviderProps) => {
   const [isCreateFolderModalVisible, setIsCreateFolderModalVisible] = useState(false);
   const [isMoveScrapModalVisible, setIsMoveScrapModalVisible] = useState(false);
   const [moveScrapModalProps, setMoveScrapModalProps] = useState<{
@@ -93,5 +102,8 @@ export const ScrapModalProvider = ({ children }: ScrapModalProviderProps) => {
     setRefetchScraps,
   };
 
-  return <ScrapModalContext.Provider value={value}>{children}</ScrapModalContext.Provider>;
+  return <ScrapModalsContext.Provider value={value}>{children}</ScrapModalsContext.Provider>;
 };
+
+// Backward compatibility
+export const ScrapModalProvider = ScrapModalsProvider;

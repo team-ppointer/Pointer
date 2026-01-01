@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { AddFolderScreenModal } from './FullScreenModal';
 import { useCreateFolder } from '@/apis';
-import { showToast } from './Toast';
-import { openImageLibraryWithErrorHandling } from '../../utils/imagePicker';
+import { showToast } from '../Notification/Toast';
+import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
 import { colors } from '@/theme/tokens';
-import { useGetPreSignedUrl } from '@/apis/controller/common/postGetPreSignedUrl';
-import { uploadImageToS3 } from '../../utils/imageUpload';
+import { uploadImageToS3 } from '../../utils/images/imageUpload';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageIcon } from 'lucide-react-native';
-import { useScrapModal } from '../../contexts/ScrapModalContext';
+import { useScrapModal } from '../../contexts/ScrapModalsContext';
+import { usePreSignedUrlAdapter } from '../../hooks';
 
 export const CreateFolderModal = () => {
   const { isCreateFolderModalVisible, closeCreateFolderModal, refetchFolders, refetchScraps } =
@@ -17,31 +17,7 @@ export const CreateFolderModal = () => {
   const [folderName, setFolderName] = useState('');
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const { mutateAsync: createFolder } = useCreateFolder();
-  const { mutate: getPreSignedUrlMutate } = useGetPreSignedUrl();
-
-  // mutate를 래핑하여 uploadImageToS3가 기대하는 형식으로 변환
-  const getPreSignedUrl = (
-    params: { fileName: string; fileType?: 'IMAGE' | 'DOCUMENT' | 'OTHER' },
-    callbacks: {
-      onSuccess: (data: {
-        uploadUrl: string;
-        contentDisposition: string;
-        file: { id: number };
-      }) => void;
-      onError: (error: any) => void;
-    }
-  ) => {
-    getPreSignedUrlMutate(params, {
-      onSuccess: (data) => {
-        callbacks.onSuccess({
-          uploadUrl: data.uploadUrl,
-          contentDisposition: data.contentDisposition,
-          file: { id: data.file.id },
-        });
-      },
-      onError: callbacks.onError,
-    });
-  };
+  const getPreSignedUrl = usePreSignedUrlAdapter();
 
   // 모달이 닫힐 때 상태 초기화
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { Modal, TouchableWithoutFeedback, View } from 'react-native';
 
-const PopUpModal = ({
+const ConfirmationDialog = ({
   className,
   children,
   visibleState,
@@ -27,4 +27,8 @@ const PopUpModal = ({
     </Modal>
   );
 };
-export default PopUpModal;
+
+// Backward compatibility
+export const PopUpModal = ConfirmationDialog;
+
+export default ConfirmationDialog;

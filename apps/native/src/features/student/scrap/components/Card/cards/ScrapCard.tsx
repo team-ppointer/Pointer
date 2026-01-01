@@ -1,5 +1,5 @@
 import { Pressable, View, Text, Image } from 'react-native';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Check } from 'lucide-react-native';
 import { ChevronDownFilledIcon } from '@/components/system/icons';
 import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
@@ -13,8 +13,9 @@ import { useRecentScrapStore } from '@/stores/recentScrapStore';
 import { MoveScrapModal } from '../../Modal/MoveScrapModal';
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common';
-import { formatToMinute } from '../../../utils/formatToMinute';
-import { useScrapModal } from '../../../contexts/ScrapModalContext';
+import { formatToMinute } from '../../../utils/formatters/formatToMinute';
+import { useScrapModal } from '../../../contexts/ScrapModalsContext';
+import { useCardImageSources } from '../../../hooks';
 
 export const ScrapCard = (props: ScrapListItemProps) => {
   const state = props.reducerState ?? { isSelecting: false, selectedItems: [] };
@@ -24,30 +25,11 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const addScrap = useRecentScrapStore((state) => state.addScrap);
   const { openMoveScrapModal } = useScrapModal();
 
-  // 폴더일 때 top2ScrapThumbnail 추출
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
-
-  const { imageSources, isDiagonalLayout } = useMemo(() => {
-    // folderTop2Thumbnail이 있으면 그것을 우선 사용 (최대 2개, 대각선 배치)
-    if (folderTop2Thumbnail && folderTop2Thumbnail.length > 0) {
-      return {
-        imageSources: folderTop2Thumbnail.slice(0, 2).map((url) => ({ uri: url })),
-        isDiagonalLayout: true,
-      };
-    }
-
-    if (props.thumbnailUrl) {
-      return {
-        imageSources: [{ uri: props.thumbnailUrl }],
-        isDiagonalLayout: false,
-      };
-    }
-
-    return {
-      imageSources: undefined,
-      isDiagonalLayout: false,
-    };
-  }, [props.thumbnailUrl, folderTop2Thumbnail]);
+  const { imageSources, isDiagonalLayout } = useCardImageSources(
+    props.thumbnailUrl,
+    folderTop2Thumbnail
+  );
 
   const cardContent = (
     <View className='w-full items-center rounded-[10px] p-[10px]'>

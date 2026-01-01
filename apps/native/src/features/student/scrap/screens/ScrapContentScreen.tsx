@@ -1,20 +1,20 @@
 import { View } from 'react-native';
 import ScrapHeader from '../components/Header/ScrapHeader';
-import { useMemo, useReducer, useState, useEffect } from 'react';
-import { reducer, initialSelectionState } from '../utils/reducer';
-import { sortScrapData, mapUIKeyToAPIKey } from '../utils/sortScrap';
+import { useMemo, useState, useEffect } from 'react';
+import { sortScrapData, mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { Container, LoadingScreen } from '@/components/common';
-import SortDropdown from '../components/Modal/SortDropdown';
+import SortDropdown from '../components/Dropdown/SortDropdown';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
-import { showToast } from '../components/Modal/Toast';
+import { showToast } from '../components/Notification/Toast';
 import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
-import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
-import { ScrapModalProvider, useScrapModal } from '../contexts/ScrapModalContext';
-import { CreateFolderModal } from '../components/Modal/CreateFolderModal';
+import { useScrapModal } from '../contexts/ScrapModalsContext';
+import { useScrapSelection } from '../hooks';
+import { validateOnlyScrapCanMove } from '../utils/validation';
+import { withScrapModals } from '../hoc';
 
 type ScrapContentRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -22,7 +22,7 @@ const ScrapContentScreenContent = () => {
   const route = useRoute<ScrapContentRouteProp>();
   const { id } = route.params;
 
-  const [reducerState, dispatch] = useReducer(reducer, initialSelectionState);
+  const [reducerState, dispatch] = useScrapSelection();
   const [sortKey, setSortKey] = useState<UISortKey>('TITLE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
@@ -65,49 +65,47 @@ const ScrapContentScreenContent = () => {
           reducerState={reducerState}
           title={folder?.name}
           navigateback={navigation}
-          navigateSearchPress={() => navigation.push('SearchScrap')}
-          navigateTrashPress={() => navigation.push('DeletedScrap')}
-          onEnterSelection={() => dispatch({ type: 'ENTER_SELECTION' })}
-          onExitSelection={() => dispatch({ type: 'EXIT_SELECTION' })}
           isAllSelected={isAllSelected}
-          onSelectAll={() => {
-            const allItems = contents.map((item) => ({ id: item.id, type: item.type }));
-            dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
-          }}
-          onMove={() => {
-            const selectedFolders = reducerState.selectedItems.filter(
-              (selected) => selected.type === 'FOLDER'
-            );
-            if (selectedFolders.length > 0) {
-              showToast('error', '스크랩만 이동이 가능합니다.');
-              return;
-            }
-            if (reducerState.selectedItems.length === 0) {
-              showToast('error', '이동할 스크랩을 선택해주세요.');
-              return;
-            }
-            openMoveScrapModal({
-              currentFolderId: Number(id),
-              selectedItems: reducerState.selectedItems,
-            });
-            dispatch({ type: 'CLEAR_SELECTION' });
-          }}
-          onDelete={async () => {
-            if (reducerState.selectedItems.length === 0) {
-              showToast('error', '삭제할 항목을 선택해주세요.');
-              return;
-            }
-
-            try {
-              const items = reducerState.selectedItems;
-
-              await deleteScrap({ items });
-
+          actions={{
+            onSearchPress: () => navigation.push('SearchScrap'),
+            onTrashPress: () => navigation.push('DeletedScrap'),
+            onEnterSelection: () => dispatch({ type: 'ENTER_SELECTION' }),
+            onExitSelection: () => dispatch({ type: 'EXIT_SELECTION' }),
+            onSelectAll: () => {
+              const allItems = contents.map((item) => ({ id: item.id, type: item.type }));
+              dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
+            },
+            onMove: () => {
+              if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
+                return;
+              }
+              if (reducerState.selectedItems.length === 0) {
+                showToast('error', '이동할 스크랩을 선택해주세요.');
+                return;
+              }
+              openMoveScrapModal({
+                currentFolderId: Number(id),
+                selectedItems: reducerState.selectedItems,
+              });
               dispatch({ type: 'CLEAR_SELECTION' });
-              showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-            } catch (error: any) {
-              showToast('error', '삭제 중 오류가 발생했습니다.');
-            }
+            },
+            onDelete: async () => {
+              if (reducerState.selectedItems.length === 0) {
+                showToast('error', '삭제할 항목을 선택해주세요.');
+                return;
+              }
+
+              try {
+                const items = reducerState.selectedItems;
+
+                await deleteScrap({ items });
+
+                dispatch({ type: 'CLEAR_SELECTION' });
+                showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
+              } catch (error: any) {
+                showToast('error', '삭제 중 오류가 발생했습니다.');
+              }
+            },
           }}
         />
         <View className='bg-gray-100'>
@@ -134,13 +132,7 @@ const ScrapContentScreenContent = () => {
 };
 
 const ScrapContentScreen = () => {
-  return (
-    <ScrapModalProvider>
-      <ScrapContentScreenContent />
-      <CreateFolderModal />
-      <MoveScrapModal />
-    </ScrapModalProvider>
-  );
+  return <ScrapContentScreenContent />;
 };
 
-export default ScrapContentScreen;
+export default withScrapModals(ScrapContentScreen);

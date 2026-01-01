@@ -1,24 +1,24 @@
-import React, { useMemo, useReducer, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import DeletedScrapHeader from '../components/Header/DeletedHeader';
-import { reducer, initialSelectionState } from '../utils/reducer';
+import DeletedScrapHeader from '../components/Header/DeletedScrapHeader';
 import { useNavigation } from '@react-navigation/native';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container, LoadingScreen } from '@/components/common';
 import { TrashScrapGrid } from '../components/Card/ScrapCardGrid';
-import SortDropdown from '../components/Modal/SortDropdown';
-import { sortScrapData } from '../utils/sortScrap';
+import SortDropdown from '../components/Dropdown/SortDropdown';
+import { sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
-import PopUpModal from '../components/Modal/PopupModal';
-import { showToast } from '../components/Modal/Toast';
+import { PopUpModal } from '../components/Dialog';
+import { showToast } from '../components/Notification/Toast';
 import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
-import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
-import { ScrapModalProvider, useScrapModal } from '../contexts/ScrapModalContext';
-import { CreateFolderModal } from '../components/Modal/CreateFolderModal';
+import { useScrapModal } from '../contexts/ScrapModalsContext';
+import { useScrapSelection } from '../hooks';
+import { validateOnlyScrapCanMove } from '../utils/validation';
+import { withScrapModals } from '../hoc';
 
 const DeletedScrapScreenContent = () => {
-  const [reducerState, dispatch] = useReducer(reducer, initialSelectionState);
+  const [reducerState, dispatch] = useScrapSelection();
   const [sortKey, setSortKey] = useState<UISortKey>('TYPE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -73,11 +73,7 @@ const DeletedScrapScreenContent = () => {
           }
         }}
         onMove={() => {
-          const selectedFolders = reducerState.selectedItems.filter(
-            (selected) => selected.type === 'FOLDER'
-          );
-          if (selectedFolders.length > 0) {
-            showToast('error', '스크랩만 이동이 가능합니다.');
+          if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
             return;
           }
           if (reducerState.selectedItems.length === 0) {
@@ -133,16 +129,10 @@ const DeletedScrapScreenContent = () => {
 };
 
 const DeletedScrapScreen = () => {
-  return (
-    <ScrapModalProvider>
-      <DeletedScrapScreenContent />
-      <CreateFolderModal />
-      <MoveScrapModal />
-    </ScrapModalProvider>
-  );
+  return <DeletedScrapScreenContent />;
 };
 
-export default DeletedScrapScreen;
+export default withScrapModals(DeletedScrapScreen);
 
 interface PermanentDeleteModalProps {
   visible: boolean;

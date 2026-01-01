@@ -1,13 +1,13 @@
 import React, { useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { FolderPlus } from 'lucide-react-native';
-import PopUpModal from './PopupModal';
+import { PopUpModal } from '../Dialog';
 import { ScrapGrid } from '../Card/ScrapCardGrid';
 import { useGetFolders, useMoveScraps } from '@/apis';
-import { showToast } from './Toast';
+import { showToast } from '../Notification/Toast';
 import { reducer, initialSelectionState } from '../../utils/reducer';
 import { useReducer } from 'react';
-import { useScrapModal } from '../../contexts/ScrapModalContext';
+import { useScrapModal } from '../../contexts/ScrapModalsContext';
 
 export const MoveScrapModal = () => {
   const {

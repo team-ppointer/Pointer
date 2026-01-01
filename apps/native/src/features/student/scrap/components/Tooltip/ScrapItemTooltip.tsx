@@ -10,7 +10,7 @@ import {
 } from 'lucide-react-native';
 import { useState } from 'react';
 import { TextInput, View, Text, Pressable, Alert } from 'react-native';
-import { showToast } from '../Modal/Toast';
+import { showToast } from '../Notification/Toast';
 import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -25,17 +25,23 @@ import {
   useGetFolders,
 } from '@/apis';
 import { useNoteStore } from '@/stores/scrapNoteStore';
-import { useGetPreSignedUrl } from '@/apis/controller/common/postGetPreSignedUrl';
-import { openImageLibrary, openImageLibraryWithErrorHandling } from '../../utils/imagePicker';
-import { uploadImageToS3 } from '../../utils/imageUpload';
+import {
+  openImageLibrary,
+  openImageLibraryWithErrorHandling,
+} from '../../utils/images/imagePicker';
+import { uploadImageToS3 } from '../../utils/images/imageUpload';
+import { usePreSignedUrlAdapter } from '../../hooks';
 
-export interface ItemTooltipProps {
+export interface ScrapItemTooltipProps {
   props: ScrapListItemProps;
   onClose?: () => void;
   onMovePress?: () => void; // 추가
 }
 
-export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) => {
+// Backward compatibility
+export type ItemTooltipProps = ScrapItemTooltipProps;
+
+export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemTooltipProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
 
   const openNote = useNoteStore((state) => state.openNote);
@@ -50,31 +56,7 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
   const { data: scrapDetail } = useGetScrapDetail(Number(props.id), props.type === 'SCRAP');
   const { data: foldersData } = useGetFolders();
 
-  const { mutate: getPreSignedUrlMutate } = useGetPreSignedUrl();
-
-  // mutate를 래핑하여 uploadImageToS3가 기대하는 형식으로 변환
-  const getPreSignedUrl = (
-    params: { fileName: string; fileType?: 'IMAGE' | 'DOCUMENT' | 'OTHER' },
-    callbacks: {
-      onSuccess: (data: {
-        uploadUrl: string;
-        contentDisposition: string;
-        file: { id: number };
-      }) => void;
-      onError: (error: any) => void;
-    }
-  ) => {
-    getPreSignedUrlMutate(params, {
-      onSuccess: (data) => {
-        callbacks.onSuccess({
-          uploadUrl: data.uploadUrl,
-          contentDisposition: data.contentDisposition,
-          file: { id: data.file.id },
-        });
-      },
-      onError: callbacks.onError,
-    });
-  };
+  const getPreSignedUrl = usePreSignedUrlAdapter();
 
   const handleUpdateFolderCover = async (image: any) => {
     if (!image || !image.uri) {
@@ -232,3 +214,6 @@ export const ItemTooltip = ({ props, onClose, onMovePress }: ItemTooltipProps) =
     </View>
   );
 };
+
+// Backward compatibility
+export const ItemTooltip = ScrapItemTooltip;
