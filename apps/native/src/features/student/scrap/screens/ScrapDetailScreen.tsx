@@ -14,7 +14,7 @@ import {
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft, X, ChevronDown, ChevronUp, Maximize2 } from 'lucide-react-native';
+import { ChevronLeft, X, ChevronDown, ChevronUp, Maximize2, Save } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -32,11 +32,12 @@ import { useNoteStore, Note } from '@/stores/scrapNoteStore';
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
 import { components } from '@/types/api/schema';
 import DrawingCanvas, { DrawingCanvasRef, Stroke, TextItem } from '../utils/skia/drawing';
+import { colors } from '@/theme/tokens';
 
-type ScrapDetailContentRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
+type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
-const ScrapContentDetailScreen = () => {
-  const route = useRoute<ScrapDetailContentRouteProp>();
+const ScrapDetailScreen = () => {
+  const route = useRoute<ScrapDetailRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const { id } = route.params;
   const scrapId = Number(id);
@@ -52,6 +53,9 @@ const ScrapContentDetailScreen = () => {
   const [eraserSize, setEraserSize] = useState(6);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showSave, setShowSave] = useState(false);
+  const lastSavedDataRef = useRef<string>('');
 
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes } = useNoteStore();
   const [tabLayouts, setTabLayouts] = useState<Record<number, { x: number; width: number }>>({});
@@ -70,6 +74,14 @@ const ScrapContentDetailScreen = () => {
       navigation.setParams({ id: String(activeNoteId) });
     }
   }, [activeNoteId, scrapId, navigation]);
+
+  // undo/redo 상태 변경 핸들러
+  const handleHistoryChange = useCallback((canUndoValue: boolean, canRedoValue: boolean) => {
+    setCanUndo(canUndoValue);
+    setCanRedo(canRedoValue);
+    // 변경사항이 있음을 표시
+    setHasUnsavedChanges(true);
+  }, []);
 
   // handwriting 데이터를 로드하여 canvas에 설정
   useEffect(() => {
@@ -90,90 +102,111 @@ const ScrapContentDetailScreen = () => {
           canvasRef.current.setTexts(data.texts || []);
         }
 
-        // 로드 후 undo/redo 상태 업데이트
-        setTimeout(() => {
-          if (canvasRef.current) {
-            setCanUndo(canvasRef.current.canUndo());
-            setCanRedo(canvasRef.current.canRedo());
-          }
-        }, 0);
+        // 초기 데이터를 저장된 데이터로 설정
+        lastSavedDataRef.current = handwritingData.data;
+        setHasUnsavedChanges(false);
       } catch (error) {
         console.error('필기 데이터 로드 실패:', error);
       }
     }
   }, [handwritingData]);
 
-  // 초기 undo/redo 상태 확인
-  useEffect(() => {
-    const checkHistory = () => {
-      if (canvasRef.current) {
-        setCanUndo(canvasRef.current.canUndo());
-        setCanRedo(canvasRef.current.canRedo());
-      }
-    };
-
-    // 초기 확인
-    checkHistory();
-
-    // 주기적으로 확인 (상태 변경 감지)
-    const interval = setInterval(checkHistory, 100);
-
-    return () => clearInterval(interval);
-  }, []);
-
   // 저장하기 버튼 핸들러
-  const handleSave = useCallback(() => {
-    const strokes = canvasRef.current?.getStrokes();
-    const texts = canvasRef.current?.getTexts();
+  const handleSave = useCallback(
+    (isAutoSave = false) => {
+      const strokes = canvasRef.current?.getStrokes();
+      const texts = canvasRef.current?.getTexts();
 
-    if ((!strokes || strokes.length === 0) && (!texts || texts.length === 0)) {
-      Alert.alert('알림', '저장할 필기 내용이 없습니다.');
-      return;
-    }
-
-    try {
-      // strokes와 texts를 함께 저장
-      const data = {
-        strokes: strokes || [],
-        texts: texts || [],
-      };
-      const jsonString = JSON.stringify(data);
-      const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
-
-      updateHandwriting(
-        {
-          scrapId,
-          request: {
-            data: base64Data,
-          },
-        },
-        {
-          onSuccess: () => {
-            Alert.alert('성공', '필기가 저장되었습니다.');
-          },
-          onError: (error) => {
-            console.error('필기 저장 실패:', error);
-            Alert.alert('오류', '필기 저장에 실패했습니다.');
-          },
+      if ((!strokes || strokes.length === 0) && (!texts || texts.length === 0)) {
+        if (!isAutoSave) {
+          Alert.alert('알림', '저장할 필기 내용이 없습니다.');
         }
-      );
-    } catch (error) {
-      console.error('필기 데이터 변환 실패:', error);
-      Alert.alert('오류', '필기 데이터 변환에 실패했습니다.');
-    }
-  }, [scrapId, updateHandwriting]);
+        return;
+      }
+
+      try {
+        // strokes와 texts를 함께 저장
+        const data = {
+          strokes: strokes || [],
+          texts: texts || [],
+        };
+        const jsonString = JSON.stringify(data);
+        const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
+
+        // 변경사항이 없으면 저장하지 않음
+        if (base64Data === lastSavedDataRef.current) {
+          if (!isAutoSave) {
+            Alert.alert('알림', '변경사항이 없습니다.');
+          }
+          return;
+        }
+
+        updateHandwriting(
+          {
+            scrapId,
+            request: {
+              data: base64Data,
+            },
+          },
+          {
+            onSuccess: () => {
+              lastSavedDataRef.current = base64Data;
+              setHasUnsavedChanges(false);
+              if (!isAutoSave) {
+                Alert.alert('성공', '필기가 저장되었습니다.');
+                setShowSave(true);
+                setTimeout(() => setShowSave(false), 2000);
+              }
+            },
+            onError: (error) => {
+              console.error('필기 저장 실패:', error);
+              if (!isAutoSave) {
+                Alert.alert('오류', '필기 저장에 실패했습니다.');
+              }
+            },
+          }
+        );
+      } catch (error) {
+        console.error('필기 데이터 변환 실패:', error);
+        if (!isAutoSave) {
+          Alert.alert('오류', '필기 데이터 변환에 실패했습니다.');
+        }
+      }
+    },
+    [scrapId, updateHandwriting]
+  );
+
+  // 10초마다 자동 저장
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      if (hasUnsavedChanges && !isSaving) {
+        handleSave(true);
+      }
+    }, 10000); // 10초마다 실행
+
+    return () => clearInterval(autoSaveInterval);
+  }, [hasUnsavedChanges, isSaving, handleSave]);
+
+  // 포인팅 데이터에 알파벳 레이블 추가 (메모이제이션)
+  const pointingsWithLabels = useMemo(() => {
+    if (!scrapDetail?.pointings) return [];
+    return scrapDetail.pointings.map((pointing, idx) => ({
+      ...pointing,
+      label: toAlphabetSequence(idx),
+    }));
+  }, [scrapDetail?.pointings]);
 
   // 필터 옵션 생성 (scrapDetail이 없어도 Hook은 항상 호출되어야 함)
   const filterOptions = useMemo(() => {
     if (!scrapDetail) return ['전체', '문제'];
     const options = ['전체', '문제'];
-    if (scrapDetail.pointings && scrapDetail.pointings.length > 0) {
-      scrapDetail.pointings.forEach((_, idx) => {
-        options.push(`포인팅 ${toAlphabetSequence(idx)}`);
+    if (pointingsWithLabels.length > 0) {
+      pointingsWithLabels.forEach((pointing) => {
+        options.push(`포인팅 ${pointing.label}`);
       });
     }
     return options;
-  }, [scrapDetail?.pointings]);
+  }, [scrapDetail, pointingsWithLabels]);
 
   // 필터에 따른 표시 여부 결정
   const shouldShowProblem = selectedFilter === 0 || selectedFilter === 1;
@@ -287,9 +320,9 @@ const ScrapContentDetailScreen = () => {
               </View>
             </Pressable>
           )}
+          {showSave && <Save size={30} color={colors['primary-600']} />}
           <Text className='text-20b text-gray-900'>{scrap.name || '스크랩 상세'}</Text>
           <Text className='text-17m text-gray-900'>{handwritingData?.updatedAt}</Text>
-          <View className='h-[48px] w-[48px]' />
         </Container>
         {openNotes.length > 1 && (
           <View className='flex-row border-b border-gray-300 bg-gray-50'>
@@ -329,7 +362,7 @@ const ScrapContentDetailScreen = () => {
         )}
       </SafeAreaView>
       <View style={{ flex: 1, flexDirection: 'row' }}>
-        <ScrollView style={{ flex: 1 }} className='p-4'>
+        <ScrollView style={{ width: '50%' }} className='p-4'>
           <View className='gap-6'>
             {/* 필터 버튼 및 전체보기 */}
             {filterOptions.length > 0 && (
@@ -410,7 +443,7 @@ const ScrapContentDetailScreen = () => {
               <View className='gap-4 rounded-lg bg-white p-4'>
                 <Text className='text-16b text-[#1E1E21]'>포인팅</Text>
                 <View className='gap-4'>
-                  {scrap.pointings.map((pointing, idx) => {
+                  {pointingsWithLabels.map((pointing, idx) => {
                     if (!shouldShowPointing(idx)) return null;
                     const sectionKey = `pointing-${pointing.id}`;
                     const isCommentExpanded = expandedSections[sectionKey]?.comment ?? false;
@@ -418,9 +451,7 @@ const ScrapContentDetailScreen = () => {
                     return (
                       <View key={pointing.id} className='gap-3 rounded-lg bg-gray-100 p-4'>
                         <View className='flex-row items-center gap-[10px]'>
-                          <Text className='text-16sb text-black'>
-                            포인팅 {toAlphabetSequence(idx)}
-                          </Text>
+                          <Text className='text-16sb text-black'>포인팅 {pointing.label}</Text>
                           <Text className='text-14m text-gray-500'>포인팅 질문</Text>
                         </View>
                         {pointing.questionContent && (
@@ -475,7 +506,7 @@ const ScrapContentDetailScreen = () => {
         </ScrollView>
         <View
           style={{
-            width: '40%',
+            width: '50%',
             backgroundColor: 'white',
             borderLeftWidth: 1,
             borderColor: '#D1D5DB',
@@ -489,15 +520,7 @@ const ScrapContentDetailScreen = () => {
               textFontSize={16}
               eraserMode={isEraserMode}
               eraserSize={eraserSize}
-              onChange={() => {
-                // 상태 변경 시 undo/redo 가능 여부 업데이트
-                setTimeout(() => {
-                  if (canvasRef.current) {
-                    setCanUndo(canvasRef.current.canUndo());
-                    setCanRedo(canvasRef.current.canRedo());
-                  }
-                }, 0);
-              }}
+              onHistoryChange={handleHistoryChange}
             />
           </View>
 
@@ -586,16 +609,7 @@ const ScrapContentDetailScreen = () => {
 
             <View className='flex-row gap-2'>
               <Pressable
-                onPress={() => {
-                  canvasRef.current?.undo();
-                  // undo 후 상태 업데이트
-                  setTimeout(() => {
-                    if (canvasRef.current) {
-                      setCanUndo(canvasRef.current.canUndo());
-                      setCanRedo(canvasRef.current.canRedo());
-                    }
-                  }, 0);
-                }}
+                onPress={() => canvasRef.current?.undo()}
                 disabled={!canUndo}
                 className={`flex-1 items-center justify-center rounded-lg py-3 ${
                   canUndo ? 'bg-gray-200' : 'bg-gray-100'
@@ -603,16 +617,7 @@ const ScrapContentDetailScreen = () => {
                 <Text className={canUndo ? 'text-gray-700' : 'text-gray-400'}>undo</Text>
               </Pressable>
               <Pressable
-                onPress={() => {
-                  canvasRef.current?.redo();
-                  // redo 후 상태 업데이트
-                  setTimeout(() => {
-                    if (canvasRef.current) {
-                      setCanUndo(canvasRef.current.canUndo());
-                      setCanRedo(canvasRef.current.canRedo());
-                    }
-                  }, 0);
-                }}
+                onPress={() => canvasRef.current?.redo()}
                 disabled={!canRedo}
                 className={`flex-1 items-center justify-center rounded-lg py-3 ${
                   canRedo ? 'bg-gray-200' : 'bg-gray-100'
@@ -620,7 +625,7 @@ const ScrapContentDetailScreen = () => {
                 <Text className={canRedo ? 'text-gray-700' : 'text-gray-400'}>redo</Text>
               </Pressable>
               <Pressable
-                onPress={handleSave}
+                onPress={() => handleSave(false)}
                 disabled={isSaving}
                 className={`flex-1 items-center justify-center rounded-lg py-3 ${
                   isSaving ? 'bg-gray-400' : 'bg-blue-600'
@@ -869,4 +874,4 @@ const DraggableTab = ({
   );
 };
 
-export default ScrapContentDetailScreen;
+export default ScrapDetailScreen;

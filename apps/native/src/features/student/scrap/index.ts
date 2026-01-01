@@ -1,6 +1,6 @@
 import ScrapScreen from './screens/ScrapScreen';
-import ScrapContentScreen from './screens/ScrapContentScreen';
+import FolderScrapScreen from './screens/FolderScrapScreen';
 import DeletedScrapScreen from './screens/DeletedScrapScreen';
 import SearchScrapScreen from './screens/SearchScrapScreen';
 
-export { ScrapScreen, ScrapContentScreen, DeletedScrapScreen, SearchScrapScreen };
+export { ScrapScreen, FolderScrapScreen, DeletedScrapScreen, SearchScrapScreen };

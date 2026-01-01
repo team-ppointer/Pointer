@@ -16,10 +16,10 @@ import { useScrapSelection } from '../hooks';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { withScrapModals } from '../hoc';
 
-type ScrapContentRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
+type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
-const ScrapContentScreenContent = () => {
-  const route = useRoute<ScrapContentRouteProp>();
+const FolderScrapScreenContent = () => {
+  const route = useRoute<FolderScrapRouteProp>();
   const { id } = route.params;
 
   const [reducerState, dispatch] = useScrapSelection();
@@ -131,8 +131,8 @@ const ScrapContentScreenContent = () => {
   );
 };
 
-const ScrapContentScreen = () => {
-  return <ScrapContentScreenContent />;
+const FolderScrapScreen = () => {
+  return <FolderScrapScreenContent />;
 };
 
-export default withScrapModals(ScrapContentScreen);
+export default withScrapModals(FolderScrapScreen);
