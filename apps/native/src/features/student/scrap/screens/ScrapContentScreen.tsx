@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import ScrapHeader from '../components/Header/ScrapHeader';
-import { useMemo, useReducer, useState } from 'react';
+import { useMemo, useReducer, useState, useEffect } from 'react';
 import { reducer, initialSelectionState } from '../utils/reducer';
 import { sortScrapData, mapUIKeyToAPIKey } from '../utils/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
@@ -13,10 +13,12 @@ import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import { showToast } from '../components/Modal/Toast';
 import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
 import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
+import { ScrapModalProvider, useScrapModal } from '../contexts/ScrapModalContext';
+import { CreateFolderModal } from '../components/Modal/CreateFolderModal';
 
 type ScrapContentRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
-const ScrapContentScreen = () => {
+const ScrapContentScreenContent = () => {
   const route = useRoute<ScrapContentRouteProp>();
   const { id } = route.params;
 
@@ -24,12 +26,24 @@ const ScrapContentScreen = () => {
   const [sortKey, setSortKey] = useState<UISortKey>('TITLE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-  const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
+  const { openMoveScrapModal, setRefetchScraps, setRefetchFolders } = useScrapModal();
 
   // API 호출
-  const { data: foldersData } = useGetFolders();
+  const { data: foldersData, refetch: refetchFolders } = useGetFolders();
   const { data: contentsData, isLoading, refetch } = useGetScrapsByFolder(id);
   const { mutateAsync: deleteScrap } = useDeleteScrap();
+
+  // refetch를 context에 등록
+  useEffect(() => {
+    if (refetch) {
+      setRefetchScraps(() => refetch);
+    }
+  }, [refetch, setRefetchScraps]);
+  useEffect(() => {
+    if (refetchFolders) {
+      setRefetchFolders(refetchFolders);
+    }
+  }, [refetchFolders, setRefetchFolders]);
 
   // 폴더 정보 가져오기
   const folder = foldersData?.data?.find((f) => f.id === Number(id));
@@ -72,7 +86,11 @@ const ScrapContentScreen = () => {
               showToast('error', '이동할 스크랩을 선택해주세요.');
               return;
             }
-            setIsMoveModalVisible(true);
+            openMoveScrapModal({
+              currentFolderId: Number(id),
+              selectedItems: reducerState.selectedItems,
+            });
+            dispatch({ type: 'CLEAR_SELECTION' });
           }}
           onDelete={async () => {
             if (reducerState.selectedItems.length === 0) {
@@ -111,17 +129,17 @@ const ScrapContentScreen = () => {
           </Container>
         </View>
       </View>
-      <MoveScrapModal
-        currentFolderId={Number(id)}
-        visible={isMoveModalVisible}
-        onClose={() => setIsMoveModalVisible(false)}
-        selectedItems={reducerState.selectedItems}
-        onSuccess={() => {
-          dispatch({ type: 'CLEAR_SELECTION' });
-          refetch();
-        }}
-      />
     </>
+  );
+};
+
+const ScrapContentScreen = () => {
+  return (
+    <ScrapModalProvider>
+      <ScrapContentScreenContent />
+      <CreateFolderModal />
+      <MoveScrapModal />
+    </ScrapModalProvider>
   );
 };
 

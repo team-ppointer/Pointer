@@ -17,20 +17,33 @@ import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
 import { useQueries } from '@tanstack/react-query';
 import { TanstackQueryClient } from '@/apis';
 import { RecentScrapCard } from '../components/Card/cards/RecentScrapCard';
+import { ScrapModalProvider, useScrapModal } from '../contexts/ScrapModalContext';
+import { CreateFolderModal } from '../components/Modal/CreateFolderModal';
 
-const ScrapScreen = () => {
+const ScrapScreenContent = () => {
   const [reducerState, dispatch] = useReducer(reducer, initialSelectionState);
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
-  const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const recentScraps = useRecentScrapStore((state) => state.scrapIds);
+  const { openMoveScrapModal, setRefetchScraps } = useScrapModal();
 
-  const { data: searchData, isLoading } = useSearchScraps({
+  const {
+    data: searchData,
+    isLoading,
+    refetch,
+  } = useSearchScraps({
     sort: mapUIKeyToAPIKey(sortKey),
     order: sortOrder,
   });
   const { mutateAsync: deleteScrap } = useDeleteScrap();
+
+  // refetch를 context에 등록
+  React.useEffect(() => {
+    if (refetch) {
+      setRefetchScraps(() => refetch);
+    }
+  }, [refetch, setRefetchScraps]);
 
   const recentScrapsQueries = useQueries({
     queries:
@@ -108,7 +121,10 @@ const ScrapScreen = () => {
               showToast('error', '이동할 스크랩을 선택해주세요.');
               return;
             }
-            setIsMoveModalVisible(true);
+            openMoveScrapModal({
+              selectedItems: reducerState.selectedItems,
+            });
+            dispatch({ type: 'CLEAR_SELECTION' });
           }}
           onDelete={async () => {
             if (reducerState.selectedItems.length === 0) {
@@ -163,15 +179,17 @@ const ScrapScreen = () => {
           </Container>
         </ScrollView>
       </View>
-      <MoveScrapModal
-        visible={isMoveModalVisible}
-        onClose={() => setIsMoveModalVisible(false)}
-        selectedItems={reducerState.selectedItems}
-        onSuccess={() => {
-          dispatch({ type: 'CLEAR_SELECTION' });
-        }}
-      />
     </>
+  );
+};
+
+const ScrapScreen = () => {
+  return (
+    <ScrapModalProvider>
+      <ScrapScreenContent />
+      <MoveScrapModal />
+      <CreateFolderModal />
+    </ScrapModalProvider>
   );
 };
 
