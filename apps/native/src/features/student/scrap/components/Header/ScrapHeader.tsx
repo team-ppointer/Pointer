@@ -62,7 +62,13 @@ const ScrapHeader = ({
               </View>
             </Pressable>
           )}
-          <Text className='text-20b text-gray-900'>{title}</Text>
+          {navigateback ? (
+            <View className='absolute left-0 right-0 items-center'>
+              <Text className='text-20b text-gray-900'>{title}</Text>
+            </View>
+          ) : (
+            <Text className='text-20b text-gray-900'>{title}</Text>
+          )}
           <View className='flex-row items-center gap-1'>
             <Pressable
               className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
