@@ -1,6 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { client, TanstackQueryClient } from '@/apis/client';
+import { client } from '@/apis/client';
 import { paths } from '@/types/api/schema';
+import {
+  optimisticMoveScrap,
+  rollbackOptimisticUpdate,
+  invalidateScrapSearchQueries,
+  invalidateFolderScrapsQueries,
+  SCRAP_QUERY_KEYS,
+} from './utils';
 
 type MoveScrapsRequest =
   paths['/api/student/scrap/move']['put']['requestBody']['content']['application/json'];
@@ -17,38 +24,28 @@ export const useMoveScraps = () => {
       });
       return data as MoveScrapsResponse;
     },
-    onSuccess: () => {
+    // 낙관적 업데이트: 이동된 항목을 현재 폴더에서 즉시 제거
+    onMutate: async (request) => {
+      // scrapIds를 items 형태로 변환 (타입은 항상 SCRAP)
+      const items = request.scrapIds.map(id => ({ id, type: 'SCRAP' as const }));
+      return await optimisticMoveScrap(queryClient, items);
+    },
+    // 에러 발생 시 롤백
+    onError: (error, request, context) => {
+      if (context?.previousQueries) {
+        rollbackOptimisticUpdate(queryClient, context.previousQueries);
+      }
+    },
+    // 성공/실패 관계없이 쿼리 무효화
+    onSettled: () => {
       // 폴더 목록 갱신
       queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/scrap/folder').queryKey,
+        queryKey: SCRAP_QUERY_KEYS.folderList(),
       });
-      // 폴더별 스크랩 목록 갱신 (모든 폴더의 스크랩 목록 무효화)
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const key = query.queryKey;
-          return (
-            Array.isArray(key) &&
-            key.length >= 2 &&
-            key[0] === 'get' &&
-            typeof key[1] === 'string' &&
-            key[1].includes('/api/student/scrap/folder/') &&
-            key[1].includes('/scraps')
-          );
-        },
-      });
-      // 검색 결과 갱신 (모든 검색 쿼리 무효화)
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const key = query.queryKey;
-          return (
-            Array.isArray(key) &&
-            key.length >= 2 &&
-            key[0] === 'get' &&
-            typeof key[1] === 'string' &&
-            key[1].includes('/api/student/scrap/search')
-          );
-        },
-      });
+      // 폴더별 스크랩 목록 갱신
+      invalidateFolderScrapsQueries(queryClient);
+      // 검색 결과 갱신
+      invalidateScrapSearchQueries(queryClient);
     },
   });
 };
