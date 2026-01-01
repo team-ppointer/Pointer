@@ -8,30 +8,27 @@ import { colors } from '@/theme/tokens';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-interface DeletedScrapHeaderProps {
-  navigateback: NativeStackNavigationProp<StudentRootStackParamList>;
-  reducerState: State;
-  navigateSearchPress?: () => void;
-  navigateTrashPress?: () => void;
+export interface DeletedScrapHeaderActions {
   onEnterSelection?: () => void;
   onExitSelection?: () => void;
   onMove?: () => void;
   onDelete?: () => void;
   onRestore?: () => void;
-  isAllSelected?: boolean;
   onSelectAll?: () => void;
+}
+
+interface DeletedScrapHeaderProps {
+  navigateback: NativeStackNavigationProp<StudentRootStackParamList>;
+  reducerState: State;
+  isAllSelected?: boolean;
+  actions: DeletedScrapHeaderActions;
 }
 
 const DeletedScrapHeader = ({
   navigateback,
   reducerState,
-  onEnterSelection,
-  onExitSelection,
-  onMove,
-  onDelete,
-  onRestore,
   isAllSelected,
-  onSelectAll,
+  actions,
 }: DeletedScrapHeaderProps) => {
   const isActionEnabled = reducerState.selectedItems.length > 0;
   return (
@@ -51,11 +48,13 @@ const DeletedScrapHeader = ({
           ) : (
             <View className='h-[48px] w-[48px] gap-[10px]' />
           )}
-          <Text className='text-20b text-gray-900'>휴지통</Text>
+          <View className='absolute left-0 right-0 items-center'>
+            <Text className=' text-20b text-gray-900'>휴지통</Text>
+          </View>
           <View className='flex-row items-center gap-1'>
             <Pressable
               className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
-              onPress={onEnterSelection}>
+              onPress={actions.onEnterSelection}>
               <CircleCheckDashed />
             </Pressable>
           </View>
@@ -65,13 +64,13 @@ const DeletedScrapHeader = ({
       {reducerState.isSelecting && (
         <View className='flex-col border-b border-gray-400 bg-gray-200'>
           <View className='flex-row justify-between px-5 py-0.5'>
-            <Pressable onPress={onSelectAll}>
+            <Pressable onPress={actions.onSelectAll}>
               <Text className='text-14m gap-[10px] px-2.5 text-blue-500'>
                 {!isAllSelected ? '전체 선택' : '전체 해제'}
               </Text>
             </Pressable>
             <Text className='text-16sb text-gray-800'>스크랩</Text>
-            <Pressable onPress={onExitSelection}>
+            <Pressable onPress={actions.onExitSelection}>
               <Text className='text-14sb w-[72px] gap-[10px] rounded-[6px] px-1 text-blue-500'>
                 완료
               </Text>
@@ -80,7 +79,7 @@ const DeletedScrapHeader = ({
           <View className='flex-row items-center justify-center gap-[50px] py-[6px]'>
             <Pressable
               onPress={() => {
-                if (isActionEnabled && onRestore) onRestore();
+                if (isActionEnabled && actions.onRestore) actions.onRestore();
               }}
               className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Undo2 size={24} color={colors['primary-500']} />
@@ -88,7 +87,7 @@ const DeletedScrapHeader = ({
             </Pressable>
             <Pressable
               onPress={() => {
-                if (isActionEnabled && onMove) onMove();
+                if (isActionEnabled && actions.onMove) actions.onMove();
               }}
               className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <ArrowRightLeft size={24} color={colors['primary-500']} />
@@ -96,7 +95,7 @@ const DeletedScrapHeader = ({
             </Pressable>
             <Pressable
               onPress={() => {
-                if (isActionEnabled && onDelete) onDelete();
+                if (isActionEnabled && actions.onDelete) actions.onDelete();
               }}
               className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Trash2 size={24} color={colors['red-400']} />
