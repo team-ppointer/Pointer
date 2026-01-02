@@ -24,7 +24,7 @@ import {
   useGetScrapDetail,
   useGetFolders,
 } from '@/apis';
-import { useNoteStore } from '@/stores/scrapNoteStore';
+import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import {
   openImageLibrary,
   openImageLibraryWithErrorHandling,
