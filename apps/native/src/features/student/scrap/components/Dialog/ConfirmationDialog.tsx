@@ -28,7 +28,6 @@ const ConfirmationDialog = ({
   );
 };
 
-// Backward compatibility
 export const PopUpModal = ConfirmationDialog;
 
 export default ConfirmationDialog;
