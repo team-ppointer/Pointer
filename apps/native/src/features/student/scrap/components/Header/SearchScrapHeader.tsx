@@ -1,8 +1,8 @@
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { colors } from '@/theme/tokens';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ChevronLeft, X } from 'lucide-react-native';
-import { Pressable, TextInput, View } from 'react-native';
+import { ChevronLeft, CircleX, X } from 'lucide-react-native';
+import { Pressable, TextInput, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SearchScrapHeaderProps {
@@ -38,17 +38,15 @@ const SearchScrapHeader = ({
           />
           {query.length > 0 && (
             <Pressable
-              className='items-center justify-center gap-[10px] rounded-[100px] bg-gray-400 p-0.5'
+              className='items-center justify-center gap-[10px] p-0.5'
               onPress={() => setQuery('')}>
-              <X size={20} color={'#3E3F45'} />
+              <CircleX size={24} color={colors['gray-700']} />
             </Pressable>
           )}
         </View>
         {navigateback.canGoBack() ? (
-          <Pressable onPress={() => navigateback.goBack()} className='p-2'>
-            <View className='items-center justify-center gap-[10px]'>
-              <ChevronLeft className='text-black' size={32} />
-            </View>
+          <Pressable onPress={() => navigateback.goBack()} className='pl-3 pr-2'>
+            <Text className='text-14sb text-gray-800'>취소</Text>
           </Pressable>
         ) : (
           <View className='h-[48px] w-[48px] gap-[10px]' />
