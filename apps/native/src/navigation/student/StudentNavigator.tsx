@@ -2,13 +2,21 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
-import { ProblemScreen, PointingScreen, AnalysisScreen, AllPointingsScreen } from '@features/student/problem';
-import OnboardingScreen from '@features/student/onboarding/screens/OnboardingScreen';
-import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
-import { useAuthStore } from '@stores';
+import {
+  ProblemScreen,
+  PointingScreen,
+  AnalysisScreen,
+  AllPointingsScreen,
+} from '@features/student/problem';
 import StudentTabs from './StudentTabs';
 import { StudentRootStackParamList } from './types';
 import NotificationHeader from './components/NotificationHeader';
+import { DeletedScrapScreen, ScrapScreen, SearchScrapScreen } from '@/features/student/scrap';
+import FolderScrapScreen from '@/features/student/scrap/screens/FolderScrapScreen';
+import ScrapDetailScreen from '@/features/student/scrap/screens/ScrapDetailScreen';
+import { useOnboardingStore } from '@/features/student/onboarding/store/useOnboardingStore';
+import { useAuthStore } from '@/stores';
+import OnboardingScreen from '@/features/student/onboarding/screens/OnboardingScreen';
 
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();
 
@@ -17,8 +25,7 @@ const StudentNavigator = () => {
   const studentGrade = useAuthStore((state) => state.studentProfile?.grade);
 
   const shouldShowOnboarding =
-    onboardingStatus === 'in-progress' ||
-    (!studentGrade && onboardingStatus !== 'completed');
+    onboardingStatus === 'in-progress' || (!studentGrade && onboardingStatus !== 'completed');
 
   if (shouldShowOnboarding) {
     return <OnboardingScreen />;
@@ -47,6 +54,11 @@ const StudentNavigator = () => {
       <StudentRootStack.Screen name='Pointing' component={PointingScreen} />
       <StudentRootStack.Screen name='Analysis' component={AnalysisScreen} />
       <StudentRootStack.Screen name='AllPointings' component={AllPointingsScreen} />
+      <StudentRootStack.Screen name='Scrap' component={ScrapScreen} />
+      <StudentRootStack.Screen name='ScrapContent' component={FolderScrapScreen} />
+      <StudentRootStack.Screen name='DeletedScrap' component={DeletedScrapScreen} />
+      <StudentRootStack.Screen name='SearchScrap' component={SearchScrapScreen} />
+      <StudentRootStack.Screen name='ScrapContentDetail' component={ScrapDetailScreen} />
     </StudentRootStack.Navigator>
   );
 };
