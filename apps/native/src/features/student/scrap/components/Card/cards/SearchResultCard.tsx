@@ -3,7 +3,7 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { useGetFolderDetail } from '@/apis';
-import { useNoteStore } from '@/stores/scrapNoteStore';
+import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
 import type { ScrapListItemProps } from '../types';
 import { useCardImageSources } from '../../../hooks';
