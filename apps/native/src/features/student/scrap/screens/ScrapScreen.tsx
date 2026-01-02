@@ -7,7 +7,7 @@ import { View, Text, ScrollView, Pressable, ImageBackground } from 'react-native
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
-import { useRecentScrapStore } from '@/stores/recentScrapStore';
+import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { sortScrapData, mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder, ScrapSearchResponse } from '../utils/types';
 import { showToast } from '../components/Notification/Toast';

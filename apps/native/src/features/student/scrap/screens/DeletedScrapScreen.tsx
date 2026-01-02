@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import DeletedScrapHeader from '../components/Header/DeletedScrapHeader';
 import { useNavigation } from '@react-navigation/native';
 import { StudentRootStackParamList } from '@/navigation/student/types';
@@ -9,7 +9,7 @@ import { TrashScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
 import { sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
-import { PopUpModal } from '../components/Dialog';
+import { ConfirmationModal } from '../components/Dialog';
 import { showToast } from '../components/Notification/Toast';
 import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
@@ -120,11 +120,23 @@ const DeletedScrapScreenContent = () => {
           )}
         </Container>
       </View>
-      <PermanentDeleteModal
+      <ConfirmationModal
         visible={isDeleteModalVisible}
         onClose={() => setIsDeleteModalVisible(false)}
-        selectedCount={reducerState.selectedItems.length}
-        onConfirm={handlePermanentDelete}
+        title={
+          reducerState.selectedItems.length === 1
+            ? '스크랩을 영구적으로 삭제합니다.'
+            : `${reducerState.selectedItems.length}개의 스크랩을 영구적으로 삭제합니다.`
+        }
+        description={
+          reducerState.selectedItems.length === 1
+            ? '되돌릴 수 없는 작업입니다.'
+            : '선택하신 스크랩이 영구적으로 삭제되며\n돌릴 수 없는 작업입니다.'
+        }
+        buttons={[
+          { label: '취소', onPress: () => setIsDeleteModalVisible(false), variant: 'default' },
+          { label: '삭제하기', onPress: handlePermanentDelete, variant: 'danger' },
+        ]}
       />
     </View>
   );
@@ -135,48 +147,3 @@ const DeletedScrapScreen = () => {
 };
 
 export default withScrapModals(DeletedScrapScreen);
-
-interface PermanentDeleteModalProps {
-  visible: boolean;
-  onClose: () => void;
-  selectedCount: number;
-  onConfirm: () => void;
-}
-
-const PermanentDeleteModal = ({
-  visible,
-  onClose,
-  selectedCount,
-  onConfirm,
-}: PermanentDeleteModalProps) => {
-  return (
-    <PopUpModal visibleState={visible} setVisibleState={onClose} className='px-[60px] py-[65px]'>
-      <View className='w-[458px] max-w-[600px] items-center justify-center gap-[24px] rounded-[12px] border border-[#DFE2E7] bg-white p-[28px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
-        <View className='items-center gap-[12px]'>
-          <Text className='text-18b text-[#1E1E1E]'>
-            {selectedCount === 1
-              ? '스크랩을 영구적으로 삭제합니다.'
-              : `${selectedCount}개의 스크랩을 영구적으로 삭제합니다.`}
-          </Text>
-          <Text className='text-16m text-center text-[#1E1E1E]'>
-            {selectedCount === 1
-              ? '되돌릴 수 없는 작업입니다.'
-              : '선택하신 스크랩이 영구적으로 삭제되며\n돌릴 수 없는 작업입니다.'}
-          </Text>
-        </View>
-        <View className='flex-row gap-[6px]'>
-          <Pressable
-            className='flex-1 items-center justify-center rounded-[12px] border border-gray-500 bg-gray-300 py-[12px]'
-            onPress={onClose}>
-            <Text className='text-18m text-[#1E1E21]'>취소</Text>
-          </Pressable>
-          <Pressable
-            className='flex-1 items-center justify-center rounded-[12px] border border-gray-500 bg-red-400 py-[12px]'
-            onPress={onConfirm}>
-            <Text className='text-18m text-white'>삭제하기</Text>
-          </Pressable>
-        </View>
-      </View>
-    </PopUpModal>
-  );
-};

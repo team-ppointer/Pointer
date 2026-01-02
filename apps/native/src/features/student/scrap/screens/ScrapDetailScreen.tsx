@@ -28,7 +28,7 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useGetHandwriting, useGetScrapDetail, useUpdateHandwriting } from '@/apis';
 import { LoadingScreen } from '@/components/common';
 import ProblemViewer from '../../problem/components/ProblemViewer';
-import { useNoteStore, Note } from '@/stores/scrapNoteStore';
+import { useNoteStore, Note } from '@/features/student/scrap/stores/scrapNoteStore';
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
 import { components } from '@/types/api/schema';
 import DrawingCanvas, { DrawingCanvasRef, Stroke, TextItem } from '../utils/skia/drawing';
@@ -56,6 +56,7 @@ const ScrapDetailScreen = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showSave, setShowSave] = useState(false);
   const lastSavedDataRef = useRef<string>('');
+  const [displayUpdatedAt, setDisplayUpdatedAt] = useState<string>('');
 
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes } = useNoteStore();
   const [tabLayouts, setTabLayouts] = useState<Record<number, { x: number; width: number }>>({});
@@ -105,6 +106,10 @@ const ScrapDetailScreen = () => {
         // 초기 데이터를 저장된 데이터로 설정
         lastSavedDataRef.current = handwritingData.data;
         setHasUnsavedChanges(false);
+        // updatedAt 초기화
+        if (handwritingData.updatedAt) {
+          setDisplayUpdatedAt(handwritingData.updatedAt);
+        }
       } catch (error) {
         console.error('필기 데이터 로드 실패:', error);
       }
@@ -116,13 +121,6 @@ const ScrapDetailScreen = () => {
     (isAutoSave = false) => {
       const strokes = canvasRef.current?.getStrokes();
       const texts = canvasRef.current?.getTexts();
-
-      if ((!strokes || strokes.length === 0) && (!texts || texts.length === 0)) {
-        if (!isAutoSave) {
-          Alert.alert('알림', '저장할 필기 내용이 없습니다.');
-        }
-        return;
-      }
 
       try {
         // strokes와 texts를 함께 저장
@@ -149,9 +147,13 @@ const ScrapDetailScreen = () => {
             },
           },
           {
-            onSuccess: () => {
+            onSuccess: (response) => {
               lastSavedDataRef.current = base64Data;
               setHasUnsavedChanges(false);
+              // 응답에서 받은 updatedAt으로 업데이트
+              if (response?.updatedAt) {
+                setDisplayUpdatedAt(response.updatedAt);
+              }
               if (!isAutoSave) {
                 Alert.alert('성공', '필기가 저장되었습니다.');
                 setShowSave(true);
@@ -322,7 +324,7 @@ const ScrapDetailScreen = () => {
           )}
           {showSave && <Save size={30} color={colors['primary-600']} />}
           <Text className='text-20b text-gray-900'>{scrap.name || '스크랩 상세'}</Text>
-          <Text className='text-17m text-gray-900'>{handwritingData?.updatedAt}</Text>
+          <Text className='text-17m text-gray-900'>{displayUpdatedAt}</Text>
         </Container>
         {openNotes.length > 1 && (
           <View className='flex-row border-b border-gray-300 bg-gray-50'>
