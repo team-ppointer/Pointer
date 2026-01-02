@@ -1816,7 +1816,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** 내가 참여한 모든 Q&A 이미지 조회 (최신순) */
+    /** 내가 참여한 모든 Q&A 이미지 조회 */
     get: operations['getAllImages'];
     put?: never;
     post?: never;
@@ -2558,6 +2558,8 @@ export interface components {
       isReadingTipScrapped: boolean;
       /** @description 원스텝모어 스크랩 여부 */
       isOneStepMoreScrapped: boolean;
+      /** @description 오답 스크랩 여부 */
+      isWrongAnswer: boolean;
       /** @description 필기 데이터 존재 여부 */
       hasHandwriting: boolean;
       /**
@@ -2636,9 +2638,9 @@ export interface components {
       data: string;
       /**
        * Format: date-time
-       * @description 수정일시
+       * @description 필기 데이터 수정일시 (필기 없으면 null)
        */
-      updatedAt: string;
+      updatedAt?: string;
     };
     /** @description 복원할 항목 목록 (폴더/스크랩 혼합) */
     Item: {
@@ -3632,6 +3634,8 @@ export interface components {
       folderId?: number;
       /** @description 썸네일 URL (스크랩일 때) */
       thumbnailUrl?: string;
+      /** @description 오답 스크랩 여부 (스크랩일 때) */
+      isWrongAnswer?: boolean;
       /**
        * Format: date-time
        * @description 생성일시
@@ -7068,6 +7072,11 @@ export interface operations {
          * @example DESC
          */
         order?: 'ASC' | 'DESC';
+        /**
+         * @description 오답 스크랩만 조회 (true: 오답만, false: 정답만, null: 전체)
+         * @example true
+         */
+        isWrongAnswer?: boolean;
       };
       header?: never;
       path?: never;
@@ -7132,7 +7141,18 @@ export interface operations {
   };
   getImages: {
     parameters: {
-      query?: never;
+      query?: {
+        /**
+         * @description 정렬 필드 (CREATED_AT)
+         * @example CREATED_AT
+         */
+        sort?: 'CREATED_AT';
+        /**
+         * @description 정렬 방향 (ASC/DESC)
+         * @example DESC
+         */
+        order?: 'ASC' | 'DESC';
+      };
       header?: never;
       path: {
         qnaId: number;
@@ -7176,7 +7196,18 @@ export interface operations {
   };
   getAllImages: {
     parameters: {
-      query?: never;
+      query?: {
+        /**
+         * @description 정렬 필드 (CREATED_AT)
+         * @example CREATED_AT
+         */
+        sort?: 'CREATED_AT';
+        /**
+         * @description 정렬 방향 (ASC/DESC)
+         * @example DESC
+         */
+        order?: 'ASC' | 'DESC';
+      };
       header?: never;
       path?: never;
       cookie?: never;

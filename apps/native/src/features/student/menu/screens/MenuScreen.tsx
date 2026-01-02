@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react';
 import { Text } from 'react-native';
 
-import { useGetUserInfo } from '@apis';
+import { useGetMe } from '@apis/student';
 import { useAuthStore } from '@stores';
 import { Container, TextButton } from '@components/common';
 
 const MenuScreen = () => {
   const signOut = useAuthStore((state) => state.signOut);
-  const { data, isLoading, isError } = useGetUserInfo('student');
+  const { data, isLoading, isError } = useGetMe();
   const userInfo = data ?? null;
 
   const handleLogout = useCallback(async () => {
@@ -26,7 +26,7 @@ const MenuScreen = () => {
       ) : isError ? (
         <Text>유저 정보 fetch 실패</Text>
       ) : userInfo ? (
-          <Text>{`name: ${userInfo.name}\ngrade: ${userInfo.grade}\nisFirstLogin: ${userInfo.isFirstLogin.toString()}`}</Text>
+        <Text>{JSON.stringify(userInfo).replace(/,/g, ',\n')}</Text>
       ) : (
         <Text>auth 정보 없음</Text>
       )}

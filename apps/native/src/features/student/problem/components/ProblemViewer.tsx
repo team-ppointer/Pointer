@@ -55,6 +55,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-kopub@1.0/kopubbatang.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <style>
     @font-face {
@@ -70,7 +71,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+      font-family: "KoPub Batang";
       font-size: 16px;
       line-height: 1.6;
 
@@ -107,7 +108,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
       display: block;
       width: auto;
       height: auto;
-      max-width: 100%;
+      max-width: 280px;
       margin: 32px auto;
       outline: 2px solid transparent;
       border-radius: 4px;
@@ -221,7 +222,8 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
     }
 
     .katex {
-      font-size: 1em;
+      // font-size: 1em;
+      transform: translateY(0.05em);
     }
 
     .katex-display {

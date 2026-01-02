@@ -8,6 +8,7 @@
       "@assets/*": ["assets/*"],
       "@apis": ["src/apis"],
       "@apis/*": ["src/apis/*"],
+      "@apis/student": ["src/apis/controller/student"],
       "@components": ["src/components"],
       "@components/*": ["src/components/*"],
       "@contexts": ["src/contexts"],
