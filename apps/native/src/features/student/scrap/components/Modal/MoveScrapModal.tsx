@@ -56,7 +56,7 @@ export const MoveScrapModal = () => {
         ...folder,
         type: 'FOLDER' as const,
       }));
-  }, [foldersData]);
+  }, [foldersData, currentFolderId]);
 
   // 선택된 폴더 ID (폴더는 하나만 선택 가능)
   const selectedFolderId = folderSelectionState.selectedItems.find(
@@ -110,7 +110,7 @@ export const MoveScrapModal = () => {
         targetFolderId: selectedFolderId,
       });
 
-      showToast('success', `${scrapsToMove.length}개의 스크랩이 이동되었습니다.`);
+      showToast('success', `${folderName}으로 이동 완료`);
       dispatch({ type: 'CLEAR_SELECTION' });
       refetchFolders?.();
       refetchScraps?.();
