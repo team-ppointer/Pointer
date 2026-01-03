@@ -27,7 +27,17 @@ const MenuStack = createNativeStackNavigator<MenuStackParamList>();
 const MenuNavigator = () => {
   return (
     <MenuStack.Navigator screenOptions={{ headerShown: false }}>
-      <MenuStack.Screen name='MenuMain' component={MenuScreen} />
+      <MenuStack.Screen
+        name='MenuMain'
+        component={MenuScreen}
+        listeners={({ navigation }) => ({
+          focus: () => {
+            navigation.getParent()?.setOptions({
+              tabBarStyle: undefined,
+            });
+          },
+        })}
+      />
       <MenuStack.Screen
         name='MyInfo'
         component={MyinfoScreen}
