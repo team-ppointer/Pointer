@@ -21,15 +21,11 @@ const ReplyPreview = ({ message, senderName, onClose }: ReplyPreviewProps) => {
     : `${senderName ?? '상대방'}에게 답장 보내는 중`;
 
   return (
-    <View className='flex-row items-center gap-[12px] border-b border-gray-300 mx-[12px] py-[8px]'>
+    <View className='mx-[12px] flex-row items-center gap-[12px] border-b border-gray-300 py-[8px]'>
       {/* Image Thumbnail - shown for image replies */}
       {isImageReply && imageUrl && (
         <View className='h-[42px] w-[42px] overflow-hidden rounded-[8px] bg-gray-200'>
-          <Image
-            source={{ uri: imageUrl }}
-            className='h-full w-full'
-            resizeMode='cover'
-          />
+          <Image source={{ uri: imageUrl }} className='h-full w-full' resizeMode='cover' />
         </View>
       )}
 

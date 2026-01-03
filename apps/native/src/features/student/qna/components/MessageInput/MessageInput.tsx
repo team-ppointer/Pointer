@@ -178,7 +178,8 @@ const MessageInput = ({
       )}
 
       {/* Input Area */}
-      <View className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pl-[12px] pr-[6px]' : 'pl-[8px] pr-[8px]'}`}>
+      <View
+        className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pl-[12px] pr-[6px]' : 'pl-[8px] pr-[8px]'}`}>
         {/* Camera Button - hidden in typing mode */}
         {!isTypingMode && (
           <Pressable
