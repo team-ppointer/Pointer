@@ -303,6 +303,9 @@ importers:
       react-native-screens:
         specifier: ~4.16.0
         version: 4.16.0(react-native@0.81.5(@babel/core@7.28.0)(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)
+      react-native-sse:
+        specifier: ^1.2.1
+        version: 1.2.1
       react-native-svg:
         specifier: ^15.15.0
         version: 15.15.0(react-native@0.81.5(@babel/core@7.28.0)(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)
@@ -6880,6 +6883,9 @@ packages:
     peerDependencies:
       react: '*'
       react-native: '*'
+
+  react-native-sse@1.2.1:
+    resolution: {integrity: sha512-zejanlScF+IB9tYnbdry0MT34qjBXbiV/E72qGz33W/tX1bx8MXsbB4lxiuPETc9v/008vYZ60yjIstW22VlVg==}
 
   react-native-svg@15.15.0:
     resolution: {integrity: sha512-/Wx6F/IZ88B/GcF88bK8K7ZseJDYt+7WGaiggyzLvTowChQ8BM5idmcd4pK+6QJP6a6DmzL2sfOMukFUn/NArg==}
@@ -15830,6 +15836,8 @@ snapshots:
       react-native: 0.81.5(@babel/core@7.28.0)(@types/react@19.1.8)(react@19.1.0)
       react-native-is-edge-to-edge: 1.2.1(react-native@0.81.5(@babel/core@7.28.0)(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)
       warn-once: 0.1.1
+
+  react-native-sse@1.2.1: {}
 
   react-native-svg@15.15.0(react-native@0.81.5(@babel/core@7.28.0)(@types/react@19.1.8)(react@19.1.0))(react@19.1.0):
     dependencies:
