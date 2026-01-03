@@ -44,9 +44,9 @@ const SearchResults = ({
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}>
-            {chatRooms.map((result) => (
+            {chatRooms.map((result, index) => (
               <ChatRoomResultItem
-                key={result.id}
+                key={`room-${result.id}-${index}`}
                 result={result}
                 onPress={() => onSelectChatRoom(result)}
               />
@@ -63,9 +63,9 @@ const SearchResults = ({
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}>
-            {messages.map((result) => (
+            {messages.map((result, index) => (
               <MessageResultItem
-                key={result.id}
+                key={`msg-${result.id}-${index}`}
                 result={result}
                 onPress={() => onSelectMessage(result)}
               />

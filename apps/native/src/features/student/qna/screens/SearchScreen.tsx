@@ -1,49 +1,61 @@
-import React, { useState, useCallback } from 'react';
-import { View } from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { StudentRootStackParamList } from '@navigation/student/types';
+import { useGetQnaSearch } from '@apis/controller/student/qna';
 import type { ChatRoomSearchResult, MessageSearchResult } from '../types';
-import {
-  DUMMY_RECENT_SEARCHES,
-  DUMMY_SEARCH_CHAT_ROOMS,
-  DUMMY_SEARCH_MESSAGES,
-} from '../constants';
+import { mapSearchResults } from '../types';
 import { SearchHeader, RecentSearches, SearchResults } from '../components/Search';
 
 type SearchScreenNavigationProp = NativeStackNavigationProp<StudentRootStackParamList>;
 
+// Local storage key for recent searches
+const RECENT_SEARCHES_KEY = 'qna_recent_searches';
+
 const SearchScreen = () => {
   const navigation = useNavigation<SearchScreenNavigationProp>();
   const [searchText, setSearchText] = useState('');
-  const [recentSearches, setRecentSearches] = useState<string[]>(DUMMY_RECENT_SEARCHES);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [submittedQuery, setSubmittedQuery] = useState('');
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
-  // In a real app, these would come from an API
-  const searchResults = {
-    chatRooms: hasSearched ? DUMMY_SEARCH_CHAT_ROOMS : [],
-    messages: hasSearched ? DUMMY_SEARCH_MESSAGES : [],
-  };
+  // Fetch search results
+  const {
+    data: searchData,
+    isLoading,
+    isFetching,
+  } = useGetQnaSearch({
+    query: submittedQuery,
+    enabled: submittedQuery.trim().length > 0,
+  });
+
+  // Map search results to UI format
+  const searchResults = useMemo(() => {
+    if (!searchData) {
+      return { chatRooms: [], messages: [] };
+    }
+    return mapSearchResults(searchData);
+  }, [searchData]);
+
+  const hasSearched = submittedQuery.trim().length > 0;
 
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) return;
 
+    const trimmedText = searchText.trim();
+
     // Add to recent searches
     setRecentSearches((prev) => {
-      const filtered = prev.filter((s) => s !== searchText.trim());
-      return [searchText.trim(), ...filtered].slice(0, 10);
+      const filtered = prev.filter((s) => s !== trimmedText);
+      return [trimmedText, ...filtered].slice(0, 10);
     });
 
-    setHasSearched(true);
-    // TODO: Perform actual search API call
-    console.log('Search:', searchText);
+    setSubmittedQuery(trimmedText);
   }, [searchText]);
 
   const handleSelectRecentSearch = useCallback((search: string) => {
     setSearchText(search);
-    setHasSearched(true);
-    // TODO: Perform actual search API call
-    console.log('Search from recent:', search);
+    setSubmittedQuery(search);
   }, []);
 
   const handleRemoveRecentSearch = useCallback((search: string) => {
@@ -75,7 +87,7 @@ const SearchScreen = () => {
   const handleSearchTextChange = useCallback((text: string) => {
     setSearchText(text);
     if (!text.trim()) {
-      setHasSearched(false);
+      setSubmittedQuery('');
     }
   }, []);
 
@@ -88,7 +100,11 @@ const SearchScreen = () => {
         onCancel={handleCancel}
       />
 
-      {hasSearched ? (
+      {isLoading || isFetching ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+        </View>
+      ) : hasSearched ? (
         <SearchResults
           chatRooms={searchResults.chatRooms}
           messages={searchResults.messages}
@@ -108,4 +124,3 @@ const SearchScreen = () => {
 };
 
 export default SearchScreen;
-

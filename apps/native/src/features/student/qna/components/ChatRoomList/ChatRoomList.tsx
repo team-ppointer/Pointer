@@ -8,7 +8,7 @@ import ChatRoomFilter from './ChatRoomFilter';
 
 interface ChatRoomListProps {
   chatRooms: ChatRoom[];
-  selectedRoomId?: string;
+  selectedRoomId?: number;
   onSelectRoom: (room: ChatRoom) => void;
   onNewQuestion: () => void;
   onSearch: () => void;
@@ -64,7 +64,7 @@ const ChatRoomList = ({
       <ScrollView className="flex-1">
         {filteredRooms.map((room) => (
           <ChatRoomItem
-            key={room.id}
+            key={`${room.type}-${room.id}`}
             chatRoom={room}
             isSelected={room.id === selectedRoomId}
             onPress={() => onSelectRoom(room)}

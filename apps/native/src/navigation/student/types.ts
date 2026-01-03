@@ -24,7 +24,7 @@ export type StudentRootStackParamList = {
   };
   // QnA screens
   ChatRoom: {
-    chatRoomId: string;
+    chatRoomId: number;
   };
   QnaSearch: undefined;
 };

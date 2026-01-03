@@ -90,7 +90,7 @@ const MessageList = ({
       const showProfile = isOther && showTail;
 
       groups.push({
-        id: message.id,
+        id: `msg-${message.id}`,
         type: 'message',
         message,
         showProfile,
