@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, TextInput, Pressable, Platform, Alert } from 'react-native';
-import { Camera, ImageIcon, Paperclip, ArrowUp } from 'lucide-react-native';
+import { Camera, ImageIcon, Paperclip, ArrowUp, X, Pencil } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -25,8 +25,10 @@ export interface SelectedFile {
 
 interface MessageInputProps {
   replyTo?: Message | null;
+  editingMessage?: Message | null;
   senderName?: string;
   onClearReply?: () => void;
+  onCancelEdit?: () => void;
   onSend: (text: string, replyTo?: Message) => void;
   onImageSelected?: (image: SelectedImage) => void;
   onFileSelected?: (file: SelectedFile) => void;
@@ -55,8 +57,10 @@ const IconButton = ({
 
 const MessageInput = ({
   replyTo,
+  editingMessage,
   senderName,
   onClearReply,
+  onCancelEdit,
   onSend,
   onImageSelected,
   onFileSelected,
@@ -67,17 +71,31 @@ const MessageInput = ({
   const [isFocused, setIsFocused] = useState(false);
   const insets = useSafeAreaInsets();
 
+  // When editing message changes, populate the text field
+  useEffect(() => {
+    if (editingMessage) {
+      setText(editingMessage.content);
+    }
+  }, [editingMessage]);
+
   const handleSend = () => {
     if (!text.trim()) return;
     onSend(text.trim(), replyTo ?? undefined);
     setText('');
     onClearReply?.();
+    onCancelEdit?.();
+  };
+
+  const handleCancelEdit = () => {
+    setText('');
+    onCancelEdit?.();
   };
 
   const canSend = text.trim().length > 0 && !disabled;
+  const isEditing = !!editingMessage;
 
-  // Show typing mode when focused or has text
-  const isTypingMode = isFocused || text.length > 0;
+  // Show typing mode when focused, has text, or editing
+  const isTypingMode = isFocused || text.length > 0 || isEditing;
 
   // Camera: Take a photo
   const handleCamera = async () => {
@@ -172,16 +190,29 @@ const MessageInput = ({
     <View
       className='mx-[10px] mt-[10px] overflow-hidden rounded-[12px] border border-gray-400 bg-white'
       style={{ marginBottom: 10 }}>
+      {/* Editing Indicator */}
+      {isEditing && (
+        <View className='flex-row items-center justify-between border-b border-gray-300 bg-blue-50 px-[12px] py-[8px]'>
+          <View className='flex-row items-center gap-[8px]'>
+            <Pencil size={16} color={colors['primary-500']} />
+            <Text className='text-14sb text-primary-500'>메시지 수정 중</Text>
+          </View>
+          <Pressable onPress={handleCancelEdit} hitSlop={8}>
+            <X size={18} color={colors['gray-600']} />
+          </Pressable>
+        </View>
+      )}
+
       {/* Reply Preview */}
-      {replyTo && (
+      {replyTo && !isEditing && (
         <ReplyPreview message={replyTo} senderName={senderName} onClose={() => onClearReply?.()} />
       )}
 
       {/* Input Area */}
       <View
         className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pl-[12px] pr-[6px]' : 'pl-[8px] pr-[8px]'}`}>
-        {/* Camera Button - hidden in typing mode */}
-        {!isTypingMode && (
+        {/* Camera Button - hidden in typing mode or editing mode */}
+        {!isTypingMode && !isEditing && (
           <Pressable
             onPress={handleCamera}
             disabled={disabled}
@@ -216,16 +247,16 @@ const MessageInput = ({
           />
         </View>
 
-        {/* Action Buttons - hidden in typing mode */}
-        {!isTypingMode && (
+        {/* Action Buttons - hidden in typing mode or editing mode */}
+        {!isTypingMode && !isEditing && (
           <View className='flex-row'>
             <IconButton icon={ImageIcon} onPress={handleImagePicker} disabled={disabled} />
             <IconButton icon={Paperclip} onPress={handleDocumentPicker} disabled={disabled} />
           </View>
         )}
 
-        {/* Send Button - shown only in typing mode */}
-        {isTypingMode && (
+        {/* Send/Update Button - shown only in typing mode or editing mode */}
+        {(isTypingMode || isEditing) && (
           <Pressable
             onPress={handleSend}
             disabled={!canSend}

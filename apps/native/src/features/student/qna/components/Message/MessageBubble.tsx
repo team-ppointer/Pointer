@@ -1,6 +1,17 @@
-import React from 'react';
-import { Text, View, Image, Pressable, StyleSheet } from 'react-native';
-import { FileText, ImageIcon, Reply, User } from 'lucide-react-native';
+import React, { useCallback, useState } from 'react';
+import {
+  Text,
+  View,
+  Image,
+  Pressable,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  Linking,
+  ActionSheetIOS,
+  Platform,
+} from 'react-native';
+import { FileText, ImageIcon, Reply, User, File, FileSpreadsheet } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -14,7 +25,8 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
-import type { Message } from '../../types';
+import * as Haptics from 'expo-haptics';
+import type { Message, UploadFileResp } from '../../types';
 
 interface MessageBubbleProps {
   message: Message;
@@ -24,8 +36,10 @@ interface MessageBubbleProps {
   showProfile?: boolean;
   showTail?: boolean;
   onReply?: (message: Message) => void;
-  onPressImage?: (url: string) => void;
+  onPressImages?: (images: Array<{ uri: string }>, initialIndex: number) => void;
   onPressFile?: (url: string) => void;
+  onEdit?: (message: Message) => void;
+  onDelete?: (message: Message) => void;
 }
 
 const LEFT_SWIPE_THRESHOLD = -80;
@@ -79,46 +93,230 @@ const ReplyPreview = ({ reply, isMe }: { reply: Message['reply']; isMe: boolean 
   );
 };
 
+// Helper: Get file extension from filename
+const getFileExtension = (fileName: string): string => {
+  const parts = fileName.split('.');
+  return parts.length > 1 ? parts[parts.length - 1].toUpperCase() : 'FILE';
+};
+
+// Helper: Get file icon based on extension
+const getFileIcon = (extension: string) => {
+  const ext = extension.toLowerCase();
+
+  // Document types
+  if (['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(ext)) {
+    return FileText;
+  }
+  // Spreadsheet types
+  if (['xls', 'xlsx', 'csv'].includes(ext)) {
+    return FileSpreadsheet;
+  }
+  // Default
+  return File;
+};
+
+// Helper: Format file size
+const formatFileSize = (bytes?: number): string => {
+  if (!bytes) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
 // File Attachment Component
 const FileAttachment = ({
   file,
+  uploadFile,
   isMe,
-  onPress,
+  onDownload,
+  isDownloading,
 }: {
-  file: Message['file'];
+  file?: Message['file'];
+  uploadFile?: UploadFileResp;
   isMe: boolean;
-  onPress?: () => void;
+  onDownload?: (url: string, fileName: string) => void;
+  isDownloading?: boolean;
 }) => {
-  if (!file) return null;
+  // Get file info from either source
+  const fileName = file?.name ?? uploadFile?.fileName ?? 'Unknown File';
+  const fileUrl = file?.url ?? uploadFile?.url ?? '';
+  const extension = file?.extension ?? getFileExtension(fileName);
+  const fileType = uploadFile?.fileType ?? 'OTHER';
+
+  if (!fileName || !fileUrl) return null;
+
+  const FileIcon = getFileIcon(extension);
+  const iconColor = isMe ? colors['blue-500'] : colors['gray-600'];
+
+  const handlePress = () => {
+    if (onDownload && fileUrl) {
+      onDownload(fileUrl, fileName);
+    }
+  };
 
   return (
-    <Pressable onPress={onPress} className='flex-row items-center gap-[10px]'>
-      <View className='h-[36px] w-[36px] items-center justify-center rounded-[6px] border border-gray-400 bg-white'>
-        <FileText size={18} color='#ddd' />
+    <Pressable
+      onPress={handlePress}
+      disabled={isDownloading}
+      className='min-w-[200px] flex-row items-center gap-[10px]'>
+      <View
+        className={`h-[36px] w-[36px] items-center justify-center rounded-[6px] border border-gray-400 bg-white`}>
+        {isDownloading ? (
+          <ActivityIndicator size='small' color={iconColor} />
+        ) : (
+          <FileIcon size={18} color='#ddd' />
+        )}
       </View>
-      <View className='flex-1'>
+      <View className='flex-1 shrink'>
         <Text className='text-16m text-black' numberOfLines={1}>
-          {file.name}
+          {fileName}
         </Text>
-        <Text className='text-12r text-gray-800'>{file.extension}</Text>
+        <Text className='text-12r text-gray-800'>{extension}</Text>
       </View>
     </Pressable>
   );
 };
 
-// Image Message Component
-const ImageMessage = ({ image, onPress }: { image: Message['image']; onPress?: () => void }) => {
-  if (!image) return null;
+// Single Image Component
+const SingleImage = ({
+  url,
+  onPress,
+  size = 'large',
+}: {
+  url: string;
+  onPress?: () => void;
+  size?: 'large' | 'medium' | 'small';
+}) => {
+  const sizeStyles = {
+    large: 'h-[200px] w-[250px]',
+    medium: 'h-[120px] w-[120px]',
+    small: 'h-[80px] w-[80px]',
+  };
 
   return (
     <Pressable onPress={onPress} className='overflow-hidden rounded-[8px]'>
       <Image
-        source={{ uri: image.url }}
-        className='h-[200px] w-[250px] rounded-[8px] bg-gray-200'
+        source={{ uri: url }}
+        className={`${sizeStyles[size]} rounded-[8px] bg-gray-200`}
         resizeMode='cover'
       />
     </Pressable>
   );
+};
+
+// Multiple Images Grid Component - shows all images in 2-column grid
+const ImagesGrid = ({
+  images,
+  onPressImage,
+}: {
+  images: NonNullable<Message['images']>;
+  onPressImage?: (images: Array<{ uri: string }>, index: number) => void;
+}) => {
+  const count = images.length;
+  const imageUris = images.map((img) => ({ uri: img.url }));
+
+  // Single image - show large
+  if (count === 1) {
+    return (
+      <SingleImage url={images[0].url} onPress={() => onPressImage?.(imageUris, 0)} size='large' />
+    );
+  }
+
+  // 2 images - show side by side
+  if (count === 2) {
+    return (
+      <View className='flex-row gap-[4px]'>
+        {images.map((img, index) => (
+          <SingleImage
+            key={img.id ?? index}
+            url={img.url}
+            onPress={() => onPressImage?.(imageUris, index)}
+            size='medium'
+          />
+        ))}
+      </View>
+    );
+  }
+
+  // 3+ images - 2-column grid layout
+  const rows: Array<Array<{ img: (typeof images)[0]; index: number }>> = [];
+  for (let i = 0; i < images.length; i += 2) {
+    const row: Array<{ img: (typeof images)[0]; index: number }> = [];
+    row.push({ img: images[i], index: i });
+    if (i + 1 < images.length) {
+      row.push({ img: images[i + 1], index: i + 1 });
+    }
+    rows.push(row);
+  }
+
+  return (
+    <View className='gap-[4px]'>
+      {rows.map((row, rowIndex) => (
+        <View key={rowIndex} className='flex-row gap-[4px]'>
+          {row.map(({ img, index }) => (
+            <SingleImage
+              key={img.id ?? index}
+              url={img.url}
+              onPress={() => onPressImage?.(imageUris, index)}
+              size='medium'
+            />
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+};
+
+// Image Message Component (supports multiple images and files)
+const ImageMessage = ({
+  image,
+  images,
+  isMe,
+  onPressImages,
+  onDownload,
+  downloadingFiles,
+}: {
+  image?: Message['image'];
+  images?: Message['images'];
+  isMe: boolean;
+  onPressImages?: (images: Array<{ uri: string }>, index: number) => void;
+  onDownload?: (url: string, fileName: string) => void;
+  downloadingFiles?: Set<string>;
+}) => {
+  // Use images array if available, otherwise fallback to single image
+  if (images && images.length > 0) {
+    // Separate IMAGE and non-IMAGE files
+    const imageFiles = images.filter((img) => img.fileType === 'IMAGE');
+    const otherFiles = images.filter((img) => img.fileType !== 'IMAGE');
+
+    return (
+      <View className='gap-[8px]'>
+        {/* Render images */}
+        {imageFiles.length > 0 && <ImagesGrid images={imageFiles} onPressImage={onPressImages} />}
+
+        {/* Render other files (documents, etc.) */}
+        {otherFiles.map((file) => (
+          <FileAttachment
+            key={file.id}
+            uploadFile={file}
+            isMe={isMe}
+            onDownload={onDownload}
+            isDownloading={downloadingFiles?.has(file.url)}
+          />
+        ))}
+      </View>
+    );
+  }
+
+  // Fallback to single image
+  if (image) {
+    const imageUris = [{ uri: image.url }];
+    return (
+      <SingleImage url={image.url} onPress={() => onPressImages?.(imageUris, 0)} size='large' />
+    );
+  }
+
+  return null;
 };
 
 // Profile Image Component
@@ -150,11 +348,16 @@ const MessageBubble = ({
   showProfile = false,
   showTail = false,
   onReply,
-  onPressImage,
+  onPressImages,
   onPressFile,
+  onEdit,
+  onDelete,
 }: MessageBubbleProps) => {
-  const { type, sender, content, timestamp, reply, file, image } = message;
+  const { type, sender, content, timestamp, reply, file, image, images } = message;
   const isMe = sender === 'me';
+
+  // Track downloading files
+  const [downloadingFiles, setDownloadingFiles] = useState<Set<string>>(new Set());
 
   // Local translateX for reply swipe (right direction only)
   const localTranslateX = useSharedValue(0);
@@ -162,6 +365,98 @@ const MessageBubble = ({
   const triggerReply = () => {
     onReply?.(message);
   };
+
+  // Show action sheet for edit/delete (only for my messages)
+  const showMessageActions = useCallback(() => {
+    if (!isMe) return;
+
+    // Haptic feedback
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['취소', '수정', '삭제'],
+          destructiveButtonIndex: 2,
+          cancelButtonIndex: 0,
+          title: '메시지 옵션',
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            onEdit?.(message);
+          } else if (buttonIndex === 2) {
+            // Confirm delete
+            Alert.alert('메시지 삭제', '이 메시지를 삭제하시겠습니까?', [
+              { text: '취소', style: 'cancel' },
+              {
+                text: '삭제',
+                style: 'destructive',
+                onPress: () => onDelete?.(message),
+              },
+            ]);
+          }
+        }
+      );
+    } else {
+      // Android fallback using Alert
+      Alert.alert('메시지 옵션', undefined, [
+        { text: '취소', style: 'cancel' },
+        { text: '수정', onPress: () => onEdit?.(message) },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert('메시지 삭제', '이 메시지를 삭제하시겠습니까?', [
+              { text: '취소', style: 'cancel' },
+              {
+                text: '삭제',
+                style: 'destructive',
+                onPress: () => onDelete?.(message),
+              },
+            ]);
+          },
+        },
+      ]);
+    }
+  }, [isMe, message, onEdit, onDelete]);
+
+  // Handle file download - opens file URL in browser/default app
+  const handleDownload = useCallback(async (url: string, fileName: string) => {
+    try {
+      // Add to downloading set for UI feedback
+      setDownloadingFiles((prev) => new Set(prev).add(url));
+
+      // Try to open the URL
+      const canOpen = await Linking.canOpenURL(url);
+
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('오류', '파일을 열 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      Alert.alert('오류', '파일을 열 수 없습니다.');
+    } finally {
+      // Remove from downloading set
+      setDownloadingFiles((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(url);
+        return newSet;
+      });
+    }
+  }, []);
+
+  // Long press gesture for edit/delete options (only for my messages)
+  const longPressGesture = Gesture.LongPress()
+    .minDuration(500)
+    .enabled(isMe)
+    .onEnd((event, success) => {
+      'worklet';
+      if (success) {
+        runOnJS(showMessageActions)();
+      }
+    });
 
   const panGesture = Gesture.Pan()
     .activeOffsetX([-10, 10])
@@ -194,6 +489,9 @@ const MessageBubble = ({
         globalTranslateX.value = withTiming(0, timingConfig);
       }
     });
+
+  // Combine gestures: long press and pan can work together
+  const composedGesture = Gesture.Race(longPressGesture, panGesture);
 
   // Combined translateX: global (left swipe for time) + local (right swipe for reply)
   const animatedBubbleStyle = useAnimatedStyle(() => ({
@@ -254,20 +552,47 @@ const MessageBubble = ({
         return (
           <FileAttachment
             file={file}
+            uploadFile={images?.[0]}
             isMe={isMe}
-            onPress={() => file?.url && onPressFile?.(file.url)}
+            onDownload={handleDownload}
+            isDownloading={
+              file?.url
+                ? downloadingFiles.has(file.url)
+                : images?.[0]?.url
+                  ? downloadingFiles.has(images[0].url)
+                  : false
+            }
           />
         );
       case 'image':
         return (
-          <ImageMessage image={image} onPress={() => image?.url && onPressImage?.(image.url)} />
+          <ImageMessage
+            image={image}
+            images={images}
+            isMe={isMe}
+            onPressImages={onPressImages}
+            onDownload={handleDownload}
+            downloadingFiles={downloadingFiles}
+          />
         );
       case 'reply-text':
       case 'reply-image':
         return (
           <View>
             <ReplyPreview reply={reply} isMe={isMe} />
-            <Text className='text-16r text-black'>{content}</Text>
+            {/* Show images if present in reply */}
+            {images && images.length > 0 && (
+              <View className='mb-[8px]'>
+                <ImageMessage
+                  images={images}
+                  isMe={isMe}
+                  onPressImages={onPressImages}
+                  onDownload={handleDownload}
+                  downloadingFiles={downloadingFiles}
+                />
+              </View>
+            )}
+            {content && <Text className='text-16r text-black'>{content}</Text>}
           </View>
         );
       case 'text':
@@ -298,13 +623,13 @@ const MessageBubble = ({
       </Animated.View>
 
       {/* Swipeable Message Content */}
-      <GestureDetector gesture={panGesture}>
+      <GestureDetector gesture={composedGesture}>
         <Animated.View
           style={animatedBubbleStyle}
           className={`bg-gray-200 px-[16px] py-[4px] ${isMe ? 'items-end' : 'items-start'}`}>
           {/* Profile + Message container for other's messages */}
           {!isMe ? (
-            <View className='flex-row items-start' style={{ gap: PROFILE_GAP }}>
+            <View className='flex-row items-start' style={{ gap: PROFILE_GAP, maxWidth: '85%' }}>
               {/* Profile Image - only shown for first message in consecutive messages */}
               {showProfile ? (
                 <ProfileImage imageUrl={profileImageUrl} />
@@ -313,7 +638,7 @@ const MessageBubble = ({
               )}
 
               {/* Message Content */}
-              <View className='flex-1'>
+              <View className='shrink'>
                 {/* Sender Name - only for first message */}
                 {showProfile && senderName && (
                   <Text className='text-12sb mb-[4px] text-gray-700'>{senderName}</Text>
@@ -326,7 +651,7 @@ const MessageBubble = ({
 
                   {/* Message Bubble */}
                   <View
-                    className={`max-w-[70%] ${
+                    className={`${
                       needsBubbleBackground ? 'rounded-[8px] bg-white px-[12px] py-[8px]' : ''
                     }`}>
                     {renderContent()}

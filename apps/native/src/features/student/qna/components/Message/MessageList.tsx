@@ -7,6 +7,7 @@ import {
   NativeSyntheticEvent,
 } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
+import ImageViewing from 'react-native-image-viewing';
 import type { Message } from '../../types';
 import MessageBubble from './MessageBubble';
 import DateDivider from './DateDivider';
@@ -16,8 +17,9 @@ interface MessageListProps {
   senderName?: string;
   profileImageUrl?: string;
   onReply?: (message: Message) => void;
-  onPressImage?: (url: string) => void;
   onPressFile?: (url: string) => void;
+  onEdit?: (message: Message) => void;
+  onDelete?: (message: Message) => void;
 }
 
 interface GroupedMessage {
@@ -34,14 +36,30 @@ const MessageList = ({
   senderName,
   profileImageUrl,
   onReply,
-  onPressImage,
   onPressFile,
+  onEdit,
+  onDelete,
 }: MessageListProps) => {
   const flatListRef = useRef<FlatList<GroupedMessage>>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
 
+  // Image viewer state
+  const [viewerImages, setViewerImages] = useState<Array<{ uri: string }>>([]);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [isViewerVisible, setIsViewerVisible] = useState(false);
+
   // Global translateX for time display (shared across all bubbles)
   const globalTranslateX = useSharedValue(0);
+
+  // Handle image press to open full-screen viewer
+  const handlePressImages = useCallback(
+    (images: Array<{ uri: string }>, initialIndex: number) => {
+      setViewerImages(images);
+      setViewerIndex(initialIndex);
+      setIsViewerVisible(true);
+    },
+    []
+  );
 
   // Track if user is at the bottom of the scroll (top in inverted list)
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -117,36 +135,50 @@ const MessageList = ({
             showProfile={item.showProfile}
             showTail={item.showTail}
             onReply={onReply}
-            onPressImage={onPressImage}
+            onPressImages={handlePressImages}
             onPressFile={onPressFile}
+            onEdit={onEdit}
+            onDelete={onDelete}
           />
         );
       }
       return null;
     },
-    [globalTranslateX, senderName, profileImageUrl, onReply, onPressImage, onPressFile]
+    [globalTranslateX, senderName, profileImageUrl, onReply, handlePressImages, onPressFile, onEdit, onDelete]
   );
 
   const keyExtractor = useCallback((item: GroupedMessage) => item.id, []);
 
   return (
-    <FlatList
-      ref={flatListRef}
-      data={groupedMessages}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      inverted
-      className='flex-1 bg-gray-200'
-      contentContainerStyle={{ paddingVertical: 16 }}
-      showsVerticalScrollIndicator={false}
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-      // Performance optimizations
-      removeClippedSubviews={Platform.OS === 'android'}
-      maxToRenderPerBatch={10}
-      windowSize={10}
-      initialNumToRender={15}
-    />
+    <>
+      <FlatList
+        ref={flatListRef}
+        data={groupedMessages}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        inverted
+        className='flex-1 bg-gray-200'
+        contentContainerStyle={{ paddingVertical: 16 }}
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        // Performance optimizations
+        removeClippedSubviews={Platform.OS === 'android'}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        initialNumToRender={15}
+      />
+
+      {/* Full-screen Image Viewer */}
+      <ImageViewing
+        images={viewerImages}
+        imageIndex={viewerIndex}
+        visible={isViewerVisible}
+        onRequestClose={() => setIsViewerVisible(false)}
+        swipeToCloseEnabled
+        doubleTapToZoomEnabled
+      />
+    </>
   );
 };
 

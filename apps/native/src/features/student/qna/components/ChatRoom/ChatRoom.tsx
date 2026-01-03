@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { usePostQnaChat, usePutQna, useInvalidateQnaData } from '@apis/controller/student/qna';
+import { usePostQnaChat, usePutQna, usePutQnaChat, useDeleteQnaChat, useInvalidateQnaData } from '@apis/controller/student/qna';
+import { useUploadFile } from '@apis/controller/common/file';
 import useSubscribeQna from '@apis/controller/common/qna/useGetSubscribeQna';
 import { getAccessToken } from '@utils/auth';
 import type {
@@ -60,6 +61,7 @@ const ChatRoom = ({
 }: ChatRoomProps) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [status, setStatus] = useState<ChatRoomStatus>(chatRoom?.status ?? 'asking');
   const insets = useSafeAreaInsets();
 
@@ -140,6 +142,52 @@ const ChatRoom = ({
     },
   });
 
+  // File upload mutation
+  const uploadFileMutation = useUploadFile({
+    onError: (error) => {
+      console.error('Failed to upload file:', error);
+      Alert.alert('오류', '파일 업로드에 실패했습니다.');
+    },
+  });
+
+  // Update chat mutation (for editing messages)
+  const updateChatMutation = usePutQnaChat({
+    qnaId: qnaId,
+    onSuccess: () => {
+      setEditingMessage(null);
+      if (qnaId) {
+        if (isPublisher) {
+          void invalidateQnaAdminChat();
+        } else {
+          void invalidateQnaById(Number(qnaId));
+        }
+      }
+    },
+    onError: (error) => {
+      console.error('Failed to update message:', error);
+      Alert.alert('오류', '메시지 수정에 실패했습니다.');
+    },
+  });
+
+  // Delete chat mutation
+  const deleteChatMutation = useDeleteQnaChat({
+    qnaId: qnaId,
+    onSuccess: () => {
+      if (qnaId) {
+        if (isPublisher) {
+          void invalidateQnaAdminChat();
+        } else {
+          void invalidateQnaById(Number(qnaId));
+        }
+        void invalidateQnaList();
+      }
+    },
+    onError: (error) => {
+      console.error('Failed to delete message:', error);
+      Alert.alert('오류', '메시지 삭제에 실패했습니다.');
+    },
+  });
+
   // Map API data to messages
   const messages = useMemo<Message[]>(() => {
     if (isPublisher && adminChatData) {
@@ -176,21 +224,6 @@ const ChatRoom = ({
     setReplyTo(null);
   }, []);
 
-  const handleSend = useCallback(
-    (text: string, reply?: Message) => {
-      if (!qnaId) return;
-
-      postChatMutation.mutate({
-        qnaId,
-        content: text,
-        replyToId: reply?.id,
-      });
-
-      setReplyTo(null);
-    },
-    [qnaId, postChatMutation]
-  );
-
   const handleStatusChange = useCallback(
     (newStatus: ChatRoomStatus) => {
       if (!qnaId || isPublisher) return;
@@ -212,30 +245,109 @@ const ChatRoom = ({
 
   const handleImageSelected = useCallback(
     (image: SelectedImage) => {
-      // TODO: Implement image upload first, then send with image ID
-      console.log('Image selected:', image);
-      Alert.alert(
-        '이미지 선택됨',
-        `파일: ${image.fileName ?? 'image'}\n크기: ${image.width}x${image.height}\n\n이미지 업로드 기능은 추후 구현 예정입니다.`
+      if (!qnaId) return;
+
+      const fileName = image.fileName ?? `image_${Date.now()}.jpg`;
+      const mimeType = image.type ?? 'image/jpeg';
+
+      uploadFileMutation.mutate(
+        [{ uri: image.uri, name: fileName, type: mimeType }],
+        {
+          onSuccess: (uploadedFiles) => {
+            if (uploadedFiles.length > 0) {
+              const fileIds = uploadedFiles.map((f) => f.id);
+              postChatMutation.mutate({
+                qnaId,
+                content: '',
+                images: fileIds,
+                replyToId: replyTo?.id,
+              });
+              setReplyTo(null);
+            }
+          },
+        }
       );
     },
-    []
+    [qnaId, uploadFileMutation, postChatMutation, replyTo]
   );
 
   const handleFileSelected = useCallback(
     (file: SelectedFile) => {
-      // TODO: Implement file upload first, then send with file ID
-      console.log('File selected:', file);
-      Alert.alert(
-        '파일 선택됨',
-        `파일: ${file.name}\n크기: ${file.size ? `${Math.round(file.size / 1024)}KB` : '알 수 없음'}\n\n파일 업로드 기능은 추후 구현 예정입니다.`
+      if (!qnaId) return;
+
+      const mimeType = file.mimeType ?? 'application/octet-stream';
+
+      uploadFileMutation.mutate(
+        [{ uri: file.uri, name: file.name, type: mimeType }],
+        {
+          onSuccess: (uploadedFiles) => {
+            if (uploadedFiles.length > 0) {
+              const fileIds = uploadedFiles.map((f) => f.id);
+              postChatMutation.mutate({
+                qnaId,
+                content: '',
+                images: fileIds,
+                replyToId: replyTo?.id,
+              });
+              setReplyTo(null);
+            }
+          },
+        }
       );
     },
-    []
+    [qnaId, uploadFileMutation, postChatMutation, replyTo]
+  );
+
+  // Handle edit message
+  const handleEditMessage = useCallback((message: Message) => {
+    // Only allow editing text messages
+    if (message.type === 'text' || message.type === 'reply-text') {
+      setEditingMessage(message);
+      setReplyTo(null);
+    } else {
+      Alert.alert('알림', '텍스트 메시지만 수정할 수 있습니다.');
+    }
+  }, []);
+
+  // Handle delete message
+  const handleDeleteMessage = useCallback(
+    (message: Message) => {
+      deleteChatMutation.mutate(message.id);
+    },
+    [deleteChatMutation]
+  );
+
+  // Handle cancel edit
+  const handleCancelEdit = useCallback(() => {
+    setEditingMessage(null);
+  }, []);
+
+  // Modified send handler to support editing
+  const handleSendOrUpdate = useCallback(
+    (text: string, reply?: Message) => {
+      if (!qnaId) return;
+
+      if (editingMessage) {
+        // Update existing message
+        updateChatMutation.mutate({
+          chatId: editingMessage.id,
+          data: { content: text },
+        });
+      } else {
+        // Send new message
+        postChatMutation.mutate({
+          qnaId,
+          content: text,
+          replyToId: reply?.id,
+        });
+        setReplyTo(null);
+      }
+    },
+    [qnaId, editingMessage, updateChatMutation, postChatMutation]
   );
 
   const showCommentsOnly = isPublisher && selectedTab === 1;
-  const isSending = postChatMutation.isPending;
+  const isSending = postChatMutation.isPending || uploadFileMutation.isPending || updateChatMutation.isPending || deleteChatMutation.isPending;
 
   // Calculate keyboard offset: tab bar height + bottom safe area
   const keyboardOffset = Platform.OS === 'ios' ? 10 + insets.bottom : 0;
@@ -263,8 +375,9 @@ const ChatRoom = ({
             senderName={senderName}
             profileImageUrl={profileImageUrl}
             onReply={showCommentsOnly ? undefined : handleReply}
-            onPressImage={(url) => console.log('Open image:', url)}
             onPressFile={(url) => console.log('Open file:', url)}
+            onEdit={handleEditMessage}
+            onDelete={handleDeleteMessage}
           />
         )}
 
@@ -272,9 +385,11 @@ const ChatRoom = ({
         {!showCommentsOnly && (
           <MessageInput
             replyTo={replyTo}
+            editingMessage={editingMessage}
             senderName={senderName}
             onClearReply={handleClearReply}
-            onSend={handleSend}
+            onCancelEdit={handleCancelEdit}
+            onSend={handleSendOrUpdate}
             onImageSelected={handleImageSelected}
             onFileSelected={handleFileSelected}
             disabled={status === 'resolved' || isSending}

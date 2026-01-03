@@ -1,4 +1,6 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
+import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import EventSource from 'react-native-sse';
 import { components } from '@schema';
 import { env } from '@utils';
@@ -6,39 +8,167 @@ import { env } from '@utils';
 type QnAChatEvent = components['schemas']['QnAChatEvent'];
 type QnAReadStatusEvent = components['schemas']['QnAReadStatusEvent'];
 
+type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
+
 type SSEEventHandlers = {
   onChatEvent?: (event: QnAChatEvent) => void;
   onReadStatusEvent?: (event: QnAReadStatusEvent) => void;
   onHeartbeat?: () => void;
   onError?: (error: Error) => void;
   onOpen?: () => void;
+  onConnectionStatusChange?: (status: ConnectionStatus) => void;
+};
+
+type ReconnectConfig = {
+  /** 최대 재시도 횟수 (기본값: 10) */
+  maxRetries?: number;
+  /** 초기 재시도 간격 (ms, 기본값: 1000) */
+  initialDelay?: number;
+  /** 최대 재시도 간격 (ms, 기본값: 30000) */
+  maxDelay?: number;
+  /** 하트비트 타임아웃 (ms, 기본값: 60000 - 1분) */
+  heartbeatTimeout?: number;
 };
 
 type UseSubscribeQnaOptions = {
   qnaId: number;
   token: string;
   enabled?: boolean;
+  reconnectConfig?: ReconnectConfig;
 } & SSEEventHandlers;
+
+const DEFAULT_RECONNECT_CONFIG: Required<ReconnectConfig> = {
+  maxRetries: 10,
+  initialDelay: 1000,
+  maxDelay: 30000,
+  heartbeatTimeout: 60000,
+};
 
 const useSubscribeQna = ({
   qnaId,
   token,
   enabled = true,
+  reconnectConfig,
   onChatEvent,
   onReadStatusEvent,
   onHeartbeat,
   onError,
   onOpen,
+  onConnectionStatusChange,
 }: UseSubscribeQnaOptions) => {
+  const config = { ...DEFAULT_RECONNECT_CONFIG, ...reconnectConfig };
+
   const eventSourceRef = useRef<EventSource | null>(null);
+  const retryCountRef = useRef(0);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const heartbeatTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isManualDisconnectRef = useRef(false);
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+  const isConnectedToNetworkRef = useRef(true);
 
+  // Refs for stable function references (to avoid circular dependencies)
+  const connectRef = useRef<() => void>(() => {});
+  const scheduleReconnectRef = useRef<() => void>(() => {});
+
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
+
+  // 연결 상태 변경 핸들러
+  const updateConnectionStatus = useCallback(
+    (status: ConnectionStatus) => {
+      setConnectionStatus(status);
+      onConnectionStatusChange?.(status);
+    },
+    [onConnectionStatusChange]
+  );
+
+  // 재시도 지연 시간 계산 (지수 백오프)
+  const getRetryDelay = useCallback(() => {
+    const delay = Math.min(
+      config.initialDelay * Math.pow(2, retryCountRef.current),
+      config.maxDelay
+    );
+    // 약간의 랜덤 지터 추가 (0.5 ~ 1.5 배)
+    return delay * (0.5 + Math.random());
+  }, [config.initialDelay, config.maxDelay]);
+
+  // 타이머 정리
+  const clearTimers = useCallback(() => {
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+    if (heartbeatTimeoutRef.current) {
+      clearTimeout(heartbeatTimeoutRef.current);
+      heartbeatTimeoutRef.current = null;
+    }
+  }, []);
+
+  // 하트비트 타임아웃 리셋
+  const resetHeartbeatTimeout = useCallback(() => {
+    if (heartbeatTimeoutRef.current) {
+      clearTimeout(heartbeatTimeoutRef.current);
+    }
+    heartbeatTimeoutRef.current = setTimeout(() => {
+      console.warn('[SSE] Heartbeat timeout - attempting reconnection');
+      scheduleReconnectRef.current();
+    }, config.heartbeatTimeout);
+  }, [config.heartbeatTimeout]);
+
+  // 재연결 예약
+  const scheduleReconnect = useCallback(() => {
+    if (isManualDisconnectRef.current) {
+      console.log('[SSE] Manual disconnect - skipping reconnect');
+      return;
+    }
+
+    if (!isConnectedToNetworkRef.current) {
+      console.log('[SSE] No network connection - waiting for network');
+      updateConnectionStatus('disconnected');
+      return;
+    }
+
+    if (retryCountRef.current >= config.maxRetries) {
+      console.error('[SSE] Max retry attempts reached');
+      updateConnectionStatus('disconnected');
+      onError?.(new Error('Max reconnection attempts reached'));
+      return;
+    }
+
+    const delay = getRetryDelay();
+    console.log(`[SSE] Scheduling reconnect in ${Math.round(delay)}ms (attempt ${retryCountRef.current + 1}/${config.maxRetries})`);
+    updateConnectionStatus('reconnecting');
+
+    retryTimeoutRef.current = setTimeout(() => {
+      retryCountRef.current += 1;
+      connectRef.current();
+    }, delay);
+  }, [config.maxRetries, getRetryDelay, updateConnectionStatus, onError]);
+
+  // Update ref
+  scheduleReconnectRef.current = scheduleReconnect;
+
+  // 연결
   const connect = useCallback(() => {
-    if (!enabled || !qnaId || !token) return;
+    if (!enabled || !qnaId || !token) {
+      console.log('[SSE] Connection skipped - not enabled or missing params');
+      return;
+    }
 
-    // Close existing connection
+    if (!isConnectedToNetworkRef.current) {
+      console.log('[SSE] No network connection - skipping connect');
+      updateConnectionStatus('disconnected');
+      return;
+    }
+
+    // 기존 연결 종료
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
+      eventSourceRef.current = null;
     }
+
+    clearTimers();
+    isManualDisconnectRef.current = false;
+    updateConnectionStatus('connecting');
 
     const url = `${env.apiBaseUrl}/api/qna/${qnaId}/subscribe?token=${encodeURIComponent(token)}`;
 
@@ -50,15 +180,19 @@ const useSubscribeQna = ({
       },
     });
 
-    // Connection opened
+    // 연결 성공
     es.addEventListener('open', (event) => {
       console.log('[SSE] ========== CONNECTION OPENED ==========');
       console.log('[SSE] QnA ID:', qnaId);
       console.log('[SSE] Open event:', JSON.stringify(event, null, 2));
+
+      retryCountRef.current = 0; // 재시도 카운트 리셋
+      updateConnectionStatus('connected');
+      resetHeartbeatTimeout();
       onOpen?.();
     });
 
-    // Catch-all message event (for debugging - logs ALL incoming messages)
+    // 메시지 이벤트 (디버깅용)
     es.addEventListener('message', (event) => {
       console.log('[SSE] ========== MESSAGE EVENT ==========');
       console.log('[SSE] Event type:', event.type);
@@ -71,9 +205,10 @@ const useSubscribeQna = ({
       } catch {
         console.log('[SSE] Event data is not JSON');
       }
+      resetHeartbeatTimeout();
     });
 
-    // Chat event (create/update/delete)
+    // Chat 이벤트 (생성/수정/삭제)
     es.addEventListener('chat', (event) => {
       console.log('[SSE] ========== CHAT EVENT ==========');
       console.log('[SSE] Raw event:', JSON.stringify(event, null, 2));
@@ -87,9 +222,10 @@ const useSubscribeQna = ({
         console.error('[SSE] Failed to parse chat event:', error);
         console.error('[SSE] Raw data was:', event.data);
       }
+      resetHeartbeatTimeout();
     });
 
-    // Read status event
+    // 읽음 상태 이벤트
     es.addEventListener('read_status', (event) => {
       console.log('[SSE] ========== READ STATUS EVENT ==========');
       console.log('[SSE] Raw event:', JSON.stringify(event, null, 2));
@@ -103,46 +239,155 @@ const useSubscribeQna = ({
         console.error('[SSE] Failed to parse read_status event:', error);
         console.error('[SSE] Raw data was:', event.data);
       }
+      resetHeartbeatTimeout();
     });
 
-    // Heartbeat event
+    // 하트비트 이벤트
     es.addEventListener('heartbeat', (event) => {
       console.log('[SSE] ========== HEARTBEAT ==========');
       console.log('[SSE] Heartbeat event:', JSON.stringify(event, null, 2));
+      resetHeartbeatTimeout();
       onHeartbeat?.();
     });
 
-    // Error handling
+    // 에러 핸들링
     es.addEventListener('error', (event) => {
       console.error('[SSE] ========== ERROR ==========');
       console.error('[SSE] Error event:', JSON.stringify(event, null, 2));
-      onError?.(new Error('SSE connection error'));
+
+      if (!isManualDisconnectRef.current) {
+        onError?.(new Error('SSE connection error'));
+        scheduleReconnectRef.current();
+      }
     });
 
     eventSourceRef.current = es;
-  }, [enabled, qnaId, token, onChatEvent, onReadStatusEvent, onHeartbeat, onError, onOpen]);
+  }, [
+    enabled,
+    qnaId,
+    token,
+    clearTimers,
+    updateConnectionStatus,
+    resetHeartbeatTimeout,
+    onChatEvent,
+    onReadStatusEvent,
+    onHeartbeat,
+    onError,
+    onOpen,
+  ]);
 
+  // Update ref
+  connectRef.current = connect;
+
+  // 연결 해제
   const disconnect = useCallback(() => {
+    isManualDisconnectRef.current = true;
+    clearTimers();
+
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
       console.log('[SSE] Connection closed for QnA:', qnaId);
     }
-  }, [qnaId]);
 
-  // Connect on mount, disconnect on unmount
+    retryCountRef.current = 0;
+    updateConnectionStatus('disconnected');
+  }, [qnaId, clearTimers, updateConnectionStatus]);
+
+  // 수동 재연결 (재시도 카운트 리셋)
+  const reconnect = useCallback(() => {
+    console.log('[SSE] Manual reconnect requested');
+    retryCountRef.current = 0;
+    isManualDisconnectRef.current = false;
+    connectRef.current();
+  }, []);
+
+  // 앱 상태 변경 감지
   useEffect(() => {
-    connect();
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      const wasInBackground =
+        appStateRef.current.match(/inactive|background/) && nextAppState === 'active';
+
+      if (wasInBackground && enabled && !isManualDisconnectRef.current) {
+        console.log('[SSE] App came to foreground - reconnecting');
+        retryCountRef.current = 0;
+        connectRef.current();
+      }
+
+      appStateRef.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [enabled]);
+
+  // 네트워크 상태 변경 감지
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state: NetInfoState) => {
+      const wasDisconnected = !isConnectedToNetworkRef.current;
+      isConnectedToNetworkRef.current = state.isConnected ?? false;
+
+      console.log('[SSE] Network state changed:', {
+        isConnected: state.isConnected,
+        type: state.type,
+      });
+
+      // 네트워크 복구 시 재연결
+      if (wasDisconnected && state.isConnected && enabled && !isManualDisconnectRef.current) {
+        console.log('[SSE] Network restored - reconnecting');
+        retryCountRef.current = 0;
+        connectRef.current();
+      }
+
+      // 네트워크 끊김 시 연결 해제 (재시도 없이)
+      if (!state.isConnected && eventSourceRef.current) {
+        console.log('[SSE] Network lost - closing connection');
+        clearTimers();
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+        updateConnectionStatus('disconnected');
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [enabled, clearTimers, updateConnectionStatus]);
+
+  // 마운트 시 연결, 언마운트 시 해제
+  useEffect(() => {
+    connectRef.current();
 
     return () => {
       disconnect();
     };
-  }, [connect, disconnect]);
+  }, [disconnect]);
+
+  // enabled 또는 핵심 파라미터 변경 시 재연결
+  useEffect(() => {
+    if (enabled && qnaId && token) {
+      connectRef.current();
+    } else {
+      disconnect();
+    }
+  }, [enabled, qnaId, token, disconnect]);
 
   return {
-    reconnect: connect,
+    /** 수동 재연결 (재시도 카운트 리셋) */
+    reconnect,
+    /** 연결 해제 */
     disconnect,
+    /** 현재 연결 상태 */
+    connectionStatus,
+    /** 연결됨 여부 */
+    isConnected: connectionStatus === 'connected',
+    /** 재연결 중 여부 */
+    isReconnecting: connectionStatus === 'reconnecting',
   };
 };
 
 export default useSubscribeQna;
+export type { ConnectionStatus, ReconnectConfig };
