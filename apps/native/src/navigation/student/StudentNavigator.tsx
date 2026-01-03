@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
 import { ProblemScreen, PointingScreen, AnalysisScreen, AllPointingsScreen } from '@features/student/problem';
+import { ChatRoomScreen, SearchScreen } from '@features/student/qna';
 import OnboardingScreen from '@features/student/onboarding/screens/OnboardingScreen';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 import { useAuthStore } from '@stores';
@@ -47,6 +48,8 @@ const StudentNavigator = () => {
       <StudentRootStack.Screen name='Pointing' component={PointingScreen} />
       <StudentRootStack.Screen name='Analysis' component={AnalysisScreen} />
       <StudentRootStack.Screen name='AllPointings' component={AllPointingsScreen} />
+      <StudentRootStack.Screen name='ChatRoom' component={ChatRoomScreen} />
+      <StudentRootStack.Screen name='QnaSearch' component={SearchScreen} />
     </StudentRootStack.Navigator>
   );
 };

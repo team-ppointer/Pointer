@@ -1,0 +1,500 @@
+import type {
+  ChatRoom,
+  Message,
+  ChatRoomSearchResult,
+  MessageSearchResult,
+} from './types';
+
+// Dummy Chat Rooms
+export const DUMMY_CHAT_ROOMS: ChatRoom[] = [
+  {
+    id: 'publisher',
+    type: 'publisher',
+    title: '포인터 출제진',
+    lastMessage: '포인터 출제진의 피드백이 보여지는 영역입니다.',
+    lastMessageTime: 'N분 전',
+    status: 'asking',
+    hasNewMessage: false,
+  },
+  {
+    id: 'room-1',
+    type: 'teacher',
+    title: '제목이자동으로생성...',
+    lastMessage: '최근 채팅이 보여지는 텍스트가 미리보기로 보여지는 영역입니다.',
+    lastMessageTime: '1분 전',
+    status: 'asking',
+    hasNewMessage: true,
+    teacherName: 'OOO 선생님',
+  },
+  {
+    id: 'room-2',
+    type: 'teacher',
+    title: '해결완료',
+    lastMessage: '최근 채팅이 보여지는 텍스트가 미리보기로 보여지는 영역입니다. 최근 채팅이 보여지는...',
+    lastMessageTime: '20분 전',
+    status: 'asking',
+    hasNewMessage: true,
+    thumbnailUrl: 'https://picsum.photos/200',
+    teacherName: 'OOO 선생님',
+  },
+  {
+    id: 'room-3',
+    type: 'teacher',
+    title: '제목이자동으로생성...',
+    lastMessage: '최근 채팅이 보여지는 텍스트가 미리보기로 보여지는 영역입니다.',
+    lastMessageTime: 'N분 전',
+    status: 'resolved',
+    hasNewMessage: false,
+    teacherName: 'OOO 선생님',
+  },
+  {
+    id: 'room-4',
+    type: 'teacher',
+    title: '제목이자동으로생성...',
+    lastMessage: '최근 채팅이 보여지는 텍스트가 미리보기로 보여지는 영역입니다.',
+    lastMessageTime: 'N분 전',
+    status: 'resolved',
+    hasNewMessage: false,
+    thumbnailUrl: 'https://picsum.photos/201',
+    teacherName: 'OOO 선생님',
+  },
+  {
+    id: 'room-5',
+    type: 'teacher',
+    title: '제목이자동으로생성...',
+    lastMessage: '최근 채팅이 보여지는 텍스트가 미리보기로 보여지는 영역입니다.',
+    lastMessageTime: '1일',
+    status: 'asking',
+    hasNewMessage: false,
+    teacherName: 'OOO 선생님',
+  },
+  {
+    id: 'room-6',
+    type: 'teacher',
+    title: '해결완료',
+    lastMessage: '최근 채팅이 보여지는 텍스트가 미리보기로 보여지는 영역입니다.',
+    lastMessageTime: '3일',
+    status: 'asking',
+    hasNewMessage: false,
+    thumbnailUrl: 'https://picsum.photos/202',
+    teacherName: 'OOO 선생님',
+  },
+];
+
+// Dummy Messages for Publisher Chat
+export const DUMMY_PUBLISHER_MESSAGES: Message[] = [
+  {
+    id: 'pm-1',
+    type: 'text',
+    sender: 'other',
+    content:
+      '포인터 출제진의 피드백이 보여지는 영역입니다. 포인터 출제진의 피드백이 보여지는 영역입니다. 포인터 출제진의 피드백이 보여지는 영역입니다. 포인터 출제진의 피드백이 보여지는 영역입니다. 포인터 출제진의 피드백이 보여지는 영역입니다.',
+    timestamp: '09:30',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-2',
+    type: 'file',
+    sender: 'other',
+    content: '파일 제목이 보여지는 곳입니다.',
+    timestamp: '09:32',
+    date: '2025년 1월 2일',
+    file: {
+      name: '파일 제목이 보여지는 곳입니다.',
+      extension: 'PDF',
+      url: '#',
+    },
+  },
+  {
+    id: 'pm-3',
+    type: 'image',
+    sender: 'other',
+    content: '',
+    timestamp: '09:35',
+    date: '2025년 1월 2일',
+    image: {
+      url: 'https://picsum.photos/400/300',
+    },
+  },
+  {
+    id: 'pm-4',
+    type: 'reply-text',
+    sender: 'me',
+    content: '답장을 보내는 상대방의 텍스트가 보여지는 영역입니다. 답장...',
+    timestamp: '10:15',
+    date: '2025년 1월 2일',
+    reply: {
+      type: 'text',
+      title: '출제진에게 보낸 답장',
+      content: '포인터 출제진의 피드백이 보여지는 영역입니다...',
+    },
+  },
+  {
+    id: 'pm-5',
+    type: 'text',
+    sender: 'me',
+    content: '이 부분이 잘 이해가 안 되는데, 조금 더 설명해 주실 수 있나요?',
+    timestamp: '10:18',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-6',
+    type: 'text',
+    sender: 'other',
+    content:
+      '네, 물론이죠! 해당 문제에서 핵심은 함수 f(x)의 극값 조건을 정확히 파악하는 것입니다. 극값이 존재하려면 f\'(x) = 0인 점에서 f\'\'(x)의 부호가 변해야 합니다.',
+    timestamp: '11:20',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-7',
+    type: 'text',
+    sender: 'other',
+    content:
+      '특히, 문제에서 주어진 조건 "모든 실수 a의 개수는 5이다"를 만족시키려면, 그래프의 개형을 정확히 그려봐야 합니다. 삼차함수의 특성상 변곡점을 중심으로 대칭임을 활용하면 됩니다.',
+    timestamp: '11:22',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-8',
+    type: 'file',
+    sender: 'me',
+    content: '제가 풀어본 풀이입니다.',
+    timestamp: '14:30',
+    date: '2025년 1월 2일',
+    file: {
+      name: '제가 풀어본 풀이입니다.',
+      extension: 'PDF',
+      url: '#',
+    },
+  },
+  {
+    id: 'pm-9',
+    type: 'text',
+    sender: 'other',
+    content:
+      '풀이를 확인해봤습니다. 전체적인 접근은 좋으나, 닫힌구간 [-1, 1]에서의 최댓값을 구할 때 경계값 검토가 빠져있네요. 극값과 경계값을 모두 비교해야 정확한 최댓값을 구할 수 있습니다.',
+    timestamp: '15:45',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-10',
+    type: 'text',
+    sender: 'me',
+    content: '아, 경계값 검토를 놓쳤네요. 감사합니다!',
+    timestamp: '16:00',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-11',
+    type: 'text',
+    sender: 'other',
+    content:
+      '추가로 말씀드리자면, 이런 유형의 문제에서는 항상 다음 세 가지를 체크하세요: 1) 극값의 존재 여부, 2) 극값의 위치가 주어진 구간 내에 있는지, 3) 경계값과의 비교. 이 세 가지만 꼼꼼히 확인하면 실수를 줄일 수 있습니다.',
+    timestamp: '16:05',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-12',
+    type: 'text',
+    sender: 'other',
+    content: '다른 궁금한 점 있으시면 언제든 질문해주세요!',
+    timestamp: '16:06',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-13',
+    type: 'text',
+    sender: 'me',
+    content: '네, 정말 감사합니다. 많은 도움이 됐어요!',
+    timestamp: '16:10',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'pm-14',
+    type: 'text',
+    sender: 'other',
+    content:
+      '오늘 새로운 피드백입니다. 어제 제출하신 모의고사 답안을 검토해봤는데요, 전반적으로 실력이 많이 향상되었습니다. 특히 미적분 파트에서 정확도가 크게 올랐네요.',
+    timestamp: '09:00',
+    date: '2025년 1월 3일',
+  },
+  {
+    id: 'pm-15',
+    type: 'image',
+    sender: 'other',
+    content: '',
+    timestamp: '09:05',
+    date: '2025년 1월 3일',
+    image: {
+      url: 'https://picsum.photos/400/350',
+    },
+  },
+  {
+    id: 'pm-16',
+    type: 'text',
+    sender: 'other',
+    content:
+      '위 이미지는 이번 주 학습 분석 결과입니다. 빨간색으로 표시된 부분이 아직 보완이 필요한 영역이에요. 수열의 극한 단원을 조금 더 집중적으로 연습하시면 좋겠습니다.',
+    timestamp: '09:07',
+    date: '2025년 1월 3일',
+  },
+];
+
+// Dummy Messages for Teacher Chat
+export const DUMMY_TEACHER_MESSAGES: Message[] = [
+  {
+    id: 'tm-1',
+    type: 'text',
+    sender: 'other',
+    content: '안녕하세요! 오늘 수업 관련해서 궁금한 점이 있으시면 편하게 물어봐주세요.',
+    timestamp: '14:00',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-2',
+    type: 'text',
+    sender: 'me',
+    content: '선생님, 오늘 수업에서 다룬 적분 문제 중에 하나가 잘 이해가 안 돼요.',
+    timestamp: '14:05',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-3',
+    type: 'text',
+    sender: 'me',
+    content: '특히 치환적분할 때 어떤 기준으로 치환할 변수를 정하는지 모르겠어요.',
+    timestamp: '14:06',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-4',
+    type: 'reply-text',
+    sender: 'other',
+    content:
+      '좋은 질문이에요! 치환적분에서 변수를 정하는 핵심은 "피적분함수를 단순화시킬 수 있는가"입니다. 보통 합성함수의 내부함수를 치환하면 됩니다.',
+    timestamp: '14:15',
+    date: '2025년 1월 2일',
+    reply: {
+      type: 'text',
+      title: '학생 질문에 대한 답변',
+      content: '특히 치환적분할 때 어떤 기준으로 치환할 변수를 정하는지 모르겠어요.',
+    },
+  },
+  {
+    id: 'tm-5',
+    type: 'text',
+    sender: 'other',
+    content:
+      '예를 들어, ∫x·cos(x²)dx 같은 경우, x²을 t로 치환하면 dt = 2x dx가 되어서 x dx = dt/2로 바꿀 수 있어요. 그러면 ∫(1/2)cos(t)dt = (1/2)sin(t) + C가 되죠.',
+    timestamp: '14:17',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-6',
+    type: 'text',
+    sender: 'me',
+    content: '아~ 합성함수의 내부함수를 치환하는 거군요! 이해됐어요.',
+    timestamp: '14:20',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-7',
+    type: 'text',
+    sender: 'other',
+    content:
+      '맞아요! 추가로, √(ax+b) 형태가 있으면 ax+b를 통째로 치환하고, 삼각함수가 복잡하게 얽혀있으면 삼각치환을 고려해보세요. 연습문제 몇 개 더 풀어보면 감이 올 거예요.',
+    timestamp: '14:25',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-8',
+    type: 'file',
+    sender: 'other',
+    content: '치환적분 연습문제 모음',
+    timestamp: '14:28',
+    date: '2025년 1월 2일',
+    file: {
+      name: '치환적분 연습문제 모음',
+      extension: 'PDF',
+      url: '#',
+    },
+  },
+  {
+    id: 'tm-9',
+    type: 'text',
+    sender: 'me',
+    content: '와 감사합니다! 열심히 풀어볼게요.',
+    timestamp: '14:30',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-10',
+    type: 'text',
+    sender: 'other',
+    content: '화이팅! 풀다가 모르는 거 있으면 또 질문해요~ 😊',
+    timestamp: '14:32',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-11',
+    type: 'text',
+    sender: 'me',
+    content: '선생님, 연습문제 다 풀어봤는데 3번이랑 7번이 안 풀려요 ㅠㅠ',
+    timestamp: '18:00',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-12',
+    type: 'image',
+    sender: 'me',
+    content: '',
+    timestamp: '18:02',
+    date: '2025년 1월 2일',
+    image: {
+      url: 'https://picsum.photos/400/300',
+    },
+  },
+  {
+    id: 'tm-13',
+    type: 'text',
+    sender: 'other',
+    content:
+      '3번은 부분적분을 먼저 적용한 후에 치환적분을 해야 해요. 7번은 분모를 인수분해해서 부분분수로 분리한 다음 적분하면 됩니다.',
+    timestamp: '19:30',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-14',
+    type: 'text',
+    sender: 'other',
+    content: '내일 수업 때 이 두 문제 같이 풀어볼게요!',
+    timestamp: '19:32',
+    date: '2025년 1월 2일',
+  },
+  {
+    id: 'tm-15',
+    type: 'text',
+    sender: 'me',
+    content: '넵! 감사합니다 선생님~',
+    timestamp: '19:35',
+    date: '2025년 1월 2일',
+  },
+];
+
+// Dummy Recent Searches
+export const DUMMY_RECENT_SEARCHES: string[] = [
+  '시대인재',
+  '6월',
+  '대성 기출',
+  '9월 모고',
+  '6월 모고',
+  '대성 기출',
+  '대성 기출',
+  '대성 기출',
+];
+
+// Dummy Search Results
+export const DUMMY_SEARCH_CHAT_ROOMS: ChatRoomSearchResult[] = [
+  {
+    id: 'sr-1',
+    title: '제목 9월 생성...',
+    thumbnailUrl: 'https://picsum.photos/100',
+    status: 'asking',
+    date: '날짜 및 시간',
+    matchedKeyword: '9월',
+  },
+  {
+    id: 'sr-2',
+    title: '제목 9월 생성...',
+    thumbnailUrl: 'https://picsum.photos/101',
+    status: 'asking',
+    date: '날짜 및 시간',
+    matchedKeyword: '9월',
+  },
+  {
+    id: 'sr-3',
+    title: '제목 9월 생성...',
+    status: 'asking',
+    date: '날짜 및 시간',
+    matchedKeyword: '9월',
+  },
+  {
+    id: 'sr-4',
+    title: '제목 9월 생성...',
+    status: 'asking',
+    date: '날짜 및 시간',
+    matchedKeyword: '9월',
+  },
+  {
+    id: 'sr-5',
+    title: '제목 9월 생성...',
+    status: 'asking',
+    date: '날짜 및 시간',
+    matchedKeyword: '9월',
+  },
+  {
+    id: 'sr-6',
+    title: '제목 9월 생성...',
+    status: 'asking',
+    date: '날짜 및 시간',
+    matchedKeyword: '9월',
+  },
+];
+
+export const DUMMY_SEARCH_MESSAGES: MessageSearchResult[] = [
+  {
+    id: 'sm-1',
+    chatRoomId: 'publisher',
+    content: '....포인터 출제진의 답변 9월이 보여지는 영역입니다. 포인터 출제진의 답변이 보여...',
+    senderName: '출제진',
+    senderType: 'publisher',
+    status: 'asking',
+    date: '날짜 및 시간',
+    matchedKeyword: '9월',
+  },
+  {
+    id: 'sm-2',
+    chatRoomId: 'publisher',
+    content: '....포인터 출제진의 답변 9월이 보여지는 영역입니다. 포인터 출제진의 답변이 보여...',
+    senderName: '출제진',
+    senderType: 'publisher',
+    status: 'asking',
+    date: '날짜 및 시간',
+    matchedKeyword: '9월',
+  },
+  {
+    id: 'sm-3',
+    chatRoomId: 'room-1',
+    content: '....포인터 출제진의 답변 9월이 보여지는 영역입니다. 포인터 출제진의 답변이 보여...',
+    senderName: 'ooo 선생님',
+    senderType: 'teacher',
+    status: 'asking',
+    date: '날짜 및 시간',
+    thumbnailUrl: 'https://picsum.photos/102',
+    matchedKeyword: '9월',
+  },
+  {
+    id: 'sm-4',
+    chatRoomId: 'room-2',
+    content: '....포인터 출제진의 답변 9월이 보여지는 영역입니다. 포인터 출제진의 답변이 보여...',
+    senderName: 'ooo 선생님',
+    senderType: 'teacher',
+    status: 'resolved',
+    date: '날짜 및 시간',
+    thumbnailUrl: 'https://picsum.photos/103',
+    matchedKeyword: '9월',
+  },
+];
+
+// Filter Options
+export const FILTER_OPTIONS = [
+  { label: '전체', value: 'all' },
+  { label: '질문중', value: 'asking' },
+  { label: '해결완료', value: 'resolved' },
+] as const;
+
+export const STATUS_OPTIONS = [
+  { label: '질문중', value: 'asking' },
+  { label: '해결 완료', value: 'resolved' },
+] as const;
