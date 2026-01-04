@@ -11,7 +11,15 @@ import {
   ActionSheetIOS,
   Platform,
 } from 'react-native';
-import { FileText, ImageIcon, Reply, User, File, FileSpreadsheet } from 'lucide-react-native';
+import {
+  FileText,
+  ImageIcon,
+  ImageOff,
+  Reply,
+  User,
+  File,
+  FileSpreadsheet,
+} from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -187,11 +195,23 @@ const SingleImage = ({
   onPress?: () => void;
   size?: 'large' | 'medium' | 'small';
 }) => {
+  const [hasError, setHasError] = useState(false);
+
   const sizeStyles = {
     large: 'h-[200px] w-[250px]',
     medium: 'h-[120px] w-[120px]',
     small: 'h-[80px] w-[80px]',
   };
+
+  if (hasError) {
+    const errorClasses = `${sizeStyles[size]} items-center justify-center rounded-[8px] border border-gray-200 bg-gray-100`;
+    return (
+      <View className={errorClasses}>
+        <ImageOff size={24} color={colors['gray-400']} />
+        <Text className='text-12r mt-1 text-center text-gray-400'>이미지를 불러올 수 없습니다</Text>
+      </View>
+    );
+  }
 
   return (
     <Pressable onPress={onPress} className='overflow-hidden rounded-[8px]'>
@@ -199,6 +219,7 @@ const SingleImage = ({
         source={{ uri: url }}
         className={`${sizeStyles[size]} rounded-[8px] bg-gray-200`}
         resizeMode='cover'
+        onError={() => setHasError(true)}
       />
     </Pressable>
   );
@@ -321,22 +342,27 @@ const ImageMessage = ({
 
 // Profile Image Component
 const ProfileImage = ({ imageUrl }: { imageUrl?: string }) => {
-  if (imageUrl) {
-    return (
-      <Image
-        source={{ uri: imageUrl }}
-        style={{ width: PROFILE_SIZE, height: PROFILE_SIZE }}
-        className='rounded-full bg-gray-300'
-      />
-    );
-  }
+  const [hasError, setHasError] = useState(false);
 
-  return (
+  const fallback = (
     <View
       style={{ width: PROFILE_SIZE, height: PROFILE_SIZE }}
       className='items-center justify-center rounded-full bg-gray-300'>
       <User size={20} color={colors['gray-600']} />
     </View>
+  );
+
+  if (!imageUrl || hasError) {
+    return fallback;
+  }
+
+  return (
+    <Image
+      source={{ uri: imageUrl }}
+      style={{ width: PROFILE_SIZE, height: PROFILE_SIZE }}
+      className='rounded-full bg-gray-300'
+      onError={() => setHasError(true)}
+    />
   );
 };
 
