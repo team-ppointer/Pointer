@@ -256,21 +256,25 @@ export const mapChatRespToMessage = (
 };
 
 /**
- * Map QnAResp chats to Messages with proper dates
- * Since ChatResp doesn't have date, we use QnAResp dates or estimate
+ * Map QnAResp chats to Messages
+ * Since ChatResp doesn't have individual timestamps, we sort by ID for consistent ordering
+ * TODO: API에서 개별 메시지 타임스탬프가 추가되면 주석 해제
  */
 export const mapQnARespToMessages = (qna: QnAResp): Message[] => {
   if (!qna.chats || qna.chats.length === 0) return [];
-  
-  // Use the latest message time as reference
-  const baseDate = qna.latestMessageTime ? new Date(qna.latestMessageTime) : new Date();
-  
-  return qna.chats.map((chat, index) => {
-    // Estimate time - newer messages are at the end
-    const estimatedDate = new Date(baseDate);
-    estimatedDate.setMinutes(estimatedDate.getMinutes() - (qna.chats.length - index - 1) * 5);
-    
-    return mapChatRespToMessage(chat, qna.chats, estimatedDate.toISOString());
+
+  // 메시지를 ID 기준으로 정렬 (오래된 순 -> 최신 순)
+  const sortedChats = [...qna.chats].sort((a, b) => a.id - b.id);
+
+  // TODO: API에서 개별 메시지 타임스탬프가 추가되면 아래 주석 해제
+  // return sortedChats.map((chat) => {
+  //   // chat.createdAt 등의 필드를 사용
+  //   return mapChatRespToMessage(chat, sortedChats, chat.createdAt);
+  // });
+
+  // 현재는 타임스탬프 없이 반환
+  return sortedChats.map((chat) => {
+    return mapChatRespToMessage(chat, sortedChats, undefined);
   });
 };
 

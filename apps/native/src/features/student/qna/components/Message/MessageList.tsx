@@ -10,7 +10,8 @@ import { useSharedValue } from 'react-native-reanimated';
 import ImageViewing from 'react-native-image-viewing';
 import type { Message } from '../../types';
 import MessageBubble from './MessageBubble';
-import DateDivider from './DateDivider';
+// TODO: API에서 개별 메시지 타임스탬프가 추가되면 주석 해제
+// import DateDivider from './DateDivider';
 
 interface MessageListProps {
   messages: Message[];
@@ -22,11 +23,19 @@ interface MessageListProps {
   onDelete?: (message: Message) => void;
 }
 
+// TODO: API에서 개별 메시지 타임스탬프가 추가되면 'date' 타입 추가
+// interface GroupedMessage {
+//   id: string;
+//   type: 'date' | 'message';
+//   date?: string;
+//   message?: Message;
+//   showProfile?: boolean;
+//   showTail?: boolean;
+// }
 interface GroupedMessage {
   id: string;
-  type: 'date' | 'message';
-  date?: string;
-  message?: Message;
+  type: 'message';
+  message: Message;
   showProfile?: boolean;
   showTail?: boolean;
 }
@@ -52,14 +61,11 @@ const MessageList = ({
   const globalTranslateX = useSharedValue(0);
 
   // Handle image press to open full-screen viewer
-  const handlePressImages = useCallback(
-    (images: Array<{ uri: string }>, initialIndex: number) => {
-      setViewerImages(images);
-      setViewerIndex(initialIndex);
-      setIsViewerVisible(true);
-    },
-    []
-  );
+  const handlePressImages = useCallback((images: Array<{ uri: string }>, initialIndex: number) => {
+    setViewerImages(images);
+    setViewerIndex(initialIndex);
+    setIsViewerVisible(true);
+  }, []);
 
   // Track if user is at the bottom of the scroll (top in inverted list)
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -83,25 +89,27 @@ const MessageList = ({
     return () => subscription.remove();
   }, [isAtBottom]);
 
-  // Group messages by date and determine which messages should show profile/tail
+  // Group messages and determine which messages should show profile/tail
   // Reversed for inverted FlatList
+  // TODO: API에서 개별 메시지 타임스탬프가 추가되면 날짜 구분선 로직 주석 해제
   const groupedMessages = useMemo<GroupedMessage[]>(() => {
     const groups: GroupedMessage[] = [];
-    let currentDate = '';
+    // let currentDate = '';
 
     messages.forEach((message, index) => {
-      // Add date divider if date changed
-      if (message.date !== currentDate) {
-        currentDate = message.date;
-        groups.push({ id: `date-${currentDate}`, type: 'date', date: currentDate });
-      }
+      // TODO: API에서 개별 메시지 타임스탬프가 추가되면 날짜 구분선 추가
+      // if (message.date !== currentDate) {
+      //   currentDate = message.date;
+      //   groups.push({ id: `date-${currentDate}`, type: 'date', date: currentDate });
+      // }
 
       const previousMessage = index > 0 ? messages[index - 1] : null;
-      const dateChanged = previousMessage && previousMessage.date !== message.date;
+      // const dateChanged = previousMessage && previousMessage.date !== message.date;
       const senderChanged = previousMessage && previousMessage.sender !== message.sender;
 
       // Show tail for first message in consecutive messages from the same sender
-      const showTail = index === 0 || senderChanged || dateChanged || !previousMessage;
+      // TODO: 날짜 변경 시에도 showTail 활성화: const showTail = index === 0 || senderChanged || dateChanged || !previousMessage;
+      const showTail = index === 0 || senderChanged || !previousMessage;
 
       // Show profile only for 'other' sender and when showTail is true
       const isOther = message.sender === 'other';
@@ -122,29 +130,38 @@ const MessageList = ({
 
   const renderItem = useCallback(
     ({ item }: { item: GroupedMessage }) => {
-      if (item.type === 'date' && item.date) {
-        return <DateDivider date={item.date} />;
-      }
-      if (item.type === 'message' && item.message) {
-        return (
-          <MessageBubble
-            message={item.message}
-            globalTranslateX={globalTranslateX}
-            senderName={senderName}
-            profileImageUrl={profileImageUrl}
-            showProfile={item.showProfile}
-            showTail={item.showTail}
-            onReply={onReply}
-            onPressImages={handlePressImages}
-            onPressFile={onPressFile}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        );
-      }
-      return null;
+      // TODO: API에서 개별 메시지 타임스탬프가 추가되면 날짜 구분선 렌더링 주석 해제
+      // if (item.type === 'date' && item.date) {
+      //   return <DateDivider date={item.date} />;
+      // }
+      // if (item.type === 'message' && item.message) { ... }
+
+      return (
+        <MessageBubble
+          message={item.message}
+          globalTranslateX={globalTranslateX}
+          senderName={senderName}
+          profileImageUrl={profileImageUrl}
+          showProfile={item.showProfile}
+          showTail={item.showTail}
+          onReply={onReply}
+          onPressImages={handlePressImages}
+          onPressFile={onPressFile}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      );
     },
-    [globalTranslateX, senderName, profileImageUrl, onReply, handlePressImages, onPressFile, onEdit, onDelete]
+    [
+      globalTranslateX,
+      senderName,
+      profileImageUrl,
+      onReply,
+      handlePressImages,
+      onPressFile,
+      onEdit,
+      onDelete,
+    ]
   );
 
   const keyExtractor = useCallback((item: GroupedMessage) => item.id, []);
