@@ -21,6 +21,7 @@ import {
   Send,
   Reply,
   Image as ImageIcon,
+  ImageOff,
   Paperclip,
   X,
   FileText,
@@ -234,15 +235,32 @@ const SingleImage = ({
   onPress?: () => void;
   size?: 'large' | 'medium' | 'small';
 }) => {
+  const [hasError, setHasError] = useState(false);
+
   const sizeStyles = {
     large: 'h-[200px] w-[250px]',
     medium: 'h-[120px] w-[120px]',
     small: 'h-[80px] w-[80px]',
   };
 
+  if (hasError) {
+    const errorClasses = `${sizeStyles[size]} flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-100`;
+    return (
+      <div className={errorClasses}>
+        <ImageOff className='mb-1 h-6 w-6 text-gray-400' />
+        <span className='text-center text-xs text-gray-400'>이미지를 불러올 수 없습니다</span>
+      </div>
+    );
+  }
+
   return (
     <button type='button' onClick={onPress} className='overflow-hidden rounded-lg'>
-      <img src={url} className={`${sizeStyles[size]} rounded-lg bg-gray-200 object-cover`} alt='' />
+      <img
+        src={url}
+        className={`${sizeStyles[size]} rounded-lg bg-gray-200 object-cover`}
+        alt=''
+        onError={() => setHasError(true)}
+      />
     </button>
   );
 };
@@ -369,6 +387,28 @@ const ReplyPreview = ({ reply }: { reply: Message['reply']; isMe: boolean }) => 
   );
 };
 
+// Profile Image Component
+const ProfileImage = ({ imageUrl }: { imageUrl?: string }) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (!imageUrl || hasError) {
+    return (
+      <div className='flex h-9 w-9 items-center justify-center rounded-full bg-gray-300'>
+        <User className='h-5 w-5 text-gray-600' />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={imageUrl}
+      className='h-9 w-9 rounded-full bg-gray-300'
+      alt=''
+      onError={() => setHasError(true)}
+    />
+  );
+};
+
 // Message Bubble Component
 const MessageBubble = ({
   message,
@@ -459,15 +499,7 @@ const MessageBubble = ({
       {/* Profile Image for other's messages */}
       {!isMe && (
         <div className='mr-2 w-9 flex-shrink-0'>
-          {showProfile && (
-            <div className='flex h-9 w-9 items-center justify-center rounded-full bg-gray-300'>
-              {profileImageUrl ? (
-                <img src={profileImageUrl} className='h-9 w-9 rounded-full' alt='' />
-              ) : (
-                <User className='h-5 w-5 text-gray-600' />
-              )}
-            </div>
-          )}
+          {showProfile && <ProfileImage imageUrl={profileImageUrl} />}
         </div>
       )}
 
