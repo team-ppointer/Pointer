@@ -27,4 +27,13 @@ export type StudentRootStackParamList = {
     chatRoomId: number;
   };
   QnaSearch: undefined;
+  Scrap: undefined;
+  ScrapContent: {
+    id: number;
+  };
+  SearchScrap: undefined;
+  DeletedScrap: undefined;
+  ScrapContentDetail: {
+    id: number;
+  };
 };
