@@ -13,6 +13,7 @@ import {
   Users,
   Megaphone,
   Tags,
+  MessageCircle,
 } from 'lucide-react';
 import { getStudent } from '@apis';
 import { useSelectedStudent } from '@hooks';
@@ -216,6 +217,13 @@ const GNB = () => {
                 to='/diagnosis'
                 icon={<ChartNoAxesCombined className='h-5 w-5' />}
                 label='학생 진단'
+                isCollapsed={isCollapsed}
+              />
+
+              <NavItem
+                to='/qna'
+                icon={<MessageCircle className='h-5 w-5' />}
+                label='Q&A'
                 isCollapsed={isCollapsed}
               />
             </div>
