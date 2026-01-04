@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 
 const useGetPublishDetail = (id: number) => {
   return TanstackQueryClient.useQuery(

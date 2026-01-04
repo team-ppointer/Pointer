@@ -1,4 +1,4 @@
-import { client } from '@apis';
+import { client } from '@/apis/client';
 
 const postPhoneResend = async (
   phone: string,

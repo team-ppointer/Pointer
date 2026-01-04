@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 
 type Props = {
   query: string;

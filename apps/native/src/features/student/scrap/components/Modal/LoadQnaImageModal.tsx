@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { FlatList, Image, Modal, Pressable, View, StyleSheet, Alert, Text } from 'react-native';
 import { LoadQnaImageScreenModal } from './FullScreenModal';
 import { Check } from 'lucide-react-native';
-import { useGetQnaAllImages, useCreateScrapFromImage } from '@/apis';
+import { useGetQnaImages, useCreateScrapFromImage } from '@/apis';
 
 interface LoadQnaImageModalProps {
   visible: boolean;
@@ -12,7 +12,7 @@ interface LoadQnaImageModalProps {
 }
 
 export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageModalProps) => {
-  const { data: qnaAllImagesData, isLoading } = useGetQnaAllImages();
+  const { data: qnaAllImagesData, isLoading } = useGetQnaImages();
   const { mutate: createScrapFromImage } = useCreateScrapFromImage();
 
   const [containerWidth, setContainerWidth] = useState(0);

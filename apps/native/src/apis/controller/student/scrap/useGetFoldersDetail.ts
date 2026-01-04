@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 
 export const useGetFolderDetail = (id: number, enabled = true) => {
   return TanstackQueryClient.useQuery(

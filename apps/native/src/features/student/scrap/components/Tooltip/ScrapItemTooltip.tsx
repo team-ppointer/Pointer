@@ -23,14 +23,10 @@ import {
   useDeleteScrap,
   useGetScrapDetail,
   useGetFolders,
+  useUploadFile,
 } from '@/apis';
 import { useNoteStore } from '@/stores/scrapNoteStore';
-import {
-  openImageLibrary,
-  openImageLibraryWithErrorHandling,
-} from '../../utils/images/imagePicker';
-import { uploadImageToS3 } from '../../utils/images/imageUpload';
-import { usePreSignedUrlAdapter } from '../../hooks';
+import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
 
 export interface ScrapItemTooltipProps {
   props: ScrapListItemProps;
@@ -56,7 +52,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
   const { data: scrapDetail } = useGetScrapDetail(Number(props.id), props.type === 'SCRAP');
   const { data: foldersData } = useGetFolders();
 
-  const getPreSignedUrl = usePreSignedUrlAdapter();
+  const { mutateAsync: uploadFile } = useUploadFile();
 
   const handleUpdateFolderCover = async (image: any) => {
     if (!image || !image.uri) {
@@ -67,24 +63,23 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
       return;
     }
 
-    await uploadImageToS3(
-      image,
-      getPreSignedUrl,
-      async (result) => {
-        // 폴더 썸네일만 업데이트
-        await updateFolderThumbnail({
-          id: props.id,
-          request: {
-            thumbnailImageId: result.fileId,
-          },
-        });
-        showToast('success', '표지가 변경되었습니다.');
-        handleClose();
-      },
-      (error) => {
-        showToast('error', error);
-      }
-    );
+    try {
+      const fileName = image.fileName || `${Date.now()}.jpg`;
+      const files = await uploadFile([
+        { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
+      ]);
+      
+      await updateFolderThumbnail({
+        id: props.id,
+        request: {
+          thumbnailImageId: files[0].id,
+        },
+      });
+      showToast('success', '표지가 변경되었습니다.');
+      handleClose();
+    } catch (error) {
+      showToast('error', '이미지 업로드에 실패했습니다.');
+    }
   };
 
   const onPressChangeCover = async () => {

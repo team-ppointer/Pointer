@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { TanstackQueryClient, client } from '@apis';
+import { TanstackQueryClient, client } from '@/apis/client';
 
 type Options = {
   qnaId?: number;

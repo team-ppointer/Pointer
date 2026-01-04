@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 
 export const useGetHandwriting = (scrapId: number, enabled = true) => {
   return TanstackQueryClient.useQuery(

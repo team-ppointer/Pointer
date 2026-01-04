@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 import { paths } from '@/types/api/schema';
 
 type SearchScrapsParams = paths['/api/student/scrap/search']['get']['parameters']['query'];

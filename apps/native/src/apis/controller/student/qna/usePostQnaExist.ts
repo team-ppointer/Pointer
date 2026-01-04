@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { client } from '@apis';
+import { client } from '@/apis/client';
 import { components } from '@schema';
 
 type QnACheckRequest = components['schemas']['QnACheckRequest'];

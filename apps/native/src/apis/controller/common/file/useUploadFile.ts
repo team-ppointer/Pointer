@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { client } from '@apis';
+import { client } from '@/apis/client';
 import { components } from '@schema';
 
 type PreSignedReq = components['schemas']['PreSignedReq'];
@@ -23,9 +23,7 @@ type Options = {
   onError?: (error: unknown) => void;
 };
 
-const getPresignedUrls = async (
-  fileNames: string[]
-): Promise<UploadResult[]> => {
+const getPresignedUrls = async (fileNames: string[]): Promise<UploadResult[]> => {
   const requests: PreSignedReq[] = fileNames.map((fileName) => ({ fileName }));
 
   const responses = await Promise.all(
@@ -52,8 +50,12 @@ const uploadFilesToS3 = async (
   files: FileToUpload[],
   presignedData: UploadResult[]
 ): Promise<boolean> => {
-  const uploadPromises = files.map((file, index) => {
+  const uploadPromises = files.map(async (file, index) => {
     const { uploadUrl, contentDisposition } = presignedData[index];
+
+    // React Native에서 파일 URI를 blob으로 변환
+    const response = await fetch(file.uri);
+    const blob = await response.blob();
 
     return fetch(uploadUrl, {
       method: 'PUT',
@@ -61,11 +63,7 @@ const uploadFilesToS3 = async (
         'Content-Type': file.type,
         'Content-Disposition': contentDisposition,
       },
-      body: {
-        uri: file.uri,
-        name: file.name,
-        type: file.type,
-      } as unknown as BodyInit,
+      body: blob,
     });
   });
 
@@ -99,4 +97,3 @@ const useUploadFile = (options?: Options) => {
 export default useUploadFile;
 export { getPresignedUrls, uploadFilesToS3 };
 export type { FileToUpload, UploadResult };
-

@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 

@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { AddFolderScreenModal } from './FullScreenModal';
-import { useCreateFolder } from '@/apis';
+import { useCreateFolder, useUploadFile } from '@/apis';
 import { showToast } from '../Notification/Toast';
 import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
 import { colors } from '@/theme/tokens';
-import { uploadImageToS3 } from '../../utils/images/imageUpload';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageIcon } from 'lucide-react-native';
 import { useScrapModal } from '../../contexts/ScrapModalsContext';
-import { usePreSignedUrlAdapter } from '../../hooks';
 
 export const CreateFolderModal = () => {
   const { isCreateFolderModalVisible, closeCreateFolderModal, refetchFolders, refetchScraps } =
@@ -17,7 +15,7 @@ export const CreateFolderModal = () => {
   const [folderName, setFolderName] = useState('');
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const { mutateAsync: createFolder } = useCreateFolder();
-  const getPreSignedUrl = usePreSignedUrlAdapter();
+  const { mutateAsync: uploadFile } = useUploadFile();
 
   // 모달이 닫힐 때 상태 초기화
   useEffect(() => {
@@ -48,43 +46,29 @@ export const CreateFolderModal = () => {
       return;
     }
 
-    // 이미지가 있는 경우 먼저 업로드
-    if (selectedImage) {
-      setTimeout(() => {
-        closeCreateFolderModal();
-      }, 0);
-      const success = await uploadImageToS3(
-        selectedImage,
-        getPreSignedUrl,
-        async (result) => {
-          // 폴더 생성 (이미지 ID 포함)
-          await createFolder({
-            name: folderName,
-            thumbnailImageId: result.fileId,
-          });
-          showToast('success', '폴더가 추가되었습니다.');
-          refetchFolders?.();
-          refetchScraps?.();
-        },
-        (error) => {
-          showToast('error', error);
-        }
-      );
+    try {
+      let thumbnailImageId: number | undefined;
 
-      if (!success) {
-        return;
+      // 이미지가 있는 경우 먼저 업로드
+      if (selectedImage) {
+        const fileName = selectedImage.fileName || `${Date.now()}.jpg`;
+        const files = await uploadFile([
+          { uri: selectedImage.uri, name: fileName, type: selectedImage.mimeType || 'image/jpeg' },
+        ]);
+        thumbnailImageId = files[0].id;
       }
-    } else {
-      try {
-        await createFolder({ name: folderName });
-        showToast('success', '폴더가 추가되었습니다.');
-        refetchFolders?.();
-        setTimeout(() => {
-          closeCreateFolderModal();
-        }, 0);
-      } catch (error) {
-        showToast('error', '폴더 추가에 실패했습니다.');
-      }
+
+      await createFolder({
+        name: folderName,
+        thumbnailImageId,
+      });
+
+      showToast('success', '폴더가 추가되었습니다.');
+      refetchFolders?.();
+      refetchScraps?.();
+      closeCreateFolderModal();
+    } catch (error) {
+      showToast('error', '폴더 추가에 실패했습니다.');
     }
   };
 
