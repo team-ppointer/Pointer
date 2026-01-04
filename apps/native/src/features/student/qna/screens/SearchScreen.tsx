@@ -72,14 +72,18 @@ const SearchScreen = () => {
 
   const handleSelectChatRoom = useCallback(
     (result: ChatRoomSearchResult) => {
-      navigation.navigate('ChatRoom', { chatRoomId: result.id });
+      // Admin chat(publisher)의 경우 -1을 전달해야 ChatRoomScreen에서 올바르게 인식함
+      const chatRoomId = result.type === 'publisher' ? -1 : result.id;
+      navigation.navigate('ChatRoom', { chatRoomId });
     },
     [navigation]
   );
 
   const handleSelectMessage = useCallback(
     (result: MessageSearchResult) => {
-      navigation.navigate('ChatRoom', { chatRoomId: result.chatRoomId });
+      // Admin chat(publisher)의 경우 -1을 전달해야 ChatRoomScreen에서 올바르게 인식함
+      const chatRoomId = result.senderType === 'publisher' ? -1 : result.chatRoomId;
+      navigation.navigate('ChatRoom', { chatRoomId });
     },
     [navigation]
   );

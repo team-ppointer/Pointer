@@ -77,6 +77,7 @@ export interface ChatRoomSearchResult {
   status: ChatRoomStatus;
   date: string;
   matchedKeyword: string;
+  type: ChatRoomType;
 }
 
 export interface MessageSearchResult {
@@ -295,6 +296,7 @@ export const mapSearchResults = (searchResp: QnASearchResp): SearchResult => {
           status: 'asking',
           date: formatDateTime(qna.latestMessageTime),
           matchedKeyword: '',
+          type: qna.type === 'ADMIN_CHAT' ? 'publisher' : 'teacher',
         });
       });
     });

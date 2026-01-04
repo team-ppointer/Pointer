@@ -38,19 +38,24 @@ const ChatRoomHeader = ({
           {showBackButton && (
             <Pressable
               onPress={onBack}
-              className='absolute left-0 mr-[4px] h-[40px] w-[40px] items-center justify-center rounded-full active:bg-gray-200'>
+              className='h-[40px] w-[40px] items-center justify-center rounded-full active:bg-gray-200'>
               <ChevronLeft size={28} color={colors['gray-800']} />
             </Pressable>
           )}
-          <Text className='text-18b text-gray-900'>{isPublisher ? '출제진' : chatRoom.title}</Text>
-          {!isPublisher && onStatusChange && (
-            <Dropdown
-              options={STATUS_OPTIONS}
-              value={chatRoom.status}
-              onChange={onStatusChange}
-              variant='status'
-            />
-          )}
+          <View className='flex-1 flex-row items-center justify-center gap-[8px]'>
+            <Text className='text-18b text-gray-900'>
+              {isPublisher ? '출제진' : chatRoom.title}
+            </Text>
+            {!isPublisher && onStatusChange && (
+              <Dropdown
+                options={STATUS_OPTIONS}
+                value={chatRoom.status}
+                onChange={onStatusChange}
+                variant='status'
+              />
+            )}
+          </View>
+            {showBackButton && (<View className='h-[40px] w-[40px]' />)}
         </View>
       </View>
 
