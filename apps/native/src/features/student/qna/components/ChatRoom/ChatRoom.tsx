@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { View, Text, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePostQnaChat, usePutQna, usePutQnaChat, useDeleteQnaChat, useInvalidateQnaData } from '@apis/controller/student/qna';
@@ -71,6 +71,9 @@ const ChatRoom = ({
   const qnaId = chatRoom?.id;
   const token = getAccessToken();
 
+  // Debounce ref for read_status events (prevent excessive list invalidations)
+  const readStatusDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Subscribe to SSE for real-time updates
   useSubscribeQna({
     qnaId: qnaId ? Number(qnaId) : 0,
@@ -94,17 +97,25 @@ const ChatRoom = ({
     ),
     onReadStatusEvent: useCallback(
       (event) => {
+        // 현재 열려있는 채팅방의 read_status 이벤트는 무시
+        // (이미 채팅방에 있으면 읽은 것이므로 배지 업데이트 불필요)
+        if (event.qnaId === qnaId) {
+          return;
+        }
         console.log('[ChatRoom] Read status event received:', event);
-        // Optionally handle read status updates
+        // 다른 채팅방의 read_status 이벤트 수신 시 채팅방 리스트의 배지(안 읽음 표시)를 업데이트
+        // 디바운스 적용: 500ms 내 중복 이벤트는 무시
         if (event.qnaId) {
-          if (isPublisher) {
-            void invalidateQnaAdminChat();
-          } else {
-            void invalidateQnaById(event.qnaId);
+          if (readStatusDebounceRef.current) {
+            clearTimeout(readStatusDebounceRef.current);
           }
+          readStatusDebounceRef.current = setTimeout(() => {
+            void invalidateQnaList();
+            readStatusDebounceRef.current = null;
+          }, 500);
         }
       },
-      [isPublisher, invalidateQnaById, invalidateQnaAdminChat]
+      [invalidateQnaList, qnaId]
     ),
     onError: useCallback((error) => {
       console.error('[ChatRoom] SSE error:', error);
