@@ -34,6 +34,8 @@ interface MessageInputProps {
   onFileSelected?: (file: SelectedFile) => void;
   placeholder?: string;
   disabled?: boolean;
+  /** 전체 화면 모드(바텀 내비게이션이 없는 경우)에서 하단 safe area 적용 */
+  useSafeAreaBottom?: boolean;
 }
 
 const IconButton = ({
@@ -66,10 +68,14 @@ const MessageInput = ({
   onFileSelected,
   placeholder = '무엇이든 물어보세요.',
   disabled,
+  useSafeAreaBottom = false,
 }: MessageInputProps) => {
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const insets = useSafeAreaInsets();
+
+  // 전체 화면 모드에서 하단 safe area 적용
+  const bottomMargin = useSafeAreaBottom ? Math.max(insets.bottom, 10) : 10;
 
   // When editing message changes, populate the text field
   useEffect(() => {
@@ -189,7 +195,7 @@ const MessageInput = ({
   return (
     <View
       className='mx-[10px] mt-[10px] overflow-hidden rounded-[12px] border border-gray-400 bg-white'
-      style={{ marginBottom: 10 }}>
+      style={{ marginBottom: bottomMargin }}>
       {/* Editing Indicator */}
       {isEditing && (
         <View className='flex-row items-center justify-between border-b border-gray-300 bg-blue-50 px-[12px] py-[8px]'>

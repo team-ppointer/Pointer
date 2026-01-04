@@ -1,16 +1,17 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { View, Text, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { usePostQnaChat, usePutQna, usePutQnaChat, useDeleteQnaChat, useInvalidateQnaData } from '@apis/controller/student/qna';
+import {
+  usePostQnaChat,
+  usePutQna,
+  usePutQnaChat,
+  useDeleteQnaChat,
+  useInvalidateQnaData,
+} from '@apis/controller/student/qna';
 import { useUploadFile } from '@apis/controller/common/file';
 import useSubscribeQna from '@apis/controller/common/qna/useGetSubscribeQna';
 import { getAccessToken } from '@utils/auth';
-import type {
-  ChatRoom as ChatRoomType,
-  Message,
-  ChatRoomStatus,
-  QnAResp,
-} from '../../types';
+import type { ChatRoom as ChatRoomType, Message, ChatRoomStatus, QnAResp } from '../../types';
 import { mapQnARespToMessages } from '../../types';
 import { MessageList } from '../Message';
 import { MessageInput, type SelectedImage, type SelectedFile } from '../MessageInput';
@@ -25,8 +26,8 @@ interface ChatRoomProps {
 }
 
 const EmptyState = () => (
-  <View className="flex-1 items-center justify-center bg-gray-100">
-    <Text className="text-14r text-gray-600">채팅방을 선택해주세요.</Text>
+  <View className='flex-1 items-center justify-center bg-gray-100'>
+    <Text className='text-14r text-gray-600'>채팅방을 선택해주세요.</Text>
   </View>
 );
 
@@ -37,16 +38,16 @@ const NewChatState = ({
   teacherName?: string;
   isPublisher?: boolean;
 }) => (
-  <View className="flex-1 items-center justify-center bg-gray-200">
+  <View className='flex-1 items-center justify-center bg-gray-200'>
     {isPublisher ? (
       <>
-        <Text className="text-14r text-gray-600">포인터 출제진에게</Text>
-        <Text className="text-14r text-gray-600">질문을 시작해보세요!</Text>
+        <Text className='text-14r text-gray-600'>포인터 출제진에게</Text>
+        <Text className='text-14r text-gray-600'>질문을 시작해보세요!</Text>
       </>
     ) : (
       <>
-        <Text className="text-14r text-gray-600">{teacherName ?? 'OOO'} 선생님에게</Text>
-        <Text className="text-14r text-gray-600">질문을 시작해보세요!</Text>
+        <Text className='text-14r text-gray-600'>{teacherName ?? 'OOO'} 선생님에게</Text>
+        <Text className='text-14r text-gray-600'>질문을 시작해보세요!</Text>
       </>
     )}
   </View>
@@ -261,23 +262,20 @@ const ChatRoom = ({
       const fileName = image.fileName ?? `image_${Date.now()}.jpg`;
       const mimeType = image.type ?? 'image/jpeg';
 
-      uploadFileMutation.mutate(
-        [{ uri: image.uri, name: fileName, type: mimeType }],
-        {
-          onSuccess: (uploadedFiles) => {
-            if (uploadedFiles.length > 0) {
-              const fileIds = uploadedFiles.map((f) => f.id);
-              postChatMutation.mutate({
-                qnaId,
-                content: '',
-                images: fileIds,
-                replyToId: replyTo?.id,
-              });
-              setReplyTo(null);
-            }
-          },
-        }
-      );
+      uploadFileMutation.mutate([{ uri: image.uri, name: fileName, type: mimeType }], {
+        onSuccess: (uploadedFiles) => {
+          if (uploadedFiles.length > 0) {
+            const fileIds = uploadedFiles.map((f) => f.id);
+            postChatMutation.mutate({
+              qnaId,
+              content: '',
+              images: fileIds,
+              replyToId: replyTo?.id,
+            });
+            setReplyTo(null);
+          }
+        },
+      });
     },
     [qnaId, uploadFileMutation, postChatMutation, replyTo]
   );
@@ -288,23 +286,20 @@ const ChatRoom = ({
 
       const mimeType = file.mimeType ?? 'application/octet-stream';
 
-      uploadFileMutation.mutate(
-        [{ uri: file.uri, name: file.name, type: mimeType }],
-        {
-          onSuccess: (uploadedFiles) => {
-            if (uploadedFiles.length > 0) {
-              const fileIds = uploadedFiles.map((f) => f.id);
-              postChatMutation.mutate({
-                qnaId,
-                content: '',
-                images: fileIds,
-                replyToId: replyTo?.id,
-              });
-              setReplyTo(null);
-            }
-          },
-        }
-      );
+      uploadFileMutation.mutate([{ uri: file.uri, name: file.name, type: mimeType }], {
+        onSuccess: (uploadedFiles) => {
+          if (uploadedFiles.length > 0) {
+            const fileIds = uploadedFiles.map((f) => f.id);
+            postChatMutation.mutate({
+              qnaId,
+              content: '',
+              images: fileIds,
+              replyToId: replyTo?.id,
+            });
+            setReplyTo(null);
+          }
+        },
+      });
     },
     [qnaId, uploadFileMutation, postChatMutation, replyTo]
   );
@@ -358,17 +353,21 @@ const ChatRoom = ({
   );
 
   const showCommentsOnly = isPublisher && selectedTab === 1;
-  const isSending = postChatMutation.isPending || uploadFileMutation.isPending || updateChatMutation.isPending || deleteChatMutation.isPending;
+  const isSending =
+    postChatMutation.isPending ||
+    uploadFileMutation.isPending ||
+    updateChatMutation.isPending ||
+    deleteChatMutation.isPending;
 
   // Calculate keyboard offset: tab bar height + bottom safe area
   const keyboardOffset = Platform.OS === 'ios' ? 10 + insets.bottom : 0;
 
   return (
     <KeyboardAvoidingView
-      className="flex-1"
+      className='flex-1'
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={keyboardOffset}>
-      <View className="flex-1 bg-gray-200">
+      <View className='flex-1 bg-gray-200'>
         <ChatRoomHeader
           chatRoom={{ ...chatRoom, status }}
           selectedTab={selectedTab}
@@ -404,6 +403,7 @@ const ChatRoom = ({
             onImageSelected={handleImageSelected}
             onFileSelected={handleFileSelected}
             disabled={status === 'resolved' || isSending}
+            useSafeAreaBottom={showBackButton}
           />
         )}
       </View>
