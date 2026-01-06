@@ -20,4 +20,4 @@ export { ScrapGrid, SearchScrapGrid, TrashScrapGrid } from './ScrapCardGrid';
 export type { ScrapGridItem } from './ScrapCardGrid';
 
 // Head Cards
-export { ScrapAddItem, ScrapReviewItem } from './cards/ScrapHeadCard';
+export { ScrapAddCard, ScrapAllCard } from './cards/ScrapHeadCard';
