@@ -3,20 +3,21 @@ import { Action, State } from '../../utils/reducer';
 import { ScrapCard } from './cards/ScrapCard';
 import { SearchResultCard } from './cards/SearchResultCard';
 import { TrashCard } from './cards/TrashCard';
-import { ScrapAddItem, ScrapReviewItem } from './cards/ScrapHeadCard';
+import { ScrapAddCard, ScrapAllCard } from './cards/ScrapHeadCard';
 import { ScrapItem, TrashItem } from '@/features/student/scrap/utils/types';
 import { useGridLayout } from '../../utils/layout/gridLayout';
 import { useState } from 'react';
 
 /**
- * ADD item type for ScrapGrid
+ * ADD, ALL item type for ScrapGrid
  */
 export type AddItem = { ADD: true };
+export type AllItem = { ALL: true };
 
 /**
  * Union type for ScrapGrid data items
  */
-export type ScrapGridItem = ScrapItem | AddItem;
+export type ScrapGridItem = ScrapItem | AddItem | AllItem;
 
 /**
  * Adds placeholder items to fill the last row in grid layout
@@ -40,7 +41,7 @@ interface ScrapGridProps {
 export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
-  const finalData = addPlaceholders(data, numColumns);
+  const finalData = addPlaceholders(data as ScrapItem[], numColumns);
 
   return (
     <FlatList
@@ -63,6 +64,10 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
           return 'add-item';
         }
 
+        if ('ALL' in item && item.ALL === true) {
+          return 'all-item';
+        }
+
         if ('id' in item && 'type' in item) {
           return `${item.type}-${item.id}`;
         }
@@ -70,7 +75,7 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
         return `fallback-${index}`;
       }}
       contentContainerStyle={{ paddingBottom: 120 }}
-      columnWrapperStyle={{ marginBottom: gap * 2 }}
+      columnWrapperStyle={{ marginBottom: gap * 2 + 5 }}
       removeClippedSubviews={true}
       maxToRenderPerBatch={10}
       updateCellsBatchingPeriod={50}
@@ -94,7 +99,24 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
         if ('ADD' in item && item.ADD === true) {
           return (
             <View style={spacingStyle}>
-              <ScrapAddItem reducerState={reducerState} />
+              <ScrapAddCard reducerState={reducerState} />
+            </View>
+          );
+        }
+
+        if ('ALL' in item && item.ALL === true) {
+          return (
+            <View style={spacingStyle}>
+              <ScrapAllCard
+                reducerState={reducerState}
+                onCheckPress={() =>
+                  dispatch?.({
+                    type: 'SELECTING_ITEM',
+                    id: undefined,
+                    itemType: 'FOLDER',
+                  })
+                }
+              />
             </View>
           );
         }
