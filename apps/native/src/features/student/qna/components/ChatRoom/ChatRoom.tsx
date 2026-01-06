@@ -269,7 +269,7 @@ const ChatRoom = ({
             postChatMutation.mutate({
               qnaId,
               content: '',
-              images: fileIds,
+              files: fileIds,
               replyToId: replyTo?.id,
             });
             setReplyTo(null);
@@ -293,7 +293,7 @@ const ChatRoom = ({
             postChatMutation.mutate({
               qnaId,
               content: '',
-              images: fileIds,
+              files: fileIds,
               replyToId: replyTo?.id,
             });
             setReplyTo(null);

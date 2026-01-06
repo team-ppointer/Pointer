@@ -230,7 +230,7 @@ const ImagesGrid = ({
   images,
   onPressImage,
 }: {
-  images: NonNullable<Message['images']>;
+  images: NonNullable<Message['files']>;
   onPressImage?: (images: Array<{ uri: string }>, index: number) => void;
 }) => {
   const count = images.length;
@@ -291,24 +291,24 @@ const ImagesGrid = ({
 // Image Message Component (supports multiple images and files)
 const ImageMessage = ({
   image,
-  images,
+  files,
   isMe,
   onPressImages,
   onDownload,
   downloadingFiles,
 }: {
   image?: Message['image'];
-  images?: Message['images'];
+  files?: Message['files'];
   isMe: boolean;
   onPressImages?: (images: Array<{ uri: string }>, index: number) => void;
   onDownload?: (url: string, fileName: string) => void;
   downloadingFiles?: Set<string>;
 }) => {
-  // Use images array if available, otherwise fallback to single image
-  if (images && images.length > 0) {
+  // Use files array if available, otherwise fallback to single image
+  if (files && files.length > 0) {
     // Separate IMAGE and non-IMAGE files
-    const imageFiles = images.filter((img) => img.fileType === 'IMAGE');
-    const otherFiles = images.filter((img) => img.fileType !== 'IMAGE');
+    const imageFiles = files.filter((f) => f.fileType === 'IMAGE');
+    const otherFiles = files.filter((f) => f.fileType !== 'IMAGE');
 
     return (
       <View className='gap-[8px]'>
@@ -379,7 +379,7 @@ const MessageBubble = ({
   onEdit,
   onDelete,
 }: MessageBubbleProps) => {
-  const { type, sender, content, timestamp, reply, file, image, images } = message;
+  const { type, sender, content, timestamp, reply, file, image, files } = message;
   const isMe = sender === 'me';
 
   // Track downloading files
@@ -578,14 +578,14 @@ const MessageBubble = ({
         return (
           <FileAttachment
             file={file}
-            uploadFile={images?.[0]}
+            uploadFile={files?.[0]}
             isMe={isMe}
             onDownload={handleDownload}
             isDownloading={
               file?.url
                 ? downloadingFiles.has(file.url)
-                : images?.[0]?.url
-                  ? downloadingFiles.has(images[0].url)
+                : files?.[0]?.url
+                  ? downloadingFiles.has(files[0].url)
                   : false
             }
           />
@@ -594,7 +594,7 @@ const MessageBubble = ({
         return (
           <ImageMessage
             image={image}
-            images={images}
+            files={files}
             isMe={isMe}
             onPressImages={onPressImages}
             onDownload={handleDownload}
@@ -606,11 +606,11 @@ const MessageBubble = ({
         return (
           <View>
             <ReplyPreview reply={reply} isMe={isMe} />
-            {/* Show images if present in reply */}
-            {images && images.length > 0 && (
+            {/* Show files if present in reply */}
+            {files && files.length > 0 && (
               <View className='mb-[8px]'>
                 <ImageMessage
-                  images={images}
+                  files={files}
                   isMe={isMe}
                   onPressImages={onPressImages}
                   onDownload={handleDownload}
