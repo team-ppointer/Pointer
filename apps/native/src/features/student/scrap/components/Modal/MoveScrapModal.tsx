@@ -92,13 +92,19 @@ export const MoveScrapModal = () => {
 
   // 이동 실행
   const handleMove = async () => {
-    if (!selectedFolderId) {
+    // 선택된 폴더가 없으면 에러 (undefined는 전체 스크랩으로 이동하는 유효한 선택)
+    const hasSelectedFolder = folderSelectionState.selectedItems.some(
+      (item) => item.type === 'FOLDER'
+    );
+    if (!hasSelectedFolder) {
       showToast('error', '이동할 폴더를 선택해주세요.');
       return;
     }
 
     // 스크랩만 필터링 (폴더는 이동 불가)
-    const scrapsToMove = selectedItems.filter((item) => item.type === 'SCRAP');
+    const scrapsToMove = selectedItems.filter(
+      (item): item is { id: number; type: 'SCRAP' } => item.type === 'SCRAP'
+    );
     if (scrapsToMove.length === 0) {
       showToast('error', '스크랩만 이동이 가능합니다.');
       return;
@@ -120,7 +126,15 @@ export const MoveScrapModal = () => {
     }
   };
 
-  const folderName = folders.find((folder) => folder.id === selectedFolderId)?.name;
+  const folderName =
+    selectedFolderId === undefined
+      ? '전체 스크랩'
+      : folders.find((folder) => folder.id === selectedFolderId)?.name;
+
+  // 폴더가 선택되었는지 확인 (전체 스크랩 포함)
+  const hasSelectedFolder = folderSelectionState.selectedItems.some(
+    (item) => item.type === 'FOLDER'
+  );
 
   return (
     <PopUpModal
@@ -147,7 +161,7 @@ export const MoveScrapModal = () => {
         <View className='flex-1 gap-[16px] p-[20px]'>
           <ScrollView className='flex-1'>
             <ScrapGrid
-              data={folders}
+              data={[{ ALL: true }, ...folders]}
               reducerState={folderSelectionState}
               dispatch={folderDispatch}
             />
@@ -155,10 +169,10 @@ export const MoveScrapModal = () => {
           <Pressable
             onPress={handleMove}
             className={`items-center rounded-[8px] px-[20px] py-[10px] ${
-              selectedFolderId ? 'bg-primary-500' : 'bg-gray-300'
+              hasSelectedFolder ? 'bg-primary-500' : 'bg-gray-300'
             }`}>
-            <Text className={`text-16sb ${selectedFolderId ? 'text-white' : 'text-gray-500'}`}>
-              {selectedFolderId ? `'${folderName}' 폴더로 이동하기` : '이동할 폴더를 선택해주세요'}
+            <Text className={`text-16sb ${hasSelectedFolder ? 'text-white' : 'text-gray-500'}`}>
+              {hasSelectedFolder ? `'${folderName}'으로 이동하기` : '이동할 폴더를 선택해주세요'}
             </Text>
           </Pressable>
         </View>

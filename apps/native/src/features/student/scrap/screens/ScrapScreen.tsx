@@ -134,7 +134,9 @@ const ScrapScreenContent = () => {
               dispatch({ type: 'CLEAR_SELECTION' });
 
               try {
-                await deleteScrap({ items });
+                await deleteScrap({
+                  items: items.map((item) => ({ id: item.id as number, type: item.type })),
+                });
                 showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
               } catch (error: any) {
                 // 에러 발생 시 롤백은 mutation의 onError에서 처리됨

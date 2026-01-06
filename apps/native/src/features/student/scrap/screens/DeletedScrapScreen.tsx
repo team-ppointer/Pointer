@@ -45,7 +45,9 @@ const DeletedScrapScreenContent = () => {
   const handlePermanentDelete = async () => {
     try {
       const items = reducerState.selectedItems;
-      await permanentDelete({ items });
+      await permanentDelete({
+        items: items.map((item) => ({ id: item.id as number, type: item.type })),
+      });
       dispatch({ type: 'CLEAR_SELECTION' });
       setIsDeleteModalVisible(false);
       showToast('success', '영구 삭제되었습니다.');
@@ -90,7 +92,9 @@ const DeletedScrapScreenContent = () => {
             try {
               const items = reducerState.selectedItems;
 
-              await restoreTrash({ items });
+              await restoreTrash({
+                items: items.map((item) => ({ id: item.id as number, type: item.type })),
+              });
               dispatch({ type: 'CLEAR_SELECTION' });
               showToast('success', '선택된 파일들이 복구되었습니다.');
             } catch (error) {
