@@ -14,7 +14,21 @@ import {
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft, X, ChevronDown, ChevronUp, Maximize2, Save } from 'lucide-react-native';
+import {
+  ChevronLeft,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Maximize2,
+  Save,
+  MessageCircleMore,
+  Bookmark,
+  ChevronRight,
+  Undo2,
+  Redo2,
+  Pencil,
+  Type,
+} from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -33,6 +47,10 @@ import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
 import { components } from '@/types/api/schema';
 import DrawingCanvas, { DrawingCanvasRef, Stroke, TextItem } from '../utils/skia/drawing';
 import { colors } from '@/theme/tokens';
+import LottieView from 'lottie-react-native';
+import { ChevronDownFilledIcon, PencilFilledIcon } from '@/components/system/icons';
+import { IconButton } from '../../problem/components/WritingArea';
+import EraserFilledIcon from '@/components/system/icons/EraserFilledIcon';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
@@ -47,25 +65,26 @@ const ScrapDetailScreen = () => {
   const { mutate: updateHandwriting, isPending: isSaving } = useUpdateHandwriting();
 
   const canvasRef = useRef<DrawingCanvasRef>(null);
+  const lottieRef = useRef<LottieView>(null);
+
   const [isEraserMode, setIsEraserMode] = useState(false);
   const [isTextMode, setIsTextMode] = useState(false);
-  const [strokeWidth, setStrokeWidth] = useState(1.5);
-  const [eraserSize, setEraserSize] = useState(6);
+  const [strokeWidth, setStrokeWidth] = useState(2);
+  const [eraserSize, setEraserSize] = useState(22);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showSave, setShowSave] = useState(false);
   const lastSavedDataRef = useRef<string>('');
-  const [displayUpdatedAt, setDisplayUpdatedAt] = useState<string>('');
 
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes } = useNoteStore();
   const [tabLayouts, setTabLayouts] = useState<Record<number, { x: number; width: number }>>({});
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollX = useSharedValue(0);
   const screenWidth = Dimensions.get('window').width;
-  const [expandedSections, setExpandedSections] = useState<Record<string, { comment: boolean }>>(
-    {}
-  );
+  // const [expandedSections, setExpandedSections] = useState<Record<string, { comment: boolean }>>(
+  //   {}
+  // );
   const [selectedFilter, setSelectedFilter] = useState<number>(0); // 0: 전체, 1: 문제, 2+: 포인팅 인덱스
   const [isProblemExpanded, setIsProblemExpanded] = useState(false);
   const [isHoveringProblem, setIsHoveringProblem] = useState(false);
@@ -75,6 +94,17 @@ const ScrapDetailScreen = () => {
       navigation.setParams({ id: String(activeNoteId) });
     }
   }, [activeNoteId, scrapId, navigation]);
+
+  useEffect(() => {
+    const playAnimation = () => {
+      setTimeout(() => setShowSave(true), 3000);
+      lottieRef.current?.reset();
+      lottieRef.current?.play();
+    };
+    const interval = setInterval(playAnimation, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // undo/redo 상태 변경 핸들러
   const handleHistoryChange = useCallback((canUndoValue: boolean, canRedoValue: boolean) => {
@@ -107,9 +137,6 @@ const ScrapDetailScreen = () => {
         lastSavedDataRef.current = handwritingData.data;
         setHasUnsavedChanges(false);
         // updatedAt 초기화
-        if (handwritingData.updatedAt) {
-          setDisplayUpdatedAt(handwritingData.updatedAt);
-        }
       } catch (error) {
         console.error('필기 데이터 로드 실패:', error);
       }
@@ -152,7 +179,6 @@ const ScrapDetailScreen = () => {
               setHasUnsavedChanges(false);
               // 응답에서 받은 updatedAt으로 업데이트
               if (response?.updatedAt) {
-                setDisplayUpdatedAt(response.updatedAt);
               }
               if (!isAutoSave) {
                 Alert.alert('성공', '필기가 저장되었습니다.');
@@ -201,7 +227,7 @@ const ScrapDetailScreen = () => {
   // 필터 옵션 생성 (scrapDetail이 없어도 Hook은 항상 호출되어야 함)
   const filterOptions = useMemo(() => {
     if (!scrapDetail) return ['전체', '문제'];
-    const options = ['전체', '문제'];
+    const options = ['스크랩 전체', '문제'];
     if (pointingsWithLabels.length > 0) {
       pointingsWithLabels.forEach((pointing) => {
         options.push(`포인팅 ${pointing.label}`);
@@ -311,23 +337,36 @@ const ScrapDetailScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F2F4F7' }}>
-      <SafeAreaView edges={['top']} className='bg-gray-100'>
-        <Container className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
+      <SafeAreaView edges={['top']} className='bg-gray-800 text-white'>
+        <View className='w-full flex-row items-center justify-between bg-gray-800 px-[20px] py-[14px]'>
           {navigation.canGoBack() && (
-            <Pressable
-              onPress={() => navigation.goBack()}
-              className='p-2 md:right-[48px] lg:right-[96px]'>
+            <Pressable onPress={() => navigation.goBack()}>
               <View className='items-center justify-center gap-[10px]'>
-                <ChevronLeft className='text-black' size={32} />
+                <ChevronLeft color={'#FFF'} size={32} />
               </View>
             </Pressable>
           )}
-          {showSave && <Save size={30} color={colors['primary-600']} />}
-          <Text className='text-20b text-gray-900'>{scrap.name || '스크랩 상세'}</Text>
-          <Text className='text-17m text-gray-900'>{displayUpdatedAt}</Text>
-        </Container>
+          <View className='flex-row items-center gap-[10px]'>
+            {showSave && (
+              <LottieView
+                style={{ width: 24, height: 24 }}
+                source={require('../../../../../assets/lottie/refetch_cw.json')}
+                ref={lottieRef}
+                onAnimationFinish={() => {
+                  setTimeout(() => setShowSave(false), 200);
+                }}
+                loop={false}
+              />
+            )}
+            <Text className='text-20b text-white'>{scrap.name || '스크랩 상세'}</Text>
+            <ChevronDownFilledIcon size={20} color={colors['gray-600']} />
+          </View>
+          <Pressable>
+            <MessageCircleMore size={24} color={'#FFF'} />
+          </Pressable>
+        </View>
         {openNotes.length > 1 && (
-          <View className='flex-row border-b border-gray-300 bg-gray-50'>
+          <View className='flex-row border-b border-gray-300 bg-gray-800'>
             <ScrollView
               ref={scrollViewRef}
               horizontal
@@ -364,30 +403,61 @@ const ScrapDetailScreen = () => {
         )}
       </SafeAreaView>
       <View style={{ flex: 1, flexDirection: 'row' }}>
-        <ScrollView style={{ width: '50%' }} className='p-4'>
-          <View className='gap-6'>
-            {/* 필터 버튼 및 전체보기 */}
-            {filterOptions.length > 0 && (
-              <View className='gap-3 rounded-lg bg-white p-4'>
-                <SegmentedControl
-                  options={filterOptions}
-                  selectedIndex={selectedFilter}
-                  onChange={setSelectedFilter}
-                />
-                {scrap.pointings && scrap.pointings.length > 0 && scrap.problem && (
-                  <View className='items-end'>
-                    <TextButton variant='outline' onPress={handleViewAllPointings}>
-                      전체보기
+        <ScrollView
+          style={{ width: '60%', backgroundColor: colors['gray-200'] }}
+          contentContainerStyle={{ padding: 20, gap: 14 }}>
+          <View className='gap-[14px] '>
+            <View className='flex-row items-center justify-center gap-2'>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ flexDirection: 'row', gap: 10 }}>
+                {filterOptions.map((option, index) => (
+                  <View key={option} className='flex-row items-center gap-2'>
+                    <TextButton
+                      variant='blue'
+                      onPress={() => setSelectedFilter(index)}
+                      style={{
+                        backgroundColor:
+                          selectedFilter === index ? colors['primary-500'] : '#D9E2FF',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 34,
+                        paddingHorizontal: 8,
+                        paddingVertical: 5,
+                        borderRadius: 6,
+                      }}>
+                      <View className='flex-row items-center gap-1'>
+                        {index !== 0 && <Bookmark size={16} color={colors['primary-500']} />}
+                        <Text
+                          className={
+                            selectedFilter === index
+                              ? 'text-16m text-white'
+                              : 'text-16m text-gray-800'
+                          }>
+                          {option}
+                        </Text>
+                      </View>
                     </TextButton>
                   </View>
+                ))}
+              </ScrollView>
+              <View className='pl-[6px] pr-[8px]'>
+                {scrap.pointings && scrap.pointings.length > 0 && scrap.problem && (
+                  <Pressable
+                    className='flex-row items-center gap-0.5'
+                    onPress={handleViewAllPointings}>
+                    <Text className='text-16m text-gray-800'>전체보기</Text>
+                    <ChevronRight size={16} color={colors['gray-700']} />
+                  </Pressable>
                 )}
               </View>
-            )}
+            </View>
             {shouldShowProblem &&
               !(scrap.problem && scrap.problem.problemContent) &&
               scrap.thumbnailUrl && (
-                <View className='gap-4 rounded-lg bg-white p-4'>
-                  <Text className='text-16b text-[#1E1E21]'>문제 내용</Text>
+                <View className='gap-[6px] rounded-[8px] border border-gray-500 bg-white p-[14px]'>
+                  <Text className='text-16b text-black'>문제 본문</Text>
                   <Pressable
                     className='relative'
                     onPress={() => {
@@ -414,8 +484,8 @@ const ScrapDetailScreen = () => {
               )}
             {/* 문제 내용 */}
             {shouldShowProblem && scrap.problem && scrap.problem.problemContent && (
-              <View className='gap-4 rounded-lg bg-white p-4'>
-                <Text className='text-16b text-[#1E1E21]'>문제 내용</Text>
+              <View className='gap-[6px] rounded-[8px] border border-gray-500 bg-white p-[14px]'>
+                <Text className='text-16b text-black'>문제 본문</Text>
                 <Pressable
                   className='relative'
                   onPress={() => {
@@ -428,7 +498,7 @@ const ScrapDetailScreen = () => {
                   <ProblemViewer
                     problemContent={scrap.problem.problemContent}
                     minHeight={200}
-                    padding={20}
+                    padding={14}
                   />
                   {isHoveringProblem && (
                     <Pressable
@@ -442,78 +512,203 @@ const ScrapDetailScreen = () => {
             )}
             {/* 포인팅 */}
             {hasVisiblePointings && (
-              <View className='gap-4 rounded-lg bg-white p-4'>
-                <Text className='text-16b text-[#1E1E21]'>포인팅</Text>
-                <View className='gap-4'>
-                  {pointingsWithLabels.map((pointing, idx) => {
-                    if (!shouldShowPointing(idx)) return null;
-                    const sectionKey = `pointing-${pointing.id}`;
-                    const isCommentExpanded = expandedSections[sectionKey]?.comment ?? false;
+              <>
+                {pointingsWithLabels.map((pointing, idx) => {
+                  if (!shouldShowPointing(idx)) return null;
+                  const sectionKey = `pointing-${pointing.id}`;
+                  // const isCommentExpanded = expandedSections[sectionKey]?.comment ?? false;
 
-                    return (
-                      <View key={pointing.id} className='gap-3 rounded-lg bg-gray-100 p-4'>
-                        <View className='flex-row items-center gap-[10px]'>
-                          <Text className='text-16sb text-black'>포인팅 {pointing.label}</Text>
-                          <Text className='text-14m text-gray-500'>포인팅 질문</Text>
-                        </View>
-                        {pointing.questionContent && (
-                          <View className='gap-2'>
-                            <ProblemViewer problemContent={pointing.questionContent} padding={16} />
-                          </View>
-                        )}
-                        {pointing.concepts && pointing.concepts.length > 0 && (
-                          <View className='flex-row flex-wrap gap-1'>
-                            {pointing.concepts.map((concept) => (
-                              <View key={concept.id} className='rounded-full bg-blue-100 px-2 py-1'>
-                                <Text className='text-12r text-blue-700'>{concept.name}</Text>
-                              </View>
-                            ))}
-                          </View>
-                        )}
-                        {pointing.commentContent && (
-                          <View className='gap-2'>
-                            <Pressable
-                              onPress={() => {
-                                setExpandedSections((prev) => ({
-                                  ...prev,
-                                  [sectionKey]: {
-                                    ...prev[sectionKey],
-                                    comment: !isCommentExpanded,
-                                  },
-                                }));
-                              }}
-                              className='flex-row items-end'>
-                              {isCommentExpanded ? (
-                                <ChevronUp size={16} color='#6B7280' />
-                              ) : (
-                                <ChevronDown size={16} color='#6B7280' />
-                              )}
-                            </Pressable>
-                            {isCommentExpanded && (
-                              <ProblemViewer
-                                problemContent={pointing.commentContent}
-                                minHeight={100}
-                                padding={16}
-                              />
-                            )}
-                          </View>
-                        )}
+                  return (
+                    <View key={sectionKey} className='rounded-[8px] border border-gray-400'>
+                      <View className='flex-row items-center gap-[10px] rounded-t-[8px] bg-white p-[14px]'>
+                        <Text className='text-16b text-black'>포인팅 {pointing.label}</Text>
+                        <Text className='text-13m text-gray-700'>포인팅 질문</Text>
                       </View>
-                    );
-                  })}
-                </View>
-              </View>
+                      {pointing.questionContent && (
+                        <View className='gap-2 border-b border-gray-400 bg-white p-[14px]'>
+                          <ProblemViewer problemContent={pointing.questionContent} padding={16} />
+                        </View>
+                      )}
+                      {pointing.concepts && pointing.concepts.length > 0 && (
+                        <View className='flex-row flex-wrap gap-1'>
+                          {pointing.concepts.map((concept) => (
+                            <View key={concept.id} className='rounded-full bg-blue-100 px-2 py-1'>
+                              <Text className='text-12r text-blue-700'>{concept.name}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                      {pointing.commentContent && (
+                        <View className='gap-2 rounded-b-[8px] bg-gray-100 p-[14px]'>
+                          <Pressable
+                            onPress={() => {
+                              // setExpandedSections((prev) => ({
+                              //   ...prev,
+                              //   [sectionKey]: {
+                              //     ...prev[sectionKey],
+                              //     comment: !isCommentExpanded,
+                              //   },
+                              // }));
+                            }}
+                            className='flex-row items-end'>
+                            {/* {isCommentExpanded ? (
+                              <ChevronUp size={16} color='#6B7280' />
+                            ) : (
+                              <ChevronDown size={16} color='#6B7280' />
+                            )} */}
+                          </Pressable>
+                          {/* {isCommentExpanded && (
+                            <ProblemViewer
+                              problemContent={pointing.commentContent}
+                              minHeight={100}
+                              padding={16}
+                            />
+                          )} */}
+                          <ProblemViewer
+                            problemContent={pointing.commentContent}
+                            minHeight={100}
+                            padding={16}
+                          />
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
+              </>
             )}
           </View>
         </ScrollView>
         <View
           style={{
-            width: '50%',
+            width: '60%',
             backgroundColor: 'white',
             borderLeftWidth: 1,
             borderColor: '#D1D5DB',
           }}>
           <View style={{ flex: 1 }}>
+            {/* 제어 버튼 */}
+            <View className='flex-row items-center gap-[10px] border-b border-gray-400 bg-gray-100 px-[14px] py-[6px]'>
+              <View className='flex-row items-center gap-[10px]'>
+                <IconButton
+                  icon={Undo2}
+                  backgroundColor='bg-gray-700'
+                  disabledBackgroundColor='bg-gray-100'
+                  iconColor='white'
+                  onPress={() => canvasRef.current?.undo()}
+                  disabled={!canUndo}
+                  disabledColor={colors['gray-500']}
+                  radius={8}
+                  size={36}
+                />
+                <IconButton
+                  icon={Redo2}
+                  backgroundColor='bg-gray-700'
+                  disabledBackgroundColor='bg-gray-100'
+                  iconColor='white'
+                  onPress={() => canvasRef.current?.redo()}
+                  disabled={!canRedo}
+                  disabledColor={colors['gray-500']}
+                  size={36}
+                  radius={8}
+                />
+                {/* <Pressable
+                  onPress={() => handleSave(false)}
+                  disabled={isSaving}
+                  className={`flex-1 items-center justify-center rounded-lg py-3 ${
+                    isSaving ? 'bg-gray-400' : 'bg-blue-600'
+                  }`}>
+                  <Text className='text-white'>{isSaving ? '저장 중...' : '저장하기'}</Text>
+                </Pressable> */}
+              </View>
+              <View className='h-[22px] w-[2px] bg-gray-500' />
+              <View className='flex-row items-center gap-[10px]'>
+                <IconButton
+                  icon={PencilFilledIcon}
+                  disabled={isTextMode || isEraserMode}
+                  backgroundColor='bg-blue-200'
+                  disabledBackgroundColor='bg-gray-100'
+                  iconColor={colors['primary-500']}
+                  disabledColor={colors['gray-700']}
+                  onPress={() => {
+                    setIsTextMode(false);
+                    setIsEraserMode(false);
+                  }}
+                  size={36}
+                  radius={8}
+                />
+                <IconButton
+                  icon={EraserFilledIcon}
+                  disabled={!isEraserMode}
+                  backgroundColor='bg-blue-200'
+                  disabledBackgroundColor='bg-gray-100'
+                  iconColor={colors['primary-500']}
+                  disabledColor={colors['gray-700']}
+                  onPress={() => {
+                    setIsEraserMode((prev) => !prev);
+                    if (!isEraserMode) {
+                      setIsTextMode(false);
+                    }
+                  }}
+                  size={36}
+                  radius={8}
+                />
+                <IconButton
+                  icon={Type}
+                  disabled={!isTextMode}
+                  backgroundColor='bg-blue-200'
+                  disabledBackgroundColor='bg-gray-100'
+                  iconColor={colors['primary-500']}
+                  disabledColor={colors['gray-700']}
+                  onPress={() => {
+                    setIsTextMode(true);
+                    setIsEraserMode(false);
+                  }}
+                  size={36}
+                  radius={8}
+                />
+              </View>
+              <View className='h-[22px] w-[2px] bg-gray-500' />
+              <View className='flex-row items-center gap-[10px]'>
+                {/* 그리기 크기 선택 (필기 모드일 때만 표시) */}
+                {!isTextMode && !isEraserMode && (
+                  <View className='flex-row items-center gap-[10px]'>
+                    <View className='flex-row items-center gap-2'>
+                      {[2, 1.2, 0.7].map((size, index) => (
+                        <Pressable
+                          key={size}
+                          onPress={() => setStrokeWidth(size)}
+                          className={`h-[36px] w-[36px] items-center justify-center rounded-[8px] p-[5.6px] ${
+                            strokeWidth === size ? 'bg-gray-400' : 'bg-gray-100'
+                          }`}>
+                          <View className='w-[22px] bg-black' style={{ height: size }} />
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* 지우개 크기 선택 (지우개 모드일 때만 표시) */}
+                {isEraserMode && (
+                  <View className='mb-2'>
+                    <View className='flex-row items-center gap-2'>
+                      {[22, 14, 8].map((size) => (
+                        <Pressable
+                          key={size}
+                          onPress={() => setEraserSize(size)}
+                          className={`h-[36px] w-[36px] items-center justify-center rounded-[8px] p-[5.6px] ${
+                            eraserSize === size ? 'bg-gray-400' : 'bg-gray-100'
+                          }`}>
+                          <View
+                            className='border-primary-500 rounded-full border-[2px] bg-white'
+                            style={{ width: size, height: size }}
+                          />
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </View>
+            </View>
             <DrawingCanvas
               ref={canvasRef}
               strokeColor='black'
@@ -524,117 +719,6 @@ const ScrapDetailScreen = () => {
               eraserSize={eraserSize}
               onHistoryChange={handleHistoryChange}
             />
-          </View>
-
-          {/* 하단 제어 버튼 */}
-          <View className='border-t border-gray-200 p-4'>
-            <View className='mb-2 flex-row gap-2'>
-              <Pressable
-                onPress={() => {
-                  setIsTextMode(false);
-                  setIsEraserMode(false);
-                }}
-                className={`flex-1 items-center justify-center rounded-lg py-3 ${
-                  !isTextMode && !isEraserMode ? 'bg-blue-500' : 'bg-gray-200'
-                }`}>
-                <Text className={!isTextMode && !isEraserMode ? 'text-white' : 'text-gray-700'}>
-                  필기
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  setIsTextMode(true);
-                  setIsEraserMode(false);
-                }}
-                className={`flex-1 items-center justify-center rounded-lg py-3 ${
-                  isTextMode && !isEraserMode ? 'bg-blue-500' : 'bg-gray-200'
-                }`}>
-                <Text className={isTextMode && !isEraserMode ? 'text-white' : 'text-gray-700'}>
-                  텍스트
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  setIsEraserMode((prev) => !prev);
-                  if (!isEraserMode) {
-                    setIsTextMode(false);
-                  }
-                }}
-                className={`flex-1 items-center justify-center rounded-lg py-3 ${
-                  isEraserMode ? 'bg-red-500' : 'bg-gray-200'
-                }`}>
-                <Text className={isEraserMode ? 'text-white' : 'text-gray-700'}>지우개</Text>
-              </Pressable>
-            </View>
-
-            {/* 그리기 크기 선택 (필기 모드일 때만 표시) */}
-            {!isTextMode && !isEraserMode && (
-              <View className='mb-2'>
-                <Text className='text-12m mb-2 text-gray-600'>그리기 크기</Text>
-                <View className='flex-row gap-2'>
-                  {[1.5, 2, 4].map((size) => (
-                    <Pressable
-                      key={size}
-                      onPress={() => setStrokeWidth(size)}
-                      className={`flex-1 items-center justify-center rounded-lg py-2 ${
-                        strokeWidth === size ? 'bg-blue-500' : 'bg-gray-200'
-                      }`}>
-                      <Text className={strokeWidth === size ? 'text-white' : 'text-gray-700'}>
-                        {size}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            {/* 지우개 크기 선택 (지우개 모드일 때만 표시) */}
-            {isEraserMode && (
-              <View className='mb-2'>
-                <Text className='text-12m mb-2 text-gray-600'>지우개 크기</Text>
-                <View className='flex-row gap-2'>
-                  {[6, 12, 20].map((size) => (
-                    <Pressable
-                      key={size}
-                      onPress={() => setEraserSize(size)}
-                      className={`flex-1 items-center justify-center rounded-lg py-2 ${
-                        eraserSize === size ? 'bg-red-500' : 'bg-gray-200'
-                      }`}>
-                      <Text className={eraserSize === size ? 'text-white' : 'text-gray-700'}>
-                        {size}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            <View className='flex-row gap-2'>
-              <Pressable
-                onPress={() => canvasRef.current?.undo()}
-                disabled={!canUndo}
-                className={`flex-1 items-center justify-center rounded-lg py-3 ${
-                  canUndo ? 'bg-gray-200' : 'bg-gray-100'
-                }`}>
-                <Text className={canUndo ? 'text-gray-700' : 'text-gray-400'}>undo</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => canvasRef.current?.redo()}
-                disabled={!canRedo}
-                className={`flex-1 items-center justify-center rounded-lg py-3 ${
-                  canRedo ? 'bg-gray-200' : 'bg-gray-100'
-                }`}>
-                <Text className={canRedo ? 'text-gray-700' : 'text-gray-400'}>redo</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleSave(false)}
-                disabled={isSaving}
-                className={`flex-1 items-center justify-center rounded-lg py-3 ${
-                  isSaving ? 'bg-gray-400' : 'bg-blue-600'
-                }`}>
-                <Text className='text-white'>{isSaving ? '저장 중...' : '저장하기'}</Text>
-              </Pressable>
-            </View>
           </View>
         </View>
       </View>
@@ -849,27 +933,26 @@ const DraggableTab = ({
     <GestureDetector gesture={panGesture}>
       <Animated.View
         onLayout={onLayout}
-        style={[animatedStyle, { flex: 1, minWidth: 150, maxWidth: 300 }]}
-        className={`flex-row items-center gap-2 border-b-2 px-4 py-2 ${
-          isActive ? 'border-blue-500 bg-white' : 'border-transparent bg-gray-50'
+        style={[animatedStyle, { height: 34, minWidth: 170, maxWidth: 300 }]}
+        className={`flex-row items-center gap-2 border-x-[1px] border-gray-600 px-[10px] ${
+          isActive ? 'bg-gray-100' : 'bg-gray-500'
         }`}>
-        <Pressable onPress={onPress} className='flex-1 flex-row items-center gap-2'>
-          <Text
-            className={`text-14m ${isActive ? 'text-gray-900' : 'text-gray-600'}`}
-            ellipsizeMode='tail'
-            numberOfLines={1}
-            style={{ flexShrink: 1, textAlign: 'center' }}>
-            {note.title}
-          </Text>
-        </Pressable>
-
         <Pressable
           onPress={(e) => {
             e.stopPropagation();
             onClose();
           }}
-          className='items-center justify-center rounded-full bg-gray-300 p-0.5'>
-          <X size={14} color='#3E3F45' />
+          className='rounded-ful items-center justify-center'>
+          <X size={16} color={colors['gray-700']} />
+        </Pressable>
+        <Pressable onPress={onPress} className='flex-1 flex-row items-center justify-center gap-2'>
+          <Text
+            className={`text-14m text-gray-800`}
+            ellipsizeMode='tail'
+            numberOfLines={1}
+            style={{ flexShrink: 1, textAlign: 'center' }}>
+            {note.title}
+          </Text>
         </Pressable>
       </Animated.View>
     </GestureDetector>
