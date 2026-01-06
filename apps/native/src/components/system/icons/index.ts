@@ -18,6 +18,8 @@ import ProfileBasicIcon from './ProfileBasicIcon';
 import ProfileIcon from './ProfileIcon';
 import BookHeartIcon from './BookHeartIcon';
 import CircleStarIcon from './CircleStarIcon';
+import PencilFilledIcon from './PencilFilledIcon';
+import EraserFilledIcon from './EraserFilledIcon';
 
 export {
   AlertBellButtonIcon,
@@ -39,5 +41,7 @@ export {
   ProfileBasicIcon,
   ProfileIcon,
   BookHeartIcon,
+  PencilFilledIcon,
+  EraserFilledIcon,
   CircleStarIcon,
 };
