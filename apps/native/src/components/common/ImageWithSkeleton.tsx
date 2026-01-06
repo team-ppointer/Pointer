@@ -1,6 +1,14 @@
 import { colors } from '@/theme/tokens';
-import React, { useMemo, useState } from 'react';
-import { View, Image, ImageProps, ImageStyle, DimensionValue, Animated, StyleSheet } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  Image,
+  ImageProps,
+  ImageStyle,
+  DimensionValue,
+  Animated,
+  StyleSheet,
+} from 'react-native';
 
 type ImageWithSkeletonProps = {
   source?: ImageProps['source'] | ImageProps['source'][];
@@ -74,6 +82,9 @@ const ImageWithSkeletonComponent = ({
 }: ImageWithSkeletonProps) => {
   // 이미지 로딩 상태 관리
   const [isLoading, setIsLoading] = useState(true);
+  // 대각선 레이아웃에서 각 이미지의 로딩 상태를 개별 관리
+  const [firstImageLoaded, setFirstImageLoaded] = useState(false);
+  const [secondImageLoaded, setSecondImageLoaded] = useState(false);
 
   // source가 배열인지 확인
   const isSourceArray = Array.isArray(source);
@@ -90,6 +101,13 @@ const ImageWithSkeletonComponent = ({
       })
       .filter((uri): uri is string => uri !== null);
   }, [source, isSourceArray]);
+
+  // imageUrls가 변경될 때마다 로딩 상태 초기화
+  useEffect(() => {
+    setIsLoading(true);
+    setFirstImageLoaded(false);
+    setSecondImageLoaded(false);
+  }, [imageUrls]);
 
   // fallback 처리
   if (!source && fallback) {
@@ -139,11 +157,16 @@ const ImageWithSkeletonComponent = ({
     const hasSecondImage = imageUrls.length > 1 && imageUrls[1];
     const imageToShow = hasSecondImage ? imageUrls[1] : imageUrls[0]; // 1개면 오른쪽 아래에 표시
 
+    // 두 이미지가 모두 로드되었는지 확인
+    const allImagesLoaded = hasSecondImage
+      ? firstImageLoaded && secondImageLoaded
+      : secondImageLoaded;
+
     return (
       <View
         className={`relative w-full overflow-hidden ${className}`}
         style={[{ aspectRatio, borderRadius }, style]}>
-        {isLoading && <Skeleton borderRadius={borderRadius} />}
+        {!allImagesLoaded && <Skeleton borderRadius={borderRadius} />}
         {/* 왼쪽 위: 2개면 첫 번째 이미지, 1개면 회색 배경 */}
         {hasSecondImage ? (
           // 2개일 때: 왼쪽 위에 첫 번째 이미지
@@ -157,9 +180,8 @@ const ImageWithSkeletonComponent = ({
             <Image
               source={{ uri: imageUrls[0] }}
               resizeMode={resizeMode}
-              onLoadStart={() => setIsLoading(true)}
-              onLoadEnd={() => setIsLoading(false)}
-              onError={() => setIsLoading(false)}
+              onLoadEnd={() => setFirstImageLoaded(true)}
+              onError={() => setFirstImageLoaded(true)}
               style={{
                 width: '100%',
                 height: '100%',
@@ -192,9 +214,8 @@ const ImageWithSkeletonComponent = ({
             <Image
               source={{ uri: imageToShow }}
               resizeMode={resizeMode}
-              onLoadStart={() => setIsLoading(true)}
-              onLoadEnd={() => setIsLoading(false)}
-              onError={() => setIsLoading(false)}
+              onLoadEnd={() => setSecondImageLoaded(true)}
+              onError={() => setSecondImageLoaded(true)}
               style={{
                 width: '100%',
                 height: '100%',
