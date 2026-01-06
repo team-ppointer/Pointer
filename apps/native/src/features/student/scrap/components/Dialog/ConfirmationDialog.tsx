@@ -9,17 +9,22 @@ const ConfirmationDialog = ({
   className?: string;
   children?: React.ReactNode;
   visibleState: boolean;
-  setVisibleState: React.Dispatch<React.SetStateAction<boolean>>;
+  setVisibleState: React.Dispatch<React.SetStateAction<boolean>> | (() => void);
 }) => {
+  const handleClose = () => {
+    if (typeof setVisibleState === 'function') {
+      setVisibleState(false);
+    }
+  };
+
   return (
     <Modal
       animationType='fade'
       transparent={true}
       visible={visibleState}
-      onRequestClose={() => {
-        setVisibleState(false);
-      }}>
-      <TouchableWithoutFeedback onPress={() => setVisibleState(false)}>
+      onRequestClose={handleClose}
+      statusBarTranslucent>
+      <TouchableWithoutFeedback onPress={handleClose}>
         <View className={`flex-1 items-center justify-center bg-black/40 ${className}`}>
           <TouchableWithoutFeedback onPress={() => {}}>{children}</TouchableWithoutFeedback>
         </View>

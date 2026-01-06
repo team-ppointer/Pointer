@@ -23,6 +23,10 @@ interface ScrapModalsContextValue {
   // 스크랩 목록 refetch 함수
   refetchScraps?: () => void;
   setRefetchScraps: (refetch: () => void) => void;
+
+  // 스크랩 상세 정보 refetch 함수
+  refetchScrapDetail?: () => void;
+  setRefetchScrapDetail: (refetch: () => void) => void;
 }
 
 // Backward compatibility
@@ -59,6 +63,9 @@ export const ScrapModalsProvider = ({ children }: ScrapModalsProviderProps) => {
   });
   const [refetchFolders, setRefetchFoldersState] = useState<(() => void) | undefined>(undefined);
   const [refetchScraps, setRefetchScrapsState] = useState<(() => void) | undefined>(undefined);
+  const [refetchScrapDetail, setRefetchScrapDetailState] = useState<(() => void) | undefined>(
+    undefined
+  );
 
   const openCreateFolderModal = useCallback(() => {
     setIsCreateFolderModalVisible(true);
@@ -88,6 +95,10 @@ export const ScrapModalsProvider = ({ children }: ScrapModalsProviderProps) => {
     setRefetchScrapsState(() => refetch);
   }, []);
 
+  const setRefetchScrapDetail = useCallback((refetch: () => void) => {
+    setRefetchScrapDetailState(() => refetch);
+  }, []);
+
   const value: ScrapModalContextValue = {
     isCreateFolderModalVisible,
     openCreateFolderModal,
@@ -100,6 +111,8 @@ export const ScrapModalsProvider = ({ children }: ScrapModalsProviderProps) => {
     setRefetchFolders,
     refetchScraps,
     setRefetchScraps,
+    refetchScrapDetail,
+    setRefetchScrapDetail,
   };
 
   return <ScrapModalsContext.Provider value={value}>{children}</ScrapModalsContext.Provider>;

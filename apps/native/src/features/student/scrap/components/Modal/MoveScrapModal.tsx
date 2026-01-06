@@ -17,9 +17,11 @@ export const MoveScrapModal = () => {
     openCreateFolderModal,
     setRefetchFolders,
     refetchScraps,
+    refetchScrapDetail,
     isCreateFolderModalVisible,
   } = useScrapModal();
   const { currentFolderId, selectedItems } = moveScrapModalProps;
+
   const [folderSelectionState, dispatch] = useReducer(reducer, {
     ...initialSelectionState,
     isSelecting: true, // 모달 내에서는 항상 선택 모드
@@ -120,6 +122,7 @@ export const MoveScrapModal = () => {
       dispatch({ type: 'CLEAR_SELECTION' });
       refetchFolders?.();
       refetchScraps?.();
+      refetchScrapDetail?.();
       closeMoveScrapModal();
     } catch (error) {
       showToast('error', '이동 중 오류가 발생했습니다.');
