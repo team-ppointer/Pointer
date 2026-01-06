@@ -59,25 +59,6 @@ export const TrashCard = (props: TrashListItemProps) => {
               <Text className='text-16sb  text-black' numberOfLines={1}>
                 {props.name}
               </Text>
-              {!state.isSelecting && (
-                <View className='h-[24px] w-[24px]'>
-                  <TooltipPopover
-                    from={<ChevronDownFilledIcon color={colors['gray-700']} />}
-                    children={(close) => (
-                      <TrashItemTooltipBox
-                        item={props}
-                        onClose={close}
-                        onDeletePress={() => {
-                          close();
-                          setTimeout(() => {
-                            setIsDeleteModalVisible(true);
-                          }, 200);
-                        }}
-                      />
-                    )}
-                  />
-                </View>
-              )}
             </View>
             {props.type === 'FOLDER' && props.itemCount !== undefined && (
               <Text className='text-12r text-blue-500'>{props.itemCount}</Text>
@@ -93,17 +74,35 @@ export const TrashCard = (props: TrashListItemProps) => {
 
   return (
     <>
-      <Pressable
-        className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
-        onPress={() => {
-          if (state.isSelecting) {
-            props.onCheckPress?.();
-            return;
-          }
-          // TrashCard는 클릭 시 아무 동작도 하지 않음
-        }}>
-        {cardContent}
-      </Pressable>
+      {state.isSelecting ? (
+        <Pressable
+          className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
+          onPress={() => {
+            if (state.isSelecting) {
+              props.onCheckPress?.();
+              return;
+            }
+          }}>
+          {cardContent}
+        </Pressable>
+      ) : (
+        <TooltipPopover
+          from={cardContent}
+          children={(close) => (
+            <TrashItemTooltipBox
+              item={props}
+              onClose={close}
+              onDeletePress={() => {
+                close();
+                setTimeout(() => {
+                  setIsDeleteModalVisible(true);
+                }, 200);
+              }}
+            />
+          )}
+        />
+      )}
+
       <PopUpModal
         visibleState={isDeleteModalVisible}
         setVisibleState={setIsDeleteModalVisible}
