@@ -22,6 +22,11 @@ export type StudentRootStackParamList = {
     publishAt?: string;
     problemSetTitle?: string;
   };
+  // QnA screens
+  ChatRoom: {
+    chatRoomId: number;
+  };
+  QnaSearch: undefined;
   Scrap: undefined;
   ScrapContent: {
     id: number;

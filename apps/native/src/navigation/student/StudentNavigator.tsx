@@ -2,12 +2,8 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
-import {
-  ProblemScreen,
-  PointingScreen,
-  AnalysisScreen,
-  AllPointingsScreen,
-} from '@features/student/problem';
+import { ProblemScreen, PointingScreen, AnalysisScreen, AllPointingsScreen } from '@features/student/problem';
+import { ChatRoomScreen, SearchScreen } from '@features/student/qna';
 import StudentTabs from './StudentTabs';
 import { StudentRootStackParamList } from './types';
 import NotificationHeader from './components/NotificationHeader';
@@ -54,6 +50,8 @@ const StudentNavigator = () => {
       <StudentRootStack.Screen name='Pointing' component={PointingScreen} />
       <StudentRootStack.Screen name='Analysis' component={AnalysisScreen} />
       <StudentRootStack.Screen name='AllPointings' component={AllPointingsScreen} />
+      <StudentRootStack.Screen name='ChatRoom' component={ChatRoomScreen} />
+      <StudentRootStack.Screen name='QnaSearch' component={SearchScreen} />
       <StudentRootStack.Screen name='Scrap' component={ScrapScreen} />
       <StudentRootStack.Screen name='ScrapContent' component={FolderScrapScreen} />
       <StudentRootStack.Screen name='DeletedScrap' component={DeletedScrapScreen} />

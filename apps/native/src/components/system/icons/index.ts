@@ -5,12 +5,16 @@ import CalendarInProgressIcon from './CalendarInProgressIcon';
 import CalendarNotStartedIcon from './CalendarNotStartedIcon';
 import CalendarUnavailableIcon from './CalendarUnavailableIcon';
 import ChevronDownFilledIcon from './ChevronDownFilledIcon';
+import ChevronUpFilledIcon from './ChevronUpFilledIcon';
+import CircleCheckDashed from './CircleCheckDashed';
+import CircleXFilledIcon from './CircleXFilledIcon';
+import GoogleIcon from './GoogleIcon';
 import HomeFilledIcon from './HomeFilledIcon';
+import KakaoIcon from './KakaoIcon';
 import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
+import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
 import NoNotificationBellIcon from './NoNotificationBellIcon';
 import TeacherIcon from './TeacherIcon';
-import CircleCheckDashed from './CircleCheckDashed';
-import ChevronUpFilledIcon from './ChevronUpFilledIcon';
 
 export {
   AlertBellButtonIcon,
@@ -21,9 +25,13 @@ export {
   CalendarUnavailableIcon,
   ChevronDownFilledIcon,
   ChevronUpFilledIcon,
+  CircleCheckDashed,
+  CircleXFilledIcon,
+  GoogleIcon,
   HomeFilledIcon,
+  KakaoIcon,
   MessageCircleMoreFilledIcon,
+  MessageSquareWarningFilledIcon,
   NoNotificationBellIcon,
   TeacherIcon,
-  CircleCheckDashed,
 };

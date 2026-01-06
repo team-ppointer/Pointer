@@ -1,4 +1,4 @@
-import { client } from '@apis';
+import { client } from '@/apis/client';
 
 const putUserInfo = async (name: string, grade: number) => {
   try {
