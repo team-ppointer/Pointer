@@ -4,6 +4,10 @@ import { FlatList, Image, Modal, Pressable, View, StyleSheet, Alert, Text } from
 import { LoadQnaImageScreenModal } from './FullScreenModal';
 import { Check } from 'lucide-react-native';
 import { useGetQnaImages, useCreateScrapFromImage } from '@/apis';
+import { SortDropdown } from '../Dropdown';
+import { SortOrder, UISortKey } from '../../utils/types';
+import { mapUIKeyToAPIKey } from '../../utils/formatters';
+import { colors } from '@/theme/tokens';
 
 interface LoadQnaImageModalProps {
   visible: boolean;
@@ -12,12 +16,19 @@ interface LoadQnaImageModalProps {
 }
 
 export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageModalProps) => {
-  const { data: qnaAllImagesData, isLoading } = useGetQnaImages();
   const { mutate: createScrapFromImage } = useCreateScrapFromImage();
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const [sortKey, setSortKey] = useState<UISortKey>('DATE');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+
+  const { data: qnaAllImagesData, isLoading } = useGetQnaImages({
+    sort: 'CREATED_AT',
+    order: sortOrder,
+  });
 
   const NUM_COLUMNS = 4;
   const GAP = 5;
@@ -55,8 +66,22 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   return (
     <>
       <LoadQnaImageScreenModal visible={visible} onCancel={onClose} onClose={handleComplete}>
-        <Container className='py-[10px]'>
-          <View />
+        <Container className='items-end py-[10px]'>
+          <SortDropdown
+            ordertype='IMAGE'
+            orderValue={sortKey}
+            setOrderValue={setSortKey}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            colors={{
+              text: '#FFF',
+              border: colors['gray-700'],
+              background: colors['gray-700'],
+              itemBackground: colors['gray-600'],
+              focusBackground: colors['gray-700'],
+              checkIcon: '#FFF',
+            }}
+          />
         </Container>
         <Container className='flex-1 py-[10px]'>
           {isLoading ? (
