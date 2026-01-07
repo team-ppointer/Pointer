@@ -7,6 +7,7 @@ export * from './controller/concept';
 export * from './controller/diagnosis';
 export * from './controller/file';
 export * from './controller/notice';
+export * from './controller/notification';
 export * from './controller/ocr';
 export * from './controller/practiceTest';
 export * from './controller/problem';
