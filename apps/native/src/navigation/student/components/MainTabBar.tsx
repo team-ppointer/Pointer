@@ -78,11 +78,11 @@ const MainTabBar = ({ state, navigation }: BottomTabBarProps) => {
                 <View className='h-[32px] w-[32px] items-center justify-center'>
                   <IconComponent
                     size={22}
-                    color={isFocused ? colors['primary-500'] : colors['gray-800']}
+                    color={isFocused ? colors['primary-500'] : colors['gray-600']}
                   />
                 </View>
               )}
-              <Text className={isFocused ? 'text-14b text-primary-500' : 'text-14m text-gray-800'}>
+              <Text className={isFocused ? 'text-14b text-primary-500' : 'text-14m text-gray-600'}>
                 {label}
               </Text>
             </TouchableOpacity>
