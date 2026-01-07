@@ -4,8 +4,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import type { ScrapDetailResp } from '@/features/student/scrap/utils/types';
-import { useNoteStore } from '@/stores/scrapNoteStore';
-import { useRecentScrapStore } from '@/stores/recentScrapStore';
+import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
+import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 
 type RecentScrapCardProps = {

@@ -16,6 +16,12 @@ import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
 import NoNotificationBellIcon from './NoNotificationBellIcon';
 import TeacherIcon from './TeacherIcon';
 import PointerSymbol from './PointerSymbol';
+import ProfileBasicIcon from './ProfileBasicIcon';
+import ProfileIcon from './ProfileIcon';
+import BookHeartIcon from './BookHeartIcon';
+import CircleStarIcon from './CircleStarIcon';
+import PencilFilledIcon from './PencilFilledIcon';
+import EraserFilledIcon from './EraserFilledIcon';
 
 export {
   AlertBellButtonIcon,
@@ -36,4 +42,10 @@ export {
   NoNotificationBellIcon,
   TeacherIcon,
   PointerSymbol,
+  ProfileBasicIcon,
+  ProfileIcon,
+  BookHeartIcon,
+  PencilFilledIcon,
+  EraserFilledIcon,
+  CircleStarIcon,
 };

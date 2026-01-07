@@ -1,11 +1,12 @@
 import React from 'react';
-import { Pressable, PressableStateCallbackType, Text } from 'react-native';
+import { Pressable, PressableStateCallbackType, Text, ViewStyle } from 'react-native';
 
 interface ButtonProps {
   variant?: 'blue' | 'gray' | 'outline';
   disabled?: boolean;
   onPress?: () => void;
   children: React.ReactNode;
+  style?: ViewStyle;
 }
 
 type ExtendedPressableState = PressableStateCallbackType & { hovered?: boolean };

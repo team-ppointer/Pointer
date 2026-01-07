@@ -8,9 +8,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import type { ScrapListItemProps } from '../types';
 import { isItemSelected } from '../../../utils/reducer';
-import { useNoteStore } from '@/stores/scrapNoteStore';
-import { useRecentScrapStore } from '@/stores/recentScrapStore';
-import { MoveScrapModal } from '../../Modal/MoveScrapModal';
+import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
+import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
@@ -24,6 +23,8 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const openNote = useNoteStore((state) => state.openNote);
   const addScrap = useRecentScrapStore((state) => state.addScrap);
   const { openMoveScrapModal } = useScrapModal();
+
+  const folderId = props.type === 'SCRAP' ? props.folderId : undefined;
 
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
   const { imageSources, isDiagonalLayout } = useCardImageSources(
@@ -76,6 +77,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
                         onMovePress={() => {
                           close();
                           openMoveScrapModal({
+                            currentFolderId: folderId,
                             selectedItems: [{ id: props.id, type: props.type }],
                           });
                         }}

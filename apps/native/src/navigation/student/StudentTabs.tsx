@@ -4,7 +4,7 @@ import { StudentTabParamList } from './types';
 import { HomeScreen } from '@features/student/home';
 import { ScrapScreen } from '@features/student/scrap';
 import { QnaScreen } from '@features/student/qna';
-import { MenuScreen } from '@features/student/menu';
+import { MenuNavigator } from '@features/student/menu';
 import MainTabBar from './components/MainTabBar';
 import HomeHeader from './components/HomeHeader';
 
@@ -25,7 +25,7 @@ const StudentTabs = () => {
       />
       <Tab.Screen name='Scrap' component={ScrapScreen} />
       <Tab.Screen name='Qna' component={QnaScreen} />
-      <Tab.Screen name='AllMenu' component={MenuScreen} />
+      <Tab.Screen name='AllMenu' component={MenuNavigator} />
     </Tab.Navigator>
   );
 };

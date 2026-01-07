@@ -17,9 +17,11 @@ export const MoveScrapModal = () => {
     openCreateFolderModal,
     setRefetchFolders,
     refetchScraps,
+    refetchScrapDetail,
     isCreateFolderModalVisible,
   } = useScrapModal();
   const { currentFolderId, selectedItems } = moveScrapModalProps;
+
   const [folderSelectionState, dispatch] = useReducer(reducer, {
     ...initialSelectionState,
     isSelecting: true, // 모달 내에서는 항상 선택 모드
@@ -56,7 +58,7 @@ export const MoveScrapModal = () => {
         ...folder,
         type: 'FOLDER' as const,
       }));
-  }, [foldersData]);
+  }, [foldersData, currentFolderId]);
 
   // 선택된 폴더 ID (폴더는 하나만 선택 가능)
   const selectedFolderId = folderSelectionState.selectedItems.find(
@@ -92,13 +94,19 @@ export const MoveScrapModal = () => {
 
   // 이동 실행
   const handleMove = async () => {
-    if (!selectedFolderId) {
+    // 선택된 폴더가 없으면 에러 (undefined는 전체 스크랩으로 이동하는 유효한 선택)
+    const hasSelectedFolder = folderSelectionState.selectedItems.some(
+      (item) => item.type === 'FOLDER'
+    );
+    if (!hasSelectedFolder) {
       showToast('error', '이동할 폴더를 선택해주세요.');
       return;
     }
 
     // 스크랩만 필터링 (폴더는 이동 불가)
-    const scrapsToMove = selectedItems.filter((item) => item.type === 'SCRAP');
+    const scrapsToMove = selectedItems.filter(
+      (item): item is { id: number; type: 'SCRAP' } => item.type === 'SCRAP'
+    );
     if (scrapsToMove.length === 0) {
       showToast('error', '스크랩만 이동이 가능합니다.');
       return;
@@ -110,17 +118,26 @@ export const MoveScrapModal = () => {
         targetFolderId: selectedFolderId,
       });
 
-      showToast('success', `${scrapsToMove.length}개의 스크랩이 이동되었습니다.`);
+      showToast('success', `${folderName}으로 이동 완료`);
       dispatch({ type: 'CLEAR_SELECTION' });
       refetchFolders?.();
       refetchScraps?.();
+      refetchScrapDetail?.();
       closeMoveScrapModal();
     } catch (error) {
       showToast('error', '이동 중 오류가 발생했습니다.');
     }
   };
 
-  const folderName = folders.find((folder) => folder.id === selectedFolderId)?.name;
+  const folderName =
+    selectedFolderId === undefined
+      ? '전체 스크랩'
+      : folders.find((folder) => folder.id === selectedFolderId)?.name;
+
+  // 폴더가 선택되었는지 확인 (전체 스크랩 포함)
+  const hasSelectedFolder = folderSelectionState.selectedItems.some(
+    (item) => item.type === 'FOLDER'
+  );
 
   return (
     <PopUpModal
@@ -147,7 +164,7 @@ export const MoveScrapModal = () => {
         <View className='flex-1 gap-[16px] p-[20px]'>
           <ScrollView className='flex-1'>
             <ScrapGrid
-              data={folders}
+              data={[{ ALL: true }, ...folders]}
               reducerState={folderSelectionState}
               dispatch={folderDispatch}
             />
@@ -155,10 +172,10 @@ export const MoveScrapModal = () => {
           <Pressable
             onPress={handleMove}
             className={`items-center rounded-[8px] px-[20px] py-[10px] ${
-              selectedFolderId ? 'bg-primary-500' : 'bg-gray-300'
+              hasSelectedFolder ? 'bg-primary-500' : 'bg-gray-300'
             }`}>
-            <Text className={`text-16sb ${selectedFolderId ? 'text-white' : 'text-gray-500'}`}>
-              {selectedFolderId ? `'${folderName}' 폴더로 이동하기` : '이동할 폴더를 선택해주세요'}
+            <Text className={`text-16sb ${hasSelectedFolder ? 'text-white' : 'text-gray-500'}`}>
+              {hasSelectedFolder ? `'${folderName}'으로 이동하기` : '이동할 폴더를 선택해주세요'}
             </Text>
           </Pressable>
         </View>

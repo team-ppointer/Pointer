@@ -1,5 +1,5 @@
 import { Modal, View, Pressable, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '../Notification/Toast';
@@ -17,16 +17,18 @@ export const AddFolderScreenModal = ({
   onClose,
   children,
 }: FullScreenModalProps) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <Modal animationType='none' transparent visible={visible} onRequestClose={onClose}>
-      <BlurView
-        intensity={50}
-        tint='light'
-        style={{ flex: 1, backgroundColor: 'rgba(248,249,252,0.5)' }} // #F8F9FC80
-      >
-        <SafeAreaView edges={['top']} className='flex-1'>
+      <View style={{ flex: 1, paddingTop: insets.top }}>
+        <BlurView
+          intensity={50}
+          tint='light'
+          style={{ flex: 1, backgroundColor: 'rgba(248,249,252,0.5)' }} // #F8F9FC80
+        >
           {/* Header */}
-          <View className='flex-row items-center justify-between  px-5 py-3'>
+          <View className='flex-row items-center justify-between bg-gray-100 px-5 py-3'>
             <Pressable onPress={onCancel} className='min-w-[60px]'>
               <Text className='text-14m text-gray-900'>취소</Text>
             </Pressable>
@@ -42,10 +44,10 @@ export const AddFolderScreenModal = ({
 
           {/* Content */}
           <View className='flex-1'>{children}</View>
-        </SafeAreaView>
 
-        <Toast config={toastConfig} />
-      </BlurView>
+          <Toast config={toastConfig} />
+        </BlurView>
+      </View>
     </Modal>
   );
 };
@@ -56,9 +58,11 @@ export const LoadQnaImageScreenModal = ({
   onClose,
   children,
 }: FullScreenModalProps) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <Modal animationType='fade' transparent visible={visible} onRequestClose={onClose}>
-      <SafeAreaView edges={['top']} className='flex-1 bg-gray-800'>
+      <View style={{ flex: 1, paddingTop: insets.top }} className='bg-gray-800'>
         {/* Header */}
         <View className='flex-row items-center justify-between border-b border-gray-700 px-5 py-3'>
           <Pressable onPress={onCancel} className='min-w-[60px]'>
@@ -78,7 +82,7 @@ export const LoadQnaImageScreenModal = ({
         <View className='flex-1'>{children}</View>
 
         <Toast config={toastConfig} />
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 };
