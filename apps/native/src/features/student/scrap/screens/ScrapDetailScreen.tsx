@@ -12,7 +12,7 @@ import DrawingCanvas, { DrawingCanvasRef } from '../utils/skia/drawing';
 import { colors } from '@/theme/tokens';
 
 // Components
-import { ScrapDetailHeader } from '../components/scrap/ScrapDetailHeader';
+import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
 import { TabNavigator } from '../components/scrap/TabNavigator';
 import { FilterBar } from '../components/scrap/FilterBar';
 import { ProblemSection } from '../components/scrap/ProblemSection';
