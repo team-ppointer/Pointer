@@ -54,9 +54,15 @@ export const ScrapDetailHeader = ({
             loop={false}
           />
         )}
-        <Text className='text-20b text-white'>{scrapName || '스크랩 상세'}</Text>
         <TooltipPopover
-          from={<ChevronDownFilledIcon size={20} color={colors['gray-600']} />}
+          triggerBorderRadius={4}
+          triggerBackgroundColor=''
+          from={
+            <View className='flex-row items-center gap-[10px]'>
+              <Text className='text-20b text-white'>{scrapName || '스크랩 상세'}</Text>
+              <ChevronDownFilledIcon size={20} color={colors['gray-600']} />
+            </View>
+          }
           children={(close) => (
             <TooltipContainer
               height='h-[88px]'
