@@ -19,7 +19,7 @@ const TooltipPopover = ({
   placement = Placement.AUTO,
   popoverStyle,
   triggerBorderRadius = 10,
-  triggerBackgroundColor = '#EDEEF2',
+  triggerBackgroundColor = colors['gray-300'],
 }: TooltipPopoverProps) => {
   const [isVisible, setIsVisible] = React.useState(false);
 
