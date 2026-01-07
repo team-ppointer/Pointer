@@ -24,7 +24,6 @@ const DeletedScrapScreenContent = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-  const { openMoveScrapModal } = useScrapModal();
 
   // API 호출
   const { data: trashData, isLoading } = useGetTrash();
@@ -74,19 +73,6 @@ const DeletedScrapScreenContent = () => {
             if (reducerState.selectedItems.length > 0) {
               setIsDeleteModalVisible(true);
             }
-          },
-          onMove: () => {
-            if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
-              return;
-            }
-            if (reducerState.selectedItems.length === 0) {
-              showToast('error', '이동할 스크랩을 선택해주세요.');
-              return;
-            }
-            openMoveScrapModal({
-              selectedItems: reducerState.selectedItems,
-            });
-            dispatch({ type: 'CLEAR_SELECTION' });
           },
           onRestore: async () => {
             try {
@@ -150,4 +136,4 @@ const DeletedScrapScreen = () => {
   return <DeletedScrapScreenContent />;
 };
 
-export default withScrapModals(DeletedScrapScreen);
+export default DeletedScrapScreen;
