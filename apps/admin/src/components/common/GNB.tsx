@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router';
 import {
   FileText,
   Calendar,
-  Tag,
   GraduationCap,
   Search,
   ChevronDown,
@@ -14,6 +13,7 @@ import {
   Megaphone,
   Tags,
   MessageCircle,
+  Bell,
 } from 'lucide-react';
 import { getStudent } from '@apis';
 import { useSelectedStudent } from '@hooks';
@@ -210,6 +210,13 @@ const GNB = () => {
                 to='/notice'
                 icon={<Megaphone className='h-5 w-5' />}
                 label='공지'
+                isCollapsed={isCollapsed}
+              />
+
+              <NavItem
+                to='/notification'
+                icon={<Bell className='h-5 w-5' />}
+                label='알림'
                 isCollapsed={isCollapsed}
               />
 
