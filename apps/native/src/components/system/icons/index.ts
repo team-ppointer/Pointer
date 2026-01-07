@@ -15,6 +15,7 @@ import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
 import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
 import NoNotificationBellIcon from './NoNotificationBellIcon';
 import TeacherIcon from './TeacherIcon';
+import PointerSymbol from './PointerSymbol';
 
 export {
   AlertBellButtonIcon,
@@ -34,4 +35,5 @@ export {
   MessageSquareWarningFilledIcon,
   NoNotificationBellIcon,
   TeacherIcon,
+  PointerSymbol,
 };
