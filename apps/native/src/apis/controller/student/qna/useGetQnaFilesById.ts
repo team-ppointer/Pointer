@@ -19,4 +19,3 @@ const useGetQnaFilesById = ({ qnaId, enabled = true }: Props) => {
 };
 
 export default useGetQnaFilesById;
-
