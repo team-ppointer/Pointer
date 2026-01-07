@@ -24,10 +24,10 @@ export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {
         addScrap(scrap.id);
         navigation.push('ScrapContentDetail', { id: scrap.id });
       }}
-      className='bg-primary-200 h-[140px] w-[140px] flex-col items-center justify-end rounded-[12px] border border-gray-300'>
+      className='bg-primary-200 h-[140px] w-[140px] flex-col items-center justify-end overflow-hidden rounded-[12px] border border-gray-300'>
       <ImageBackground
         source={{ uri: scrap.thumbnailUrl }}
-        style={{ width: '100%', height: '100%', borderRadius: 12 }}
+        style={{ width: '100%', height: '100%' }}
         resizeMode='cover'
       />
       <View className='h-[100px] w-full justify-between rounded-b-[12px] bg-white p-[10px]'>
