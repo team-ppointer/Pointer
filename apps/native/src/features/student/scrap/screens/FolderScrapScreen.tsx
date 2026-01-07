@@ -15,6 +15,9 @@ import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection } from '../hooks';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { withScrapModals } from '../hoc';
+import { useRecentScrapStore } from '../stores/recentScrapStore';
+import { useNoteStore } from '../stores/scrapNoteStore';
+import { SelectedItem } from '../utils/reducer';
 
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -27,6 +30,8 @@ const FolderScrapScreenContent = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const { openMoveScrapModal, setRefetchScraps, setRefetchFolders } = useScrapModal();
+  const removeScrap = useRecentScrapStore((state) => state.removeScrap);
+  const closeNote = useNoteStore((state) => state.closeNote);
 
   // API 호출
   const { data: foldersData, refetch: refetchFolders } = useGetFolders();
@@ -54,6 +59,15 @@ const FolderScrapScreenContent = () => {
     () => sortScrapData(contents, sortKey, sortOrder),
     [contents, sortKey, sortOrder]
   );
+
+  const cleanupAfterDelete = (items: SelectedItem[]) => {
+    items.forEach((item) => {
+      if (item.type === 'SCRAP') {
+        removeScrap(item.id as number);
+        closeNote(item.id as number);
+      }
+    });
+  };
 
   const isAllSelected =
     reducerState.selectedItems.length === contents.length && contents.length > 0;
@@ -95,14 +109,15 @@ const FolderScrapScreenContent = () => {
                 return;
               }
 
+              dispatch({ type: 'CLEAR_SELECTION' });
+
               try {
                 const items = reducerState.selectedItems;
 
                 await deleteScrap({
                   items: items.map((item) => ({ id: item.id as number, type: item.type })),
                 });
-
-                dispatch({ type: 'CLEAR_SELECTION' });
+                cleanupAfterDelete(items);
                 showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
               } catch (error: any) {
                 showToast('error', '삭제 중 오류가 발생했습니다.');
