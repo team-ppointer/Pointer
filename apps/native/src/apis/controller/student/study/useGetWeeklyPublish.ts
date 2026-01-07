@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 
 const useGetWeeklyPublish = () => {
   return TanstackQueryClient.useQuery('get', '/api/student/study/publish/weekly');

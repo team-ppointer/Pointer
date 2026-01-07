@@ -12,6 +12,7 @@ export * from './controller/practiceTest';
 export * from './controller/problem';
 export * from './controller/problemSet';
 export * from './controller/publish';
+export * from './controller/qna';
 export * from './controller/student';
 export * from './controller/teacher';
 export * from './controller/user';

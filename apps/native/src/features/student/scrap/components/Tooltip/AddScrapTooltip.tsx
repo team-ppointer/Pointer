@@ -1,9 +1,7 @@
 import { Camera, Image, Images, FolderPlus } from 'lucide-react-native';
 import { Alert } from 'react-native';
 import {
-  openCamera,
   openCameraWithErrorHandling,
-  openImageLibrary,
   openImageLibraryWithErrorHandling,
 } from '../../utils/images/imagePicker';
 import { useCreateScrapFromImage } from '@/apis';
@@ -27,7 +25,7 @@ export const AddScrapTooltip = ({
   onOpenFolderModal,
 }: AddScrapTooltipProps) => {
   const { mutate: createScrapFromImage } = useCreateScrapFromImage();
-  const getPreSignedUrl = usePreSignedUrlAdapter();
+  const { mutateAsync: uploadFile } = useUploadFile();
 
   // 이미지 선택 및 업로드 처리
   const handleImageSelect = async (image: any) => {
@@ -35,31 +33,28 @@ export const AddScrapTooltip = ({
       return;
     }
 
-    await uploadImageToS3(
-      image,
-      getPreSignedUrl,
-      async (result) => {
-        // 이미지 기반 스크랩 생성
-        createScrapFromImage(
-          {
-            imageId: result.fileId,
+    try {
+      const fileName = image.fileName || `${Date.now()}.jpg`;
+      const files = await uploadFile([
+        { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
+      ]);
+
+      createScrapFromImage(
+        { imageId: files[0].id },
+        {
+          onSuccess: () => {
+            Alert.alert('성공', '스크랩이 생성되었습니다.');
+            onClose?.();
           },
-          {
-            onSuccess: () => {
-              Alert.alert('성공', '스크랩이 생성되었습니다.');
-              onClose?.();
-            },
-            onError: (error) => {
-              console.error('스크랩 생성 실패:', error);
-              Alert.alert('오류', '스크랩 생성에 실패했습니다.');
-            },
-          }
-        );
-      },
-      (error) => {
-        Alert.alert('오류', error);
-      }
-    );
+          onError: (error) => {
+            console.error('스크랩 생성 실패:', error);
+            Alert.alert('오류', '스크랩 생성에 실패했습니다.');
+          },
+        }
+      );
+    } catch (error) {
+      Alert.alert('오류', '이미지 업로드에 실패했습니다.');
+    }
   };
 
   const onPressCamera = async () => {

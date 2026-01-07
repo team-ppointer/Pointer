@@ -1,4 +1,4 @@
-import { TanstackQueryClient } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 
 const useGetMe = () => {
   return TanstackQueryClient.useQuery('get', '/api/student/me');
