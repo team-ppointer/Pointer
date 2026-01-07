@@ -5,12 +5,7 @@ import CalendarInProgressIcon from './CalendarInProgressIcon';
 import CalendarNotStartedIcon from './CalendarNotStartedIcon';
 import CalendarUnavailableIcon from './CalendarUnavailableIcon';
 import ChevronDownFilledIcon from './ChevronDownFilledIcon';
-import ChevronUpFilledIcon from './ChevronUpFilledIcon';
-import CircleCheckDashed from './CircleCheckDashed';
-import CircleXFilledIcon from './CircleXFilledIcon';
-import GoogleIcon from './GoogleIcon';
 import HomeFilledIcon from './HomeFilledIcon';
-import KakaoIcon from './KakaoIcon';
 import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
 import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
 import NoNotificationBellIcon from './NoNotificationBellIcon';
@@ -36,11 +31,7 @@ export {
   CalendarUnavailableIcon,
   ChevronDownFilledIcon,
   ChevronUpFilledIcon,
-  CircleCheckDashed,
-  CircleXFilledIcon,
-  GoogleIcon,
   HomeFilledIcon,
-  KakaoIcon,
   MessageCircleMoreFilledIcon,
   MessageSquareWarningFilledIcon,
   NoNotificationBellIcon,
