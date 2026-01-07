@@ -4,13 +4,14 @@ type Props = {
   enabled?: boolean;
 };
 
-const useGetQnaImages = ({ enabled = true }: Props = {}) => {
+const useGetQnaFiles = ({ enabled = true }: Props = {}) => {
   return TanstackQueryClient.useQuery(
     'get',
-    '/api/student/qna/images',
+    '/api/student/qna/files',
     {},
     { enabled }
   );
 };
 
-export default useGetQnaImages;
+export default useGetQnaFiles;
+

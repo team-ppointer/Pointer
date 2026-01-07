@@ -24,16 +24,16 @@ const useInvalidateQnaData = () => {
     [queryClient]
   );
 
-  const invalidateQnaImages = useCallback(() => {
+  const invalidateQnaFiles = useCallback(() => {
     return queryClient.invalidateQueries({
-      queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/images', {}).queryKey,
+      queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/files', {}).queryKey,
     });
   }, [queryClient]);
 
-  const invalidateQnaImagesById = useCallback(
+  const invalidateQnaFilesById = useCallback(
     (qnaId: number) => {
       return queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/{qnaId}/images', {
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/{qnaId}/files', {
           params: {
             path: { qnaId },
           },
@@ -53,13 +53,13 @@ const useInvalidateQnaData = () => {
     (qnaId?: number) => {
       const tasks: Array<Promise<unknown>> = [
         invalidateQnaList(),
-        invalidateQnaImages(),
+        invalidateQnaFiles(),
         invalidateQnaAdminChat(),
       ];
 
       if (qnaId) {
         tasks.push(invalidateQnaById(qnaId));
-        tasks.push(invalidateQnaImagesById(qnaId));
+        tasks.push(invalidateQnaFilesById(qnaId));
       }
 
       return Promise.all(tasks);
@@ -67,8 +67,8 @@ const useInvalidateQnaData = () => {
     [
       invalidateQnaList,
       invalidateQnaById,
-      invalidateQnaImages,
-      invalidateQnaImagesById,
+      invalidateQnaFiles,
+      invalidateQnaFilesById,
       invalidateQnaAdminChat,
     ]
   );
@@ -76,8 +76,8 @@ const useInvalidateQnaData = () => {
   return {
     invalidateQnaList,
     invalidateQnaById,
-    invalidateQnaImages,
-    invalidateQnaImagesById,
+    invalidateQnaImages: invalidateQnaFiles,
+    invalidateQnaImagesById: invalidateQnaFilesById,
     invalidateQnaAdminChat,
     invalidateAll,
   };

@@ -63,7 +63,7 @@ interface Message {
   image?: {
     url: string;
   };
-  images?: UploadFileResp[];
+  files?: UploadFileResp[];
   replyToId?: number;
 }
 
@@ -95,19 +95,19 @@ const getFileIcon = (extension: string) => {
 
 // Map ChatResp to Message
 const mapChatRespToMessage = (chat: ChatResp, allChats: ChatResp[], dateTime?: string): Message => {
-  const chatImages = chat.images ?? [];
-  const hasImages = chatImages.length > 0;
+  const chatFiles = chat.files ?? [];
+  const hasFiles = chatFiles.length > 0;
   const hasReply = chat.replyToId !== undefined && chat.replyToId !== null;
   const replyTarget = hasReply ? allChats.find((c) => c.id === chat.replyToId) : undefined;
 
   let type: Message['type'] = 'text';
-  if (hasReply && hasImages) {
+  if (hasReply && hasFiles) {
     type = 'reply-image';
   } else if (hasReply) {
     type = 'reply-text';
-  } else if (hasImages) {
-    const firstImage = chatImages[0];
-    if (firstImage?.fileType === 'IMAGE') {
+  } else if (hasFiles) {
+    const firstFile = chatFiles[0];
+    if (firstFile?.fileType === 'IMAGE') {
       type = 'image';
     } else {
       type = 'file';
@@ -116,22 +116,22 @@ const mapChatRespToMessage = (chat: ChatResp, allChats: ChatResp[], dateTime?: s
 
   let reply: Message['reply'];
   if (replyTarget) {
-    const replyImages = replyTarget.images ?? [];
-    const replyHasImages = replyImages.length > 0;
-    const replyFirstImage = replyHasImages ? replyImages[0] : undefined;
+    const replyFiles = replyTarget.files ?? [];
+    const replyHasFiles = replyFiles.length > 0;
+    const replyFirstFile = replyHasFiles ? replyFiles[0] : undefined;
     reply = {
-      type: replyFirstImage?.fileType === 'IMAGE' ? 'image' : 'text',
+      type: replyFirstFile?.fileType === 'IMAGE' ? 'image' : 'text',
       title: replyTarget.isMine ? '내 메시지' : '상대방 메시지',
-      content: replyTarget.content || (replyFirstImage ? '사진' : ''),
-      imageUrl: replyFirstImage?.fileType === 'IMAGE' ? replyFirstImage.url : undefined,
+      content: replyTarget.content || (replyFirstFile ? '사진' : ''),
+      imageUrl: replyFirstFile?.fileType === 'IMAGE' ? replyFirstFile.url : undefined,
     };
   }
 
   let file: Message['file'];
   let image: Message['image'];
 
-  if (hasImages && !hasReply) {
-    const firstFile = chatImages[0];
+  if (hasFiles && !hasReply) {
+    const firstFile = chatFiles[0];
     if (firstFile?.fileType === 'IMAGE') {
       image = { url: firstFile.url };
     } else if (firstFile) {
@@ -153,7 +153,7 @@ const mapChatRespToMessage = (chat: ChatResp, allChats: ChatResp[], dateTime?: s
     reply,
     file,
     image,
-    images: chat.images,
+    files: chat.files,
     replyToId: chat.replyToId,
   };
 };
@@ -338,18 +338,18 @@ const ImagesGrid = ({
 // Image Message Component
 const ImageMessage = ({
   image,
-  images,
+  files,
   isMe,
   onPressImage,
 }: {
   image?: Message['image'];
-  images?: Message['images'];
+  files?: Message['files'];
   isMe: boolean;
   onPressImage?: (url: string) => void;
 }) => {
-  if (images && images.length > 0) {
-    const imageFiles = images.filter((img) => img.fileType === 'IMAGE');
-    const otherFiles = images.filter((img) => img.fileType !== 'IMAGE');
+  if (files && files.length > 0) {
+    const imageFiles = files.filter((f) => f.fileType === 'IMAGE');
+    const otherFiles = files.filter((f) => f.fileType !== 'IMAGE');
 
     return (
       <div className='flex flex-col gap-2'>
@@ -430,7 +430,7 @@ const MessageBubble = ({
   onDelete?: (message: Message) => void;
   onPressImage?: (url: string) => void;
 }) => {
-  const { type, sender, content, timestamp, reply, file, image, images } = message;
+  const { type, sender, content, timestamp, reply, file, image, files } = message;
   const isMe = sender === 'me';
   const [isHovered, setIsHovered] = useState(false);
 
@@ -440,19 +440,17 @@ const MessageBubble = ({
   const renderContent = () => {
     switch (type) {
       case 'file':
-        return <FileAttachment file={file} uploadFile={images?.[0]} isMe={isMe} />;
+        return <FileAttachment file={file} uploadFile={files?.[0]} isMe={isMe} />;
       case 'image':
-        return (
-          <ImageMessage image={image} images={images} isMe={isMe} onPressImage={onPressImage} />
-        );
+        return <ImageMessage image={image} files={files} isMe={isMe} onPressImage={onPressImage} />;
       case 'reply-text':
       case 'reply-image':
         return (
           <div>
             <ReplyPreview reply={reply} isMe={isMe} />
-            {images && images.length > 0 && (
+            {files && files.length > 0 && (
               <div className='mb-2'>
-                <ImageMessage images={images} isMe={isMe} onPressImage={onPressImage} />
+                <ImageMessage files={files} isMe={isMe} onPressImage={onPressImage} />
               </div>
             )}
             {content && <p className='text-sm text-gray-900'>{content}</p>}
@@ -638,7 +636,7 @@ const MessageInput = ({
       )}
 
       {/* Input Area */}
-      <div className='flex items-end gap-2'>
+      <div className='flex items-center gap-2'>
         {/* Attachment Buttons */}
         <div className='flex items-center gap-1'>
           <input
@@ -932,7 +930,7 @@ function RouteComponent() {
                   body: {
                     qnaId: selectedQnaId,
                     content: '',
-                    images: [uploadResp.file.id],
+                    files: [uploadResp.file.id],
                     replyToId: replyTo?.id,
                   },
                 },

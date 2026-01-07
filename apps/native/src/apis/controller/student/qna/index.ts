@@ -8,8 +8,8 @@ export { default as usePutQnaChat } from './usePutQnaChat';
 
 export { default as useGetQnaAdminChat } from './useGetQnaAdminChat';
 export { default as useGetQnaById } from './useGetQnaById';
-export { default as useGetQnaImages } from './useGetQnaImages';
-export { default as useGetQnaImagesById } from './useGetQnaImagesById';
+export { default as useGetQnaFiles } from './useGetQnaFiles';
+export { default as useGetQnaFilesById } from './useGetQnaFilesById';
 export { default as useGetQnaList } from './useGetQnaList';
 export { default as useGetQnaSearch } from './useGetQnaSearch';
 

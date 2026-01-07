@@ -1,21 +1,21 @@
 import { TanstackQueryClient } from '@/apis/client';
 
 type Props = {
-  qnaId: number;
+  dayLimit?: number;
   enabled?: boolean;
 };
 
-const useGetQnaImagesById = ({ qnaId, enabled = true }: Props) => {
+const useGetNotification = ({ dayLimit, enabled = true }: Props) => {
   return TanstackQueryClient.useQuery(
     'get',
-    '/api/student/qna/{qnaId}/images',
+    '/api/student/notification',
     {
       params: {
-        path: { qnaId },
+        query: { dayLimit },
       },
     },
     { enabled }
   );
 };
 
-export default useGetQnaImagesById;
+export default useGetNotification;

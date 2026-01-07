@@ -10,6 +10,10 @@ export interface GetConceptCategoryParams {
   size?: number;
 }
 
+export interface GetNotificationParams {
+  studentId: number;
+}
+
 export interface GetNoticeParams {
   studentId: number;
 }

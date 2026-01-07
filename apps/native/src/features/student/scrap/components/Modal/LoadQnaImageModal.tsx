@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { FlatList, Image, Modal, Pressable, View, StyleSheet, Alert, Text } from 'react-native';
 import { LoadQnaImageScreenModal } from './FullScreenModal';
 import { Check } from 'lucide-react-native';
-import { useGetQnaImages, useCreateScrapFromImage } from '@/apis';
+import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
 
 interface LoadQnaImageModalProps {
   visible: boolean;
@@ -12,7 +12,7 @@ interface LoadQnaImageModalProps {
 }
 
 export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageModalProps) => {
-  const { data: qnaAllImagesData, isLoading } = useGetQnaImages();
+  const { data: qnaAllFilesData, isLoading } = useGetQnaFiles();
   const { mutate: createScrapFromImage } = useCreateScrapFromImage();
 
   const [containerWidth, setContainerWidth] = useState(0);
@@ -63,13 +63,13 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
             <View className='items-center justify-center'>
               <Text className='text-white'>로딩 중...</Text>
             </View>
-          ) : !qnaAllImagesData?.data || qnaAllImagesData.data.length === 0 ? (
+          ) : !qnaAllFilesData?.data || qnaAllFilesData.data.length === 0 ? (
             <View className='items-center justify-center'>
               <Text className='text-white'>이미지가 없습니다.</Text>
             </View>
           ) : (
             <FlatList
-              data={qnaAllImagesData.data}
+              data={qnaAllFilesData.data}
               keyExtractor={(item) => item.id.toString()}
               numColumns={NUM_COLUMNS}
               columnWrapperStyle={{ gap: GAP }}

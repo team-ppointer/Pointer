@@ -13,7 +13,12 @@ export type StudentTabParamList = {
 export type StudentRootStackParamList = {
   StudentTabs: NavigatorScreenParams<StudentTabParamList>;
   Notifications: undefined;
-  NotificationDetail: undefined;
+  NotificationDetail: {
+    noticeId: number;
+    title: string;
+    date: string;
+    content: string;
+  };
   Problem: undefined;
   Pointing: undefined;
   Analysis: undefined;

@@ -412,7 +412,7 @@ function RouteComponent() {
                   <table className='w-full'>
                     <thead>
                       <tr className='border-b border-gray-100 bg-gray-50'>
-                        <th className='w-24 px-6 py-4 text-left text-sm font-bold text-gray-700'>
+                        <th className='w-40 px-6 py-4 text-left text-sm font-bold text-gray-700'>
                           ID
                         </th>
                         <th className='w-48 px-6 py-4 text-left text-sm font-bold text-gray-700'>

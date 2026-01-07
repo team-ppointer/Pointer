@@ -111,7 +111,7 @@ const NotificationItem = ({
         </View>
         <View className='flex-1'>
           <Text className='text-16sb mb-[2px] text-black truncate' numberOfLines={1}>{title}</Text>
-          <Text className='text-12m text-gray-700'>{time}</Text>
+          <Text className='text-12r text-gray-700'>{time}</Text>
         </View>
       </View>
       {children}
