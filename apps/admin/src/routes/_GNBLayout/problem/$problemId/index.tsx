@@ -1,21 +1,43 @@
-import { useState } from 'react';
-import { Button, Header, Modal, TagSelectModal, TwoButtonModalTemplate } from '@components';
+import {
+  Button,
+  Header,
+  Modal,
+  SegmentedControl,
+  TagSelectModal,
+  TwoButtonModalTemplate,
+  Input,
+  ComponentWithLabel,
+} from '@components';
 import { components } from '@schema';
-import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
+import { createFileRoute, useRouter, Link } from '@tanstack/react-router';
+import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { deleteProblem, getConcept, getProblemById, putProblemById } from '@apis';
 import { getEmptyContentString, transformToProblemUpdateRequest } from '@utils';
 import { useInvalidate, useModal } from '@hooks';
 import { Slide, ToastContainer, toast } from 'react-toastify';
-import { Info, FileText, Lightbulb, Trash2, Link2, SaveIcon, Sparkles } from 'lucide-react';
+import {
+  Info,
+  FileText,
+  Lightbulb,
+  Trash2,
+  Link2,
+  SaveIcon,
+  Sparkles,
+  Hash,
+  BookOpen,
+  Plus,
+  ChevronRight,
+  Clipboard,
+} from 'lucide-react';
 
 import {
   ProblemEssentialInput,
   MainProblemSection,
   ProblemPointingInput,
   TipSection,
+  PracticeTestSelect,
 } from '@/components/problem';
-import ProblemSearchModal from '@/components/common/Modals/ProblemSearchModal';
+import CreatePracticeTestModal from '@/components/common/Modals/CreatePracticeTestModal';
 
 import '@team-ppointer/pointer-editor-v2/style.css';
 
@@ -25,13 +47,13 @@ export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
 
 type ProblemInfoResp = components['schemas']['ProblemInfoResp'];
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
-type ProblemMetaResp = components['schemas']['ProblemMetaResp'];
+type CreateType = NonNullable<ProblemUpdateRequest['createType']>;
 
-interface ParentProblemSnapshot {
-  id: number;
-  title?: string;
-  customId?: string;
-}
+const CREATE_TYPE_OPTIONS: { label: string; value: CreateType }[] = [
+  { label: '기출문제', value: 'GICHUL_PROBLEM' },
+  { label: '변형문제', value: 'VARIANT_PROBLEM' },
+  { label: '창작문제', value: 'CREATION_PROBLEM' },
+];
 
 function RouteComponent() {
   const { invalidateAll } = useInvalidate();
@@ -86,19 +108,10 @@ function ProblemForm({
     closeModal: closeDeleteModal,
   } = useModal();
   const {
-    isOpen: isParentSelectModalOpen,
-    openModal: openParentSelectModal,
-    closeModal: closeParentSelectModal,
+    isOpen: isPracticeTestModalOpen,
+    openModal: openPracticeTestModal,
+    closeModal: closePracticeTestModal,
   } = useModal();
-
-  const [selectedParentProblem, setSelectedParentProblem] = useState<ParentProblemSnapshot | null>(
-    fetchedProblemData.parentProblem
-      ? {
-          id: fetchedProblemData.parentProblem,
-          title: fetchedProblemData.parentProblemTitle ?? '',
-        }
-      : null
-  );
 
   const {
     register,
@@ -106,7 +119,6 @@ function ProblemForm({
     control,
     watch,
     setValue,
-    getValues,
     formState: { errors, isValid },
   } = useForm<ProblemUpdateRequest>({
     mode: 'onChange',
@@ -130,7 +142,6 @@ function ProblemForm({
 
     const processedData: ProblemUpdateRequest = {
       ...data,
-      parentProblem: data.parentProblem != null ? Number(data.parentProblem) : undefined,
       answer: typeof data.answer === 'string' ? parseInt(data.answer, 10) : data.answer,
       problemContent: normalizeContent(data.problemContent),
       readingTipContent: normalizeContent(data.readingTipContent),
@@ -138,7 +149,9 @@ function ProblemForm({
       pointings: sanitizedPointings,
       mainAnalysisImageId: data.mainAnalysisImageId ?? undefined,
       mainHandAnalysisImageId: data.mainHandAnalysisImageId ?? undefined,
-      childProblems: [],
+      createType: data.createType,
+      practiceTestId: data.practiceTestId ?? undefined,
+      practiceTestNo: data.practiceTestNo ?? undefined,
     };
 
     mutateUpdateProblem(
@@ -190,11 +203,6 @@ function ProblemForm({
     setValue('concepts', nextTags, { shouldDirty: true, shouldValidate: true });
   };
 
-  const handleClearParentProblem = () => {
-    setSelectedParentProblem(null);
-    setValue('parentProblem', undefined, { shouldDirty: true, shouldValidate: true });
-  };
-
   const handleClickSave = handleSubmit(handleSubmitUpdate);
 
   return (
@@ -224,7 +232,7 @@ function ProblemForm({
               </Header.Button>
               <button
                 type='button'
-                disabled={!isValid}
+                disabled={!isValid || concepts.length === 0}
                 onClick={handleClickSave}
                 className='bg-main shadow-main/20 flex items-center gap-2 rounded-2xl py-3 pr-5 pl-4 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50'>
                 <SaveIcon className='h-4 w-4' />
@@ -234,7 +242,7 @@ function ProblemForm({
           </Header>
 
           <div className='mx-auto max-w-7xl px-8 py-8'>
-            <div className='mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white'>
+            <div className='mb-6 rounded-2xl border border-gray-200 bg-white'>
               <div className='px-6 pt-6'>
                 <h2 className='flex items-center gap-3 text-xl font-bold text-gray-900'>
                   <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
@@ -245,72 +253,163 @@ function ProblemForm({
               </div>
               <div className='space-y-6 p-8'>
                 <ProblemEssentialInput>
-                  <ProblemEssentialInput.ProblemID
-                    {...register('customId', {
-                      required: '문제 ID는 필수 입력 항목입니다.',
-                    })}
-                  />
+                  {/* 문제 ID - 읽기 전용 텍스트로 표시 */}
+                  <div className='flex items-center gap-3'>
+                    <ComponentWithLabel label='문제 ID' labelWidth='4rem'>
+                      <div className='flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3'>
+                        <Hash className='h-4 w-4 text-gray-500' />
+                        <span className='font-mono text-sm font-semibold text-gray-700'>
+                          {fetchedProblemData.customId || '-'}
+                        </span>
+                        <button
+                          type='button'
+                          className='ml-2 rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600'
+                          onClick={() => {
+                            navigator.clipboard.writeText(fetchedProblemData.customId || '');
+                            toast.success('문제 ID가 복사되었습니다.');
+                          }}>
+                          <Clipboard className='h-4 w-4' />
+                        </button>
+                      </div>
+                    </ComponentWithLabel>
+                  </div>
+
                   <ProblemEssentialInput.ProblemTitle
                     {...register('title', {
                       required: '문제 제목은 필수 입력 항목입니다.',
                     })}
                   />
-                  <div className='flex gap-4'>
+                  <div className='flex flex-wrap gap-4'>
                     <ProblemEssentialInput.ProblemType
                       enabled={false}
                       defaultValue={fetchedProblemData.problemType}
                     />
 
                     {fetchedProblemData.problemType === 'CHILD_PROBLEM' && (
-                      <div className='flex items-center justify-between space-x-2'>
+                      <div className='flex items-center gap-4'>
                         <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
                           <Link2 className='text-main h-4 w-4' />
-                          부모 문제 연결
+                          부모 문제
                         </div>
-                        <div className='flex flex-wrap items-center gap-2'>
-                          {selectedParentProblem ? (
-                            <div className='rounded-xl bg-blue-50 px-3 py-2.5 text-sm font-semibold text-blue-700'>
-                              {selectedParentProblem.customId
-                                ? `${selectedParentProblem.customId} · ${selectedParentProblem.title ?? ''}`
-                                : selectedParentProblem.title || `ID ${selectedParentProblem.id}`}
-                            </div>
-                          ) : (
-                            <span className='text-sm text-gray-500'>
-                              연결된 부모 문제가 없습니다.
+                        {fetchedProblemData.parentProblem ? (
+                          <Link
+                            to='/problem/$problemId'
+                            params={{ problemId: String(fetchedProblemData.parentProblem) }}
+                            className='group flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition-all hover:border-blue-300 hover:bg-blue-100'>
+                            <span>
+                              {fetchedProblemData.parentProblemTitle ||
+                                `ID ${fetchedProblemData.parentProblem}`}
                             </span>
-                          )}
-                          <Button
-                            type='button'
-                            variant='light'
-                            sizeType='fit'
-                            onClick={openParentSelectModal}>
-                            부모 문제 선택
-                          </Button>
-                          {selectedParentProblem && (
-                            <Button
-                              type='button'
-                              variant='danger'
-                              sizeType='fit'
-                              onClick={handleClearParentProblem}>
-                              연결 해제
-                            </Button>
-                          )}
-                        </div>
+                            <ChevronRight className='h-4 w-4 text-blue-500' />
+                          </Link>
+                        ) : (
+                          <span className='text-sm text-gray-500'>
+                            연결된 부모 문제가 없습니다.
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>
-                  {/* <div className='grid gap-4 md:grid-cols-2'>
-                    <div className='space-y-2'>
-                      <span className='text-sm font-semibold text-gray-600'>출제 유형</span>
-                      <div className='rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700'>
-                        {fetchedProblemData.createType === 'GICHUL_PROBLEM'
-                          ? '기출 문제'
-                          : fetchedProblemData.createType === 'VARIANT_PROBLEM'
-                            ? '변형 문제'
-                            : '창작 문제'}
+
+                  {/* MAIN_PROBLEM일 경우 새끼문제 목록 표시 */}
+                  {fetchedProblemData.problemType === 'MAIN_PROBLEM' &&
+                    fetchedProblemData.childProblems &&
+                    fetchedProblemData.childProblems.length > 0 && (
+                      <div className='space-y-3'>
+                        <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                          <FileText className='text-main h-4 w-4' />
+                          새끼문제 목록
+                        </div>
+                        <div className='flex flex-wrap gap-2'>
+                          {fetchedProblemData.childProblems.map((child, index) => (
+                            <Link
+                              key={child.id}
+                              to='/problem/$problemId'
+                              params={{ problemId: String(child.id) }}
+                              className='group flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-all hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'>
+                              <span className='flex h-6 w-6 items-center justify-center rounded-lg bg-gray-100 text-xs font-bold text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-700'>
+                                {index + 1}
+                              </span>
+                              <span className='max-w-[200px] truncate'>
+                                {child.title || `새끼문제 ${index + 1}`}
+                              </span>
+                              <ChevronRight className='h-4 w-4 text-gray-400 group-hover:text-blue-500' />
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* MAIN_PROBLEM일 경우 새끼문항 추가 버튼 */}
+                  {fetchedProblemData.problemType === 'MAIN_PROBLEM' && (
+                    <div className='flex items-center gap-2'>
+                      <Button
+                        type='button'
+                        variant='light'
+                        sizeType='fit'
+                        onClick={() => {
+                          alert('새끼문항 추가 기능은 아직 구현되지 않았습니다.');
+                        }}>
+                        <Plus className='h-4 w-4' />
+                        새끼문항 추가
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* 출제 유형 (createType) */}
+                  <div className='space-y-3'>
+                    <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                      <BookOpen className='text-main h-4 w-4' />
+                      출제 유형
+                    </div>
+                    <Controller
+                      name='createType'
+                      control={control}
+                      render={({ field }) => (
+                        <SegmentedControl
+                          items={CREATE_TYPE_OPTIONS}
+                          value={field.value}
+                          onChange={(value) => field.onChange(value as CreateType)}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  {/* 모의고사 정보 */}
+                  <div className='space-y-4'>
+                    <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                      <FileText className='text-main h-4 w-4' />
+                      모의고사 정보
+                    </div>
+                    <div className='flex flex-wrap items-end gap-4'>
+                      <div className='min-w-[300px] flex-1'>
+                        <ComponentWithLabel label='모의고사'>
+                          <Controller
+                            name='practiceTestId'
+                            control={control}
+                            render={({ field }) => (
+                              <PracticeTestSelect
+                                practiceTest={field.value}
+                                handlePracticeTest={(value) => field.onChange(value)}
+                                onCreateNew={openPracticeTestModal}
+                              />
+                            )}
+                          />
+                        </ComponentWithLabel>
+                      </div>
+                      <div className='w-[150px]'>
+                        <ComponentWithLabel label='문제 번호'>
+                          <Input
+                            type='number'
+                            placeholder='번호 입력'
+                            {...register('practiceTestNo', {
+                              valueAsNumber: true,
+                            })}
+                          />
+                        </ComponentWithLabel>
                       </div>
                     </div>
-                  </div> */}
+                  </div>
                 </ProblemEssentialInput>
               </div>
             </div>
@@ -395,23 +494,6 @@ function ProblemForm({
           handleChangeTagList={handleChangeTagList}
         />
       </Modal>
-      <Modal isOpen={isParentSelectModalOpen} onClose={closeParentSelectModal}>
-        <ProblemSearchModal
-          onClickCard={(problem: ProblemMetaResp) => {
-            if (problem.problemType !== 'MAIN_PROBLEM') {
-              toast.error('새끼 문제는 부모 문제로 선택할 수 없습니다.');
-              return;
-            }
-            setSelectedParentProblem({
-              id: problem.id,
-              title: problem.title,
-              customId: problem.customId,
-            });
-            setValue('parentProblem', problem.id, { shouldDirty: true, shouldValidate: true });
-            closeParentSelectModal();
-          }}
-        />
-      </Modal>
       <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
         <TwoButtonModalTemplate
           text='문제를 삭제할까요?'
@@ -420,6 +502,9 @@ function ProblemForm({
           handleClickLeftButton={closeDeleteModal}
           handleClickRightButton={handleMutateDelete}
         />
+      </Modal>
+      <Modal isOpen={isPracticeTestModalOpen} onClose={closePracticeTestModal}>
+        <CreatePracticeTestModal onClose={closePracticeTestModal} />
       </Modal>
     </>
   );

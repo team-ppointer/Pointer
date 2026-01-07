@@ -1,10 +1,8 @@
 import type { TiptapPayload } from '@team-ppointer/pointer-editor-v2';
-
 import { components } from '@schema';
 
 type ProblemInfoResp = components['schemas']['ProblemInfoResp'];
 type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
-type ChildProblemUpdateRequest = components['schemas']['ChildProblemUpdateDTO.Request'];
 type PointingUpdateRequest = components['schemas']['PointingUpdateRequest'];
 
 const EMPTY_TIPTAP_DOC = { type: 'doc', content: [] } as const;
@@ -36,26 +34,10 @@ const mapPointings = (pointings?: ProblemInfoResp['pointings']): PointingUpdateR
   );
 };
 
-const mapChildProblems = (childProblems?: ProblemInfoResp['childProblems']): ChildProblemUpdateRequest[] => {
-  return (
-    childProblems?.map((child, index) => ({
-      id: child.id,
-      no: (child as { no?: number } | undefined)?.no ?? index + 1,
-      problemContent: normalizeContentString(child.problemContent),
-      answerType: child.answerType ?? 'MULTIPLE_CHOICE',
-      answer: child.answer ?? 1,
-      concepts: child.concepts?.map((concept) => concept.id) ?? [],
-      pointings: mapPointings(child.pointings),
-    })) ?? []
-  );
-};
-
 export const transformToProblemUpdateRequest = (
   serverData: ProblemInfoResp
 ): ProblemUpdateRequest => {
   return {
-    parentProblem: serverData.parentProblem ?? undefined,
-    customId: serverData.customId ?? '',
     createType: serverData.createType ?? 'GICHUL_PROBLEM',
     practiceTestId: serverData.practiceTest?.id ?? undefined,
     practiceTestNo: serverData.practiceTestNo ?? undefined,
@@ -72,7 +54,6 @@ export const transformToProblemUpdateRequest = (
     mainHandAnalysisImageId: serverData.mainHandAnalysisImage?.id ?? undefined,
     readingTipContent: normalizeContentString(serverData.readingTipContent),
     oneStepMoreContent: normalizeContentString(serverData.oneStepMoreContent),
-    childProblems: mapChildProblems(serverData.childProblems),
   };
 };
 
