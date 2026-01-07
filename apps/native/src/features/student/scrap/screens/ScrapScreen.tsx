@@ -7,7 +7,7 @@ import { View, Text, ScrollView, Pressable, ImageBackground } from 'react-native
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
-import { useRecentScrapStore } from '@/stores/recentScrapStore';
+import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { sortScrapData, mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder, ScrapSearchResponse } from '../utils/types';
 import { showToast } from '../components/Notification/Toast';
@@ -134,7 +134,9 @@ const ScrapScreenContent = () => {
               dispatch({ type: 'CLEAR_SELECTION' });
 
               try {
-                await deleteScrap({ items });
+                await deleteScrap({
+                  items: items.map((item) => ({ id: item.id as number, type: item.type })),
+                });
                 showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
               } catch (error: any) {
                 // 에러 발생 시 롤백은 mutation의 onError에서 처리됨

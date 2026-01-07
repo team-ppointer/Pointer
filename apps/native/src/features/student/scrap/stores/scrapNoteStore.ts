@@ -13,6 +13,7 @@ type NoteStore = {
   closeNote: (noteId: number) => void;
   setActiveNote: (noteId: number) => void;
   reorderNotes: (fromIndex: number, toIndex: number) => void;
+  updateNoteTitle: (noteId: number, title: string) => void;
 };
 
 export const useNoteStore = create<NoteStore>((set, get) => ({
@@ -64,5 +65,13 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     const [moved] = newNotes.splice(fromIndex, 1);
     newNotes.splice(toIndex, 0, moved);
     set({ openNotes: newNotes });
+  },
+
+  updateNoteTitle: (noteId, title) => {
+    const { openNotes } = get();
+    const updatedNotes = openNotes.map((note) =>
+      note.id === noteId ? { ...note, title } : note
+    );
+    set({ openNotes: updatedNotes });
   },
 }));

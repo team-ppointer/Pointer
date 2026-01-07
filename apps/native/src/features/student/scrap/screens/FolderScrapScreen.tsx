@@ -98,7 +98,9 @@ const FolderScrapScreenContent = () => {
               try {
                 const items = reducerState.selectedItems;
 
-                await deleteScrap({ items });
+                await deleteScrap({
+                  items: items.map((item) => ({ id: item.id as number, type: item.type })),
+                });
 
                 dispatch({ type: 'CLEAR_SELECTION' });
                 showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');

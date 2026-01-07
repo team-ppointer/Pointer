@@ -131,11 +131,24 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       onHistoryChange(canUndo, canRedo);
     }, [onHistoryChange, activeTextInput]);
 
+    // Deep copy 헬퍼 함수 (최적화)
+    const deepCopyStrokes = (strokes: Stroke[]): Stroke[] => {
+      return strokes.map((stroke) => ({
+        points: stroke.points.map((p) => ({ ...p })),
+        color: stroke.color,
+        width: stroke.width,
+      }));
+    };
+
+    const deepCopyTexts = (texts: TextItem[]): TextItem[] => {
+      return texts.map((text) => ({ ...text }));
+    };
+
     // 현재 상태를 히스토리에 저장
     const saveToHistory = useCallback(() => {
       const currentState: HistoryState = {
-        strokes: JSON.parse(JSON.stringify(strokesRef.current)), // deep copy
-        texts: JSON.parse(JSON.stringify(textsRef.current)), // deep copy
+        strokes: deepCopyStrokes(strokesRef.current),
+        texts: deepCopyTexts(textsRef.current),
       };
 
       // 현재 인덱스 이후의 히스토리 제거 (새 동작이 발생하면 redo 불가)
@@ -190,7 +203,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         }
 
         onChange?.(state.strokes);
-        setTick((t) => t + 1);
+        // 상태 변경으로 자동 리렌더링
         notifyHistoryChange();
       },
       [onChange, notifyHistoryChange]
@@ -199,14 +212,25 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     // 폰트 로드
     const font = useFont(require('@assets/fonts/PretendardVariable.ttf'), textFontSize);
 
-    // 텍스트의 실제 줄 수 계산 (자동 줄바꿈 포함)
+    // 화면 너비에서 패딩을 뺀 최대 너비 계산
+    const maxTextWidth = useMemo(() => {
+      return Dimensions.get('window').width - 40; // 좌우 패딩 20px씩
+    }, []);
+
+    // 텍스트의 실제 줄 수 계산 (자동 줄바꿈 포함) - 메모이제이션
+    const textLineCountCache = useRef<Map<string, number>>(new Map());
+
     const calculateTextLineCount = useCallback(
       (text: string): number => {
         if (!font) return 1;
 
-        const maxWidth = Dimensions.get('window').width * 0.5 - 40;
-        let totalLines = 0;
+        // 캐시 확인
+        const cacheKey = `${text}-${maxTextWidth}`;
+        if (textLineCountCache.current.has(cacheKey)) {
+          return textLineCountCache.current.get(cacheKey)!;
+        }
 
+        let totalLines = 0;
         const paragraphs = text.split('\n');
 
         paragraphs.forEach((paragraph) => {
@@ -223,7 +247,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             const testLine = currentLine ? `${currentLine} ${word}` : word;
             const textWidth = font.measureText(testLine).width;
 
-            if (textWidth > maxWidth && currentLine) {
+            if (textWidth > maxTextWidth && currentLine) {
               paragraphLines += 1;
               currentLine = word;
             } else {
@@ -238,9 +262,18 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           totalLines += paragraphLines;
         });
 
+        // 캐시 저장 (최대 100개 항목만 유지)
+        if (textLineCountCache.current.size > 100) {
+          const firstKey = textLineCountCache.current.keys().next().value;
+          if (firstKey) {
+            textLineCountCache.current.delete(firstKey);
+          }
+        }
+        textLineCountCache.current.set(cacheKey, totalLines);
+
         return totalLines;
       },
-      [font]
+      [font, maxTextWidth]
     );
 
     const loadStrokes = useCallback(
@@ -263,7 +296,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           canvasHeight.current = 800;
         }
 
-        setTick((t) => t + 1);
+        // 상태 변경으로 자동 리렌더링
         onChange?.(newStrokes);
 
         // 히스토리 초기화 및 초기 상태 저장 (외부에서 로드한 경우)
@@ -272,8 +305,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         // 초기 상태를 히스토리에 저장
         setTimeout(() => {
           const initialState: HistoryState = {
-            strokes: JSON.parse(JSON.stringify(newStrokes)),
-            texts: JSON.parse(JSON.stringify(textsRef.current)),
+            strokes: deepCopyStrokes(newStrokes),
+            texts: deepCopyTexts(textsRef.current),
           };
           historyRef.current = [initialState];
           historyIndexRef.current = 0;
@@ -311,7 +344,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         canvasHeight.current = 800;
       }
 
-      setTick((t) => t + 1);
+      // 상태 변경으로 자동 리렌더링
     }, []);
 
     // 텍스트 영역과 충돌하는지 확인 (32px 여백 포함, 캔버스 전체 너비, 멀티라인 고려)
@@ -346,16 +379,18 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         }
 
         currentPoints.current.push({ x, y });
-        // 최대 Y 좌표 업데이트
+        // 경로는 매번 재생성
+        livePath.current = buildSmoothPath(currentPoints.current);
+
+        // 최대 Y 좌표 업데이트 시에만 리렌더링
         if (y > maxY.current) {
           maxY.current = y;
-          // 여유 공간을 위해 200px 추가
           canvasHeight.current = Math.max(800, maxY.current + 200);
           setTick((t) => t + 1);
+        } else {
+          // 일반적인 경우에도 livePath가 변경되었으므로 리렌더링 필요
+          setTick((t) => t + 1);
         }
-        // 경로는 매번 재생성하되, 렌더링은 최적화
-        livePath.current = buildSmoothPath(currentPoints.current);
-        setTick((t) => t + 1);
       },
       [isNearExistingText]
     );
@@ -396,13 +431,12 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         width: strokeWidth,
       };
 
-      // 배치 업데이트: paths와 strokes를 함께 업데이트
+      // 배치 업데이트: paths와 strokes를 함께 업데이트 (상태 변경으로 자동 리렌더링)
       setStrokes((prev) => {
         const next = [...prev, strokeData];
         setPaths((prevPaths) => [...prevPaths, newPath]);
         strokesRef.current = next;
         onChange?.(next);
-        setTick((t) => t + 1);
 
         // 히스토리에 저장
         setTimeout(() => saveToHistory(), 0);
@@ -439,14 +473,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             return !isTouched; // 닿지 않은 선들만 남김
           });
 
-          // 2. 만약 지워진 선이 있다면 Path 배열도 업데이트
+          // 2. 만약 지워진 선이 있다면 Path 배열도 업데이트 (상태 변경으로 자동 리렌더링)
           if (nextStrokes.length !== prevStrokes.length) {
             // 경로를 한 번에 생성
             const newPaths = nextStrokes.map((s) => buildSmoothPath(s.points));
             setPaths(newPaths);
             strokesRef.current = nextStrokes;
             onChange?.(nextStrokes);
-            setTick((t) => t + 1);
 
             // 히스토리에 저장 (지우개 동작)
             setTimeout(() => saveToHistory(), 0);
@@ -486,7 +519,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         textsRef.current = next;
         return next;
       });
-      setTick((t) => t + 1);
+      // 상태 변경으로 자동 리렌더링
     }, []);
 
     // 필기(stroke) 위에 텍스트 박스를 생성할 수 있는지 확인
@@ -628,7 +661,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
           return next;
         });
-        setTick((t) => t + 1);
+        // 상태 변경으로 자동 리렌더링
       }
       setActiveTextInput(null);
     }, [activeTextInput, textFontSize, strokeColor, saveToHistory]);
@@ -711,7 +744,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         livePath.current = Skia.Path.Make();
         maxY.current = 0;
         canvasHeight.current = 800;
-        setTick((t) => t + 1);
+        // 상태 변경으로 자동 리렌더링
         onChange?.([]);
 
         // 히스토리 초기화
@@ -884,7 +917,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       () =>
         font
           ? texts.flatMap((textItem) => {
-              const maxWidth = Dimensions.get('window').width * 0.5 - 40;
               const allLines: string[] = [];
 
               // 먼저 명시적 줄바꿈으로 분할
@@ -904,7 +936,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
                   const testLine = currentLine ? `${currentLine} ${word}` : word;
                   const textWidth = font.measureText(testLine).width;
 
-                  if (textWidth > maxWidth && currentLine) {
+                  if (textWidth > maxTextWidth && currentLine) {
                     // 현재 줄이 최대 너비를 초과하면 줄바꿈
                     allLines.push(currentLine);
                     currentLine = word;
@@ -931,7 +963,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
               ));
             })
           : null,
-      [texts, font, textFontSize]
+      [texts, font, textFontSize, maxTextWidth]
     );
 
     // 텍스트 삭제 버튼 렌더링 (텍스트 모드일 때만, 텍스트 시작 위치에 배치)
@@ -1067,7 +1099,7 @@ const styles = StyleSheet.create({
   textInputWrapper: {
     position: 'absolute',
     backgroundColor: 'transparent',
-    maxWidth: Dimensions.get('window').width * 0.5 - 40,
+    maxWidth: Dimensions.get('window').width - 40, // 좌우 패딩 20px씩
   },
   inlineTextInput: {
     backgroundColor: 'transparent',

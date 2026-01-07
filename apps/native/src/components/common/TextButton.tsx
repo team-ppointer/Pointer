@@ -1,16 +1,23 @@
 import React from 'react';
-import { Pressable, PressableStateCallbackType, Text } from 'react-native';
+import { Pressable, PressableStateCallbackType, Text, ViewStyle } from 'react-native';
 
 interface ButtonProps {
   variant?: 'blue' | 'gray' | 'outline';
   disabled?: boolean;
   onPress?: () => void;
   children: React.ReactNode;
+  style?: ViewStyle;
 }
 
 type ExtendedPressableState = PressableStateCallbackType & { hovered?: boolean };
 
-const TextButton = ({ variant = 'blue', disabled = false, onPress, children }: ButtonProps) => {
+const TextButton = ({
+  variant = 'blue',
+  disabled = false,
+  onPress,
+  children,
+  style,
+}: ButtonProps) => {
   const baseStyle = 'h-[30px] w-fit items-center justify-center rounded-[8px] px-[10px] font-24b';
 
   const variantStyles = {
@@ -32,7 +39,7 @@ const TextButton = ({ variant = 'blue', disabled = false, onPress, children }: B
   };
 
   return (
-    <Pressable onPress={onPress} className={`${baseStyle} ${variantStyles[variant]}`}>
+    <Pressable onPress={onPress} className={`${baseStyle} ${variantStyles[variant]}`} style={style}>
       {(state) => {
         const outlineColorClass = variant === 'outline' ? getOutlineTextColor(state) : '';
         const textClassName =

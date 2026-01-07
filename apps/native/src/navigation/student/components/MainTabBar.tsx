@@ -10,8 +10,15 @@ import {
 } from '@components/system/icons';
 import { colors } from '@/theme/tokens';
 
-const MainTabBar = ({ state, navigation }: BottomTabBarProps) => {
+const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
   const insets = useSafeAreaInsets();
+
+  // 현재 활성화된 route의 tabBarStyle을 확인
+  const { options } = descriptors[state.routes[state.index].key];
+  const tabBarStyle = options.tabBarStyle as { display?: string } | undefined;
+  if (tabBarStyle && typeof tabBarStyle === 'object' && tabBarStyle.display === 'none') {
+    return null;
+  }
 
   return (
     <View

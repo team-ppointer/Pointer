@@ -1,5 +1,5 @@
 import { colors } from '@/theme/tokens';
-import { Plus } from 'lucide-react-native';
+import { Check, Plus } from 'lucide-react-native';
 import { Pressable, View, Text } from 'react-native';
 import { TooltipPopover, AddItemTooltipBox, ReviewItemTooltipBox } from '../../Tooltip';
 import { Placement } from 'react-native-popover-view/dist/Types';
@@ -11,13 +11,17 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useState } from 'react';
 import { CreateFolderModal } from '../../Modal/CreateFolderModal';
 import { LoadQnaImageModal } from '../../Modal/LoadQnaImageModal';
-import { State } from '../../../utils/reducer';
+import { isItemSelected, State } from '../../../utils/reducer';
 import { useScrapModal } from '../../../contexts/ScrapModalsContext';
-import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 
-export const ScrapAddItem = ({ reducerState }: { reducerState: State }) => {
+interface ScrapHeadCardProps {
+  reducerState: State;
+  onCheckPress?: () => void;
+}
+
+export const ScrapAddCard = (props: ScrapHeadCardProps) => {
   const [isQnaImageModalVisible, setisQnaImageModalVisible] = useState(false);
-  const isSelecting = reducerState?.isSelecting ?? false;
+  const isSelecting = props?.reducerState.isSelecting ?? false;
   const { openCreateFolderModal } = useScrapModal();
 
   const addItemContent = (
@@ -69,33 +73,37 @@ export const ScrapAddItem = ({ reducerState }: { reducerState: State }) => {
   );
 };
 
-export const ScrapReviewItem = ({ props }: { props: ScrapListItemProps }) => {
-  const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
+export const ScrapAllCard = (props: ScrapHeadCardProps) => {
+  const isSelected = isItemSelected(props.reducerState.selectedItems, undefined, 'FOLDER');
 
   return (
     <Pressable
-      className={`w-full items-center gap-3 rounded-[10px] p-[10px]`}
-      onPress={() => navigation.push('ScrapContent', { id: props.id })}>
-      <View className={`w-full flex-col px-[6px]`}>
-        <View className='h-[145.5px] w-[145.5px] rounded-[10px] bg-gray-600' />
-
-        <View className='flex-row items-center justify-between'>
-          <View className='flex-[0.8] flex-row gap-0.5'>
-            <Text className='text-16sb text-[#1E1E21]' numberOfLines={2} ellipsizeMode='tail'>
-              {props.name}
-            </Text>
-            <TooltipPopover
-              children={(close: () => void) => (
-                <ReviewItemTooltipBox props={props} onClose={close} />
-              )}
-              from={<ChevronDownFilledIcon />}
-            />
-          </View>
-          {props.type === 'FOLDER' && props.scrapCount !== undefined && (
-            <Text className='text-12m text-gray-700'>{props.scrapCount}</Text>
+      className={`${isSelected ? 'bg-gray-300' : ''}  h-full w-full items-center rounded-[10px] p-[10px]`}
+      onPress={() => {
+        if (props.reducerState.isSelecting) {
+          props.onCheckPress?.();
+          return;
+        }
+      }}>
+      <View className='gap-3'>
+        <View className='items-center'>
+          <View className='aspect-square w-full rounded-[10px] bg-gray-600' />
+          {props.reducerState.isSelecting && (
+            <Pressable
+              className={
+                isSelected
+                  ? 'absolute h-4 w-4 items-center justify-center rounded bg-blue-500'
+                  : 'absolute h-4 w-4 items-center justify-center rounded border border-gray-700 bg-white'
+              }
+              style={{ bottom: 10 }}>
+              <Check size={16} color='#F5F5F5' />
+            </Pressable>
           )}
         </View>
-        <Text className='text-10r text-gray-700'>{formatToMinute(new Date(props.createdAt))}</Text>
+
+        <View className='w-full flex-col px-1'>
+          <Text className='text-16sb text-[#1E1E21]'>전체 스크랩</Text>
+        </View>
       </View>
     </Pressable>
   );
