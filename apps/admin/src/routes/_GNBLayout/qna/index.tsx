@@ -442,9 +442,7 @@ const MessageBubble = ({
       case 'file':
         return <FileAttachment file={file} uploadFile={files?.[0]} isMe={isMe} />;
       case 'image':
-        return (
-          <ImageMessage image={image} files={files} isMe={isMe} onPressImage={onPressImage} />
-        );
+        return <ImageMessage image={image} files={files} isMe={isMe} onPressImage={onPressImage} />;
       case 'reply-text':
       case 'reply-image':
         return (
@@ -638,7 +636,7 @@ const MessageInput = ({
       )}
 
       {/* Input Area */}
-      <div className='flex items-end gap-2'>
+      <div className='flex items-center gap-2'>
         {/* Attachment Buttons */}
         <div className='flex items-center gap-1'>
           <input
