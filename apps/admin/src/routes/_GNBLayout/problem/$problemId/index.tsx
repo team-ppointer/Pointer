@@ -357,11 +357,7 @@ function ProblemForm({
                   )}
 
                   {/* 출제 유형 (createType) */}
-                  <div className='space-y-3'>
-                    <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
-                      <BookOpen className='text-main h-4 w-4' />
-                      출제 유형
-                    </div>
+                  <ComponentWithLabel label='출제 유형' labelWidth='4rem'>
                     <Controller
                       name='createType'
                       control={control}
@@ -373,29 +369,23 @@ function ProblemForm({
                         />
                       )}
                     />
-                  </div>
+                  </ComponentWithLabel>
 
                   {/* 모의고사 정보 */}
-                  <div className='space-y-4'>
-                    <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
-                      <FileText className='text-main h-4 w-4' />
-                      모의고사 정보
-                    </div>
+                  <ComponentWithLabel label='모의고사' labelWidth='4rem'>
                     <div className='flex flex-wrap items-end gap-4'>
                       <div className='min-w-[300px] flex-1'>
-                        <ComponentWithLabel label='모의고사'>
-                          <Controller
-                            name='practiceTestId'
-                            control={control}
-                            render={({ field }) => (
-                              <PracticeTestSelect
-                                practiceTest={field.value}
-                                handlePracticeTest={(value) => field.onChange(value)}
-                                onCreateNew={openPracticeTestModal}
-                              />
-                            )}
-                          />
-                        </ComponentWithLabel>
+                        <Controller
+                          name='practiceTestId'
+                          control={control}
+                          render={({ field }) => (
+                            <PracticeTestSelect
+                              practiceTest={field.value}
+                              handlePracticeTest={(value) => field.onChange(value)}
+                              onCreateNew={openPracticeTestModal}
+                            />
+                          )}
+                        />
                       </div>
                       <div className='w-[150px]'>
                         <ComponentWithLabel label='문제 번호'>
@@ -405,11 +395,12 @@ function ProblemForm({
                             {...register('practiceTestNo', {
                               valueAsNumber: true,
                             })}
+                            className='h-[48px]'
                           />
                         </ComponentWithLabel>
                       </div>
                     </div>
-                  </div>
+                  </ComponentWithLabel>
                 </ProblemEssentialInput>
               </div>
             </div>
