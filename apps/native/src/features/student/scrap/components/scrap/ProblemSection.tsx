@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { Maximize2 } from 'lucide-react-native';
 import ProblemViewer from '../../../problem/components/ProblemViewer';
+import { colors } from '@/theme/tokens';
 
 export interface ProblemSectionProps {
   problemContent?: string;
@@ -25,11 +26,13 @@ export const ProblemSection = ({
         <ProblemViewer problemContent={problemContent} minHeight={200} padding={14} />
         {thumbnailUrl && (
           <Pressable className='relative' onPress={onHoverStart}>
-            <Image
-              source={{ uri: thumbnailUrl }}
-              style={{ width: '100%', height: 'auto', borderRadius: 8 }}
-              resizeMode='contain'
-            />
+            <View style={{ borderRadius: 8, overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
+              <Image
+                source={{ uri: thumbnailUrl }}
+                style={{ width: '100%', height: 270 }}
+                resizeMode='contain'
+              />
+            </View>
             {isHovering && (
               <Pressable
                 onPress={onExpand}
@@ -45,11 +48,13 @@ export const ProblemSection = ({
 
   return (
     <Pressable className='relative' onPress={onHoverStart}>
-      <Image
-        source={{ uri: thumbnailUrl }}
-        style={{ width: '100%', height: 270, borderRadius: 8 }}
-        resizeMode='contain'
-      />
+      <View style={{ borderRadius: 8, overflow: 'hidden', backgroundColor: colors['gray-400'] }}>
+        <Image
+          source={{ uri: thumbnailUrl }}
+          style={{ width: '100%', height: 270 }}
+          resizeMode='contain'
+        />
+      </View>
       {isHovering && (
         <Pressable
           onPress={onExpand}
