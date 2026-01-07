@@ -25,7 +25,7 @@ export const TrashCard = (props: TrashListItemProps) => {
   );
 
   const cardContent = (
-    <View className={`w-full items-center rounded-[10px] p-[10px] ${isSelected && 'bg-gray-300'}`}>
+    <View className='w-full items-center rounded-[10px] p-[10px]'>
       <View className='gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton
@@ -74,34 +74,35 @@ export const TrashCard = (props: TrashListItemProps) => {
 
   return (
     <>
-      {state.isSelecting ? (
-        <Pressable
-          className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
-          onPress={() => {
-            if (state.isSelecting) {
-              props.onCheckPress?.();
-              return;
-            }
-          }}>
-          {cardContent}
-        </Pressable>
-      ) : (
-        <TooltipPopover
-          from={cardContent}
-          children={(close) => (
-            <TrashItemTooltipBox
-              item={props}
-              onClose={close}
-              onDeletePress={() => {
-                close();
-                setTimeout(() => {
-                  setIsDeleteModalVisible(true);
-                }, 200);
-              }}
-            />
-          )}
-        />
-      )}
+      <Pressable
+        className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
+        onPress={() => {
+          if (state.isSelecting) {
+            props.onCheckPress?.();
+            return;
+          }
+        }}
+        disabled={!state.isSelecting}>
+        {state.isSelecting ? (
+          cardContent
+        ) : (
+          <TooltipPopover
+            from={cardContent}
+            children={(close) => (
+              <TrashItemTooltipBox
+                item={props}
+                onClose={close}
+                onDeletePress={() => {
+                  close();
+                  setTimeout(() => {
+                    setIsDeleteModalVisible(true);
+                  }, 200);
+                }}
+              />
+            )}
+          />
+        )}
+      </Pressable>
 
       <PopUpModal
         visibleState={isDeleteModalVisible}
