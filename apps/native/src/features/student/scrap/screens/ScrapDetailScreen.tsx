@@ -285,10 +285,9 @@ const ScrapDetailScreen = () => {
             />
             <DrawingCanvas
               ref={canvasRef}
-              strokeColor='black'
+              strokeColor='#1E1E21'
               strokeWidth={drawingState.strokeWidth}
               textMode={drawingState.isTextMode}
-              textFontSize={16}
               eraserMode={drawingState.isEraserMode}
               eraserSize={drawingState.eraserSize}
               onHistoryChange={drawingState.setHistoryState}
