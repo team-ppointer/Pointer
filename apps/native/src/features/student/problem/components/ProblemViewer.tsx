@@ -72,7 +72,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       font-family: "KoPub Batang";
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.6;
 
       --tt-color-highlight-yellow: #fef9c3;
@@ -293,7 +293,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
 `;
 
   return (
-    <View style={{ height: webViewHeight, minHeight, position: 'relative' }}>
+    <View style={{ height: webViewHeight, width: '100%', minHeight, position: 'relative' }}>
       <WebView
         originWhitelist={['*']}
         injectedJavaScript={GET_WEBVIEW_HEIGHT_SCRIPT}
@@ -313,6 +313,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
           height: webViewHeight,
           backgroundColor: 'transparent',
           opacity: isContentLoading ? 0 : 1,
+          width: '100%',
         }}
         containerStyle={{ backgroundColor: 'transparent' }}
         androidLayerType='software'

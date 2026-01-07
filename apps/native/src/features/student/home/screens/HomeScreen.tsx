@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text } from 'react-native';
+import { ScrollView, View, Text, Pressable, Modal } from 'react-native';
 import { NotificationItem, Container } from '@components/common';
 import LearningStatus from '../components/LearningStatus';
 import ProblemCalendar from '../components/ProblemCalendar';
@@ -14,12 +14,17 @@ import {
   useGetPublishDetail,
 } from '@apis/student';
 import { StudentRootStackParamList } from '@navigation/student/types';
-
+import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon, XIcon } from 'lucide-react-native';
+import ProblemViewer from '../../problem/components/ProblemViewer';
+import { colors } from '@/theme/tokens';
+import { PointerSymbol } from '@components/system/icons';
+import { BlurView } from 'expo-blur';
 const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedPublishId, setSelectedPublishId] = useState<number>(-1);
+  const [isCalendarModalVisible, setIsCalendarModalVisible] = useState(false);
   const studentName = useAuthStore((state) => state.studentProfile?.name);
 
   const { data: noticeData } = useGetNotice();
@@ -55,49 +60,67 @@ const HomeScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
-      {/* Header Container */}
-      <View className='mx-auto w-full bg-blue-100 pt-[100vh] -mt-[100vh]'>
-        {/* Notification Container */}
-        <Container className='gap-[10px] pt-[16px]'>
-          <NotificationItem
-            variant='blue'
-            icon='book-white'
-            title='오늘의 문제 세트가 도착했어요.'
-            time='오늘 12:00'
-            hasShadow={true}>
-            <NotificationItem.Button onPress={() => {}}>문제풀기</NotificationItem.Button>
-          </NotificationItem>
+      <Container className='flex-col gap-[12px] pt-[20px] md:flex-row'>
+        <View className='flex-1 flex-col'>
+          <View className='mb-[10px] w-full flex-row items-center gap-[8px] p-[8px]'>
+            <View className='bg-primary-500 h-[42px] w-[42px] items-center justify-center rounded-full'>
+              <PointerSymbol />
+            </View>
+            <View className='flex-1 flex-col gap-[2px]'>
+              <Text className='text-18b text-black'>{studentName}만을 위한 코멘트</Text>
+              <Text className='text-14r text-gray-700'>from 포인터 출제진</Text>
+            </View>
+            <Pressable onPress={() => {}} className='items-center justify-center p-[8px]'>
+              <ChevronRightIcon size={20} color={colors['gray-700']} />
+            </Pressable>
+          </View>
+          <View className='w-full flex-1 gap-[10px] rounded-[20px] bg-gray-300 p-[16px]'>
+            <View className='border-primary-500 flex-col items-center justify-between rounded-[10px] border bg-white p-[16px]'>
+              <View className='mb-[8px] w-full flex-row items-center justify-between'>
+                <Text className='text-16sb text-primary-500'>이번 주 학습 상태</Text>
+                <Text className='text-13r text-gray-700'>
+                  {diagnosisData?.createdAt
+                    ? `${new Date(diagnosisData.createdAt).getMonth() + 1}월 ${new Date(
+                        diagnosisData.createdAt
+                      ).getDate()}일`
+                    : ''}
+                </Text>
+              </View>
+              {diagnosisData?.content && <ProblemViewer problemContent={diagnosisData.content} />}
+            </View>
+            <View className='flex-col rounded-[10px] bg-white p-[16px]'>
+              <Text className='text-16sb text-primary-500 mb-[8px]'>이번 주 개념</Text>
+              {/* <ProblemViewer problemContent={diagnosisData?.content ?? ''} minHeight={200} /> */}
+              <Text>미구현</Text>
+            </View>
+          </View>
+        </View>
+        <View className='flex-1 flex-col'>
+          <View className='mb-[10px] w-full flex-row items-center gap-[8px] p-[8px]'>
+            <View className='h-[42px] w-[42px] items-center justify-center rounded-full bg-blue-200'>
+              <BookOpenTextIcon size={20} color={colors['blue-500']} />
+            </View>
+            <View className='flex-1 flex-col gap-[2px]'>
+              <Text className='text-18b text-black'>
+                {publishDetailData?.problemSet?.title ?? '미출제'}
+              </Text>
 
-          <NotificationItem
-            icon='megaphone'
-            title={noticeData?.data[0].content ?? ''}
-            time={noticeData?.data[0].startAt ?? ''}
-            hasShadow={true}>
-            <NotificationItem.Button
-              variant='ghost'
-              onPress={() => navigation.navigate('NotificationDetail')}>
-              더보기
-            </NotificationItem.Button>
-          </NotificationItem>
-        </Container>
-
-        {/* Learning Status Container */}
-        <LearningStatus
-          studentName={studentName ?? ''}
-          date={diagnosisData?.createdAt ?? ''}
-          content={diagnosisData?.content ?? ''}
-        />
-      </View>
-      <Container className='gap-[16px] pt-[24px]'>
-        <Text className='text-24b text-gray-900'>날짜별 문제 리스트</Text>
-        <View className='flex-col gap-[20px] md:flex-row md:items-start'>
-          <ProblemCalendar
-            selectedMonth={selectedMonth}
-            selectedDate={selectedDate}
-            onChangeMonth={setSelectedMonth}
-            onDateSelect={handleDateChange}
-            studyData={studyData?.data ?? []}
-          />
+              <Text className='text-14r text-gray-700'>
+                {`${String(selectedDate.getMonth() + 1).padStart(2, '0')}월 ${String(selectedDate.getDate()).padStart(2, '0')}일`}
+                {publishDetailData?.publishAt &&
+                  ` · ${publishDetailData?.problemSet?.problems?.length ?? 0}문제`}
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => setIsCalendarModalVisible(true)}
+              className='items-center justify-center rounded-[8px] p-[8px] active:bg-gray-200'
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.7 : 1,
+                transform: [{ scale: pressed ? 0.95 : 1 }],
+              })}>
+              <CalendarIcon size={20} color={colors['gray-700']} />
+            </Pressable>
+          </View>
           <ProblemSet
             publishDetail={publishDetailData ?? undefined}
             selectedDate={selectedDate}
@@ -105,6 +128,60 @@ const HomeScreen = () => {
           />
         </View>
       </Container>
+
+      {/* Calendar Modal */}
+      <Modal
+        transparent
+        animationType='fade'
+        visible={isCalendarModalVisible}
+        onRequestClose={() => setIsCalendarModalVisible(false)}>
+        <BlurView intensity={20} tint='light' style={{ flex: 1, backgroundColor: '#C6CAD480' }}>
+          <View className='flex-1 items-center justify-center'>
+            <Pressable
+              className='absolute inset-0'
+              onPress={() => setIsCalendarModalVisible(false)}
+            />
+            <View className='mx-[20px] w-full max-w-[600px] rounded-[20px] bg-white'>
+              {/* Modal Header */}
+              <Pressable
+                onPress={() => setIsCalendarModalVisible(false)}
+                className='absolute -right-[60px] top-0 h-[48px] w-[48px] items-center justify-center rounded-[12px] bg-white'
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.7 : 1,
+                  transform: [{ scale: pressed ? 0.95 : 1 }],
+                })}>
+                <XIcon size={24} color='black' />
+              </Pressable>
+
+              {/* Calendar Content */}
+              <ProblemCalendar
+                selectedMonth={selectedMonth}
+                selectedDate={selectedDate}
+                onChangeMonth={setSelectedMonth}
+                onDateSelect={handleDateChange}
+                studyData={studyData?.data ?? []}
+                isModal
+              />
+
+              {/* Navigate Button */}
+              <Pressable
+                onPress={() => {
+                  setIsCalendarModalVisible(false);
+                  // Navigate to problem set if available
+                }}
+                className='bg-primary-500 mt-[20px] p-[12px] rounded-[8px] active:opacity-80 m-[20px]'
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.8 : 1,
+                  transform: [{ scale: pressed ? 0.98 : 1 }],
+                })}>
+                <Text className='text-16m text-center text-white'>
+                  {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일 문제 세트로 이동
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
     </ScrollView>
   );
 };

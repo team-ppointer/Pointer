@@ -27,13 +27,6 @@ type PublishGroup = components['schemas']['PublishProblemGroupResp'];
 type GroupProgress = PublishGroup['progress'];
 type ProblemProgress = NonNullable<components['schemas']['ProblemWithStudyInfoResp']['progress']>;
 
-interface NavigationProps {
-  title: string;
-  subtitle: string;
-  onPressPrev: () => void;
-  onPressNext: () => void;
-}
-
 interface ProblemSetProps {
   publishDetail?: PublishDetail;
   selectedDate: Date;
@@ -55,32 +48,18 @@ interface ProblemListProps {
 
 const WEEKDAY_LABELS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
-const Navigation = ({ title, subtitle, onPressPrev, onPressNext }: NavigationProps) => {
-  return (
-    <View className='flex-row items-center justify-between px-[24px]'>
-      <Pressable className='p-[8px]' onPress={onPressPrev}>
-        <ChevronLeftIcon color={colors['gray-700']} size={32} strokeWidth={1.5} />
-      </Pressable>
-      <View className='flex-col items-center'>
-        <Text className='text-13r text-black opacity-60'>{subtitle}</Text>
-        <Text className='text-18b text-gray-900'>{title}</Text>
-      </View>
-      <Pressable className='p-[8px]' onPress={onPressNext}>
-        <ChevronRightIcon color={colors['gray-700']} size={32} strokeWidth={1.5} />
-      </Pressable>
-    </View>
-  );
-};
-
 const Divider = () => {
   return <View className='h-[1px] bg-gray-400' />;
 };
 
-const ProblemStatusIcon: Record<ProblemProgress, { Icon: typeof CircleIcon; color: string }> = {
-  CORRECT: { Icon: CircleIcon, color: colors['green-500'] },
-  SEMI_CORRECT: { Icon: TriangleIcon, color: colors['secondary-500'] },
-  INCORRECT: { Icon: XIcon, color: colors['red-500'] },
-  NONE: { Icon: MinusIcon, color: colors['gray-700'] },
+const ProblemStatusIcon: Record<
+  ProblemProgress,
+  { Icon: typeof CircleIcon; color: string; bgColor: string }
+> = {
+  CORRECT: { Icon: CircleIcon, color: colors['green-500'], bgColor: 'bg-green-100' },
+  SEMI_CORRECT: { Icon: TriangleIcon, color: colors['secondary-500'], bgColor: 'bg-secondary-100' },
+  INCORRECT: { Icon: XIcon, color: colors['red-500'], bgColor: 'bg-red-100' },
+  NONE: { Icon: MinusIcon, color: colors['gray-700'], bgColor: 'bg-gray-300' },
 };
 
 const groupStatusMeta: Record<
@@ -118,19 +97,19 @@ const groupStatusMeta: Record<
 
 const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
   const normalizedStatus: ProblemProgress = status ?? 'NONE';
-  const { Icon, color } = ProblemStatusIcon[normalizedStatus];
+  const { Icon, color, bgColor } = ProblemStatusIcon[normalizedStatus];
 
   return (
-    <View className='h-[42px] flex-row items-center justify-between'>
-      <Text className='text-14r text-black'>{title}</Text>
-      <View className='p-[4px]'>
-        <Icon color={color} size={20} strokeWidth={2.5} />
+    <View className='flex-row items-center gap-[8px] py-[2px]'>
+      <Text className='text-16m text-black'>{title}</Text>
+      <View className={`p-[4px] ${bgColor}`}>
+        <Icon color={color} size={14} strokeWidth={2.5} />
       </View>
     </View>
   );
 };
 
-const ProblemList = ({ group, index, isExpanded, onToggle, onActionPress }: ProblemListProps) => {
+const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps) => {
   const statusMeta = groupStatusMeta[group.progress];
   const handlePress = useCallback(() => {
     if (!statusMeta.actionable) {
@@ -140,40 +119,35 @@ const ProblemList = ({ group, index, isExpanded, onToggle, onActionPress }: Prob
   }, [group, onActionPress, statusMeta.actionable]);
   const problems = useMemo(() => {
     const childProblems = group.childProblems ?? [];
-    return [
-      {
-        key: `main-${group.problemId}`,
-        title: '실전 문제',
-        status: group.problem.progress ?? 'NONE',
-      },
-      ...childProblems.map((child, childIndex) => ({
-        key: `child-${child.id}-${childIndex}`,
-        title: `연습 문제 ${childIndex + 1}`,
-        status: child.progress ?? 'NONE',
-      })),
-    ];
+    return childProblems.map((child, childIndex) => ({
+      key: `child-${child.id}-${childIndex}`,
+      title: `연습 문제 ${childIndex + 1}번`,
+      status: child.progress ?? 'NONE',
+    }));
   }, [group]);
 
+  const { Icon, color, bgColor } = ProblemStatusIcon[group.problem.progress ?? 'NONE'];
+
   return (
-    <View className='flex-col px-[24px]'>
-      <View className={`flex-row items-center justify-between ${isExpanded ? 'mb-[8px]' : ''}`}>
-        <Text className='text-16b mr-[12px] text-black'>{`${index + 1}번`}</Text>
-        <Text className={`text-12sb mr-auto ${statusMeta.badgeClass}`}>{statusMeta.label}</Text>
+    <View className='flex-col rounded-[10px] bg-white px-[14px] py-[10px] gap-[12px]'>
+      <View className='flex-row items-center justify-between'>
+        <View className='flex-col'>
+          <View className='flex-row items-center'>
+            <Text className='text-16b mr-[8px] text-black'>{`실전 문제 ${index + 1}번`}</Text>
+            <View className={`rounded-[4px] p-[4px] ${bgColor}`}>
+              <Icon color={color} size={14} strokeWidth={2.5} />
+            </View>
+          </View>
+          <Text className='text-13r text-gray-700'>문제 단원</Text>
+        </View>
         <TextButton variant={statusMeta.buttonVariant} onPress={handlePress}>
           {statusMeta.buttonLabel}
         </TextButton>
-        <Pressable className='ml-[8px] p-[4px]' onPress={onToggle}>
-          {isExpanded ? (
-            <ChevronUpIcon color={colors['gray-700']} size={20} strokeWidth={1.5} />
-          ) : (
-            <ChevronDownIcon color={colors['gray-700']} size={20} strokeWidth={1.5} />
-          )}
-        </Pressable>
       </View>
-      {isExpanded &&
-        problems.map((problem) => (
-          <ProblemItem key={problem.key} title={problem.title} status={problem.status} />
-        ))}
+      {problems.length > 0 && <Divider />}
+      {problems.map((problem) => (
+        <ProblemItem key={problem.key} title={problem.title} status={problem.status} />
+      ))}
     </View>
   );
 };
@@ -237,34 +211,32 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
   );
 
   return (
-    <View className='gap-[24px] rounded-[12px] bg-white pb-[24px] pt-[16px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)] md:flex-1 md:basis-1/2'>
-      <Navigation
-        title={title}
-        subtitle={subtitle}
-        onPressPrev={() => handleMoveDate(-1)}
-        onPressNext={() => handleMoveDate(1)}
-      />
+    <View className='rounded-[20px] bg-blue-100 p-[16px] md:flex-1 md:basis-1/2 gap-[12px]'>
       {groups.length === 0 ? (
-        <View className='px-[24px] py-[40px]'>
+        <View className='h-full items-center justify-center'>
           <Text className='text-14r text-center text-gray-600'>표시할 문제가 없어요.</Text>
         </View>
       ) : (
-        groups.map((group, index) => {
-          const key = group.problemId ?? index;
-          const isExpanded = expandedGroups[key] ?? false;
-          return (
-            <View key={key} className='gap-[24px]'>
-              <ProblemList
-                group={group}
-                index={index}
-                isExpanded={isExpanded}
-                onToggle={() => handleToggleGroup(key)}
-                onActionPress={handleGroupAction}
-              />
-              {index < groups.length - 1 && <Divider />}
-            </View>
-          );
-        })
+        <>
+          <Pressable className='bg-primary-500 mb-[4px] items-center justify-center rounded-[8px] p-[12px]'>
+            <Text className='text-16m text-white'>1번부터 풀기</Text>
+          </Pressable>
+          {groups.map((group, index) => {
+            const key = group.problemId ?? index;
+            const isExpanded = expandedGroups[key] ?? false;
+            return (
+              <View key={key}>
+                <ProblemList
+                  group={group}
+                  index={index}
+                  isExpanded={isExpanded}
+                  onToggle={() => handleToggleGroup(key)}
+                  onActionPress={handleGroupAction}
+                />
+              </View>
+            );
+          })}
+        </>
       )}
     </View>
   );
