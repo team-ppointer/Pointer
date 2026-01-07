@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "openapi": "pnpm dlx openapi-typescript https://api.math-pointer.com/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
+    "openapi": "pnpm dlx openapi-typescript https://dev.api.math-pointer.com/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
   },
   "dependencies": {
     "@next/third-parties": "^15.2.4",
@@ -15,6 +15,7 @@
     "@repo/pointer-editor": "workspace:*",
     "@tanstack/react-query": "^5.66.0",
     "@tanstack/react-query-devtools": "^5.66.0",
+    "@team-ppointer/pointer-editor-v2": "^2.3.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "html2canvas": "^1.4.1",

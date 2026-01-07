@@ -1,24 +1,81 @@
 import { deleteProblem, getConcept, getProblemsSearch } from '@apis';
 import {
-  Button,
-  FloatingButton,
   Header,
-  IconButton,
+  Input,
   Modal,
   ProblemCard,
-  SearchInput,
-  Tag,
   TagSelectModal,
   TwoButtonModalTemplate,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
-import { IcDown } from '@svg';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { components } from '@schema';
-import { GetProblemsSearchParams } from '@types';
-import { useEffect, useRef, useState } from 'react';
+import { GetProblemsSearchParams, ProblemType } from '@types';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PulseLoader from 'react-spinners/PulseLoader';
+import {
+  Search,
+  Plus,
+  List,
+  Grid,
+  ChevronDown,
+  Trash2,
+  RotateCcw,
+  LayoutList,
+  FileText,
+  Files,
+} from 'lucide-react';
+import { SegmentedControl, Tag } from '@components';
+import { InlineProblemViewer } from '@team-ppointer/pointer-editor-v2';
+
+const PROBLEM_TYPE_ALL = 'ALL';
+
+const PAGE_SIZE = 20;
+
+const cleanSearchParams = (params: GetProblemsSearchParams): GetProblemsSearchParams => {
+  return Object.fromEntries(
+    Object.entries(params).filter(([, value]) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== undefined && value !== null && value !== '';
+    })
+  ) as GetProblemsSearchParams;
+};
+
+const areParamsEqual = (a: GetProblemsSearchParams, b: GetProblemsSearchParams): boolean => {
+  const keys = new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})]);
+
+  for (const key of keys) {
+    const prevValue = a[key as keyof GetProblemsSearchParams];
+    const nextValue = b[key as keyof GetProblemsSearchParams];
+
+    if (Array.isArray(prevValue) || Array.isArray(nextValue)) {
+      const prevArray = Array.isArray(prevValue) ? prevValue : [];
+      const nextArray = Array.isArray(nextValue) ? nextValue : [];
+
+      if (prevArray.length !== nextArray.length) {
+        return false;
+      }
+
+      for (let i = 0; i < prevArray.length; i += 1) {
+        if (prevArray[i] !== nextArray[i]) {
+          return false;
+        }
+      }
+      continue;
+    }
+
+    if (prevValue !== nextValue) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+type ProblemMeta = components['schemas']['ProblemMetaResp'];
 
 export const Route = createFileRoute('/_GNBLayout/problem/')({
   component: RouteComponent,
@@ -36,14 +93,30 @@ function RouteComponent() {
   } = useModal();
 
   const deleteProblemId = useRef<number | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState<GetProblemsSearchParams>({});
+  const [filters, setFilters] = useState<GetProblemsSearchParams>({});
   const [selectedTagList, setSelectedTagList] = useState<number[]>([]);
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
+  const [page, setPage] = useState<number>(0);
+  const [problemItems, setProblemItems] = useState<ProblemMeta[]>([]);
+  const [hasMore, setHasMore] = useState(true);
 
-  const { register, handleSubmit, reset, watch } = useForm<GetProblemsSearchParams>();
+  const { register, handleSubmit, reset, watch, setValue } = useForm<GetProblemsSearchParams>();
 
-  const { data: problemList, isLoading } = getProblemsSearch(searchQuery);
+  const searchParams = useMemo<GetProblemsSearchParams>(() => {
+    const { page: _page, size: _size, ...rest } = filters;
+    void _page;
+    void _size;
+
+    return {
+      ...rest,
+      page,
+      size: PAGE_SIZE,
+    };
+  }, [filters, page]);
+
+  const { data: problemList, isLoading, isFetching } = getProblemsSearch(searchParams);
   const { mutate: mutateDeleteProblem } = deleteProblem();
   const { data: tagsData } = getConcept();
   const allTagList = tagsData?.data || [];
@@ -51,30 +124,98 @@ function RouteComponent() {
 
   const watchedCustomId = watch('customId');
   const watchedTitle = watch('title');
+  const watchedProblemType = watch('problemType');
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       const trimmedCustomId = (watchedCustomId ?? '').toString().trim();
       const trimmedTitle = (watchedTitle ?? '').toString().trim();
 
-      setSearchQuery((prev) => {
-        const nextQuery: GetProblemsSearchParams = {
+      setFilters((prev) => {
+        const nextQuery = cleanSearchParams({
           ...prev,
           customId: trimmedCustomId || undefined,
           title: trimmedTitle || undefined,
-        };
+          problemType: watchedProblemType || undefined,
+        });
 
-        const cleaned = Object.fromEntries(
-          Object.entries(nextQuery).filter(([, value]) =>
-            Array.isArray(value) ? value.length > 0 : Boolean(value)
-          )
-        ) as GetProblemsSearchParams;
+        if (areParamsEqual(prev, nextQuery)) {
+          return prev;
+        }
 
-        return cleaned;
+        return nextQuery;
       });
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [watchedCustomId, watchedTitle]);
+  }, [watchedCustomId, watchedTitle, watchedProblemType]);
+
+  useEffect(() => {
+    setProblemItems([]);
+    setHasMore(true);
+    setPage(0);
+  }, [filters]);
+
+  useEffect(() => {
+    if (!problemList) {
+      return;
+    }
+
+    const currentPage = problemList.page ?? 0;
+    const lastPage = problemList.lastPage ?? 0;
+    const nextItems = problemList.data ?? [];
+
+    setHasMore(currentPage < lastPage);
+
+    setProblemItems((prev) => {
+      if (page === 0) {
+        return nextItems;
+      }
+
+      const mergedMap = new Map<number, ProblemMeta>();
+      prev.forEach((item) => {
+        mergedMap.set(item.id, item);
+      });
+      nextItems.forEach((item) => {
+        mergedMap.set(item.id, item);
+      });
+
+      return Array.from(mergedMap.values());
+    });
+  }, [problemList, page]);
+
+  useEffect(() => {
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, []);
+
+  const loadMoreRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+
+      if (!node || isLoading || !hasMore) {
+        return;
+      }
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        if (entry?.isIntersecting && hasMore && !isFetching) {
+          setPage((prev) => {
+            const basePage = problemList?.page ?? prev;
+            const nextPage = basePage + 1;
+            return nextPage === prev ? prev : nextPage;
+          });
+        }
+      });
+
+      observerRef.current.observe(node);
+    },
+    [hasMore, isFetching, isLoading, problemList?.page]
+  );
+
+  const isInitialLoading = (isLoading || isFetching) && problemItems.length === 0;
 
   const handleClickDelete = (e: React.MouseEvent<HTMLButtonElement>, problemId: string) => {
     e.stopPropagation();
@@ -105,272 +246,283 @@ function RouteComponent() {
   };
 
   const handleClickSearch = (data: GetProblemsSearchParams) => {
-    const filteredData = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => Boolean(value))
-    );
-    setSearchQuery({ ...filteredData, concepts: selectedTagList });
+    const nextFilters = cleanSearchParams({ ...data, concepts: selectedTagList });
+    setFilters((prev) => (areParamsEqual(prev, nextFilters) ? prev : nextFilters));
   };
 
   const handleResetQuery = () => {
     reset();
     setSelectedTagList([]);
-    setSearchQuery({});
+    setFilters({});
   };
 
   const handleRemoveTag = (tag: number) => {
-    setSelectedTagList((prev) => prev.filter((selectedTag) => selectedTag !== tag));
-    setSearchQuery((prev) => {
-      return {
-        ...prev,
-        concepts: prev.concepts?.filter((selectedTag) => selectedTag !== tag),
-      };
+    setSelectedTagList((prev) => {
+      const nextTagList = prev.filter((selectedTag) => selectedTag !== tag);
+      setFilters((prevFilters) => {
+        const nextFilters = cleanSearchParams({ ...prevFilters, concepts: nextTagList });
+        return areParamsEqual(prevFilters, nextFilters) ? prevFilters : nextFilters;
+      });
+      return nextTagList;
     });
   };
 
   const handleChangeTagList = (tagList: number[]) => {
     setSelectedTagList(tagList);
-    setSearchQuery((prev) => {
-      return {
-        ...prev,
-        concepts: tagList,
-      };
+    setFilters((prev) => {
+      const nextFilters = cleanSearchParams({ ...prev, concepts: tagList });
+      return areParamsEqual(prev, nextFilters) ? prev : nextFilters;
     });
   };
 
   return (
-    <>
-      <Header
-        title='문제 목록'
-        actionButton='새로운 문제 등록'
-        onClickAction={() => {
-          navigate({ to: '/problem/register' });
-        }}
-      />
-      <form
-        className='mt-[1.6rem] flex items-end justify-between gap-[2.4rem]'
-        onSubmit={handleSubmit(handleClickSearch)}>
-        <div className='flex gap-[2.4rem]'>
-          <SearchInput
-            label='문제 ID'
-            placeholder='입력해주세요.'
-            {...register('customId', { required: false })}
+    <div className='min-h-screen bg-gray-50'>
+      <Header title='문제'>
+        <Header.Button
+          Icon={Plus}
+          color='main'
+          onClick={() => navigate({ to: '/problem/register' })}>
+          문제 등록
+        </Header.Button>
+      </Header>
+
+      <div className='mx-auto max-w-7xl px-8 py-8'>
+        <div className='mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white'>
+          <div className='px-6 pt-6'>
+            <h2 className='flex items-center gap-3 text-xl font-bold text-gray-900'>
+              <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
+                <Search className='h-5 w-5 text-white' />
+              </div>
+              문제 검색
+            </h2>
+          </div>
+
+          <form onSubmit={handleSubmit(handleClickSearch)} className='space-y-6 p-8'>
+            <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm font-semibold text-gray-700'>문제 ID</label>
+                <Input
+                  type='text'
+                  placeholder='문제 ID를 입력해주세요'
+                  {...register('customId', { required: false })}
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm font-semibold text-gray-700'>문제 제목</label>
+                <Input
+                  type='text'
+                  placeholder='문제 제목을 입력해주세요'
+                  {...register('title', { required: false })}
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm font-semibold text-gray-700'>문제 개념 태그</label>
+                <button
+                  type='button'
+                  onClick={openModal}
+                  className='focus:border-main focus:ring-main/20 flex w-full items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-sm transition-all duration-200 hover:border-gray-300 hover:bg-gray-100/50 focus:bg-white focus:ring-2 focus:outline-none'>
+                  <span className='text-gray-400'>개념 태그를 선택해주세요</span>
+                  <ChevronDown className='h-5 w-5 text-gray-400' />
+                </button>
+              </div>
+            </div>
+
+            <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
+              <SegmentedControl
+                value={watchedProblemType ?? PROBLEM_TYPE_ALL}
+                onChange={(nextValue) => {
+                  if (nextValue === PROBLEM_TYPE_ALL) {
+                    setValue('problemType', undefined);
+                    return;
+                  }
+                  setValue('problemType', nextValue as ProblemType);
+                }}
+                items={[
+                  {
+                    label: '전체',
+                    value: PROBLEM_TYPE_ALL,
+                    icon: LayoutList,
+                  },
+                  {
+                    label: '메인 문제',
+                    value: 'MAIN_PROBLEM',
+                    icon: FileText,
+                  },
+                  {
+                    label: '새끼 문제',
+                    value: 'CHILD_PROBLEM',
+                    icon: Files,
+                  },
+                ]}
+              />
+
+              <button
+                type='button'
+                onClick={handleResetQuery}
+                className='flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
+                <RotateCcw className='h-4 w-4' />
+                초기화
+              </button>
+            </div>
+
+            {/* Selected Tags */}
+            {selectedTagList.length > 0 && (
+              <div className='flex flex-wrap gap-2 border-t border-gray-100 pt-6'>
+                {selectedTagList.map((tag) => (
+                  <Tag
+                    key={tag}
+                    label={tagsNameMap[tag] ?? ''}
+                    color='dark'
+                    removable
+                    onClick={() => handleRemoveTag(tag)}
+                  />
+                ))}
+              </div>
+            )}
+          </form>
+        </div>
+
+        {/* View Mode Toggle */}
+        <div className='mb-6 flex items-center justify-between'>
+          <p className='text-sm font-medium text-gray-600'>{problemItems.length}개의 문제</p>
+          <SegmentedControl
+            value={viewMode}
+            onChange={(nextViewMode) => setViewMode(nextViewMode as 'table' | 'card')}
+            items={[
+              { label: '테이블', value: 'table', icon: List },
+              { label: '카드', value: 'card', icon: Grid },
+            ]}
           />
-          <SearchInput
-            label='문제 타이틀'
-            sizeType='long'
-            placeholder='입력해주세요.'
-            {...register('title', { required: false })}
-          />
-          <div className='flex w-full flex-col gap-[0.6rem]'>
-            <span className='font-14b-title text-black'>문제 개념 태그</span>
-            <div
-              className='border-lightgray500 flex h-[4.0rem] w-full max-w-[42.4rem] cursor-pointer items-center justify-between rounded-[0.8rem] border bg-white px-400'
-              onClick={() => {
-                openModal();
-              }}>
-              <span className='text-lightgray500 font-14m-body mr-200 whitespace-nowrap'>
-                선택해주세요
-              </span>
-              <IcDown width={24} height={24} />
+        </div>
+
+        {isInitialLoading ? (
+          <div className='flex min-h-[400px] w-full items-center justify-center rounded-2xl border border-gray-200 bg-white'>
+            <div className='flex flex-col items-center gap-4'>
+              <PulseLoader color='var(--color-main)' size={12} />
+              <p className='text-sm font-medium text-gray-500'>문제를 불러오는 중...</p>
             </div>
           </div>
-        </div>
-        <div className='flex gap-[0.4rem]'>
-          <Button variant='light' type='reset' onClick={handleResetQuery}>
-            초기화
-          </Button>
-          <Button variant='dark'>검색</Button>
-        </div>
-      </form>
-      {selectedTagList.length > 0 && (
-        <div className='mt-[1.6rem] flex flex-wrap gap-[0.8rem]'>
-          {selectedTagList.map((tag) => (
-            <Tag
-              key={tag}
-              label={tagsNameMap[tag] || ''}
-              removable
-              color='dark'
-              onClick={() => handleRemoveTag(tag)}
-            />
-          ))}
-        </div>
-      )}
+        ) : (
+          <>
+            {viewMode === 'table' ? (
+              <div className='overflow-hidden rounded-2xl border border-gray-200 bg-white'>
+                <div className='overflow-x-auto'>
+                  <table className='w-full'>
+                    <thead>
+                      <tr className='border-b border-gray-100 bg-gray-50'>
+                        <th className='w-40 px-6 py-4 text-left text-sm font-bold text-gray-700'>
+                          ID
+                        </th>
+                        <th className='w-48 px-6 py-4 text-left text-sm font-bold text-gray-700'>
+                          제목
+                        </th>
+                        <th className='px-6 py-4 text-left text-sm font-bold text-gray-700'>
+                          문제 내용
+                        </th>
+                        <th className='w-40 px-6 py-4 text-left text-sm font-bold text-gray-700'>
+                          메모
+                        </th>
+                        <th className='w-16 px-6 py-4'></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {problemItems.map(
+                        ({ id: problemId, customId, title, memo, problemContent }) => {
+                          const problemText = problemContent
+                            ? JSON.stringify(JSON.parse(problemContent))
+                            : '문제 내용이 없습니다.';
 
-      {/* View mode toggle */}
-      <div className='mt-[1.6rem] flex items-center justify-end gap-[0.4rem]'>
-        <button
-          className={`flex h-[3.2rem] w-[3.2rem] items-center justify-center rounded-[0.8rem] border p-[0.4rem] ${viewMode === 'table' ? 'border-lightgray500 bg-white text-black' : 'text-lightgray500 border-transparent'}`}
-          onClick={() => setViewMode('table')}>
-          <svg
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            xmlns='http://www.w3.org/2000/svg'>
-            <path
-              d='M8.71961 6H21.5996M8.71961 12.48H21.5996M8.71961 18.96H21.5996M3.59961 6V6.0128M3.59961 12.48V12.4928M3.59961 18.96V18.9728'
-              stroke='currentColor'
-              stroke-width='2'
-              stroke-linecap='round'
-              stroke-linejoin='round'
-            />
-          </svg>
-        </button>
-        <button
-          className={`flex h-[3.2rem] w-[3.2rem] items-center justify-center rounded-[0.8rem] border p-[0.4rem] ${viewMode === 'card' ? 'border-lightgray500 bg-white text-black' : 'text-lightgray500 border-transparent'}`}
-          onClick={() => setViewMode('card')}>
-          <svg
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            xmlns='http://www.w3.org/2000/svg'>
-            <path
-              d='M12.0004 3.00002L12.0004 21M2.40039 12H21.0004M2.40039 6.00002L2.40039 18C2.40039 19.9882 4.01217 21.6 6.00039 21.6H18.0004C19.9886 21.6 21.6004 19.9882 21.6004 18V6.00002C21.6004 4.0118 19.9886 2.40003 18.0004 2.40002L6.00039 2.40002C4.01217 2.40002 2.40039 4.0118 2.40039 6.00002Z'
-              stroke='currentColor'
-              stroke-width='2'
-            />
-          </svg>
-        </button>
+                          return (
+                            <tr
+                              key={problemId}
+                              onClick={() =>
+                                navigate({
+                                  to: '/problem/$problemId',
+                                  params: { problemId: problemId.toString() },
+                                })
+                              }
+                              className='group hover:bg-main/5 cursor-pointer border-b border-gray-100 transition-all duration-200'>
+                              <td className='px-6 py-4'>
+                                <span className='bg-main/10 text-main inline-flex rounded-lg px-2 py-1 font-mono text-xs font-semibold'>
+                                  {customId || '-'}
+                                </span>
+                              </td>
+                              <td className='px-6 py-4'>
+                                <span className='line-clamp-1 text-sm font-medium text-gray-900'>
+                                  {title}
+                                </span>
+                              </td>
+                              <td className='px-6 py-4'>
+                                <span className='line-clamp-2 text-sm text-gray-600'>
+                                  {problemText ? (
+                                    <InlineProblemViewer maxLine={2}>
+                                      {problemText}
+                                    </InlineProblemViewer>
+                                  ) : (
+                                    '문제 내용이 없습니다.'
+                                  )}
+                                </span>
+                              </td>
+                              <td className='px-6 py-4'>
+                                <span className='line-clamp-1 text-sm text-gray-600'>{memo}</span>
+                              </td>
+                              <td className='px-6 py-4'>
+                                <button
+                                  type='button'
+                                  onClick={(e) => handleClickDelete(e, problemId.toString())}
+                                  className='flex h-8 w-8 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-600 transition-all duration-200 hover:border-red-200 hover:bg-red-100'>
+                                  <Trash2 className='h-4 w-4' />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        }
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+                {problemItems.map(
+                  ({ id: problemId, customId, title, memo, problemContent, answer }) => {
+                    const problemText = problemContent
+                      ? JSON.stringify(JSON.parse(problemContent))
+                      : '문제 내용이 없습니다.';
+
+                    return (
+                      <Link
+                        key={problemId}
+                        to={`/problem/$problemId`}
+                        params={{ problemId: problemId.toString() }}
+                        className='group'>
+                        <ProblemCard
+                          customId={customId}
+                          title={title}
+                          memo={memo}
+                          problemText={problemText}
+                          answer={answer?.toString() || '-'}
+                          onDelete={(e) => handleClickDelete(e, problemId.toString())}
+                        />
+                      </Link>
+                    );
+                  }
+                )}
+              </div>
+            )}
+            <div ref={loadMoreRef} className='h-10 w-full' />
+            {isFetching && hasMore && problemItems.length > 0 && (
+              <div className='mt-6 flex items-center justify-center gap-3 text-sm text-gray-500'>
+                <PulseLoader color='var(--color-main)' size={10} />
+                <span>다음 페이지를 불러오는 중...</span>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      {isLoading ? (
-        <div className='mt-1600 flex w-full items-center justify-center'>
-          <PulseLoader color='#222324' aria-label='Loading Spinner' />
-        </div>
-      ) : (
-        <>
-          {viewMode === 'table' ? (
-            <section className='mt-[1.6rem] w-full overflow-x-hidden'>
-              <table className='w-full table-fixed border-collapse'>
-                <thead>
-                  <tr>
-                    <th className='font-medium-14 h-[2.4rem] w-[7.2rem] px-[1.6rem] py-[0.8rem] text-[#9EA2AA]'></th>
-                    <th className='font-medium-14 h-[2.4rem] w-[7.2rem] px-[1.6rem] py-[0.8rem] text-[#9EA2AA]'>
-                      ID
-                    </th>
-                    <th className='font-medium-14 h-[2.4rem] w-[15.2rem] px-[1.6rem] py-[0.8rem] text-[#9EA2AA]'>
-                      타이틀
-                    </th>
-                    <th className='font-medium-14 h-[2.4rem] w-[12.0rem] px-[1.6rem] py-[0.8rem] text-[#9EA2AA]'>
-                      메모
-                    </th>
-                    <th className='font-medium-14 h-[2.4rem] w-auto px-[1.6rem] py-[0.8rem] text-[#9EA2AA]'>
-                      문제
-                    </th>
-                    <th className='font-medium-14 h-[2.4rem] w-[8.0rem] px-[1.6rem] py-[0.8rem] text-[#9EA2AA]'>
-                      답안
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {problemList?.data.map(
-                    ({ id: problemId, customId, title, memo, problemContent, answer }) => {
-                      type Block = components['schemas']['ContentBlockResp'];
-                      const blocks: Block[] = (problemContent?.blocks || []) as Block[];
-                      const problemText = blocks
-                        .filter((block) => block.type === 'TEXT')
-                        .map((block) => block.data)
-                        .join(' ');
-
-                      return (
-                        <tr
-                          key={customId}
-                          className='hover:bg-lightgray100 cursor-pointer border-b-2 border-[#f7f7f7] bg-white'
-                          onClick={() =>
-                            navigate({
-                              to: '/problem/$problemId',
-                              params: { problemId: problemId.toString() },
-                            })
-                          }>
-                          <td className='px-[1.6rem] py-[0.8rem]'>
-                            <IconButton
-                              variant='delete'
-                              onClick={(e) => handleClickDelete(e, problemId.toString())}
-                              className='scale-[0.625]'
-                            />
-                          </td>
-                          <td className='px-[1.6rem] py-[0.8rem]'>
-                            <span className='font-medium-12 bg-lightgray400 flex-shrink-0 rounded-[0.4rem] px-[0.4rem] py-[0.2rem] text-black'>
-                              {customId}
-                            </span>
-                          </td>
-                          <td className='font-14m-body max-w-[15.2rem] truncate px-[1.6rem] py-[0.8rem] text-black'>
-                            {title}
-                          </td>
-                          <td className='font-14m-body max-w-[12.4rem] truncate px-[1.6rem] py-[0.8rem] text-black'>
-                            {memo}
-                          </td>
-                          <td className='font-14m-body max-w-0 px-[1.6rem] py-[0.8rem] text-black'>
-                            <div className='truncate'>{problemText || '문제 내용이 없습니다.'}</div>
-                          </td>
-                          <td className='font-14m-body max-w-[8.0rem] px-[1.6rem] py-[0.8rem] text-center text-black'>
-                            {answer}
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )}
-                </tbody>
-              </table>
-            </section>
-          ) : (
-            <section className='mt-[1.6rem] grid grid-cols-5 gap-[0.4rem]'>
-              {problemList?.data.map(
-                ({ id: problemId, customId, title, memo, concepts, problemContent, answer }) => {
-                  // problemContent.blocks에서 type이 IMAGE인 첫 번째 블록 찾기
-                  const firstImageBlock = problemContent?.blocks?.find(
-                    (block) => block.type === 'IMAGE'
-                  );
-                  const mainProblemImageUrl = firstImageBlock?.data;
-
-                  type Block = components['schemas']['ContentBlockResp'];
-                  const blocks: Block[] = (problemContent?.blocks || []) as Block[];
-                  const problemText = blocks
-                    .filter((block) => block.type === 'TEXT')
-                    .map((block) => block.data)
-                    .join(' ');
-
-                  return (
-                    <Link
-                      key={customId}
-                      to={`/problem/$problemId`}
-                      params={{ problemId: problemId.toString() }}>
-                      <ProblemCard>
-                        <IconButton
-                          variant='delete'
-                          onClick={(e) => handleClickDelete(e, problemId.toString())}
-                          className='h-[2.4rem] w-[2.4rem] scale-[0.6666666666666666]'
-                        />
-                        <ProblemCard.Title customId={customId} title={title} />
-                        <ProblemCard.Info label='문제 메모' content={memo} />
-                        <ProblemCard.Info label='문제' content={problemText} />
-                        <ProblemCard.Info label='답안' content={answer.toString()} />
-
-                        {/* {mainProblemImageUrl && (
-                          <ProblemCard.CardImage src={mainProblemImageUrl} height={'34.4rem'} />
-                        )} */}
-
-                        {/* <ProblemCard.TagSection>
-                          {(concepts || []).map((tag, tagIndex) => {
-                            return <Tag key={`${tag}-${tagIndex}`} label={tag.name} />;
-                          })}
-                        </ProblemCard.TagSection> */}
-                      </ProblemCard>
-                    </Link>
-                  );
-                }
-              )}
-            </section>
-          )}
-        </>
-      )}
-
-      {/* <FloatingButton>
-        <Link to='/problem/register' className='flex h-full w-full items-center justify-center'>
-          새로운 문제 등록하기
-        </Link>
-      </FloatingButton> */}
       <Modal isOpen={isOpen} onClose={closeModal}>
         <TagSelectModal
           onClose={closeModal}
@@ -380,13 +532,13 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
         <TwoButtonModalTemplate
-          text='문제을 삭제할까요?'
+          text='문제를 삭제할까요?'
           leftButtonText='아니오'
           rightButtonText='예'
           handleClickLeftButton={closeDeleteModal}
           handleClickRightButton={handleMutateDelete}
         />
       </Modal>
-    </>
+    </div>
   );
 }

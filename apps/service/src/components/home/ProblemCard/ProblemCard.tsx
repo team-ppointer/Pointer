@@ -1,5 +1,6 @@
+'use client';
 import { usePathname, useRouter } from 'next/navigation';
-import ProblemViewer, { Problem } from '@repo/pointer-editor/ProblemViewer';
+import { ProblemViewer } from '@components';
 
 import { Button } from '@components';
 import { trackEvent } from '@utils';
@@ -9,11 +10,11 @@ interface Props {
   publishId: number;
   dateString: string;
   title: string;
-  problem: Problem;
+  problemContent: string;
   studentId?: number;
 }
 
-const ProblemCard = ({ publishId, dateString, title, problem, studentId }: Props) => {
+const ProblemCard = ({ publishId, dateString, title, problemContent, studentId }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const isTeacherPage = pathname.includes('/teacher');
@@ -37,7 +38,7 @@ const ProblemCard = ({ publishId, dateString, title, problem, studentId }: Props
         <h3 className={`font-bold-20 text-main line-clamp-2`}>{title}</h3>
       </div>
       <div className='relative overflow-hidden'>
-        <ProblemViewer problem={problem} loading={false} />
+        <ProblemViewer content={problemContent} padding={24} />
         <div
           className={`from-sub2 absolute bottom-0 left-0 h-[8.9rem] w-full bg-gradient-to-t to-transparent`}
         />

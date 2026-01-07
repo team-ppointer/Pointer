@@ -1,16 +1,13 @@
 'use client';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import { useRouter } from 'next/navigation';
 
 import { IcCommentCheck20, IcPrescription20, IcQuestion18 } from '@svg';
 import { components } from '@schema';
-import { SmallButton } from '@components';
+import { ProblemViewer, SmallButton } from '@components';
 import { useReportContext } from '@/hooks/report';
 
-type Contentype = components['schemas']['ContentResp'];
-
 interface PointingImageContainerProps {
-  contents: Contentype;
+  contents: string;
   variant: 'pointing' | 'prescription';
   pointingId: number;
 }
@@ -60,7 +57,7 @@ const PointingImageContainer = ({ contents, variant, pointingId }: PointingImage
           질문하기
         </SmallButton>
       </div>
-      <ProblemViewer problem={contents} />
+      <ProblemViewer content={JSON.parse(contents ?? '')} />
     </div>
   );
 };

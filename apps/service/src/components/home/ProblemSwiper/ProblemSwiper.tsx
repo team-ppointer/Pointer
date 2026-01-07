@@ -44,7 +44,7 @@ const renderProblemCard = (
       publishId={problem.id}
       dateString={dateString}
       title={problem.problemSet.firstProblem.title}
-      problem={problem.problemSet.firstProblem.problemContent}
+      problemContent={JSON.parse(problem.problemSet.firstProblem.problemContent)}
       studentId={isTeacherPage ? studentId : undefined}
     />
   );

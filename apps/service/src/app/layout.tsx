@@ -5,6 +5,7 @@ import Script from 'next/script';
 import Providers from './providers';
 
 import '../styles/globals.css';
+import '@team-ppointer/pointer-editor-v2/style.css';
 
 // 환경에 따른 메타데이터 설정
 const isDevelopment =

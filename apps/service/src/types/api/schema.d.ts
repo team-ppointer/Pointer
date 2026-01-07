@@ -578,8 +578,25 @@ export interface paths {
     /** 검색 */
     get: operations['search_2'];
     put?: never;
-    /** 생성 */
+    /** 단일 생성 */
     post: operations['createProblem'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/problem/with-child': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 생성(새끼문제, 일반문제 한번에 생성) */
+    post: operations['createProblemWithChild'];
     delete?: never;
     options?: never;
     head?: never;
@@ -616,6 +633,22 @@ export interface paths {
     put?: never;
     /** 생성 */
     post: operations['create_6'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/ocr': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['redirect'];
     delete?: never;
     options?: never;
     head?: never;
@@ -737,6 +770,38 @@ export interface paths {
     };
     /** 소셜 로그인 콜백 example */
     get: operations['oauthRedirectExample'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/json-convert/content': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['content'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/json-convert/childProblem-to-Problem': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['problem'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1288,21 +1353,6 @@ export interface components {
       content: string;
       images: components['schemas']['UploadFileResp'][];
     };
-    ContentBlockResp: {
-      /** Format: int64 */
-      id: number;
-      style: string;
-      /** Format: int32 */
-      rank: number;
-      /** @enum {string} */
-      type: 'TEXT' | 'IMAGE';
-      data: string;
-    };
-    ContentResp: {
-      /** Format: int64 */
-      id: number;
-      blocks: components['schemas']['ContentBlockResp'][];
-    };
     QnAMetaResp: {
       /** Format: int64 */
       id: number;
@@ -1351,13 +1401,11 @@ export interface components {
       unreadCount?: number;
       studentName?: string;
       contentTitle: string;
-      content: components['schemas']['ContentResp'];
+      content: string;
       question: string;
       images: components['schemas']['UploadFileResp'][];
       /** Format: int64 */
       problemId?: number;
-      /** Format: int64 */
-      childProblemId?: number;
       chats: components['schemas']['ChatResp'][];
     };
     UploadFileResp: {
@@ -1421,7 +1469,7 @@ export interface components {
       id?: number;
       /** Format: int32 */
       no?: number;
-      problemContent?: components['schemas']['ContentUpdateRequest'];
+      problemContent?: string;
       /** @enum {string} */
       answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
       /** Format: int32 */
@@ -1429,37 +1477,19 @@ export interface components {
       concepts?: number[];
       pointings?: components['schemas']['PointingUpdateRequest'][];
     };
-    ContentBlockUpdateRequest: {
-      /** Format: int64 */
-      id: number;
-      /** Format: int32 */
-      rank: number;
-      /** @enum {string} */
-      type?: 'TEXT' | 'IMAGE';
-      data?: string;
-    };
-    ContentUpdateRequest: {
-      /** Format: int64 */
-      id?: number;
-      blocks?: components['schemas']['ContentBlockUpdateRequest'][];
-    };
     PointingUpdateRequest: {
       /** Format: int64 */
       id?: number;
       /** Format: int32 */
       no?: number;
-      questionContent?: components['schemas']['ContentUpdateRequest'];
-      commentContent?: components['schemas']['ContentUpdateRequest'];
+      questionContent?: string;
+      commentContent?: string;
       concepts?: number[];
     };
     ProblemUpdateRequest: {
-      customId: string;
-      /** @enum {string} */
-      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       /** Format: int64 */
-      practiceTestId?: number;
-      /** Format: int32 */
-      practiceTestNo?: number;
+      parentProblem?: number;
+      customId: string;
       title: string;
       concepts?: number[];
       /** @enum {string} */
@@ -1471,28 +1501,15 @@ export interface components {
       /** Format: int32 */
       recommendedTimeSec: number;
       memo?: string;
-      problemContent: components['schemas']['ContentUpdateRequest'];
+      problemContent: string;
       pointings?: components['schemas']['PointingUpdateRequest'][];
       /** Format: int64 */
       mainAnalysisImageId?: number;
       /** Format: int64 */
       mainHandAnalysisImageId?: number;
-      readingTipContent?: components['schemas']['ContentUpdateRequest'];
-      oneStepMoreContent?: components['schemas']['ContentUpdateRequest'];
+      readingTipContent?: string;
+      oneStepMoreContent?: string;
       childProblems?: components['schemas']['ChildProblemUpdateDTO.Request'][];
-    };
-    ChildProblemInfoResp: {
-      /** Format: int64 */
-      id: number;
-      /** Format: int32 */
-      no: number;
-      problemContent: components['schemas']['ContentResp'];
-      /** @enum {string} */
-      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
-      /** Format: int32 */
-      answer: number;
-      concepts: components['schemas']['ConceptResp'][];
-      pointings?: components['schemas']['PointingResp'][];
     };
     ConceptCategoryResp: {
       /** Format: int64 */
@@ -1510,8 +1527,8 @@ export interface components {
       id: number;
       /** Format: int32 */
       no: number;
-      questionContent: components['schemas']['ContentResp'];
-      commentContent: components['schemas']['ContentResp'];
+      questionContent: string;
+      commentContent: string;
       concepts: components['schemas']['ConceptResp'][];
     };
     PracticeTestResp: {
@@ -1529,13 +1546,18 @@ export interface components {
     ProblemInfoResp: {
       /** Format: int64 */
       id: number;
+      /** @enum {string} */
+      problemType: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
+      /** Format: int64 */
+      parentProblem?: number;
+      parentProblemTitle?: string;
       customId: string;
       /** @enum {string} */
-      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      createType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       practiceTest: components['schemas']['PracticeTestResp'];
       /** Format: int32 */
       practiceTestNo: number;
-      problemContent: components['schemas']['ContentResp'];
+      problemContent: string;
       title: string;
       /** @enum {string} */
       answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
@@ -1549,21 +1571,26 @@ export interface components {
       concepts: components['schemas']['ConceptResp'][];
       mainAnalysisImage: components['schemas']['UploadFileResp'];
       mainHandAnalysisImage: components['schemas']['UploadFileResp'];
-      readingTipContent: components['schemas']['ContentResp'];
-      oneStepMoreContent: components['schemas']['ContentResp'];
+      readingTipContent: string;
+      oneStepMoreContent: string;
       pointings: components['schemas']['PointingResp'][];
-      childProblems: components['schemas']['ChildProblemInfoResp'][];
+      childProblems: components['schemas']['ProblemInfoResp'][];
     };
     ProblemMetaResp: {
       /** Format: int64 */
       id: number;
+      /** @enum {string} */
+      problemType: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
+      /** Format: int64 */
+      parentProblem?: number;
+      parentProblemTitle?: string;
       customId: string;
       /** @enum {string} */
-      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      createType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       practiceTest: components['schemas']['PracticeTestResp'];
       /** Format: int32 */
       practiceTestNo: number;
-      problemContent: components['schemas']['ContentResp'];
+      problemContent: string;
       title: string;
       /** @enum {string} */
       answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
@@ -1677,8 +1704,6 @@ export interface components {
       publishId: number;
       /** Format: int64 */
       problemId?: number;
-      /** Format: int64 */
-      childProblemId?: number;
       /** Format: int32 */
       submitAnswer?: number;
     };
@@ -1709,8 +1734,6 @@ export interface components {
       /** Format: int64 */
       problemId?: number;
       /** Format: int64 */
-      childProblemId?: number;
-      /** Format: int64 */
       pointingId?: number;
       question: string;
       images?: number[];
@@ -1735,11 +1758,6 @@ export interface components {
        * @description 메인문제ID(메인 문제에 대한 질문일 경우)
        */
       problemId?: number;
-      /**
-       * Format: int64
-       * @description 새끼문제ID(새끼 문제에 대한 질문일 경우)
-       */
-      childProblemId?: number;
       /**
        * Format: int64
        * @description 포인팅ID(포인팅에 대한 질문일 경우)
@@ -1795,34 +1813,13 @@ export interface components {
       /** Format: date */
       publishAt: string;
     };
-    ChildProblemWithStudyInfoResp: {
-      /** Format: int32 */
-      problemNo?: number;
-      /** Format: int64 */
-      id: number;
-      /** Format: int32 */
-      no: number;
-      problemContent: components['schemas']['ContentResp'];
-      /** @enum {string} */
-      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
-      /** Format: int32 */
-      answer: number;
-      concepts: components['schemas']['ConceptResp'][];
-      pointings: components['schemas']['PointingWithFeedbackResp'][];
-      /** @enum {string} */
-      progress?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'NONE';
-      /** Format: int32 */
-      submitAnswer: number;
-      isCorrect: boolean;
-      isDone: boolean;
-    };
     PointingWithFeedbackResp: {
       /** Format: int64 */
       id: number;
       /** Format: int32 */
       no: number;
-      questionContent: components['schemas']['ContentResp'];
-      commentContent: components['schemas']['ContentResp'];
+      questionContent: string;
+      commentContent: string;
       concepts: components['schemas']['ConceptResp'][];
       isUnderstood?: boolean;
     };
@@ -1831,13 +1828,18 @@ export interface components {
       no?: number;
       /** Format: int64 */
       id: number;
+      /** @enum {string} */
+      problemType: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
+      /** Format: int64 */
+      parentProblem?: number;
+      parentProblemTitle?: string;
       customId: string;
       /** @enum {string} */
-      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      createType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       practiceTest: components['schemas']['PracticeTestResp'];
       /** Format: int32 */
       practiceTestNo: number;
-      problemContent: components['schemas']['ContentResp'];
+      problemContent: string;
       title: string;
       /** @enum {string} */
       answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
@@ -1851,8 +1853,8 @@ export interface components {
       concepts: components['schemas']['ConceptResp'][];
       mainAnalysisImage: components['schemas']['UploadFileResp'];
       mainHandAnalysisImage: components['schemas']['UploadFileResp'];
-      readingTipContent: components['schemas']['ContentResp'];
-      oneStepMoreContent: components['schemas']['ContentResp'];
+      readingTipContent: string;
+      oneStepMoreContent: string;
       pointings: components['schemas']['PointingWithFeedbackResp'][];
       /** @enum {string} */
       progress?: 'CORRECT' | 'INCORRECT' | 'SEMI_CORRECT' | 'NONE';
@@ -1860,7 +1862,7 @@ export interface components {
       submitAnswer: number;
       isCorrect: boolean;
       isDone: boolean;
-      childProblems: components['schemas']['ChildProblemWithStudyInfoResp'][];
+      childProblems: components['schemas']['ProblemWithStudyInfoResp'][];
     };
     PublishProblemGroupResp: {
       /** Format: int32 */
@@ -1870,7 +1872,7 @@ export interface components {
       /** @enum {string} */
       progress: 'DONE' | 'DOING' | 'NONE';
       problem: components['schemas']['ProblemWithStudyInfoResp'];
-      childProblems: components['schemas']['ChildProblemWithStudyInfoResp'][];
+      childProblems: components['schemas']['ProblemWithStudyInfoResp'][];
     };
     PublishResp: {
       /** Format: int64 */
@@ -1882,43 +1884,21 @@ export interface components {
       problemSet: components['schemas']['ProblemSetResp'];
       data: components['schemas']['PublishProblemGroupResp'][];
     };
-    ChildProblemCreateRequest: {
-      /** Format: int32 */
-      no?: number;
-      problemContent?: components['schemas']['ContentCreateRequest'];
-      /** @enum {string} */
-      answerType?: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
-      /** Format: int32 */
-      answer?: number;
-      concepts?: number[];
-      pointings?: components['schemas']['PointingCreateRequest'][];
-    };
-    ContentBlockCreateRequest: {
-      /** Format: int32 */
-      rank: number;
-      /** @enum {string} */
-      type?: 'TEXT' | 'IMAGE';
-      data?: string;
-      style?: string;
-    };
-    ContentCreateRequest: {
-      blocks?: components['schemas']['ContentBlockCreateRequest'][];
-    };
     PointingCreateRequest: {
       /** Format: int32 */
       no?: number;
-      questionContent?: components['schemas']['ContentCreateRequest'];
-      commentContent?: components['schemas']['ContentCreateRequest'];
+      questionContent?: string;
+      commentContent?: string;
       concepts?: number[];
     };
     ProblemCreateRequest: {
-      customId: string;
-      /** @enum {string} */
-      problemType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       /** Format: int64 */
-      practiceTestId?: number;
+      parentProblem?: number;
+      customId: string;
       /** Format: int32 */
-      practiceTestNo?: number;
+      no?: number;
+      /** @enum {string} */
+      problemType: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
       title: string;
       concepts?: number[];
       /** @enum {string} */
@@ -1930,15 +1910,17 @@ export interface components {
       /** Format: int32 */
       recommendedTimeSec: number;
       memo?: string;
-      problemContent: components['schemas']['ContentCreateRequest'];
+      problemContent: string;
       pointings?: components['schemas']['PointingCreateRequest'][];
       /** Format: int64 */
       mainAnalysisImageId?: number;
       /** Format: int64 */
       mainHandAnalysisImageId?: number;
-      readingTipContent?: components['schemas']['ContentCreateRequest'];
-      oneStepMoreContent?: components['schemas']['ContentCreateRequest'];
-      childProblems?: components['schemas']['ChildProblemCreateRequest'][];
+      readingTipContent?: string;
+      oneStepMoreContent?: string;
+    };
+    ProblemEntireCreateRequest: {
+      childProblems?: components['schemas']['ProblemCreateRequest'][];
     };
     ProblemSetCreateRequest: {
       title: string;
@@ -3316,6 +3298,7 @@ export interface operations {
         customId?: string;
         title?: string;
         concepts?: number[];
+        problemType?: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
         page?: number;
         size?: number;
       };
@@ -3346,6 +3329,30 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['ProblemCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemInfoResp'];
+        };
+      };
+    };
+  };
+  createProblemWithChild: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ProblemEntireCreateRequest'];
       };
     };
     responses: {
@@ -3456,6 +3463,30 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['PracticeTestResp'];
+        };
+      };
+    };
+  };
+  redirect: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': string;
         };
       };
     };
@@ -3725,6 +3756,42 @@ export interface operations {
       };
     };
   };
+  content: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  problem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   search_6: {
     parameters: {
       query: {
@@ -3860,7 +3927,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ChildProblemWithStudyInfoResp'];
+          '*/*': components['schemas']['ProblemWithStudyInfoResp'];
         };
       };
     };
@@ -4097,7 +4164,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ChildProblemWithStudyInfoResp'];
+          '*/*': components['schemas']['ProblemWithStudyInfoResp'];
         };
       };
     };

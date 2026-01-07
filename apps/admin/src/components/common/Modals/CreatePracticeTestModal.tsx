@@ -2,6 +2,7 @@ import { Button, Input } from '@components';
 import { postPracticeTest } from '@apis';
 import { useInvalidate } from '@hooks';
 import { useForm } from 'react-hook-form';
+import { Calendar, GraduationCap, Clock, FileText, Plus, X } from 'lucide-react';
 
 interface Props {
   onClose: () => void;
@@ -21,8 +22,10 @@ const CreatePracticeTestModal = ({ onClose }: Props) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>();
+    formState: { errors, isValid },
+  } = useForm<FormData>({
+    mode: 'onChange',
+  });
 
   const onSubmit = (data: FormData) => {
     createPracticeTest(
@@ -47,83 +50,148 @@ const CreatePracticeTestModal = ({ onClose }: Props) => {
   };
 
   return (
-    <>
-      <div className='w-[80dvw] px-1600 py-1200'>
-        <h2 className='font-bold-24 text-black'>모의고사 새로 추가</h2>
-        <form className='mt-16 flex gap-800' onSubmit={handleSubmit(onSubmit)}>
-          <div className='flex w-[90rem] items-center gap-300'>
-            <Input
-              {...register('year', {
-                required: '년도를 입력해주세요.',
-                min: { value: 1900, message: '올바른 년도를 입력해주세요.' },
-                max: { value: 2100, message: '올바른 년도를 입력해주세요.' },
-                valueAsNumber: true,
-              })}
-              placeholder='숫자 4자리 입력'
-              type='number'
-            />
-            <span className='font-medium-18 break-keep text-black'>년도</span>
+    <div className='w-[480px] overflow-hidden'>
+      {/* Header */}
+      <div className='flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-6 py-5'>
+        <div className='flex items-center gap-3'>
+          <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-main)] to-[var(--color-main)]/80 shadow-lg shadow-[var(--color-main)]/20'>
+            <Plus className='h-5 w-5 text-white' />
           </div>
-          <div className='flex w-[90rem] items-center gap-300'>
-            <Input
-              {...register('grade', {
-                required: '학년을 입력해주세요.',
-                min: { value: 1, message: '1-3 사이의 학년을 입력해주세요.' },
-                max: { value: 3, message: '1-3 사이의 학년을 입력해주세요.' },
-                valueAsNumber: true,
-              })}
-              placeholder='숫자 1자리 입력'
-              type='number'
-            />
-            <span className='font-medium-18 break-keep text-black'>학년</span>
+          <div>
+            <h2 className='text-lg font-bold text-gray-900'>새 모의고사 추가</h2>
+            <p className='text-sm text-gray-500'>모의고사 정보를 입력해주세요</p>
           </div>
-          <div className='flex w-[90rem] items-center gap-300'>
-            <Input
-              {...register('month', {
-                required: '월을 입력해주세요.',
-                min: { value: 1, message: '1-12 사이의 월을 입력해주세요.' },
-                max: { value: 12, message: '1-12 사이의 월을 입력해주세요.' },
-                valueAsNumber: true,
-              })}
-              placeholder='숫자 1자리 or 2자리 입력'
-              type='number'
-            />
-            <span className='font-medium-18 break-keep text-black'>월</span>
-          </div>
-          <Input
-            {...register('name', {
-              required: '모의고사 이름을 입력해주세요.',
-              minLength: { value: 1, message: '모의고사 이름을 입력해주세요.' },
-            })}
-            placeholder='학력고사 or 모의고사 입력'
-          />
-        </form>
+        </div>
+        <button
+          type='button'
+          onClick={onClose}
+          className='rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600'>
+          <X className='h-5 w-5' />
+        </button>
+      </div>
 
-        {/* 에러 메시지 표시 */}
-        {(errors.year || errors.grade || errors.month || errors.name) && (
-          <div className='mt-4'>
-            {Object.values(errors).map((error, index) => (
-              <p key={index} className='text-red font-medium-14 mt-1'>
-                {error?.message}
-              </p>
-            ))}
-          </div>
-        )}
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className='p-6'>
+        <div className='space-y-4'>
+          {/* Year & Month Row */}
+          <div className='flex gap-4'>
+            <div className='flex-1'>
+              <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                <Calendar className='h-4 w-4 text-[var(--color-main)]' />
+                년도
+              </label>
+              <div className='relative'>
+                <Input
+                  {...register('year', {
+                    required: '년도를 입력해주세요.',
+                    min: { value: 1900, message: '올바른 년도를 입력해주세요.' },
+                    max: { value: 2100, message: '올바른 년도를 입력해주세요.' },
+                    valueAsNumber: true,
+                  })}
+                  placeholder='예: 2024'
+                  type='number'
+                  className={errors.year ? 'border-red-300 focus:border-red-500' : ''}
+                />
+              </div>
+              {errors.year && (
+                <p className='mt-1 text-xs font-medium text-red-500'>{errors.year.message}</p>
+              )}
+            </div>
 
-        <div className='mt-[5.6rem] flex justify-end gap-400'>
+            <div className='flex-1'>
+              <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                <Clock className='h-4 w-4 text-[var(--color-main)]' />
+                월
+              </label>
+              <div className='relative'>
+                <Input
+                  {...register('month', {
+                    required: '월을 입력해주세요.',
+                    min: { value: 1, message: '1-12 사이로 입력해주세요.' },
+                    max: { value: 12, message: '1-12 사이로 입력해주세요.' },
+                    valueAsNumber: true,
+                  })}
+                  placeholder='예: 6'
+                  type='number'
+                  className={errors.month ? 'border-red-300 focus:border-red-500' : ''}
+                />
+              </div>
+              {errors.month && (
+                <p className='mt-1 text-xs font-medium text-red-500'>{errors.month.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Grade */}
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <GraduationCap className='h-4 w-4 text-[var(--color-main)]' />
+              학년
+            </label>
+            <div className='relative'>
+              <Input
+                {...register('grade', {
+                  required: '학년을 입력해주세요.',
+                  min: { value: 1, message: '1-3 사이로 입력해주세요.' },
+                  max: { value: 3, message: '1-3 사이로 입력해주세요.' },
+                  valueAsNumber: true,
+                })}
+                placeholder='예: 3'
+                type='number'
+                className={errors.grade ? 'border-red-300 focus:border-red-500' : ''}
+              />
+            </div>
+            {errors.grade && (
+              <p className='mt-1 text-xs font-medium text-red-500'>{errors.grade.message}</p>
+            )}
+          </div>
+
+          {/* Name */}
+          <div>
+            <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+              <FileText className='h-4 w-4 text-[var(--color-main)]' />
+              모의고사 이름
+            </label>
+            <div className='relative'>
+              <Input
+                {...register('name', {
+                  required: '모의고사 이름을 입력해주세요.',
+                  minLength: { value: 1, message: '모의고사 이름을 입력해주세요.' },
+                })}
+                placeholder='예: 6월 모의고사'
+                className={errors.name ? 'border-red-300 focus:border-red-500' : ''}
+              />
+            </div>
+            {errors.name && (
+              <p className='mt-1 text-xs font-medium text-red-500'>{errors.name.message}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className='mt-8 flex justify-end gap-3'>
           <Button type='button' variant='light' onClick={onClose} disabled={isPending}>
             취소
           </Button>
-          <Button
+          <button
             type='submit'
-            variant='dark'
-            onClick={handleSubmit(onSubmit)}
-            disabled={isPending}>
-            {isPending ? '추가 중...' : '추가'}
-          </Button>
+            disabled={isPending || !isValid}
+            className='bg-main shadow-main/20 flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100'>
+            {isPending ? (
+              <>
+                <div className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent' />
+                추가 중...
+              </>
+            ) : (
+              <>
+                <Plus className='h-4 w-4' />
+                추가하기
+              </>
+            )}
+          </button>
         </div>
-      </div>
-    </>
+      </form>
+    </div>
   );
 };
 

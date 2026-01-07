@@ -1,14 +1,12 @@
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 import Image from 'next/image';
 
-import { ImageContainer } from '@components';
+import { ImageContainer, ProblemViewer } from '@components';
 import { components } from '@schema';
 
 type QnaContentProps = {
   type: string;
   pointingId?: number;
-  data: components['schemas']['ProblemWithStudyInfoResp'] &
-    components['schemas']['ChildProblemWithStudyInfoResp'];
+  data: components['schemas']['ProblemWithStudyInfoResp'];
 };
 
 const QnaContent = ({ type, pointingId, data }: QnaContentProps) => {
@@ -20,23 +18,27 @@ const QnaContent = ({ type, pointingId, data }: QnaContentProps) => {
   const ContentComponent = () => {
     switch (type) {
       case 'PROBLEM_CONTENT':
-        return <ProblemViewer problem={data?.problemContent} loading={false} />;
+        return <ProblemViewer content={JSON.parse(data?.problemContent ?? '')} />;
       case 'CHILD_PROBLEM_CONTENT':
-        return <ProblemViewer problem={data?.problemContent} loading={false} />;
+        return <ProblemViewer content={JSON.parse(data?.problemContent ?? '')} />;
       case 'PROBLEM_POINTING_QUESTION':
       case 'CHILD_PROBLEM_POINTING_QUESTION':
         return (
           <ProblemViewer
-            problem={data?.pointings?.find((p) => p.id === pointingId)?.questionContent}
-            loading={false}
+            content={JSON.parse(
+              data?.pointings?.find((p: { id: number }) => p.id === pointingId)?.questionContent ??
+                ''
+            )}
           />
         );
       case 'PROBLEM_POINTING_COMMENT':
       case 'CHILD_PROBLEM_POINTING_COMMENT':
         return (
           <ProblemViewer
-            problem={data?.pointings?.find((p) => p.id === pointingId)?.commentContent}
-            loading={false}
+            content={JSON.parse(
+              data?.pointings?.find((p: { id: number }) => p.id === pointingId)?.commentContent ??
+                ''
+            )}
           />
         );
       case 'PROBLEM_MAIN_ANALYSIS':
@@ -75,9 +77,9 @@ const QnaContent = ({ type, pointingId, data }: QnaContentProps) => {
         );
 
       case 'PROBLEM_READING_TIP_CONTENT':
-        return <ProblemViewer problem={data?.readingTipContent} loading={false} />;
+        return <ProblemViewer content={JSON.parse(data?.readingTipContent ?? '')} />;
       case 'PROBLEM_ONE_STEP_MORE':
-        return <ProblemViewer problem={data?.oneStepMoreContent} loading={false} />;
+        return <ProblemViewer content={JSON.parse(data?.oneStepMoreContent ?? '')} />;
       default:
         return <></>;
     }

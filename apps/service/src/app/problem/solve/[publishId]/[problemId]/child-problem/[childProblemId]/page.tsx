@@ -2,7 +2,6 @@
 import { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { copyImageToClipboard } from '@utils';
 import { postProblemSubmit, useGetChildProblemById } from '@apis';
@@ -17,6 +16,7 @@ import {
   AnswerModalTemplate,
   Tag,
   ImageContainer,
+  ProblemViewer,
   BottomSheet,
   ChildAnswerCheckBottomSheetTemplate,
   BottomFixedArea,
@@ -56,14 +56,9 @@ const Page = () => {
 
   // apis
   const { data, isLoading } = useGetChildProblemById(+publishId, +childProblemId);
-  const {
-    problemNo,
-    no = 1,
-    problemContent,
-    answerType = 'MULTIPLE_CHOICE',
-    answer,
-    progress,
-  } = data ?? {};
+  console.log('data', data);
+  const { no = 1, problemContent, answerType = 'MULTIPLE_CHOICE', answer, progress } = data ?? {};
+  const problemNo = (data as { problemNo?: number } | undefined)?.problemNo;
 
   const prevButtonLabel = no === 1 ? '' : `새끼 문제 ${problemNo}-${no - 1}번`;
 
@@ -80,7 +75,7 @@ const Page = () => {
   };
 
   const handleSubmitAnswer: SubmitHandler<{ answer: string }> = async ({ answer }) => {
-    const { data } = await postProblemSubmit(+publishId, null, +childProblemId, +answer);
+    const { data } = await postProblemSubmit(+publishId, +childProblemId, +answer);
     const resultData = data?.progress;
     invalidateAll();
 
@@ -134,7 +129,7 @@ const Page = () => {
 
   const handleClickSkipButton = async () => {
     trackEvent('problem_child_solve_modal_skip_button_click');
-    await postProblemSubmit(+publishId, null, +childProblemId, null);
+    await postProblemSubmit(+publishId, +childProblemId, null);
     invalidateAll();
     onNext();
   };
@@ -183,7 +178,7 @@ const Page = () => {
             {progress === 'NONE' && <Tag sizeType='medium'>미완</Tag>}
           </div>
           <ImageContainer className='relative mt-[1.2rem]' ref={problemViewerRef}>
-            <ProblemViewer problem={problemContent} loading={false} />
+            <ProblemViewer content={JSON.parse(problemContent ?? '')} />
           </ImageContainer>
           <div className='mt-[0.6rem] mb-[0.4rem] flex items-center justify-end gap-[0.6rem]'>
             <SmallButton

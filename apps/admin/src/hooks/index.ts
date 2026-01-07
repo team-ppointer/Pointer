@@ -3,7 +3,7 @@ import useNavigation from './useNavigation';
 import useProblemEssentialInput from './useProblemEssentialInput';
 import useInvalidate from './useInvalidate';
 import useEditor from './useEditor';
-import useSelectedStudent from './useSelectedStudent';
+import { useSelectedStudent } from '@/contexts/SelectedStudentContext';
 
 export {
   useModal,

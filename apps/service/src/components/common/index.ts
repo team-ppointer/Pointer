@@ -11,6 +11,7 @@ import ProgressHeader from './ProgressHeader';
 import ImageContainer from './ImageContainer';
 import Sidebar from './SideBar/SideBar';
 import { BottomFixedArea } from './area/BottomFixedArea';
+import ProblemViewer from './ProblemViewerClient';
 
 export * from './area/BottomFixedArea';
 export * from './SideBar/SideBar';
@@ -33,4 +34,5 @@ export {
   ImageContainer,
   Sidebar,
   BottomFixedArea,
+  ProblemViewer,
 };

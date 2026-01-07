@@ -1,10 +1,9 @@
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
-
+'use client';
 import { IcPaw, IcQuestion18 } from '@svg';
-import { SmallButton } from '@components';
+import { ProblemViewer, SmallButton } from '@components';
 import { components } from '@schema';
 
-type oneStepMoreContent = components['schemas']['ContentUpdateRequest'];
+type oneStepMoreContent = components['schemas']['ProblemWithStudyInfoResp']['oneStepMoreContent'];
 
 type Props = {
   contents?: oneStepMoreContent;
@@ -28,7 +27,7 @@ const AdvancedCard = ({ contents, handleClickQuestion }: Props) => {
           질문하기
         </SmallButton>
       </div>
-      <ProblemViewer problem={contents} />
+      <ProblemViewer content={JSON.parse(contents ?? '')} />
     </div>
   );
 };

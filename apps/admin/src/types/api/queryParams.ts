@@ -10,6 +10,10 @@ export interface GetConceptCategoryParams {
   size?: number;
 }
 
+export interface GetNotificationParams {
+  studentId: number;
+}
+
 export interface GetNoticeParams {
   studentId: number;
 }
@@ -41,6 +45,7 @@ export interface GetProblemsSearchParams {
   customId?: string;
   title?: string;
   concepts?: number[];
+  problemType?: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
   page?: number;
   size?: number;
 }

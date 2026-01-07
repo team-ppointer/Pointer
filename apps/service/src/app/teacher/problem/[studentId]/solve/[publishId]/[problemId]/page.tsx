@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import ProblemViewer from '@repo/pointer-editor/ProblemViewer';
 
 import { useGetProblemTeacherById } from '@apis';
 import {
@@ -9,6 +8,7 @@ import {
   SmallButton,
   TimeTag,
   ImageContainer,
+  ProblemViewer,
   NavigationFooter,
   BottomFixedArea,
 } from '@components';
@@ -86,7 +86,7 @@ const Page = () => {
             </div>
           </div>
           <ImageContainer className='relative mt-[1.2rem]' ref={problemViewerRef}>
-            <ProblemViewer problem={problemContent} loading={false} />
+            <ProblemViewer content={JSON.parse(problemContent)} />
           </ImageContainer>
 
           {hasChildProblem && (
