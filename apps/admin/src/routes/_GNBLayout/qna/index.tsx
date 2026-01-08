@@ -458,7 +458,7 @@ const MessageBubble = ({
         );
       case 'text':
       default:
-        return <p className='text-sm whitespace-pre-wrap text-gray-900'>{content}</p>;
+        return <p className='text-sm break-all text-gray-900'>{content}</p>;
     }
   };
 
@@ -502,7 +502,7 @@ const MessageBubble = ({
       )}
 
       {/* Message Content */}
-      <div className={`max-w-[70%] ${!isMe ? 'flex flex-col' : ''}`}>
+      <div className={`max-w-[60%] ${!isMe ? 'flex flex-col' : ''}`}>
         {!isMe && showProfile && senderName && (
           <p className='mb-1 text-xs font-medium text-gray-600'>{senderName}</p>
         )}
