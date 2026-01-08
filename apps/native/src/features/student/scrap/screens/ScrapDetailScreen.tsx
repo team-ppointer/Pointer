@@ -218,7 +218,7 @@ const ScrapDetailScreen = () => {
       <View style={{ flex: 1, flexDirection: 'row' }}>
         {/* Left: Content Area */}
         <ScrollView
-          style={{ width: '60%', backgroundColor: colors['gray-200'] }}
+          style={{ width: '55%', backgroundColor: colors['gray-200'] }}
           contentContainerStyle={{ padding: 20, gap: 14 }}>
           <View className='gap-[14px]'>
             {/* Filter Bar */}
@@ -242,7 +242,7 @@ const ScrapDetailScreen = () => {
                 onExpand={uiState.openProblemModal}
               />
             )}
-
+            <View className='h-[1px] w-full bg-gray-400' />
             {/* Pointings List */}
             {hasPointings && (
               <PointingsList
@@ -256,7 +256,7 @@ const ScrapDetailScreen = () => {
         {/* Right: Drawing Area */}
         <View
           style={{
-            width: '60%',
+            width: '55%',
             backgroundColor: 'white',
             borderLeftWidth: 1,
             borderColor: '#D1D5DB',

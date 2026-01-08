@@ -50,7 +50,13 @@ export const FilterBar = ({
                 borderRadius: 6,
               }}>
               <View className='flex-row items-center gap-1'>
-                {index !== 0 && <Bookmark size={16} color={colors['primary-500']} />}
+                {index !== 0 && (
+                  <Bookmark
+                    size={16}
+                    color={selectedFilter === index ? '#FFF' : colors['primary-500']}
+                    fill={selectedFilter === index ? '#FFF' : colors['primary-500']}
+                  />
+                )}
                 <Text
                   className={
                     selectedFilter === index ? 'text-16m text-white' : 'text-16m text-gray-800'

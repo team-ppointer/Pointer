@@ -21,8 +21,8 @@ export const ProblemSection = ({
 }: ProblemSectionProps) => {
   if (problemContent) {
     return (
-      <View className='gap-[6px] rounded-[8px] border border-gray-500 bg-white p-[14px]'>
-        <Text className='text-16b text-black'>문제 본문</Text>
+      <View className='gap-[6px] rounded-[8px] border border-gray-500 bg-white p-[14px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]'>
+        {/* <Text className='text-16b text-gray-600'>문제 본문</Text> */}
         <ProblemViewer problemContent={problemContent} minHeight={200} padding={14} />
         {thumbnailUrl && (
           <Pressable className='relative' onPress={onHoverStart}>
