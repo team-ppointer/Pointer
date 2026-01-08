@@ -11,7 +11,13 @@ interface ButtonProps {
 
 type ExtendedPressableState = PressableStateCallbackType & { hovered?: boolean };
 
-const TextButton = ({ variant = 'blue', disabled = false, onPress, children }: ButtonProps) => {
+const TextButton = ({
+  variant = 'blue',
+  disabled = false,
+  onPress,
+  children,
+  style,
+}: ButtonProps) => {
   const baseStyle = 'h-[32px] w-fit items-center justify-center rounded-[8px] px-[10px]';
 
   const variantStyles = {
@@ -27,7 +33,7 @@ const TextButton = ({ variant = 'blue', disabled = false, onPress, children }: B
   };
 
   return (
-    <Pressable onPress={onPress} className={`${baseStyle} ${variantStyles[variant]}`}>
+    <Pressable onPress={onPress} className={`${baseStyle} ${variantStyles[variant]}`} style={style}>
       <Text className={textStyles[variant]}>{children}</Text>
     </Pressable>
   );
