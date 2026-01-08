@@ -46,13 +46,13 @@ const ChatRoomList = ({
       </View>
 
       {/* New Question Button */}
-      <View className="px-[20px] pb-[10px]">
+      {/* <View className="px-[20px] pb-[10px]">
         <Pressable
           onPress={onNewQuestion}
           className="items-center rounded-[8px] bg-primary-500 py-[10px] active:bg-primary-600">
           <Text className="text-14sb text-white">새로운 질문</Text>
         </Pressable>
-      </View>
+      </View> */}
 
       {/* Filter Section */}
       <View className="flex-row items-center justify-between px-[20px] h-[50px]">

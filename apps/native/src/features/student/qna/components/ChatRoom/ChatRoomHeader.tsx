@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, Pressable } from 'react-native';
+import { Text, View } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,6 +7,7 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import type { ChatRoom, ChatRoomStatus } from '../../types';
 import { Dropdown } from '../common';
 import { STATUS_OPTIONS } from '../../constants';
+import { AnimatedPressable } from '@components/common';
 
 interface ChatRoomHeaderProps {
   chatRoom: ChatRoom;
@@ -36,11 +37,11 @@ const ChatRoomHeader = ({
       <View className='h-[50px] flex-row items-center justify-center px-[16px]'>
         <View className='flex-row items-center gap-[8px]'>
           {showBackButton && (
-            <Pressable
+            <AnimatedPressable
               onPress={onBack}
-              className='h-[40px] w-[40px] items-center justify-center rounded-full active:bg-gray-200'>
+              className='h-[40px] w-[40px] items-center justify-center rounded-full'>
               <ChevronLeft size={28} color={colors['gray-800']} />
-            </Pressable>
+            </AnimatedPressable>
           )}
           <View className='flex-1 flex-row items-center justify-center gap-[8px]'>
             <Text className='text-18b text-gray-900'>

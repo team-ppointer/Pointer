@@ -30,6 +30,7 @@ export type StudentRootStackParamList = {
   // QnA screens
   ChatRoom: {
     chatRoomId: number;
+    isAdminChat?: boolean;
   };
   QnaSearch: undefined;
   Scrap: undefined;

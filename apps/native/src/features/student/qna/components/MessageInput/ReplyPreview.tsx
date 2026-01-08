@@ -1,8 +1,9 @@
 import React from 'react';
-import { Text, View, Pressable, Image } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import { X, ImageIcon } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import type { Message } from '../../types';
+import { AnimatedPressable } from '@components/common';
 
 interface ReplyPreviewProps {
   message: Message;
@@ -49,11 +50,11 @@ const ReplyPreview = ({ message, senderName, onClose }: ReplyPreviewProps) => {
       </View>
 
       {/* Close Button */}
-      <Pressable
+      <AnimatedPressable
         onPress={onClose}
-        className='h-[28px] w-[28px] items-center justify-center rounded-full active:bg-gray-200'>
+        className='h-[28px] w-[28px] items-center justify-center rounded-full'>
         <X size={18} color={colors['gray-600']} />
-      </Pressable>
+      </AnimatedPressable>
     </View>
   );
 };

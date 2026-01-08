@@ -56,10 +56,12 @@ const QnaScreen = () => {
       rooms.push(mapAdminChatToChatRoom(adminChatData));
     }
 
-    // Add teacher chats
+    // Add teacher chats (filter out ADMIN_CHAT to avoid duplication)
     if (qnaListData?.data?.groups) {
       qnaListData.data.groups.forEach((group) => {
         group.data?.forEach((qna) => {
+          // Skip admin chat as it's already fetched separately
+          if (qna.type === 'ADMIN_CHAT') return;
           rooms.push(mapQnAMetaToChatRoom(qna));
         });
       });
@@ -79,7 +81,10 @@ const QnaScreen = () => {
     if (isTablet) {
       setSelectedRoom(room);
     } else {
-      navigation.navigate('ChatRoom', { chatRoomId: room.id });
+      navigation.navigate('ChatRoom', {
+        chatRoomId: room.id,
+        isAdminChat: room.type === 'publisher',
+      });
     }
   };
 
