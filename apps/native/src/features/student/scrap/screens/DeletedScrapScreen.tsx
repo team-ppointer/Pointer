@@ -19,7 +19,7 @@ import { withScrapModals } from '../hoc';
 
 const DeletedScrapScreenContent = () => {
   const [reducerState, dispatch] = useScrapSelection();
-  const [sortKey, setSortKey] = useState<UISortKey>('TYPE');
+  const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 

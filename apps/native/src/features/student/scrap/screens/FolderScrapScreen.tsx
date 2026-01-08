@@ -26,8 +26,8 @@ const FolderScrapScreenContent = () => {
   const { id } = route.params;
 
   const [reducerState, dispatch] = useScrapSelection();
-  const [sortKey, setSortKey] = useState<UISortKey>('TITLE');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+  const [sortKey, setSortKey] = useState<UISortKey>('DATE');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const { openMoveScrapModal, setRefetchScraps, setRefetchFolders } = useScrapModal();
   const removeScrap = useRecentScrapStore((state) => state.removeScrap);
