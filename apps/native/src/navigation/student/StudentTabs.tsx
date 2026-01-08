@@ -14,7 +14,9 @@ const StudentTabs = () => {
   return (
     <Tab.Navigator
       tabBar={(props) => <MainTabBar {...props} />}
-      screenOptions={{ headerShown: false }}>
+      screenOptions={{
+        headerShown: false,
+      }}>
       <Tab.Screen
         name='Home'
         component={HomeScreen}

@@ -66,12 +66,9 @@ const AnimatedPressable = ({
 
   // Inner content with native driver animations (scale, opacity)
   const innerContent = (
-    <Animated.View style={[{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }, containerStyle]}>
-      <Pressable
-        style={style}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        {...rest}>
+    <Animated.View
+      style={[{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }, containerStyle]}>
+      <Pressable style={style} onPressIn={handlePressIn} onPressOut={handlePressOut} {...rest}>
         {children}
       </Pressable>
     </Animated.View>
@@ -90,4 +87,3 @@ const AnimatedPressable = ({
 };
 
 export default AnimatedPressable;
-

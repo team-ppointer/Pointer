@@ -1,9 +1,9 @@
-import { Container, NotificationItem } from '@components/common';
+import { AnimatedPressable, Container, NotificationItem } from '@components/common';
 import { NoNotificationBellIcon } from '@components/system/icons';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import {
   useGetNotification,
   useGetNotificationCount,
@@ -119,7 +119,7 @@ const NotificationScreen = () => {
         <Container className='gap-[10px] pt-[26px]'>
           <View className='flex-row items-center justify-between'>
             <Text className='text-20b text-gray-900'>알림</Text>
-            <Pressable
+            <AnimatedPressable
               className='px-2'
               onPress={handleReadAll}
               disabled={unreadNotificationCount === 0}>
@@ -127,7 +127,7 @@ const NotificationScreen = () => {
                 className={`text-12sb ${unreadNotificationCount >= 1 ? 'text-blue-500' : 'text-gray-500'}`}>
                 모두 읽음
               </Text>
-            </Pressable>
+            </AnimatedPressable>
           </View>
 
           {notifications.length > 0 ? (

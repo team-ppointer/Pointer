@@ -1,7 +1,8 @@
 import { colors } from '@theme/tokens';
 import { BookOpenText, LucideIcon, Megaphone, MessageCircleMore } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import AnimatedPressable from './AnimatedPressable';
 
 type IconType = 'megaphone' | 'message' | 'book' | 'book-white';
 
@@ -68,10 +69,10 @@ const Button = ({ variant = 'blue', icon: Icon, onPress, children }: ButtonProps
   };
 
   return (
-    <Pressable className={`${baseStyles} ${variantStyles[variant]}`} onPress={onPress}>
+    <AnimatedPressable className={`${baseStyles} ${variantStyles[variant]}`} onPress={onPress}>
       <Text className={textStyles[variant]}>{children}</Text>
       {Icon && <Icon strokeWidth={2} size={16} />}
-    </Pressable>
+    </AnimatedPressable>
   );
 };
 
@@ -110,7 +111,9 @@ const NotificationItem = ({
           )}
         </View>
         <View className='flex-1'>
-          <Text className='text-16sb mb-[2px] text-black truncate' numberOfLines={1}>{title}</Text>
+          <Text className='text-16sb mb-[2px] truncate text-black' numberOfLines={1}>
+            {title}
+          </Text>
           <Text className='text-12r text-gray-700'>{time}</Text>
         </View>
       </View>
