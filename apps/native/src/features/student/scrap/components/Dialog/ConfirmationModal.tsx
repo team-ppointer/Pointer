@@ -54,11 +54,13 @@ export const ConfirmationModal = ({
   buttons,
 }: ConfirmationModalProps) => {
   return (
-    <PopUpModal visibleState={visible} setVisibleState={onClose} className='px-[60px] py-[65px]'>
-      <View className='w-[458px] max-w-[600px] items-center justify-center gap-[24px] rounded-[12px] border border-[#DFE2E7] bg-white p-[28px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
+    <PopUpModal visibleState={visible} setVisibleState={onClose}>
+      <View className='items-center justify-center gap-[24px] rounded-[12px] border border-[#DFE2E7] bg-white p-[28px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
         <View className='items-center gap-[12px]'>
           <Text className='text-18b text-[#1E1E1E]'>{title}</Text>
-          {description && <Text className='text-16m text-center text-[#1E1E1E]'>{description}</Text>}
+          {description && (
+            <Text className='text-16m text-center text-[#1E1E1E]'>{description}</Text>
+          )}
         </View>
         <View className='flex-row gap-[6px]'>
           {buttons.map((button, index) => (

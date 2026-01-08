@@ -1,5 +1,5 @@
 import { Container } from '@/components/common';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Modal, Pressable, View, StyleSheet, Alert, Text } from 'react-native';
 import { LoadQnaImageScreenModal } from './FullScreenModal';
 import { Check } from 'lucide-react-native';
@@ -24,7 +24,11 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
 
-  const { data: qnaAllImagesData, isLoading } = useGetQnaFiles({
+  const {
+    data: qnaAllImagesData,
+    isLoading,
+    refetch,
+  } = useGetQnaFiles({
     sort: 'CREATED_AT',
     order: sortOrder,
   });
@@ -61,6 +65,12 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
       }
     );
   };
+
+  useEffect(() => {
+    if (visible) {
+      refetch();
+    }
+  }, [visible, refetch]);
 
   return (
     <>

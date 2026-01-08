@@ -142,8 +142,9 @@ export const MoveScrapModal = () => {
   return (
     <PopUpModal
       visibleState={isMoveScrapModalVisible && !isCreateFolderModalVisible}
-      setVisibleState={closeMoveScrapModal}>
-      <View className='h-[575px] min-w-[520px] max-w-[692px] rounded-[20px] border border-gray-400 bg-white shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
+      setVisibleState={closeMoveScrapModal}
+      className='px-2'>
+      <View className='h-[575px] max-w-[672px] rounded-[20px] border border-gray-400 bg-white shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
         <View className='relative flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[12px]'>
           <Pressable onPress={closeMoveScrapModal} className='items-start'>
             <Text className='text-14sb text-primary-600'>취소</Text>
