@@ -1,18 +1,25 @@
 import { colors } from '@/theme/tokens';
-import { postAnswer } from '@apis/student';
+import { postAnswer, useToggleScrapFromProblem } from '@apis/student';
 import { Container } from '@components/common';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, LayoutChangeEvent, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  Animated,
+  LayoutChangeEvent,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
 import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
 import ResultSheet from '../components/ResultSheet';
-import WritingArea from '../components/WritingArea';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
 import { components } from '@schema';
@@ -45,6 +52,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [incorrectAttemptCount, setIncorrectAttemptCount] = useState(0);
   const [problemProgress, setProblemProgress] = useState<ProblemProgress | null>(null);
+  const [isScraped, setIsScraped] = useState(false);
+  const scrapAnimValue = useRef(new Animated.Value(0)).current;
 
   const phase = useProblemSessionStore(selectPhase);
   const currentProblem = useProblemSessionStore(selectCurrentProblem);
@@ -57,8 +66,19 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const finishChildProblem = useProblemSessionStore((state) => state.finishChildProblem);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
+  const toggleScrapMutation = useToggleScrapFromProblem();
 
   const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
+
+  // Scrap animation interpolations
+  const scrapBgColor = scrapAnimValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors['gray-200'], colors['gray-400']],
+  });
+  const scrapIconColor = scrapAnimValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors['gray-700'], colors['primary-500']],
+  });
 
   const problemTitle = useMemo(() => {
     if (!group) {
@@ -111,7 +131,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     bottomSheetRef.current?.close();
     resultSheetRef.current?.close();
     setIncorrectAttemptCount(0);
-  }, [currentProblem?.id]);
+    // Reset scrap state when problem changes
+    setIsScraped(false);
+    scrapAnimValue.setValue(0);
+  }, [currentProblem?.id, scrapAnimValue]);
 
   useEffect(() => {
     setProblemProgress(currentProblem?.progress ?? null);
@@ -285,6 +308,40 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setAnswer('');
   }, []);
 
+  const handleToggleScrap = useCallback(() => {
+    if (!currentProblem?.id || toggleScrapMutation.isPending) {
+      return;
+    }
+
+    // Optimistic update with animation - trust the toggle, only revert on error
+    const previousState = isScraped;
+    const newScrapState = !previousState;
+    setIsScraped(newScrapState);
+    Animated.spring(scrapAnimValue, {
+      toValue: newScrapState ? 1 : 0,
+      useNativeDriver: false,
+      tension: 200,
+      friction: 20,
+    }).start();
+
+    toggleScrapMutation.mutate(
+      { problemId: currentProblem.id },
+      {
+        onError: () => {
+          // Revert to previous state on error
+          setIsScraped(previousState);
+          Animated.spring(scrapAnimValue, {
+            toValue: previousState ? 1 : 0,
+            useNativeDriver: false,
+            tension: 200,
+            friction: 20,
+          }).start();
+          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
+        },
+      }
+    );
+  }, [currentProblem?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
+
   const subtitle = publishDateLabel ?? '';
 
   return (
@@ -310,7 +367,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
             </View>
 
             {/* Writing Area */}
-            <WritingArea />
+            {/* <WritingArea /> */}
           </Container>
         </ScrollView>
         <AnswerKeyboardSheet
@@ -328,12 +385,14 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           {isKeyboardVisible ? (
             <>
               <BottomActionBar.Button
-                className='h-[42px] max-w-[220px] flex-1 border border-gray-500 bg-gray-100'
+                className='h-[42px] border border-gray-500 bg-gray-100'
+                containerStyle={{ flex: 1, maxWidth: 220 }}
                 onPress={handleIDontKnow}>
                 <Text className='text-14m text-gray-900'>잘 모르겠어요</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className={`bg-primary-500 h-[42px] flex-1 ${isSubmitting ? 'opacity-60' : ''}`}
+                className={`bg-primary-500 h-[42px] ${isSubmitting ? 'opacity-60' : ''}`}
+                containerStyle={{ flex: 1 }}
                 disabled={isSubmitting}
                 onPress={handleSubmitAnswer}>
                 <Text className='text-16m text-white'>
@@ -343,14 +402,21 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
             </>
           ) : (
             <>
-              <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-                <BookmarkIcon size={22} color={colors['gray-700']} />
-              </BottomActionBar.Button>
-              <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-                <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-              </BottomActionBar.Button>
               <BottomActionBar.Button
-                className='bg-primary-500 h-[42px] flex-1'
+                animatedStyle={{ backgroundColor: scrapBgColor }}
+                onPress={handleToggleScrap}>
+                <BookmarkIcon
+                  size={22}
+                  color={isScraped ? colors['primary-500'] : colors['gray-700']}
+                  fill={isScraped ? colors['primary-500'] : 'transparent'}
+                />
+              </BottomActionBar.Button>
+              {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
+                <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
+              </BottomActionBar.Button> */}
+              <BottomActionBar.Button
+                className='bg-primary-500 h-[42px]'
+                containerStyle={{ flex: 1 }}
                 onPress={toggleKeyboard}>
                 <Text className='text-16m text-white'>답 입력하기</Text>
               </BottomActionBar.Button>

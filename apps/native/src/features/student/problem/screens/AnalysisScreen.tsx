@@ -1,5 +1,5 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
+import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import { Container, SegmentedControl } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
@@ -7,7 +7,8 @@ import { BookmarkIcon, MessageCircleMoreIcon, StarIcon } from 'lucide-react-nati
 import { colors } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useToggleScrapFromProblem } from '@apis/student';
 import {
   selectCurrentProblem,
   selectGroup,
@@ -25,6 +26,8 @@ const AnalysisScreen = ({
 }: Partial<NativeStackScreenProps<StudentRootStackParamList, 'Analysis'>>) => {
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
   const [selectedTab, setSelectedTab] = useState(0);
+  const [isScraped, setIsScraped] = useState(false);
+  const scrapAnimValue = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
 
   const problem = useProblemSessionStore(selectCurrentProblem);
@@ -34,6 +37,13 @@ const AnalysisScreen = ({
   const publishAt = useProblemSessionStore(selectPublishAt);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
+  const toggleScrapMutation = useToggleScrapFromProblem();
+
+  // Scrap animation interpolation
+  const scrapBgColor = scrapAnimValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors['gray-200'], colors['gray-400']],
+  });
 
   const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
@@ -76,7 +86,10 @@ const AnalysisScreen = ({
 
   useEffect(() => {
     setSelectedTab(0);
-  }, [problem?.id]);
+    // Reset scrap state when problem changes
+    setIsScraped(false);
+    scrapAnimValue.setValue(0);
+  }, [problem?.id, scrapAnimValue]);
 
   const handleBottomBarLayout = useCallback((event: LayoutChangeEvent) => {
     setBottomBarHeight(event.nativeEvent.layout.height);
@@ -89,6 +102,40 @@ const AnalysisScreen = ({
   const handlePrimaryAction = useCallback(() => {
     goHome();
   }, [goHome]);
+
+  const handleToggleScrap = useCallback(() => {
+    if (!problem?.id || toggleScrapMutation.isPending) {
+      return;
+    }
+
+    // Optimistic update with animation
+    const previousState = isScraped;
+    const newScrapState = !previousState;
+    setIsScraped(newScrapState);
+    Animated.spring(scrapAnimValue, {
+      toValue: newScrapState ? 1 : 0,
+      useNativeDriver: false,
+      tension: 200,
+      friction: 20,
+    }).start();
+
+    toggleScrapMutation.mutate(
+      { problemId: problem.id },
+      {
+        onError: () => {
+          // Revert to previous state on error
+          setIsScraped(previousState);
+          Animated.spring(scrapAnimValue, {
+            toValue: previousState ? 1 : 0,
+            useNativeDriver: false,
+            tension: 200,
+            friction: 20,
+          }).start();
+          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
+        },
+      }
+    );
+  }, [problem?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
 
   const primaryButtonLabel = '학습 완료';
 
@@ -148,14 +195,21 @@ const AnalysisScreen = ({
           </Container>
         </ScrollView>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
-          <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-            <BookmarkIcon size={22} color={colors['gray-700']} />
-          </BottomActionBar.Button>
-          <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-            <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-          </BottomActionBar.Button>
           <BottomActionBar.Button
-            className='bg-primary-500 h-[42px] flex-1'
+            animatedStyle={{ backgroundColor: scrapBgColor }}
+            onPress={handleToggleScrap}>
+            <BookmarkIcon
+              size={22}
+              color={isScraped ? colors['primary-500'] : colors['gray-700']}
+              fill={isScraped ? colors['primary-500'] : 'transparent'}
+            />
+          </BottomActionBar.Button>
+          {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
+            <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
+          </BottomActionBar.Button> */}
+          <BottomActionBar.Button
+            className='bg-primary-500 h-[42px]'
+            containerStyle={{ flex: 1 }}
             onPress={handlePrimaryAction}>
             <Text className='text-16m text-white'>{primaryButtonLabel}</Text>
           </BottomActionBar.Button>

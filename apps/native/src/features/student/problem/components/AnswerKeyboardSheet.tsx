@@ -1,4 +1,4 @@
-import { Container } from '@components/common';
+import { AnimatedPressable, Container } from '@components/common';
 import { colors } from '@theme/tokens';
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -7,7 +7,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { DeleteIcon } from 'lucide-react-native';
 import { forwardRef, useCallback } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 type AnswerKeyboardSheetProps = {
   bottomInset: number;
@@ -55,13 +55,13 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
     );
 
     const renderKey = (label: string, onPress: () => void, flex = 1) => (
-      <Pressable
+      <AnimatedPressable
         key={label}
         className='h-[46px] items-center justify-center rounded-full bg-white'
-        style={{ flex }}
+        containerStyle={{ flex }}
         onPress={onPress}>
         <Text className='text-18sb text-black'>{label}</Text>
-      </Pressable>
+      </AnimatedPressable>
     );
 
     return (
@@ -97,11 +97,12 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
               <View className='flex-row gap-[10px]'>
                 <View className='flex-1' />
                 {renderKey('0', () => onAppendDigit('0'), 1)}
-                <Pressable
-                  className='h-[46px] flex-1 items-center justify-center rounded-full bg-gray-400'
+                <AnimatedPressable
+                  className='h-[46px] items-center justify-center rounded-full bg-gray-400'
+                  containerStyle={{ flex: 1 }}
                   onPress={onDelete}>
                   <DeleteIcon size={24} color={colors['gray-800']} />
-                </Pressable>
+                </AnimatedPressable>
               </View>
             </View>
           </Container>
