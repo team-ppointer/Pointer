@@ -1775,7 +1775,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/qna/{qnaId}/images': {
+  '/api/student/qna/{qnaId}/files': {
     parameters: {
       query?: never;
       header?: never;
@@ -1783,7 +1783,7 @@ export interface paths {
       cookie?: never;
     };
     /** Q&A 전체 이미지 조회 (질문 + 채팅) */
-    get: operations['getImages'];
+    get: operations['getFiles'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1809,7 +1809,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/student/qna/images': {
+  '/api/student/qna/files': {
     parameters: {
       query?: never;
       header?: never;
@@ -1817,7 +1817,7 @@ export interface paths {
       cookie?: never;
     };
     /** 내가 참여한 모든 Q&A 이미지 조회 */
-    get: operations['getAllImages'];
+    get: operations['getAllFiles'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2001,6 +2001,32 @@ export interface paths {
      *       - heartbeat: 초기 연결 확인
      */
     get: operations['subscribe'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/qna/student/subscribe': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 학생 QnA 리스트 SSE 구독
+     * @description 학생의 모든 QnA에 대한 변경 알림을 SSE로 수신합니다.
+     *
+     *     - 요청 예: GET /api/qna/student/subscribe?token={accessToken}
+     *     - 응답 Content-Type: text/event-stream
+     *     - 이벤트 이름:
+     *       - qna_list: QnA 리스트 변경 (QnAListEvent 스키마 참조)
+     *       - heartbeat: 연결 유지
+     */
+    get: operations['subscribeStudentQnaList'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2269,14 +2295,14 @@ export interface components {
   schemas: {
     ChatUpdateRequest: {
       content: string;
-      images?: number[];
+      files?: number[];
     };
     ChatResp: {
       /** Format: int64 */
       id: number;
       isMine: boolean;
       content: string;
-      images: components['schemas']['UploadFileResp'][];
+      files: components['schemas']['UploadFileResp'][];
       /**
        * Format: int64
        * @description 답장 대상 채팅 ID
@@ -2351,7 +2377,7 @@ export interface components {
       contentTitle: string;
       content: string;
       question: string;
-      images: components['schemas']['UploadFileResp'][];
+      files: components['schemas']['UploadFileResp'][];
       /** Format: int64 */
       problemId?: number;
       chats: components['schemas']['ChatResp'][];
@@ -2704,7 +2730,7 @@ export interface components {
     };
     QnAUpdateRequest: {
       question: string;
-      images?: number[];
+      files?: number[];
     };
     StudentUpdateRequest: {
       isGteFourteen?: boolean;
@@ -2880,7 +2906,7 @@ export interface components {
       /** Format: int64 */
       qnaId: number;
       content: string;
-      images?: number[];
+      files?: number[];
       /**
        * Format: int64
        * @description 답장 대상 채팅 ID
@@ -3090,7 +3116,7 @@ export interface components {
       /** Format: int64 */
       pointingId?: number;
       question: string;
-      images?: number[];
+      files?: number[];
     };
     QnACheckRequest: {
       /** Format: int64 */
@@ -3781,6 +3807,43 @@ export interface components {
        * @description 읽은 시간
        */
       readAt?: string;
+    };
+    /** @description 학생별 QnA 리스트 변경 이벤트 (SSE event name: qna_list) */
+    QnAListEvent: {
+      /**
+       * @description 학생별 QnA 리스트 이벤트 타입
+       * @example NEW_MESSAGE
+       * @enum {string}
+       */
+      type?: 'NEW_MESSAGE' | 'UNREAD_COUNT_CHANGED' | 'MESSAGE_DELETED';
+      /**
+       * Format: int64
+       * @description 변경된 Q&A ID
+       * @example 1
+       */
+      qnaId?: number;
+      /**
+       * Format: int64
+       * @description 대상 학생 ID
+       * @example 123
+       */
+      studentId?: number;
+      /**
+       * Format: int32
+       * @description 안읽은 메시지 수
+       * @example 5
+       */
+      unreadCount?: number | null;
+      /**
+       * @description 최신 메시지 미리보기
+       * @example 안녕하세요, 문제에 대해...
+       */
+      latestMessagePreview?: string | null;
+      /**
+       * Format: date-time
+       * @description 이벤트 발생 시간
+       */
+      timestamp?: string;
     };
     PageRespTeacherResp: {
       /** Format: int32 */
@@ -7139,7 +7202,7 @@ export interface operations {
       };
     };
   };
-  getImages: {
+  getFiles: {
     parameters: {
       query?: {
         /**
@@ -7194,7 +7257,7 @@ export interface operations {
       };
     };
   };
-  getAllImages: {
+  getAllFiles: {
     parameters: {
       query?: {
         /**
@@ -7433,6 +7496,35 @@ export interface operations {
         content: {
           'chat (application/json)': components['schemas']['QnAChatEvent'];
           'read_status (application/json)': components['schemas']['QnAReadStatusEvent'];
+        };
+      };
+      /** @description 토큰 검증 실패 */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  subscribeStudentQnaList: {
+    parameters: {
+      query: {
+        token: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description SSE 스트림 연결 성공 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'qna_list (application/json)': components['schemas']['QnAListEvent'];
         };
       };
       /** @description 토큰 검증 실패 */

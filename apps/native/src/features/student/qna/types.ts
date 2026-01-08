@@ -60,7 +60,7 @@ export interface Message {
   reply?: ReplyContent;
   file?: FileContent;
   image?: ImageContent;
-  images?: UploadFileResp[];
+  files?: UploadFileResp[];
   replyToId?: number;
 }
 
@@ -185,7 +185,7 @@ export const mapChatRespToMessage = (
   allChats: ChatResp[],
   dateTime?: string
 ): Message => {
-  const hasImages = chat.images && chat.images.length > 0;
+  const hasFiles = chat.files && chat.files.length > 0;
   const hasReply = chat.replyToId !== undefined && chat.replyToId !== null;
   
   // Find the reply target
@@ -195,13 +195,13 @@ export const mapChatRespToMessage = (
   
   // Determine message type
   let type: MessageType = 'text';
-  if (hasReply && hasImages) {
+  if (hasReply && hasFiles) {
     type = 'reply-image';
   } else if (hasReply) {
     type = 'reply-text';
-  } else if (hasImages) {
-    const firstImage = chat.images[0];
-    if (firstImage?.fileType === 'IMAGE') {
+  } else if (hasFiles) {
+    const firstFile = chat.files[0];
+    if (firstFile?.fileType === 'IMAGE') {
       type = 'image';
     } else {
       type = 'file';
@@ -211,14 +211,14 @@ export const mapChatRespToMessage = (
   // Build reply content if exists
   let reply: ReplyContent | undefined;
   if (replyTarget) {
-    const replyHasImages = replyTarget.images && replyTarget.images.length > 0;
-    const replyFirstImage = replyHasImages ? replyTarget.images[0] : undefined;
+    const replyHasFiles = replyTarget.files && replyTarget.files.length > 0;
+    const replyFirstFile = replyHasFiles ? replyTarget.files[0] : undefined;
     
     reply = {
-      type: replyFirstImage?.fileType === 'IMAGE' ? 'image' : 'text',
+      type: replyFirstFile?.fileType === 'IMAGE' ? 'image' : 'text',
       title: replyTarget.isMine ? '내 메시지' : '상대방 메시지',
-      content: replyTarget.content || (replyFirstImage ? '사진' : ''),
-      imageUrl: replyFirstImage?.fileType === 'IMAGE' ? replyFirstImage.url : undefined,
+      content: replyTarget.content || (replyFirstFile ? '사진' : ''),
+      imageUrl: replyFirstFile?.fileType === 'IMAGE' ? replyFirstFile.url : undefined,
     };
   }
 
@@ -226,8 +226,8 @@ export const mapChatRespToMessage = (
   let file: FileContent | undefined;
   let image: ImageContent | undefined;
   
-  if (hasImages && !hasReply) {
-    const firstFile = chat.images[0];
+  if (hasFiles && !hasReply) {
+    const firstFile = chat.files[0];
     if (firstFile?.fileType === 'IMAGE') {
       image = {
         url: firstFile.url,
@@ -251,7 +251,7 @@ export const mapChatRespToMessage = (
     reply,
     file,
     image,
-    images: chat.images,
+    files: chat.files,
     replyToId: chat.replyToId,
   };
 };

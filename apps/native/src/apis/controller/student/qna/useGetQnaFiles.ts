@@ -1,12 +1,12 @@
 import { TanstackQueryClient } from '@/apis/client';
 import { paths } from '@/types/api/schema';
 
-type GetQnaImagesParams = paths['/api/student/qna/images']['get']['parameters']['query'];
+type GetQnaFilesParams = paths['/api/student/qna/files']['get']['parameters']['query'];
 
-const useGetQnaImages = (params: GetQnaImagesParams = {}, enabled = true) => {
+const useGetQnaFiles = (params: GetQnaFilesParams = {}, enabled = true) => {
   return TanstackQueryClient.useQuery(
     'get',
-    '/api/student/qna/images',
+    '/api/student/qna/files',
     {
       params: {
         query: params,
@@ -16,4 +16,4 @@ const useGetQnaImages = (params: GetQnaImagesParams = {}, enabled = true) => {
   );
 };
 
-export default useGetQnaImages;
+export default useGetQnaFiles;

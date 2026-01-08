@@ -97,7 +97,8 @@ function SegmentedControl({
   };
 
   return (
-    <div className={`w-fit overflow-x-auto ${className} flex-shrink-0 scroll-smooth`}>
+    <div
+      className={`w-fit overflow-x-auto ${className} flex-shrink-0 scroll-smooth ${enabled ? '' : 'opacity-70'}`}>
       <div
         ref={containerRef}
         className='relative flex min-w-fit rounded-2xl border border-gray-200 bg-gray-100 p-1'>

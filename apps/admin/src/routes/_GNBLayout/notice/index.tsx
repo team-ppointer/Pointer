@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { deleteNotice, getNotice, postNotice } from '@apis';
+import { deleteNotice, getNotice, postNotice, putNotice } from '@apis';
 import { useInvalidate, useModal, useSelectedStudent } from '@hooks';
 import { Header, Modal, TwoButtonModalTemplate } from '@components';
 import { components } from '@schema';
@@ -15,13 +15,27 @@ import {
   AlertCircle,
   Calendar as CalendarIcon,
   Megaphone,
+  Pencil,
+  Save,
+  X,
+  Type,
 } from 'lucide-react';
+import {
+  InlineProblemViewer,
+  ProblemEditor,
+  ProblemViewer,
+  type TiptapPayload,
+} from '@team-ppointer/pointer-editor-v2';
+import { parseEditorContent, serializeEditorPayload, getEmptyContentString } from '@utils';
+
+import '@team-ppointer/pointer-editor-v2/style.css';
 
 export const Route = createFileRoute('/_GNBLayout/notice/')({
   component: RouteComponent,
 });
 
 interface FormData {
+  title: string;
   startAt: string;
   endAt: string;
   content: string;
@@ -36,11 +50,24 @@ function RouteComponent() {
     components['schemas']['NoticeResp'] | null
   >(null);
 
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [editingContent, setEditingContent] = useState('');
+  const [editingStartAt, setEditingStartAt] = useState('');
+  const [editingEndAt, setEditingEndAt] = useState('');
+  const editingEditorKeyRef = useRef(0);
+
+  // Create mode state
+  const [createContent, setCreateContent] = useState(getEmptyContentString());
+  const createEditorKeyRef = useRef(0);
+
   const { data: noticeData } = getNotice(
     selectedStudent ? { studentId: selectedStudent.id } : { studentId: 0 }
   );
   const { mutate: mutateDeleteNotice } = deleteNotice();
-  const { mutate: createNotice } = postNotice();
+  const { mutate: mutateCreateNotice } = postNotice();
+  const { mutate: mutateUpdateNotice } = putNotice();
   const { invalidateAll } = useInvalidate();
 
   const {
@@ -92,15 +119,26 @@ function RouteComponent() {
     );
   };
 
+  const handleCreateEditorChange = useCallback((payload: TiptapPayload) => {
+    const serialized = serializeEditorPayload(payload);
+    setCreateContent(serialized);
+  }, []);
+
+  const handleEditEditorChange = useCallback((payload: TiptapPayload) => {
+    const serialized = serializeEditorPayload(payload);
+    setEditingContent(serialized);
+  }, []);
+
   const onSubmit = (data: FormData) => {
     if (!selectedStudent) return;
 
-    createNotice(
+    mutateCreateNotice(
       {
         body: {
+          title: data.title,
           startAt: data.startAt,
           endAt: data.endAt,
-          content: data.content,
+          content: createContent,
           studentId: selectedStudent.id,
         },
       },
@@ -109,10 +147,61 @@ function RouteComponent() {
           invalidateAll();
           closeCreateModal();
           reset();
+          setCreateContent(getEmptyContentString());
+          createEditorKeyRef.current += 1;
           toast.success('공지가 작성되었습니다.');
         },
         onError: (error: unknown) => {
           toast.error((error as { message?: string })?.message || '공지 작성에 실패했습니다.');
+        },
+      }
+    );
+  };
+
+  const handleEdit = () => {
+    if (selectedNotice) {
+      setEditingTitle(selectedNotice.title || '');
+      setEditingContent(selectedNotice.content || getEmptyContentString());
+      setEditingStartAt(dayjs(selectedNotice.startAt).format('YYYY-MM-DD'));
+      setEditingEndAt(dayjs(selectedNotice.endAt).format('YYYY-MM-DD'));
+      editingEditorKeyRef.current += 1;
+      setIsEditing(true);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditingTitle('');
+    setEditingContent('');
+    setEditingStartAt('');
+    setEditingEndAt('');
+  };
+
+  const handleSaveEdit = () => {
+    if (!selectedNotice) return;
+
+    mutateUpdateNotice(
+      {
+        params: {
+          path: {
+            id: selectedNotice.id,
+          },
+        },
+        body: {
+          title: editingTitle,
+          startAt: editingStartAt,
+          endAt: editingEndAt,
+          content: editingContent,
+        },
+      },
+      {
+        onSuccess: () => {
+          invalidateAll();
+          setIsEditing(false);
+          toast.success('공지가 수정되었습니다.');
+        },
+        onError: (error: unknown) => {
+          toast.error((error as { message?: string })?.message || '공지 수정에 실패했습니다.');
         },
       }
     );
@@ -172,7 +261,7 @@ function RouteComponent() {
                 </div>
               </div>
             ) : (
-              <div className='grid h-[calc(100dvh-12rem)] grid-cols-2'>
+              <div className='grid h-[calc(100dvh-12rem)] grid-cols-2 overflow-y-auto'>
                 {/* Notice List */}
                 <div className='border-r border-gray-200 p-6'>
                   <div className='mb-4 flex items-center gap-3'>
@@ -188,15 +277,21 @@ function RouteComponent() {
                     {notices.map((notice) => (
                       <div
                         key={notice.id}
-                        onClick={() => setSelectedNotice(notice)}
+                        onClick={() => {
+                          setSelectedNotice(notice);
+                          setIsEditing(false);
+                        }}
                         className={`group cursor-pointer rounded-xl border p-4 transition-all duration-200 ${
                           selectedNotice?.id === notice.id
                             ? 'bg-main/10 border-main/40'
                             : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                         }`}>
-                        <p className='mb-2 line-clamp-2 text-sm font-medium text-gray-900'>
-                          {notice.content}
-                        </p>
+                        <div className='mb-1 truncate text-sm font-bold text-gray-900'>
+                          {notice.title || '제목 없음'}
+                        </div>
+                        <div className='mb-2 text-sm text-gray-600'>
+                          <InlineProblemViewer maxLine={2}>{notice.content}</InlineProblemViewer>
+                        </div>
                         <div className='flex items-center gap-2 text-xs text-gray-500'>
                           <Clock className='h-3.5 w-3.5' />
                           <span className=''>
@@ -214,32 +309,106 @@ function RouteComponent() {
                   {selectedNotice ? (
                     <div className='flex h-full flex-col'>
                       <div className='mb-6 flex items-center justify-between'>
-                        <div className='flex flex-col gap-0.5'>
-                          <h3 className='text-lg font-bold text-gray-900'>공지 상세</h3>
-                          <div className='flex items-center gap-2 text-sm text-gray-500'>
-                            <Clock className='h-3.5 w-3.5' />
-                            {dayjs(selectedNotice.startAt).format('YYYY년 M월 D일')} ~{' '}
-                            {dayjs(selectedNotice.endAt).format('YYYY년 M월 D일')}
-                          </div>
+                        <div className='flex flex-col gap-1'>
+                          {isEditing ? (
+                            <>
+                              <input
+                                type='text'
+                                value={editingTitle}
+                                onChange={(e) => setEditingTitle(e.target.value)}
+                                placeholder='공지 제목'
+                                className='focus:border-main focus:ring-main/20 rounded-lg border border-gray-200 px-3 py-2 text-lg font-bold text-gray-900 transition-all duration-200 hover:border-gray-300 focus:ring-2 focus:outline-none'
+                              />
+                              <div className='flex items-center gap-2 text-sm text-gray-500'>
+                                <Clock className='h-3.5 w-3.5' />
+                                <input
+                                  type='date'
+                                  value={editingStartAt}
+                                  onChange={(e) => setEditingStartAt(e.target.value)}
+                                  className='rounded-lg border border-gray-200 px-2 py-1 text-sm'
+                                />
+                                <span>~</span>
+                                <input
+                                  type='date'
+                                  value={editingEndAt}
+                                  onChange={(e) => setEditingEndAt(e.target.value)}
+                                  className='rounded-lg border border-gray-200 px-2 py-1 text-sm'
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <h3 className='text-lg font-bold text-gray-900'>
+                                {selectedNotice.title || '제목 없음'}
+                              </h3>
+                              <div className='flex items-center gap-2 text-sm text-gray-500'>
+                                <Clock className='h-3.5 w-3.5' />
+                                {dayjs(selectedNotice.startAt).format('YYYY년 M월 D일')} ~{' '}
+                                {dayjs(selectedNotice.endAt).format('YYYY년 M월 D일')}
+                              </div>
+                            </>
+                          )}
                         </div>
-                        <button
-                          type='button'
-                          onClick={() => {
-                            setSelectedNoticeToDelete(selectedNotice);
-                            openDeleteModal();
-                          }}
-                          className='flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition-all duration-200 hover:border-red-300 hover:bg-red-100'>
-                          <Trash2 className='h-4 w-4' />
-                          삭제
-                        </button>
+                        <div className='flex gap-2'>
+                          {isEditing ? (
+                            <>
+                              <button
+                                type='button'
+                                onClick={handleCancelEdit}
+                                className='flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
+                                <X className='h-4 w-4' />
+                                취소
+                              </button>
+                              <button
+                                type='button'
+                                onClick={handleSaveEdit}
+                                className='hover:bg-main/90 bg-main flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200'>
+                                <Save className='h-4 w-4' />
+                                저장
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type='button'
+                                onClick={handleEdit}
+                                className='flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-600 transition-all duration-200 hover:border-blue-300 hover:bg-blue-100'>
+                                <Pencil className='h-4 w-4' />
+                                수정
+                              </button>
+                              <button
+                                type='button'
+                                onClick={() => {
+                                  setSelectedNoticeToDelete(selectedNotice);
+                                  openDeleteModal();
+                                }}
+                                className='flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition-all duration-200 hover:border-red-300 hover:bg-red-100'>
+                                <Trash2 className='h-4 w-4' />
+                                삭제
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
 
-                      <div className='flex-1'>
-                        <div className='h-full overflow-y-auto rounded-xl border border-gray-200 bg-white p-6'>
-                          <div className='text-sm leading-relaxed whitespace-pre-wrap text-gray-700'>
-                            {selectedNotice.content}
+                      <div className='min-h-0 flex-1'>
+                        {isEditing ? (
+                          <div className='h-full overflow-y-auto rounded-xl border border-gray-200 bg-white'>
+                            <ProblemEditor
+                              key={editingEditorKeyRef.current}
+                              initialJSON={parseEditorContent(selectedNotice.content)}
+                              onChange={handleEditEditorChange}
+                              ocrApiCall={null}
+                            />
                           </div>
-                        </div>
+                        ) : (
+                          <div className='h-full overflow-y-auto rounded-xl border border-gray-200 bg-white p-6'>
+                            <ProblemViewer
+                              content={parseEditorContent(selectedNotice.content)}
+                              padding={0}
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -284,6 +453,27 @@ function RouteComponent() {
           </div>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className='mb-6 space-y-6'>
+              {/* Title Input */}
+              <div>
+                <label className='mb-2 block text-sm font-semibold text-gray-700'>
+                  <div className='flex items-center gap-2'>
+                    <Type className='h-4 w-4 text-gray-500' />
+                    공지 제목
+                  </div>
+                </label>
+                <input
+                  type='text'
+                  {...register('title', {
+                    required: '공지 제목을 입력해주세요.',
+                  })}
+                  placeholder='공지 제목을 입력하세요'
+                  className='focus:border-main focus:ring-main/20 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm transition-all duration-200 hover:border-gray-300 focus:bg-white focus:ring-2 focus:outline-none'
+                />
+                {errors.title && (
+                  <p className='mt-2 text-sm font-medium text-red-500'>{errors.title.message}</p>
+                )}
+              </div>
+
               {/* Date Inputs */}
               <div className='grid gap-4 md:grid-cols-2'>
                 <div>
@@ -334,17 +524,14 @@ function RouteComponent() {
                     공지 내용
                   </div>
                 </label>
-                <textarea
-                  {...register('content', {
-                    required: '공지 내용을 입력해주세요.',
-                  })}
-                  placeholder='여기에 공지를 작성해주세요.'
-                  rows={10}
-                  className='focus:border-main focus:ring-main/20 w-full resize-none rounded-xl border border-gray-200 p-4 text-sm transition-all duration-200 hover:border-gray-300 focus:bg-white focus:ring-2 focus:outline-none'
-                />
-                {errors.content && (
-                  <p className='mt-2 text-sm font-medium text-red-500'>{errors.content.message}</p>
-                )}
+                <div className='h-[30rem] overflow-y-auto rounded-xl border border-gray-200 bg-white'>
+                  <ProblemEditor
+                    key={createEditorKeyRef.current}
+                    initialJSON={parseEditorContent(createContent)}
+                    onChange={handleCreateEditorChange}
+                    ocrApiCall={null}
+                  />
+                </div>
               </div>
             </div>
 
@@ -354,6 +541,8 @@ function RouteComponent() {
                 onClick={() => {
                   closeCreateModal();
                   reset();
+                  setCreateContent(getEmptyContentString());
+                  createEditorKeyRef.current += 1;
                 }}
                 className='flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
                 취소

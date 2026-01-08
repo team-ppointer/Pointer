@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import { FlatList, Image, Modal, Pressable, View, StyleSheet, Alert, Text } from 'react-native';
 import { LoadQnaImageScreenModal } from './FullScreenModal';
 import { Check } from 'lucide-react-native';
-import { useGetQnaImages, useCreateScrapFromImage } from '@/apis';
-import { SortDropdown } from '../Dropdown';
+import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
 import { SortOrder, UISortKey } from '../../utils/types';
-import { mapUIKeyToAPIKey } from '../../utils/formatters';
+import { SortDropdown } from '../Dropdown';
 import { colors } from '@/theme/tokens';
 
 interface LoadQnaImageModalProps {
@@ -25,7 +24,7 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
 
-  const { data: qnaAllImagesData, isLoading } = useGetQnaImages({
+  const { data: qnaAllImagesData, isLoading } = useGetQnaFiles({
     sort: 'CREATED_AT',
     order: sortOrder,
   });

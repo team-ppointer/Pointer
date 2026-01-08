@@ -10,11 +10,7 @@ import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
 import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
 import NoNotificationBellIcon from './NoNotificationBellIcon';
 import TeacherIcon from './TeacherIcon';
-import CircleCheckDashed from './CircleCheckDashed';
-import ChevronUpFilledIcon from './ChevronUpFilledIcon';
-import CircleXFilledIcon from './CircleXFilledIcon';
-import KakaoIcon from './KakaoIcon';
-import GoogleIcon from './GoogleIcon';
+import PointerSymbol from './PointerSymbol';
 import ProfileBasicIcon from './ProfileBasicIcon';
 import ProfileIcon from './ProfileIcon';
 import BookHeartIcon from './BookHeartIcon';
@@ -36,10 +32,7 @@ export {
   MessageSquareWarningFilledIcon,
   NoNotificationBellIcon,
   TeacherIcon,
-  CircleCheckDashed,
-  CircleXFilledIcon,
-  KakaoIcon,
-  GoogleIcon,
+  PointerSymbol,
   ProfileBasicIcon,
   ProfileIcon,
   BookHeartIcon,

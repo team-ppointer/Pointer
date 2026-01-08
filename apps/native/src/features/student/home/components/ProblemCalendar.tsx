@@ -53,15 +53,17 @@ interface CalendarHeaderProps {
 }
 
 const CalendarHeader = ({ label, onSelectMonth, onSelectToday }: CalendarHeaderProps) => (
-  <View className='flex-row items-center'>
+  <View className='flex-row items-center border-b border-gray-400 px-[20px] py-[8px]'>
     <Pressable className='flex-row items-center' onPress={onSelectMonth}>
       <Text className='text-20b mr-[4px] text-gray-900'>{label}</Text>
       <View className='p-[4px]'>
         <ChevronDownFilledIcon />
       </View>
     </Pressable>
-    <Pressable className='ml-auto' onPress={onSelectToday}>
-      <Text className='text-16r text-gray-900'>오늘</Text>
+    <Pressable
+      className='ml-auto h-[32px] items-center justify-center rounded-[8px] bg-gray-300 px-[8px]'
+      onPress={onSelectToday}>
+      <Text className='text-14m text-gray-700'>오늘</Text>
     </Pressable>
   </View>
 );
@@ -75,9 +77,11 @@ const CalendarDate = ({
   const Icon = CalendarProgressIcon[progress];
   return (
     <View
-      className={`flex-col items-center justify-center gap-[2px] rounded-full p-[4px] ${isSelected ? 'bg-primary-200' : 'bg-white'} ${disabled ? 'opacity-30' : ''}`}>
-      <Text className={`text-16m ${isSelected ? 'text-[#3952D1]' : 'text-[#25252E]'}`}>{date}</Text>
-      <View className='rounded-full bg-white p-[4px]'>
+      className={`flex-col items-center justify-center rounded-[12px] overflow-hidden ${isSelected ? 'border border-primary-200' : ''} ${disabled ? 'opacity-30' : ''}`}>
+      <View className={`px-[12px] py-[3px] ${isSelected ? 'bg-blue-200' : ''}`}>
+      <Text className={`w-[30px] text-center ${isSelected ? 'text-16b text-primary-600' : 'text-15r text-gray-800'}`}>{date}</Text>
+      </View>
+      <View className='rounded-full bg-white w-[36px] h-[36px] items-center justify-center'>
         <Icon />
       </View>
     </View>
@@ -86,15 +90,15 @@ const CalendarDate = ({
 
 const CalendarLegend = () => {
   return (
-    <View className='flex flex-row items-center justify-end'>
+    <View className='flex flex-row items-center justify-end px-[30px]'>
       <CalendarCompletedIcon width={20} height={20} />
-      <Text className='text-12r ml-[4px] mr-[12px] text-gray-900'>풀이 완료</Text>
+      <Text className='text-14m ml-[4px] mr-[16px] text-gray-900'>풀이 완료</Text>
       <CalendarInProgressIcon width={20} height={20} />
-      <Text className='text-12r ml-[4px] mr-[12px] text-gray-900'>진행 중</Text>
+      <Text className='text-14m ml-[4px] mr-[16px] text-gray-900'>진행 중</Text>
       <CalendarNotStartedIcon width={20} height={20} />
-      <Text className='text-12r ml-[4px] mr-[12px] text-gray-900'>시작 전</Text>
+      <Text className='text-14m ml-[4px] mr-[16px] text-gray-900'>시작 전</Text>
       <CalendarUnavailableIcon width={20} height={20} />
-      <Text className='text-12r ml-[4px] text-gray-900'>미출제</Text>
+      <Text className='text-14m ml-[4px] text-gray-900'>미출제</Text>
     </View>
   );
 };
@@ -115,11 +119,11 @@ interface CalendarProps {
 
 const Calendar = ({ cells, onSelectDate }: CalendarProps) => {
   return (
-    <View className='flex flex-row flex-wrap gap-y-[8px]'>
+    <View className='flex flex-row flex-wrap gap-y-[8px] p-[20px]'>
       {WEEK_DAYS.map((day) => (
         <Text
           key={day}
-          className='text-16r text-center text-gray-600'
+          className='text-16r text-center text-gray-600 mb-[8px]'
           style={{ width: `${100 / 7}%` }}>
           {day}
         </Text>
@@ -149,6 +153,7 @@ interface ProblemCalendarProps {
   studyData?: PublishResp[];
   onChangeMonth: (date: Date) => void;
   onDateSelect: (date: Date) => void;
+  isModal?: boolean;
 }
 
 const ProblemCalendar = ({
@@ -157,6 +162,7 @@ const ProblemCalendar = ({
   studyData = [],
   onChangeMonth,
   onDateSelect,
+  isModal = false,
 }: ProblemCalendarProps) => {
   const [isPickerVisible, setPickerVisible] = useState(false);
   const isAndroid = Platform.OS === 'android';
@@ -293,8 +299,12 @@ const ProblemCalendar = ({
 
   const monthLabel = `${selectedMonth.getFullYear()}년 ${selectedMonth.getMonth() + 1}월`;
 
+  const containerClassName = isModal
+    ? ''
+    : 'rounded-[12px] bg-white p-[20px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)] md:flex-1 md:basis-1/2';
+
   return (
-    <View className='gap-[20px] rounded-[12px] bg-white p-[20px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)] md:flex-1 md:basis-1/2'>
+    <View className={containerClassName}>
       <CalendarHeader
         label={monthLabel}
         onSelectMonth={handleOpenMonthPicker}

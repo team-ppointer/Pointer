@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { Header, Modal, TwoButtonModalTemplate } from '@components';
 import {
@@ -22,6 +22,15 @@ import {
   AlertCircle,
   ChartNoAxesCombined,
 } from 'lucide-react';
+import {
+  InlineProblemViewer,
+  ProblemEditor,
+  ProblemViewer,
+  type TiptapPayload,
+} from '@team-ppointer/pointer-editor-v2';
+import { parseEditorContent, serializeEditorPayload, getEmptyContentString } from '@utils';
+
+import '@team-ppointer/pointer-editor-v2/style.css';
 
 const convertUTCToKST = (utcDateString: string) => {
   const utcDate = new Date(utcDateString);
@@ -38,7 +47,11 @@ function RouteComponent() {
   const [selectedDiagnosisId, setSelectedDiagnosisId] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editingContent, setEditingContent] = useState('');
-  const [newDiagnosisContent, setNewDiagnosisContent] = useState('');
+  const [newDiagnosisContent, setNewDiagnosisContent] = useState(getEmptyContentString());
+
+  // Editor key refs for forcing re-render
+  const editingEditorKeyRef = useRef(0);
+  const createEditorKeyRef = useRef(0);
 
   const {
     isOpen: isDeleteModalOpen,
@@ -73,24 +86,21 @@ function RouteComponent() {
 
   const handleEdit = () => {
     if (selectedDiagnosisDetail) {
-      setEditingContent(selectedDiagnosisDetail.content || '');
+      setEditingContent(selectedDiagnosisDetail.content || getEmptyContentString());
+      editingEditorKeyRef.current += 1;
       setIsEditing(true);
     }
   };
 
-  const handleEditingContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    if (value.length <= 1000) {
-      setEditingContent(value);
-    }
-  };
+  const handleEditEditorChange = useCallback((payload: TiptapPayload) => {
+    const serialized = serializeEditorPayload(payload);
+    setEditingContent(serialized);
+  }, []);
 
-  const handleNewDiagnosisContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    if (value.length <= 1000) {
-      setNewDiagnosisContent(value);
-    }
-  };
+  const handleCreateEditorChange = useCallback((payload: TiptapPayload) => {
+    const serialized = serializeEditorPayload(payload);
+    setNewDiagnosisContent(serialized);
+  }, []);
 
   const handleSaveEdit = async () => {
     if (!selectedDiagnosisId || !selectedStudent) return;
@@ -134,7 +144,18 @@ function RouteComponent() {
   };
 
   const handleCreateDiagnosis = async () => {
-    if (!selectedStudent || !newDiagnosisContent.trim()) return;
+    if (!selectedStudent) return;
+
+    // Check if content is empty
+    const parsedContent = parseEditorContent(newDiagnosisContent);
+    const hasContent =
+      parsedContent?.content?.length > 0 &&
+      parsedContent.content.some(
+        (node: { content?: { text?: string }[] }) =>
+          node.content && node.content.some((child) => child.text && child.text.trim())
+      );
+
+    if (!hasContent) return;
 
     try {
       await createDiagnosisMutate({
@@ -143,12 +164,19 @@ function RouteComponent() {
           content: newDiagnosisContent,
         },
       });
-      setNewDiagnosisContent('');
+      setNewDiagnosisContent(getEmptyContentString());
+      createEditorKeyRef.current += 1;
       closeCreateModal();
       queryClient.invalidateQueries();
     } catch (error) {
       console.error('Failed to create diagnosis:', error);
     }
+  };
+
+  const handleCloseCreateModal = () => {
+    closeCreateModal();
+    setNewDiagnosisContent(getEmptyContentString());
+    createEditorKeyRef.current += 1;
   };
 
   return (
@@ -177,7 +205,7 @@ function RouteComponent() {
           </div>
         ) : (
           <div className='overflow-hidden rounded-2xl border border-gray-200 bg-white'>
-            <div className='grid h-[calc(100dvh-12rem)] grid-cols-2'>
+            <div className='grid h-[calc(100dvh-12rem)] grid-cols-2 overflow-y-auto'>
               {/* Diagnosis List */}
               <div className='overflow-y-auto border-r border-gray-200 p-6'>
                 <div className='mb-4 flex items-center gap-3'>
@@ -200,8 +228,8 @@ function RouteComponent() {
                           ? 'bg-main/10 border-main/40'
                           : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                       }`}>
-                      <div className='mb-2 line-clamp-2 text-sm font-medium text-gray-900'>
-                        {diagnosis.content}
+                      <div className='mb-2 text-sm font-medium text-gray-900'>
+                        <InlineProblemViewer maxLine={2}>{diagnosis.content}</InlineProblemViewer>
                       </div>
                       <div className='flex items-center gap-2 text-xs text-gray-500'>
                         <Clock className='h-3.5 w-3.5' />
@@ -285,24 +313,22 @@ function RouteComponent() {
                       </div>
                     </div>
 
-                    <div className='flex-1'>
+                    <div className='min-h-0 flex-1'>
                       {isEditing ? (
-                        <div className='relative h-full'>
-                          <textarea
-                            value={editingContent}
-                            onChange={handleEditingContentChange}
-                            className='focus:border-main focus:ring-main/20 h-full w-full resize-none rounded-xl border border-gray-200 p-6 pb-16 text-sm transition-all duration-200 hover:border-gray-300 focus:bg-white focus:ring-2 focus:outline-none'
-                            placeholder='진단 내용을 입력하세요...'
+                        <div className='h-full overflow-y-auto rounded-xl border border-gray-200 bg-white'>
+                          <ProblemEditor
+                            key={editingEditorKeyRef.current}
+                            initialJSON={parseEditorContent(selectedDiagnosisDetail.content)}
+                            onChange={handleEditEditorChange}
+                            ocrApiCall={null}
                           />
-                          <div className='absolute right-6 bottom-6 text-sm font-medium text-gray-400'>
-                            {editingContent.length}/1000
-                          </div>
                         </div>
                       ) : (
                         <div className='h-full overflow-y-auto rounded-xl border border-gray-200 bg-white p-6'>
-                          <div className='text-sm leading-relaxed whitespace-pre-wrap text-gray-700'>
-                            {selectedDiagnosisDetail.content || '진단 내용이 없습니다.'}
-                          </div>
+                          <ProblemViewer
+                            content={parseEditorContent(selectedDiagnosisDetail.content)}
+                            padding={0}
+                          />
                         </div>
                       )}
                     </div>
@@ -338,7 +364,7 @@ function RouteComponent() {
       </Modal>
 
       {/* Create Modal */}
-      <Modal isOpen={isCreateModalOpen} onClose={closeCreateModal}>
+      <Modal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal}>
         <div className='w-[60rem] rounded-2xl bg-white p-8'>
           <div className='mb-6 flex items-center gap-3'>
             <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
@@ -346,22 +372,18 @@ function RouteComponent() {
             </div>
             <h3 className='text-xl font-bold text-gray-900'>새 진단 추가</h3>
           </div>
-          <div className='relative mb-2'>
-            <textarea
-              value={newDiagnosisContent}
-              onChange={handleNewDiagnosisContentChange}
-              className='focus:border-main focus:ring-main/20 h-[30rem] w-full resize-none rounded-xl border border-gray-200 p-6 pb-16 text-sm transition-all duration-200 hover:border-gray-300 focus:bg-white focus:ring-2 focus:outline-none'
-              placeholder='진단 내용을 입력하세요...'
+          <div className='mb-6 h-[30rem] overflow-y-auto rounded-xl border border-gray-200 bg-white'>
+            <ProblemEditor
+              key={createEditorKeyRef.current}
+              initialJSON={parseEditorContent(newDiagnosisContent)}
+              onChange={handleCreateEditorChange}
+              ocrApiCall={null}
             />
-            <div className='absolute right-6 bottom-6 text-sm font-medium text-gray-400'>
-              {newDiagnosisContent.length}/1000
-            </div>
           </div>
-          <div className='mb-6'></div>
           <div className='flex justify-end gap-3'>
             <button
               type='button'
-              onClick={closeCreateModal}
+              onClick={handleCloseCreateModal}
               className='flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
               취소
             </button>

@@ -1,41 +1,51 @@
-import { useMemo, useState } from 'react';
-import { Button, Header, Modal, TagSelectModal } from '@components';
+import { useMemo } from 'react';
+import {
+  Button,
+  Header,
+  Modal,
+  SegmentedControl,
+  TagSelectModal,
+  Input,
+  ComponentWithLabel,
+} from '@components';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { components } from '@schema';
-import { SubmitHandler, useForm, type Control, type UseFormSetValue } from 'react-hook-form';
+import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { postProblem, getConcept } from '@apis';
 import { getEmptyContentString, transformToProblemUpdateRequest } from '@utils';
 import { useInvalidate, useModal } from '@hooks';
 import { Slide, ToastContainer, toast } from 'react-toastify';
-import { Info, FileText, Lightbulb, Link2, SaveIcon, Sparkles, CheckIcon } from 'lucide-react';
+import { Info, FileText, Lightbulb, Sparkles, CheckIcon, Plus } from 'lucide-react';
 
 import {
   ProblemEssentialInput,
   MainProblemSection,
   ProblemPointingInput,
   TipSection,
+  PracticeTestSelect,
 } from '@/components/problem';
-import ProblemSearchModal from '@/components/common/Modals/ProblemSearchModal';
+import CreatePracticeTestModal from '@/components/common/Modals/CreatePracticeTestModal';
 
 type ProblemCreateRequest = components['schemas']['ProblemCreateRequest'];
-type ProblemUpdateRequest = components['schemas']['ProblemUpdateRequest'];
 type ProblemInfoResp = components['schemas']['ProblemInfoResp'];
-type ProblemMetaResp = components['schemas']['ProblemMetaResp'];
+type CreateType = NonNullable<ProblemCreateRequest['createType']>;
 
-interface ParentProblemSnapshot {
-  id: number;
-  title?: string;
-  customId?: string;
-}
+const CREATE_TYPE_OPTIONS: { label: string; value: CreateType }[] = [
+  { label: '기출문제', value: 'GICHUL_PROBLEM' },
+  { label: '변형문제', value: 'VARIANT_PROBLEM' },
+  { label: '창작문제', value: 'CREATION_PROBLEM' },
+];
 
 const createDefaultValues = (): ProblemCreateRequest => {
   const base = transformToProblemUpdateRequest({} as ProblemInfoResp);
-  const { childProblems: _childProblems, pointings = [], ...rest } = base;
+  const { pointings = [], ...rest } = base;
   return {
     ...(rest as unknown as Omit<ProblemCreateRequest, 'problemType' | 'pointings' | 'no'>),
     no: undefined,
     problemType: 'MAIN_PROBLEM',
-    createType: 'CREATION_PROBLEM',
+    createType: 'GICHUL_PROBLEM',
+    practiceTestId: undefined,
+    practiceTestNo: undefined,
     pointings: pointings.map((pointing, index) => ({
       no: pointing.no ?? index + 1,
       questionContent: pointing.questionContent ?? getEmptyContentString(),
@@ -60,9 +70,9 @@ function RouteComponent() {
 
   const { isOpen: isTagModalOpen, openModal: openTagModal, closeModal: closeTagModal } = useModal();
   const {
-    isOpen: isParentSelectModalOpen,
-    openModal: openParentSelectModal,
-    closeModal: closeParentSelectModal,
+    isOpen: isPracticeTestModalOpen,
+    openModal: openPracticeTestModal,
+    closeModal: closePracticeTestModal,
   } = useModal();
 
   const defaultValues = useMemo(() => createDefaultValues(), []);
@@ -82,10 +92,7 @@ function RouteComponent() {
 
   const concepts = watch('concepts') ?? [];
   const problemType = watch('problemType') ?? 'MAIN_PROBLEM';
-
-  const [selectedParentProblem, setSelectedParentProblem] = useState<ParentProblemSnapshot | null>(
-    null
-  );
+  const pointings = watch('pointings') ?? [];
 
   const normalizeContent = (value?: string) => value || getEmptyContentString();
 
@@ -98,20 +105,16 @@ function RouteComponent() {
     setValue('concepts', nextTags, { shouldDirty: true, shouldValidate: true });
   };
 
-  const handleClearParentProblem = () => {
-    setSelectedParentProblem(null);
-    setValue('parentProblem', undefined, { shouldDirty: true, shouldValidate: true });
-  };
-
   const handleChangeProblemType = (nextType: ProblemCreateRequest['problemType']) => {
     setValue('problemType', nextType, { shouldDirty: true, shouldValidate: true });
-    if (nextType !== 'CHILD_PROBLEM') {
-      handleClearParentProblem();
-    }
   };
 
-  const problemPointingControl = control as unknown as Control<ProblemUpdateRequest>;
-  const problemPointingSetValue = setValue as unknown as UseFormSetValue<ProblemUpdateRequest>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const anyControl = control as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const anyRegister = register as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const anySetValue = setValue as any;
 
   const handleSubmitCreate: SubmitHandler<ProblemCreateRequest> = (data) => {
     const sanitizedPointings =
@@ -125,10 +128,9 @@ function RouteComponent() {
     const processedData: ProblemCreateRequest = {
       ...data,
       problemType: data.problemType ?? 'MAIN_PROBLEM',
-      parentProblem:
-        (data.problemType ?? 'MAIN_PROBLEM') === 'CHILD_PROBLEM'
-          ? (data.parentProblem ?? selectedParentProblem?.id)
-          : undefined,
+      createType: data.createType,
+      practiceTestId: data.practiceTestId ?? undefined,
+      practiceTestNo: data.practiceTestNo ?? undefined,
       concepts: data.concepts?.filter((concept) => concept != null) ?? [],
       answer: typeof data.answer === 'string' ? parseInt(data.answer, 10) : data.answer,
       recommendedTimeSec:
@@ -189,7 +191,7 @@ function RouteComponent() {
           <Header title='문제 등록'>
             <button
               type='button'
-              disabled={!isValid}
+              disabled={!isValid || concepts.length === 0 || pointings.length === 0}
               onClick={handleClickSave}
               className='bg-main shadow-main/20 flex items-center gap-2 rounded-2xl py-3 pr-5 pl-4 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50'>
               <CheckIcon className='h-4 w-4' />
@@ -198,7 +200,7 @@ function RouteComponent() {
           </Header>
 
           <div className='mx-auto max-w-7xl px-8 py-8'>
-            <div className='mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white'>
+            <div className='mb-6 rounded-2xl border border-gray-200 bg-white'>
               <div className='px-6 pt-6'>
                 <h2 className='flex items-center gap-3 text-xl font-bold text-gray-900'>
                   <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
@@ -209,11 +211,6 @@ function RouteComponent() {
               </div>
               <div className='space-y-6 p-8'>
                 <ProblemEssentialInput>
-                  <ProblemEssentialInput.ProblemID
-                    {...register('customId', {
-                      required: '문제 ID는 필수 입력 항목입니다.',
-                    })}
-                  />
                   <ProblemEssentialInput.ProblemTitle
                     {...register('title', {
                       required: '문제 제목은 필수 입력 항목입니다.',
@@ -226,43 +223,67 @@ function RouteComponent() {
                     onChange={handleChangeProblemType}
                   />
 
-                  {problemType === 'CHILD_PROBLEM' && (
-                    <div className='space-y-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4'>
-                      <div className='flex items-center gap-2 text-sm font-semibold text-gray-700'>
-                        <Link2 className='text-main h-4 w-4' />
-                        부모 문제 연결
-                      </div>
-                      <div className='flex flex-wrap items-center gap-3'>
-                        {selectedParentProblem ? (
-                          <div className='rounded-xl bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700'>
-                            {selectedParentProblem.customId
-                              ? `${selectedParentProblem.customId} · ${selectedParentProblem.title ?? ''}`
-                              : selectedParentProblem.title || `ID ${selectedParentProblem.id}`}
-                          </div>
-                        ) : (
-                          <span className='text-sm text-gray-500'>
-                            연결된 부모 문제가 없습니다.
-                          </span>
-                        )}
-                        <Button
-                          type='button'
-                          variant='light'
-                          sizeType='fit'
-                          onClick={openParentSelectModal}>
-                          부모 문제 선택
-                        </Button>
-                        {selectedParentProblem && (
-                          <Button
-                            type='button'
-                            variant='danger'
-                            sizeType='fit'
-                            onClick={handleClearParentProblem}>
-                            연결 해제
-                          </Button>
-                        )}
-                      </div>
+                  {/* MAIN_PROBLEM일 경우 새끼문항 추가 버튼 */}
+                  {problemType === 'MAIN_PROBLEM' && (
+                    <div className='flex items-center gap-2'>
+                      <Button
+                        type='button'
+                        variant='light'
+                        sizeType='fit'
+                        onClick={() => {
+                          alert('새끼문항 추가 기능은 아직 구현되지 않았습니다.');
+                        }}>
+                        <Plus className='h-4 w-4' />
+                        새끼문항 추가
+                      </Button>
                     </div>
                   )}
+
+                  {/* 출제 유형 (createType) */}
+                  <ComponentWithLabel label='출제 유형' labelWidth='4rem'>
+                    <Controller
+                      name='createType'
+                      control={control}
+                      render={({ field }) => (
+                        <SegmentedControl
+                          items={CREATE_TYPE_OPTIONS}
+                          value={field.value}
+                          onChange={(value) => field.onChange(value as CreateType)}
+                        />
+                      )}
+                    />
+                  </ComponentWithLabel>
+
+                  {/* 모의고사 정보 */}
+                  <ComponentWithLabel label='모의고사' labelWidth='4rem'>
+                    <div className='flex flex-wrap items-end gap-4'>
+                      <div className='min-w-[300px] flex-1'>
+                        <Controller
+                          name='practiceTestId'
+                          control={control}
+                          render={({ field }) => (
+                            <PracticeTestSelect
+                              practiceTest={field.value}
+                              handlePracticeTest={(value) => field.onChange(value)}
+                              onCreateNew={openPracticeTestModal}
+                            />
+                          )}
+                        />
+                      </div>
+                      <div className='w-[150px]'>
+                        <ComponentWithLabel label='문제 번호'>
+                          <Input
+                            type='number'
+                            placeholder='번호 입력'
+                            {...register('practiceTestNo', {
+                              valueAsNumber: true,
+                            })}
+                            className='h-[48px]'
+                          />
+                        </ComponentWithLabel>
+                      </div>
+                    </div>
+                  </ComponentWithLabel>
                 </ProblemEssentialInput>
               </div>
             </div>
@@ -285,19 +306,19 @@ function RouteComponent() {
                     onOpenTagModal={openTagModal}
                   />
                   <MainProblemSection.AnswerInput
-                    control={control}
-                    register={register}
+                    control={anyControl}
+                    register={anyRegister}
                     errors={errors}
                   />
-                  <MainProblemSection.DifficultyInput control={control} errors={errors} />
+                  <MainProblemSection.DifficultyInput control={anyControl} errors={errors} />
                   <MainProblemSection.RecommendedTimeInput
-                    control={control}
-                    register={register}
-                    setValue={setValue}
+                    control={anyControl}
+                    register={anyRegister}
+                    setValue={anySetValue}
                     errors={errors}
                   />
-                  <MainProblemSection.ProblemContentEditor control={control} />
-                  <MainProblemSection.MemoInput register={register} />
+                  <MainProblemSection.ProblemContentEditor control={anyControl} />
+                  <MainProblemSection.MemoInput register={anyRegister} />
                 </MainProblemSection>
               </div>
             </div>
@@ -313,8 +334,8 @@ function RouteComponent() {
               </div>
               <div className='space-y-8 p-8'>
                 <ProblemPointingInput
-                  control={problemPointingControl}
-                  setValue={problemPointingSetValue}
+                  control={anyControl}
+                  setValue={anySetValue}
                   tagsNameMap={tagsNameMap}
                 />
               </div>
@@ -331,8 +352,8 @@ function RouteComponent() {
               </div>
               <div className='p-8'>
                 <TipSection>
-                  <TipSection.ReadingTipCard control={control} />
-                  <TipSection.OneStepMoreCard control={control} />
+                  <TipSection.ReadingTipCard control={anyControl} />
+                  <TipSection.OneStepMoreCard control={anyControl} />
                 </TipSection>
               </div>
             </div>
@@ -347,22 +368,8 @@ function RouteComponent() {
           handleChangeTagList={handleChangeTagList}
         />
       </Modal>
-      <Modal isOpen={isParentSelectModalOpen} onClose={closeParentSelectModal}>
-        <ProblemSearchModal
-          onClickCard={(problem: ProblemMetaResp) => {
-            if (problem.problemType !== 'MAIN_PROBLEM') {
-              toast.error('새끼 문제는 부모 문제로 선택할 수 없습니다.');
-              return;
-            }
-            setSelectedParentProblem({
-              id: problem.id,
-              title: problem.title,
-              customId: problem.customId,
-            });
-            setValue('parentProblem', problem.id, { shouldDirty: true, shouldValidate: true });
-            closeParentSelectModal();
-          }}
-        />
+      <Modal isOpen={isPracticeTestModalOpen} onClose={closePracticeTestModal}>
+        <CreatePracticeTestModal onClose={closePracticeTestModal} />
       </Modal>
     </>
   );
