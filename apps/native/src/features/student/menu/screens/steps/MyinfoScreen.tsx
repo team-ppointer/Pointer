@@ -1,31 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container } from '@components/common';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { BookHeartIcon, CircleStarIcon, ProfileBasicIcon } from '@components/system/icons';
-import { useGetMe } from '@apis/student';
+import { putMe, useGetMe } from '@apis/student';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { InfoSection } from '../../components';
 import { ConfirmationModal } from '@/features/student/scrap/components/Dialog';
+import { OnboardingStackParamList } from '@/features/student/onboarding/screens/types';
 const MyinfoScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
 
-  const [name, setName] = useState(data?.name || '');
-  const [school, setSchool] = useState(
-    typeof data?.school === 'string' ? data.school : data?.school?.name || ''
-  );
-  const [grade, setGrade] = useState(data?.grade?.toString() || '');
-
-  const handleSave = () => {
-    console.log('Save user info:', { name, school, grade });
-    // navigation.goBack();
-  };
-
+  // const [name, setName] = useState(data?.name || '');
+  // const [grade, setGrade] = useState(data?.grade?.toString() || '');
+  // const [selectSubject, setSelectSubject] = useState(data?.selectSubject || '');
+  // const [level, setLevel] = useState(data?.level?.toString() || '');
   const [isSaveVisible, setIsSaveVisible] = useState(false);
+
+  // // 초기값 저장
+  // const initialValues = useMemo(() => {
+  //   if (!data) return null;
+  //   return {
+  //     nickname: data?.nickname || '',
+  //     name: data?.name || '',
+  //     grade: data?.grade?.toString() || '',
+  //     selectSubject: data?.selectSubject || '',
+  //     level: data?.level?.toString() || '',
+  //   };
+  // }, [data]);
+
+  const handleSave = async () => {
+    // if (!initialValues) return;
+    // const updateData: Record<string, any> = {};
+    // if (name !== initialValues.name) {
+    //   updateData.nickname = name;
+    // }
+    // if (grade !== initialValues.grade) {
+    //   updateData.grade = grade as 'ONE' | 'TWO' | 'THREE' | 'N_TIME';
+    // }
+    // if (selectSubject !== initialValues.selectSubject) {
+    //   updateData.selectSubject = selectSubject as 'MIJUKBUN' | 'HWAKTONG' | 'KEEHA';
+    // }
+    // if (level !== initialValues.level) {
+    //   updateData.level = level ? parseInt(level, 10) : undefined;
+    // }
+    // // 변경된 필드가 없으면 API 호출하지 않음
+    // if (Object.keys(updateData).length === 0) {
+    //   return;
+    // }
+    // try {
+    //   await putMe(updateData);
+    // } catch (error) {
+    //   console.error('Failed to save user info:', error);
+    // }
+    // console.log('Save user info:', updateData);
+  };
 
   return (
     <>
@@ -39,13 +72,21 @@ const MyinfoScreen = () => {
             <Text className='text-14sb text-gray-600'>저장하기</Text>
           </Pressable>
         </SafeAreaView>
-        <ScrollView className='flex-1' showsVerticalScrollIndicator={false} bounces={false}>
+        <ScrollView
+          className='flex-1'
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          contentContainerStyle={{ flexGrow: 1 }}>
           <Container className='flex-1 gap-7 bg-gray-100 py-6'>
             <InfoSection
               icon={<ProfileBasicIcon />}
               title='기본 정보'
               fields={[
-                { label: '닉네임', value: data?.nickname || '' },
+                {
+                  label: '닉네임',
+                  value: data?.nickname || '',
+                  // onPress: () => rootNavigation.navigate('Onboarding', { screen: 'Nickname' }),
+                },
                 {
                   label: '휴대폰 번호',
                   value: data?.phoneNumber || '',
@@ -59,9 +100,21 @@ const MyinfoScreen = () => {
               icon={<BookHeartIcon />}
               title='학습 정보'
               fields={[
-                { label: '학교 · 학년', value: data?.school?.name || '' },
-                { label: '수학등급', value: data?.level?.toString() || '' },
-                { label: '선택과목', value: data?.selectSubject || '' },
+                {
+                  label: '학교 · 학년',
+                  value: data?.school?.name || '',
+                  // onPress: () => rootNavigation.navigate('Onboarding', { screen: 'School' }),
+                },
+                {
+                  label: '수학등급',
+                  value: data?.level?.toString() || '',
+                  // onPress: () => rootNavigation.navigate('Onboarding', { screen: 'Score' }),
+                },
+                {
+                  label: '선택과목',
+                  value: data?.selectSubject || '',
+                  // onPress: () => rootNavigation.navigate('Onboarding', { screen: 'MathSubject' }),
+                },
               ]}
             />
           </Container>
@@ -70,6 +123,7 @@ const MyinfoScreen = () => {
             <InfoSection
               icon={<CircleStarIcon />}
               title='계정 정보'
+              showChevron={false}
               fields={[
                 { label: '연동 계정', value: data?.provider || '' },
                 { label: '이메일', value: data?.email || '' },
