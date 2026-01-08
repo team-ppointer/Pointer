@@ -4,6 +4,7 @@ import CalendarCompletedIcon from './CalendarCompletedIcon';
 import CalendarInProgressIcon from './CalendarInProgressIcon';
 import CalendarNotStartedIcon from './CalendarNotStartedIcon';
 import CalendarUnavailableIcon from './CalendarUnavailableIcon';
+import ChevronUpFilledIcon from './ChevronUpFilledIcon';
 import ChevronDownFilledIcon from './ChevronDownFilledIcon';
 import HomeFilledIcon from './HomeFilledIcon';
 import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
@@ -17,6 +18,7 @@ import BookHeartIcon from './BookHeartIcon';
 import CircleStarIcon from './CircleStarIcon';
 import PencilFilledIcon from './PencilFilledIcon';
 import EraserFilledIcon from './EraserFilledIcon';
+import CircleCheckDashed from './CircleCheckDashed';
 
 export {
   AlertBellButtonIcon,
@@ -38,5 +40,6 @@ export {
   BookHeartIcon,
   PencilFilledIcon,
   EraserFilledIcon,
+  CircleCheckDashed,
   CircleStarIcon,
 };
