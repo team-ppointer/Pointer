@@ -4,9 +4,7 @@ import {
   openCameraWithErrorHandling,
   openImageLibraryWithErrorHandling,
 } from '../../utils/images/imagePicker';
-import { useCreateScrapFromImage } from '@/apis';
-import { uploadImageToS3 } from '../../utils/images/imageUpload';
-import { usePreSignedUrlAdapter } from '../../hooks';
+import { useCreateScrapFromImage, useUploadFile } from '@/apis';
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
 
