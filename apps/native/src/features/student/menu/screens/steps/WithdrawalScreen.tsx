@@ -7,6 +7,7 @@ import { ChevronLeft, AlertCircle } from 'lucide-react-native';
 import { useAuthStore } from '@stores';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { deleteAccount } from '@/apis/controller/auth';
 
 const WITHDRAWAL_REASONS = [
   '서비스 사용방법이 너무 어려워요.',
@@ -37,39 +38,24 @@ const WithdrawalScreen = () => {
       return;
     }
 
-    Alert.alert(
-      '회원 탈퇴',
-      '정말로 탈퇴하시겠어요?\n탈퇴 후에는 모든 데이터가 삭제되며 복구할 수 없습니다.',
-      [
-        {
-          text: '취소',
-          style: 'cancel',
-        },
-        {
-          text: '탈퇴',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('Withdrawal reasons:', selectedReasons);
-              await signOut();
-            } catch (error) {
-              console.error('Failed to withdraw', error);
-              Alert.alert('오류', '회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
-            }
-          },
-        },
-      ]
-    );
+    try {
+      deleteAccount().then(() => {
+        signOut();
+      });
+    } catch (error) {
+      console.error('Failed to withdraw', error);
+      Alert.alert('오류', '회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   return (
     <View className='w-full flex-1'>
       <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
         <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={24} color='#000' />
+          <ChevronLeft size={32} color='#000' />
         </Pressable>
         <Text className='text-20b text-black'>회원 탈퇴</Text>
-        <View />
+        <View className='w-10' />
       </SafeAreaView>
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
         <Container className='gap-6'>

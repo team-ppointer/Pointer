@@ -7,6 +7,7 @@ import { ChevronLeft } from 'lucide-react-native';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
+import { postAllowPush } from '@/apis/controller/student/me';
 
 const NotificationSettingsScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -16,24 +17,18 @@ const NotificationSettingsScreen = () => {
   const [qnaNotification, setQnaNotification] = useState(true);
   const [eventNotification, setEventNotification] = useState(false);
 
-  const handleSave = () => {
-    console.log('Save notification settings:', {
-      pushEnabled,
-      serviceNotification,
-      qnaNotification,
-      eventNotification,
-    });
-    navigation.goBack();
-  };
+  const postAllowPushMutate = postAllowPush();
+
+  const handleSave = () => {};
 
   return (
     <View className='w-full flex-1'>
       <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
         <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={24} color='#000' />
+          <ChevronLeft size={32} color='#000' />
         </Pressable>
         <Text className='text-20b text-black'>알림 설정</Text>
-        <View />
+        <View className='w-10' />
       </SafeAreaView>
 
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
@@ -44,7 +39,11 @@ const NotificationSettingsScreen = () => {
             </View>
             <Switch
               value={pushEnabled}
-              onValueChange={setPushEnabled}
+              onValueChange={() => {
+                postAllowPush().then(() => {
+                  setPushEnabled(!pushEnabled);
+                });
+              }}
               trackColor={{ false: colors['gray-400'], true: colors['blue-500'] }}
               thumbColor={pushEnabled ? '#FFF' : '#F3F4F6'}
             />

@@ -18,6 +18,9 @@ import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
 import { carrierOptions, type CarrierValue } from '@features/student/onboarding/constants';
+import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
+import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
+import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
 
 const PhoneNumberScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -30,6 +33,10 @@ const PhoneNumberScreen = () => {
   const [carrierModalVisible, setCarrierModalVisible] = useState(false);
   const [timer, setTimer] = useState(120); // 2분 = 120초
 
+  const postPhoneSendMutate = postPhoneSend(phoneNumber);
+  const postPhoneResendMutate = postPhoneResend(phoneNumber);
+  const postPhoneVerifyMutate = postPhoneVerify(phoneNumber, verificationCode);
+
   useEffect(() => {
     if (isCodeSent && timer > 0) {
       const interval = setInterval(() => {
@@ -39,15 +46,33 @@ const PhoneNumberScreen = () => {
     }
   }, [isCodeSent, timer]);
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     console.log('Send verification code to:', phoneNumber);
-    setIsCodeSent(true);
-    setTimer(120);
+    try {
+      await postPhoneSendMutate;
+      setIsCodeSent(true);
+      setTimer(120);
+    } catch (error) {
+      console.error('Failed to send verification code:', error);
+    }
   };
 
-  const handleVerify = () => {
-    console.log('Verify code:', verificationCode);
-    navigation.goBack();
+  const handleResendCode = async () => {
+    try {
+      await postPhoneResendMutate;
+      setIsCodeSent(true);
+      setTimer(120);
+    } catch (error) {
+      console.error('Failed to resend verification code:', error);
+    }
+  };
+
+  const handleVerify = async () => {
+    try {
+      await postPhoneVerifyMutate;
+    } catch (error) {
+      console.error('Failed to verify verification code:', error);
+    }
   };
 
   const getCarrierLabel = (value: CarrierValue | null) => {
@@ -68,7 +93,7 @@ const PhoneNumberScreen = () => {
       keyboardVerticalOffset={0}>
       <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
         <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={24} color='#000' />
+          <ChevronLeft size={32} color='#000' />
         </Pressable>
       </SafeAreaView>
       <Container className='flex-1'>
@@ -97,7 +122,7 @@ const PhoneNumberScreen = () => {
                     <Pressable
                       className='bg-primary-500 items-center justify-center rounded-[8px]'
                       style={{ width: 100, height: 48 }}
-                      onPress={handleSendCode}>
+                      onPress={handleResendCode}>
                       <Text className='text-16m text-white'>재전송</Text>
                     </Pressable>
                   )}

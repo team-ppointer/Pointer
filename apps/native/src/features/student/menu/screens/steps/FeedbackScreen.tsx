@@ -17,8 +17,6 @@ import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
 
-const FEEDBACK_CATEGORIES = ['기능 개선', '버그 신고', '기타 문의', '칭찬하기'];
-
 const FeedbackScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
 
@@ -59,7 +57,7 @@ const FeedbackScreen = () => {
           <ChevronLeft size={24} color='#000' />
         </Pressable>
         <Text className='text-20b text-black'>피드백 보내기</Text>
-        <View />
+        <View className='w-10' />
       </SafeAreaView>
 
       <Container className='flex-1 pt-[10px]'>
