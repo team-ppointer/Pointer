@@ -9,9 +9,9 @@ import {
   TriangleIcon,
   XIcon,
 } from 'lucide-react-native';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 
-import { TextButton } from '@components/common';
+import { AnimatedPressable, TextButton } from '@components/common';
 import { components } from '@schema';
 import { colors } from '@theme/tokens';
 import { useNavigation } from '@react-navigation/native';
@@ -129,7 +129,7 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
   const { Icon, color, bgColor } = ProblemStatusIcon[group.problem.progress ?? 'NONE'];
 
   return (
-    <View className='flex-col rounded-[10px] bg-white px-[14px] py-[10px] gap-[12px]'>
+    <View className='flex-col gap-[12px] rounded-[10px] bg-white px-[14px] py-[10px]'>
       <View className='flex-row items-center justify-between'>
         <View className='flex-col'>
           <View className='flex-row items-center'>
@@ -211,16 +211,16 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
   );
 
   return (
-    <View className='rounded-[20px] bg-blue-100 p-[16px] md:flex-1 md:basis-1/2 gap-[12px]'>
+    <View className='gap-[12px] rounded-[20px] bg-blue-100 p-[16px] md:flex-1 md:basis-1/2'>
       {groups.length === 0 ? (
         <View className='h-full items-center justify-center'>
           <Text className='text-14r text-center text-gray-600'>표시할 문제가 없어요.</Text>
         </View>
       ) : (
         <>
-          <Pressable className='bg-primary-500 mb-[4px] items-center justify-center rounded-[8px] p-[12px]'>
+          <AnimatedPressable className='bg-primary-500 mb-[4px] items-center justify-center rounded-[8px] p-[12px]'>
             <Text className='text-16m text-white'>1번부터 풀기</Text>
-          </Pressable>
+          </AnimatedPressable>
           {groups.map((group, index) => {
             const key = group.problemId ?? index;
             const isExpanded = expandedGroups[key] ?? false;
