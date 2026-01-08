@@ -223,6 +223,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setAnswer((prev) => prev.slice(0, -1));
   }, []);
 
+  const handleSelectChoice = useCallback((choice: string) => {
+    setAnswer(choice);
+  }, []);
+
   const handleSheetVisibility = useCallback((isOpen: boolean) => {
     if (!isOpen) {
       setKeyboardVisible(false);
@@ -374,7 +378,9 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           ref={bottomSheetRef}
           bottomInset={bottomBarHeight}
           value={answer}
+          answerType={currentProblem?.answerType}
           onAppendDigit={(digit) => setAnswer((prev) => prev + digit)}
+          onSelectChoice={handleSelectChoice}
           onDelete={handleDeleteDigit}
           onSubmit={handleSubmitAnswer}
           onClose={closeKeyboard}
@@ -385,10 +391,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           {isKeyboardVisible ? (
             <>
               <BottomActionBar.Button
-                className='h-[42px] border border-gray-500 bg-gray-100'
-                containerStyle={{ flex: 1, maxWidth: 220 }}
+                className='bg-primary-200 h-[42px]'
+                containerStyle={{ flex: 1 }}
                 onPress={handleIDontKnow}>
-                <Text className='text-14m text-gray-900'>잘 모르겠어요</Text>
+                <Text className='text-14m text-black'>잘 모르겠어요</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
                 className={`bg-primary-500 h-[42px] ${isSubmitting ? 'opacity-60' : ''}`}

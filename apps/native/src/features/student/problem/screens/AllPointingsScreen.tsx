@@ -1,6 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { Container, SegmentedControl } from '@components/common';
+import { ScrollView, Text, View } from 'react-native';
+import { AnimatedPressable, Container, SegmentedControl } from '@components/common';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -59,9 +59,9 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
       <View className='flex-1'>
         <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
           <View className='h-[66px] flex-row items-center justify-between gap-[10px] px-[20px] py-[14px]'>
-            <Pressable className='p-[8px]' onPress={() => navigation.goBack()}>
+            <AnimatedPressable className='p-[8px]' onPress={() => navigation.goBack()}>
               <ChevronLeftIcon color={colors.black} size={32} />
-            </Pressable>
+            </AnimatedPressable>
             <Text className='text-20b text-primary-600'>포인팅 전체보기</Text>
             <View className='w-[40px]' />
           </View>
@@ -123,18 +123,19 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
         <View className='h-[66px] flex-row items-center justify-between gap-[10px] px-[20px] py-[14px]'>
-          <Pressable className='p-[8px]' onPress={handleClose}>
+          <AnimatedPressable className='p-[8px]' onPress={handleClose}>
             <ChevronLeftIcon color={colors.black} size={32} />
-          </Pressable>
+          </AnimatedPressable>
           <View className='flex-row items-center gap-[8px]'>
             <Text className='text-20b text-primary-600'>{headerTitle}</Text>
             {publishDateLabel ? (
               <Text className='text-20r text-gray-700'>{publishDateLabel}</Text>
             ) : null}
           </View>
-          <Pressable className='p-[8px]' onPress={() => {}}>
+          {/* <Pressable className='p-[8px]' onPress={() => {}}>
             <MessageCircleMoreIcon color={colors.black} size={24} />
-          </Pressable>
+          </Pressable> */}
+          <View className='w-[40px]' />
         </View>
         {tabItems.length > 0 ? (
           <Container className='py-[10px]'>
