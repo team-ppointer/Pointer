@@ -82,17 +82,6 @@ const MenuScreen = () => {
             </MenuSection>
           </View>
         </ScrollView>
-
-        {/* {isLoading ? (
-        <Text>유저 정보 fetch 중...</Text>
-      ) : isError ? (
-        <Text>유저 정보 fetch 실패</Text>
-      ) : userInfo ? (
-        <Text>{JSON.stringify(userInfo).replace(/,/g, ',\n')}</Text>
-      ) : (
-        <Text>auth 정보 없음</Text>
-      )}
-      <TextButton onPress={handleLogout}>로그아웃</TextButton> */}
       </Container>
       <ConfirmationModal
         visible={isLogoutVisible}
