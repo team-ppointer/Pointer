@@ -18,6 +18,7 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 import { MenuStackParamList } from '../MenuNavigator';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -36,11 +37,13 @@ const MenuScreen = () => {
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
 
   return (
-    <>
-      <Container className='px-6 py-12'>
-        <View className='py-0.5'>
+    <View className='w-full flex-1'>
+      <SafeAreaView edges={['top']} className={'bg-gray-100'}>
+        <Container className='py-[14px]'>
           <Text className='text-20b text-black'>전체 메뉴</Text>
-        </View>
+        </Container>
+      </SafeAreaView>
+      <Container>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 40 }}>
@@ -93,7 +96,7 @@ const MenuScreen = () => {
           { label: '아니오', onPress: () => setIsLogoutVisible(false), variant: 'primary' },
         ]}
       />
-    </>
+    </View>
   );
 };
 
