@@ -22,6 +22,7 @@ import BookHeartIcon from './BookHeartIcon';
 import CircleStarIcon from './CircleStarIcon';
 import PencilFilledIcon from './PencilFilledIcon';
 import EraserFilledIcon from './EraserFilledIcon';
+import PointerLogo from './PointerLogo';
 
 export {
   AlertBellButtonIcon,
@@ -48,4 +49,5 @@ export {
   PencilFilledIcon,
   EraserFilledIcon,
   CircleStarIcon,
+  PointerLogo,
 };

@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
-import { Text, View, Image, Linking, Pressable } from 'react-native';
+import { Text, View, Linking, Pressable } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
 import { postSocialLogin } from '@apis/student';
 import { env, setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
-import { GoogleIcon, KakaoIcon } from '@components/system/icons';
+import { GoogleIcon, KakaoIcon, PointerLogo } from '@components/system/icons';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@theme/tokens';
@@ -53,10 +53,7 @@ const LoginScreen = () => {
     <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
       <Container className='flex-1'>
         <View className='flex-1 items-center justify-center gap-[12px] py-[10px]'>
-          <Image
-            source={require('@assets/images/pointer-logo.png')}
-            className='my-[10px] h-[66.8px] w-[295px]'
-          />
+          <PointerLogo />
           <Text className='text-16r text-gray-700'>강남 8학군의 필수 수학 학습 플랫폼</Text>
         </View>
         <View className='gap-[10px] pb-[38px] pt-[10px]'>
