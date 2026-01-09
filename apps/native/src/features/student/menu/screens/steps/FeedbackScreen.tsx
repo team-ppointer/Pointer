@@ -93,7 +93,7 @@ const FeedbackScreen = () => {
           </View>
         </ScrollView>
 
-        <SafeAreaView edges={['bottom']} className=''>
+        <SafeAreaView edges={['bottom']} className='mb-[10px]'>
           <Pressable
             onPress={handleSubmit}
             className='bg-primary-500 items-center rounded-[8px] py-[10px]'>

@@ -173,7 +173,7 @@ const PhoneNumberScreen = () => {
           </View>
         </ScrollView>
 
-        <SafeAreaView edges={['bottom']} className=''>
+        <SafeAreaView edges={['bottom']} className='mb-[10px]'>
           {!isCodeSent ? (
             <Pressable
               onPress={handleSendCode}
