@@ -18,19 +18,12 @@ const EditSchoolScreen = ({
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditSchool'>) => {
   const queryClient = useQueryClient();
-  const { initialSchool } = route.params || {};
 
-  const [schoolId, setSchoolId] = useState<number | null>(initialSchool?.id || null);
-  const [query, setQuery] = useState('');
+  const [schoolId, setSchoolId] = useState<number | null>(route.params.initialSchool?.id || null);
+
+  const [query, setQuery] = useState(route.params.initialSchool?.name || '');
   const [selectedLabel, setSelectedLabel] = useState('');
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
-  // 초기값 설정
-  useEffect(() => {
-    if (initialSchool?.id) {
-      setSchoolId(initialSchool?.id);
-    }
-  }, [initialSchool]);
 
   const debouncedQuery = useDebounce(query.trim(), 300);
   const { data, isLoading } = useGetSchool(
@@ -66,7 +59,7 @@ const EditSchoolScreen = ({
         queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
       });
 
-      navigation.goBack();
+      navigation.push('EditGrade', { initialGrade: route.params.initialSchool?.grade });
       showToast('success', '학교가 변경되었습니다.');
     }
   };

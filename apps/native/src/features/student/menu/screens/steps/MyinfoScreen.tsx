@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { InfoSection } from '../../components';
 import { ConfirmationModal } from '@/features/student/scrap/components/Dialog';
 import { OnboardingStackParamList } from '@/features/student/onboarding/screens/types';
+import { gradeOptions, levelOptions } from '@/features/student/onboarding/constants';
 const MyinfoScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
@@ -104,12 +105,24 @@ const MyinfoScreen = () => {
               fields={[
                 {
                   label: '학교 · 학년',
-                  value: data?.school?.name || '',
-                  onPress: () => navigation.navigate('EditSchool', { initialSchool: data?.school }),
+                  value: data?.school?.name
+                    ? `${data?.school?.name} ${gradeOptions.find((option) => option.value === data?.grade)?.label}`
+                    : '',
+                  onPress: () =>
+                    navigation.navigate('EditSchool', {
+                      initialSchool: data?.school
+                        ? {
+                            id: data.school.id,
+                            name: data.school.name,
+                            sido: data.school.sido,
+                            grade: data.grade,
+                          }
+                        : { id: 0, name: '', sido: '' },
+                    }),
                 },
                 {
                   label: '수학등급',
-                  value: data?.level?.toString() || '',
+                  value: levelOptions.find((option) => option.value === data?.level)?.label || '',
                   onPress: () => navigation.navigate('EditScore', { initialScore: data?.level }),
                 },
                 {

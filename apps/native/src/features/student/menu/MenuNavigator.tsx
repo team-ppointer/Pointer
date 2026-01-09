@@ -14,8 +14,9 @@ import {
 import { EditNicknameScreen, EditSchoolScreen } from './screens/edits';
 import { components } from '@/types/api/schema';
 import EditScoreScreen from './screens/edits/EditScoreScreen';
-import { MathSubjectValue } from '../onboarding/constants';
+import { GradeValue, MathSubjectValue } from '../onboarding/constants';
 import EditMathSubjectScreen from './screens/edits/EditMathSubjectScreen';
+import EditGradeScreen from './screens/edits/EditGradeScreen';
 
 export type MenuStackParamList = {
   MenuMain: undefined;
@@ -27,7 +28,8 @@ export type MenuStackParamList = {
   Terms: undefined;
   Withdrawal: undefined;
   EditNickname: { initialNickname?: string };
-  EditSchool: { initialSchool?: components['schemas']['SchoolResp'] };
+  EditSchool: { initialSchool?: components['schemas']['SchoolResp'] & { grade?: GradeValue } };
+  EditGrade: { initialGrade?: GradeValue };
   EditScore: { initialScore?: number };
   EditMathSubject: { initialMathSubject?: MathSubjectValue };
 };
@@ -182,6 +184,22 @@ const MenuNavigator = () => {
       <MenuStack.Screen
         name='EditSchool'
         component={EditSchoolScreen}
+        listeners={({ navigation }) => ({
+          focus: () => {
+            navigation.getParent()?.setOptions({
+              tabBarStyle: { display: 'none' },
+            });
+          },
+          blur: () => {
+            navigation.getParent()?.setOptions({
+              tabBarStyle: undefined,
+            });
+          },
+        })}
+      />
+      <MenuStack.Screen
+        name='EditGrade'
+        component={EditGradeScreen}
         listeners={({ navigation }) => ({
           focus: () => {
             navigation.getParent()?.setOptions({
