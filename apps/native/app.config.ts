@@ -13,9 +13,10 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: 'com.math-pointer.pointer',
     supportsTablet: true,
+    googleServicesFile: './GoogleService-Info.plist',
   },
   android: {
-    package: 'com.math-pointer.pointer',
+    package: 'com.math_pointer.pointer',
     adaptiveIcon: {
       backgroundColor: '#E6F4FE',
       foregroundImage: './assets/images/android-icon-foreground.png',
@@ -24,6 +25,7 @@ const config: ExpoConfig = {
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
+    googleServicesFile: './google-services.json',
   },
   web: {
     bundler: 'metro',
@@ -41,6 +43,8 @@ const config: ExpoConfig = {
         },
       },
     ],
+    '@react-native-firebase/app',
+    '@react-native-firebase/messaging',
   ],
   extra: {
     apiBaseUrl: process.env.NATIVE_API_BASE_URL,
