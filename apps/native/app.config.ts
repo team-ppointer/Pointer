@@ -1,6 +1,11 @@
 import type { ExpoConfig } from 'expo/config';
 import 'dotenv/config';
 
+const iosGoogleServicesFile = process.env.IOS_GOOGLE_SERVICES_PLIST || './GoogleService-Info.plist';
+
+const androidGoogleServicesFile =
+  process.env.ANDROID_GOOGLE_SERVICES_JSON || './google-services.json';
+
 const config: ExpoConfig = {
   name: 'Pointer',
   slug: 'pointer',
@@ -13,7 +18,10 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: 'com.math-pointer.pointer',
     supportsTablet: true,
-    googleServicesFile: './GoogleService-Info.plist',
+    googleServicesFile: iosGoogleServicesFile,
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+    },
   },
   android: {
     package: 'com.math_pointer.pointer',
@@ -25,12 +33,20 @@ const config: ExpoConfig = {
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
-    googleServicesFile: './google-services.json',
+    googleServicesFile: androidGoogleServicesFile,
   },
   web: {
     bundler: 'metro',
   },
   plugins: [
+    [
+      'expo-build-properties',
+      {
+        ios: {
+          useModularHeaders: true,
+        },
+      },
+    ],
     [
       'expo-splash-screen',
       {
@@ -51,6 +67,9 @@ const config: ExpoConfig = {
     authRedirectUri: process.env.NATIVE_AUTH_REDIRECT_URI,
     devAccessToken: process.env.NATIVE_DEV_ACCESS_TOKEN,
     devRefreshToken: process.env.NATIVE_DEV_REFRESH_TOKEN,
+    eas: {
+      projectId: '76a68921-8c65-4e50-98b0-fb5ef457ab7e',
+    },
   },
   experiments: {
     reactCompiler: true,
