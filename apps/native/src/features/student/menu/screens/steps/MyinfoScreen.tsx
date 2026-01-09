@@ -85,7 +85,9 @@ const MyinfoScreen = () => {
                 {
                   label: '닉네임',
                   value: data?.nickname || '',
-                  // onPress: () => rootNavigation.navigate('Onboarding', { screen: 'Nickname' }),
+                  onPress: () => {
+                    navigation.navigate('EditNickname', { initialNickname: data?.nickname });
+                  },
                 },
                 {
                   label: '휴대폰 번호',
@@ -103,17 +105,20 @@ const MyinfoScreen = () => {
                 {
                   label: '학교 · 학년',
                   value: data?.school?.name || '',
-                  // onPress: () => rootNavigation.navigate('Onboarding', { screen: 'School' }),
+                  onPress: () => navigation.navigate('EditSchool', { initialSchool: data?.school }),
                 },
                 {
                   label: '수학등급',
                   value: data?.level?.toString() || '',
-                  // onPress: () => rootNavigation.navigate('Onboarding', { screen: 'Score' }),
+                  onPress: () => navigation.navigate('EditScore', { initialScore: data?.level }),
                 },
                 {
                   label: '선택과목',
                   value: data?.selectSubject || '',
-                  // onPress: () => rootNavigation.navigate('Onboarding', { screen: 'MathSubject' }),
+                  onPress: () =>
+                    navigation.navigate('EditMathSubject', {
+                      initialMathSubject: data?.selectSubject,
+                    }),
                 },
               ]}
             />

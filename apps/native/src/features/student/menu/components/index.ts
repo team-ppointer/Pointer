@@ -5,3 +5,5 @@ export { TextOnlyMenuItem } from './TextOnlyMenuItem';
 export { AppVersionItem } from './AppVersionItem';
 export { MenuSection } from './MenuSection';
 export { InfoSection } from './InfoSection';
+
+export { EditScreenLayout } from './EditScreenLayout';
