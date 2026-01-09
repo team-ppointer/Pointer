@@ -64,7 +64,9 @@ export const TrashCard = (props: TrashListItemProps) => {
               <Text className='text-12r text-blue-500'>{props.itemCount}</Text>
             )}
           </View>
-          <Text className='text-10r text-gray-700' numberOfLines={1}>
+          <Text
+            className={`${props.daysUntilPermanentDelete <= 3 ? 'text-red-400' : 'text-gray-700'}`}
+            numberOfLines={1}>
             {props.daysUntilPermanentDelete}일 남음
           </Text>
         </View>
