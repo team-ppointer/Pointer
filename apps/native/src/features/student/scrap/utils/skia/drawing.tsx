@@ -97,6 +97,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const canvasHeight = useRef<number>(800); // 기본 캔버스 높이
     const maxY = useRef<number>(0); // 그려진 내용의 최대 Y 좌표
     const keyboardHeight = useRef<number>(0); // 키보드 높이
+    const isConfirmingTextRef = useRef<boolean>(false); // 텍스트 확인 중 플래그
 
     // 호버 좌표를 저장할 SharedValue (성능을 위해 스레드 분리)
     const hoverX = useSharedValue(0);
@@ -547,6 +548,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
     const addText = useCallback(
       (x: number, y: number) => {
+        // activeTextInput이 이미 있으면 새로운 텍스트 입력 생성하지 않음 (onBlur 처리 중일 수 있음)
+        if (activeTextInput || isConfirmingTextRef.current) {
+          return;
+        }
+
         // 삭제 버튼 영역 확인 (각 텍스트의 삭제 버튼 위치)
         const buttonSize = 20;
         for (const textItem of texts) {
@@ -648,6 +654,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         }, 100);
       },
       [
+        activeTextInput,
         isNearExistingText,
         canAddTextAtPosition,
         strokes,
@@ -657,7 +664,14 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     );
 
     const confirmTextInput = useCallback(() => {
+      // 이미 처리 중이면 중복 실행 방지
+      if (isConfirmingTextRef.current) {
+        return;
+      }
+
       if (activeTextInput && activeTextInput.value.trim()) {
+        isConfirmingTextRef.current = true;
+
         const newText: TextItem = {
           id: activeTextInput.id,
           text: activeTextInput.value,
@@ -689,13 +703,22 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         });
         // 상태 변경으로 자동 리렌더링
       }
+
+      // activeTextInput을 먼저 null로 설정하여 중복 실행 방지
       setActiveTextInput(null);
+
+      // 플래그 리셋 (다음 프레임에서)
+      setTimeout(() => {
+        isConfirmingTextRef.current = false;
+      }, 0);
     }, [activeTextInput, saveToHistory, calculateTextLineCount]);
 
     const handleTextInputBlur = useCallback(() => {
-      if (activeTextInput) {
-        confirmTextInput();
+      // 이미 처리 중이거나 activeTextInput이 없으면 실행하지 않음
+      if (isConfirmingTextRef.current || !activeTextInput) {
+        return;
       }
+      confirmTextInput();
     }, [activeTextInput, confirmTextInput]);
 
     const handleTextInputChange = useCallback(
@@ -820,6 +843,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         Gesture.Tap().onEnd((e) => {
           'worklet';
           // 텍스트 입력은 손가락도 허용 (모든 입력 타입 허용)
+          // activeTextInput이 있으면 새로운 텍스트 입력 생성하지 않음 (onBlur 처리 중일 수 있음)
           if (textMode && !eraserMode) {
             runOnJS(addText)(e.x, e.y);
           }
