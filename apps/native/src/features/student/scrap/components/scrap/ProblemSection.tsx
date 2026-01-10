@@ -21,28 +21,19 @@ export const ProblemSection = ({
 }: ProblemSectionProps) => {
   if (problemContent) {
     return (
-      <View className='gap-[6px] rounded-[8px] border border-gray-500 bg-white p-[14px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]'>
+      <Pressable
+        className='gap-[6px] rounded-[8px] border border-gray-500 bg-white p-[14px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]'
+        onPress={onHoverStart}>
         {/* <Text className='text-16b text-gray-600'>문제 본문</Text> */}
         <ProblemViewer problemContent={problemContent} minHeight={200} padding={14} />
-        {thumbnailUrl && (
-          <Pressable className='relative' onPress={onHoverStart}>
-            <View style={{ borderRadius: 8, overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
-              <Image
-                source={{ uri: thumbnailUrl }}
-                style={{ width: '100%', height: 270 }}
-                resizeMode='contain'
-              />
-            </View>
-            {isHovering && (
-              <Pressable
-                onPress={onExpand}
-                className='absolute right-2 top-2 z-10 rounded-full bg-black/50 p-2'>
-                <Maximize2 size={20} color='#FFF' />
-              </Pressable>
-            )}
+        {isHovering && (
+          <Pressable
+            onPress={onExpand}
+            className='absolute right-2 top-2 z-10 rounded-full bg-black/50 p-2'>
+            <Maximize2 size={20} color='#FFF' />
           </Pressable>
         )}
-      </View>
+      </Pressable>
     );
   }
 
