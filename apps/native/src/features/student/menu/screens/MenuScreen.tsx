@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { useGetMe } from '@apis/student';
+import { useGetMe, useGetNoticeCount } from '@apis/student';
 import { useAuthStore } from '@stores';
 import { Container } from '@components/common';
 import { Bell, Headset, Megaphone, ThumbsUp } from 'lucide-react-native';
@@ -23,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const signOut = useAuthStore((state) => state.signOut);
+  const { data: noticeCount } = useGetNoticeCount();
   const { data, isLoading, isError } = useGetMe();
   const userInfo = data ?? null;
 
@@ -65,9 +66,10 @@ const MenuScreen = () => {
               <MenuListItem
                 icon={Megaphone}
                 title='공지사항'
+                isNew={!!noticeCount?.unreadCount && noticeCount.unreadCount > 0}
                 onPress={() => navigation.navigate('Notice')}
               />
-              <MenuListItem icon={Headset} title='고객센터' isNew onPress={() => {}} />
+              <MenuListItem icon={Headset} title='고객센터' onPress={() => {}} />
               <MenuListItem
                 icon={ThumbsUp}
                 title='피드백 보내기'
