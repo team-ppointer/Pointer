@@ -1,8 +1,6 @@
 import type { ExpoConfig } from 'expo/config';
 import 'dotenv/config';
 
-const iosGoogleServicesFile = process.env.IOS_GOOGLE_SERVICES_PLIST || './GoogleService-Info.plist';
-
 const androidGoogleServicesFile =
   process.env.ANDROID_GOOGLE_SERVICES_JSON || './google-services.json';
 
@@ -18,10 +16,10 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: 'com.math-pointer.pointer',
     supportsTablet: true,
-    googleServicesFile: iosGoogleServicesFile,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
+    icon: './assets/ios-pointer.icon',
   },
   android: {
     package: 'com.math_pointer.pointer',
@@ -43,7 +41,7 @@ const config: ExpoConfig = {
       'expo-build-properties',
       {
         ios: {
-          useModularHeaders: true,
+          deploymentTarget: '15.1',
         },
       },
     ],
@@ -59,8 +57,6 @@ const config: ExpoConfig = {
         },
       },
     ],
-    '@react-native-firebase/app',
-    '@react-native-firebase/messaging',
   ],
   extra: {
     apiBaseUrl: process.env.NATIVE_API_BASE_URL,
