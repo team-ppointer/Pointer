@@ -5,16 +5,14 @@ import { mathSubjectOptions, MathSubjectValue } from '@/features/student/onboard
 import { MenuStackParamList } from '../../MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { showToast } from '@/features/student/scrap/components/Notification';
-import { putMe } from '@/apis/controller/student';
-import { useQueryClient } from '@tanstack/react-query';
-import { TanstackQueryClient } from '@/apis/client';
+import usePutMe from '@/apis/controller/student/me/putMe';
 import { OptionButton } from '@/features/student/onboarding/components';
 
 const EditMathSubjectScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditMathSubject'>) => {
-  const { mutate: putMeMutate } = putMe();
+  const { mutate: putMeMutate } = usePutMe();
   const [selectSubject, setSelectSubject] = useState<MathSubjectValue | null>(
     route.params.initialMathSubject || null
   );

@@ -9,16 +9,14 @@ import { useEffect, useState } from 'react';
 import { showToast } from '@/features/student/scrap/components/Notification';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { putMe } from '@/apis/controller/student';
-import { useQueryClient } from '@tanstack/react-query';
+import usePutMe from '@/apis/controller/student/me/putMe';
 import { gradeOptions, GradeValue } from '@/features/student/onboarding/constants';
-import { TanstackQueryClient } from '@/apis/client';
 
 const EditGradeScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditGrade'>) => {
-  const { mutate: putMeMutate } = putMe();
+  const { mutate: putMeMutate } = usePutMe();
   const [grade, setGrade] = useState<GradeValue | null>(route.params.initialGrade || null);
 
   const handleSave = async () => {

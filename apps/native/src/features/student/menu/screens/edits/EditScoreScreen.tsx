@@ -6,13 +6,13 @@ import { useMemo, useState } from 'react';
 import { levelOptions } from '@/features/student/onboarding/constants';
 import OptionButton from '@/features/student/onboarding/components/OptionButton';
 import { showToast } from '@/features/student/scrap/components/Notification';
-import { putMe } from '@/apis/controller/student';
+import usePutMe from '@/apis/controller/student/me/putMe';
 
 const EditScoreScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditScore'>) => {
-  const { mutate: putMeMutate } = putMe();
+  const { mutate: putMeMutate } = usePutMe();
   const [level, setLevel] = useState<number | null>(route.params.initialScore || null);
 
   const levelRows = useMemo(() => {

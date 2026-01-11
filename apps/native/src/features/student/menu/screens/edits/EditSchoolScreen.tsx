@@ -2,22 +2,21 @@ import { OnboardingInput } from '@/features/student/onboarding/components';
 import { EditScreenLayout } from '../../components';
 import { useEffect, useState } from 'react';
 import { showToast } from '@/features/student/scrap/components/Notification';
-import { putMe, useGetSchool } from '@apis/student';
+import { useGetSchool } from '@apis/student';
+import usePutMe from '@/apis/controller/student/me/putMe';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
 import { colors } from '@/theme/tokens';
 import CircleXFilledIcon from '@/components/system/icons/CircleXFilledIcon';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
-import { useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '@/hooks';
-import { TanstackQueryClient } from '@/apis/client';
 
 const EditSchoolScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditSchool'>) => {
-  const { mutate: putMeMutate } = putMe();
+  const { mutate: putMeMutate } = usePutMe();
 
   const [schoolId, setSchoolId] = useState<number | null>(route.params.initialSchool?.id || null);
 

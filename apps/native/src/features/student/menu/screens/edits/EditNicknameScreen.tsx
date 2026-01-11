@@ -3,10 +3,8 @@ import { OnboardingInput } from '@/features/student/onboarding/components';
 import { useState } from 'react';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { putMe } from '@apis/student';
+import usePutMe from '@/apis/controller/student/me/putMe';
 import { showToast } from '@/features/student/scrap/components/Notification';
-import { TanstackQueryClient } from '@/apis/client';
-import { useQueryClient } from '@tanstack/react-query';
 
 const nicknameRegex = /^[가-힣]{2,4}$/;
 
@@ -14,7 +12,7 @@ const EditNicknameScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditNickname'>) => {
-  const { mutate: putMeMutate } = putMe();
+  const { mutate: putMeMutate } = usePutMe();
   const [value, setValue] = useState(route.params.initialNickname || '');
   const [error, setError] = useState('');
 
