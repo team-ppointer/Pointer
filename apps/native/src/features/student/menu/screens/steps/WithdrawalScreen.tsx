@@ -15,7 +15,18 @@ const WITHDRAWAL_REASONS = [
   '수학 학습에 필요한 기능이 부족해요.',
   '더 이상 필요하지 않아요.',
   '기타',
-];
+] as const;
+
+const REASON_MAPPING: Record<
+  (typeof WITHDRAWAL_REASONS)[number],
+  'DIFFICULT_TO_USE' | 'NOT_HELPFUL' | 'LACK_OF_FEATURES' | 'NO_LONGER_NEEDED' | 'OTHER'
+> = {
+  '서비스 사용방법이 너무 어려워요.': 'DIFFICULT_TO_USE',
+  '수학 학습에 도움이 되지 않아요.': 'NOT_HELPFUL',
+  '수학 학습에 필요한 기능이 부족해요.': 'LACK_OF_FEATURES',
+  '더 이상 필요하지 않아요.': 'NO_LONGER_NEEDED',
+  기타: 'OTHER',
+};
 
 const WithdrawalScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -39,7 +50,15 @@ const WithdrawalScreen = () => {
     }
 
     try {
-      deleteAccount().then(() => {
+      const reasons = selectedReasons.map(
+        (reason) => REASON_MAPPING[reason as keyof typeof REASON_MAPPING]
+      );
+      const hasOther = reasons.includes('OTHER');
+
+      deleteAccount({
+        reasons,
+        ...(hasOther && { otherReason: '' }),
+      }).then(() => {
         signOut();
       });
     } catch (error) {
@@ -81,26 +100,23 @@ const WithdrawalScreen = () => {
               </>
             )}
           </View>
-          {showReasons && (
-            <View className='gap-2'>
-              {WITHDRAWAL_REASONS.map((reason) => (
-                <Pressable
-                  key={reason}
-                  onPress={() => toggleReason(reason)}
-                  className='flex-row items-center gap-3 p-4'>
-                  <View
-                    className={`h-5 w-5 items-center justify-center rounded ${
-                      selectedReasons.includes(reason) ? 'bg-blue-500' : 'border-2 border-gray-300'
-                    }`}>
-                    {selectedReasons.includes(reason) && (
-                      <Text className='text-12b text-white'>✓</Text>
-                    )}
-                  </View>
-                  <Text className='text-16r flex-1 text-gray-700'>{reason}</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
+          {showReasons &&
+            WITHDRAWAL_REASONS.map((reason) => (
+              <Pressable
+                key={reason}
+                onPress={() => toggleReason(reason)}
+                className='mb-[12px] flex-row items-center gap-[10px]'>
+                <View
+                  className={`h-5 w-5 items-center justify-center rounded-[4px] border border-gray-700 ${
+                    selectedReasons.includes(reason) ? 'bg-blue-500' : 'border-2 border-gray-300'
+                  }`}>
+                  {selectedReasons.includes(reason) && (
+                    <Text className='text-12b text-white'>✓</Text>
+                  )}
+                </View>
+                <Text className='text-16r flex-1 text-black'>{reason}</Text>
+              </Pressable>
+            ))}
         </Container>
       </ScrollView>
 
