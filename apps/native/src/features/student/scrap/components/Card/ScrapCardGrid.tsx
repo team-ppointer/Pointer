@@ -150,9 +150,10 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
 
 interface SearchScrapGridProps {
   data: ScrapItem[];
+  searchQuery?: string;
 }
 
-export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
+export const SearchScrapGrid = ({ data, searchQuery }: SearchScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
   const finalData = addPlaceholders(data, numColumns);
@@ -238,7 +239,7 @@ export const SearchScrapGrid = ({ data }: SearchScrapGridProps) => {
 
         return (
           <View style={spacingStyle}>
-            <SearchResultCard {...searchCardProps} />
+            <SearchResultCard {...searchCardProps} searchQuery={searchQuery} />
           </View>
         );
       }}

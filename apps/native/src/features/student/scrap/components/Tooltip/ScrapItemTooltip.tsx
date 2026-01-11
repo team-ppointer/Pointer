@@ -30,10 +30,10 @@ import {
   openImageLibrary,
   openImageLibraryWithErrorHandling,
 } from '../../utils/images/imagePicker';
-import { uploadImageToS3 } from '../../utils/images/imageUpload';
-import { usePreSignedUrlAdapter } from '../../hooks';
+
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
+import { useRecentScrapStore } from '../../stores/recentScrapStore';
 
 export interface ScrapItemTooltipProps {
   props: ScrapListItemProps;
@@ -48,6 +48,8 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
 
   const openNote = useNoteStore((state) => state.openNote);
+  const closeNote = useNoteStore((state) => state.closeNote);
+  const removeScrap = useRecentScrapStore((state) => state.removeScrap);
 
   // API hooks
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
@@ -75,7 +77,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
       const files = await uploadFile([
         { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
       ]);
-      
+
       await updateFolderThumbnail({
         id: props.id,
         request: {
@@ -135,6 +137,11 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
     }, 100);
   };
 
+  const cleanupAfterDelete = (id: number) => {
+    removeScrap(id);
+    closeNote(id);
+  };
+
   const handleDelete = async () => {
     handleClose();
 
@@ -147,6 +154,8 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
           },
         ],
       });
+      cleanupAfterDelete(props.id);
+
       showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
     } catch (error: any) {
       showToast('error', '삭제 중 오류가 발생했습니다.');

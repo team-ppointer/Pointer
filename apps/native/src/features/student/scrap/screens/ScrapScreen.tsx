@@ -19,6 +19,8 @@ import { RecentScrapCard } from '../components/Card/cards/RecentScrapCard';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection } from '../hooks';
 import { withScrapModals } from '../hoc';
+import { useNoteStore } from '../stores/scrapNoteStore';
+import { SelectedItem } from '../utils/reducer';
 
 const ScrapScreenContent = () => {
   const [reducerState, dispatch] = useScrapSelection();
@@ -37,6 +39,8 @@ const ScrapScreenContent = () => {
     order: sortOrder,
   });
   const { mutateAsync: deleteScrap } = useDeleteScrap();
+  const removeScrap = useRecentScrapStore((state) => state.removeScrap);
+  const closeNote = useNoteStore((state) => state.closeNote);
 
   // refetch를 context에 등록
   React.useEffect(() => {
@@ -93,6 +97,15 @@ const ScrapScreenContent = () => {
     [data, sortKey, sortOrder]
   );
 
+  const cleanupAfterDelete = (items: SelectedItem[]) => {
+    items.forEach((item) => {
+      if (item.type === 'SCRAP') {
+        removeScrap(item.id as number);
+        closeNote(item.id as number);
+      }
+    });
+  };
+
   const isAllSelected = data.length > 0 && reducerState.selectedItems.length === data.length;
 
   return (
@@ -129,14 +142,15 @@ const ScrapScreenContent = () => {
                 return;
               }
 
-              const items = reducerState.selectedItems;
-
               dispatch({ type: 'CLEAR_SELECTION' });
 
               try {
+                const items = reducerState.selectedItems;
+
                 await deleteScrap({
                   items: items.map((item) => ({ id: item.id as number, type: item.type })),
                 });
+                cleanupAfterDelete(items);
                 showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
               } catch (error: any) {
                 // 에러 발생 시 롤백은 mutation의 onError에서 처리됨
@@ -146,7 +160,7 @@ const ScrapScreenContent = () => {
           }}
         />
         <ScrollView className='bg-gray-100' showsVerticalScrollIndicator={true}>
-          {recentScrapsData.length > 0 && (
+          {recentScrapsData.length > 0 && !reducerState.isSelecting && (
             <Container className='flex-col items-start  gap-[10px] pb-[40px] pt-[8px]'>
               <Text className='text-16m text-gray-900'>최근 본</Text>
               <ScrollView horizontal={true} contentContainerStyle={{ gap: 10 }}>

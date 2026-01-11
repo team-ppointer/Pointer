@@ -20,7 +20,7 @@ const SearchScrapHeader = ({
 }: SearchScrapHeaderProps) => {
   return (
     <SafeAreaView edges={['top']} className='bg-gray-100'>
-      <View className='flex-row items-center justify-between px-5 py-3.5'>
+      <View className='flex-row items-center justify-between px-5 py-[14px]'>
         <View className='flex-1 flex-row justify-center rounded-[8px] border-[1px] border-gray-500 bg-white px-3.5 py-2'>
           <TextInput
             className='text-18m flex-1 text-black'

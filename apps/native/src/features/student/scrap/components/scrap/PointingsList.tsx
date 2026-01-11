@@ -15,9 +15,13 @@ export const PointingsList = ({ pointingsWithLabels, shouldShowPointing }: Point
         if (!shouldShowPointing(idx)) return null;
 
         return (
-          <View key={`pointing-${pointing.id}`} className='rounded-[8px] border border-gray-400'>
+          <View
+            key={`pointing-${pointing.id}`}
+            className='rounded-[8px] border border-gray-400 shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]'>
             <View className='flex-row items-center gap-[10px] rounded-t-[8px] bg-white px-[14px] pt-[14px]'>
-              <Text className='text-16b text-black'>포인팅 {pointing.label}</Text>
+              <Text className='text-16b text-black'>
+                포인팅 <Text className='text-blue-600'>{pointing.label}</Text>
+              </Text>
               <Text className='text-13m text-gray-700'>포인팅 질문</Text>
             </View>
             {pointing.questionContent && (

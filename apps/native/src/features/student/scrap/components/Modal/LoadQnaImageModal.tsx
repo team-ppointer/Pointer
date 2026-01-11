@@ -1,9 +1,12 @@
 import { Container } from '@/components/common';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Modal, Pressable, View, StyleSheet, Alert, Text } from 'react-native';
 import { LoadQnaImageScreenModal } from './FullScreenModal';
 import { Check } from 'lucide-react-native';
 import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
+import { SortOrder, UISortKey } from '../../utils/types';
+import { SortDropdown } from '../Dropdown';
+import { colors } from '@/theme/tokens';
 
 interface LoadQnaImageModalProps {
   visible: boolean;
@@ -12,12 +15,23 @@ interface LoadQnaImageModalProps {
 }
 
 export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageModalProps) => {
-  const { data: qnaAllFilesData, isLoading } = useGetQnaFiles();
   const { mutate: createScrapFromImage } = useCreateScrapFromImage();
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const [sortKey, setSortKey] = useState<UISortKey>('DATE');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+
+  const {
+    data: qnaAllImagesData,
+    isLoading,
+    refetch,
+  } = useGetQnaFiles({
+    sort: 'CREATED_AT',
+    order: sortOrder,
+  });
 
   const NUM_COLUMNS = 4;
   const GAP = 5;
@@ -52,24 +66,44 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
     );
   };
 
+  useEffect(() => {
+    if (visible) {
+      refetch();
+    }
+  }, [visible, refetch]);
+
   return (
     <>
       <LoadQnaImageScreenModal visible={visible} onCancel={onClose} onClose={handleComplete}>
-        <Container className='py-[10px]'>
-          <View />
+        <Container className='items-end py-[10px]'>
+          <SortDropdown
+            ordertype='IMAGE'
+            orderValue={sortKey}
+            setOrderValue={setSortKey}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            colors={{
+              text: '#FFF',
+              border: colors['gray-700'],
+              background: colors['gray-700'],
+              itemBackground: colors['gray-600'],
+              focusBackground: colors['gray-700'],
+              checkIcon: '#FFF',
+            }}
+          />
         </Container>
         <Container className='flex-1 py-[10px]'>
           {isLoading ? (
             <View className='items-center justify-center'>
               <Text className='text-white'>로딩 중...</Text>
             </View>
-          ) : !qnaAllFilesData?.data || qnaAllFilesData.data.length === 0 ? (
+          ) : !qnaAllImagesData?.data || qnaAllImagesData.data.length === 0 ? (
             <View className='items-center justify-center'>
               <Text className='text-white'>이미지가 없습니다.</Text>
             </View>
           ) : (
             <FlatList
-              data={qnaAllFilesData.data}
+              data={qnaAllImagesData.data}
               keyExtractor={(item) => item.id.toString()}
               numColumns={NUM_COLUMNS}
               columnWrapperStyle={{ gap: GAP }}

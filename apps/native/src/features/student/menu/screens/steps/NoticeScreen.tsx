@@ -6,66 +6,132 @@ import { Container, NotificationItem } from '@components/common';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { putReadNotice, useGetNotice } from '@/apis/controller/student/notice';
+import {
+  useGetNotification,
+  useGetNotificationCount,
+  usePostReadAllNotification,
+  usePostReadNotification,
+} from '@/apis/controller/student/notification';
+import { StudentRootStackParamList } from '@/navigation/student/types';
+import { useQueryClient } from '@tanstack/react-query';
+import { TanstackQueryClient } from '@/apis/client';
+import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
+import { NoNotificationBellIcon } from '@/components/system/icons';
 
-interface Notice {
-  id: number;
-  title: string;
-  date: string;
-  isNew?: boolean;
-}
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const isToday = date.toDateString() === now.toDateString();
 
-const MOCK_NOTICES: Notice[] = [
-  { id: 1, title: '2024년 1월 정기 점검 안내', date: '2024.01.15', isNew: true },
-  { id: 2, title: '겨울방학 특강 일정 안내', date: '2024.01.10' },
-  { id: 3, title: '새로운 기능 업데이트 안내', date: '2024.01.05' },
-  { id: 4, title: '이용 약관 변경 안내', date: '2023.12.28' },
-  { id: 5, title: '개인정보 처리방침 변경 안내', date: '2023.12.20' },
-];
+  if (isToday) {
+    return `오늘 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  }
+
+  return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+};
+
+const getNotificationIcon = (type: string): 'megaphone' | 'message' | 'book' => {
+  switch (type) {
+    case 'QNA':
+      return 'message';
+    case 'ASSIGNMENT':
+      return 'book';
+    default:
+      return 'megaphone';
+  }
+};
 
 const NoticeScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
+  const queryClient = useQueryClient();
 
-  const handleNoticePress = (notice: Notice) => {
-    console.log('Notice pressed:', notice);
+  const { data: noticeData } = useGetNotice();
+  const { data: notificationData } = useGetNotification({ dayLimit: 7 });
+  const { data: notificationCountData } = useGetNotificationCount({});
+  const { invalidateAll } = useInvalidateNotificationData();
+
+  const invalidateNoticeData = () => {
+    queryClient.invalidateQueries({
+      queryKey: TanstackQueryClient.queryOptions('get', '/api/student/notice', {}).queryKey,
+    });
+    queryClient.invalidateQueries({
+      queryKey: TanstackQueryClient.queryOptions('get', '/api/student/notice/count', {}).queryKey,
+    });
   };
 
-  const renderNoticeItem = ({ item }: { item: Notice }) => (
-    <NotificationItem
-      icon='megaphone'
-      hasBadge={item.isNew}
-      title={item?.title ?? ''}
-      time={item?.date ?? ''}
-      hasShadow={true}>
-      <NotificationItem.Button variant='ghost' onPress={() => handleNoticePress(item)}>
-        더보기
-      </NotificationItem.Button>
-    </NotificationItem>
-  );
+  const { mutate: readAllNotifications } = usePostReadAllNotification({
+    onSuccess: () => {
+      invalidateAll();
+    },
+  });
+
+  const { mutate: readNotification } = usePostReadNotification({
+    onSuccess: () => {
+      invalidateAll();
+    },
+  });
+
+  const notices = noticeData?.data ?? [];
+  const notifications = notificationData?.data ?? [];
+  const unreadNotificationCount = notificationCountData?.unreadCount ?? 0;
+
+  const handleReadAll = () => {
+    if (unreadNotificationCount >= 1) {
+      readAllNotifications();
+    }
+  };
 
   return (
     <View className='w-full flex-1'>
       <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
         <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={24} color='#000' />
+          <ChevronLeft size={32} color='#000' />
         </Pressable>
         <Text className='text-20b text-black'>공지사항</Text>
-        <View />
+        <View className='w-10' />
       </SafeAreaView>
 
-      <Container className='mt-[10px] flex-1'>
-        <FlatList
-          data={MOCK_NOTICES}
-          renderItem={renderNoticeItem}
-          keyExtractor={(item) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ gap: 4 }}
-          ListEmptyComponent={
-            <View className='items-center justify-center py-20'>
-              <Text className='text-16r text-gray-500'>등록된 공지사항이 없습니다</Text>
-            </View>
-          }
-        />
-      </Container>
+      <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+        <View className='mx-auto w-full'>
+          <Container className='gap-[10px] pt-[16px]'>
+            {notices.map((notice) => (
+              <NotificationItem
+                key={notice.id}
+                icon='megaphone'
+                title={notice.title}
+                time={formatDate(notice.startAt)}
+                hasBadge={!notice.isRead}>
+                <NotificationItem.Button
+                  variant='ghost'
+                  onPress={() => {
+                    if (!notice.isRead) {
+                      putReadNotice(notice.id).then(() => {
+                        invalidateNoticeData();
+                      });
+                    }
+                    navigation.push('NotificationDetail', {
+                      noticeId: notice.id,
+                      title: notice.title,
+                      date: notice.startAt,
+                      content: notice.content,
+                    });
+                  }}>
+                  더보기
+                </NotificationItem.Button>
+              </NotificationItem>
+            ))}
+            {notices.length === 0 && (
+              <View className='flex-col items-center gap-[10px] py-[30px]'>
+                <Text className='text-14m text-gray-600'>공지사항이 없어요.</Text>
+              </View>
+            )}
+          </Container>
+        </View>
+        <Container className='flex-1 items-center justify-center gap-[10px] pb-[100px] pt-[20px]'>
+          <Text className='text-14m text-gray-600'>7일 전 알림까지 확인할 수 있어요.</Text>
+        </Container>
+      </ScrollView>
     </View>
   );
 };

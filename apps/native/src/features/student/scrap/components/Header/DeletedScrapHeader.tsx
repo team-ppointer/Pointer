@@ -11,7 +11,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 export interface DeletedScrapHeaderActions {
   onEnterSelection?: () => void;
   onExitSelection?: () => void;
-  onMove?: () => void;
   onDelete?: () => void;
   onRestore?: () => void;
   onSelectAll?: () => void;
@@ -84,14 +83,6 @@ const DeletedScrapHeader = ({
               className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Undo2 size={24} color={colors['primary-500']} />
               <Text className='text-12m text-primary-500'>복구하기</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => {
-                if (isActionEnabled && actions.onMove) actions.onMove();
-              }}
-              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
-              <ArrowRightLeft size={24} color={colors['primary-500']} />
-              <Text className='text-12m text-primary-500'>이동하기</Text>
             </Pressable>
             <Pressable
               onPress={() => {

@@ -12,9 +12,10 @@ interface InfoSectionProps {
   icon: React.ReactNode;
   title: string;
   fields: InfoField[];
+  showChevron?: boolean;
 }
 
-export const InfoSection = ({ icon, title, fields }: InfoSectionProps) => {
+export const InfoSection = ({ icon, title, fields, showChevron = true }: InfoSectionProps) => {
   return (
     <View className='gap-4'>
       <View className='flex-row items-center gap-2'>
@@ -24,7 +25,7 @@ export const InfoSection = ({ icon, title, fields }: InfoSectionProps) => {
       {fields.map((field, index) => (
         <View key={index} className='gap-[6px]'>
           <Text className='text-14m text-gray-900'>{field.label}</Text>
-          <IconMenuItem title={field.value} onPress={field.onPress} />
+          <IconMenuItem title={field.value} onPress={field.onPress} showChevron={showChevron} />
         </View>
       ))}
     </View>

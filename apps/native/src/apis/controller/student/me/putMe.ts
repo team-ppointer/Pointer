@@ -1,17 +1,24 @@
-import { client } from '@/apis/client';
+import { client, TanstackQueryClient } from '@/apis/client';
 import { components } from '@schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type StudentUpdateRequest = components['schemas']['StudentUpdateRequest'];
 
-const putMe = async (data: StudentUpdateRequest) => {
-  try {
-    const response = await client.PUT('/api/student/me', {
-      body: data,
-    });
-    return { isSuccess: true, data: response.data };
-  } catch (error) {
-    return { isSuccess: false, error: error };
-  }
+const usePutMe = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: StudentUpdateRequest) => {
+      const response = await client.PUT('/api/student/me', {
+        body: data,
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      void queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
+      });
+    },
+  });
 };
 
-export default putMe;
+export default usePutMe;
