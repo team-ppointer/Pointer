@@ -14,7 +14,7 @@ const EditMathSubjectScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditMathSubject'>) => {
-  const queryClient = useQueryClient();
+  const { mutate: putMeMutate } = putMe();
   const [selectSubject, setSelectSubject] = useState<MathSubjectValue | null>(
     route.params.initialMathSubject || null
   );
@@ -24,14 +24,18 @@ const EditMathSubjectScreen = ({
       showToast('error', '선택과목을 선택해 주세요.');
       return;
     }
-    const { isSuccess } = await putMe({ selectSubject });
-    if (isSuccess) {
-      await queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
-      });
-      navigation.goBack();
-      showToast('success', '선택과목이 변경되었습니다.');
-    }
+    putMeMutate(
+      { selectSubject },
+      {
+        onSuccess: () => {
+          navigation.goBack();
+          showToast('success', '선택과목이 변경되었습니다.');
+        },
+        onError: () => {
+          showToast('error', '선택과목 변경에 실패했습니다.');
+        },
+      }
+    );
   };
 
   return (

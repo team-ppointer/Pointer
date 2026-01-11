@@ -14,7 +14,7 @@ const EditNicknameScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditNickname'>) => {
-  const queryClient = useQueryClient();
+  const { mutate: putMeMutate } = putMe();
   const [value, setValue] = useState(route.params.initialNickname || '');
   const [error, setError] = useState('');
 
@@ -23,14 +23,18 @@ const EditNicknameScreen = ({
       setError('한글 2~4자로 입력해 주세요.');
       return;
     }
-    const { isSuccess } = await putMe({ nickname: value });
-    if (isSuccess) {
-      await queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
-      });
-      navigation.goBack();
-      showToast('success', '닉네임이 변경되었습니다.');
-    }
+    putMeMutate(
+      { nickname: value },
+      {
+        onSuccess: () => {
+          navigation.goBack();
+          showToast('success', '닉네임이 변경되었습니다.');
+        },
+        onError: () => {
+          showToast('error', '닉네임 변경에 실패했습니다.');
+        },
+      }
+    );
   };
 
   return (

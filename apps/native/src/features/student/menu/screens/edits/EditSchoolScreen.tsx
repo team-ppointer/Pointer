@@ -17,7 +17,7 @@ const EditSchoolScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditSchool'>) => {
-  const queryClient = useQueryClient();
+  const { mutate: putMeMutate } = putMe();
 
   const [schoolId, setSchoolId] = useState<number | null>(route.params.initialSchool?.id || null);
 
@@ -53,15 +53,15 @@ const EditSchoolScreen = ({
       return;
     }
 
-    const { isSuccess } = await putMe({ schoolId });
-    if (isSuccess) {
-      await queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
-      });
-
-      navigation.push('EditGrade', { initialGrade: route.params.initialSchool?.grade });
-      showToast('success', '학교가 변경되었습니다.');
-    }
+    putMeMutate(
+      { schoolId },
+      {
+        onSuccess: () => {
+          navigation.push('EditGrade', { initialGrade: route.params.initialSchool?.grade });
+          showToast('success', '학교가 변경되었습니다.');
+        },
+      }
+    );
   };
 
   return (

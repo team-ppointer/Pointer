@@ -7,14 +7,12 @@ import { levelOptions } from '@/features/student/onboarding/constants';
 import OptionButton from '@/features/student/onboarding/components/OptionButton';
 import { showToast } from '@/features/student/scrap/components/Notification';
 import { putMe } from '@/apis/controller/student';
-import { TanstackQueryClient } from '@/apis/client';
-import { useQueryClient } from '@tanstack/react-query';
 
 const EditScoreScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditScore'>) => {
-  const queryClient = useQueryClient();
+  const { mutate: putMeMutate } = putMe();
   const [level, setLevel] = useState<number | null>(route.params.initialScore || null);
 
   const levelRows = useMemo(() => {
@@ -30,14 +28,18 @@ const EditScoreScreen = ({
       showToast('error', '성적을 선택해 주세요.');
       return;
     }
-    const { isSuccess } = await putMe({ level: level });
-    if (isSuccess) {
-      await queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
-      });
-      navigation.goBack();
-      showToast('success', '성적이 변경되었습니다.');
-    }
+    putMeMutate(
+      { level: level },
+      {
+        onSuccess: () => {
+          navigation.goBack();
+          showToast('success', '성적이 변경되었습니다.');
+        },
+        onError: () => {
+          showToast('error', '성적 변경에 실패했습니다.');
+        },
+      }
+    );
   };
 
   return (

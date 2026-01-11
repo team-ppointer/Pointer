@@ -18,7 +18,7 @@ const EditGradeScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditGrade'>) => {
-  const queryClient = useQueryClient();
+  const { mutate: putMeMutate } = putMe();
   const [grade, setGrade] = useState<GradeValue | null>(route.params.initialGrade || null);
 
   const handleSave = async () => {
@@ -26,17 +26,18 @@ const EditGradeScreen = ({
       showToast('error', '학년을 선택해 주세요.');
       return;
     }
-    const { isSuccess } = await putMe({ grade: grade });
-    if (isSuccess) {
-      await queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
-      });
-      navigation.reset({
-        index: 1,
-        routes: [{ name: 'MenuMain' }, { name: 'MyInfo' }],
-      });
-      showToast('success', '학년이 변경되었습니다.');
-    }
+    putMeMutate(
+      { grade: grade },
+      {
+        onSuccess: () => {
+          navigation.reset({
+            index: 1,
+            routes: [{ name: 'MenuMain' }, { name: 'MyInfo' }],
+          });
+          showToast('success', '학년이 변경되었습니다.');
+        },
+      }
+    );
   };
   return (
     <EditScreenLayout
