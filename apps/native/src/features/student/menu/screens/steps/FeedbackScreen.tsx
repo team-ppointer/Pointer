@@ -16,35 +16,28 @@ import { ChevronLeft } from 'lucide-react-native';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
+import { usePostFeedback } from '@/apis/controller/student/me';
+import { showToast } from '@/features/student/scrap/components/Notification';
 
 const FeedbackScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [title, setTitle] = useState('');
+  const { mutate: postFeedback } = usePostFeedback();
+
   const [content, setContent] = useState('');
 
   const handleSubmit = () => {
-    if (!selectedCategory) {
-      Alert.alert('알림', '카테고리를 선택해주세요.');
-      return;
-    }
-    if (!title.trim()) {
-      Alert.alert('알림', '제목을 입력해주세요.');
-      return;
-    }
     if (!content.trim()) {
-      Alert.alert('알림', '내용을 입력해주세요.');
+      showToast('error', '내용을 입력해주세요.');
       return;
     }
-
-    console.log('Submit feedback:', { selectedCategory, title, content });
-    Alert.alert('감사합니다', '소중한 의견 감사합니다.\n빠른 시일 내에 확인하겠습니다.', [
-      {
-        text: '확인',
-        onPress: () => navigation.goBack(),
-      },
-    ]);
+    if (content.length < 10) {
+      showToast('error', '최소 10자 이상 입력해주세요.');
+      return;
+    }
+    postFeedback({ content });
+    showToast('success', '피드백이 제출되었습니다.');
+    setContent('');
   };
 
   return (
@@ -70,7 +63,7 @@ const FeedbackScreen = () => {
               <Text className='text-18sb text-black'>어떤 문제를 경험하셨나요?</Text>
               <Text className='text-12r text-gray-700'>
                 제품에 대한 피드백이나 버그를 작성해 주세요!{`\n`}적어주신 내용으로 더 나은 서비스
-                경험을 만들어 나가겠습니다.{' '}
+                경험을 만들어 나가겠습니다.
               </Text>
             </View>
 

@@ -12,8 +12,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container } from '@components/common';
-import { ChevronLeft, ChevronDown } from 'lucide-react-native';
-import { useGetMe } from '@apis/student';
+import { ChevronLeft, ChevronDown, CircleCheck } from 'lucide-react-native';
+import { putMe, useGetMe } from '@apis/student';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
@@ -21,10 +21,13 @@ import { carrierOptions, type CarrierValue } from '@features/student/onboarding/
 import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
 import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
 import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
+import { showToast } from '@/features/student/scrap/components/Notification';
 
 const PhoneNumberScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
+
+  const { mutate: putMeMutate } = putMe();
 
   const [phoneNumber, setPhoneNumber] = useState(data?.phoneNumber || '');
   const [carrier, setCarrier] = useState<CarrierValue | null>(null);
@@ -32,10 +35,6 @@ const PhoneNumberScreen = () => {
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [carrierModalVisible, setCarrierModalVisible] = useState(false);
   const [timer, setTimer] = useState(120); // 2분 = 120초
-
-  const postPhoneSendMutate = postPhoneSend(phoneNumber);
-  const postPhoneResendMutate = postPhoneResend(phoneNumber);
-  const postPhoneVerifyMutate = postPhoneVerify(phoneNumber, verificationCode);
 
   useEffect(() => {
     if (isCodeSent && timer > 0) {
@@ -49,29 +48,65 @@ const PhoneNumberScreen = () => {
   const handleSendCode = async () => {
     console.log('Send verification code to:', phoneNumber);
     try {
-      await postPhoneSendMutate;
-      setIsCodeSent(true);
-      setTimer(120);
+      const response = await postPhoneSend(phoneNumber);
+      if (response.data?.success) {
+        setIsCodeSent(true);
+        setTimer(120);
+        showToast('success', response.data.message || '인증번호가 전송되었습니다.');
+      } else {
+        showToast('error', response.data?.message || '인증번호 전송에 실패했습니다.');
+      }
     } catch (error) {
       console.error('Failed to send verification code:', error);
+      showToast('error', '인증번호 전송에 실패했습니다.');
     }
   };
 
   const handleResendCode = async () => {
     try {
-      await postPhoneResendMutate;
-      setIsCodeSent(true);
-      setTimer(120);
+      const response = await postPhoneResend(phoneNumber);
+      if (response.data?.success) {
+        setIsCodeSent(true);
+        setTimer(120);
+        showToast('success', response.data.message || '인증번호가 재전송되었습니다.');
+      } else {
+        showToast('error', response.data?.message || '인증번호 재전송에 실패했습니다.');
+      }
     } catch (error) {
       console.error('Failed to resend verification code:', error);
+      showToast('error', '인증번호 재전송에 실패했습니다.');
     }
   };
 
   const handleVerify = async () => {
+    if (!verificationCode || verificationCode.length !== 4) {
+      showToast('error', '인증번호 4자리를 입력해주세요.');
+      return;
+    }
+
     try {
-      await postPhoneVerifyMutate;
+      const response = await postPhoneVerify(phoneNumber, verificationCode);
+      if (response.data?.success) {
+        const verifyMessage = response.data.message || '인증이 완료되었습니다.';
+        // 인증 성공 시 휴대폰 번호 업데이트
+        putMeMutate(
+          { phoneNumber },
+          {
+            onSuccess: () => {
+              showToast('success', verifyMessage);
+              navigation.goBack();
+            },
+            onError: () => {
+              showToast('error', '휴대폰 번호 변경에 실패했습니다.');
+            },
+          }
+        );
+      } else {
+        showToast('error', response.data?.message || '인증에 실패했습니다.');
+      }
     } catch (error) {
       console.error('Failed to verify verification code:', error);
+      showToast('error', '인증에 실패했습니다.');
     }
   };
 
@@ -107,7 +142,7 @@ const PhoneNumberScreen = () => {
             </View>
 
             <View className='gap-[20px]'>
-              <View className='gap-[10px]'>
+              <View className='gap-[6px]'>
                 <Text className='text-14m  text-gray-900'>휴대폰 번호</Text>
                 <View className='flex-row items-center gap-[10px]'>
                   <TextInput
@@ -116,7 +151,7 @@ const PhoneNumberScreen = () => {
                     placeholder='01012345678'
                     placeholderTextColor={colors['gray-600']}
                     keyboardType='phone-pad'
-                    className={`text-16r h-[48px] flex-1 rounded-[10px] border bg-white px-4 py-[11px] text-black ${isCodeSent ? 'border-blue-500' : 'border-gray-300'}`}
+                    className={`text-16r h-[48px] flex-1 items-center rounded-[10px] border bg-white px-4 py-[11px] text-black ${isCodeSent ? 'border-blue-500' : 'border-gray-300'}`}
                   />
                   {isCodeSent && (
                     <Pressable
@@ -127,8 +162,14 @@ const PhoneNumberScreen = () => {
                     </Pressable>
                   )}
                 </View>
+                {isCodeSent && (
+                  <View className='flex-row items-center gap-2'>
+                    <CircleCheck color={colors['blue-500']} size={14} />
+                    <Text className='text-12r text-blue-500'>문자로 인증번호를 전송했어요</Text>
+                  </View>
+                )}
               </View>
-              <View className='gap-[10px]'>
+              <View className='gap-[6px]'>
                 <Text className='text-14m  text-gray-900'>통신사</Text>
                 <View className='relative'>
                   <Pressable
@@ -146,7 +187,7 @@ const PhoneNumberScreen = () => {
             </View>
 
             {isCodeSent && (
-              <View className='gap-[10px]'>
+              <View className='gap-[6px]'>
                 <Text className='text-14m  text-gray-900'>인증번호</Text>
                 <View className='w-full' style={{ position: 'relative' }}>
                   <TextInput
