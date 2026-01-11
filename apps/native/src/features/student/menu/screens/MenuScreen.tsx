@@ -1,7 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
+import { TanstackQueryClient } from '@/apis/client';
 
 import { useGetMe, useGetNoticeCount } from '@apis/student';
 import { useAuthStore } from '@stores';
@@ -23,9 +25,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const signOut = useAuthStore((state) => state.signOut);
+  const queryClient = useQueryClient();
   const { data: noticeCount } = useGetNoticeCount();
   const { data, isLoading, isError } = useGetMe();
-  const userInfo = data ?? null;
+  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/notice/count').queryKey,
+      });
+    }, [queryClient])
+  );
 
   const handleLogout = useCallback(async () => {
     try {
@@ -34,8 +48,6 @@ const MenuScreen = () => {
       console.error('Failed to sign out', error);
     }
   }, [signOut]);
-
-  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
 
   return (
     <View className='w-full flex-1'>
