@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, View, Linking, Pressable } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
 import { postSocialLogin } from '@apis/student';
@@ -11,13 +11,35 @@ import { colors } from '@theme/tokens';
 import { MailIcon, ChevronRightIcon } from 'lucide-react-native';
 import TermsConsentSheet from '../components/TermsConsentSheet';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const LoginScreen = () => {
   const { setSessionStatus, setRole } = useAuthStore();
   const [pendingSocial, setPendingSocial] = useState<'KAKAO' | 'GOOGLE' | null>(null);
+  const [googleData, setGoogleData] = useState<{ userInfo: string; tokens: string } | null>(null);
   const termsSheetRef = useRef<BottomSheet>(null);
   const { bottom: bottomInset } = useSafeAreaInsets();
   const startOnboarding = useOnboardingStore((state) => state.start);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    });
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    const tokens = await GoogleSignin.getTokens();
+
+    console.log(userInfo);
+    console.log(tokens);
+
+    setGoogleData({
+      userInfo: JSON.stringify(userInfo, null, 2),
+      tokens: JSON.stringify(tokens, null, 2),
+    });
+  };
 
   const handleLoginClick = async (social: 'KAKAO' | 'GOOGLE') => {
     try {
@@ -55,6 +77,15 @@ const LoginScreen = () => {
         <View className='flex-1 items-center justify-center gap-[12px] py-[10px]'>
           <PointerLogo />
           <Text className='text-16r text-gray-700'>강남 8학군의 필수 수학 학습 플랫폼</Text>
+          {googleData && (
+            <View className='max-h-[200px] w-full rounded-[8px] bg-gray-100 p-[12px]'>
+              <Text className='text-12r text-gray-700'>
+                UserInfo: {googleData.userInfo}
+                {'\n\n'}
+                Tokens: {googleData.tokens}
+              </Text>
+            </View>
+          )}
         </View>
         <View className='gap-[10px] pb-[38px] pt-[10px]'>
           <AnimatedPressable
@@ -83,6 +114,16 @@ const LoginScreen = () => {
             </Pressable>
           </View> */}
           <View className='flex-row items-center justify-center gap-[8px] pt-[10px]'>
+            <Pressable
+              className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
+              onPress={handleGoogleLogin}>
+              <Text className='text-16m text-gray-700'>구글 로그인 테스트</Text>
+            </Pressable>
+            <Pressable
+              className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
+              onPress={async () => await GoogleSignin.signOut()}>
+              <Text className='text-16m text-gray-700'>구글 로그아웃 테스트</Text>
+            </Pressable>
             <Pressable
               className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
               onPress={() => {

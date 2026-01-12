@@ -4,6 +4,9 @@ import 'dotenv/config';
 const androidGoogleServicesFile =
   process.env.ANDROID_GOOGLE_SERVICES_JSON || './google-services.json';
 
+const isDev =
+  process.env.APP_VARIANT === 'development' || process.env.EAS_BUILD_PROFILE === 'development';
+
 const config: ExpoConfig = {
   name: 'Pointer',
   slug: 'pointer',
@@ -18,6 +21,9 @@ const config: ExpoConfig = {
     supportsTablet: true,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
+      NSAppTransportSecurity: {
+        NSAllowsArbitraryLoads: true,
+      },
     },
     icon: './assets/ios-pointer.icon',
   },
@@ -55,6 +61,12 @@ const config: ExpoConfig = {
         dark: {
           backgroundColor: '#000000',
         },
+      },
+    ],
+    [
+      '@react-native-google-signin/google-signin',
+      {
+        iosUrlScheme: 'com.googleusercontent.apps.743865706187-4aj7gacd57ucldfarm5ton9ko9tm044l',
       },
     ],
   ],
