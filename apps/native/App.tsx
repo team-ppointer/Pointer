@@ -13,6 +13,10 @@ import { useLoadAssets } from '@hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/features/student/scrap/components/Notification/Toast';
+import { env } from '@utils';
+import { initializeKakaoSDK } from '@react-native-kakao/core';
+
+initializeKakaoSDK(env.kakaoNativeAppKey);
 
 const queryClient = new QueryClient();
 

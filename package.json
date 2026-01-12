@@ -1,6 +1,11 @@
 {
   "name": "mopl",
   "private": true,
+  "pnpm": {
+    "overrides": {
+      "esbuild": "0.25.12"
+    }
+  },
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",

@@ -49,6 +49,11 @@ const config: ExpoConfig = {
         ios: {
           deploymentTarget: '15.1',
         },
+        android: {
+          extraMavenRepos: [
+            'https://devrepo.kakao.com/nexus/content/groups/public/'
+          ]
+        },
       },
     ],
     [
@@ -69,12 +74,27 @@ const config: ExpoConfig = {
         iosUrlScheme: 'com.googleusercontent.apps.743865706187-4aj7gacd57ucldfarm5ton9ko9tm044l',
       },
     ],
+    [
+      '@react-native-kakao/core',
+      {
+        nativeAppKey: process.env.KAKAO_NATIVE_APP_KEY,
+        android: {
+          authCodeHandlerActivity: true,
+        },
+        ios: {
+          handleKakaoOpenUrl: true,
+        },
+      },
+    ],
   ],
   extra: {
     apiBaseUrl: process.env.NATIVE_API_BASE_URL,
     authRedirectUri: process.env.NATIVE_AUTH_REDIRECT_URI,
     devAccessToken: process.env.NATIVE_DEV_ACCESS_TOKEN,
     devRefreshToken: process.env.NATIVE_DEV_REFRESH_TOKEN,
+    googleWebClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+    googleIosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
+    kakaoNativeAppKey: process.env.KAKAO_NATIVE_APP_KEY,
     eas: {
       projectId: '76a68921-8c65-4e50-98b0-fb5ef457ab7e',
     },

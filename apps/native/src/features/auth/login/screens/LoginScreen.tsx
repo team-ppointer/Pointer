@@ -12,11 +12,13 @@ import { MailIcon, ChevronRightIcon } from 'lucide-react-native';
 import TermsConsentSheet from '../components/TermsConsentSheet';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { login, logout } from '@react-native-kakao/user';
 
 const LoginScreen = () => {
   const { setSessionStatus, setRole } = useAuthStore();
   const [pendingSocial, setPendingSocial] = useState<'KAKAO' | 'GOOGLE' | null>(null);
   const [googleData, setGoogleData] = useState<{ userInfo: string; tokens: string } | null>(null);
+  const [kakaoData, setKakaoData] = useState<string | null>(null);
   const termsSheetRef = useRef<BottomSheet>(null);
   const { bottom: bottomInset } = useSafeAreaInsets();
   const startOnboarding = useOnboardingStore((state) => state.start);
@@ -24,6 +26,7 @@ const LoginScreen = () => {
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     });
   }, []);
 
@@ -39,6 +42,17 @@ const LoginScreen = () => {
       userInfo: JSON.stringify(userInfo, null, 2),
       tokens: JSON.stringify(tokens, null, 2),
     });
+  };
+
+  const handleKakaoLogin = async () => {
+    try {
+      const result = await login();
+      console.log(result);
+
+      setKakaoData(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleLoginClick = async (social: 'KAKAO' | 'GOOGLE') => {
@@ -78,11 +92,18 @@ const LoginScreen = () => {
           <PointerLogo />
           <Text className='text-16r text-gray-700'>강남 8학군의 필수 수학 학습 플랫폼</Text>
           {googleData && (
-            <View className='max-h-[200px] w-full rounded-[8px] bg-gray-100 p-[12px]'>
+            <View className='w-full'>
               <Text className='text-12r text-gray-700'>
                 UserInfo: {googleData.userInfo}
                 {'\n\n'}
                 Tokens: {googleData.tokens}
+              </Text>
+            </View>
+          )}
+          {kakaoData && (
+            <View className='w-full'>
+              <Text className='text-12r text-gray-700'>
+                KakaoData: {kakaoData}
               </Text>
             </View>
           )}
@@ -117,12 +138,29 @@ const LoginScreen = () => {
             <Pressable
               className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
               onPress={handleGoogleLogin}>
-              <Text className='text-16m text-gray-700'>구글 로그인 테스트</Text>
+              <Text className='text-16m text-gray-700'>구글 로그인</Text>
             </Pressable>
             <Pressable
               className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
-              onPress={async () => await GoogleSignin.signOut()}>
-              <Text className='text-16m text-gray-700'>구글 로그아웃 테스트</Text>
+              onPress={async () => {
+                await GoogleSignin.signOut();
+                setGoogleData(null);
+              }}>
+              <Text className='text-16m text-gray-700'>구글 로그아웃</Text>
+            </Pressable>
+            <Pressable
+              className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
+              onPress={handleKakaoLogin}>
+              <Text className='text-16m text-gray-700'>카카오 로그인</Text>
+            </Pressable>
+            <Pressable
+              className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
+              onPress={async () => {
+                await logout();
+                setKakaoData(null);
+                setGoogleData(null);
+              }}>
+              <Text className='text-16m text-gray-700'>카카오 로그아웃</Text>
             </Pressable>
             <Pressable
               className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
