@@ -19,6 +19,7 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: 'com.math-pointer.pointer',
     supportsTablet: true,
+    usesAppleSignIn: true,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSAppTransportSecurity: {
@@ -86,6 +87,7 @@ const config: ExpoConfig = {
         },
       },
     ],
+    ["expo-apple-authentication"]
   ],
   extra: {
     apiBaseUrl: process.env.NATIVE_API_BASE_URL,

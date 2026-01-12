@@ -52,7 +52,7 @@ export default function App() {
           <NavigationContainer theme={navigationTheme} linking={linking}>
             <StatusBar style='dark' />
             <RootNavigator />
-            <Toast config={toastConfig} style={{ zIndex: 9999 }} />
+            <Toast config={toastConfig} />
           </NavigationContainer>
         </SafeAreaProvider>
       </GestureHandlerRootView>

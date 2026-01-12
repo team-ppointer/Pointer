@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Text, View, Linking, Pressable } from 'react-native';
+import { Text, View, Linking, Pressable, ScrollView } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
 import { postSocialLogin } from '@apis/student';
 import { env, setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
-import { GoogleIcon, KakaoIcon, PointerLogo } from '@components/system/icons';
+import { GoogleIcon, KakaoIcon, PointerLogo, AppleIcon } from '@components/system/icons';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@theme/tokens';
@@ -13,12 +13,14 @@ import TermsConsentSheet from '../components/TermsConsentSheet';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { login, logout } from '@react-native-kakao/user';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 const LoginScreen = () => {
   const { setSessionStatus, setRole } = useAuthStore();
   const [pendingSocial, setPendingSocial] = useState<'KAKAO' | 'GOOGLE' | null>(null);
   const [googleData, setGoogleData] = useState<{ userInfo: string; tokens: string } | null>(null);
   const [kakaoData, setKakaoData] = useState<string | null>(null);
+  const [appleData, setAppleData] = useState<string | null>(null);
   const termsSheetRef = useRef<BottomSheet>(null);
   const { bottom: bottomInset } = useSafeAreaInsets();
   const startOnboarding = useOnboardingStore((state) => state.start);
@@ -85,6 +87,26 @@ const LoginScreen = () => {
     }
   };
 
+  const handleAppleLogin = async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      
+      console.log(credential);
+      setAppleData(JSON.stringify(credential, null, 2));
+    } catch (e: any) {
+      if (e.code === 'ERR_REQUEST_CANCELED') {
+        console.log('user canceled the sign-in flow');
+      } else {
+        console.error(e);
+      }
+    }
+  };
+
   return (
     <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
       <Container className='flex-1'>
@@ -92,23 +114,36 @@ const LoginScreen = () => {
           <PointerLogo />
           <Text className='text-16r text-gray-700'>강남 8학군의 필수 수학 학습 플랫폼</Text>
           {googleData && (
-            <View className='w-full'>
+            <ScrollView className='w-full'>
               <Text className='text-12r text-gray-700'>
                 UserInfo: {googleData.userInfo}
                 {'\n\n'}
                 Tokens: {googleData.tokens}
               </Text>
-            </View>
+            </ScrollView>
           )}
           {kakaoData && (
-            <View className='w-full'>
+            <ScrollView className='w-full'>
               <Text className='text-12r text-gray-700'>
                 KakaoData: {kakaoData}
               </Text>
-            </View>
+            </ScrollView>
+          )}
+          {appleData && (
+            <ScrollView className='w-full'>
+              <Text className='text-12r text-gray-700'>
+                AppleData: {appleData}
+              </Text>
+            </ScrollView>
           )}
         </View>
         <View className='gap-[10px] pb-[38px] pt-[10px]'>
+          <AnimatedPressable
+            className='flex-row items-center justify-center gap-[8px] rounded-[8px] bg-black px-[12px] py-[10px]'
+            onPress={handleAppleLogin}>
+            <AppleIcon size={18} />
+            <Text className='text-16m text-white'>Apple로 시작하기</Text>
+          </AnimatedPressable>
           <AnimatedPressable
             className='flex-row items-center justify-center gap-[8px] rounded-[8px] bg-[#FFDE00] px-[12px] py-[10px]'
             onPress={() => handleSocialButtonPress('KAKAO')}>
@@ -119,7 +154,7 @@ const LoginScreen = () => {
             className='flex-row items-center justify-center gap-[8px] rounded-[8px] border border-gray-500 bg-white px-[12px] py-[10px]'
             onPress={() => handleSocialButtonPress('GOOGLE')}>
             <GoogleIcon size={20} />
-            <Text className='text-16m text-black'>구글로 시작하기</Text>
+            <Text className='text-16m text-black'>Google로 시작하기</Text>
           </AnimatedPressable>
           <AnimatedPressable
             className='border-primary-200 bg-primary-100 flex-row items-center justify-center gap-[8px] rounded-[8px] border px-[12px] py-[10px]'

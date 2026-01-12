@@ -23,6 +23,7 @@ import CircleStarIcon from './CircleStarIcon';
 import PencilFilledIcon from './PencilFilledIcon';
 import EraserFilledIcon from './EraserFilledIcon';
 import PointerLogo from './PointerLogo';
+import AppleIcon from './AppleIcon';
 
 export {
   AlertBellButtonIcon,
@@ -50,4 +51,5 @@ export {
   EraserFilledIcon,
   CircleStarIcon,
   PointerLogo,
+  AppleIcon,
 };
