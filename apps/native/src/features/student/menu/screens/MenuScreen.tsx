@@ -16,7 +16,7 @@ import {
   MenuSection,
 } from '../components';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
-import { MenuStackParamList } from '../MenuNavigator';
+import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MenuScreen = () => {
@@ -53,7 +53,7 @@ const MenuScreen = () => {
           <Text className='text-20b text-black'>전체 메뉴</Text>
         </Container>
       </SafeAreaView>
-      <Container>
+      <Container className='flex-1'>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 40 }}>

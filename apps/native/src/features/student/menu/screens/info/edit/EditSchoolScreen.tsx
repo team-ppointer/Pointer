@@ -1,10 +1,10 @@
 import { OnboardingInput } from '@/features/student/onboarding/components';
-import { EditScreenLayout } from '../../components';
-import { useEffect, useState } from 'react';
+import { EditScreenLayout } from '../../../components';
+import { useState } from 'react';
 import { showToast } from '@/features/student/scrap/components/Notification';
 import { useGetSchool } from '@apis/student';
 import usePutMe from '@/apis/controller/student/me/putMe';
-import { MenuStackParamList } from '../../MenuNavigator';
+import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
 import { colors } from '@/theme/tokens';

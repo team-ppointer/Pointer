@@ -1,7 +1,7 @@
-import { Text, View } from 'react-native';
-import { EditScreenLayout } from '../../components';
+import { View } from 'react-native';
+import { EditScreenLayout } from '../../../components';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { MenuStackParamList } from '../../MenuNavigator';
+import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { useMemo, useState } from 'react';
 import { levelOptions } from '@/features/student/onboarding/constants';
 import OptionButton from '@/features/student/onboarding/components/OptionButton';

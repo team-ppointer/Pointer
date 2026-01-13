@@ -1,36 +1,25 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
+import React from 'react';
+import { View, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container } from '@components/common';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { BookHeartIcon, CircleStarIcon, ProfileBasicIcon } from '@components/system/icons';
-import { putMe, useGetMe } from '@apis/student';
-import { MenuStackParamList } from '../../MenuNavigator';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { InfoSection } from '../../components';
-import { ConfirmationModal } from '@/features/student/scrap/components/Dialog';
-import { OnboardingStackParamList } from '@/features/student/onboarding/screens/types';
+import { useGetMe } from '@apis/student';
+import { MenuStackParamList } from '@navigation/student/MenuNavigator';
+import { InfoSection, ScreenLayout } from '../../components';
 import { gradeOptions, levelOptions } from '@/features/student/onboarding/constants';
-const MyinfoScreen = () => {
+
+const MyInfoScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
 
   return (
-    <View className='w-full flex-1'>
-      <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
-        <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={32} color='#000' />
-        </Pressable>
-        <Text className='text-20b text-black'>내 정보</Text>
-        <View className='w-[10px]' />
-      </SafeAreaView>
+    <ScreenLayout title='내 정보'>
       <ScrollView
-        className='flex-1'
-        showsVerticalScrollIndicator={false}
+        className='flex-1 pt-[10px]'
         bounces={false}
         contentContainerStyle={{ flexGrow: 1 }}>
-        <Container className='flex-1 gap-7 bg-gray-100 py-6'>
+        <Container className='pb-[24px] gap-[28px]'>
           <InfoSection
             icon={<ProfileBasicIcon />}
             title='기본 정보'
@@ -46,7 +35,7 @@ const MyinfoScreen = () => {
                 label: '휴대폰 번호',
                 value: data?.phoneNumber || '',
                 onPress: () => {
-                  navigation.navigate('PhoneNumber');
+                  navigation.navigate('EditPhoneNumber');
                 },
               },
             ]}
@@ -59,7 +48,7 @@ const MyinfoScreen = () => {
                 label: '학교 · 학년',
                 value: data?.school?.name
                   ? `${data?.school?.name} ${gradeOptions.find((option) => option.value === data?.grade)?.label}`
-                  : '',
+                  : gradeOptions.find((option) => option.value === data?.grade)?.label || '',
                 onPress: () =>
                   navigation.navigate('EditSchool', {
                     initialSchool: data?.school
@@ -89,7 +78,7 @@ const MyinfoScreen = () => {
           />
         </Container>
 
-        <Container className='flex-1 gap-7 bg-blue-100 py-6'>
+        <Container className='flex-1 bg-blue-100 pt-[24px]'>
           <InfoSection
             icon={<CircleStarIcon />}
             title='계정 정보'
@@ -101,8 +90,8 @@ const MyinfoScreen = () => {
           />
         </Container>
       </ScrollView>
-    </View>
+    </ScreenLayout>
   );
 };
 
-export default MyinfoScreen;
+export default MyInfoScreen;

@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Container } from '@components/common';
-import { ChevronLeft, AlertCircle } from 'lucide-react-native';
+import { AnimatedPressable, Container } from '@components/common';
 import { useAuthStore } from '@stores';
-import { MenuStackParamList } from '../../MenuNavigator';
+import { ScreenLayout } from '../components';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { deleteAccount } from '@/apis/controller/auth';
+import { CheckIcon } from 'lucide-react-native';
 
 const WITHDRAWAL_REASONS = [
   '서비스 사용방법이 너무 어려워요.',
@@ -29,7 +27,6 @@ const REASON_MAPPING: Record<
 };
 
 const WithdrawalScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const signOut = useAuthStore((state) => state.signOut);
 
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
@@ -68,20 +65,13 @@ const WithdrawalScreen = () => {
   };
 
   return (
-    <View className='w-full flex-1'>
-      <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
-        <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={32} color='#000' />
-        </Pressable>
-        <Text className='text-20b text-black'>회원 탈퇴</Text>
-        <View className='w-10' />
-      </SafeAreaView>
+    <ScreenLayout title='회원 탈퇴'>
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
-        <Container className='gap-6'>
-          <View className='gap-[6px]'>
+        <Container>
+          <View className='mb-[20px]'>
             {!showReasons && (
               <>
-                <Text className='text-18sb text-black'>포인터를 탈퇴하시겠습니까?</Text>
+                <Text className='text-18sb text-black mb-[6px]'>포인터를 탈퇴하시겠습니까?</Text>
                 <Text className='text-12r text-gray-700'>
                   지금까지의 학습, 스크랩, 채팅 기록이 모두 삭제되고{`\n`}14일간 재가입 및 접속이
                   제한됩니다.
@@ -90,7 +80,7 @@ const WithdrawalScreen = () => {
             )}
             {showReasons && (
               <>
-                <Text className='text-18sb text-black'>
+                <Text className='text-18sb text-black mb-[6px]'>
                   서비스 개선을 위해{`\n`}
                   탈퇴 사유를 알려주세요.
                 </Text>
@@ -105,13 +95,13 @@ const WithdrawalScreen = () => {
               <Pressable
                 key={reason}
                 onPress={() => toggleReason(reason)}
-                className='mb-[12px] flex-row items-center gap-[10px]'>
+                className='h-[48px] flex-row items-center gap-[10px]'>
                 <View
-                  className={`h-5 w-5 items-center justify-center rounded-[4px] border border-gray-700 ${
-                    selectedReasons.includes(reason) ? 'bg-blue-500' : 'border-2 border-gray-300'
+                  className={`h-[16px] w-[16px] items-center justify-center rounded-[4px] border border-gray-700 ${
+                    selectedReasons.includes(reason) ? 'bg-blue-500' : 'border border-gray-300'
                   }`}>
                   {selectedReasons.includes(reason) && (
-                    <Text className='text-12b text-white'>✓</Text>
+                    <CheckIcon color='#F5F5F5' size={16} strokeWidth={2.5} />
                   )}
                 </View>
                 <Text className='text-16r flex-1 text-black'>{reason}</Text>
@@ -120,19 +110,19 @@ const WithdrawalScreen = () => {
         </Container>
       </ScrollView>
 
-      <SafeAreaView edges={['bottom']}>
+      <SafeAreaView edges={['bottom']} className='mb-[18px]'>
         <Container>
-          <Pressable
+          <AnimatedPressable
             onPress={handleWithdrawalClick}
             disabled={showReasons && selectedReasons.length === 0}
             className={`items-center rounded-xl px-3 py-[10px] ${
               !showReasons || selectedReasons.length > 0 ? 'bg-primary-500' : 'bg-gray-300'
             }`}>
             <Text className='text-16m text-white'>탈퇴하기</Text>
-          </Pressable>
+          </AnimatedPressable>
         </Container>
       </SafeAreaView>
-    </View>
+    </ScreenLayout>
   );
 };
 

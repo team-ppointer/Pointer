@@ -1,11 +1,8 @@
 import React from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Text, Pressable, ScrollView } from 'react-native';
 import { Container } from '@components/common';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import { MenuStackParamList } from '../../MenuNavigator';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChevronRight } from 'lucide-react-native';
+import { ScreenLayout } from '../components';
 import { colors } from '@/theme/tokens';
 
 interface TermsItem {
@@ -21,22 +18,12 @@ const TERMS_LIST: TermsItem[] = [
 ];
 
 const TermsScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
-
   const handleTermPress = (term: TermsItem) => {
     console.log('Term pressed:', term);
   };
 
   return (
-    <View className='w-full flex-1'>
-      <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
-        <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={32} color='#000' />
-        </Pressable>
-        <Text className='text-20b text-black'>서비스 약관</Text>
-        <View className='w-10' />
-      </SafeAreaView>
-
+    <ScreenLayout title='서비스 약관'>
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
         <Container className='gap-3'>
           {TERMS_LIST.map((term) => (
@@ -50,7 +37,7 @@ const TermsScreen = () => {
           ))}
         </Container>
       </ScrollView>
-    </View>
+    </ScreenLayout>
   );
 };
 

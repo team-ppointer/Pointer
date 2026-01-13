@@ -1,7 +1,7 @@
-import { EditScreenLayout } from '../../components';
+import { EditScreenLayout } from '../../../components';
 import { OnboardingInput } from '@/features/student/onboarding/components';
 import { useState } from 'react';
-import { MenuStackParamList } from '../../MenuNavigator';
+import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import usePutMe from '@/apis/controller/student/me/putMe';
 import { showToast } from '@/features/student/scrap/components/Notification';

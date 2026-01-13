@@ -1,7 +1,8 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { ChevronRight, LucideIcon } from 'lucide-react-native';
 import { colors } from '@/theme/tokens';
+import { AnimatedPressable } from '@/components/common';
 
 interface MenuListItemProps {
   icon?: LucideIcon;
@@ -14,13 +15,15 @@ interface MenuListItemProps {
 
 export const MenuListItem = ({ icon: Icon, title, onPress, isNew, children, showChevron = true }: MenuListItemProps) => {
   return (
-    <Pressable className='h-[48px] flex-row items-center bg-white px-[16px]' onPress={onPress}>
-      <View
-        className='h-[48px] flex-1 flex-row items-center'>
+    <AnimatedPressable
+      className='h-[48px] flex-row items-center bg-white px-[16px]'
+      onPress={onPress}
+      disableScale>
+      <View className='h-[48px] flex-1 flex-row items-center'>
         {Icon && (
-          <View className='w-[30px] h-[30px] justify-center items-center mr-[4px]'>
-          <Icon size={20} color={colors['gray-700']} />
-        </View>
+          <View className='mr-[4px] h-[30px] w-[30px] items-center justify-center'>
+            <Icon size={20} color={colors['gray-700']} />
+          </View>
         )}
         <Text className={`flex-1 text-16m ${Icon ? 'text-black' : 'text-gray-700'}`}>{title}</Text>
         <View className='flex-row items-center gap-[4px]'>
@@ -31,12 +34,12 @@ export const MenuListItem = ({ icon: Icon, title, onPress, isNew, children, show
           )}
           {children}
           {showChevron && (
-            <View className='p-[8px] justify-center items-center'>
+            <View className='items-center justify-center p-[8px]'>
               <ChevronRight size={20} color={colors['gray-600']} />
             </View>
           )}
         </View>
       </View>
-    </Pressable>
+    </AnimatedPressable>
   );
 };

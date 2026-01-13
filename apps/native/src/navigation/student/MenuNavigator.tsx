@@ -1,32 +1,32 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import MenuScreen from './screens/MenuScreen';
+import MenuScreen from '@features/student/menu/screens/MenuScreen';
 import {
-  MyinfoScreen,
-  PhoneNumberScreen,
-  NotificationSettingsScreen,
-  NoticeScreen,
-  FeedbackScreen,
-  TermsScreen,
-  WithdrawalScreen,
-} from './screens/steps';
-
-import { EditNicknameScreen, EditSchoolScreen } from './screens/edits';
+  MyInfoScreen,
+  EditNicknameScreen,
+  EditSchoolScreen,
+  EditGradeScreen,
+  EditScoreScreen,
+  EditMathSubjectScreen,
+  EditPhoneNumberScreen,
+} from '@features/student/menu/screens/info';
+import NotificationSettingsScreen from '@features/student/menu/screens/NotificationSettingsScreen';
+import NoticeScreen from '@features/student/menu/screens/NoticeScreen';
+import FeedbackScreen from '@features/student/menu/screens/FeedbackScreen';
+import TermsScreen from '@features/student/menu/screens/TermsScreen';
+import WithdrawalScreen from '@features/student/menu/screens/WithdrawalScreen';
 import { components } from '@/types/api/schema';
-import EditScoreScreen from './screens/edits/EditScoreScreen';
-import { GradeValue, MathSubjectValue } from '../onboarding/constants';
-import EditMathSubjectScreen from './screens/edits/EditMathSubjectScreen';
-import EditGradeScreen from './screens/edits/EditGradeScreen';
+import { GradeValue, MathSubjectValue } from '@features/student/onboarding/constants';
 
 export type MenuStackParamList = {
   MenuMain: undefined;
   MyInfo: undefined;
-  PhoneNumber: undefined;
   NotificationSettings: undefined;
   Notice: undefined;
   Feedback: undefined;
   Terms: undefined;
   Withdrawal: undefined;
+  EditPhoneNumber: undefined;
   EditNickname: { initialNickname?: string };
   EditSchool: { initialSchool?: components['schemas']['SchoolResp'] & { grade?: GradeValue } };
   EditGrade: { initialGrade?: GradeValue };
@@ -52,7 +52,7 @@ const MenuNavigator = () => {
       />
       <MenuStack.Screen
         name='MyInfo'
-        component={MyinfoScreen}
+        component={MyInfoScreen}
         options={{
           presentation: 'card',
         }}
@@ -70,8 +70,8 @@ const MenuNavigator = () => {
         })}
       />
       <MenuStack.Screen
-        name='PhoneNumber'
-        component={PhoneNumberScreen}
+        name='EditPhoneNumber'
+        component={EditPhoneNumberScreen}
         listeners={({ navigation }) => ({
           focus: () => {
             navigation.getParent()?.setOptions({

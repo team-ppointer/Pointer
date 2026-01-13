@@ -1,11 +1,9 @@
 import React from 'react';
-import { View, Text, Pressable, ScrollView, FlatList } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container, NotificationItem } from '@components/common';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import { MenuStackParamList } from '../../MenuNavigator';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScreenLayout } from '../components';
 import { putReadNotice, useGetNotice } from '@/apis/controller/student/notice';
 import {
   useGetNotification,
@@ -17,7 +15,6 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { TanstackQueryClient } from '@/apis/client';
 import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
-import { NoNotificationBellIcon } from '@/components/system/icons';
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -83,16 +80,8 @@ const NoticeScreen = () => {
   };
 
   return (
-    <View className='w-full flex-1'>
-      <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
-        <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={32} color='#000' />
-        </Pressable>
-        <Text className='text-20b text-black'>공지사항</Text>
-        <View className='w-10' />
-      </SafeAreaView>
-
-      <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+    <ScreenLayout title='공지사항'>
+      <ScrollView>
         <View className='mx-auto w-full'>
           <Container className='gap-[10px] pt-[16px]'>
             {notices.map((notice) => (
@@ -132,7 +121,7 @@ const NoticeScreen = () => {
           <Text className='text-14m text-gray-600'>7일 전 알림까지 확인할 수 있어요.</Text>
         </Container>
       </ScrollView>
-    </View>
+    </ScreenLayout>
   );
 };
 

@@ -1,8 +1,8 @@
 import { View } from 'react-native';
-import { EditScreenLayout } from '../../components';
+import { EditScreenLayout } from '../../../components';
 import { useState } from 'react';
 import { mathSubjectOptions, MathSubjectValue } from '@/features/student/onboarding/constants';
-import { MenuStackParamList } from '../../MenuNavigator';
+import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { showToast } from '@/features/student/scrap/components/Notification';
 import usePutMe from '@/apis/controller/student/me/putMe';

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { UserRound } from 'lucide-react-native';
 import { colors } from '@/theme/tokens';
 import type { components } from '@/types/api/schema';
 import ProfileIcon from '@/components/system/icons/ProfileIcon';
+import { AnimatedPressable } from '@/components/common';
 
 interface UserProfileCardProps {
   name?: string;
@@ -34,11 +35,11 @@ export const UserProfileCard = ({ name, school, grade, onEditPress }: UserProfil
           <Text className='text-16r text-gray-700'>{`${school ? school?.name : ''}${school ? ' ' : ''}${formatGrade(grade)}`}</Text>
         </View>
       </View>
-      <Pressable
+      <AnimatedPressable
         className='h-[30px] items-center justify-center rounded-[8px] bg-gray-400 px-[10px] py-[5px]'
         onPress={onEditPress}>
         <Text className='text-14m text-black'>수정</Text>
-      </Pressable>
+      </AnimatedPressable>
     </View>
   );
 };
