@@ -19,6 +19,8 @@ import CircleStarIcon from './CircleStarIcon';
 import PencilFilledIcon from './PencilFilledIcon';
 import EraserFilledIcon from './EraserFilledIcon';
 import PointerLogo from './PointerLogo';
+import GoogleIcon from './GoogleIcon';
+import KakaoIcon from './KakaoIcon';
 import AppleIcon from './AppleIcon';
 import CircleCheckDashed from './CircleCheckDashed';
 
@@ -46,4 +48,6 @@ export {
   CircleStarIcon,
   PointerLogo,
   AppleIcon,
+  GoogleIcon,
+  KakaoIcon,
 };

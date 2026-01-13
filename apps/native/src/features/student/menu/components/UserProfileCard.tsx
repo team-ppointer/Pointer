@@ -24,14 +24,14 @@ const formatGrade = (grade?: string): string => {
 
 export const UserProfileCard = ({ name, school, grade, onEditPress }: UserProfileCardProps) => {
   return (
-    <View className='flex-row items-center justify-between px-4 py-2.5'>
-      <View className='flex-row items-center gap-3'>
-        <View className='bg-primary-200 h-[48px] w-[48px] items-center justify-center rounded-[82.76px]'>
+    <View className='flex-row items-center justify-between px-[16px] py-[10px]'>
+      <View className='flex-row items-center gap-[12px]'>
+        <View className='bg-primary-200 h-[48px] w-[48px] items-center justify-center rounded-full'>
           <ProfileIcon fill={colors['primary-500']} color={colors['primary-500']} />
         </View>
-        <View className='flex-col '>
+        <View className='flex-col'>
           <Text className='text-20b text-black'>{name}</Text>
-          <Text className='text-16r text-gray-700'>{`${school?.name} ${formatGrade(grade)}`}</Text>
+          <Text className='text-16r text-gray-700'>{`${school ? school?.name : ''}${school ? ' ' : ''}${formatGrade(grade)}`}</Text>
         </View>
       </View>
       <Pressable

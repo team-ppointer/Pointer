@@ -14,10 +14,10 @@ export const MenuSection = ({ children }: MenuSectionProps) => {
         const isLast = index === childArray.length - 1;
 
         if (React.isValidElement(child)) {
-          return cloneElement(child as ReactElement<any>, {
-            key: index,
-            isLast,
-          });
+          return <>
+          {cloneElement(child as ReactElement<any>, { key: index })}
+          {!isLast && <View className='h-[1px] bg-gray-300 mx-[16px]' />}
+          </>
         }
 
         return child;

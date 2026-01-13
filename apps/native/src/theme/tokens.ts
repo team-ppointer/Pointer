@@ -31,6 +31,9 @@ export const colors = {
   'primary-600': '#526BEA', // 기존 main color2
   'secondary-100': '#FFF4CC', // 기존 light yellow
   'secondary-500': '#E59C00', // 기존 yellow
+
+  // New Colors
+  'new': '#E75043',
 };
 
 export const fontFamily = {

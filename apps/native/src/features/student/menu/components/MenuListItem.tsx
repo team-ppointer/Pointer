@@ -4,35 +4,37 @@ import { ChevronRight, LucideIcon } from 'lucide-react-native';
 import { colors } from '@/theme/tokens';
 
 interface MenuListItemProps {
-  icon: LucideIcon;
+  icon?: LucideIcon;
   title: string;
   onPress?: () => void;
-  isLast?: boolean;
   isNew?: boolean;
+  showChevron?: boolean;
+  children?: React.ReactNode;
 }
 
-export const MenuListItem = ({ icon: Icon, title, onPress, isLast, isNew }: MenuListItemProps) => {
-  const showBorder = isLast === false;
-
+export const MenuListItem = ({ icon: Icon, title, onPress, isNew, children, showChevron = true }: MenuListItemProps) => {
   return (
-    <Pressable className='flex-row items-center rounded-[12px] bg-white px-4' onPress={onPress}>
+    <Pressable className='h-[48px] flex-row items-center bg-white px-[16px]' onPress={onPress}>
       <View
-        className={`flex-1 flex-row items-center gap-1 py-3 ${showBorder ? 'border-b-[1px] border-[#DFE2E7]' : ''}`}>
-        <View className='px-[3px]'>
+        className='h-[48px] flex-1 flex-row items-center'>
+        {Icon && (
+          <View className='w-[30px] h-[30px] justify-center items-center mr-[4px]'>
           <Icon size={20} color={colors['gray-700']} />
         </View>
-        <View className='flex-1'>
-          <Text className='text-16m text-black'>{title}</Text>
-        </View>
-        <View className='flex-row items-center gap-1'>
+        )}
+        <Text className={`flex-1 text-16m ${Icon ? 'text-black' : 'text-gray-700'}`}>{title}</Text>
+        <View className='flex-row items-center gap-[4px]'>
           {isNew && (
-            <View className='h-[22px] w-[37px] rounded-[30px] bg-[#E75043] px-[6px] py-0.5'>
+            <View className='rounded-full bg-new px-[6px] py-[2px]'>
               <Text className='text-12r text-white'>New</Text>
             </View>
           )}
-          <View className='h-[36px] w-[36px] justify-center'>
-            <ChevronRight size={20} color={colors['gray-600']} />
-          </View>
+          {children}
+          {showChevron && (
+            <View className='p-[8px] justify-center items-center'>
+              <ChevronRight size={20} color={colors['gray-600']} />
+            </View>
+          )}
         </View>
       </View>
     </Pressable>
