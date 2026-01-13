@@ -10,10 +10,10 @@ import { useOnboardingStore } from '@features/student/onboarding/store/useOnboar
 
 const shouldStartOnboarding = (flag: string | null) => {
   if (flag === null) {
-    return true;
+    return false;
   }
 
-  return flag.toLowerCase() !== 'false';
+  return flag.toLowerCase() === 'true';
 };
 
 const AuthCallbackScreen = () => {

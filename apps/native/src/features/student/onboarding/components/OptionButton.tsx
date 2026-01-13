@@ -21,7 +21,7 @@ const OptionButton = ({
   return (
     <Pressable
       onPress={onPress}
-      className={`mb-[10px] flex-row items-center rounded-[8px] border px-[20px] py-[16px] ${
+      className={`flex-row items-center rounded-[8px] border px-[20px] py-[16px] ${
         selected ? 'border-primary-500 bg-primary-100' : 'border-gray-300 bg-white'
       } ${isCentered ? 'justify-center' : 'justify-between'}`}>
       <Text className={`text-14m text-black`}>{label}</Text>
