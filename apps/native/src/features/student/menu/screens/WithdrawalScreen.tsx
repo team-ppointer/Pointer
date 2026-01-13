@@ -4,7 +4,7 @@ import { AnimatedPressable, Container } from '@components/common';
 import { useAuthStore } from '@stores';
 import { ScreenLayout } from '../components';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { deleteAccount } from '@/apis/controller/auth';
+import { deleteAccount } from '@apis';
 import { CheckIcon } from 'lucide-react-native';
 
 const WITHDRAWAL_REASONS = [
