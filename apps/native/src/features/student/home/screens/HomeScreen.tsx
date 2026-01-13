@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Pressable, Modal } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedPressable, NotificationItem, Container } from '@components/common';
 import LearningStatus from '../components/LearningStatus';
 import ProblemCalendar from '../components/ProblemCalendar';
@@ -75,19 +76,25 @@ const HomeScreen = () => {
             </AnimatedPressable>
           </View>
           <View className='w-full flex-1 gap-[10px] rounded-[20px] bg-gray-300 p-[16px]'>
-            <View className='border-primary-500 flex-col items-center justify-between rounded-[10px] border bg-white p-[16px]'>
-              <View className='mb-[8px] w-full flex-row items-center justify-between'>
-                <Text className='text-16sb text-primary-500'>이번 주 학습 상태</Text>
-                <Text className='text-13r text-gray-700'>
-                  {diagnosisData?.createdAt
-                    ? `${new Date(diagnosisData.createdAt).getMonth() + 1}월 ${new Date(
-                        diagnosisData.createdAt
-                      ).getDate()}일`
-                    : ''}
-                </Text>
+            <LinearGradient
+              colors={[colors['primary-500'], colors['primary-200']]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={{ borderRadius: 10, padding: 1 }}>
+              <View className='flex-col items-center justify-between rounded-[9px] bg-white p-[16px]'>
+                <View className='mb-[8px] w-full flex-row items-center justify-between'>
+                  <Text className='text-16sb text-primary-500'>이번 주 학습 상태</Text>
+                  <Text className='text-13r text-gray-700'>
+                    {diagnosisData?.createdAt
+                      ? `${new Date(diagnosisData.createdAt).getMonth() + 1}월 ${new Date(
+                          diagnosisData.createdAt
+                        ).getDate()}일`
+                      : ''}
+                  </Text>
+                </View>
+                {diagnosisData?.content && <ProblemViewer problemContent={diagnosisData.content} />}
               </View>
-              {diagnosisData?.content && <ProblemViewer problemContent={diagnosisData.content} />}
-            </View>
+            </LinearGradient>
             <View className='flex-col rounded-[10px] bg-white p-[16px]'>
               <Text className='text-16sb text-primary-500 mb-[8px]'>이번 주 개념</Text>
               {/* <ProblemViewer problemContent={diagnosisData?.content ?? ''} minHeight={200} /> */}
