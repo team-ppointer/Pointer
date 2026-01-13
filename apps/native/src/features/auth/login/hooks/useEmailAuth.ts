@@ -131,8 +131,9 @@ const useEmailAuth = (): UseEmailAuthReturn => {
       isFirstLogin?: boolean;
       name?: string;
       grade?: string;
+      email?: string;
     }) => {
-      const { accessToken, refreshToken, isFirstLogin, name, grade } = response;
+      const { accessToken, refreshToken, isFirstLogin, name, grade, email } = response;
 
       if (!accessToken) {
         throw new Error('Access token not found');
@@ -151,7 +152,8 @@ const useEmailAuth = (): UseEmailAuthReturn => {
       }
 
       if (isFirstLogin) {
-        startOnboarding();
+        // 이메일 로그인인 경우 이메일을 전달하여 이메일 스텝 스킵
+        startOnboarding(email);
       } else {
         completeOnboarding();
       }
@@ -188,6 +190,7 @@ const useEmailAuth = (): UseEmailAuthReturn => {
           isFirstLogin: data.isFirstLogin,
           name: data.name,
           grade: data.grade,
+          email: state.email,
         });
 
         setState(initialState);
@@ -228,6 +231,7 @@ const useEmailAuth = (): UseEmailAuthReturn => {
           isFirstLogin: true, // 회원가입은 항상 신규 회원
           name: response.data.name,
           grade: response.data.grade,
+          email: state.email,
         });
 
         setState(initialState);

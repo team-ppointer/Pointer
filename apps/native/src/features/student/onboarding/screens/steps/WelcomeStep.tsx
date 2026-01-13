@@ -24,16 +24,12 @@ const WelcomeStep = (_props: OnboardingScreenProps<'Welcome'>) => {
       isAgreePersonalInformation: true,
       isAgreeReceiveMarketing: false,
       email: payload.email || undefined,
-      name: payload.identity.name || payload.nickname,
-      birth: payload.identity.birth ?? undefined,
-      gender: payload.identity.gender ?? undefined,
+      name: payload.identity.name,
       phoneNumber: payload.identity.phoneNumber || undefined,
-      mobileCarrier: payload.identity.mobileCarrier ?? undefined,
       grade: payload.grade ?? 'ONE',
       selectSubject: payload.selectSubject ?? undefined,
       schoolId: payload.schoolId ?? undefined,
       level: payload.level ?? undefined,
-      nickname: payload.nickname || undefined,
     };
     console.log('[WelcomeStep] Sending registerData:', registerData);
 
@@ -47,7 +43,7 @@ const WelcomeStep = (_props: OnboardingScreenProps<'Welcome'>) => {
       }
 
       await updateStudentProfile({
-        name: payload.identity.name || payload.nickname || null,
+        name: payload.identity.name || null,
         grade: payload.grade,
       });
       console.log('[WelcomeStep] Profile updated, calling complete()');
