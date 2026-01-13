@@ -86,7 +86,7 @@ export const CreateFolderModal = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
         <View className='flex-1 items-center gap-[18px] p-[20px] pt-[80px]'>
-          <View className='w-[424px] items-center gap-[20px]'>
+          <View className='w-[320px] items-center gap-[20px] md:w-[424px]'>
             <Pressable className='min-w-[136px] items-center p-[10px]' onPress={onPressGallery}>
               {selectedImage ? (
                 <Image

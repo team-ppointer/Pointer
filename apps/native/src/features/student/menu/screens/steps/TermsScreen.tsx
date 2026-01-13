@@ -31,10 +31,10 @@ const TermsScreen = () => {
     <View className='w-full flex-1'>
       <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
         <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={24} color='#000' />
+          <ChevronLeft size={32} color='#000' />
         </Pressable>
         <Text className='text-20b text-black'>서비스 약관</Text>
-        <View />
+        <View className='w-10' />
       </SafeAreaView>
 
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>

@@ -1,9 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
+import { TanstackQueryClient } from '@/apis/client';
 
-import { useGetMe } from '@apis/student';
+import { useGetMe, useGetNoticeCount } from '@apis/student';
 import { useAuthStore } from '@stores';
 import { Container } from '@components/common';
 import { Bell, Headset, Megaphone, ThumbsUp } from 'lucide-react-native';
@@ -18,12 +20,26 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 import { MenuStackParamList } from '../MenuNavigator';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const signOut = useAuthStore((state) => state.signOut);
+  const queryClient = useQueryClient();
+  const { data: noticeCount } = useGetNoticeCount();
   const { data, isLoading, isError } = useGetMe();
-  const userInfo = data ?? null;
+  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/notice/count').queryKey,
+      });
+    }, [queryClient])
+  );
 
   const handleLogout = useCallback(async () => {
     try {
@@ -33,14 +49,14 @@ const MenuScreen = () => {
     }
   }, [signOut]);
 
-  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
-
   return (
-    <>
-      <Container className='px-6 py-12'>
-        <View className='py-0.5'>
+    <View className='w-full flex-1'>
+      <SafeAreaView edges={['top']} className={'bg-gray-100'}>
+        <Container className='py-[14px]'>
           <Text className='text-20b text-black'>전체 메뉴</Text>
-        </View>
+        </Container>
+      </SafeAreaView>
+      <Container>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 40 }}>
@@ -62,9 +78,10 @@ const MenuScreen = () => {
               <MenuListItem
                 icon={Megaphone}
                 title='공지사항'
+                isNew={!!noticeCount?.unreadCount && noticeCount.unreadCount > 0}
                 onPress={() => navigation.navigate('Notice')}
               />
-              <MenuListItem icon={Headset} title='고객센터' isNew onPress={() => {}} />
+              <MenuListItem icon={Headset} title='고객센터' onPress={() => {}} />
               <MenuListItem
                 icon={ThumbsUp}
                 title='피드백 보내기'
@@ -82,17 +99,6 @@ const MenuScreen = () => {
             </MenuSection>
           </View>
         </ScrollView>
-
-        {/* {isLoading ? (
-        <Text>유저 정보 fetch 중...</Text>
-      ) : isError ? (
-        <Text>유저 정보 fetch 실패</Text>
-      ) : userInfo ? (
-        <Text>{JSON.stringify(userInfo).replace(/,/g, ',\n')}</Text>
-      ) : (
-        <Text>auth 정보 없음</Text>
-      )}
-      <TextButton onPress={handleLogout}>로그아웃</TextButton> */}
       </Container>
       <ConfirmationModal
         visible={isLogoutVisible}
@@ -104,7 +110,7 @@ const MenuScreen = () => {
           { label: '아니오', onPress: () => setIsLogoutVisible(false), variant: 'primary' },
         ]}
       />
-    </>
+    </View>
   );
 };
 

@@ -7,6 +7,7 @@ import { ChevronLeft, AlertCircle } from 'lucide-react-native';
 import { useAuthStore } from '@stores';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { deleteAccount } from '@/apis/controller/auth';
 
 const WITHDRAWAL_REASONS = [
   '서비스 사용방법이 너무 어려워요.',
@@ -14,7 +15,18 @@ const WITHDRAWAL_REASONS = [
   '수학 학습에 필요한 기능이 부족해요.',
   '더 이상 필요하지 않아요.',
   '기타',
-];
+] as const;
+
+const REASON_MAPPING: Record<
+  (typeof WITHDRAWAL_REASONS)[number],
+  'DIFFICULT_TO_USE' | 'NOT_HELPFUL' | 'LACK_OF_FEATURES' | 'NO_LONGER_NEEDED' | 'OTHER'
+> = {
+  '서비스 사용방법이 너무 어려워요.': 'DIFFICULT_TO_USE',
+  '수학 학습에 도움이 되지 않아요.': 'NOT_HELPFUL',
+  '수학 학습에 필요한 기능이 부족해요.': 'LACK_OF_FEATURES',
+  '더 이상 필요하지 않아요.': 'NO_LONGER_NEEDED',
+  기타: 'OTHER',
+};
 
 const WithdrawalScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -37,39 +49,32 @@ const WithdrawalScreen = () => {
       return;
     }
 
-    Alert.alert(
-      '회원 탈퇴',
-      '정말로 탈퇴하시겠어요?\n탈퇴 후에는 모든 데이터가 삭제되며 복구할 수 없습니다.',
-      [
-        {
-          text: '취소',
-          style: 'cancel',
-        },
-        {
-          text: '탈퇴',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('Withdrawal reasons:', selectedReasons);
-              await signOut();
-            } catch (error) {
-              console.error('Failed to withdraw', error);
-              Alert.alert('오류', '회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
-            }
-          },
-        },
-      ]
-    );
+    try {
+      const reasons = selectedReasons.map(
+        (reason) => REASON_MAPPING[reason as keyof typeof REASON_MAPPING]
+      );
+      const hasOther = reasons.includes('OTHER');
+
+      deleteAccount({
+        reasons,
+        ...(hasOther && { otherReason: '' }),
+      }).then(() => {
+        signOut();
+      });
+    } catch (error) {
+      console.error('Failed to withdraw', error);
+      Alert.alert('오류', '회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   return (
     <View className='w-full flex-1'>
       <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
         <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={24} color='#000' />
+          <ChevronLeft size={32} color='#000' />
         </Pressable>
         <Text className='text-20b text-black'>회원 탈퇴</Text>
-        <View />
+        <View className='w-10' />
       </SafeAreaView>
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
         <Container className='gap-6'>
@@ -95,26 +100,23 @@ const WithdrawalScreen = () => {
               </>
             )}
           </View>
-          {showReasons && (
-            <View className='gap-2'>
-              {WITHDRAWAL_REASONS.map((reason) => (
-                <Pressable
-                  key={reason}
-                  onPress={() => toggleReason(reason)}
-                  className='flex-row items-center gap-3 p-4'>
-                  <View
-                    className={`h-5 w-5 items-center justify-center rounded ${
-                      selectedReasons.includes(reason) ? 'bg-blue-500' : 'border-2 border-gray-300'
-                    }`}>
-                    {selectedReasons.includes(reason) && (
-                      <Text className='text-12b text-white'>✓</Text>
-                    )}
-                  </View>
-                  <Text className='text-16r flex-1 text-gray-700'>{reason}</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
+          {showReasons &&
+            WITHDRAWAL_REASONS.map((reason) => (
+              <Pressable
+                key={reason}
+                onPress={() => toggleReason(reason)}
+                className='mb-[12px] flex-row items-center gap-[10px]'>
+                <View
+                  className={`h-5 w-5 items-center justify-center rounded-[4px] border border-gray-700 ${
+                    selectedReasons.includes(reason) ? 'bg-blue-500' : 'border-2 border-gray-300'
+                  }`}>
+                  {selectedReasons.includes(reason) && (
+                    <Text className='text-12b text-white'>✓</Text>
+                  )}
+                </View>
+                <Text className='text-16r flex-1 text-black'>{reason}</Text>
+              </Pressable>
+            ))}
         </Container>
       </ScrollView>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, Switch, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,33 +7,52 @@ import { ChevronLeft } from 'lucide-react-native';
 import { MenuStackParamList } from '../../MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
+import { usePutAllowPush, useGetPushSetting } from '@/apis/controller/student/me';
+import { showToast } from '@/features/student/scrap/components/Notification';
 
 const NotificationSettingsScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
 
-  const [pushEnabled, setPushEnabled] = useState(true);
-  const [serviceNotification, setServiceNotification] = useState(true);
-  const [qnaNotification, setQnaNotification] = useState(true);
+  const { data: pushSettingData } = useGetPushSetting({ enabled: true });
+  const { mutate: updatePushSettings } = usePutAllowPush();
+
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [serviceNotification, setServiceNotification] = useState(false);
+  const [qnaNotification, setQnaNotification] = useState(false);
   const [eventNotification, setEventNotification] = useState(false);
 
-  const handleSave = () => {
-    console.log('Save notification settings:', {
-      pushEnabled,
-      serviceNotification,
-      qnaNotification,
-      eventNotification,
+  useEffect(() => {
+    if (pushSettingData) {
+      setPushEnabled(pushSettingData.isAllowPush ?? false);
+      setServiceNotification(pushSettingData.isAllowServicePush ?? false);
+      setQnaNotification(pushSettingData.isAllowQnaPush ?? false);
+      setEventNotification(pushSettingData.isAllowMarketingPush ?? false);
+    }
+  }, [pushSettingData]);
+
+  const handleSave = (
+    isAllowPush: boolean,
+    isAllowServicePush: boolean,
+    isAllowQnaPush: boolean,
+    isAllowMarketingPush: boolean
+  ) => {
+    updatePushSettings({
+      isAllowPush,
+      isAllowServicePush,
+      isAllowQnaPush,
+      isAllowMarketingPush,
     });
-    navigation.goBack();
+    showToast('success', '알림 설정이 변경되었습니다.');
   };
 
   return (
     <View className='w-full flex-1'>
       <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
         <Pressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={24} color='#000' />
+          <ChevronLeft size={32} color='#000' />
         </Pressable>
         <Text className='text-20b text-black'>알림 설정</Text>
-        <View />
+        <View className='w-10' />
       </SafeAreaView>
 
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
@@ -44,7 +63,15 @@ const NotificationSettingsScreen = () => {
             </View>
             <Switch
               value={pushEnabled}
-              onValueChange={setPushEnabled}
+              onValueChange={(newValue) => {
+                setPushEnabled(newValue);
+                handleSave(
+                  newValue,
+                  serviceNotification ?? false,
+                  qnaNotification ?? false,
+                  eventNotification ?? false
+                );
+              }}
               trackColor={{ false: colors['gray-400'], true: colors['blue-500'] }}
               thumbColor={pushEnabled ? '#FFF' : '#F3F4F6'}
             />
@@ -60,7 +87,15 @@ const NotificationSettingsScreen = () => {
               </View>
               <Switch
                 value={serviceNotification}
-                onValueChange={setServiceNotification}
+                onValueChange={(newValue) => {
+                  setServiceNotification(newValue);
+                  handleSave(
+                    pushEnabled ?? false,
+                    newValue ?? false,
+                    qnaNotification ?? false,
+                    eventNotification ?? false
+                  );
+                }}
                 disabled={!pushEnabled}
                 trackColor={{ false: colors['gray-400'], true: colors['blue-500'] }}
                 thumbColor={serviceNotification ? '#FFF' : '#F3F4F6'}
@@ -74,7 +109,15 @@ const NotificationSettingsScreen = () => {
               </View>
               <Switch
                 value={qnaNotification}
-                onValueChange={setQnaNotification}
+                onValueChange={(newValue) => {
+                  setQnaNotification(newValue);
+                  handleSave(
+                    pushEnabled ?? false,
+                    serviceNotification ?? false,
+                    newValue ?? false,
+                    eventNotification ?? false
+                  );
+                }}
                 disabled={!pushEnabled}
                 trackColor={{ false: colors['gray-400'], true: colors['blue-500'] }}
                 thumbColor={qnaNotification ? '#FFF' : '#F3F4F6'}
@@ -90,7 +133,15 @@ const NotificationSettingsScreen = () => {
               </View>
               <Switch
                 value={eventNotification}
-                onValueChange={setEventNotification}
+                onValueChange={(newValue) => {
+                  setEventNotification(newValue);
+                  handleSave(
+                    pushEnabled ?? false,
+                    serviceNotification ?? false,
+                    qnaNotification ?? false,
+                    newValue ?? false
+                  );
+                }}
                 disabled={!pushEnabled}
                 trackColor={{ false: colors['gray-400'], true: colors['blue-500'] }}
                 thumbColor={eventNotification ? '#FFF' : '#F3F4F6'}
