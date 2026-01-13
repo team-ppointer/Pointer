@@ -1,5 +1,5 @@
 import { colors } from '@/theme/tokens';
-import { postAnswer, useToggleScrapFromProblem } from '@apis/student';
+import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
 import { Container } from '@components/common';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -67,6 +67,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
   const toggleScrapMutation = useToggleScrapFromProblem();
+  const { data: scrapStatusData } = useGetScrapStatusById(currentProblem?.id ?? 0, !!currentProblem?.id);
 
   const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
@@ -131,10 +132,14 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     bottomSheetRef.current?.close();
     resultSheetRef.current?.close();
     setIncorrectAttemptCount(0);
-    // Reset scrap state when problem changes
-    setIsScraped(false);
-    scrapAnimValue.setValue(0);
-  }, [currentProblem?.id, scrapAnimValue]);
+  }, [currentProblem?.id]);
+
+  // Sync scrap state with fetched data
+  useEffect(() => {
+    const isProblemScrapped = scrapStatusData?.isProblemScrapped ?? false;
+    setIsScraped(isProblemScrapped);
+    scrapAnimValue.setValue(isProblemScrapped ? 1 : 0);
+  }, [scrapStatusData?.isProblemScrapped, scrapAnimValue]);
 
   useEffect(() => {
     setProblemProgress(currentProblem?.progress ?? null);

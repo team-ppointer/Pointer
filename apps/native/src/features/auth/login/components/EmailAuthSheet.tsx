@@ -1,12 +1,9 @@
-import { forwardRef, useCallback, useState, useMemo, useEffect } from 'react';
+import { forwardRef, useCallback, useState, useMemo } from 'react';
 import {
   Pressable,
   Text,
-  TextInput,
   View,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -22,7 +19,7 @@ import {
   EyeIcon,
   EyeOffIcon,
 } from 'lucide-react-native';
-import { Container } from '@components/common';
+import { AnimatedPressable, Container } from '@components/common';
 import useEmailAuth, {
   type EmailAuthStep,
   validateEmail,
@@ -270,7 +267,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 />
                 {error && <Text className='text-14r text-red-500'>{error}</Text>}
               </View>
-              <Pressable
+              <AnimatedPressable
                 className={`items-center justify-center rounded-[12px] py-[14px] ${
                   isLoading || !email.trim() ? 'bg-primary-200' : 'bg-primary-500'
                 }`}
@@ -281,7 +278,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 ) : (
                   <Text className='text-16sb text-white'>다음</Text>
                 )}
-              </Pressable>
+              </AnimatedPressable>
             </View>
           );
 
@@ -303,7 +300,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     onChangeText={setPassword}
                     editable={!isLoading}
                   />
-                  <Pressable
+                  <AnimatedPressable
                     className='absolute right-[12px] top-[14px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
@@ -311,11 +308,11 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     ) : (
                       <EyeIcon size={20} color={colors['gray-500']} />
                     )}
-                  </Pressable>
+                  </AnimatedPressable>
                 </View>
                 {error && <Text className='text-14r text-red-500'>{error}</Text>}
               </View>
-              <Pressable
+              <AnimatedPressable
                 className={`items-center justify-center rounded-[12px] py-[14px] ${
                   isLoading || !password ? 'bg-primary-200' : 'bg-primary-500'
                 }`}
@@ -326,10 +323,10 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 ) : (
                   <Text className='text-16sb text-white'>로그인</Text>
                 )}
-              </Pressable>
-              <Pressable className='items-center py-[8px]' onPress={goToForgotPassword}>
+              </AnimatedPressable>
+              <AnimatedPressable className='items-center py-[8px]' onPress={goToForgotPassword}>
                 <Text className='text-14m text-gray-600'>비밀번호를 잊으셨나요?</Text>
-              </Pressable>
+              </AnimatedPressable>
             </View>
           );
 
@@ -368,14 +365,14 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 label='(선택) 마케팅 정보 수신 동의'
                 withChevron
               />
-              <Pressable
+              <AnimatedPressable
                 className={`mt-[8px] items-center justify-center rounded-[12px] py-[14px] ${
                   isRequiredTermsChecked ? 'bg-primary-500' : 'bg-primary-200'
                 }`}
                 disabled={!isRequiredTermsChecked}
                 onPress={handleTermsConfirm}>
                 <Text className='text-16sb text-white'>다음</Text>
-              </Pressable>
+              </AnimatedPressable>
             </View>
           );
 
@@ -397,7 +394,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     onChangeText={setPassword}
                     editable={!isLoading}
                   />
-                  <Pressable
+                  <AnimatedPressable
                     className='absolute right-[12px] top-[14px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
@@ -405,7 +402,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     ) : (
                       <EyeIcon size={20} color={colors['gray-500']} />
                     )}
-                  </Pressable>
+                  </AnimatedPressable>
                 </View>
                 <BottomSheetTextInput
                   className={`rounded-[12px] border bg-white px-[16px] py-[14px] text-[16px] ${
@@ -423,7 +420,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 )}
                 {error && <Text className='text-14r text-red-500'>{error}</Text>}
               </View>
-              <Pressable
+              <AnimatedPressable
                 className={`items-center justify-center rounded-[12px] py-[14px] ${
                   isLoading || !isSignupValid ? 'bg-primary-200' : 'bg-primary-500'
                 }`}
@@ -434,7 +431,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 ) : (
                   <Text className='text-16sb text-white'>회원가입</Text>
                 )}
-              </Pressable>
+              </AnimatedPressable>
             </View>
           );
 
@@ -448,7 +445,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 </Text>
               </View>
               {resetError && <Text className='text-14r text-red-500'>{resetError}</Text>}
-              <Pressable
+              <AnimatedPressable
                 className={`items-center justify-center rounded-[12px] py-[14px] ${
                   resetLoading ? 'bg-primary-200' : 'bg-primary-500'
                 }`}
@@ -459,7 +456,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 ) : (
                   <Text className='text-16sb text-white'>인증 코드 받기</Text>
                 )}
-              </Pressable>
+              </AnimatedPressable>
             </View>
           );
 
@@ -484,7 +481,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 />
                 {resetError && <Text className='text-14r text-red-500'>{resetError}</Text>}
               </View>
-              <Pressable
+              <AnimatedPressable
                 className={`items-center justify-center rounded-[12px] py-[14px] ${
                   resetLoading || !resetCode ? 'bg-primary-200' : 'bg-primary-500'
                 }`}
@@ -495,10 +492,10 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 ) : (
                   <Text className='text-16sb text-white'>확인</Text>
                 )}
-              </Pressable>
-              <Pressable className='items-center py-[8px]' onPress={handleSendResetCode}>
+              </AnimatedPressable>
+              <AnimatedPressable className='items-center py-[8px]' onPress={handleSendResetCode}>
                 <Text className='text-14m text-gray-600'>인증 코드 다시 받기</Text>
-              </Pressable>
+              </AnimatedPressable>
             </View>
           );
 
@@ -517,7 +514,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     onChangeText={setNewPassword}
                     editable={!resetLoading}
                   />
-                  <Pressable
+                  <AnimatedPressable
                     className='absolute right-[12px] top-[14px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
@@ -525,11 +522,11 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     ) : (
                       <EyeIcon size={20} color={colors['gray-500']} />
                     )}
-                  </Pressable>
+                  </AnimatedPressable>
                 </View>
                 {resetError && <Text className='text-14r text-red-500'>{resetError}</Text>}
               </View>
-              <Pressable
+              <AnimatedPressable
                 className={`items-center justify-center rounded-[12px] py-[14px] ${
                   resetLoading || !newPassword ? 'bg-primary-200' : 'bg-primary-500'
                 }`}
@@ -540,7 +537,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 ) : (
                   <Text className='text-16sb text-white'>비밀번호 변경</Text>
                 )}
-              </Pressable>
+              </AnimatedPressable>
             </View>
           );
       }
@@ -563,12 +560,12 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
         <BottomSheetView className='bg-white pb-[12px] pt-[4px]' style={{ paddingBottom: bottomInset + 12 }}>
           <Container>
             {showBackButton && (
-              <Pressable
+              <AnimatedPressable
                 className='mb-[8px] flex-row items-center gap-[4px] py-[8px]'
                 onPress={handleBack}>
                 <ChevronLeftIcon size={20} color={colors['gray-700']} />
                 <Text className='text-14m text-gray-700'>뒤로</Text>
-              </Pressable>
+              </AnimatedPressable>
             )}
             {renderContent()}
           </Container>
@@ -599,11 +596,12 @@ const TermsRow = ({
   className,
 }: TermsRowProps) => {
   return (
-    <Pressable
+    <AnimatedPressable
       className={`flex-row items-center justify-between rounded-[14px] px-[18px] py-[14px] ${className ?? ''}`}
       accessibilityRole='checkbox'
       accessibilityState={{ checked }}
-      onPress={onToggle}>
+      onPress={onToggle}
+      disableScale>
       <View className='flex-1 flex-row gap-[10px]'>
         <View
           className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${
@@ -617,7 +615,7 @@ const TermsRow = ({
         </View>
       </View>
       {withChevron ? <ChevronRightIcon size={18} color={colors['gray-600']} /> : null}
-    </Pressable>
+    </AnimatedPressable>
   );
 };
 

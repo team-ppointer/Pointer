@@ -8,7 +8,7 @@ import { colors } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useToggleScrapFromProblem } from '@apis/student';
+import { useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
 import {
   selectCurrentProblem,
   selectGroup,
@@ -38,6 +38,7 @@ const AnalysisScreen = ({
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
   const toggleScrapMutation = useToggleScrapFromProblem();
+  const { data: scrapStatusData } = useGetScrapStatusById(problem?.id ?? 0, !!problem?.id);
 
   // Scrap animation interpolation
   const scrapBgColor = scrapAnimValue.interpolate({
@@ -86,10 +87,14 @@ const AnalysisScreen = ({
 
   useEffect(() => {
     setSelectedTab(0);
-    // Reset scrap state when problem changes
-    setIsScraped(false);
-    scrapAnimValue.setValue(0);
-  }, [problem?.id, scrapAnimValue]);
+  }, [problem?.id]);
+
+  // Sync scrap state with fetched data
+  useEffect(() => {
+    const isProblemScrapped = scrapStatusData?.isProblemScrapped ?? false;
+    setIsScraped(isProblemScrapped);
+    scrapAnimValue.setValue(isProblemScrapped ? 1 : 0);
+  }, [scrapStatusData?.isProblemScrapped, scrapAnimValue]);
 
   const handleBottomBarLayout = useCallback((event: LayoutChangeEvent) => {
     setBottomBarHeight(event.nativeEvent.layout.height);

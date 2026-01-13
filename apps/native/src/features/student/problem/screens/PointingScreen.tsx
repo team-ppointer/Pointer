@@ -8,7 +8,7 @@ import { colors } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { postPointing, useToggleScrapFromPointing } from '@apis/student';
+import { postPointing, useGetScrapStatusById, useToggleScrapFromPointing } from '@apis/student';
 import {
   selectCurrentProblem,
   selectCurrentPointing,
@@ -47,6 +47,7 @@ const PointingScreen = ({
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
   const toggleScrapMutation = useToggleScrapFromPointing();
+  const { data: scrapStatusData } = useGetScrapStatusById(problem?.id ?? 0, !!problem?.id);
 
   // Scrap animation interpolation
   const scrapBgColor = scrapAnimValue.interpolate({
@@ -125,10 +126,15 @@ const PointingScreen = ({
   useEffect(() => {
     setHasSubmittedUnderstanding(pointing?.isUnderstood != null);
     setIsSubmittingUnderstanding(false);
-    // Reset scrap state when pointing changes
-    setIsScraped(false);
-    scrapAnimValue.setValue(0);
-  }, [pointing?.id, scrapAnimValue]);
+  }, [pointing?.id]);
+
+  // Sync scrap state with fetched data
+  useEffect(() => {
+    const scrappedPointingIds = scrapStatusData?.scrappedPointingIds ?? [];
+    const isPointingScrapped = pointing?.id != null && scrappedPointingIds.includes(pointing.id);
+    setIsScraped(isPointingScrapped);
+    scrapAnimValue.setValue(isPointingScrapped ? 1 : 0);
+  }, [scrapStatusData?.scrappedPointingIds, pointing?.id, scrapAnimValue]);
 
   const handleUnderstandSelection = useCallback(
     async (isUnderstood: boolean) => {
