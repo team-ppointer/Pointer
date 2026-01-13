@@ -1,29 +1,30 @@
 import { useRef, useState } from 'react';
-import { Text, View, Pressable, ActivityIndicator } from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
-import { env, setAccessToken, setRefreshToken } from '@utils';
-import { useAuthStore } from '@stores';
 import { GoogleIcon, KakaoIcon, PointerLogo, AppleIcon } from '@components/system/icons';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@theme/tokens';
-import { MailIcon, ChevronRightIcon } from 'lucide-react-native';
+import { MailIcon } from 'lucide-react-native';
 import TermsConsentSheet from '../components/TermsConsentSheet';
-import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
+import EmailAuthSheet from '../components/EmailAuthSheet';
 import { useNativeOAuth, type OAuthProvider } from '../hooks';
 
 const LoginScreen = () => {
-  const { setSessionStatus, setRole } = useAuthStore();
   const [pendingSocial, setPendingSocial] = useState<OAuthProvider | null>(null);
   const termsSheetRef = useRef<BottomSheet>(null);
+  const emailAuthSheetRef = useRef<BottomSheet>(null);
   const { bottom: bottomInset } = useSafeAreaInsets();
-  const startOnboarding = useOnboardingStore((state) => state.start);
   
   const { isLoading, error, signInWithProvider } = useNativeOAuth();
 
   const handleSocialButtonPress = (provider: OAuthProvider) => {
     setPendingSocial(provider);
     termsSheetRef.current?.expand();
+  };
+
+  const handleEmailButtonPress = () => {
+    emailAuthSheetRef.current?.expand();
   };
 
   const handleTermsConfirm = async () => {
@@ -95,36 +96,11 @@ const LoginScreen = () => {
           </AnimatedPressable>
           <AnimatedPressable
             className='border-primary-200 bg-primary-100 flex-row items-center justify-center gap-[8px] rounded-[8px] border px-[12px] py-[10px]'
-            onPress={() => {}}
+            onPress={handleEmailButtonPress}
             disabled={isLoading}>
             <MailIcon size={20} color={colors['primary-500']} />
             <Text className='text-16m text-primary-600'>이메일로 시작하기</Text>
           </AnimatedPressable>
-          {__DEV__ && (
-            <View className='flex-row items-center justify-center gap-[8px] pt-[10px]'>
-              <Pressable
-                className='flex-row items-center justify-center rounded-[8px] px-[6px] py-[2px] hover:bg-gray-300 active:bg-gray-300'
-                onPress={() => {
-                  const accessToken = env.devAccessToken;
-                  const refreshToken = env.devRefreshToken;
-
-                  if (!accessToken) {
-                    setSessionStatus('unauthenticated');
-                    return;
-                  }
-
-                  setAccessToken(accessToken);
-                  if (refreshToken) setRefreshToken(refreshToken);
-
-                  startOnboarding();
-                  setRole('student');
-                  setSessionStatus('authenticated');
-                }}>
-                <Text className='text-16m text-gray-700'>개발용 로그인</Text>
-                <ChevronRightIcon size={18} color={colors['gray-700']} />
-              </Pressable>
-            </View>
-          )}
         </View>
       </Container>
       <TermsConsentSheet
@@ -132,6 +108,10 @@ const LoginScreen = () => {
         bottomInset={bottomInset}
         onConfirm={handleTermsConfirm}
         onSheetChange={handleTermsSheetChange}
+      />
+      <EmailAuthSheet
+        ref={emailAuthSheetRef}
+        bottomInset={bottomInset}
       />
     </SafeAreaView>
   );

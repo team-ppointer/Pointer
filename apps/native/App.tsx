@@ -29,15 +29,6 @@ const navigationTheme: Theme = {
   },
 };
 
-const linking = {
-  prefixes: ['pointer://', 'http://localhost:3000'],
-  config: {
-    screens: {
-      AuthCallback: 'auth/callback',
-    },
-  },
-};
-
 export default function App() {
   const { loading } = useLoadAssets();
 
@@ -49,7 +40,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <NavigationContainer theme={navigationTheme} linking={linking}>
+          <NavigationContainer theme={navigationTheme}>
             <StatusBar style='dark' />
             <RootNavigator />
             <Toast config={toastConfig} />
