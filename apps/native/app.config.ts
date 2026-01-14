@@ -22,9 +22,7 @@ const config: ExpoConfig = {
     usesAppleSignIn: true,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
-      NSAppTransportSecurity: {
-        NSAllowsArbitraryLoads: true,
-      },
+      UIBackgroundModes: ['remote-notification'],
     },
     icon: './assets/ios-pointer.icon',
   },
@@ -87,7 +85,8 @@ const config: ExpoConfig = {
         },
       },
     ],
-    ["expo-apple-authentication"]
+    ["expo-apple-authentication"],
+    'expo-notifications'
   ],
   extra: {
     apiBaseUrl: process.env.NATIVE_API_BASE_URL,
