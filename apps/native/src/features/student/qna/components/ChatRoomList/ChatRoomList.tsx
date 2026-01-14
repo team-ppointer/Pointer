@@ -36,13 +36,13 @@ const ChatRoomList = ({
   return (
     <View className="flex-1 bg-gray-100">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-[20px] h-[50px]">
+      <View className="flex-row items-center px-[20px] h-[50px]">
         <Text className="text-18b text-gray-900">QnA</Text>
-        <Pressable
+        {/* <Pressable
           onPress={onSearch}
           className="h-[38px] w-[38px] items-center justify-center rounded-full active:bg-gray-200">
           <Search size={20} color={colors['gray-800']} />
-        </Pressable>
+        </Pressable> */}
       </View>
 
       {/* New Question Button */}
