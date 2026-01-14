@@ -11,6 +11,7 @@ import '@/app/providers/api';
 import { LoadingScreen } from '@components/common';
 import { useLoadAssets } from '@hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Text, TextInput } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/features/student/scrap/components/Notification/Toast';
 import { env } from '@utils';
@@ -28,6 +29,12 @@ const navigationTheme: Theme = {
     card: colors['blue-100'],
   },
 };
+
+if ((Text as any).defaultProps == null) (Text as any).defaultProps = {};
+(Text as any).defaultProps.allowFontScaling = false;
+
+if ((TextInput as any).defaultProps == null) (TextInput as any).defaultProps = {};
+(TextInput as any).defaultProps.allowFontScaling = false;
 
 export default function App() {
   const { loading } = useLoadAssets();
