@@ -11,8 +11,13 @@ import '@/app/providers/api';
 import { LoadingScreen } from '@components/common';
 import { useLoadAssets } from '@hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Text, TextInput } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/features/student/scrap/components/Notification/Toast';
+import { env } from '@utils';
+import { initializeKakaoSDK } from '@react-native-kakao/core';
+
+initializeKakaoSDK(env.kakaoNativeAppKey);
 
 const queryClient = new QueryClient();
 
@@ -25,14 +30,11 @@ const navigationTheme: Theme = {
   },
 };
 
-const linking = {
-  prefixes: ['pointer://', 'http://localhost:3000'],
-  config: {
-    screens: {
-      AuthCallback: 'auth/callback',
-    },
-  },
-};
+if ((Text as any).defaultProps == null) (Text as any).defaultProps = {};
+(Text as any).defaultProps.allowFontScaling = false;
+
+if ((TextInput as any).defaultProps == null) (TextInput as any).defaultProps = {};
+(TextInput as any).defaultProps.allowFontScaling = false;
 
 export default function App() {
   const { loading } = useLoadAssets();
@@ -45,10 +47,10 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <NavigationContainer theme={navigationTheme} linking={linking}>
+          <NavigationContainer theme={navigationTheme}>
             <StatusBar style='dark' />
             <RootNavigator />
-            <Toast config={toastConfig} style={{ zIndex: 9999 }} />
+            <Toast config={toastConfig} />
           </NavigationContainer>
         </SafeAreaProvider>
       </GestureHandlerRootView>

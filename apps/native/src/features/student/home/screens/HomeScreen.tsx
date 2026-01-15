@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Pressable, Modal } from 'react-native';
-import { NotificationItem, Container } from '@components/common';
+import { LinearGradient } from 'expo-linear-gradient';
+import { AnimatedPressable, NotificationItem, Container } from '@components/common';
 import LearningStatus from '../components/LearningStatus';
 import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';
@@ -70,24 +71,30 @@ const HomeScreen = () => {
               <Text className='text-18b text-black'>{studentName}만을 위한 코멘트</Text>
               <Text className='text-14r text-gray-700'>from 포인터 출제진</Text>
             </View>
-            <Pressable onPress={() => {}} className='items-center justify-center p-[8px]'>
+            <AnimatedPressable onPress={() => {}} className='items-center justify-center p-[8px]'>
               <ChevronRightIcon size={20} color={colors['gray-700']} />
-            </Pressable>
+            </AnimatedPressable>
           </View>
           <View className='w-full flex-1 gap-[10px] rounded-[20px] bg-gray-300 p-[16px]'>
-            <View className='border-primary-500 flex-col items-center justify-between rounded-[10px] border bg-white p-[16px]'>
-              <View className='mb-[8px] w-full flex-row items-center justify-between'>
-                <Text className='text-16sb text-primary-500'>이번 주 학습 상태</Text>
-                <Text className='text-13r text-gray-700'>
-                  {diagnosisData?.createdAt
-                    ? `${new Date(diagnosisData.createdAt).getMonth() + 1}월 ${new Date(
-                        diagnosisData.createdAt
-                      ).getDate()}일`
-                    : ''}
-                </Text>
+            <LinearGradient
+              colors={[colors['primary-500'], colors['primary-200']]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={{ borderRadius: 10, padding: 1 }}>
+              <View className='flex-col items-center justify-between rounded-[9px] bg-white p-[16px]'>
+                <View className='mb-[8px] w-full flex-row items-center justify-between'>
+                  <Text className='text-16sb text-primary-500'>이번 주 학습 상태</Text>
+                  <Text className='text-13r text-gray-700'>
+                    {diagnosisData?.createdAt
+                      ? `${new Date(diagnosisData.createdAt).getMonth() + 1}월 ${new Date(
+                          diagnosisData.createdAt
+                        ).getDate()}일`
+                      : ''}
+                  </Text>
+                </View>
+                {diagnosisData?.content && <ProblemViewer problemContent={diagnosisData.content} />}
               </View>
-              {diagnosisData?.content && <ProblemViewer problemContent={diagnosisData.content} />}
-            </View>
+            </LinearGradient>
             <View className='flex-col rounded-[10px] bg-white p-[16px]'>
               <Text className='text-16sb text-primary-500 mb-[8px]'>이번 주 개념</Text>
               {/* <ProblemViewer problemContent={diagnosisData?.content ?? ''} minHeight={200} /> */}
@@ -111,15 +118,11 @@ const HomeScreen = () => {
                   ` · ${publishDetailData?.problemSet?.problems?.length ?? 0}문제`}
               </Text>
             </View>
-            <Pressable
+            <AnimatedPressable
               onPress={() => setIsCalendarModalVisible(true)}
-              className='items-center justify-center rounded-[8px] p-[8px] active:bg-gray-200'
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.7 : 1,
-                transform: [{ scale: pressed ? 0.95 : 1 }],
-              })}>
+              className='items-center justify-center rounded-[8px] p-[8px]'>
               <CalendarIcon size={20} color={colors['gray-700']} />
-            </Pressable>
+            </AnimatedPressable>
           </View>
           <ProblemSet
             publishDetail={publishDetailData ?? undefined}
@@ -143,15 +146,11 @@ const HomeScreen = () => {
             />
             <View className='mx-[20px] w-full max-w-[600px] rounded-[20px] bg-white'>
               {/* Modal Header */}
-              <Pressable
+              <AnimatedPressable
                 onPress={() => setIsCalendarModalVisible(false)}
-                className='absolute -right-[60px] top-0 h-[48px] w-[48px] items-center justify-center rounded-[12px] bg-white'
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.7 : 1,
-                  transform: [{ scale: pressed ? 0.95 : 1 }],
-                })}>
+                className='absolute -right-[60px] top-0 h-[48px] w-[48px] items-center justify-center rounded-[12px] bg-white'>
                 <XIcon size={24} color='black' />
-              </Pressable>
+              </AnimatedPressable>
 
               {/* Calendar Content */}
               <ProblemCalendar
@@ -164,20 +163,16 @@ const HomeScreen = () => {
               />
 
               {/* Navigate Button */}
-              <Pressable
+              <AnimatedPressable
                 onPress={() => {
                   setIsCalendarModalVisible(false);
                   // Navigate to problem set if available
                 }}
-                className='bg-primary-500 mt-[20px] p-[12px] rounded-[8px] active:opacity-80 m-[20px]'
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.8 : 1,
-                  transform: [{ scale: pressed ? 0.98 : 1 }],
-                })}>
+                className='bg-primary-500 m-[20px] mt-[20px] rounded-[8px] p-[12px]'>
                 <Text className='text-16m text-center text-white'>
                   {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일 문제 세트로 이동
                 </Text>
-              </Pressable>
+              </AnimatedPressable>
             </View>
           </View>
         </BlurView>

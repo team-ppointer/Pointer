@@ -6,6 +6,7 @@ export * from './useGetTrash';
 export * from './useSearchScraps';
 export * from './useGetScrapsByFolder';
 export * from './handwriting/useGetHandwriting';
+export * from './useGetScrapStatusById';
 
 // POST APIs
 export * from './postCreateScrap';

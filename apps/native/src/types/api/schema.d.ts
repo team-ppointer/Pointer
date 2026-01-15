@@ -1065,6 +1065,66 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/auth/password/reset': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * [학생] 비밀번호 찾기 - 비밀번호 재설정
+     * @description 인증 코드 검증 후 새 비밀번호로 재설정합니다.
+     */
+    post: operations['resetPassword'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/password/reset/verify-code': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * [학생] 비밀번호 찾기 - 인증 코드 검증
+     * @description 이메일로 발송된 인증 코드를 검증합니다.
+     */
+    post: operations['verifyPasswordResetCode'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/password/reset/send-code': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * [학생] 비밀번호 찾기 - 인증 코드 발송
+     * @description 등록된 이메일로 6자리 인증 코드를 발송합니다. 코드는 10분간 유효합니다.
+     */
+    post: operations['sendPasswordResetCode'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/auth/login/social': {
     parameters: {
       query?: never;
@@ -1076,6 +1136,23 @@ export interface paths {
     put?: never;
     /** 소셜 로그인 URL 요청 [네이버만 완료] */
     post: operations['getSocialLoginUrl'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/login/local': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 이메일 로그인 */
+    post: operations['login_1'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1514,7 +1591,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** 이메일 로그인 */
-    post: operations['login_1'];
+    post: operations['login_2'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1920,6 +1997,23 @@ export interface paths {
     };
     /** 폴더 내 스크랩 목록 조회 */
     get: operations['getScrapsByFolder'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/scrap/by-problem/{problemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 문제별 스크랩 정보 조회 */
+    get: operations['getScrapInfoByProblem'];
     put?: never;
     post?: never;
     delete?: never;
@@ -3567,6 +3661,27 @@ export interface components {
       /** @description 기타 사유 (OTHER 선택 시 입력, 선택) */
       otherReason?: string;
     };
+    'PasswordResetDTO.ResetPasswordRequest': {
+      /** @description 이메일 */
+      email: string;
+      /** @description 인증 코드 (6자리) */
+      code: string;
+      /** @description 새 비밀번호 */
+      newPassword: string;
+    };
+    'PasswordResetDTO.VerifyCodeRequest': {
+      /** @description 이메일 */
+      email: string;
+      /** @description 인증 코드 (6자리) */
+      code: string;
+    };
+    BooleanResp: {
+      value: boolean;
+    };
+    'PasswordResetDTO.SendCodeRequest': {
+      /** @description 이메일 */
+      email: string;
+    };
     SocialLoginReq: {
       /** @enum {string} */
       provider: 'KAKAO' | 'GOOGLE' | 'APPLE';
@@ -3576,6 +3691,12 @@ export interface components {
       /** @enum {string} */
       provider: 'KAKAO' | 'GOOGLE' | 'APPLE';
       loginUrl: string;
+    };
+    StudentLoginReq: {
+      /** @description 이메일 */
+      email: string;
+      /** @description 비밀번호 */
+      password: string;
     };
     PreSignedReq: {
       fileName: string;
@@ -3713,10 +3834,42 @@ export interface components {
        */
       parentId?: number;
     };
+    /** @description 문제별 스크랩 정보 */
     ProblemScrapInfo: {
+      /**
+       * Format: int64
+       * @description 스크랩 ID (스크랩이 없으면 null)
+       * @example 123
+       */
+      scrapId?: number;
+      /**
+       * @description 문제 스크랩 여부
+       * @example true
+       */
       isProblemScrapped?: boolean;
+      /**
+       * @description 리딩팁 스크랩 여부
+       * @example false
+       */
       isReadingTipScrapped?: boolean;
+      /**
+       * @description 원스텝모어 스크랩 여부
+       * @example true
+       */
       isOneStepMoreScrapped?: boolean;
+      /**
+       * @description 오답 여부
+       * @example false
+       */
+      isWrongAnswer?: boolean;
+      /**
+       * @description 스크랩된 포인팅 ID 목록
+       * @example [
+       *       1,
+       *       2,
+       *       3
+       *     ]
+       */
       scrappedPointingIds?: number[];
     };
     ProblemWithStudyInfoResp: {
@@ -4102,9 +4255,6 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['DiagnosisResp'][];
-    };
-    BooleanResp: {
-      value: boolean;
     };
     /** @description Q&A 채팅 이벤트 (SSE event name: chat) */
     QnAChatEvent: {
@@ -6563,6 +6713,74 @@ export interface operations {
       };
     };
   };
+  resetPassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PasswordResetDTO.ResetPasswordRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  verifyPasswordResetCode: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PasswordResetDTO.VerifyCodeRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['BooleanResp'];
+        };
+      };
+    };
+  };
+  sendPasswordResetCode: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PasswordResetDTO.SendCodeRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   getSocialLoginUrl: {
     parameters: {
       query?: never;
@@ -6583,6 +6801,30 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['SocialLoginUrlResp'];
+        };
+      };
+    };
+  };
+  login_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentLoginReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentTokenResp'];
         };
       };
     };
@@ -7386,7 +7628,7 @@ export interface operations {
       };
     };
   };
-  login_1: {
+  login_2: {
     parameters: {
       query?: never;
       header?: never;
@@ -7984,6 +8226,28 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ListRespScrapListItemResp'];
+        };
+      };
+    };
+  };
+  getScrapInfoByProblem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemScrapInfo'];
         };
       };
     };

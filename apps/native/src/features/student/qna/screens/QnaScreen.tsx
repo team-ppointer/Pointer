@@ -56,10 +56,12 @@ const QnaScreen = () => {
       rooms.push(mapAdminChatToChatRoom(adminChatData));
     }
 
-    // Add teacher chats
+    // Add teacher chats (filter out ADMIN_CHAT to avoid duplication)
     if (qnaListData?.data?.groups) {
       qnaListData.data.groups.forEach((group) => {
         group.data?.forEach((qna) => {
+          // Skip admin chat as it's already fetched separately
+          if (qna.type === 'ADMIN_CHAT') return;
           rooms.push(mapQnAMetaToChatRoom(qna));
         });
       });
@@ -79,7 +81,10 @@ const QnaScreen = () => {
     if (isTablet) {
       setSelectedRoom(room);
     } else {
-      navigation.navigate('ChatRoom', { chatRoomId: room.id });
+      navigation.navigate('ChatRoom', {
+        chatRoomId: room.id,
+        isAdminChat: room.type === 'publisher',
+      });
     }
   };
 
@@ -95,60 +100,64 @@ const QnaScreen = () => {
   const isLoading = isLoadingQnaList || isLoadingAdminChat;
   const hasError = qnaListError || adminChatError;
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-gray-100" edges={['top']}>
-        <ActivityIndicator size="large" />
-      </SafeAreaView>
-    );
-  }
-
-  // Error state
-  if (hasError) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-gray-100" edges={['top']}>
-        <Text className="text-14r text-gray-600">데이터를 불러올 수 없습니다.</Text>
-      </SafeAreaView>
-    );
-  }
-
-  // Tablet: Split view
-  if (isTablet) {
-    return (
-      <SafeAreaView className="flex-1 flex-row bg-gray-100" edges={['top']}>
-        {/* Left Panel - Chat Room List */}
-        <View className="w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white">
-          <ChatRoomList
-            chatRooms={chatRooms}
-            selectedRoomId={selectedRoom?.id}
-            onSelectRoom={handleSelectRoom}
-            onNewQuestion={handleNewQuestion}
-            onSearch={handleSearch}
-          />
+  // 컨텐츠 렌더링 함수 - early return 대신 동일한 구조 유지
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
         </View>
+      );
+    }
 
-        {/* Right Panel - Chat Room */}
-        <View className="flex-1">
-          <ChatRoom
-            chatRoom={selectedRoom}
-            qnaData={isSelectedRoomAdmin ? undefined : selectedQnaData}
-            adminChatData={isSelectedRoomAdmin ? adminChatData : undefined}
-          />
+    if (hasError) {
+      return (
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-14r text-gray-600">데이터를 불러올 수 없습니다.</Text>
         </View>
-      </SafeAreaView>
-    );
-  }
+      );
+    }
 
-  // Mobile: List only
-  return (
-    <SafeAreaView className="flex-1 bg-gray-100" edges={['top']}>
+    if (isTablet) {
+      return (
+        <View className="flex-1 flex-row">
+          {/* Left Panel - Chat Room List */}
+          <View className="w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white">
+            <ChatRoomList
+              chatRooms={chatRooms}
+              selectedRoomId={selectedRoom?.id}
+              onSelectRoom={handleSelectRoom}
+              onNewQuestion={handleNewQuestion}
+              onSearch={handleSearch}
+            />
+          </View>
+
+          {/* Right Panel - Chat Room */}
+          <View className="flex-1">
+            <ChatRoom
+              chatRoom={selectedRoom}
+              qnaData={isSelectedRoomAdmin ? undefined : selectedQnaData}
+              adminChatData={isSelectedRoomAdmin ? adminChatData : undefined}
+            />
+          </View>
+        </View>
+      );
+    }
+
+    return (
       <ChatRoomList
         chatRooms={chatRooms}
         onSelectRoom={handleSelectRoom}
         onNewQuestion={handleNewQuestion}
         onSearch={handleSearch}
       />
+    );
+  };
+
+  // 항상 동일한 SafeAreaView 구조 유지
+  return (
+    <SafeAreaView className="flex-1 bg-gray-100" edges={['top']}>
+      {renderContent()}
     </SafeAreaView>
   );
 };

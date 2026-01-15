@@ -1,11 +1,14 @@
 import React, { useMemo } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import type {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useGetQnaById, useGetQnaAdminChat } from '@apis/controller/student/qna';
 import type { ChatRoom as ChatRoomType } from '../types';
-import { mapQnAMetaToChatRoom, mapAdminChatToChatRoom } from '../types';
+import { mapAdminChatToChatRoom } from '../types';
 import { ChatRoom } from '../components/ChatRoom';
 
 type ChatRoomScreenProps = NativeStackScreenProps<StudentRootStackParamList, 'ChatRoom'>;
@@ -14,11 +17,7 @@ type ChatRoomScreenNavigationProp = NativeStackNavigationProp<StudentRootStackPa
 const ChatRoomScreen = () => {
   const navigation = useNavigation<ChatRoomScreenNavigationProp>();
   const route = useRoute<ChatRoomScreenProps['route']>();
-  const { chatRoomId } = route.params;
-
-  // Determine if this is the admin chat (publisher)
-  // Admin chat has a special ID or type indicator
-  const isAdminChat = chatRoomId === -1; // Convention: -1 for admin chat
+  const { chatRoomId, isAdminChat = false } = route.params;
 
   // Fetch QnA by ID for teacher chats
   const {
@@ -70,22 +69,22 @@ const ChatRoomScreen = () => {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-100">
-        <ActivityIndicator size="large" />
+      <View className='flex-1 items-center justify-center bg-gray-100'>
+        <ActivityIndicator size='large' />
       </View>
     );
   }
 
   if (hasError) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-100">
-        <Text className="text-14r text-gray-600">데이터를 불러올 수 없습니다.</Text>
+      <View className='flex-1 items-center justify-center bg-gray-100'>
+        <Text className='text-14r text-gray-600'>데이터를 불러올 수 없습니다.</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className='flex-1 bg-gray-100'>
       <ChatRoom
         chatRoom={chatRoom}
         qnaData={isAdminChat ? undefined : qnaData}

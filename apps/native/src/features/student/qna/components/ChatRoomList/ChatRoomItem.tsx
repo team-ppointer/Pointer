@@ -1,9 +1,11 @@
 import React from 'react';
-import { Text, View, Pressable, Image } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import { MessageSquare, MessageSquareText, MessagesSquare } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import type { ChatRoom } from '../../types';
 import { StatusBadge } from '../common';
+import { PointerSymbol } from '@components/system/icons';
+import { AnimatedPressable } from '@components/common';
 
 interface ChatRoomItemProps {
   chatRoom: ChatRoom;
@@ -13,7 +15,7 @@ interface ChatRoomItemProps {
 
 const PublisherIcon = () => (
   <View className='bg-primary-600 h-[34px] w-[34px] items-center justify-center rounded-full'>
-    <Text className='text-18b text-white'>P</Text>
+    <PointerSymbol size={30} />
   </View>
 );
 
@@ -48,9 +50,9 @@ const ChatRoomItem = ({ chatRoom, isSelected, onPress }: ChatRoomItemProps) => {
   };
 
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={onPress}
-      className={`flex-row items-center gap-[12px] px-[20px] py-[8px] active:bg-gray-200 ${
+      className={`flex-row items-center gap-[12px] px-[20px] py-[8px] ${
         isSelected ? 'bg-gray-200' : 'bg-white'
       }`}>
       {/* Thumbnail */}
@@ -79,7 +81,7 @@ const ChatRoomItem = ({ chatRoom, isSelected, onPress }: ChatRoomItemProps) => {
           )}
         </View>
       </View>
-    </Pressable>
+    </AnimatedPressable>
   );
 };
 

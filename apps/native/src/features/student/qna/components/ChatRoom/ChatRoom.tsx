@@ -359,8 +359,10 @@ const ChatRoom = ({
     updateChatMutation.isPending ||
     deleteChatMutation.isPending;
 
-  // Calculate keyboard offset: tab bar height + bottom safe area
-  const keyboardOffset = Platform.OS === 'ios' ? 10 + insets.bottom : 0;
+  // Calculate keyboard offset:
+  // - 태블릿(탭바 있음): 탭바 높이 + 하단 safe area
+  // - 모바일(전체 화면): 하단 safe area는 MessageInput에서 처리하므로 최소값만 적용
+  const keyboardOffset = Platform.OS === 'ios' ? (showBackButton ? 0 : 10 + insets.bottom) : 0;
 
   return (
     <KeyboardAvoidingView

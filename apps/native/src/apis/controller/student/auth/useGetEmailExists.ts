@@ -7,8 +7,10 @@ type Props = {
 
 const useGetEmailExists = ({ email, enabled = true }: Props) => {
   return TanstackQueryClient.useQuery('get', '/api/student/auth/email/exists', {
-    query: {
-      email,
+    params: {
+      query: {
+        email,
+      },
     },
     enabled: enabled && email.trim().length > 0,
   });

@@ -6,14 +6,12 @@ import StudentNavigator from '@navigation/student/StudentNavigator';
 import AuthNavigator from '@navigation/auth/AuthNavigator';
 import { useAuthStore } from '@stores';
 import { LoadingScreen } from '@components/common';
-import { AuthCallbackScreen } from '@features/auth/callback';
 import { useSocialLoginCallback } from '@hooks';
 
 export type RootStackParamList = {
   Splash: undefined;
   Auth: undefined;
   StudentApp: undefined;
-  AuthCallback: undefined;
 };
 
 const NativeStack = createNativeStackNavigator<RootStackParamList>();
@@ -48,13 +46,6 @@ const RootNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name={activeScreen.name} component={activeScreen.component} />
-      {isWeb && (
-        <Stack.Screen
-          name='AuthCallback'
-          component={AuthCallbackScreen}
-          options={{ presentation: 'modal' }}
-        />
-      )}
     </Stack.Navigator>
   );
 };
