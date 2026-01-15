@@ -90,6 +90,12 @@ const ScrapDetailScreen = () => {
     }
   }, [scrapDetail?.name]);
 
+  useEffect(() => {
+    if (scrapDetail?.name) {
+      updateNoteTitle(scrapId, scrapDetail.name);
+    }
+  }, [scrapDetail?.name, scrapId, updateNoteTitle]);
+
   const handleUpdateScrapName = async (name: string) => {
     if (!name.trim()) {
       showToast('error', '이름을 입력해주세요.');
@@ -325,7 +331,9 @@ const ScrapDetailScreen = () => {
             showSave={uiState.showSave}
             onBack={async () => {
               const saved = await handwriting.handleSave(true);
-              navigation.goBack();
+              if (saved) {
+                navigation.goBack();
+              }
             }}
             canGoBack={navigation.canGoBack()}
             onMoveFolderPress={() => {
@@ -338,8 +346,19 @@ const ScrapDetailScreen = () => {
           <TabNavigator
             openNotes={openNotes}
             activeNoteId={activeNoteId}
-            onTabPress={setActiveNote}
-            onTabClose={closeNote}
+            onTabPress={async (noteId) => {
+              if (noteId === activeNoteId) return;
+              const saved = await handwriting.handleSave(true);
+              if (!saved) return;
+              setActiveNote(noteId);
+            }}
+            onTabClose={async (noteId) => {
+              if (noteId === activeNoteId) {
+                const saved = await handwriting.handleSave(true);
+                if (!saved) return;
+              }
+              closeNote(noteId);
+            }}
             onReorder={reorderNotes}
             tabLayouts={tabLayouts}
             onTabLayout={handleTabLayout}
