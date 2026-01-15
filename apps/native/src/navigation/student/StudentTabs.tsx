@@ -4,7 +4,7 @@ import { StudentTabParamList } from './types';
 import { HomeScreen } from '@features/student/home';
 import { ScrapScreen } from '@features/student/scrap';
 import { QnaScreen } from '@features/student/qna';
-import { MenuNavigator } from '@features/student/menu';
+import MenuNavigator from './MenuNavigator';
 import MainTabBar from './components/MainTabBar';
 import HomeHeader from './components/HomeHeader';
 
@@ -14,7 +14,9 @@ const StudentTabs = () => {
   return (
     <Tab.Navigator
       tabBar={(props) => <MainTabBar {...props} />}
-      screenOptions={{ headerShown: false }}>
+      screenOptions={{
+        headerShown: false,
+      }}>
       <Tab.Screen
         name='Home'
         component={HomeScreen}

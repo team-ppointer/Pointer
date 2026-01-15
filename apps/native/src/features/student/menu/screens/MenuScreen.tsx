@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
@@ -8,18 +8,15 @@ import { TanstackQueryClient } from '@/apis/client';
 import { useGetMe, useGetNoticeCount } from '@apis/student';
 import { useAuthStore } from '@stores';
 import { Container } from '@components/common';
-import { Bell, Headset, Megaphone, ThumbsUp } from 'lucide-react-native';
+import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
 import {
   UserProfileCard,
   TeacherInfoCard,
   MenuListItem,
-  TextOnlyMenuItem,
-  AppVersionItem,
   MenuSection,
 } from '../components';
-import { ScrollView } from 'react-native-gesture-handler';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
-import { MenuStackParamList } from '../MenuNavigator';
+import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MenuScreen = () => {
@@ -52,28 +49,30 @@ const MenuScreen = () => {
   return (
     <View className='w-full flex-1'>
       <SafeAreaView edges={['top']} className={'bg-gray-100'}>
-        <Container className='py-[14px]'>
+        <Container className='h-[52px] justify-center'>
           <Text className='text-20b text-black'>전체 메뉴</Text>
         </Container>
       </SafeAreaView>
-      <Container>
+      <Container className='flex-1'>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 40 }}>
           <View className='h-[20px]' />
           <View className='gap-[10px]'>
             <UserProfileCard
-              name={data?.nickname ? data?.nickname : '포인터'}
+              name={data?.name}
               school={data?.school}
               grade={data?.grade}
               onEditPress={() => navigation.navigate('MyInfo')}
             />
             <TeacherInfoCard teacherName={data?.teacherName} />
-            <MenuListItem
-              icon={Bell}
-              title='알림 설정'
-              onPress={() => navigation.navigate('NotificationSettings')}
-            />
+            <MenuSection>
+              <MenuListItem
+                icon={Bell}
+                title='알림 설정'
+                onPress={() => navigation.navigate('NotificationSettings')}
+              />
+            </MenuSection>
             <MenuSection>
               <MenuListItem
                 icon={Megaphone}
@@ -87,12 +86,27 @@ const MenuScreen = () => {
                 title='피드백 보내기'
                 onPress={() => navigation.navigate('Feedback')}
               />
-              <AppVersionItem version='1.0.1' isLatest={true} onPress={() => {}} />
+              <MenuListItem
+                icon={History}
+                title='앱 버전'
+                showChevron={false}>
+                  <View className='justify-center'>
+                    <Text className='text-16m text-blue-500'>
+                      1.0.1 최신 버전
+                    </Text>
+                  </View>
+              </MenuListItem>
             </MenuSection>
             <MenuSection>
-              <TextOnlyMenuItem title='서비스 약관' onPress={() => navigation.navigate('Terms')} />
-              <TextOnlyMenuItem title='로그아웃' onPress={() => setIsLogoutVisible(true)} />
-              <TextOnlyMenuItem
+              <MenuListItem
+                title='서비스 약관'
+                onPress={() => navigation.navigate('Terms')}
+              />
+              <MenuListItem
+                title='로그아웃'
+                onPress={() => setIsLogoutVisible(true)}
+              />
+              <MenuListItem
                 title='회원 탈퇴'
                 onPress={() => navigation.navigate('Withdrawal')}
               />

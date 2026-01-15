@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
@@ -7,7 +7,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { colors } from '@theme/tokens';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react-native';
-import { Container } from '@components/common';
+import { AnimatedPressable, Container } from '@components/common';
 
 type AgreementState = {
   age: boolean;
@@ -137,16 +137,14 @@ const TermsConsentSheet = forwardRef<BottomSheet, TermsConsentSheetProps>(
               withChevron
               className='mb-[12px]'
             />
-            <Pressable
+            <AnimatedPressable
               className={`my-[10px] items-center justify-center rounded-[12px] px-[12px] py-[10px] ${
-                isRequiredChecked
-                  ? 'bg-primary-500 hover:bg-primary-600 active:bg-primary-600'
-                  : 'bg-primary-200'
+                isRequiredChecked ? 'bg-primary-500' : 'bg-primary-200'
               }`}
               disabled={!isRequiredChecked}
               onPress={handleConfirm}>
               <Text className='text-16m text-white'>다음</Text>
-            </Pressable>
+            </AnimatedPressable>
           </Container>
         </BottomSheetView>
       </BottomSheet>
@@ -174,11 +172,12 @@ const ConsentRow = ({
   className,
 }: ConsentRowProps) => {
   return (
-    <Pressable
+    <AnimatedPressable
       className={`flex-row items-center justify-between rounded-[14px] px-[18px] py-[14px] ${className}`}
       accessibilityRole='checkbox'
       accessibilityState={{ checked }}
-      onPress={onToggle}>
+      onPress={onToggle}
+      disableScale>
       <View className='flex-1 flex-row gap-[10px]'>
         <View
           className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${
@@ -192,7 +191,7 @@ const ConsentRow = ({
         </View>
       </View>
       {withChevron ? <ChevronRightIcon size={18} color={colors['gray-600']} /> : null}
-    </Pressable>
+    </AnimatedPressable>
   );
 };
 

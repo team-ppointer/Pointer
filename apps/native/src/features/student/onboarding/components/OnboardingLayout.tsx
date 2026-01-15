@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
-import { Container } from '@components/common';
+import { AnimatedPressable, Container } from '@components/common';
 
 type Props = {
   title?: string;
@@ -58,19 +58,19 @@ const OnboardingLayout = ({
       keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}>
       <View className='z-10 flex-row items-center justify-between bg-gray-100 px-[20px] pb-[14px]' style={{ paddingTop: inset.top + 14 }}>
         {showBackButton ? (
-          <Pressable
+          <AnimatedPressable
             accessibilityRole='button'
             onPress={handleBack}
             className='items-center justify-center p-[8px]'>
             <ChevronLeftIcon color={colors['gray-800']} size={32} />
-          </Pressable>
+          </AnimatedPressable>
         ) : (
           <View className='h-[36px] w-[36px]' />
         )}
         {skipLabel && onSkip ? (
-          <Pressable onPress={onSkip} className='h-[48px] items-center justify-center px-[10px]'>
+          <AnimatedPressable onPress={onSkip} className='h-[48px] items-center justify-center px-[10px]'>
             <Text className='text-14sb text-primary-600'>{skipLabel}</Text>
-          </Pressable>
+          </AnimatedPressable>
         ) : (
           <View className='h-[20px]' />
         )}
@@ -94,7 +94,7 @@ const OnboardingLayout = ({
           </View>
         )}
         {bottomSlot}
-        <Pressable
+        <AnimatedPressable
           accessibilityRole='button'
           onPress={onPressCTA}
           disabled={ctaDisabled}
@@ -103,7 +103,7 @@ const OnboardingLayout = ({
           }`}
           style={{ marginBottom: inset.bottom + 18 }}>
           <Text className='text-18sb text-center text-white'>{ctaLabel}</Text>
-        </Pressable>
+        </AnimatedPressable>
       </Container>
     </KeyboardAvoidingView>
   );

@@ -1,5 +1,5 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Alert, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
+import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import { Container } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
@@ -7,8 +7,8 @@ import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { postPointing } from '@apis/student';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { postPointing, useGetScrapStatusById, useToggleScrapFromPointing } from '@apis/student';
 import {
   selectCurrentProblem,
   selectCurrentPointing,
@@ -29,6 +29,8 @@ const PointingScreen = ({
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
   const [hasSubmittedUnderstanding, setHasSubmittedUnderstanding] = useState(false);
   const [isSubmittingUnderstanding, setIsSubmittingUnderstanding] = useState(false);
+  const [isScraped, setIsScraped] = useState(false);
+  const scrapAnimValue = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
 
   const phase = useProblemSessionStore(selectPhase);
@@ -44,6 +46,14 @@ const PointingScreen = ({
   const nextPointing = useProblemSessionStore((state) => state.nextPointing);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
+  const toggleScrapMutation = useToggleScrapFromPointing();
+  const { data: scrapStatusData } = useGetScrapStatusById(problem?.id ?? 0, !!problem?.id);
+
+  // Scrap animation interpolation
+  const scrapBgColor = scrapAnimValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors['gray-200'], colors['gray-400']],
+  });
 
   const total = useMemo(() => {
     if (!group || pointingTarget == null) {
@@ -118,6 +128,14 @@ const PointingScreen = ({
     setIsSubmittingUnderstanding(false);
   }, [pointing?.id]);
 
+  // Sync scrap state with fetched data
+  useEffect(() => {
+    const scrappedPointingIds = scrapStatusData?.scrappedPointingIds ?? [];
+    const isPointingScrapped = pointing?.id != null && scrappedPointingIds.includes(pointing.id);
+    setIsScraped(isPointingScrapped);
+    scrapAnimValue.setValue(isPointingScrapped ? 1 : 0);
+  }, [scrapStatusData?.scrappedPointingIds, pointing?.id, scrapAnimValue]);
+
   const handleUnderstandSelection = useCallback(
     async (isUnderstood: boolean) => {
       if (!pointing?.id || isSubmittingUnderstanding) {
@@ -165,6 +183,40 @@ const PointingScreen = ({
     }
   }, [navigation, nextPointing]);
 
+  const handleToggleScrap = useCallback(() => {
+    if (!pointing?.id || toggleScrapMutation.isPending) {
+      return;
+    }
+
+    // Optimistic update with animation
+    const previousState = isScraped;
+    const newScrapState = !previousState;
+    setIsScraped(newScrapState);
+    Animated.spring(scrapAnimValue, {
+      toValue: newScrapState ? 1 : 0,
+      useNativeDriver: false,
+      tension: 200,
+      friction: 20,
+    }).start();
+
+    toggleScrapMutation.mutate(
+      { pointingId: pointing.id },
+      {
+        onError: () => {
+          // Revert to previous state on error
+          setIsScraped(previousState);
+          Animated.spring(scrapAnimValue, {
+            toValue: previousState ? 1 : 0,
+            useNativeDriver: false,
+            tension: 200,
+            friction: 20,
+          }).start();
+          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
+        },
+      }
+    );
+  }, [pointing?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
+
   const pointingIndexLabel = total > 0 && index >= 0 ? `포인팅 ${index + 1}/${total}` : '';
 
   return (
@@ -203,28 +255,37 @@ const PointingScreen = ({
           </Container>
         </ScrollView>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
-          <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-            <BookmarkIcon size={22} color={colors['gray-700']} />
+          <BottomActionBar.Button
+            animatedStyle={{ backgroundColor: scrapBgColor }}
+            onPress={handleToggleScrap}>
+            <BookmarkIcon
+              size={22}
+              color={isScraped ? colors['primary-500'] : colors['gray-700']}
+              fill={isScraped ? colors['primary-500'] : 'transparent'}
+            />
           </BottomActionBar.Button>
-          <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
+          {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
             <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-          </BottomActionBar.Button>
+          </BottomActionBar.Button> */}
           {hasSubmittedUnderstanding ? (
             <BottomActionBar.Button
-              className='bg-primary-500 h-[42px] flex-1'
+              className='bg-primary-500 h-[42px]'
+              containerStyle={{ flex: 1 }}
               onPress={handleCtaPress}>
               <Text className='text-16m text-white'>{ctaLabel}</Text>
             </BottomActionBar.Button>
           ) : (
             <View className='flex-1 flex-row gap-[10px]'>
               <BottomActionBar.Button
-                className={`bg-primary-200 h-[42px] flex-1 ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                className={`bg-primary-200 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                containerStyle={{ flex: 1 }}
                 disabled={isSubmittingUnderstanding}
                 onPress={() => handleUnderstandSelection(true)}>
                 <Text className='text-16m text-black'>네</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className={`bg-primary-500 h-[42px] flex-1 ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                className={`bg-primary-500 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                containerStyle={{ flex: 1 }}
                 disabled={isSubmittingUnderstanding}
                 onPress={() => handleUnderstandSelection(false)}>
                 <Text className='text-16m text-white'>아니오</Text>

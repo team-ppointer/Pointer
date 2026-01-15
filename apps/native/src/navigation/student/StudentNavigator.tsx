@@ -2,7 +2,12 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
-import { ProblemScreen, PointingScreen, AnalysisScreen, AllPointingsScreen } from '@features/student/problem';
+import {
+  ProblemScreen,
+  PointingScreen,
+  AnalysisScreen,
+  AllPointingsScreen,
+} from '@features/student/problem';
 import { ChatRoomScreen, SearchScreen } from '@features/student/qna';
 import StudentTabs from './StudentTabs';
 import { StudentRootStackParamList } from './types';
@@ -13,12 +18,16 @@ import ScrapDetailScreen from '@/features/student/scrap/screens/ScrapDetailScree
 import { useOnboardingStore } from '@/features/student/onboarding/store/useOnboardingStore';
 import { useAuthStore } from '@/stores';
 import OnboardingScreen from '@/features/student/onboarding/screens/OnboardingScreen';
+import { useFcmToken } from '@/hooks';
 
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();
 
 const StudentNavigator = () => {
   const onboardingStatus = useOnboardingStore((state) => state.status);
   const studentGrade = useAuthStore((state) => state.studentProfile?.grade);
+
+  // FCM 토큰 등록 (학생 화면 진입 시 자동으로 등록/갱신)
+  useFcmToken();
 
   const shouldShowOnboarding =
     onboardingStatus === 'in-progress' || (!studentGrade && onboardingStatus !== 'completed');

@@ -57,6 +57,9 @@ export interface Message {
   content: string;
   timestamp: string;
   date: string;
+  createdAt: string;
+  updatedAt: string;
+  isEdited: boolean;
   reply?: ReplyContent;
   file?: FileContent;
   image?: ImageContent;
@@ -183,7 +186,6 @@ export const mapQnAMetaToChatRoom = (meta: QnAMetaResp): ChatRoom => ({
 export const mapChatRespToMessage = (
   chat: ChatResp,
   allChats: ChatResp[],
-  dateTime?: string
 ): Message => {
   const hasFiles = chat.files && chat.files.length > 0;
   const hasReply = chat.replyToId !== undefined && chat.replyToId !== null;
@@ -241,13 +243,19 @@ export const mapChatRespToMessage = (
     }
   }
 
+  // Check if message was edited (createdAt differs from updatedAt)
+  const isEdited = chat.createdAt !== chat.updatedAt;
+
   return {
     id: chat.id,
     type,
     sender: chat.isMine ? 'me' : 'other',
     content: chat.content,
-    timestamp: formatTime(dateTime),
-    date: formatDate(dateTime),
+    timestamp: formatTime(chat.updatedAt),
+    date: formatDate(chat.createdAt),
+    createdAt: chat.createdAt,
+    updatedAt: chat.updatedAt,
+    isEdited,
     reply,
     file,
     image,
@@ -258,25 +266,17 @@ export const mapChatRespToMessage = (
 
 /**
  * Map QnAResp chats to Messages
- * Since ChatResp doesn't have individual timestamps, we sort by ID for consistent ordering
- * TODO: API에서 개별 메시지 타임스탬프가 추가되면 주석 해제
+ * Sort by createdAt for consistent ordering (oldest first)
  */
 export const mapQnARespToMessages = (qna: QnAResp): Message[] => {
   if (!qna.chats || qna.chats.length === 0) return [];
 
-  // 메시지를 ID 기준으로 정렬 (오래된 순 -> 최신 순)
-  const sortedChats = [...qna.chats].sort((a, b) => a.id - b.id);
+  // 메시지를 createdAt 기준으로 정렬 (오래된 순 -> 최신 순)
+  const sortedChats = [...qna.chats].sort((a, b) => 
+    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
-  // TODO: API에서 개별 메시지 타임스탬프가 추가되면 아래 주석 해제
-  // return sortedChats.map((chat) => {
-  //   // chat.createdAt 등의 필드를 사용
-  //   return mapChatRespToMessage(chat, sortedChats, chat.createdAt);
-  // });
-
-  // 현재는 타임스탬프 없이 반환
-  return sortedChats.map((chat) => {
-    return mapChatRespToMessage(chat, sortedChats, undefined);
-  });
+  return sortedChats.map((chat) => mapChatRespToMessage(chat, sortedChats));
 };
 
 /**

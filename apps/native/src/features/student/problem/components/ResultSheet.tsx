@@ -1,4 +1,4 @@
-import { Container } from '@components/common';
+import { AnimatedPressable, Container } from '@components/common';
 import { colors } from '@theme/tokens';
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -6,7 +6,7 @@ import BottomSheet, {
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { forwardRef, useCallback } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import CorrectIcon from './icons/CorrectIcon';
 import IncorrectIcon from './icons/IncorrectIcon';
@@ -76,17 +76,19 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
           <View className='py-[10px]'>
             <Container className='flex-col items-center gap-[10px]'>
               {secondaryButtonLabel && onPressSecondary ? (
-                <Pressable
+                <AnimatedPressable
                   className='h-[42px] w-full items-center justify-center rounded-[8px] border border-gray-500 px-[18px]'
+                  containerStyle={{ width: '100%' }}
                   onPress={onPressSecondary}>
                   <Text className='text-16m text-gray-900'>{secondaryButtonLabel}</Text>
-                </Pressable>
+                </AnimatedPressable>
               ) : null}
-              <Pressable
+              <AnimatedPressable
                 className='bg-primary-500 h-[42px] w-full items-center justify-center rounded-[8px] px-[18px]'
+                containerStyle={{ width: '100%' }}
                 onPress={onPressPrimary}>
                 <Text className='text-16m text-white'>{primaryButtonLabel}</Text>
-              </Pressable>
+              </AnimatedPressable>
             </Container>
           </View>
         </BottomSheetView>

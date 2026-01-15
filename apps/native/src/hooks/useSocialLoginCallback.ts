@@ -7,14 +7,14 @@ import { useOnboardingStore } from '@features/student/onboarding/store/useOnboar
 
 const shouldStartOnboarding = (flag?: string | string[] | null): boolean => {
   if (flag === undefined || flag === null) {
-    return true;
+    return false;
   }
 
   if (Array.isArray(flag)) {
     return flag.some((value) => shouldStartOnboarding(value));
   }
 
-  return flag.toLowerCase() !== 'false';
+  return flag.toLowerCase() === 'true';
 };
 
 const useSocialLoginCallback = () => {
@@ -47,8 +47,8 @@ const useSocialLoginCallback = () => {
       setRole('student');
       setSessionStatus('authenticated');
 
-      // if (shouldStartOnboarding(isFirstLogin)) {
-      if (shouldStartOnboarding('true')) {
+      // isFirstLogin인 경우에만 온보딩, 아니면 바로 메인 홈으로
+      if (shouldStartOnboarding(isFirstLogin)) {
         startOnboarding();
       } else {
         completeOnboarding();

@@ -10,8 +10,7 @@ import { useSharedValue } from 'react-native-reanimated';
 import ImageViewing from 'react-native-image-viewing';
 import type { Message } from '../../types';
 import MessageBubble from './MessageBubble';
-// TODO: API에서 개별 메시지 타임스탬프가 추가되면 주석 해제
-// import DateDivider from './DateDivider';
+import DateDivider from './DateDivider';
 
 interface MessageListProps {
   messages: Message[];
@@ -23,19 +22,11 @@ interface MessageListProps {
   onDelete?: (message: Message) => void;
 }
 
-// TODO: API에서 개별 메시지 타임스탬프가 추가되면 'date' 타입 추가
-// interface GroupedMessage {
-//   id: string;
-//   type: 'date' | 'message';
-//   date?: string;
-//   message?: Message;
-//   showProfile?: boolean;
-//   showTail?: boolean;
-// }
 interface GroupedMessage {
   id: string;
-  type: 'message';
-  message: Message;
+  type: 'date' | 'message';
+  date?: string;
+  message?: Message;
   showProfile?: boolean;
   showTail?: boolean;
 }
@@ -91,25 +82,24 @@ const MessageList = ({
 
   // Group messages and determine which messages should show profile/tail
   // Reversed for inverted FlatList
-  // TODO: API에서 개별 메시지 타임스탬프가 추가되면 날짜 구분선 로직 주석 해제
   const groupedMessages = useMemo<GroupedMessage[]>(() => {
     const groups: GroupedMessage[] = [];
-    // let currentDate = '';
+    let currentDate = '';
 
     messages.forEach((message, index) => {
-      // TODO: API에서 개별 메시지 타임스탬프가 추가되면 날짜 구분선 추가
-      // if (message.date !== currentDate) {
-      //   currentDate = message.date;
-      //   groups.push({ id: `date-${currentDate}`, type: 'date', date: currentDate });
-      // }
+      // Add date divider when date changes
+      if (message.date !== currentDate) {
+        currentDate = message.date;
+        groups.push({ id: `date-${currentDate}`, type: 'date', date: currentDate });
+      }
 
       const previousMessage = index > 0 ? messages[index - 1] : null;
-      // const dateChanged = previousMessage && previousMessage.date !== message.date;
+      const dateChanged = previousMessage && previousMessage.date !== message.date;
       const senderChanged = previousMessage && previousMessage.sender !== message.sender;
 
       // Show tail for first message in consecutive messages from the same sender
-      // TODO: 날짜 변경 시에도 showTail 활성화: const showTail = index === 0 || senderChanged || dateChanged || !previousMessage;
-      const showTail = index === 0 || senderChanged || !previousMessage;
+      // Also show tail when date changes
+      const showTail = index === 0 || senderChanged || dateChanged || !previousMessage;
 
       // Show profile only for 'other' sender and when showTail is true
       const isOther = message.sender === 'other';
@@ -130,27 +120,29 @@ const MessageList = ({
 
   const renderItem = useCallback(
     ({ item }: { item: GroupedMessage }) => {
-      // TODO: API에서 개별 메시지 타임스탬프가 추가되면 날짜 구분선 렌더링 주석 해제
-      // if (item.type === 'date' && item.date) {
-      //   return <DateDivider date={item.date} />;
-      // }
-      // if (item.type === 'message' && item.message) { ... }
+      if (item.type === 'date' && item.date) {
+        return <DateDivider date={item.date} />;
+      }
 
-      return (
-        <MessageBubble
-          message={item.message}
-          globalTranslateX={globalTranslateX}
-          senderName={senderName}
-          profileImageUrl={profileImageUrl}
-          showProfile={item.showProfile}
-          showTail={item.showTail}
-          onReply={onReply}
-          onPressImages={handlePressImages}
-          onPressFile={onPressFile}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
-      );
+      if (item.type === 'message' && item.message) {
+        return (
+          <MessageBubble
+            message={item.message}
+            globalTranslateX={globalTranslateX}
+            senderName={senderName}
+            profileImageUrl={profileImageUrl}
+            showProfile={item.showProfile}
+            showTail={item.showTail}
+            onReply={onReply}
+            onPressImages={handlePressImages}
+            onPressFile={onPressFile}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        );
+      }
+
+      return null;
     },
     [
       globalTranslateX,

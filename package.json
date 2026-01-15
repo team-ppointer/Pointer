@@ -1,6 +1,11 @@
 {
   "name": "mopl",
   "private": true,
+  "pnpm": {
+    "overrides": {
+      "esbuild": "0.25.12"
+    }
+  },
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
@@ -21,8 +26,8 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.3",
     "postcss": "^8.5.1",
-    "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.6.11",
+    "prettier": "^3.7.4",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^4.0.4",
     "turbo": "^2.4.0",
     "typescript": "5.7.3"

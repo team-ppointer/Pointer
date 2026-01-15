@@ -4,10 +4,9 @@ import {
   openCameraWithErrorHandling,
   openImageLibraryWithErrorHandling,
 } from '../../utils/images/imagePicker';
-import { useCreateScrapFromImage } from '@/apis';
+import { useCreateScrapFromImage, useUploadFile } from '@/apis';
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
-import { useUploadFile } from '@/apis';
 
 export interface AddScrapTooltipProps {
   onClose?: () => void;

@@ -7,7 +7,6 @@ export type OnboardingStackParamList = {
   MathSubject: undefined;
   School: undefined;
   Score: undefined;
-  Nickname: undefined;
   Welcome: undefined;
 };
 
