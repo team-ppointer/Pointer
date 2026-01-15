@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { View, Text, ScrollView, LayoutChangeEvent, Dimensions, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  LayoutChangeEvent,
+  Dimensions,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -314,7 +323,10 @@ const ScrapDetailScreen = () => {
             scrapName={scrapName || scrapDetail.name || '스크랩 상세'}
             onScrapNameChange={handleUpdateScrapName}
             showSave={uiState.showSave}
-            onBack={() => navigation.goBack()}
+            onBack={async () => {
+              const saved = await handwriting.handleSave(true);
+              navigation.goBack();
+            }}
             canGoBack={navigation.canGoBack()}
             onMoveFolderPress={() => {
               openMoveScrapModal({
@@ -394,39 +406,44 @@ const ScrapDetailScreen = () => {
                 backgroundColor: 'white',
               },
             ]}>
-            <View style={{ flex: 1 }}>
-              <DrawingToolbar
-                canUndo={drawingState.canUndo}
-                canRedo={drawingState.canRedo}
-                onUndo={() => canvasRef.current?.undo()}
-                onRedo={() => canvasRef.current?.redo()}
-                isEraserMode={drawingState.isEraserMode}
-                isTextMode={drawingState.isTextMode}
-                onPenModePress={drawingState.setPenMode}
-                onEraserModePress={() => {
-                  if (drawingState.isEraserMode) {
-                    drawingState.setPenMode();
-                  } else {
-                    drawingState.setEraserMode();
-                  }
-                }}
-                onTextModePress={drawingState.setTextMode}
-                strokeWidth={drawingState.strokeWidth}
-                eraserSize={drawingState.eraserSize}
-                onStrokeWidthChange={drawingState.setStrokeWidth}
-                onEraserSizeChange={drawingState.setEraserSize}
-                drawingAreaWidth={currentDrawingWidth}
-              />
-              <DrawingCanvas
-                ref={canvasRef}
-                strokeColor='#1E1E21'
-                strokeWidth={drawingState.strokeWidth}
-                textMode={drawingState.isTextMode}
-                eraserMode={drawingState.isEraserMode}
-                eraserSize={drawingState.eraserSize}
-                onHistoryChange={drawingState.setHistoryState}
-              />
-            </View>
+            <KeyboardAvoidingView
+              style={{ flex: 1 }}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={0}>
+              <View style={{ flex: 1 }}>
+                <DrawingToolbar
+                  canUndo={drawingState.canUndo}
+                  canRedo={drawingState.canRedo}
+                  onUndo={() => canvasRef.current?.undo()}
+                  onRedo={() => canvasRef.current?.redo()}
+                  isEraserMode={drawingState.isEraserMode}
+                  isTextMode={drawingState.isTextMode}
+                  onPenModePress={drawingState.setPenMode}
+                  onEraserModePress={() => {
+                    if (drawingState.isEraserMode) {
+                      drawingState.setPenMode();
+                    } else {
+                      drawingState.setEraserMode();
+                    }
+                  }}
+                  onTextModePress={drawingState.setTextMode}
+                  strokeWidth={drawingState.strokeWidth}
+                  eraserSize={drawingState.eraserSize}
+                  onStrokeWidthChange={drawingState.setStrokeWidth}
+                  onEraserSizeChange={drawingState.setEraserSize}
+                  drawingAreaWidth={currentDrawingWidth}
+                />
+                <DrawingCanvas
+                  ref={canvasRef}
+                  strokeColor='#1E1E21'
+                  strokeWidth={drawingState.strokeWidth}
+                  textMode={drawingState.isTextMode}
+                  eraserMode={drawingState.isEraserMode}
+                  eraserSize={drawingState.eraserSize}
+                  onHistoryChange={drawingState.setHistoryState}
+                />
+              </View>
+            </KeyboardAvoidingView>
           </Animated.View>
         </View>
       </View>
