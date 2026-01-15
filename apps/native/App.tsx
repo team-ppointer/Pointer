@@ -32,9 +32,11 @@ const navigationTheme: Theme = {
 
 if ((Text as any).defaultProps == null) (Text as any).defaultProps = {};
 (Text as any).defaultProps.allowFontScaling = false;
+(Text as any).defaultProps.style = [{ fontFamily: 'Pretendard' }];
 
 if ((TextInput as any).defaultProps == null) (TextInput as any).defaultProps = {};
 (TextInput as any).defaultProps.allowFontScaling = false;
+(TextInput as any).defaultProps.style = [{ fontFamily: 'Pretendard' }];
 
 export default function App() {
   const { loading } = useLoadAssets();
