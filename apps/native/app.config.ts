@@ -1,8 +1,52 @@
 import type { ExpoConfig } from 'expo/config';
+import { withDangerousMod, type ConfigPlugin } from 'expo/config-plugins';
+import * as fs from 'fs';
+import * as path from 'path';
 import 'dotenv/config';
+
+/**
+ * Custom Expo Config Plugin to enforce modular headers for Firebase dependencies.
+ * This fixes the "Module 'FirebaseCore' not found" error by ensuring critical Firebase pods
+ * use modular headers, allowing Swift/Obj-C interop without global useFrameworks: 'static'.
+ */
+const withFirebaseModularHeaders: ConfigPlugin = (config) => {
+  return withDangerousMod(config, [
+    'ios',
+    async (config) => {
+      const podfilePath = path.join(config.modRequest.platformProjectRoot, 'Podfile');
+      
+      if (!fs.existsSync(podfilePath)) {
+        return config;
+      }
+
+      let podfileContent = await fs.promises.readFile(podfilePath, 'utf-8');
+
+      // Force modular headers for key Firebase pods
+      // We inject this just before `use_react_native!` to ensure it overrides or sits alongside Expo's definitions
+      const modularHeadersPatch = `
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'FirebaseMessaging', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+`;
+
+      if (!podfileContent.includes("pod 'FirebaseCore', :modular_headers => true")) {
+        podfileContent = podfileContent.replace(
+          /use_react_native!/g,
+          `${modularHeadersPatch}\n  use_react_native!`
+        );
+      }
+
+      await fs.promises.writeFile(podfilePath, podfileContent);
+      return config;
+    },
+  ]);
+};
 
 const androidGoogleServicesFile =
   process.env.ANDROID_GOOGLE_SERVICES_JSON || './google-services.json';
+
+const iosGoogleServicesFile =
+  process.env.IOS_GOOGLE_SERVICES_PLIST || './GoogleService-Info.plist';
 
 const isDev =
   process.env.APP_VARIANT === 'development' || process.env.EAS_BUILD_PROFILE === 'development';
@@ -24,6 +68,7 @@ const config: ExpoConfig = {
       ITSAppUsesNonExemptEncryption: false,
       UIBackgroundModes: ['remote-notification'],
     },
+    googleServicesFile: iosGoogleServicesFile,
     icon: './assets/ios-pointer.icon',
   },
   android: {
@@ -86,7 +131,8 @@ const config: ExpoConfig = {
       },
     ],
     ["expo-apple-authentication"],
-    'expo-notifications'
+    'expo-notifications',
+    '@react-native-firebase/app',
   ],
   extra: {
     apiBaseUrl: process.env.NATIVE_API_BASE_URL,
@@ -105,4 +151,4 @@ const config: ExpoConfig = {
   },
 };
 
-export default config;
+export default withFirebaseModularHeaders(config);

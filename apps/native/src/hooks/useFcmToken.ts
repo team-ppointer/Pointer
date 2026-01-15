@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import messaging from '@react-native-firebase/messaging';
 import { postPushToken } from '@apis/controller/student/me';
 
 // 알림 수신 시 동작 설정
@@ -32,88 +33,66 @@ const useFcmToken = () => {
       return;
     }
 
-    // 이미 등록한 경우 다시 등록하지 않음
-    if (hasRegistered.current) {
-      return;
-    }
-
     const registerFcmToken = async () => {
       try {
-        // 실제 디바이스인지 확인 (시뮬레이터에서는 푸시 알림 불가)
         if (!Device.isDevice) {
           console.warn('[FCM] Must use physical device for push notifications');
           return;
         }
 
-        // 권한 요청
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
+        // 1. 권한 요청 (Firebase Native Method 사용 권장)
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-        if (existingStatus !== 'granted') {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
-
-        if (finalStatus !== 'granted') {
-          console.warn('[FCM] Push notification permission not granted');
+        if (!enabled) {
+          console.warn('[FCM] Authorization status:', authStatus);
           return;
         }
 
-        // Android 알림 채널 설정
-        if (Platform.OS === 'android') {
-          await Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
+        // 2. APNs 토큰 확인 (iOS 필수: 이게 없으면 FCM 토큰이 있어도 동작 안 함)
+        if (Platform.OS === 'ios') {
+          const apnsToken = await messaging().getAPNSToken();
+          console.log('[FCM] APNs Token:', apnsToken);
+          if (!apnsToken) {
+            console.error('[FCM] APNs Token is missing! Swizzling might be failed.');
+            // 여기서 APNs 토큰이 없다면 iOS 설정 문제(Capabilities 등)일 가능성이 큼
+          }
         }
 
-        // 네이티브 FCM/APNs 토큰 가져오기 (Expo Push Token이 아님!)
-        const tokenData = await Notifications.getDevicePushTokenAsync();
-        const token = tokenData.data;
+        // 3. FCM 토큰 가져오기
+        const token = await messaging().getToken();
+        console.log('[FCM] Device FCM Token:', token);
 
-        if (!token) {
-          console.warn('[FCM] Failed to get device push token');
-          return;
+        if (token && !hasRegistered.current) {
+          await postPushToken(token);
+          hasRegistered.current = true;
+          console.log('[FCM] Token registered to server');
         }
-
-        // 서버에 토큰 등록
-        await postPushToken(token);
-
-        hasRegistered.current = true;
-        console.log('[FCM] Device push token registered successfully');
       } catch (error) {
-        console.error('[FCM] Error during token registration:', error);
+        console.error('[FCM] Registration failed:', error);
       }
     };
 
     void registerFcmToken();
 
-    // 포그라운드에서 알림 수신 리스너
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification: Notifications.Notification) => {
-        console.log('[FCM] Notification received:', notification);
-      }
-    );
+    // 4. 포그라운드 메시지 수신 (앱이 켜져 있을 때 로그 확인용)
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      console.log('[FCM] A new FCM message arrived!', JSON.stringify(remoteMessage));
+      
+      // 앱이 켜져 있을 때도 상단 알림을 띄우고 싶다면 expo-notifications 사용
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: remoteMessage.notification?.title || '알림',
+          body: remoteMessage.notification?.body || '',
+          data: remoteMessage.data,
+        },
+        trigger: null, // 즉시 표시
+      });
+    });
 
-    // 알림 탭 리스너 (사용자가 알림을 탭했을 때)
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      (response: Notifications.NotificationResponse) => {
-        console.log('[FCM] Notification response:', response);
-        // 여기서 알림 탭에 따른 네비게이션 등 처리 가능
-      }
-    );
-
-    // 클린업
-    return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
-      }
-    };
+    return unsubscribe;
   }, []);
 };
 
