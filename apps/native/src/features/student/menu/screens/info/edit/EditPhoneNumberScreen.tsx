@@ -13,21 +13,18 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container } from '@components/common';
 import { ChevronLeft, ChevronDown, CircleCheck } from 'lucide-react-native';
-import { putMe, useGetMe } from '@apis/student';
+import { useGetMe, usePutMe, postPhoneSend, postPhoneResend, postPhoneVerify } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 import { carrierOptions, type CarrierValue } from '@features/student/onboarding/constants';
-import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
-import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
-import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
-import { showToast } from '@/features/student/scrap/components/Notification';
+import { showToast } from '@features/student/scrap/components/Notification';
 
 const EditPhoneNumberScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
 
-  const { mutate: putMeMutate } = putMe();
+  const { mutate: putMeMutate } = usePutMe();
 
   const [phoneNumber, setPhoneNumber] = useState(data?.phoneNumber || '');
   const [carrier, setCarrier] = useState<CarrierValue | null>(null);

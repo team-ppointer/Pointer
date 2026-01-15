@@ -3,10 +3,10 @@ import { EditScreenLayout } from '../../../components';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { useMemo, useState } from 'react';
-import { levelOptions } from '@/features/student/onboarding/constants';
-import OptionButton from '@/features/student/onboarding/components/OptionButton';
-import { showToast } from '@/features/student/scrap/components/Notification';
-import usePutMe from '@/apis/controller/student/me/putMe';
+import { levelOptions } from '@features/student/onboarding/constants';
+import OptionButton from '@features/student/onboarding/components/OptionButton';
+import { showToast } from '@features/student/scrap/components/Notification';
+import { usePutMe } from '@apis';
 
 const EditScoreScreen = ({
   navigation,

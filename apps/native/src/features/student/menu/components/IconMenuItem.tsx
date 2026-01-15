@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { ChevronRight, LucideIcon } from 'lucide-react-native';
-import { colors } from '@/theme/tokens';
-import { AnimatedPressable } from '@/components/common';
+import { ChevronRight } from 'lucide-react-native';
+import { colors } from '@theme/tokens';
+import { AnimatedPressable } from '@components/common';
 
 interface IconMenuItemProps {
   title: string;
@@ -27,7 +27,7 @@ export const IconMenuItem = ({
         <Text className='text-16r text-black'>{title}</Text>
       </View>
       {showChevron && (
-        <View className='h-[24px] w-[24px] justify-center items-center'>
+        <View className='h-[24px] w-[24px] items-center justify-center'>
           <ChevronRight size={20} color={colors['gray-600']} />
         </View>
       )}

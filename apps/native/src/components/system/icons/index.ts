@@ -23,6 +23,7 @@ import GoogleIcon from './GoogleIcon';
 import KakaoIcon from './KakaoIcon';
 import AppleIcon from './AppleIcon';
 import CircleCheckDashed from './CircleCheckDashed';
+import CircleXFilledIcon from './CircleXFilledIcon';
 
 export {
   AlertBellButtonIcon,
@@ -50,4 +51,5 @@ export {
   AppleIcon,
   GoogleIcon,
   KakaoIcon,
+  CircleXFilledIcon,
 };

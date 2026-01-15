@@ -4,7 +4,9 @@
  * root 스크랩을 나타내기 위해 FOLDER 타입의 id는 undefined일 수 있음
  * SCRAP 타입의 id는 항상 number
  */
-export type SelectedItem = { id: number; type: 'SCRAP' } | { id: number | undefined; type: 'FOLDER' };
+export type SelectedItem =
+  | { id: number; type: 'SCRAP' }
+  | { id: number | undefined; type: 'FOLDER' };
 
 export interface State {
   /** 선택 모드 활성화 여부 */
@@ -63,7 +65,9 @@ export function reducer(state: State, action: Action): State {
 
       // 타입에 맞는 SelectedItem 생성
       const newItem: SelectedItem =
-        itemType === 'SCRAP' ? { id: id as number, type: 'SCRAP' } : { id: id ?? undefined, type: 'FOLDER' };
+        itemType === 'SCRAP'
+          ? { id: id as number, type: 'SCRAP' }
+          : { id: id ?? undefined, type: 'FOLDER' };
 
       return {
         ...state,

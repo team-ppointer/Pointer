@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { client } from '@/apis/client';
-import { paths } from '@/types/api/schema';
+import { paths } from '@schema';
 import {
   optimisticMoveScrap,
   rollbackOptimisticUpdate,
@@ -27,7 +27,7 @@ export const useMoveScraps = () => {
     // 낙관적 업데이트: 이동된 항목을 현재 폴더에서 즉시 제거
     onMutate: async (request) => {
       // scrapIds를 items 형태로 변환 (타입은 항상 SCRAP)
-      const items = request.scrapIds.map(id => ({ id, type: 'SCRAP' as const }));
+      const items = request.scrapIds.map((id) => ({ id, type: 'SCRAP' as const }));
       return await optimisticMoveScrap(queryClient, items);
     },
     // 에러 발생 시 롤백

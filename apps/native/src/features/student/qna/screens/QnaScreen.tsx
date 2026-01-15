@@ -4,11 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import {
-  useGetQnaList,
-  useGetQnaAdminChat,
-  useGetQnaById,
-} from '@apis/controller/student/qna';
+import { useGetQnaList, useGetQnaAdminChat, useGetQnaById } from '@apis/controller/student/qna';
 import type { ChatRoom as ChatRoomType } from '../types';
 import { mapQnAMetaToChatRoom, mapAdminChatToChatRoom } from '../types';
 import { ChatRoomList } from '../components/ChatRoomList';
@@ -25,11 +21,7 @@ const QnaScreen = () => {
   const [selectedRoom, setSelectedRoom] = useState<ChatRoomType | null>(null);
 
   // Fetch QnA list (teacher chats)
-  const {
-    data: qnaListData,
-    isLoading: isLoadingQnaList,
-    error: qnaListError,
-  } = useGetQnaList();
+  const { data: qnaListData, isLoading: isLoadingQnaList, error: qnaListError } = useGetQnaList();
 
   // Fetch admin chat (publisher)
   const {
@@ -104,25 +96,25 @@ const QnaScreen = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size='large' />
         </View>
       );
     }
 
     if (hasError) {
       return (
-        <View className="flex-1 items-center justify-center">
-          <Text className="text-14r text-gray-600">데이터를 불러올 수 없습니다.</Text>
+        <View className='flex-1 items-center justify-center'>
+          <Text className='text-14r text-gray-600'>데이터를 불러올 수 없습니다.</Text>
         </View>
       );
     }
 
     if (isTablet) {
       return (
-        <View className="flex-1 flex-row">
+        <View className='flex-1 flex-row'>
           {/* Left Panel - Chat Room List */}
-          <View className="w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white">
+          <View className='w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white'>
             <ChatRoomList
               chatRooms={chatRooms}
               selectedRoomId={selectedRoom?.id}
@@ -133,7 +125,7 @@ const QnaScreen = () => {
           </View>
 
           {/* Right Panel - Chat Room */}
-          <View className="flex-1">
+          <View className='flex-1'>
             <ChatRoom
               chatRoom={selectedRoom}
               qnaData={isSelectedRoomAdmin ? undefined : selectedQnaData}
@@ -156,7 +148,7 @@ const QnaScreen = () => {
 
   // 항상 동일한 SafeAreaView 구조 유지
   return (
-    <SafeAreaView className="flex-1 bg-gray-100" edges={['top']}>
+    <SafeAreaView className='flex-1 bg-gray-100' edges={['top']}>
       {renderContent()}
     </SafeAreaView>
   );

@@ -10,9 +10,7 @@ type ProblemWithStudyInfoResp = components['schemas']['ProblemWithStudyInfoResp'
  * @param scrapDetail - 스크랩 상세 정보
  * @returns 변환된 PublishProblemGroupResp 또는 null (문제가 없는 경우)
  */
-export function convertScrapToGroup(
-  scrapDetail: ScrapExtendResp
-): PublishProblemGroupResp | null {
+export function convertScrapToGroup(scrapDetail: ScrapExtendResp): PublishProblemGroupResp | null {
   if (!scrapDetail?.problem) return null;
 
   // PointingResp를 PointingWithFeedbackResp로 변환

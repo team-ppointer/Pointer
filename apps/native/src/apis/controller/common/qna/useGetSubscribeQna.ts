@@ -135,7 +135,9 @@ const useSubscribeQna = ({
     }
 
     const delay = getRetryDelay();
-    console.log(`[SSE] Scheduling reconnect in ${Math.round(delay)}ms (attempt ${retryCountRef.current + 1}/${config.maxRetries})`);
+    console.log(
+      `[SSE] Scheduling reconnect in ${Math.round(delay)}ms (attempt ${retryCountRef.current + 1}/${config.maxRetries})`
+    );
     updateConnectionStatus('reconnecting');
 
     retryTimeoutRef.current = setTimeout(() => {

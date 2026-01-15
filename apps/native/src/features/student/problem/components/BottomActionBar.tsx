@@ -94,17 +94,14 @@ const BottomActionBarButton = ({
 
   if (animatedStyle) {
     return (
-      <Animated.View style={[{ borderRadius: 8, overflow: 'hidden' }, animatedStyle, containerStyle]}>
+      <Animated.View
+        style={[{ borderRadius: 8, overflow: 'hidden' }, animatedStyle, containerStyle]}>
         {innerContent}
       </Animated.View>
     );
   }
 
-  return (
-    <View style={containerStyle}>
-      {innerContent}
-    </View>
-  );
+  return <View style={containerStyle}>{innerContent}</View>;
 };
 
 const BottomActionBar = (({ bottomInset = 0, onLayout, children }: BottomActionBarProps) => (

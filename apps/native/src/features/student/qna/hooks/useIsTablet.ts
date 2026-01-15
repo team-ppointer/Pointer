@@ -8,4 +8,3 @@ export const useIsTablet = () => {
 };
 
 export default useIsTablet;
-

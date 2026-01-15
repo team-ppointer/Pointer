@@ -15,7 +15,7 @@ const LoginScreen = () => {
   const termsSheetRef = useRef<BottomSheet>(null);
   const emailAuthSheetRef = useRef<BottomSheet>(null);
   const { bottom: bottomInset } = useSafeAreaInsets();
-  
+
   const { isLoading, error, signInWithProvider } = useNativeOAuth();
 
   const handleSocialButtonPress = (provider: OAuthProvider) => {
@@ -29,10 +29,10 @@ const LoginScreen = () => {
 
   const handleTermsConfirm = async () => {
     if (!pendingSocial) return;
-    
+
     const provider = pendingSocial;
     termsSheetRef.current?.close();
-    
+
     await signInWithProvider(provider);
   };
 
@@ -109,10 +109,7 @@ const LoginScreen = () => {
         onConfirm={handleTermsConfirm}
         onSheetChange={handleTermsSheetChange}
       />
-      <EmailAuthSheet
-        ref={emailAuthSheetRef}
-        bottomInset={bottomInset}
-      />
+      <EmailAuthSheet ref={emailAuthSheetRef} bottomInset={bottomInset} />
     </SafeAreaView>
   );
 };

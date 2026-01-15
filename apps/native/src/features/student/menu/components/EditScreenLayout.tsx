@@ -70,7 +70,9 @@ export const EditScreenLayout = ({
           <View className='h-[36px] w-[36px]' />
         )}
         {cancelLabel && onCancel ? (
-          <AnimatedPressable onPress={onCancel} className='h-[48px] items-center justify-center px-[10px]'>
+          <AnimatedPressable
+            onPress={onCancel}
+            className='h-[48px] items-center justify-center px-[10px]'>
             <Text className='text-14sb text-gray-600'>{cancelLabel}</Text>
           </AnimatedPressable>
         ) : (

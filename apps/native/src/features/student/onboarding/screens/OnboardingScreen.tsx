@@ -17,10 +17,9 @@ const OnboardingScreen = () => {
   const initialRoute = email ? 'Identity' : 'Email';
 
   return (
-    <Stack.Navigator 
+    <Stack.Navigator
       initialRouteName={initialRoute}
-      screenOptions={{ headerShown: false, animation: 'slide_from_right' }}
-    >
+      screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <Stack.Screen name='Email' component={EmailStep} />
       <Stack.Screen name='Identity' component={IdentityStep} />
       <Stack.Screen name='Grade' component={GradeStep} />

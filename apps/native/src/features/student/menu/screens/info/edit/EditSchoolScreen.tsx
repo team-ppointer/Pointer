@@ -1,16 +1,15 @@
-import { OnboardingInput } from '@/features/student/onboarding/components';
+import { OnboardingInput } from '@features/student/onboarding/components';
 import { EditScreenLayout } from '../../../components';
 import { useState } from 'react';
-import { showToast } from '@/features/student/scrap/components/Notification';
-import { useGetSchool } from '@apis/student';
-import usePutMe from '@/apis/controller/student/me/putMe';
+import { showToast } from '@features/student/scrap/components/Notification';
+import { useGetSchool, usePutMe } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
-import { colors } from '@/theme/tokens';
-import CircleXFilledIcon from '@/components/system/icons/CircleXFilledIcon';
+import { colors } from '@theme/tokens';
+import { CircleXFilledIcon } from '@components/system/icons';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
-import { useDebounce } from '@/hooks';
+import { useDebounce } from '@hooks';
 
 const EditSchoolScreen = ({
   navigation,

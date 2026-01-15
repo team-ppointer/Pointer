@@ -14,7 +14,11 @@ export const SCRAP_QUERY_KEYS = {
 
   /** 특정 폴더의 스크랩 목록 쿼리 키 */
   folderScraps: (folderId: number) =>
-    ['get', '/api/student/scrap/folder/{folderId}/scraps', { params: { path: { folderId } } }] as const,
+    [
+      'get',
+      '/api/student/scrap/folder/{folderId}/scraps',
+      { params: { path: { folderId } } },
+    ] as const,
 
   /** 스크랩 상세 정보 쿼리 키 */
   scrapDetail: (scrapId: number) =>

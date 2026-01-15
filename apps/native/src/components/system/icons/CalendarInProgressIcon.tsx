@@ -56,5 +56,3 @@ const CalendarInProgressIcon = React.forwardRef<React.ComponentRef<typeof Svg>, 
 ) as LucideIcon;
 
 export default CalendarInProgressIcon;
-
-

@@ -28,16 +28,14 @@ const ChatRoomList = ({
       return chatRooms;
     }
     // Publisher is always shown regardless of filter
-    return chatRooms.filter(
-      (room) => room.type === 'publisher' || room.status === filter
-    );
+    return chatRooms.filter((room) => room.type === 'publisher' || room.status === filter);
   }, [chatRooms, filter]);
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className='flex-1 bg-gray-100'>
       {/* Header */}
-      <View className="flex-row items-center px-[20px] h-[50px]">
-        <Text className="text-18b text-gray-900">QnA</Text>
+      <View className='h-[50px] flex-row items-center px-[20px]'>
+        <Text className='text-18b text-gray-900'>QnA</Text>
         {/* <Pressable
           onPress={onSearch}
           className="h-[38px] w-[38px] items-center justify-center rounded-full active:bg-gray-200">
@@ -55,13 +53,13 @@ const ChatRoomList = ({
       </View> */}
 
       {/* Filter Section */}
-      <View className="flex-row items-center justify-between px-[20px] h-[50px]">
-        <Text className="text-16sb text-gray-900">채팅방</Text>
+      <View className='h-[50px] flex-row items-center justify-between px-[20px]'>
+        <Text className='text-16sb text-gray-900'>채팅방</Text>
         <ChatRoomFilter value={filter} onChange={setFilter} />
       </View>
 
       {/* Chat Room List */}
-      <ScrollView className="flex-1">
+      <ScrollView className='flex-1'>
         {filteredRooms.map((room) => (
           <ChatRoomItem
             key={`${room.type}-${room.id}`}
@@ -76,4 +74,3 @@ const ChatRoomList = ({
 };
 
 export default ChatRoomList;
-

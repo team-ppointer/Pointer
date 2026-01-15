@@ -1,10 +1,9 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { UserRound } from 'lucide-react-native';
-import { colors } from '@/theme/tokens';
-import type { components } from '@/types/api/schema';
-import ProfileIcon from '@/components/system/icons/ProfileIcon';
-import { AnimatedPressable } from '@/components/common';
+import { colors } from '@theme/tokens';
+import type { components } from '@schema';
+import { ProfileIcon } from '@components/system/icons';
+import { AnimatedPressable } from '@components/common';
 
 interface UserProfileCardProps {
   name?: string;

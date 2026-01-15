@@ -67,7 +67,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
   const toggleScrapMutation = useToggleScrapFromProblem();
-  const { data: scrapStatusData } = useGetScrapStatusById(currentProblem?.id ?? 0, !!currentProblem?.id);
+  const { data: scrapStatusData } = useGetScrapStatusById(
+    currentProblem?.id ?? 0,
+    !!currentProblem?.id
+  );
 
   const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 

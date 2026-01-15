@@ -22,13 +22,8 @@ const StatusBadge = ({ status, size = 'sm' }: StatusBadgeProps) => {
 
   return (
     <View
-      className={`rounded-[4px] ${sizeStyles[size]} ${
-        isAsking ? 'bg-blue-200' : 'bg-green-100'
-      }`}>
-      <Text
-        className={`${textSizeStyles[size]} ${
-          isAsking ? 'text-blue-500' : 'text-green-500'
-        }`}>
+      className={`rounded-[4px] ${sizeStyles[size]} ${isAsking ? 'bg-blue-200' : 'bg-green-100'}`}>
+      <Text className={`${textSizeStyles[size]} ${isAsking ? 'text-blue-500' : 'text-green-500'}`}>
         {isAsking ? '질문중' : '해결완료'}
       </Text>
     </View>
@@ -36,4 +31,3 @@ const StatusBadge = ({ status, size = 'sm' }: StatusBadgeProps) => {
 };
 
 export default StatusBadge;
-

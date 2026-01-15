@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Pressable, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedPressable, NotificationItem, Container } from '@components/common';
-import LearningStatus from '../components/LearningStatus';
+import { AnimatedPressable, Container } from '@components/common';
 import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';
 import { useNavigation } from '@react-navigation/native';
@@ -13,11 +12,11 @@ import {
   useGetLastDiagnosis,
   useGetMonthlyPublish,
   useGetPublishDetail,
-} from '@apis/student';
+} from '@apis';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon, XIcon } from 'lucide-react-native';
 import ProblemViewer from '../../problem/components/ProblemViewer';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 import { PointerSymbol } from '@components/system/icons';
 import { BlurView } from 'expo-blur';
 const HomeScreen = () => {

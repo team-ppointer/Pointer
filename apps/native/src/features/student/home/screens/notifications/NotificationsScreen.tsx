@@ -10,9 +10,9 @@ import {
   usePostReadAllNotification,
   usePostReadNotification,
 } from '@/apis/controller/student/notification';
-import { useGetNotice, putReadNotice, useGetNoticeCount } from '@/apis/controller/student/notice';
+import { useGetNotice, putReadNotice } from '@apis';
 import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
-import { TanstackQueryClient } from '@/apis/client';
+import { TanstackQueryClient } from '@apis';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react-native';
 

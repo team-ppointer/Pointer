@@ -69,9 +69,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
   updateNoteTitle: (noteId, title) => {
     const { openNotes } = get();
-    const updatedNotes = openNotes.map((note) =>
-      note.id === noteId ? { ...note, title } : note
-    );
+    const updatedNotes = openNotes.map((note) => (note.id === noteId ? { ...note, title } : note));
     set({ openNotes: updatedNotes });
   },
 }));

@@ -1,14 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  CircleIcon,
-  MinusIcon,
-  TriangleIcon,
-  XIcon,
-} from 'lucide-react-native';
+import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native';
 import { Alert, Text, View } from 'react-native';
 
 import { AnimatedPressable, TextButton } from '@components/common';
@@ -17,7 +8,7 @@ import { colors } from '@theme/tokens';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import { useProblemSessionStore } from '@stores/problemSessionStore';
+import { useProblemSessionStore } from '@stores';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {

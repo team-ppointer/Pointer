@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
 import { ScreenLayout } from '../components';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/theme/tokens';
-import { usePostFeedback } from '@/apis/controller/student/me';
-import { showToast } from '@/features/student/scrap/components/Notification';
+import { colors } from '@theme/tokens';
+import { usePostFeedback } from '@apis';
+import { showToast } from '@features/student/scrap/components/Notification';
 
 const FeedbackScreen = () => {
   const { mutate: postFeedback } = usePostFeedback();
@@ -44,13 +37,13 @@ const FeedbackScreen = () => {
             className='flex-1'
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps='handled'>
-            <Text className='text-18sb text-black mb-[6px]'>어떤 문제를 경험하셨나요?</Text>
-            <Text className='text-12r text-gray-700 mb-[20px]'>
+            <Text className='text-18sb mb-[6px] text-black'>어떤 문제를 경험하셨나요?</Text>
+            <Text className='text-12r mb-[20px] text-gray-700'>
               제품에 대한 피드백이나 버그를 작성해 주세요!{`\n`}적어주신 내용으로 더 나은 서비스
               경험을 만들어 나가겠습니다.
             </Text>
 
-            <Text className='text-14m text-gray-900 mb-[8px]'>피드백 내용</Text>
+            <Text className='text-14m mb-[8px] text-gray-900'>피드백 내용</Text>
             <TextInput
               value={content}
               onChangeText={setContent}
@@ -59,7 +52,7 @@ const FeedbackScreen = () => {
               multiline
               maxLength={300}
               textAlignVertical='top'
-              className='text-16r min-h-[200px] rounded-[10px] mb-[8px] border border-gray-300 focus:border-gray-600 bg-white px-[16px] py-[11px]'
+              className='text-16r mb-[8px] min-h-[200px] rounded-[10px] border border-gray-300 bg-white px-[16px] py-[11px] focus:border-gray-600'
             />
             <View className='items-end'>
               <Text className='text-12r text-[#808087]'>{`${content.length}/300`}</Text>

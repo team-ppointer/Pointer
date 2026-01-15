@@ -33,7 +33,7 @@ export const colors = {
   'secondary-500': '#E59C00', // 기존 yellow
 
   // New Colors
-  'new': '#E75043',
+  new: '#E75043',
 };
 
 export const fontFamily = {

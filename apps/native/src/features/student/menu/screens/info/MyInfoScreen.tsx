@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container } from '@components/common';
 import { BookHeartIcon, CircleStarIcon, ProfileBasicIcon } from '@components/system/icons';
-import { useGetMe } from '@apis/student';
+import { useGetMe } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { InfoSection, ScreenLayout } from '../../components';
-import { gradeOptions, levelOptions } from '@/features/student/onboarding/constants';
+import { gradeOptions, levelOptions } from '@features/student/onboarding/constants';
 
 const MyInfoScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -19,7 +19,7 @@ const MyInfoScreen = () => {
         className='flex-1 pt-[10px]'
         bounces={false}
         contentContainerStyle={{ flexGrow: 1 }}>
-        <Container className='pb-[24px] gap-[28px]'>
+        <Container className='gap-[28px] pb-[24px]'>
           <InfoSection
             icon={<ProfileBasicIcon />}
             title='기본 정보'

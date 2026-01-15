@@ -1,5 +1,4 @@
 import { ActivityIndicator, Text, View } from 'react-native';
-
 import { colors } from '@theme/tokens';
 
 type Props = {

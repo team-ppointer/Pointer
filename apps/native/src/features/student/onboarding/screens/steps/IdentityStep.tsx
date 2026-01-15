@@ -13,7 +13,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const email = useOnboardingStore((state) => state.email);
   const identity = useOnboardingStore((state) => state.identity);
   const setIdentity = useOnboardingStore((state) => state.setIdentity);
-  
+
   // 이메일이 이미 설정되어 있으면 (이메일 로그인) 뒤로가기 숨김
   const isEmailLogin = Boolean(email);
 

@@ -3,7 +3,7 @@ import { OnboardingInput } from '@/features/student/onboarding/components';
 import { useState } from 'react';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import usePutMe from '@/apis/controller/student/me/putMe';
+import usePutMe from '@/apis/controller/student/me/usePutMe';
 import { showToast } from '@/features/student/scrap/components/Notification';
 
 const nicknameRegex = /^[가-힣]{2,4}$/;

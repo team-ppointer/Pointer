@@ -18,7 +18,13 @@ type TabItemProps = {
   onLongPress: () => void;
 };
 
-const AnimatedTabItem = ({ isFocused, label, IconComponent, onPress, onLongPress }: TabItemProps) => {
+const AnimatedTabItem = ({
+  isFocused,
+  label,
+  IconComponent,
+  onPress,
+  onLongPress,
+}: TabItemProps) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {

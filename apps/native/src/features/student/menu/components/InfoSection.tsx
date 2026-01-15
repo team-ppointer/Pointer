@@ -18,7 +18,7 @@ interface InfoSectionProps {
 export const InfoSection = ({ icon, title, fields, showChevron = true }: InfoSectionProps) => {
   return (
     <View className='gap-[10px]'>
-      <View className='flex-row items-center gap-[4px] mb-[6px]'>
+      <View className='mb-[6px] flex-row items-center gap-[4px]'>
         {icon}
         <Text className='text-18sb text-gray-900'>{title}</Text>
       </View>

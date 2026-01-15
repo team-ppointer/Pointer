@@ -43,4 +43,3 @@ const MessageCircleMoreFilledIcon = React.forwardRef<React.ComponentRef<typeof S
 ) as LucideIcon;
 
 export default MessageCircleMoreFilledIcon;
-

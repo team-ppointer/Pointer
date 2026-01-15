@@ -14,7 +14,7 @@ const withFirebaseModularHeaders: ConfigPlugin = (config) => {
     'ios',
     async (config) => {
       const podfilePath = path.join(config.modRequest.platformProjectRoot, 'Podfile');
-      
+
       if (!fs.existsSync(podfilePath)) {
         return config;
       }
@@ -45,8 +45,7 @@ const withFirebaseModularHeaders: ConfigPlugin = (config) => {
 const androidGoogleServicesFile =
   process.env.ANDROID_GOOGLE_SERVICES_JSON || './google-services.json';
 
-const iosGoogleServicesFile =
-  process.env.IOS_GOOGLE_SERVICES_PLIST || './GoogleService-Info.plist';
+const iosGoogleServicesFile = process.env.IOS_GOOGLE_SERVICES_PLIST || './GoogleService-Info.plist';
 
 const isDev =
   process.env.APP_VARIANT === 'development' || process.env.EAS_BUILD_PROFILE === 'development';
@@ -94,9 +93,7 @@ const config: ExpoConfig = {
           deploymentTarget: '15.1',
         },
         android: {
-          extraMavenRepos: [
-            'https://devrepo.kakao.com/nexus/content/groups/public/'
-          ]
+          extraMavenRepos: ['https://devrepo.kakao.com/nexus/content/groups/public/'],
         },
       },
     ],
@@ -130,7 +127,7 @@ const config: ExpoConfig = {
         },
       },
     ],
-    ["expo-apple-authentication"],
+    ['expo-apple-authentication'],
     'expo-notifications',
     '@react-native-firebase/app',
   ],

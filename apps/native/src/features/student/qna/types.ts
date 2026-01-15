@@ -107,7 +107,7 @@ export type ChatRoomFilterType = 'all' | 'asking' | 'resolved';
  */
 const formatDateTime = (dateTime?: string): string => {
   if (!dateTime) return '';
-  
+
   const date = new Date(dateTime);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -119,7 +119,7 @@ const formatDateTime = (dateTime?: string): string => {
   if (diffMins < 60) return `${diffMins}분 전`;
   if (diffHours < 24) return `${diffHours}시간 전`;
   if (diffDays < 7) return `${diffDays}일 전`;
-  
+
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
 };
 
@@ -183,18 +183,13 @@ export const mapQnAMetaToChatRoom = (meta: QnAMetaResp): ChatRoom => ({
 /**
  * Map ChatResp to Message
  */
-export const mapChatRespToMessage = (
-  chat: ChatResp,
-  allChats: ChatResp[],
-): Message => {
+export const mapChatRespToMessage = (chat: ChatResp, allChats: ChatResp[]): Message => {
   const hasFiles = chat.files && chat.files.length > 0;
   const hasReply = chat.replyToId !== undefined && chat.replyToId !== null;
-  
+
   // Find the reply target
-  const replyTarget = hasReply 
-    ? allChats.find(c => c.id === chat.replyToId) 
-    : undefined;
-  
+  const replyTarget = hasReply ? allChats.find((c) => c.id === chat.replyToId) : undefined;
+
   // Determine message type
   let type: MessageType = 'text';
   if (hasReply && hasFiles) {
@@ -215,7 +210,7 @@ export const mapChatRespToMessage = (
   if (replyTarget) {
     const replyHasFiles = replyTarget.files && replyTarget.files.length > 0;
     const replyFirstFile = replyHasFiles ? replyTarget.files[0] : undefined;
-    
+
     reply = {
       type: replyFirstFile?.fileType === 'IMAGE' ? 'image' : 'text',
       title: replyTarget.isMine ? '내 메시지' : '상대방 메시지',
@@ -227,7 +222,7 @@ export const mapChatRespToMessage = (
   // Build file/image content
   let file: FileContent | undefined;
   let image: ImageContent | undefined;
-  
+
   if (hasFiles && !hasReply) {
     const firstFile = chat.files[0];
     if (firstFile?.fileType === 'IMAGE') {
@@ -272,8 +267,8 @@ export const mapQnARespToMessages = (qna: QnAResp): Message[] => {
   if (!qna.chats || qna.chats.length === 0) return [];
 
   // 메시지를 createdAt 기준으로 정렬 (오래된 순 -> 최신 순)
-  const sortedChats = [...qna.chats].sort((a, b) => 
-    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  const sortedChats = [...qna.chats].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
 
   return sortedChats.map((chat) => mapChatRespToMessage(chat, sortedChats));
@@ -288,8 +283,8 @@ export const mapSearchResults = (searchResp: QnASearchResp): SearchResult => {
 
   // Map QnA results (grouped by week)
   if (searchResp.qnaResults?.data?.groups) {
-    searchResp.qnaResults.data.groups.forEach(group => {
-      group.data?.forEach(qna => {
+    searchResp.qnaResults.data.groups.forEach((group) => {
+      group.data?.forEach((qna) => {
         chatRooms.push({
           id: qna.id,
           title: qna.title,
@@ -304,7 +299,7 @@ export const mapSearchResults = (searchResp: QnASearchResp): SearchResult => {
 
   // Map chat results
   if (searchResp.chatResults?.data) {
-    searchResp.chatResults.data.forEach(chat => {
+    searchResp.chatResults.data.forEach((chat) => {
       messages.push({
         id: chat.chatId,
         chatRoomId: chat.qnaId,

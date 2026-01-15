@@ -9,8 +9,7 @@ type Options = {
 const usePostReadAllNotification = (options?: Options) => {
   return useMutation({
     mutationFn: async () => {
-      const response = await client.POST('/api/student/notification/read-all', {
-      });
+      const response = await client.POST('/api/student/notification/read-all', {});
       return response.data;
     },
     onSuccess: (data) => {
@@ -23,4 +22,3 @@ const usePostReadAllNotification = (options?: Options) => {
 };
 
 export default usePostReadAllNotification;
-

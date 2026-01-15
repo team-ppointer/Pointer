@@ -5,9 +5,7 @@ import { isScrapSearchQuery } from './queryFilters';
 /**
  * 삭제할 항목 ID 세트 생성
  */
-export const createDeletedIdsSet = (
-  items: Array<{ id: number; type: string }>
-): Set<string> => {
+export const createDeletedIdsSet = (items: Array<{ id: number; type: string }>): Set<string> => {
   return new Set(items.map((item) => `${item.type}-${item.id}`));
 };
 
@@ -82,10 +80,7 @@ export const optimisticMoveScrap = async (
  * 폴더 생성 낙관적 업데이트
  * @returns 롤백을 위한 이전 데이터
  */
-export const optimisticCreateFolder = async (
-  queryClient: QueryClient,
-  folderName: string
-) => {
+export const optimisticCreateFolder = async (queryClient: QueryClient, folderName: string) => {
   const searchQueryFilters = createSearchQueryFilters();
 
   // 진행 중인 쿼리 취소

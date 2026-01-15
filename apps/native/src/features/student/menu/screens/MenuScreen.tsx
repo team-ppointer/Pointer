@@ -3,18 +3,13 @@ import { ScrollView, Text, View } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
-import { TanstackQueryClient } from '@/apis/client';
+import { TanstackQueryClient } from '@apis';
 
-import { useGetMe, useGetNoticeCount } from '@apis/student';
+import { useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
 import { Container } from '@components/common';
 import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
-import {
-  UserProfileCard,
-  TeacherInfoCard,
-  MenuListItem,
-  MenuSection,
-} from '../components';
+import { UserProfileCard, TeacherInfoCard, MenuListItem, MenuSection } from '../components';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -86,30 +81,16 @@ const MenuScreen = () => {
                 title='피드백 보내기'
                 onPress={() => navigation.navigate('Feedback')}
               />
-              <MenuListItem
-                icon={History}
-                title='앱 버전'
-                showChevron={false}>
-                  <View className='justify-center'>
-                    <Text className='text-16m text-blue-500'>
-                      1.0.1 최신 버전
-                    </Text>
-                  </View>
+              <MenuListItem icon={History} title='앱 버전' showChevron={false}>
+                <View className='justify-center'>
+                  <Text className='text-16m text-blue-500'>1.0.1 최신 버전</Text>
+                </View>
               </MenuListItem>
             </MenuSection>
             <MenuSection>
-              <MenuListItem
-                title='서비스 약관'
-                onPress={() => navigation.navigate('Terms')}
-              />
-              <MenuListItem
-                title='로그아웃'
-                onPress={() => setIsLogoutVisible(true)}
-              />
-              <MenuListItem
-                title='회원 탈퇴'
-                onPress={() => navigation.navigate('Withdrawal')}
-              />
+              <MenuListItem title='서비스 약관' onPress={() => navigation.navigate('Terms')} />
+              <MenuListItem title='로그아웃' onPress={() => setIsLogoutVisible(true)} />
+              <MenuListItem title='회원 탈퇴' onPress={() => navigation.navigate('Withdrawal')} />
             </MenuSection>
           </View>
         </ScrollView>
