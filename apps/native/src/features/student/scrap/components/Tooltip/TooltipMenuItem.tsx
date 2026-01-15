@@ -38,7 +38,7 @@ export const TooltipMenuItem = ({
 }: TooltipMenuItemProps) => {
   return (
     <Pressable
-      className={`flex-1 flex-row items-center gap-2 pl-4 pr-[26px] ${
+      className={`flex-1 flex-row items-center gap-2 py-2.5 pl-4 pr-[26px] ${
         !isLastItem ? 'border-b-[0.5px] border-gray-500' : ''
       }`}
       onPress={onPress}>

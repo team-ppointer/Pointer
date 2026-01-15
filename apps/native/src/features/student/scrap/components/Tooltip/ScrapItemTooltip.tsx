@@ -164,12 +164,13 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
 
   return (
     <TooltipContainer
-      height='h-[176px]'
+      height=''
       header={
-        <View className='h-[32px] w-[216px] rounded-[6px] bg-gray-300 px-[6px] py-1'>
+        <View className='h-[32px] w-full rounded-[6px] bg-gray-300 px-[6px] py-1'>
           <TextInput
-            className='text-16m items-center justify-center text-black'
+            className='text-16m flex-1 text-black'
             numberOfLines={1}
+            style={{ lineHeight: 20, paddingVertical: 0 }}
             value={text}
             onChangeText={setText}
             onEndEditing={async () => {

@@ -25,16 +25,15 @@ const SearchScrapHeader = ({
           <TextInput
             className='text-18m flex-1 text-black'
             placeholder='스크랩 제목을 검색하세요.'
+            style={{ lineHeight: 27 }}
             multiline={false}
             textAlignVertical='center'
             placeholderTextColor={colors['gray-500']}
-            allowFontScaling={false}
             numberOfLines={1}
             value={query}
             returnKeyType='search'
             onSubmitEditing={onSubmitEditing}
             onChangeText={setQuery}
-            onEndEditing={() => {}}
           />
           {query.length > 0 && (
             <Pressable
