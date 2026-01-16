@@ -157,7 +157,8 @@ const EditPhoneNumberScreen = () => {
                     placeholder='01012345678'
                     placeholderTextColor={colors['gray-600']}
                     keyboardType='phone-pad'
-                    className={`text-16r h-[48px] flex-1 items-center rounded-[10px] border bg-white px-4 py-[11px] text-black ${isCodeSent ? 'border-blue-500' : 'border-gray-300'}`}
+                    style={{ lineHeight: 20, paddingVertical: 0 }}
+                    className={`text-16r h-[48px] flex-1 rounded-[10px] border bg-white px-4 text-black ${isCodeSent ? 'border-blue-500' : 'border-gray-300'}`}
                   />
                   {isCodeSent && (
                     <Pressable
@@ -203,7 +204,8 @@ const EditPhoneNumberScreen = () => {
                     placeholder='인증번호 6자리'
                     keyboardType='number-pad'
                     maxLength={6}
-                    className='text-16r h-[48px] w-full rounded-[10px] border border-gray-300 bg-white px-4 py-[11px] pr-[60px] text-black'
+                    style={{ lineHeight: 20, paddingVertical: 0 }}
+                    className='text-16r h-[48px] w-full rounded-[10px] border border-gray-300 bg-white px-4 pr-[60px] text-black'
                   />
                   <View
                     style={{

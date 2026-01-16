@@ -4,10 +4,10 @@ import {
   Text,
   ScrollView,
   LayoutChangeEvent,
-  Dimensions,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -57,10 +57,6 @@ import { useScrapModal } from '../contexts/ScrapModalsContext';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MIN_LEFT_WIDTH = SCREEN_WIDTH * 0.25;
-const MIN_RIGHT_WIDTH = SCREEN_WIDTH * 0.25;
-const DEFAULT_LEFT_WIDTH = SCREEN_WIDTH * 0.5;
 const DRAG_HANDLE_WIDTH = 4;
 const DIVIDER_WIDTH = 8;
 const DRAG_HANDLE_GAP = 10;
@@ -124,6 +120,12 @@ const ScrapDetailScreen = () => {
   const drawingState = useDrawingState();
   const uiState = useScrapUIState();
   const { openMoveScrapModal, setRefetchScrapDetail } = useScrapModal();
+
+  // 화면 크기에 따라 분할 영역 비율 결정
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const MIN_LEFT_WIDTH = SCREEN_WIDTH * 0.25;
+  const MIN_RIGHT_WIDTH = SCREEN_WIDTH * 0.25;
+  const DEFAULT_LEFT_WIDTH = SCREEN_WIDTH * 0.5;
 
   // refetchScrapDetail을 context에 등록
   useEffect(() => {
@@ -305,6 +307,18 @@ const ScrapDetailScreen = () => {
   const dragHandleContainerAnimatedStyle = useAnimatedStyle(() => ({
     left: leftWidth.value,
   }));
+
+  // 화면 회전 등으로 전체 너비가 줄어들었을 때,
+  // 드로잉 영역(right section)이 최소 25% 이상 되도록 leftWidth를 보정
+  useEffect(() => {
+    if (!SCREEN_WIDTH) return;
+
+    const maxLeftWidth = SCREEN_WIDTH - MIN_RIGHT_WIDTH;
+
+    if (leftWidth.value > maxLeftWidth) {
+      leftWidth.value = maxLeftWidth;
+    }
+  }, [SCREEN_WIDTH, MIN_RIGHT_WIDTH, leftWidth]);
 
   // Loading state
   if (isLoading || handwriting.isLoading) {

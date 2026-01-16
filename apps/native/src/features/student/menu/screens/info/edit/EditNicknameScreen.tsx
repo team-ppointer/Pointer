@@ -22,7 +22,7 @@ const EditNicknameScreen = ({
       return;
     }
     putMeMutate(
-      { nickname: value },
+      { name: value },
       {
         onSuccess: () => {
           navigation.goBack();
