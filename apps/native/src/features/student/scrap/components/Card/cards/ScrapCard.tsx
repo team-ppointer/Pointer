@@ -1,7 +1,11 @@
 import { Pressable, View, Text, Image } from 'react-native';
 import React from 'react';
 import { Check } from 'lucide-react-native';
-import { ChevronDownFilledIcon } from '@/components/system/icons';
+import {
+  ChevronDownFilledIcon,
+  ScrapFolderDefalutIcon,
+  ScrapFolderStackIcon,
+} from '@/components/system/icons';
 import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -45,7 +49,17 @@ export const ScrapCard = (props: ScrapListItemProps) => {
             resizeMode='cover'
             uniqueId={`${props.type}-${props.id}`}
             isDiagonalLayout={isDiagonalLayout}
-            fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
+            fallback={
+              props.type === 'FOLDER' ? (
+                props.scrapCount! > 0 ? (
+                  <ScrapFolderDefalutIcon />
+                ) : (
+                  <ScrapFolderStackIcon />
+                )
+              ) : (
+                <View className='aspect-square w-full rounded-[10px] bg-gray-200' />
+              )
+            }
           />
           {state.isSelecting && (
             <Pressable
