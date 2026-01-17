@@ -3,17 +3,16 @@ import { Svg, Rect, Path, G, Defs, ClipPath } from 'react-native-svg';
 import type { LucideIcon, LucideProps } from 'lucide-react-native';
 
 const ScrapFolderDefalutIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
-  ({ size = 48, ...rest }, ref) => {
+  ({ size = 124, style, ...rest }, ref) => {
+    // style에 width나 height가 있으면 size를 무시
+    const hasStyleSize = style && (style.width || style.height);
     const numericSize = typeof size === 'number' ? size : Number(size) || 48;
+    const svgProps = hasStyleSize
+      ? { ...rest, style }
+      : { width: numericSize, height: (numericSize * 116) / 99, ...rest, style };
 
     return (
-      <Svg
-        ref={ref}
-        width={numericSize}
-        height={(numericSize * 116) / 99}
-        viewBox='0 0 99 116'
-        fill='none'
-        {...rest}>
+      <Svg ref={ref} viewBox='0 0 99 116' fill='none' {...svgProps}>
         <G clipPath='url(#clip0)'>
           <Rect width='98' height='116' rx='6' fill='#C5CEFF' />
           <Path
