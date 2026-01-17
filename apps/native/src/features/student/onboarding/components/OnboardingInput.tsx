@@ -1,12 +1,13 @@
 import { ForwardedRef, ReactNode, forwardRef, useMemo, useState, useCallback } from 'react';
 import { Pressable, Text, TextInput, TextInputProps, View } from 'react-native';
-import { AlertCircle } from 'lucide-react-native';
+import { AlertCircle, CircleCheck } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 
 type Props = TextInputProps & {
   label?: string;
   hint?: string;
   errorMessage?: string;
+  successMessage?: string;
   rightAccessory?: ReactNode;
   onPressAccessory?: () => void;
   containerClassName?: string;
@@ -18,6 +19,7 @@ const OnboardingInput = forwardRef(
       label,
       hint,
       errorMessage,
+      successMessage,
       rightAccessory,
       onPressAccessory,
       containerClassName = '',
@@ -35,11 +37,14 @@ const OnboardingInput = forwardRef(
       if (errorMessage) {
         return { borderColor: colors['red-400'], borderWidth: 1 };
       }
+      if (successMessage) {
+        return { borderColor: colors['blue-500'], borderWidth: 1 };
+      }
       if (isFocused) {
         return { borderColor: colors['gray-600'], borderWidth: 1 };
       }
       return { borderColor: colors['gray-300'], borderWidth: 1 };
-    }, [errorMessage, isFocused]);
+    }, [errorMessage, isFocused, successMessage]);
 
     const handleFocus = useCallback(
       (event: any) => {
@@ -91,11 +96,17 @@ const OnboardingInput = forwardRef(
             </Pressable>
           ) : null}
         </View>
-        {hint ? <Text className='text-12r ml-[4px] mt-[6px] text-[#808087]'>{hint}</Text> : null}
+        {hint ? <Text className='text-12r ml-[4px] mt-[8px] text-[#808087]'>{hint}</Text> : null}
         {errorMessage ? (
-          <View className='mt-[6px] flex-row items-center gap-[4px]'>
+          <View className='mt-[8px] flex-row items-center gap-[4px]'>
             <AlertCircle size={14} color={colors['red-400']} />
             <Text className='text-12r text-red-400'>{errorMessage}</Text>
+          </View>
+        ) : null}
+        {successMessage ? (
+          <View className='mt-[8px] flex-row items-center gap-[4px]'>
+            <CircleCheck size={14} color={colors['blue-500']} />
+            <Text className='text-12r text-blue-500'>{successMessage}</Text>
           </View>
         ) : null}
       </View>
