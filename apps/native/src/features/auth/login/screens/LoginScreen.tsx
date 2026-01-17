@@ -56,20 +56,20 @@ const LoginScreen = () => {
         </View>
         <View className='gap-[10px] pb-[38px] pt-[10px]'>
           <AnimatedPressable
-            className='flex-row items-center justify-center gap-[8px] rounded-[8px] bg-black px-[12px] py-[10px]'
+            className='h-[42px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-black px-[12px]'
             onPress={() => handleSocialButtonPress('APPLE')}
             disabled={isLoading}>
             {isLoading && pendingSocial === 'APPLE' ? (
               <ActivityIndicator size='small' color='white' />
             ) : (
               <>
-                <AppleIcon size={18} />
+                <AppleIcon size={20} />
                 <Text className='text-16m text-white'>Apple로 시작하기</Text>
               </>
             )}
           </AnimatedPressable>
           <AnimatedPressable
-            className='flex-row items-center justify-center gap-[8px] rounded-[8px] bg-[#FFDE00] px-[12px] py-[10px]'
+            className='h-[42px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-[#FFDE00] px-[12px]'
             onPress={() => handleSocialButtonPress('KAKAO')}
             disabled={isLoading}>
             {isLoading && pendingSocial === 'KAKAO' ? (
@@ -82,7 +82,7 @@ const LoginScreen = () => {
             )}
           </AnimatedPressable>
           <AnimatedPressable
-            className='flex-row items-center justify-center gap-[8px] rounded-[8px] border border-gray-500 bg-white px-[12px] py-[10px]'
+            className='h-[42px] flex-row items-center justify-center gap-[8px] rounded-[8px] border border-gray-500 bg-white px-[12px]'
             onPress={() => handleSocialButtonPress('GOOGLE')}
             disabled={isLoading}>
             {isLoading && pendingSocial === 'GOOGLE' ? (
@@ -95,7 +95,7 @@ const LoginScreen = () => {
             )}
           </AnimatedPressable>
           <AnimatedPressable
-            className='border-primary-200 bg-primary-100 flex-row items-center justify-center gap-[8px] rounded-[8px] border px-[12px] py-[10px]'
+            className='border-primary-200 bg-primary-100 h-[42px] flex-row items-center justify-center gap-[8px] rounded-[8px] border px-[12px]'
             onPress={handleEmailButtonPress}
             disabled={isLoading}>
             <MailIcon size={20} color={colors['primary-500']} />
