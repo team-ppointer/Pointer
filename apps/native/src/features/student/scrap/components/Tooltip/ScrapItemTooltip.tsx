@@ -34,6 +34,7 @@ import {
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
 import { useRecentScrapStore } from '../../stores/recentScrapStore';
+import { invalidateScrapSearchQueries } from '@/apis/controller/student/scrap/utils';
 
 export interface ScrapItemTooltipProps {
   props: ScrapListItemProps;
@@ -140,6 +141,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
   const cleanupAfterDelete = (id: number) => {
     removeScrap(id);
     closeNote(id);
+    invalidateScrapSearchQueries;
   };
 
   const handleDelete = async () => {
