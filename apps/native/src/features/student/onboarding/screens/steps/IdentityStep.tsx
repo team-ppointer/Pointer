@@ -1,8 +1,12 @@
-import { useState } from 'react';
-import { Alert } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Pressable, Text, View } from 'react-native';
+import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
+import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
+import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
+import { AnimatedPressable } from '@components/common';
 
 type FormState = {
   name: string;
@@ -23,9 +27,28 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Auth states
+  const [isSent, setIsSent] = useState(false);
+  const [verifyCode, setVerifyCode] = useState('');
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (timeLeft === 0) return;
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timeLeft]);
+
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: '' }));
+    // Phone number changed, reset auth state
+    if (key === 'phone') {
+      setIsSent(false);
+      setVerifyCode('');
+      setTimeLeft(0);
+    }
   };
 
   const validate = () => {
@@ -37,9 +60,46 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleNext = () => {
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleSend = async () => {
     if (!validate()) return;
 
+    const { error } = await postPhoneSend(form.phone, 'signup');
+    if (error) {
+      Alert.alert('오류', '인증번호 전송에 실패했습니다.');
+      return;
+    }
+    setIsSent(true);
+    setTimeLeft(180);
+  };
+
+  const handleResend = async () => {
+    const { error } = await postPhoneResend(form.phone, 'signup');
+    if (error) {
+      Alert.alert('오류', '인증번호 재전송에 실패했습니다.');
+      return;
+    }
+    setTimeLeft(180);
+  };
+
+  const handleVerify = async () => {
+    if (!verifyCode) {
+      Alert.alert('알림', '인증번호를 입력해주세요.');
+      return;
+    }
+
+    const { error } = await postPhoneVerify(form.phone, verifyCode, 'signup');
+    if (error) {
+      Alert.alert('인증 실패', '인증번호가 일치하지 않습니다.');
+      return;
+    }
+
+    // Success
     setIdentity({
       name: form.name,
       phoneNumber: form.phone,
@@ -61,13 +121,15 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
     ]);
   };
 
-  const isFormComplete = Boolean(form.name) && /^010\d{7,8}$/.test(form.phone);
+  const isFormComplete =
+    isSent ? Boolean(form.name) && /^010\d{7,8}$/.test(form.phone) && Boolean(verifyCode) : Boolean(form.name) && /^010\d{7,8}$/.test(form.phone);
 
   return (
     <OnboardingLayout
       title='본인 인증을 해주세요.'
       description='포인터 사용을 위해 최초 1회 본인 인증이 필요해요.'
-      onPressCTA={handleNext}
+      onPressCTA={isSent ? handleVerify : handleSend}
+      ctaLabel={isSent ? '인증 완료하기' : '인증번호 발송'}
       ctaDisabled={!isFormComplete}
       showBackButton={!isEmailLogin}
       onPressBack={handleBack}>
@@ -78,16 +140,40 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
         onChangeText={(text) => updateField('name', text)}
         errorMessage={errors.name}
       />
-      <OnboardingInput
-        label='휴대폰 번호'
-        placeholder='01012345678'
-        keyboardType='number-pad'
-        maxLength={11}
-        value={form.phone}
-        onChangeText={(text) => updateField('phone', text.replace(/[^0-9]/g, ''))}
-        errorMessage={errors.phone}
-        containerClassName='mt-[18px]'
-      />
+      <View className='flex-row items-end gap-[10px]'>
+        <OnboardingInput
+          label='휴대폰 번호'
+          placeholder='01012345678'
+          keyboardType='number-pad'
+          maxLength={11}
+          value={form.phone}
+          onChangeText={(text) => updateField('phone', text.replace(/[^0-9]/g, ''))}
+          errorMessage={errors.phone}
+          successMessage={isSent ? '문자로 인증번호를 전송했어요.' : ''}
+          containerClassName='mt-[18px] flex-1'
+        />
+        {isSent && (
+          <AnimatedPressable
+            onPress={timeLeft > 0 ? undefined : handleResend}
+            disabled={timeLeft > 0}
+            className='h-[48px] w-[100px] items-center justify-center rounded-[8px] bg-primary-500'>
+            <Text className='text-16m text-white'>
+              {timeLeft > 0 ? formatTime(timeLeft) : isSent ? '재전송' : '인증 요청'}
+            </Text>
+          </AnimatedPressable>
+        )}
+      </View>
+      {isSent && (
+        <OnboardingInput
+          label='인증번호'
+          placeholder='000000'
+          keyboardType='number-pad'
+          maxLength={6}
+          value={verifyCode}
+          onChangeText={setVerifyCode}
+          containerClassName='mt-[18px]'
+        />
+      )}
     </OnboardingLayout>
   );
 };
