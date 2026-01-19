@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -8,7 +8,7 @@ import RootNavigator from '@navigation/RootNavigator';
 import { colors } from '@theme/tokens';
 import '@/app/providers/global.css';
 import '@/app/providers/api';
-import { LoadingScreen } from '@components/common';
+import { CustomSplashScreen } from '@/features/splash/screens/SplashScreen';
 import { useLoadAssets, useDeepLinkHandler } from '@hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Text, TextInput } from 'react-native';
@@ -40,13 +40,19 @@ if ((TextInput as any).defaultProps == null) (TextInput as any).defaultProps = {
 (TextInput as any).defaultProps.style = [{ fontFamily: 'Pretendard' }];
 
 export default function App() {
-  const { loading } = useLoadAssets();
+  const { isReady } = useLoadAssets();
+  const [isSplashAnimationFinished, setIsSplashAnimationFinished] = useState(false);
 
   // FCM 푸시 알림 딥링크 핸들러
   useDeepLinkHandler();
 
-  if (loading) {
-    return <LoadingScreen />;
+  if (!isSplashAnimationFinished) {
+    return (
+      <CustomSplashScreen
+        isAppReady={isReady}
+        onAnimationFinish={() => setIsSplashAnimationFinished(true)}
+      />
+    );
   }
 
   return (
