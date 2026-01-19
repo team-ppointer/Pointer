@@ -44,11 +44,9 @@ const MenuScreen = () => {
 
   return (
     <View className='w-full flex-1'>
-      <SafeAreaView edges={['top']} className={'bg-gray-100'}>
-        <Container className='h-[52px] justify-center'>
-          <Text className='text-20b text-black'>전체 메뉴</Text>
-        </Container>
-      </SafeAreaView>
+      <Container className='h-[52px] justify-center bg-gray-100'>
+        <Text className='text-20b text-black'>전체 메뉴</Text>
+      </Container>
       <Container className='flex-1'>
         <ScrollView
           showsVerticalScrollIndicator={false}

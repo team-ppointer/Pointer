@@ -27,17 +27,15 @@ export const ScreenLayout = ({ title, children, onPressBack, rightElement }: Pro
 
   return (
     <View className='w-full flex-1'>
-      <SafeAreaView edges={['top']}>
-        <View className='h-[52px] flex-row items-center justify-between px-[20px]'>
-          <AnimatedPressable
-            onPress={handleBack}
-            className='h-[48px] w-[48px] items-center justify-center'>
-            <ChevronLeft size={32} color='#000' />
-          </AnimatedPressable>
-          <Text className='text-20b text-gray-900'>{title}</Text>
-          {rightElement ?? <View className='h-[48px] w-[48px]' />}
-        </View>
-      </SafeAreaView>
+      <View className='h-[52px] flex-row items-center justify-between px-[20px]'>
+        <AnimatedPressable
+          onPress={handleBack}
+          className='h-[48px] w-[48px] items-center justify-center'>
+          <ChevronLeft size={32} color='#000' />
+        </AnimatedPressable>
+        <Text className='text-20b text-gray-900'>{title}</Text>
+        {rightElement ?? <View className='h-[48px] w-[48px]' />}
+      </View>
       {children}
     </View>
   );

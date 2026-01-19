@@ -206,9 +206,9 @@ const QnaScreen = () => {
 
   // 항상 동일한 SafeAreaView 구조 유지
   return (
-    <SafeAreaView className='flex-1 bg-gray-100' edges={['top']}>
+    <View className='flex-1 bg-gray-100'>
       {renderContent()}
-    </SafeAreaView>
+    </View>
   );
 };
 
