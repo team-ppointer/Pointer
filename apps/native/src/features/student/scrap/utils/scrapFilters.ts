@@ -1,6 +1,6 @@
 import { components } from '@/types/api/schema';
 
-type ScrapExtendResp = components['schemas']['ScrapExtendResp'];
+type ScrapExtendResp = components['schemas']['ScrapDetailResp'];
 
 export interface PointingWithLabel {
   id: number;
