@@ -40,6 +40,7 @@ const ScrapScreenContent = () => {
   });
   const { mutateAsync: deleteScrap } = useDeleteScrap();
   const removeScrap = useRecentScrapStore((state) => state.removeScrap);
+  const removeScrapsByFolderId = useRecentScrapStore((state) => state.removeScrapsByFolderId);
   const closeNote = useNoteStore((state) => state.closeNote);
 
   // refetch를 context에 등록
@@ -100,8 +101,10 @@ const ScrapScreenContent = () => {
   const cleanupAfterDelete = (items: SelectedItem[]) => {
     items.forEach((item) => {
       if (item.type === 'SCRAP') {
-        removeScrap(item.id as number);
-        closeNote(item.id as number);
+        removeScrap(item.id);
+        closeNote(item.id);
+      } else if (item.type === 'FOLDER' && item.id !== undefined) {
+        removeScrapsByFolderId(item.id);  
       }
     });
   };

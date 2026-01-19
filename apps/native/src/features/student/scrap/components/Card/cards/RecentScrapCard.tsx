@@ -22,7 +22,7 @@ export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {
     <Pressable
       onPress={() => {
         openNote({ id: scrap.id, title: scrap.name ?? '' });
-        addScrap(scrap.id);
+        addScrap(scrap.id, scrap.folder?.id);
         navigation.push('ScrapContentDetail', { id: scrap.id });
       }}
       onHoverIn={() => setIsHovered(true)}
