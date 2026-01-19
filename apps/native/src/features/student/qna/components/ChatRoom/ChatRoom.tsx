@@ -129,6 +129,10 @@ const ChatRoom = ({
   // File upload mutation
   const uploadFileMutation = useUploadFile({
     onError: (error) => {
+      // 10MB 초과 에러는 이미 useUploadFile에서 alert를 띄웠으므로 무시
+      if (error instanceof Error && error.message === 'File size exceeds 10MB') {
+        return;
+      }
       console.error('Failed to upload file:', error);
       Alert.alert('오류', '파일 업로드에 실패했습니다.');
     },
@@ -226,9 +230,11 @@ const ChatRoom = ({
         onSuccess: (uploadedFiles) => {
           if (uploadedFiles.length > 0) {
             const fileIds = uploadedFiles.map((f) => f.id);
+            const content = uploadedFiles.length > 1 ? `사진 ${uploadedFiles.length}장` : '사진';
+
             postChatMutation.mutate({
               qnaId,
-              content: '',
+              content,
               files: fileIds,
               replyToId: replyTo?.id,
             });
@@ -252,7 +258,7 @@ const ChatRoom = ({
             const fileIds = uploadedFiles.map((f) => f.id);
             postChatMutation.mutate({
               qnaId,
-              content: '',
+              content: file.name,
               files: fileIds,
               replyToId: replyTo?.id,
             });
