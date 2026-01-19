@@ -19,6 +19,8 @@ export interface ChatRoom {
   title: string;
   lastMessage: string;
   lastMessageTime: string;
+  /** Raw ISO timestamp for sorting */
+  lastMessageTimeRaw?: string;
   status: ChatRoomStatus;
   hasNewMessage: boolean;
   thumbnailUrl?: string;
@@ -150,35 +152,26 @@ const getFileExtension = (fileName: string): string => {
 };
 
 /**
- * Map QnAResp (admin chat) to ChatRoom
- */
-export const mapAdminChatToChatRoom = (resp: QnAResp): ChatRoom => ({
-  id: resp.id,
-  type: 'publisher',
-  title: '포인터 출제진',
-  lastMessage: resp.latestMessageContent ?? '',
-  lastMessageTime: formatDateTime(resp.latestMessageTime),
-  status: 'asking', // Admin chat doesn't have status
-  hasNewMessage: (resp.unreadCount ?? 0) > 0,
-  publishId: resp.publishId,
-  publishDate: resp.publishDate,
-});
-
-/**
  * Map QnAMetaResp to ChatRoom
+ * Handles both regular teacher chats and ADMIN_CHAT (publisher)
  */
-export const mapQnAMetaToChatRoom = (meta: QnAMetaResp): ChatRoom => ({
-  id: meta.id,
-  type: 'teacher',
-  title: meta.title,
-  lastMessage: meta.latestMessageContent ?? '',
-  lastMessageTime: formatDateTime(meta.latestMessageTime),
-  status: 'asking', // TODO: API doesn't seem to have status field in meta
-  hasNewMessage: (meta.unreadCount ?? 0) > 0,
-  teacherName: meta.studentName, // In student view, this would be teacher name
-  publishId: meta.publishId,
-  publishDate: meta.publishDate,
-});
+export const mapQnAMetaToChatRoom = (meta: QnAMetaResp): ChatRoom => {
+  const isAdminChat = meta.type === 'ADMIN_CHAT';
+  
+  return {
+    id: meta.id,
+    type: isAdminChat ? 'publisher' : 'teacher',
+    title: isAdminChat ? '포인터 출제진' : meta.title,
+    lastMessage: meta.latestMessageContent ?? '',
+    lastMessageTime: formatDateTime(meta.latestMessageTime),
+    lastMessageTimeRaw: meta.latestMessageTime,
+    status: 'asking', // TODO: API doesn't seem to have status field in meta
+    hasNewMessage: (meta.unreadCount ?? 0) > 0,
+    teacherName: meta.studentName, // In student view, this would be teacher name
+    publishId: meta.publishId,
+    publishDate: meta.publishDate,
+  };
+};
 
 /**
  * Map ChatResp to Message

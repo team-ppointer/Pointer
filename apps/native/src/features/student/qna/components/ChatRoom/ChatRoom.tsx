@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -20,7 +20,6 @@ import ChatRoomHeader from './ChatRoomHeader';
 interface ChatRoomProps {
   chatRoom: ChatRoomType | null;
   qnaData?: QnAResp;
-  adminChatData?: QnAResp;
   onBack?: () => void;
   showBackButton?: boolean;
 }
@@ -56,7 +55,6 @@ const NewChatState = ({
 const ChatRoom = ({
   chatRoom,
   qnaData,
-  adminChatData,
   onBack,
   showBackButton = false,
 }: ChatRoomProps) => {
@@ -66,59 +64,37 @@ const ChatRoom = ({
   const [status, setStatus] = useState<ChatRoomStatus>(chatRoom?.status ?? 'asking');
   const insets = useSafeAreaInsets();
 
-  const { invalidateQnaById, invalidateQnaAdminChat, invalidateQnaList } = useInvalidateQnaData();
+  const { invalidateQnaById } = useInvalidateQnaData();
 
   const isPublisher = chatRoom?.type === 'publisher';
   const qnaId = chatRoom?.id;
   const token = getAccessToken();
 
-  // Debounce ref for read_status events (prevent excessive list invalidations)
-  const readStatusDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Refetch data when selected room changes
+  useEffect(() => {
+    if (qnaId) {
+      console.log('[ChatRoom] Room changed, refetching data for qnaId:', qnaId);
+      void invalidateQnaById(Number(qnaId));
+    }
+  }, [qnaId, invalidateQnaById]);
 
-  // Subscribe to SSE for real-time updates
+  // Subscribe to SSE for real-time updates (chat events only)
+  // read_status is now handled by ChatRoomScreen's useSubscribeQnaList
   useSubscribeQna({
     qnaId: qnaId ? Number(qnaId) : 0,
     token: token ?? '',
     enabled: !!qnaId && !!token,
     onChatEvent: useCallback(
-      (event) => {
+      (event: import('@schema').components['schemas']['QnAChatEvent']) => {
         console.log('[ChatRoom] Chat event received:', event);
         // Invalidate queries to refresh data
         if (event.qnaId) {
-          if (isPublisher) {
-            void invalidateQnaAdminChat();
-          } else {
-            void invalidateQnaById(event.qnaId);
-          }
-          // Also refresh the list
-          void invalidateQnaList();
+          void invalidateQnaById(event.qnaId);
         }
       },
-      [isPublisher, invalidateQnaById, invalidateQnaAdminChat, invalidateQnaList]
+      [invalidateQnaById]
     ),
-    onReadStatusEvent: useCallback(
-      (event) => {
-        // 현재 열려있는 채팅방의 read_status 이벤트는 무시
-        // (이미 채팅방에 있으면 읽은 것이므로 배지 업데이트 불필요)
-        if (event.qnaId === qnaId) {
-          return;
-        }
-        console.log('[ChatRoom] Read status event received:', event);
-        // 다른 채팅방의 read_status 이벤트 수신 시 채팅방 리스트의 배지(안 읽음 표시)를 업데이트
-        // 디바운스 적용: 500ms 내 중복 이벤트는 무시
-        if (event.qnaId) {
-          if (readStatusDebounceRef.current) {
-            clearTimeout(readStatusDebounceRef.current);
-          }
-          readStatusDebounceRef.current = setTimeout(() => {
-            void invalidateQnaList();
-            readStatusDebounceRef.current = null;
-          }, 500);
-        }
-      },
-      [invalidateQnaList, qnaId]
-    ),
-    onError: useCallback((error) => {
+    onError: useCallback((error: Error) => {
       console.error('[ChatRoom] SSE error:', error);
     }, []),
   });
@@ -128,11 +104,7 @@ const ChatRoom = ({
     qnaId: qnaId,
     onSuccess: () => {
       if (qnaId) {
-        if (isPublisher) {
-          void invalidateQnaAdminChat();
-        } else {
-          void invalidateQnaById(Number(qnaId));
-        }
+        void invalidateQnaById(Number(qnaId));
       }
     },
     onError: (error) => {
@@ -168,11 +140,7 @@ const ChatRoom = ({
     onSuccess: () => {
       setEditingMessage(null);
       if (qnaId) {
-        if (isPublisher) {
-          void invalidateQnaAdminChat();
-        } else {
-          void invalidateQnaById(Number(qnaId));
-        }
+        void invalidateQnaById(Number(qnaId));
       }
     },
     onError: (error) => {
@@ -186,12 +154,7 @@ const ChatRoom = ({
     qnaId: qnaId,
     onSuccess: () => {
       if (qnaId) {
-        if (isPublisher) {
-          void invalidateQnaAdminChat();
-        } else {
-          void invalidateQnaById(Number(qnaId));
-        }
-        void invalidateQnaList();
+        void invalidateQnaById(Number(qnaId));
       }
     },
     onError: (error) => {
@@ -202,14 +165,11 @@ const ChatRoom = ({
 
   // Map API data to messages
   const messages = useMemo<Message[]>(() => {
-    if (isPublisher && adminChatData) {
-      return mapQnARespToMessages(adminChatData);
-    }
-    if (!isPublisher && qnaData) {
+    if (qnaData) {
       return mapQnARespToMessages(qnaData);
     }
     return [];
-  }, [isPublisher, qnaData, adminChatData]);
+  }, [qnaData]);
 
   // Filter messages: show only 'other' messages for "코멘트 모아보기" tab
   const filteredMessages = useMemo(() => {

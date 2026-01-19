@@ -1,12 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import { useGetQnaList, useGetQnaAdminChat, useGetQnaById } from '@apis/controller/student/qna';
+import { useGetQnaList, useGetQnaById, useInvalidateQnaData } from '@apis/controller/student/qna';
+import useSubscribeQnaList from '@apis/controller/common/qna/useGetSubscribeQnaList';
+import { getAccessToken } from '@utils/auth';
 import type { ChatRoom as ChatRoomType } from '../types';
-import { mapQnAMetaToChatRoom, mapAdminChatToChatRoom } from '../types';
+import { mapQnAMetaToChatRoom } from '../types';
 import { ChatRoomList } from '../components/ChatRoomList';
 import { ChatRoom } from '../components/ChatRoom';
 import { useIsTablet } from '../hooks/useIsTablet';
@@ -20,47 +22,82 @@ const QnaScreen = () => {
   // Selected room state
   const [selectedRoom, setSelectedRoom] = useState<ChatRoomType | null>(null);
 
-  // Fetch QnA list (teacher chats)
+  const token = getAccessToken();
+  const { invalidateQnaById, invalidateQnaList } = useInvalidateQnaData();
+  
+  // Debounce ref for qna_list events (prevent excessive invalidations)
+  const qnaListDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Subscribe to student QnA list SSE to receive real-time updates for read status (badge)
+  useSubscribeQnaList({
+    token: token ?? '',
+    enabled: !!token,
+    onQnaListEvent: useCallback(
+      (event: import('@apis/controller/common/qna/useGetSubscribeQnaList').QnAListEvent) => {
+        console.log('[QnaScreen] QnA list event received:', event);
+        // qna_list 이벤트 수신 시 현재 채팅방 및 리스트 데이터를 invalidate
+        // 디바운스 적용: 500ms 내 중복 이벤트는 무시
+        if (qnaListDebounceRef.current) {
+          clearTimeout(qnaListDebounceRef.current);
+        }
+        qnaListDebounceRef.current = setTimeout(() => {
+          // Invalidate the list to update badges
+          void invalidateQnaList();
+          
+          // If in tablet mode with a selected room, also invalidate that room's data
+          if (isTablet && selectedRoom && selectedRoom.id > 0) {
+            void invalidateQnaById(selectedRoom.id);
+          }
+          qnaListDebounceRef.current = null;
+        }, 500);
+      },
+      [isTablet, selectedRoom, invalidateQnaById, invalidateQnaList]
+    ),
+    onError: useCallback((error: Error) => {
+      console.error('[QnaScreen] SSE QnaList error:', error);
+    }, []),
+  });
+
+  // Fetch QnA list (includes both teacher chats and admin chat)
   const { data: qnaListData, isLoading: isLoadingQnaList, error: qnaListError } = useGetQnaList();
 
-  // Fetch admin chat (publisher)
-  const {
-    data: adminChatData,
-    isLoading: isLoadingAdminChat,
-    error: adminChatError,
-  } = useGetQnaAdminChat();
-
-  // Determine if selected room is admin chat
-  const isSelectedRoomAdmin = selectedRoom?.type === 'publisher';
-
-  // Fetch selected QnA details (for teacher chats)
+  // Fetch selected QnA details (for both teacher and admin chats)
   const { data: selectedQnaData } = useGetQnaById({
     qnaId: selectedRoom?.id ?? 0,
-    enabled: isTablet && !!selectedRoom && !isSelectedRoomAdmin && selectedRoom.id > 0,
+    enabled: isTablet && !!selectedRoom && selectedRoom.id > 0,
   });
 
   // Map API responses to ChatRoom format
+  // Now handles both teacher chats and admin chat (type === 'ADMIN_CHAT') uniformly
+  // Also applies optimistic update: selected room's badge is hidden since accessing marks it as read
   const chatRooms = useMemo<ChatRoomType[]>(() => {
     const rooms: ChatRoomType[] = [];
 
-    // Add admin chat (publisher) at the top if exists
-    if (adminChatData) {
-      rooms.push(mapAdminChatToChatRoom(adminChatData));
-    }
-
-    // Add teacher chats (filter out ADMIN_CHAT to avoid duplication)
     if (qnaListData?.data?.groups) {
       qnaListData.data.groups.forEach((group) => {
         group.data?.forEach((qna) => {
-          // Skip admin chat as it's already fetched separately
-          if (qna.type === 'ADMIN_CHAT') return;
-          rooms.push(mapQnAMetaToChatRoom(qna));
+          const room = mapQnAMetaToChatRoom(qna);
+          
+          // Optimistic update: if this room is selected (tablet mode), hide the badge
+          // because accessing the room marks it as read
+          if (isTablet && selectedRoom && room.id === selectedRoom.id) {
+            room.hasNewMessage = false;
+          }
+          
+          rooms.push(room);
         });
       });
     }
 
+    // Sort by most recent message (newest first)
+    rooms.sort((a, b) => {
+      const timeA = a.lastMessageTimeRaw ? new Date(a.lastMessageTimeRaw).getTime() : 0;
+      const timeB = b.lastMessageTimeRaw ? new Date(b.lastMessageTimeRaw).getTime() : 0;
+      return timeB - timeA; // Descending order (newest first)
+    });
+
     return rooms;
-  }, [qnaListData, adminChatData]);
+  }, [qnaListData, isTablet, selectedRoom]);
 
   // Auto-select first room on tablet when data loads
   React.useEffect(() => {
@@ -75,7 +112,6 @@ const QnaScreen = () => {
     } else {
       navigation.navigate('ChatRoom', {
         chatRoomId: room.id,
-        isAdminChat: room.type === 'publisher',
       });
     }
   };
@@ -89,8 +125,8 @@ const QnaScreen = () => {
     navigation.navigate('QnaSearch');
   };
 
-  const isLoading = isLoadingQnaList || isLoadingAdminChat;
-  const hasError = qnaListError || adminChatError;
+  const isLoading = isLoadingQnaList;
+  const hasError = qnaListError;
 
   // 컨텐츠 렌더링 함수 - early return 대신 동일한 구조 유지
   const renderContent = () => {
@@ -128,8 +164,7 @@ const QnaScreen = () => {
           <View className='flex-1'>
             <ChatRoom
               chatRoom={selectedRoom}
-              qnaData={isSelectedRoomAdmin ? undefined : selectedQnaData}
-              adminChatData={isSelectedRoomAdmin ? adminChatData : undefined}
+              qnaData={selectedQnaData}
             />
           </View>
         </View>
