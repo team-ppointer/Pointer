@@ -154,6 +154,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                   problemContent={currentProblem.problemContent ?? ''}
                   minHeight={200}
                   padding={20}
+                  fontStyle='serif'
                 />
               </View>
             ) : (

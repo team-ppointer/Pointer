@@ -43,7 +43,7 @@ export const ProblemExpansionModal = ({
           </View>
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true}>
             {problemContent && (
-              <ProblemViewer problemContent={problemContent} minHeight={400} padding={20} />
+              <ProblemViewer problemContent={problemContent} minHeight={400} padding={20} fontStyle='serif' />
             )}
             {!problemContent && thumbnailUrl && (
               <Image

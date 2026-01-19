@@ -235,6 +235,7 @@ const PointingScreen = ({
                 problemContent={problem?.problemContent ?? ''}
                 minHeight={200}
                 padding={20}
+                fontStyle='serif'
               />
             </View>
 
