@@ -58,7 +58,7 @@ const Skeleton = ({ borderRadius }: { borderRadius: number }) => {
       style={[
         StyleSheet.absoluteFill,
         {
-          backgroundColor: colors['gray-600'],
+          backgroundColor: colors['gray-400'],
           borderRadius,
           opacity,
         },
