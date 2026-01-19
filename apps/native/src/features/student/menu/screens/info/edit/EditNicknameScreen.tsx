@@ -26,7 +26,7 @@ const EditNicknameScreen = ({
       {
         onSuccess: () => {
           navigation.goBack();
-          showToast('success', '닉네임이 변경되었습니다.');
+          showToast('success', '이름이 변경되었습니다.');
         },
         onError: () => {
           showToast('error', '닉네임 변경에 실패했습니다.');
@@ -37,12 +37,12 @@ const EditNicknameScreen = ({
 
   return (
     <EditScreenLayout
-      title='닉네임을 입력해 주세요.'
-      description='원활한 학습을 위해 본명 사용을 추천해요.'
+      title='이름을 입력해 주세요.'
+      // description='원활한 학습을 위해 본명 사용을 추천해요.'
       onPressCTA={handleSave}
       ctaDisabled={!value}>
       <OnboardingInput
-        label='닉네임'
+        label='이름'
         placeholder='홍길동'
         value={value}
         onChangeText={(text) => {

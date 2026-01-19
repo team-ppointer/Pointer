@@ -30,7 +30,7 @@ const MyInfoScreen = () => {
             title='기본 정보'
             fields={[
               {
-                label: '닉네임',
+                label: '이름',
                 value: data?.name || '',
                 onPress: () => {
                   navigation.navigate('EditNickname', { initialNickname: data?.name });
