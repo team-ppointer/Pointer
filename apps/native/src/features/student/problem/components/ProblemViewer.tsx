@@ -34,7 +34,8 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0, fontStyle =
   const GET_WEBVIEW_HEIGHT_SCRIPT = `
     (function () {
       const sendHeight = () => {
-        const height = document.documentElement.scrollHeight;
+        const element = document.getElementById('main-content');
+        const height = element ? element.offsetHeight : 0;
         window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'setHeight', height }));
       };
 
@@ -90,7 +91,12 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0, fontStyle =
     }
 
     body {
+      /* padding handled in #main-content */
+    }
+
+    #main-content {
       padding: ${padding}px;
+      display: flow-root;
     }
 
     * {
@@ -247,7 +253,9 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0, fontStyle =
 </head>
 
 <body>
-  ${serializeJSONToHTML(problemContent)}
+  <div id="main-content">
+    ${serializeJSONToHTML(problemContent)}
+  </div>
   <script>
     (function () {
       function notifyReactNativeContentReady() {
