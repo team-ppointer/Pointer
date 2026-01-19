@@ -8,27 +8,60 @@ import MenuNavigator from './MenuNavigator';
 import MainTabBar from './components/MainTabBar';
 import HomeHeader from './components/HomeHeader';
 
+import { View } from 'react-native';
+import { TabScreen, TabTransitionProvider } from './components/TabScreenTransition';
+
 const Tab = createBottomTabNavigator<StudentTabParamList>();
+
+const HomeWrapped = (props: any) => (
+  <TabScreen index={0}>
+    <View className='flex-1'>
+      <HomeHeader />
+      <HomeScreen {...props} />
+    </View>
+  </TabScreen>
+);
+
+const ScrapWrapped = (props: any) => (
+  <TabScreen index={1}>
+    <ScrapScreen {...props} />
+  </TabScreen>
+);
+
+const QnaWrapped = (props: any) => (
+  <TabScreen index={2}>
+    <QnaScreen {...props} />
+  </TabScreen>
+);
+
+const MenuWrapped = (props: any) => (
+  <TabScreen index={3}>
+    <MenuNavigator {...props} />
+  </TabScreen>
+);
 
 const StudentTabs = () => {
   return (
-    <Tab.Navigator
-      tabBar={(props) => <MainTabBar {...props} />}
-      screenOptions={{
-        headerShown: false,
-      }}>
-      <Tab.Screen
-        name='Home'
-        component={HomeScreen}
-        options={{
-          headerShown: true,
-          header: () => <HomeHeader />,
-        }}
-      />
-      <Tab.Screen name='Scrap' component={ScrapScreen} />
-      <Tab.Screen name='Qna' component={QnaScreen} />
-      <Tab.Screen name='AllMenu' component={MenuNavigator} />
-    </Tab.Navigator>
+    <TabTransitionProvider>
+      <Tab.Navigator
+        tabBar={(props) => <MainTabBar {...props} />}
+        detachInactiveScreens={false} // Important: Keep all screens mounted
+        screenOptions={{
+          headerShown: false,
+          animation: 'none', // Disable default animation
+        }}>
+        <Tab.Screen
+          name='Home'
+          component={HomeWrapped}
+          options={{
+            headerShown: false, // We render header inside the wrapper
+          }}
+        />
+        <Tab.Screen name='Scrap' component={ScrapWrapped} />
+        <Tab.Screen name='Qna' component={QnaWrapped} />
+        <Tab.Screen name='AllMenu' component={MenuWrapped} />
+      </Tab.Navigator>
+    </TabTransitionProvider>
   );
 };
 
