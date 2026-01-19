@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container } from '@components/common';
@@ -14,16 +15,16 @@ import {
 } from '@features/student/onboarding/constants';
 
 const MyInfoScreen = () => {
+  const { bottom } = useSafeAreaInsets();
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
 
   return (
     <ScreenLayout title='내 정보'>
       <ScrollView
-        className='flex-1 pt-[10px]'
-        bounces={false}
+        className='flex-1 pt-[10px] bg-blue-100'
         contentContainerStyle={{ flexGrow: 1 }}>
-        <Container className='gap-[28px] pb-[24px]'>
+        <Container className='gap-[28px] pb-[24px] bg-gray-100 pt-[100%] -mt-[100%]'>
           <InfoSection
             icon={<ProfileBasicIcon />}
             title='기본 정보'
@@ -84,7 +85,9 @@ const MyInfoScreen = () => {
           />
         </Container>
 
-        <Container className='flex-1 bg-blue-100 pb-[24px] pt-[24px]'>
+        <Container
+          className='flex-1 bg-blue-100 pt-[24px]'
+          style={{ paddingBottom: 24 + bottom }}>
           <InfoSection
             icon={<CircleStarIcon />}
             title='계정 정보'

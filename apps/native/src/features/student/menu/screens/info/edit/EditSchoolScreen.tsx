@@ -46,13 +46,8 @@ const EditSchoolScreen = ({
   };
 
   const handleSave = async () => {
-    if (!schoolId) {
-      showToast('error', '학교를 선택해 주세요.');
-      return;
-    }
-
     putMeMutate(
-      { schoolId },
+      { schoolId: schoolId ?? undefined },
       {
         onSuccess: () => {
           navigation.push('EditGrade', { initialGrade: route.params.initialSchool?.grade });
