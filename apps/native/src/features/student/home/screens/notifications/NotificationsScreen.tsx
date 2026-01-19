@@ -10,9 +10,8 @@ import {
   usePostReadAllNotification,
   usePostReadNotification,
 } from '@/apis/controller/student/notification';
-import { useGetNotice, putReadNotice } from '@apis';
+import { useGetNotice, putReadNotice, useInvalidateNoticeData } from '@apis';
 import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
-import { TanstackQueryClient } from '@apis';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react-native';
 
@@ -46,26 +45,18 @@ const NotificationScreen = () => {
   const { data: noticeData } = useGetNotice();
   const { data: notificationData } = useGetNotification({ dayLimit: 7 });
   const { data: notificationCountData } = useGetNotificationCount({});
-  const { invalidateAll } = useInvalidateNotificationData();
-
-  const invalidateNoticeData = () => {
-    queryClient.invalidateQueries({
-      queryKey: TanstackQueryClient.queryOptions('get', '/api/student/notice', {}).queryKey,
-    });
-    queryClient.invalidateQueries({
-      queryKey: TanstackQueryClient.queryOptions('get', '/api/student/notice/count', {}).queryKey,
-    });
-  };
+  const { invalidateAll: invalidateNotifications } = useInvalidateNotificationData();
+  const { invalidateAll: invalidateNotices } = useInvalidateNoticeData();
 
   const { mutate: readAllNotifications } = usePostReadAllNotification({
     onSuccess: () => {
-      invalidateAll();
+      invalidateNotifications();
     },
   });
 
   const { mutate: readNotification } = usePostReadNotification({
     onSuccess: () => {
-      invalidateAll();
+      invalidateNotifications();
     },
   });
 
@@ -96,7 +87,7 @@ const NotificationScreen = () => {
                 onPress={() => {
                   if (!notice.isRead) {
                     putReadNotice(notice.id).then(() => {
-                      invalidateNoticeData();
+                      invalidateNotices();
                     });
                   }
                   navigation.push('NotificationDetail', {
