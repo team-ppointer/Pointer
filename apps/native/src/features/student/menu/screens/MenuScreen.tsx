@@ -61,7 +61,7 @@ const MenuScreen = () => {
               grade={data?.grade}
               onEditPress={() => navigation.navigate('MyInfo')}
             />
-            <TeacherInfoCard teacherName={data?.teacherName ? data?.teacherName : ''} />
+            <TeacherInfoCard teacherName={data?.teacherName} />
             <MenuSection>
               <MenuListItem
                 icon={Bell}
