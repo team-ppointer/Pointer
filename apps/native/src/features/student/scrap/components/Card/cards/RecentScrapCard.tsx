@@ -21,7 +21,7 @@ export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {
   return (
     <Pressable
       onPress={() => {
-        openNote({ id: scrap.id, title: scrap.name ?? '' });
+        openNote({ id: scrap.id, title: scrap.name ?? '', folderId: scrap.folder?.id });
         addScrap(scrap.id, scrap.folder?.id);
         navigation.push('ScrapContentDetail', { id: scrap.id });
       }}
