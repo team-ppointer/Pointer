@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { StudentRootStackParamList } from '@navigation/student/types';
+import type { StudentRootStackParamList, StudentTabParamList } from '@navigation/student/types';
 import { useGetQnaList, useGetQnaById, useInvalidateQnaData } from '@apis/controller/student/qna';
 import useSubscribeQnaList from '@apis/controller/common/qna/useGetSubscribeQnaList';
 import { getAccessToken } from '@utils/auth';
@@ -14,13 +14,20 @@ import { ChatRoom } from '../components/ChatRoom';
 import { useIsTablet } from '../hooks/useIsTablet';
 
 type QnaScreenNavigationProp = NativeStackNavigationProp<StudentRootStackParamList>;
+type QnaScreenRouteProp = RouteProp<StudentTabParamList, 'Qna'>;
 
 const QnaScreen = () => {
   const navigation = useNavigation<QnaScreenNavigationProp>();
+  const route = useRoute<QnaScreenRouteProp>();
   const isTablet = useIsTablet();
+
+  // 딥링크로 전달된 초기 채팅방 ID
+  const initialChatRoomId = route.params?.initialChatRoomId;
 
   // Selected room state
   const [selectedRoom, setSelectedRoom] = useState<ChatRoomType | null>(null);
+  // 초기 채팅방 선택 여부를 추적
+  const hasInitializedRef = useRef(false);
 
   const token = getAccessToken();
   const { invalidateQnaById, invalidateQnaList } = useInvalidateQnaData();
@@ -99,12 +106,28 @@ const QnaScreen = () => {
     return rooms;
   }, [qnaListData, isTablet, selectedRoom]);
 
-  // Auto-select first room on tablet when data loads
-  React.useEffect(() => {
-    if (isTablet && chatRooms.length > 0 && !selectedRoom) {
-      setSelectedRoom(chatRooms[0]);
+  // 초기 채팅방 선택 또는 첫 번째 채팅방 자동 선택 (태블릿)
+  useEffect(() => {
+    if (!isTablet || chatRooms.length === 0 || hasInitializedRef.current) {
+      return;
     }
-  }, [isTablet, chatRooms, selectedRoom]);
+
+    // 딥링크로 전달된 initialChatRoomId가 있으면 해당 채팅방 선택
+    if (initialChatRoomId) {
+      const targetRoom = chatRooms.find((room) => room.id === initialChatRoomId);
+      if (targetRoom) {
+        setSelectedRoom(targetRoom);
+        hasInitializedRef.current = true;
+        return;
+      }
+    }
+
+    // 없으면 첫 번째 채팅방 선택
+    if (!selectedRoom) {
+      setSelectedRoom(chatRooms[0]);
+      hasInitializedRef.current = true;
+    }
+  }, [isTablet, chatRooms, initialChatRoomId, selectedRoom]);
 
   const handleSelectRoom = (room: ChatRoomType) => {
     if (isTablet) {

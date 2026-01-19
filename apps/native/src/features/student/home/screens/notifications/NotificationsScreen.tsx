@@ -3,17 +3,21 @@ import { NoNotificationBellIcon } from '@components/system/icons';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import {
   useGetNotification,
   useGetNotificationCount,
   usePostReadAllNotification,
   usePostReadNotification,
-} from '@/apis/controller/student/notification';
+} from '@apis/controller/student/notification';
 import { useGetNotice, putReadNotice, useInvalidateNoticeData } from '@apis';
 import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react-native';
+import { parseDeepLinkUrl, isValidDeepLink } from '@utils/deepLink';
+import { getPublishDetailById } from '@apis';
+import { useProblemSessionStore } from '@stores';
+import { useIsTablet } from '@/features/student/qna/hooks/useIsTablet';
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -41,6 +45,7 @@ const getNotificationIcon = (type: string): 'megaphone' | 'message' | 'book' => 
 const NotificationScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const queryClient = useQueryClient();
+  const isTablet = useIsTablet();
 
   const { data: noticeData } = useGetNotice();
   const { data: notificationData } = useGetNotification({ dayLimit: 7 });
@@ -60,6 +65,8 @@ const NotificationScreen = () => {
     },
   });
 
+  const startSession = useProblemSessionStore((state) => state.init);
+
   const notices = noticeData?.data ?? [];
   const notifications = notificationData?.data ?? [];
   const unreadNotificationCount = notificationCountData?.unreadCount ?? 0;
@@ -67,6 +74,68 @@ const NotificationScreen = () => {
   const handleReadAll = () => {
     if (unreadNotificationCount >= 1) {
       readAllNotifications();
+    }
+  };
+
+  const handleNotificationPress = async (notificationId: number, url?: string, isRead?: boolean) => {
+    if (!isRead) {
+      readNotification(notificationId);
+    }
+
+    if (!url) {
+      return;
+    }
+
+    const parsed = parseDeepLinkUrl(url);
+
+    if (!isValidDeepLink(parsed)) {
+      console.log('[NotificationScreen] Unknown deep link:', url);
+      return;
+    }
+
+    try {
+      if (parsed.type === 'qna' && parsed.id) {
+        if (isTablet) {
+          // 태블릿: Qna 탭으로 이동하면서 initialChatRoomId 전달
+          navigation.navigate('StudentTabs', {
+            screen: 'Qna',
+            params: { initialChatRoomId: parsed.id },
+          });
+        } else {
+          // 모바일: ChatRoom 화면으로 직접 이동
+          navigation.navigate('ChatRoom', { chatRoomId: parsed.id });
+        }
+        return;
+      }
+
+      if (parsed.type === 'publish' && parsed.id) {
+        const publishDetail = await getPublishDetailById(parsed.id);
+
+        if (!publishDetail) {
+          Alert.alert('알림', '해당 문제를 찾을 수 없습니다.');
+          return;
+        }
+
+        const groups = publishDetail.data ?? [];
+        const targetGroup =
+          groups.find((group) => group.progress !== 'DONE') ?? groups[0];
+
+        if (!targetGroup) {
+          Alert.alert('알림', '진행할 문제가 없습니다.');
+          return;
+        }
+
+        startSession(targetGroup, {
+          publishId: parsed.id,
+          publishAt: publishDetail.publishAt,
+        });
+
+        navigation.navigate('Problem');
+        return;
+      }
+    } catch (error) {
+      console.error('[NotificationScreen] Error handling deep link:', error);
+      Alert.alert('알림', '해당 콘텐츠를 불러올 수 없습니다.');
     }
   };
 
@@ -133,9 +202,11 @@ const NotificationScreen = () => {
                   icon={ChevronRight}
                   variant='outline'
                   onPress={() => {
-                    if (!notification.isRead) {
-                      readNotification(notification.id);
-                    }
+                    void handleNotificationPress(
+                      notification.id,
+                      notification.url,
+                      notification.isRead
+                    );
                   }}>
                   더보기
                 </NotificationItem.Button>
@@ -157,3 +228,4 @@ const NotificationScreen = () => {
 };
 
 export default NotificationScreen;
+
