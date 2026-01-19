@@ -1,7 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { client } from '@/apis/client';
 import { paths } from '@schema';
-import { invalidateScrapSearchQueries, SCRAP_QUERY_KEYS } from './utils';
+import {
+  invalidateFolderScrapsQueries,
+  invalidateScrapMutationQueries,
+  SCRAP_QUERY_KEYS,
+} from './utils';
 
 type UpdateScrapNameRequest =
   paths['/api/student/scrap/{scrapId}/name']['put']['requestBody']['content']['application/json'];
@@ -34,8 +38,9 @@ export const useUpdateScrapName = () => {
       queryClient.invalidateQueries({
         queryKey: SCRAP_QUERY_KEYS.scrapDetail(scrapId),
       });
-      // 검색 결과 갱신
-      invalidateScrapSearchQueries(queryClient);
+      // 폴더 내 스크랩 목록, 최근 스크랩, 검색 결과 갱신
+      invalidateFolderScrapsQueries(queryClient);
+      invalidateScrapMutationQueries(queryClient);
     },
   });
 };

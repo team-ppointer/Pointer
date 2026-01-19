@@ -62,7 +62,9 @@ const FeedbackScreen = () => {
           <SafeAreaView edges={['bottom']} className='mb-[18px]'>
             <AnimatedPressable
               onPress={handleSubmit}
-              className='bg-primary-500 items-center rounded-[8px] py-[10px]'>
+              className={`bg-primary-500 items-center rounded-[8px] py-[10px] ${
+                content.length < 10 ? 'opacity-50' : ''
+              }`}>
               <Text className='text-16m text-white'>보내기</Text>
             </AnimatedPressable>
           </SafeAreaView>

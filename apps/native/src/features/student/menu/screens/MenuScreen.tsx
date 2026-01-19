@@ -13,6 +13,7 @@ import { UserProfileCard, TeacherInfoCard, MenuListItem, MenuSection } from '../
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { showToast } from '../../scrap/components/Notification';
 
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -60,7 +61,7 @@ const MenuScreen = () => {
               grade={data?.grade}
               onEditPress={() => navigation.navigate('MyInfo')}
             />
-            <TeacherInfoCard teacherName={data?.teacherName} />
+            <TeacherInfoCard teacherName={data?.teacherName ? data?.teacherName : ''} />
             <MenuSection>
               <MenuListItem
                 icon={Bell}
@@ -75,7 +76,13 @@ const MenuScreen = () => {
                 isNew={!!noticeCount?.unreadCount && noticeCount.unreadCount > 0}
                 onPress={() => navigation.navigate('Notice')}
               />
-              <MenuListItem icon={Headset} title='고객센터' onPress={() => {}} />
+              <MenuListItem
+                icon={Headset}
+                title='고객센터'
+                onPress={() => {
+                  showToast('info', '고객센터 준비 중입니다.');
+                }}
+              />
               <MenuListItem
                 icon={ThumbsUp}
                 title='피드백 보내기'

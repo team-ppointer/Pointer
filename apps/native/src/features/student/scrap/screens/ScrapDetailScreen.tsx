@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { View, Text, ScrollView, LayoutChangeEvent, Dimensions, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  LayoutChangeEvent,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,10 +57,6 @@ import { useScrapModal } from '../contexts/ScrapModalsContext';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MIN_LEFT_WIDTH = SCREEN_WIDTH * 0.25;
-const MIN_RIGHT_WIDTH = SCREEN_WIDTH * 0.25;
-const DEFAULT_LEFT_WIDTH = SCREEN_WIDTH * 0.5;
 const DRAG_HANDLE_WIDTH = 4;
 const DIVIDER_WIDTH = 8;
 const DRAG_HANDLE_GAP = 10;
@@ -81,6 +86,12 @@ const ScrapDetailScreen = () => {
     }
   }, [scrapDetail?.name]);
 
+  useEffect(() => {
+    if (scrapDetail?.name) {
+      updateNoteTitle(scrapId, scrapDetail.name);
+    }
+  }, [scrapDetail?.name, scrapId, updateNoteTitle]);
+
   const handleUpdateScrapName = async (name: string) => {
     if (!name.trim()) {
       showToast('error', '이름을 입력해주세요.');
@@ -109,6 +120,12 @@ const ScrapDetailScreen = () => {
   const drawingState = useDrawingState();
   const uiState = useScrapUIState();
   const { openMoveScrapModal, setRefetchScrapDetail } = useScrapModal();
+
+  // 화면 크기에 따라 분할 영역 비율 결정
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const MIN_LEFT_WIDTH = SCREEN_WIDTH * 0.25;
+  const MIN_RIGHT_WIDTH = SCREEN_WIDTH * 0.25;
+  const DEFAULT_LEFT_WIDTH = SCREEN_WIDTH * 0.5;
 
   // refetchScrapDetail을 context에 등록
   useEffect(() => {
@@ -291,6 +308,18 @@ const ScrapDetailScreen = () => {
     left: leftWidth.value,
   }));
 
+  // 화면 회전 등으로 전체 너비가 줄어들었을 때,
+  // 드로잉 영역(right section)이 최소 25% 이상 되도록 leftWidth를 보정
+  useEffect(() => {
+    if (!SCREEN_WIDTH) return;
+
+    const maxLeftWidth = SCREEN_WIDTH - MIN_RIGHT_WIDTH;
+
+    if (leftWidth.value > maxLeftWidth) {
+      leftWidth.value = maxLeftWidth;
+    }
+  }, [SCREEN_WIDTH, MIN_RIGHT_WIDTH, leftWidth]);
+
   // Loading state
   if (isLoading || handwriting.isLoading) {
     return <LoadingScreen label='스크랩을 불러오고 있습니다.' />;
@@ -314,7 +343,12 @@ const ScrapDetailScreen = () => {
             scrapName={scrapName || scrapDetail.name || '스크랩 상세'}
             onScrapNameChange={handleUpdateScrapName}
             showSave={uiState.showSave}
-            onBack={() => navigation.goBack()}
+            onBack={async () => {
+              const saved = await handwriting.handleSave(true);
+              if (saved) {
+                navigation.goBack();
+              }
+            }}
             canGoBack={navigation.canGoBack()}
             onMoveFolderPress={() => {
               openMoveScrapModal({
@@ -326,8 +360,19 @@ const ScrapDetailScreen = () => {
           <TabNavigator
             openNotes={openNotes}
             activeNoteId={activeNoteId}
-            onTabPress={setActiveNote}
-            onTabClose={closeNote}
+            onTabPress={async (noteId) => {
+              if (noteId === activeNoteId) return;
+              const saved = await handwriting.handleSave(true);
+              if (!saved) return;
+              setActiveNote(noteId);
+            }}
+            onTabClose={async (noteId) => {
+              if (noteId === activeNoteId) {
+                const saved = await handwriting.handleSave(true);
+                if (!saved) return;
+              }
+              closeNote(noteId);
+            }}
             onReorder={reorderNotes}
             tabLayouts={tabLayouts}
             onTabLayout={handleTabLayout}
@@ -394,39 +439,44 @@ const ScrapDetailScreen = () => {
                 backgroundColor: 'white',
               },
             ]}>
-            <View style={{ flex: 1 }}>
-              <DrawingToolbar
-                canUndo={drawingState.canUndo}
-                canRedo={drawingState.canRedo}
-                onUndo={() => canvasRef.current?.undo()}
-                onRedo={() => canvasRef.current?.redo()}
-                isEraserMode={drawingState.isEraserMode}
-                isTextMode={drawingState.isTextMode}
-                onPenModePress={drawingState.setPenMode}
-                onEraserModePress={() => {
-                  if (drawingState.isEraserMode) {
-                    drawingState.setPenMode();
-                  } else {
-                    drawingState.setEraserMode();
-                  }
-                }}
-                onTextModePress={drawingState.setTextMode}
-                strokeWidth={drawingState.strokeWidth}
-                eraserSize={drawingState.eraserSize}
-                onStrokeWidthChange={drawingState.setStrokeWidth}
-                onEraserSizeChange={drawingState.setEraserSize}
-                drawingAreaWidth={currentDrawingWidth}
-              />
-              <DrawingCanvas
-                ref={canvasRef}
-                strokeColor='#1E1E21'
-                strokeWidth={drawingState.strokeWidth}
-                textMode={drawingState.isTextMode}
-                eraserMode={drawingState.isEraserMode}
-                eraserSize={drawingState.eraserSize}
-                onHistoryChange={drawingState.setHistoryState}
-              />
-            </View>
+            <KeyboardAvoidingView
+              style={{ flex: 1 }}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={0}>
+              <View style={{ flex: 1 }}>
+                <DrawingToolbar
+                  canUndo={drawingState.canUndo}
+                  canRedo={drawingState.canRedo}
+                  onUndo={() => canvasRef.current?.undo()}
+                  onRedo={() => canvasRef.current?.redo()}
+                  isEraserMode={drawingState.isEraserMode}
+                  isTextMode={drawingState.isTextMode}
+                  onPenModePress={drawingState.setPenMode}
+                  onEraserModePress={() => {
+                    if (drawingState.isEraserMode) {
+                      drawingState.setPenMode();
+                    } else {
+                      drawingState.setEraserMode();
+                    }
+                  }}
+                  onTextModePress={drawingState.setTextMode}
+                  strokeWidth={drawingState.strokeWidth}
+                  eraserSize={drawingState.eraserSize}
+                  onStrokeWidthChange={drawingState.setStrokeWidth}
+                  onEraserSizeChange={drawingState.setEraserSize}
+                  drawingAreaWidth={currentDrawingWidth}
+                />
+                <DrawingCanvas
+                  ref={canvasRef}
+                  strokeColor='#1E1E21'
+                  strokeWidth={drawingState.strokeWidth}
+                  textMode={drawingState.isTextMode}
+                  eraserMode={drawingState.isEraserMode}
+                  eraserSize={drawingState.eraserSize}
+                  onHistoryChange={drawingState.setHistoryState}
+                />
+              </View>
+            </KeyboardAvoidingView>
           </Animated.View>
         </View>
       </View>

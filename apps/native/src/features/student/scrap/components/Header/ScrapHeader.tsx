@@ -111,7 +111,7 @@ const ScrapHeader = ({
               }}
               className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <ArrowRightLeft size={24} color={colors['primary-500']} />
-              <Text className='text-12m text-primary-500'>이동하기</Text>
+              <Text className='text-12m text-primary-500'>이동</Text>
             </Pressable>
             <Pressable
               onPress={() => {
@@ -119,7 +119,7 @@ const ScrapHeader = ({
               }}
               className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Trash2 size={24} color={colors['red-400']} />
-              <Text className='text-12m text-red-400'>삭제하기</Text>
+              <Text className='text-12m text-red-400'>삭제</Text>
             </Pressable>
           </View>
         </View>

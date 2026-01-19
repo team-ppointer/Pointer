@@ -14,6 +14,7 @@ export const CreateFolderModal = () => {
     useScrapModal();
   const [folderName, setFolderName] = useState('');
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
   const { mutateAsync: createFolder } = useCreateFolder();
   const { mutateAsync: uploadFile } = useUploadFile();
 
@@ -41,10 +42,16 @@ export const CreateFolderModal = () => {
   };
 
   const handleCreate = async () => {
+    if (isCreating) {
+      return;
+    }
+
     if (!folderName.trim()) {
       showToast('error', '폴더 이름을 입력해주세요.');
       return;
     }
+
+    setIsCreating(true);
 
     try {
       let thumbnailImageId: number | undefined;
@@ -63,12 +70,14 @@ export const CreateFolderModal = () => {
         thumbnailImageId,
       });
 
+      closeCreateFolderModal();
       showToast('success', '폴더가 추가되었습니다.');
       refetchFolders?.();
       refetchScraps?.();
-      closeCreateFolderModal();
     } catch (error) {
       showToast('error', '폴더 추가에 실패했습니다.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -100,10 +109,11 @@ export const CreateFolderModal = () => {
                 </View>
               )}
             </Pressable>
-            <View className='w-full rounded-[8px] border border-gray-400 bg-white px-3 py-2'>
+            <View className='h-[40px] w-full rounded-[8px] border border-gray-400 bg-white px-3 py-2'>
               <TextInput
                 className='text-16sb text-black'
                 placeholder='제목없음'
+                style={{ lineHeight: 20, paddingVertical: 0 }}
                 placeholderTextColor={colors['gray-500']}
                 value={folderName}
                 onChangeText={setFolderName}

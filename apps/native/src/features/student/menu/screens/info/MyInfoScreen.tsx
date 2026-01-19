@@ -7,7 +7,11 @@ import { BookHeartIcon, CircleStarIcon, ProfileBasicIcon } from '@components/sys
 import { useGetMe } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { InfoSection, ScreenLayout } from '../../components';
-import { gradeOptions, levelOptions } from '@features/student/onboarding/constants';
+import {
+  gradeOptions,
+  levelOptions,
+  mathSubjectOptions,
+} from '@features/student/onboarding/constants';
 
 const MyInfoScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -26,9 +30,9 @@ const MyInfoScreen = () => {
             fields={[
               {
                 label: '닉네임',
-                value: data?.nickname || '',
+                value: data?.name || '',
                 onPress: () => {
-                  navigation.navigate('EditNickname', { initialNickname: data?.nickname });
+                  navigation.navigate('EditNickname', { initialNickname: data?.name });
                 },
               },
               {
@@ -68,7 +72,9 @@ const MyInfoScreen = () => {
               },
               {
                 label: '선택과목',
-                value: data?.selectSubject || '',
+                value:
+                  mathSubjectOptions.find((option) => option.value === data?.selectSubject)
+                    ?.label || '',
                 onPress: () =>
                   navigation.navigate('EditMathSubject', {
                     initialMathSubject: data?.selectSubject,
@@ -78,7 +84,7 @@ const MyInfoScreen = () => {
           />
         </Container>
 
-        <Container className='flex-1 bg-blue-100 pt-[24px]'>
+        <Container className='flex-1 bg-blue-100 pb-[24px] pt-[24px]'>
           <InfoSection
             icon={<CircleStarIcon />}
             title='계정 정보'

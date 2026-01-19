@@ -65,12 +65,13 @@ export const ScrapDetailHeader = ({
           }
           children={(close) => (
             <TooltipContainer
-              height='h-[88px]'
+              height=''
               header={
                 <View className='h-[32px] w-[216px] rounded-[6px] bg-gray-300 px-[6px] py-1'>
                   <TextInput
                     ref={textInputRef}
-                    className='text-16m items-center justify-center text-black'
+                    className='text-16m flex-1 text-black'
+                    style={{ lineHeight: 20, paddingVertical: 0 }}
                     numberOfLines={1}
                     value={localName}
                     placeholder='스크랩 이름'
@@ -118,7 +119,7 @@ export const ScrapDetailHeader = ({
           )}></TooltipPopover>
       </View>
       <Pressable onPress={onMessagePress}>
-        <MessageCircleMore size={24} color={'#FFF'} />
+        {/* 미구현 <MessageCircleMore size={24} color={'#FFF'} />` */}
       </Pressable>
     </View>
   );
