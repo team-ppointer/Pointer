@@ -17,6 +17,8 @@ type Props = {
   onPressBack?: () => void;
   cancelLabel?: string;
   onCancel?: () => void;
+  skipLabel?: string;
+  onSkip?: () => void;
   contentClassName?: string;
   bottomSlot?: ReactNode;
   isScrollable?: boolean;
@@ -33,6 +35,8 @@ export const EditScreenLayout = ({
   onPressBack,
   cancelLabel,
   onCancel,
+  skipLabel,
+  onSkip,
   contentClassName = '',
   bottomSlot,
   isScrollable = true,
@@ -70,8 +74,19 @@ export const EditScreenLayout = ({
           <View className='h-[36px] w-[36px]' />
         )}
         {cancelLabel && onCancel ? (
-          <AnimatedPressable onPress={onCancel} className='h-[48px] items-center justify-center px-[10px]'>
+          <AnimatedPressable
+            onPress={onCancel}
+            className='h-[48px] items-center justify-center px-[10px]'>
             <Text className='text-14sb text-gray-600'>{cancelLabel}</Text>
+          </AnimatedPressable>
+        ) : (
+          <View className='h-[20px]' />
+        )}
+        {skipLabel && onSkip ? (
+          <AnimatedPressable
+            onPress={onSkip}
+            className='h-[48px] items-center justify-center px-[10px]'>
+            <Text className='text-14sb text-primary-600'>{skipLabel}</Text>
           </AnimatedPressable>
         ) : (
           <View className='h-[20px]' />
