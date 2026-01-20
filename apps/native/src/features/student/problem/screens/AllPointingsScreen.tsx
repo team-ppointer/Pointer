@@ -198,7 +198,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   return (
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
-        <View className='h-[66px] flex-row items-center justify-between gap-[10px] px-[20px] py-[14px]'>
+        <View className='h-[56px] flex-row items-center justify-between gap-[10px] px-[20px] py-[4px]'>
           <AnimatedPressable className='p-[8px]' onPress={handleClose}>
             <ChevronLeftIcon color={colors.black} size={32} />
           </AnimatedPressable>
@@ -214,7 +214,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
           <View className='w-[40px]' />
         </View>
         {tabItems.length > 0 ? (
-          <Container className='py-[10px]'>
+          <Container className='mb-[20px] py-[4px]'>
             <SegmentedControl
               values={tabItems.map((item) => item.label)}
               selectedIndex={selectedTab}
@@ -295,9 +295,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                         </View>
                         <ProblemViewer problemContent={pointing?.questionContent ?? ''} />
                       </View>
-                      <ScrollView className='p-[14px]'>
-                        <ProblemViewer problemContent={pointing?.commentContent ?? ''} />
-                      </ScrollView>
+                      <ProblemViewer problemContent={pointing?.commentContent ?? ''} padding={14} />
                     </View>
                   );
                 })
