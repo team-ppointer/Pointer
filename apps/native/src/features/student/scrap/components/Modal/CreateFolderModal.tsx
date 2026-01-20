@@ -41,7 +41,7 @@ export const CreateFolderModal = () => {
     }
   };
 
-  const handleCreate = async () => {
+  const handleUploadImage = async () => {
     if (isCreating) {
       return;
     }
@@ -53,57 +53,61 @@ export const CreateFolderModal = () => {
 
     setIsCreating(true);
 
-    try {
       let thumbnailImageId: number | undefined;
 
       // 이미지가 있는 경우 먼저 업로드
       if (selectedImage) {
         const fileName = selectedImage.fileName || `${Date.now()}.jpg`;
-        const files = await uploadFile([
+        uploadFile([
           { uri: selectedImage.uri, name: fileName, type: selectedImage.mimeType || 'image/jpeg' },
-        ]);
-        thumbnailImageId = files[0].id;
-      }
-
-      await createFolder({
-        name: folderName,
-        thumbnailImageId,
-      });
-
-      closeCreateFolderModal();
-      showToast('success', '폴더가 추가되었습니다.');
-      refetchFolders?.();
-      refetchScraps?.();
-    } catch (error) {
-      showToast('error', '폴더 추가에 실패했습니다.');
-    } finally {
-      setIsCreating(false);
+        ],
+        {
+          onSuccess: (files) => {
+            thumbnailImageId = files[0].id;
+            handleCreateFolder(thumbnailImageId ?? undefined);
+          },
+          onError: (error: any) => {
+            showToast('error', error.message);
+          },
+        }
+      );
     }
   };
 
-  const handleCancel = () => {
-    closeCreateFolderModal();
-  };
+  const handleCreateFolder = async (thumbnailImageId: number | undefined) => {
+    createFolder({
+      name: folderName,
+      thumbnailImageId: thumbnailImageId ?? undefined,
+    },
+    {
+      onSuccess: () => {
+        showToast('success', '폴더가 추가되었습니다.');
+        closeCreateFolderModal();
+        refetchFolders?.();
+        refetchScraps?.();
+      },
+      onError: (error: any) => {
+        showToast('error', error.message);
+      },
+    }
+  );
+  setIsCreating(false);
+  }
 
   return (
-    <AddFolderScreenModal
-      visible={isCreateFolderModalVisible}
-      onCancel={handleCancel}
-      onClose={handleCreate}>
-      <KeyboardAvoidingView
-        className='flex-1'
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+    <AddFolderScreenModal visible={isCreateFolderModalVisible} onCancel={closeCreateFolderModal} onClose={handleUploadImage}>
+      <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
         <View className='flex-1 items-center gap-[18px] p-[20px] pt-[80px]'>
           <View className='w-[320px] items-center gap-[20px] md:w-[424px]'>
             <Pressable className='min-w-[136px] items-center p-[10px]' onPress={onPressGallery}>
-              {selectedImage ? (
+              {selectedImage && (
                 <Image
                   source={{ uri: selectedImage.uri }}
                   className='h-[136px] w-[136px] rounded-[8px]'
                   resizeMode='cover'
                 />
-              ) : (
+              )}
+              {!selectedImage && (
                 <View className='bg-primary-500 h-[80px] w-[80px] items-center justify-center rounded-[10px] p-[10px]'>
                   <ImageIcon size={48} color={'#fff'} />
                 </View>

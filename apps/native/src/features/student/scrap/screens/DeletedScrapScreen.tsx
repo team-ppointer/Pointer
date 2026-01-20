@@ -41,18 +41,22 @@ const DeletedScrapScreenContent = () => {
     return sortScrapData(itemsWithCreatedAt, sortKey, sortOrder);
   }, [trashItems, sortKey, sortOrder]);
 
-  const handlePermanentDelete = async () => {
-    try {
+  const handlePermanentDelete = () => {
       const items = reducerState.selectedItems;
-      await permanentDelete({
+      permanentDelete({
         items: items.map((item) => ({ id: item.id as number, type: item.type })),
-      });
-      dispatch({ type: 'CLEAR_SELECTION' });
-      setIsDeleteModalVisible(false);
-      showToast('success', '영구 삭제되었습니다.');
-    } catch (error) {
-      showToast('error', '삭제 중 오류가 발생했습니다.');
-    }
+      },
+      {
+        onSuccess: () => {
+          dispatch({ type: 'CLEAR_SELECTION' });
+          setIsDeleteModalVisible(false);
+          showToast('success', '영구 삭제되었습니다.');
+        },
+        onError: (error: any) => {
+          showToast('error', error.message);
+        },
+      }
+    );
   };
 
   return (
@@ -75,17 +79,21 @@ const DeletedScrapScreenContent = () => {
             }
           },
           onRestore: async () => {
-            try {
               const items = reducerState.selectedItems;
 
               await restoreTrash({
                 items: items.map((item) => ({ id: item.id as number, type: item.type })),
-              });
-              dispatch({ type: 'CLEAR_SELECTION' });
-              showToast('success', '선택된 파일들이 복구되었습니다.');
-            } catch (error) {
-              showToast('error', '복구 중 오류가 발생했습니다.');
-            }
+              },
+              {
+                onSuccess: () => {
+                  dispatch({ type: 'CLEAR_SELECTION' });
+                  showToast('success', '선택된 파일들이 복구되었습니다.');
+                },
+                onError: (error: any) => {
+                  showToast('error', error.message);
+                },
+              }
+            );
           },
         }}
       />

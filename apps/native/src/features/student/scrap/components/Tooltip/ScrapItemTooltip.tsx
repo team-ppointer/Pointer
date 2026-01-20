@@ -73,23 +73,27 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
       return;
     }
 
-    try {
       const fileName = image.fileName || `${Date.now()}.jpg`;
       const files = await uploadFile([
         { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
       ]);
 
-      await updateFolderThumbnail({
+      updateFolderThumbnail({
         id: props.id,
         request: {
           thumbnailImageId: files[0].id,
         },
-      });
-      showToast('success', '표지가 변경되었습니다.');
-      handleClose();
-    } catch (error) {
-      showToast('error', '이미지 업로드에 실패했습니다.');
-    }
+      },
+      {
+          onSuccess: () => {
+            showToast('success', '표지가 변경되었습니다.');
+            handleClose();
+          },
+          onError: (error: any) => {
+            showToast('error', error.message);
+          },
+        }
+      );
   };
 
   const onPressChangeCover = async () => {
@@ -103,7 +107,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
     });
 
     if (image) {
-      await handleUpdateFolderCover(image);
+      handleUpdateFolderCover(image);
     }
   };
 
@@ -147,21 +151,24 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
   const handleDelete = async () => {
     handleClose();
 
-    try {
-      await deleteScrap({
+      deleteScrap({
         items: [
           {
             id: props.id,
             type: props.type as 'FOLDER' | 'SCRAP',
           },
         ],
-      });
-      cleanupAfterDelete(props.id);
-
-      showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-    } catch (error: any) {
-      showToast('error', '삭제 중 오류가 발생했습니다.');
-    }
+      },
+      { 
+        onSuccess: () => {
+          cleanupAfterDelete(props.id);
+          showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
+        },
+        onError: (error: any) => {
+          showToast('error', '삭제 중 오류가 발생했습니다.');
+        },
+      }
+    );
   };
 
   return (

@@ -7,6 +7,7 @@ import {
 import { useCreateScrapFromImage, useUploadFile } from '@/apis';
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
+import { showToast } from '../Notification/Toast';
 
 export interface AddScrapTooltipProps {
   onClose?: () => void;
@@ -41,26 +42,25 @@ export const AddScrapTooltip = ({
         { imageId: files[0].id },
         {
           onSuccess: () => {
-            Alert.alert('성공', '스크랩이 생성되었습니다.');
+            showToast('success', '스크랩이 생성되었습니다.');
             onClose?.();
           },
           onError: (error) => {
             console.error('스크랩 생성 실패:', error);
-            Alert.alert('오류', '스크랩 생성에 실패했습니다.');
           },
         }
       );
     } catch (error) {
-      Alert.alert('오류', '이미지 업로드에 실패했습니다.');
+      showToast('error', (error as any).message);
     }
   };
 
   const onPressCamera = async () => {
     const image = await openCameraWithErrorHandling((error) => {
       if (error.message?.includes('permission')) {
-        Alert.alert('권한 필요', '카메라 권한이 필요합니다.');
+        showToast('error', '카메라 권한이 필요합니다.');
       } else {
-        console.error('카메라 오류:', error);
+        showToast('error', (error as any).message);
       }
     });
 
@@ -73,9 +73,9 @@ export const AddScrapTooltip = ({
   const onPressGallery = async () => {
     const image = await openImageLibraryWithErrorHandling((error) => {
       if (error.message?.includes('permission')) {
-        Alert.alert('권한 필요', '갤러리 권한이 필요합니다.');
+        showToast('error', '갤러리 권한이 필요합니다.');
       } else {
-        console.error('갤러리 오류:', error);
+        showToast('error', (error as any).message);
       }
     });
 
