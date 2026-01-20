@@ -10,10 +10,8 @@ interface RecentScrapItem {
 interface RecentScrapStore {
   /** 최근 본 스크랩 ID 목록 (최신순) */
   scraps: RecentScrapItem[];
-  /** 스크랩 ID 목록  */
-  get scrapIds(): number[];
   /** 스크랩 추가 */
-  addScrap: (scrapId: number, folderId?: number | null) => void;
+  addScrap: (scrapId: number, folderId?: number | undefined) => void;
   /** 스크랩 제거 */
   removeScrap: (scrapId: number) => void;
   /** 폴더 내 스크랩 제거 */
@@ -24,12 +22,8 @@ interface RecentScrapStore {
 
 export const useRecentScrapStore = create<RecentScrapStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       scraps: [],
-
-      get scrapIds() {
-        return get().scraps.map((item) => item.scrapId);
-      },
 
       addScrap: (scrapId, folderId) =>
         set((state) => {
