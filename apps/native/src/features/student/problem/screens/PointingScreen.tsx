@@ -295,11 +295,11 @@ const PointingScreen = ({
           ) : (
             <View className='flex-1 flex-row gap-[10px]'>
               <BottomActionBar.Button
-                className={`bg-primary-200 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                className={`bg-primary-500 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
                 containerStyle={{ flex: 1 }}
                 disabled={isSubmittingUnderstanding}
                 onPress={() => handleUnderstandSelection(true)}>
-                <Text className='text-16m text-black'>네</Text>
+                <Text className='text-16m text-white'>네</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
                 className={`bg-primary-500 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
