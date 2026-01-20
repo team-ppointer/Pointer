@@ -21,14 +21,12 @@ export const CustomSplashScreen = ({ isAppReady, onAnimationFinish }: Props) => 
   useEffect(() => {
     if (isAppReady && !isAnimationStarted) {
       setIsAnimationStarted(true);
-      // Native splash screen hiding
       SplashScreen.hideAsync().then(() => {
-        // Start fade out animation
-        opacity.value = withTiming(0, { duration: 500 }, (finished) => {
-          if (finished) {
-            runOnJS(onAnimationFinish)();
-          }
-        });
+          opacity.value = withTiming(0, { duration: 300 }, (finished) => {
+            if (finished) {
+              runOnJS(onAnimationFinish)();
+            }
+          });
       });
     }
   }, [isAppReady, isAnimationStarted, onAnimationFinish, opacity]);
@@ -40,8 +38,12 @@ export const CustomSplashScreen = ({ isAppReady, onAnimationFinish }: Props) => 
   });
 
   return (
-    <Animated.View className='flex-1 items-center justify-center bg-gray-100 gap-[20px]'>
-      <Text className='text-16r text-gray-700 text-center'>문제를 접근하고{'\n'}생각하는 방식을 바꾸는</Text>
+    <Animated.View
+      style={animatedStyle}
+      className='absolute z-50 h-full w-full items-center justify-center gap-[20px] bg-gray-100'>
+      <Text className='text-16r text-center text-gray-700'>
+        문제를 접근하고{'\n'}생각하는 방식을 바꾸는
+      </Text>
       <PointerLogo />
       <View className='h-[50px]' />
     </Animated.View>

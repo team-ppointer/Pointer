@@ -46,27 +46,26 @@ export default function App() {
   // FCM 푸시 알림 딥링크 핸들러
   useDeepLinkHandler();
 
-  if (!isSplashAnimationFinished) {
-    return (
-      <CustomSplashScreen
-        isAppReady={isReady}
-        onAnimationFinish={() => setIsSplashAnimationFinished(true)}
-      />
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <NavigationContainer ref={navigationRef} theme={navigationTheme}>
-            <StatusBar style='dark' />
-            <RootNavigator />
-            <Toast config={toastConfig} />
-          </NavigationContainer>
+          {isReady && (
+            <NavigationContainer ref={navigationRef} theme={navigationTheme}>
+              <StatusBar style='dark' />
+              <RootNavigator />
+              <Toast config={toastConfig} />
+            </NavigationContainer>
+          )}
+
+          {!isSplashAnimationFinished && (
+            <CustomSplashScreen
+              isAppReady={isReady}
+              onAnimationFinish={() => setIsSplashAnimationFinished(true)}
+            />
+          )}
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );
 }
-
