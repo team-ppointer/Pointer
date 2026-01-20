@@ -1,16 +1,15 @@
-import { OnboardingInput } from '@/features/student/onboarding/components';
+import { OnboardingInput } from '@features/student/onboarding/components';
 import { EditScreenLayout } from '../../../components';
 import { useState } from 'react';
-import { showToast } from '@/features/student/scrap/components/Notification';
-import { useGetSchool } from '@apis/student';
-import usePutMe from '@/apis/controller/student/me/putMe';
+import { showToast } from '@features/student/scrap/components/Notification';
+import { useGetSchool, usePutMe } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
-import { colors } from '@/theme/tokens';
-import CircleXFilledIcon from '@/components/system/icons/CircleXFilledIcon';
+import { colors, shadow } from '@theme/tokens';
+import { CircleXFilledIcon } from '@components/system/icons';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
-import { useDebounce } from '@/hooks';
+import { useDebounce } from '@hooks';
 
 const EditSchoolScreen = ({
   navigation,
@@ -47,13 +46,8 @@ const EditSchoolScreen = ({
   };
 
   const handleSave = async () => {
-    // if (!schoolId) {
-    //   showToast('error', '학교를 선택해 주세요.');
-    //   return;
-    // }
-
     putMeMutate(
-      { schoolId: schoolId || undefined },
+      { schoolId: schoolId ?? undefined },
       {
         onSuccess: () => {
           navigation.push('EditGrade', { initialGrade: route.params.initialSchool?.grade });
@@ -108,7 +102,9 @@ const EditSchoolScreen = ({
           }}
         />
         {showDropdown ? (
-          <View className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px] shadow shadow-black/10'>
+          <View
+            className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px]'
+            style={shadow[100]}>
             {isLoading ? (
               <View className='items-center justify-center py-[20px]'>
                 <ActivityIndicator size='small' color={colors['gray-500']} />

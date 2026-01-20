@@ -6,9 +6,8 @@ import type {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import { useGetQnaById, useGetQnaAdminChat } from '@apis/controller/student/qna';
+import { useGetQnaById } from '@apis/controller/student/qna';
 import type { ChatRoom as ChatRoomType } from '../types';
-import { mapAdminChatToChatRoom } from '../types';
 import { ChatRoom } from '../components/ChatRoom';
 
 type ChatRoomScreenProps = NativeStackScreenProps<StudentRootStackParamList, 'ChatRoom'>;
@@ -17,55 +16,41 @@ type ChatRoomScreenNavigationProp = NativeStackNavigationProp<StudentRootStackPa
 const ChatRoomScreen = () => {
   const navigation = useNavigation<ChatRoomScreenNavigationProp>();
   const route = useRoute<ChatRoomScreenProps['route']>();
-  const { chatRoomId, isAdminChat = false } = route.params;
+  const { chatRoomId } = route.params;
 
-  // Fetch QnA by ID for teacher chats
+  // Fetch QnA by ID (works for both regular and admin chats)
   const {
     data: qnaData,
-    isLoading: isLoadingQna,
-    error: qnaError,
+    isLoading,
+    error,
   } = useGetQnaById({
     qnaId: chatRoomId,
-    enabled: !isAdminChat && chatRoomId > 0,
-  });
-
-  // Fetch admin chat for publisher
-  const {
-    data: adminChatData,
-    isLoading: isLoadingAdminChat,
-    error: adminChatError,
-  } = useGetQnaAdminChat({
-    enabled: isAdminChat,
+    enabled: chatRoomId > 0,
   });
 
   // Map to ChatRoom format
   const chatRoom = useMemo<ChatRoomType | null>(() => {
-    if (isAdminChat && adminChatData) {
-      return mapAdminChatToChatRoom(adminChatData);
-    }
-    if (!isAdminChat && qnaData) {
-      return {
-        id: qnaData.id,
-        type: qnaData.type === 'ADMIN_CHAT' ? 'publisher' : 'teacher',
-        title: qnaData.title,
-        lastMessage: qnaData.latestMessageContent ?? '',
-        lastMessageTime: '',
-        status: 'asking',
-        hasNewMessage: (qnaData.unreadCount ?? 0) > 0,
-        teacherName: qnaData.studentName,
-        publishId: qnaData.publishId,
-        publishDate: qnaData.publishDate,
-      };
-    }
-    return null;
-  }, [isAdminChat, qnaData, adminChatData]);
+    if (!qnaData) return null;
+    
+    const isAdminChat = qnaData.type === 'ADMIN_CHAT';
+    
+    return {
+      id: qnaData.id,
+      type: isAdminChat ? 'publisher' : 'teacher',
+      title: isAdminChat ? '포인터 출제진' : qnaData.title,
+      lastMessage: qnaData.latestMessageContent ?? '',
+      lastMessageTime: '',
+      status: 'asking',
+      hasNewMessage: (qnaData.unreadCount ?? 0) > 0,
+      teacherName: qnaData.studentName,
+      publishId: qnaData.publishId,
+      publishDate: qnaData.publishDate,
+    };
+  }, [qnaData]);
 
   const handleBack = () => {
     navigation.goBack();
   };
-
-  const isLoading = isLoadingQna || isLoadingAdminChat;
-  const hasError = qnaError || adminChatError;
 
   if (isLoading) {
     return (
@@ -75,7 +60,7 @@ const ChatRoomScreen = () => {
     );
   }
 
-  if (hasError) {
+  if (error) {
     return (
       <View className='flex-1 items-center justify-center bg-gray-100'>
         <Text className='text-14r text-gray-600'>데이터를 불러올 수 없습니다.</Text>
@@ -87,8 +72,7 @@ const ChatRoomScreen = () => {
     <View className='flex-1 bg-gray-100'>
       <ChatRoom
         chatRoom={chatRoom}
-        qnaData={isAdminChat ? undefined : qnaData}
-        adminChatData={isAdminChat ? adminChatData : undefined}
+        qnaData={qnaData}
         onBack={handleBack}
         showBackButton
       />

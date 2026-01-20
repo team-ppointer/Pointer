@@ -8,6 +8,9 @@ import { env } from '@utils';
 type QnAChatEvent = components['schemas']['QnAChatEvent'];
 type QnAReadStatusEvent = components['schemas']['QnAReadStatusEvent'];
 
+// Custom event types for SSE (chat, read_status, heartbeat)
+type CustomSSEEvents = 'chat' | 'read_status' | 'heartbeat';
+
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
 
 type SSEEventHandlers = {
@@ -58,7 +61,7 @@ const useSubscribeQna = ({
 }: UseSubscribeQnaOptions) => {
   const config = { ...DEFAULT_RECONNECT_CONFIG, ...reconnectConfig };
 
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const eventSourceRef = useRef<EventSource<CustomSSEEvents> | null>(null);
   const retryCountRef = useRef(0);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heartbeatTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -135,7 +138,9 @@ const useSubscribeQna = ({
     }
 
     const delay = getRetryDelay();
-    console.log(`[SSE] Scheduling reconnect in ${Math.round(delay)}ms (attempt ${retryCountRef.current + 1}/${config.maxRetries})`);
+    console.log(
+      `[SSE] Scheduling reconnect in ${Math.round(delay)}ms (attempt ${retryCountRef.current + 1}/${config.maxRetries})`
+    );
     updateConnectionStatus('reconnecting');
 
     retryTimeoutRef.current = setTimeout(() => {
@@ -174,7 +179,7 @@ const useSubscribeQna = ({
 
     console.log('[SSE] Connecting to:', url);
 
-    const es = new EventSource(url, {
+    const es = new EventSource<CustomSSEEvents>(url, {
       headers: {
         Accept: 'text/event-stream',
       },
@@ -225,19 +230,29 @@ const useSubscribeQna = ({
       resetHeartbeatTimeout();
     });
 
-    // 읽음 상태 이벤트
+    // 읽음 상태 이벤트 (deduplication by readAt timestamp)
+    let lastReadStatusKey = '';
     es.addEventListener('read_status', (event) => {
-      console.log('[SSE] ========== READ STATUS EVENT ==========');
-      console.log('[SSE] Raw event:', JSON.stringify(event, null, 2));
       try {
         if (event.data) {
           const data = JSON.parse(event.data) as QnAReadStatusEvent;
-          console.log('[SSE] Parsed read status data:', JSON.stringify(data, null, 2));
-          onReadStatusEvent?.(data);
+          
+          // Deduplicate by creating a unique key from the event data
+          const eventKey = `${data.qnaId}-${data.userId}-${data.readAt}`;
+          if (eventKey === lastReadStatusKey) {
+            // Skip duplicate event (only log once per unique event)
+            return;
+          }
+          lastReadStatusKey = eventKey;
+          
+          // Only log if there's a callback registered
+          if (onReadStatusEvent) {
+            console.log('[SSE] Read status event:', JSON.stringify(data, null, 2));
+            onReadStatusEvent(data);
+          }
         }
       } catch (error) {
         console.error('[SSE] Failed to parse read_status event:', error);
-        console.error('[SSE] Raw data was:', event.data);
       }
       resetHeartbeatTimeout();
     });

@@ -623,7 +623,7 @@ const MessageBubble = ({
         );
       case 'text':
       default:
-        return <Text className='text-16r text-black'>{content}</Text>;
+        return <Text className='text-16r text-black'>{content.trim()}</Text>;
     }
   };
 
@@ -666,7 +666,7 @@ const MessageBubble = ({
               )}
 
               {/* Message Content */}
-              <View className='shrink'>
+              <View className='flex-col items-start'>
                 {/* Sender Name - only for first message */}
                 {showProfile && senderName && (
                   <Text className='text-12sb mb-[4px] text-gray-700'>{senderName}</Text>

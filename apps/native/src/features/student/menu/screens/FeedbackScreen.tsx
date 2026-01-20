@@ -3,9 +3,9 @@ import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } fro
 import { AnimatedPressable, Container } from '@components/common';
 import { ScreenLayout } from '../components';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/theme/tokens';
-import { usePostFeedback } from '@/apis/controller/student/me';
-import { showToast } from '@/features/student/scrap/components/Notification';
+import { colors } from '@theme/tokens';
+import { usePostFeedback } from '@apis';
+import { showToast } from '@features/student/scrap/components/Notification';
 
 const FeedbackScreen = () => {
   const { mutate: postFeedback } = usePostFeedback();

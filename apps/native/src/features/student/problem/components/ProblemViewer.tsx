@@ -20,9 +20,10 @@ interface ProblemViewerProps {
   problemContent: string;
   minHeight?: number;
   padding?: number;
+  fontStyle?: 'sans-serif' | 'serif';
 }
 
-const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemViewerProps) => {
+const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0, fontStyle = 'sans-serif' }: ProblemViewerProps) => {
   const [webViewHeight, setWebViewHeight] = useState(minHeight);
   const [isContentLoading, setIsContentLoading] = useState(true);
 
@@ -33,7 +34,8 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
   const GET_WEBVIEW_HEIGHT_SCRIPT = `
     (function () {
       const sendHeight = () => {
-        const height = document.documentElement.scrollHeight;
+        const element = document.getElementById('main-content');
+        const height = element ? element.offsetHeight : 0;
         window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'setHeight', height }));
       };
 
@@ -71,7 +73,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      font-family: "KoPub Batang";
+      font-family: ${fontStyle === 'serif' ? '"KoPub Batang", serif' : '"Pretendard Variable", apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif'};
       font-size: 15px;
       line-height: 1.6;
 
@@ -89,7 +91,12 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
     }
 
     body {
+      /* padding handled in #main-content */
+    }
+
+    #main-content {
       padding: ${padding}px;
+      display: flow-root;
     }
 
     * {
@@ -246,7 +253,9 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0 }: ProblemVi
 </head>
 
 <body>
-  ${serializeJSONToHTML(problemContent)}
+  <div id="main-content">
+    ${serializeJSONToHTML(problemContent)}
+  </div>
   <script>
     (function () {
       function notifyReactNativeContentReady() {

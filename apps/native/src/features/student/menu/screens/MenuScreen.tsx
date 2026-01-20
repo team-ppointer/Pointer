@@ -3,9 +3,9 @@ import { ScrollView, Text, View } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
-import { TanstackQueryClient } from '@/apis/client';
+import { TanstackQueryClient } from '@apis';
 
-import { useGetMe, useGetNoticeCount } from '@apis/student';
+import { useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
 import { Container } from '@components/common';
 import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
@@ -44,11 +44,9 @@ const MenuScreen = () => {
 
   return (
     <View className='w-full flex-1'>
-      <SafeAreaView edges={['top']} className={'bg-gray-100'}>
-        <Container className='h-[52px] justify-center'>
-          <Text className='text-20b text-black'>전체 메뉴</Text>
-        </Container>
-      </SafeAreaView>
+      <Container className='h-[52px] justify-center bg-gray-100'>
+        <Text className='text-20b text-black'>전체 메뉴</Text>
+      </Container>
       <Container className='flex-1'>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -61,7 +59,7 @@ const MenuScreen = () => {
               grade={data?.grade}
               onEditPress={() => navigation.navigate('MyInfo')}
             />
-            <TeacherInfoCard teacherName={data?.teacherName ? data?.teacherName : ''} />
+            <TeacherInfoCard teacherName={data?.teacherName} />
             <MenuSection>
               <MenuListItem
                 icon={Bell}

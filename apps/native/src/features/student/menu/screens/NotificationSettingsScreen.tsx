@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView } from 'react-native';
 import { Container } from '@components/common';
 import { ScreenLayout, SettingsToggleItem } from '../components';
-import { usePutAllowPush, useGetPushSetting } from '@/apis/controller/student/me';
-import { showToast } from '@/features/student/scrap/components/Notification';
+import { usePutAllowPush, useGetPushSetting } from '@apis';
+import { showToast } from '@features/student/scrap/components/Notification';
 
 const NotificationSettingsScreen = () => {
   const { data: pushSettingData } = useGetPushSetting({ enabled: true });
@@ -68,30 +68,30 @@ const NotificationSettingsScreen = () => {
             onValueChange={handlePushEnabledChange}
           />
 
-          <View className='w-full h-[1px] bg-gray-400' />
+          <View className='h-[1px] w-full bg-gray-400' />
 
           <SettingsToggleItem
-              title='서비스 알림'
-              description='학습 안내, 문항 등록 안내 등'
-              value={serviceNotification}
-              onValueChange={handleServiceNotificationChange}
-              disabled={!pushEnabled}
+            title='서비스 알림'
+            description='학습 안내, 문항 등록 안내 등'
+            value={serviceNotification}
+            onValueChange={handleServiceNotificationChange}
+            disabled={!pushEnabled}
           />
 
           <SettingsToggleItem
-              title='QnA 채팅 알림'
-              description='출제진 피드백, 선생님 답변 알림 등'
-              value={qnaNotification}
-              onValueChange={handleQnaNotificationChange}
-              disabled={!pushEnabled}
+            title='QnA 채팅 알림'
+            description='출제진 피드백, 선생님 답변 알림 등'
+            value={qnaNotification}
+            onValueChange={handleQnaNotificationChange}
+            disabled={!pushEnabled}
           />
 
           <SettingsToggleItem
-              title='이벤트/업데이트 알림'
-              description='이벤트 및 업데이트 관련 마케팅 알림 등'
-              value={eventNotification}
-              onValueChange={handleEventNotificationChange}
-              disabled={!pushEnabled}
+            title='이벤트/업데이트 알림'
+            description='이벤트 및 업데이트 관련 마케팅 알림 등'
+            value={eventNotification}
+            onValueChange={handleEventNotificationChange}
+            disabled={!pushEnabled}
           />
         </Container>
       </ScrollView>

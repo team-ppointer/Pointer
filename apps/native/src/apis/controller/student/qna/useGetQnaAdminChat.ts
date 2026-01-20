@@ -5,12 +5,7 @@ type Props = {
 };
 
 const useGetQnaAdminChat = ({ enabled = true }: Props = {}) => {
-  return TanstackQueryClient.useQuery(
-    'get',
-    '/api/student/qna/admin-chat',
-    {},
-    { enabled }
-  );
+  return TanstackQueryClient.useQuery('get', '/api/student/qna/admin-chat', {}, { enabled });
 };
 
 export default useGetQnaAdminChat;

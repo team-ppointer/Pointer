@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { Alert } from 'react-native';
 import { client } from '@/apis/client';
 import { components } from '@schema';
 
@@ -10,6 +11,7 @@ type FileToUpload = {
   uri: string;
   name: string;
   type: string;
+  size?: number;
 };
 
 type UploadResult = {
@@ -74,6 +76,27 @@ const uploadFilesToS3 = async (
 const useUploadFile = (options?: Options) => {
   return useMutation({
     mutationFn: async (files: FileToUpload[]) => {
+      const MAX_UPLOAD_SIZE = 10 * 1024 * 1024; // 10MB
+
+      for (const file of files) {
+        let fileSize = file.size;
+
+        if (!fileSize) {
+          try {
+            const response = await fetch(file.uri);
+            const blob = await response.blob();
+            fileSize = blob.size;
+          } catch (error) {
+            console.error('Failed to get file size', error);
+          }
+        }
+
+        if (fileSize && fileSize > MAX_UPLOAD_SIZE) {
+          Alert.alert('알림', '업로드 최대 용량은 10MB 입니다.');
+          throw new Error('File size exceeds 10MB');
+        }
+      }
+
       const fileNames = files.map((f) => f.name);
       const presignedData = await getPresignedUrls(fileNames);
 

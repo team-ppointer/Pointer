@@ -1,12 +1,12 @@
 import { View } from 'react-native';
 import { EditScreenLayout } from '../../../components';
-import { OptionButton } from '@/features/student/onboarding/components';
+import { OptionButton } from '@features/student/onboarding/components';
 import { useState } from 'react';
-import { showToast } from '@/features/student/scrap/components/Notification';
+import { showToast } from '@features/student/scrap/components/Notification';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import usePutMe from '@/apis/controller/student/me/putMe';
-import { gradeOptions, GradeValue } from '@/features/student/onboarding/constants';
+import { usePutMe } from '@apis';
+import { gradeOptions, GradeValue } from '@features/student/onboarding/constants';
 
 const EditGradeScreen = ({
   navigation,

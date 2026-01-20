@@ -12,7 +12,7 @@ export const TeacherInfoCard = ({ teacherName }: TeacherInfoCardProps) => {
       {teacherName ? (
         <Text className='text-18m text-black'>{`${teacherName} 선생님`}</Text>
       ) : (
-        <Text className='text-13r text-gray-700'>아직 등록된 선생님이 없어요.</Text>
+        <Text className='text-18m text-gray-700'>아직 등록된 선생님이 없어요</Text>
       )}
     </View>
   );

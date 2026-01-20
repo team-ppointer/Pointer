@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, ViewStyle } from 'react-native';
-import AnimatedPressable from './AnimatedPressable';
+import { AnimatedPressable } from '@components/common';
 
 interface ButtonProps {
   variant?: 'blue' | 'gray' | 'outline';

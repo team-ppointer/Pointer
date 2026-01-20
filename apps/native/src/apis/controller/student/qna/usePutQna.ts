@@ -29,19 +29,14 @@ const usePutQna = (options?: Options) => {
     },
     onSuccess: (data, variables) => {
       void queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna', {})
-          .queryKey,
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna', {}).queryKey,
       });
       void queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions(
-          'get',
-          '/api/student/qna/{qnaId}',
-          {
-            params: {
-              path: { qnaId: variables.qnaId },
-            },
-          }
-        ).queryKey,
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/{qnaId}', {
+          params: {
+            path: { qnaId: variables.qnaId },
+          },
+        }).queryKey,
       });
       options?.onSuccess?.(data);
     },
@@ -52,4 +47,3 @@ const usePutQna = (options?: Options) => {
 };
 
 export default usePutQna;
-

@@ -56,7 +56,9 @@ const OnboardingLayout = ({
       className='flex-1'
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}>
-      <View className='z-10 flex-row items-center justify-between bg-gray-100 px-[20px] pb-[14px]' style={{ paddingTop: inset.top + 14 }}>
+      <View
+        className='z-10 flex-row items-center justify-between bg-gray-100 px-[20px] pb-[14px]'
+        style={{ paddingTop: inset.top + 14 }}>
         {showBackButton ? (
           <AnimatedPressable
             accessibilityRole='button'
@@ -68,7 +70,9 @@ const OnboardingLayout = ({
           <View className='h-[36px] w-[36px]' />
         )}
         {skipLabel && onSkip ? (
-          <AnimatedPressable onPress={onSkip} className='h-[48px] items-center justify-center px-[10px]'>
+          <AnimatedPressable
+            onPress={onSkip}
+            className='h-[48px] items-center justify-center px-[10px]'>
             <Text className='text-14sb text-primary-600'>{skipLabel}</Text>
           </AnimatedPressable>
         ) : (
@@ -78,17 +82,18 @@ const OnboardingLayout = ({
       <Container className='flex-1 pt-[6px]'>
         {isScrollable ? (
           <ScrollView
-          className='flex-1 overflow-visible'
-          contentContainerStyle={{ paddingBottom: 32 }}
-          keyboardShouldPersistTaps='handled'>
-          <View className={description ? 'mb-[32px]' : 'mb-[20px]'}>
-            <Text className='text-20b text-gray-800'>{title}</Text>
-            {description ? (
-              <Text className='text-16r mt-[4px] text-gray-700'>{description}</Text>
-            ) : null}
-          </View>
-          <View className={contentClassName}>{children}</View>
-        </ScrollView>) : (
+            className='flex-1 overflow-visible'
+            contentContainerStyle={{ paddingBottom: 32 }}
+            keyboardShouldPersistTaps='handled'>
+            <View className={description ? 'mb-[32px]' : 'mb-[20px]'}>
+              <Text className='text-20b text-gray-800'>{title}</Text>
+              {description ? (
+                <Text className='text-16r mt-[4px] text-gray-700'>{description}</Text>
+              ) : null}
+            </View>
+            <View className={contentClassName}>{children}</View>
+          </ScrollView>
+        ) : (
           <View className='flex-1'>
             <View className={contentClassName}>{children}</View>
           </View>

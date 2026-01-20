@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container, NotificationItem } from '@components/common';
 import { ScreenLayout } from '../components';
-import { putReadNotice, useGetNotice } from '@/apis/controller/student/notice';
+import { putReadNotice, useGetNotice } from '@apis';
 import {
   useGetNotification,
   useGetNotificationCount,
@@ -13,7 +13,7 @@ import {
 } from '@/apis/controller/student/notification';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { TanstackQueryClient } from '@/apis/client';
+import { TanstackQueryClient } from '@apis';
 import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
 
 const formatDate = (dateString: string) => {

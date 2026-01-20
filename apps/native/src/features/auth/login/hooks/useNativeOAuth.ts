@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { login as kakaoLogin, logout as kakaoLogout } from '@react-native-kakao/user';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { postOauthNative, type OAuthNativeUser } from '@apis/student';
+import { postOauthNative, type OAuthNativeUser } from '@apis';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
@@ -40,21 +40,21 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
     await GoogleSignin.hasPlayServices();
     await GoogleSignin.signIn();
     const tokens = await GoogleSignin.getTokens();
-    
+
     if (!tokens.idToken) {
       throw new Error('Google ID token not found');
     }
-    
+
     return tokens.idToken;
   };
 
   const getKakaoToken = async (): Promise<string> => {
     const result = await kakaoLogin();
-    
+
     if (!result.accessToken) {
       throw new Error('Kakao access token not found');
     }
-    
+
     return result.accessToken;
   };
 
@@ -85,11 +85,7 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
   };
 
   const handleAuthSuccess = useCallback(
-    async (response: {
-      accessToken?: string;
-      refreshToken?: string;
-      user?: OAuthNativeUser;
-    }) => {
+    async (response: { accessToken?: string; refreshToken?: string; user?: OAuthNativeUser }) => {
       const { accessToken, refreshToken, user } = response;
 
       if (!accessToken) {
@@ -147,7 +143,7 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
         setState({ isLoading: false, error: null });
       } catch (error: any) {
         const errorMessage = error?.message ?? 'Unknown error occurred';
-        
+
         // Apple 로그인 취소는 에러로 처리하지 않음
         if (error?.code === 'ERR_REQUEST_CANCELED') {
           setState({ isLoading: false, error: null });

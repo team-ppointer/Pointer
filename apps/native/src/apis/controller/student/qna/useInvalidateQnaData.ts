@@ -8,6 +8,7 @@ const useInvalidateQnaData = () => {
   const invalidateQnaList = useCallback(() => {
     return queryClient.invalidateQueries({
       queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna', {}).queryKey,
+      refetchType: 'active',
     });
   }, [queryClient]);
 
@@ -19,6 +20,7 @@ const useInvalidateQnaData = () => {
             path: { qnaId },
           },
         }).queryKey,
+        refetchType: 'active',
       });
     },
     [queryClient]
@@ -46,6 +48,7 @@ const useInvalidateQnaData = () => {
   const invalidateQnaAdminChat = useCallback(() => {
     return queryClient.invalidateQueries({
       queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/admin-chat', {}).queryKey,
+      refetchType: 'active',
     });
   }, [queryClient]);
 

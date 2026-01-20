@@ -11,14 +11,14 @@ interface SearchResultsProps {
 }
 
 const SectionHeader = ({ title }: { title: string }) => (
-  <View className="px-[24px] pb-[12px] pt-[20px]">
-    <Text className="text-16sb text-gray-900">{title}</Text>
+  <View className='px-[24px] pb-[12px] pt-[20px]'>
+    <Text className='text-16sb text-gray-900'>{title}</Text>
   </View>
 );
 
 const EmptyState = () => (
-  <View className="flex-1 items-center justify-center py-[60px]">
-    <Text className="text-14r text-gray-600">검색 결과가 없습니다.</Text>
+  <View className='flex-1 items-center justify-center py-[60px]'>
+    <Text className='text-14r text-gray-600'>검색 결과가 없습니다.</Text>
   </View>
 );
 
@@ -35,11 +35,11 @@ const SearchResults = ({
   }
 
   return (
-    <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+    <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
       {/* Chat Rooms Section */}
       {chatRooms.length > 0 && (
         <>
-          <SectionHeader title="채팅방" />
+          <SectionHeader title='채팅방' />
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -58,7 +58,7 @@ const SearchResults = ({
       {/* Messages Section */}
       {messages.length > 0 && (
         <>
-          <SectionHeader title="메시지" />
+          <SectionHeader title='메시지' />
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -78,4 +78,3 @@ const SearchResults = ({
 };
 
 export default SearchResults;
-

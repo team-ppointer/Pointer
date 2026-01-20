@@ -3,10 +3,13 @@ import { EditScreenLayout } from '../../../components';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { useMemo, useState } from 'react';
-import { levelOptions } from '@/features/student/onboarding/constants';
-import OptionButton from '@/features/student/onboarding/components/OptionButton';
-import { showToast } from '@/features/student/scrap/components/Notification';
-import usePutMe from '@/apis/controller/student/me/putMe';
+import { levelOptions } from '@features/student/onboarding/constants';
+import OptionButton from '@features/student/onboarding/components/OptionButton';
+import { showToast } from '@features/student/scrap/components/Notification';
+import { usePutMe } from '@apis';
+import { MessageSquareWarningFilledIcon } from '@components/system/icons';
+import { InfoCard } from '@features/student/onboarding/components';
+import { colors } from '@theme/tokens';
 
 const EditScoreScreen = ({
   navigation,
@@ -48,7 +51,7 @@ const EditScoreScreen = ({
       description='가장 최근에 응시한 수능/모의고사 성적을 입력하면 실력을 더 정확히 파악할 수 있어요.'
       onPressCTA={handleSave}
       ctaDisabled={!level}>
-      <View>
+      <View className='mb-[32px] gap-[10px]'>
         {levelRows.map((row, rowIndex) => (
           <View key={`level-row-${rowIndex}`} className='flex-row gap-[10px]'>
             {row.map((option) => (
@@ -64,6 +67,13 @@ const EditScoreScreen = ({
           </View>
         ))}
       </View>
+      <InfoCard
+        icon={<MessageSquareWarningFilledIcon size={16} color={colors['primary-600']} />}
+        title='최근 공식 성적을 선택해 주세요.'
+        description={
+          '가장 최근에 본 공식 6, 9 모의고사 혹은 수능 성적을 입력해주는 것이 객관적 실력 파악에 가장 좋아요.\n그러나 6, 9 모의고사 혹은 수능 성적이 없는 학생은 자신의 내신 혹은 대략적인 성적을 선택해 주세요.'
+        }
+      />
     </EditScreenLayout>
   );
 };

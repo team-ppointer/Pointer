@@ -6,7 +6,9 @@ type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
 export type StudentTabParamList = {
   Home: undefined;
   Scrap: undefined;
-  Qna: undefined;
+  Qna: {
+    initialChatRoomId?: number;
+  } | undefined;
   AllMenu: undefined;
 };
 
@@ -30,7 +32,6 @@ export type StudentRootStackParamList = {
   // QnA screens
   ChatRoom: {
     chatRoomId: number;
-    isAdminChat?: boolean;
   };
   QnaSearch: undefined;
   Scrap: undefined;

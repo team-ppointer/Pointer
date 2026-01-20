@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { client } from '@/apis/client';
-import { paths } from '@/types/api/schema';
+import { paths } from '@schema';
 
 type UpdateScrapTextRequest =
   paths['/api/student/scrap/{scrapId}/textBox']['put']['requestBody']['content']['application/json'];

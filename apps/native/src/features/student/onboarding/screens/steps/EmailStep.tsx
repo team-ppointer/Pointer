@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Button } from 'react-native';
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
 import { useDebounce } from '@hooks';
 import useGetEmailExists from '@apis/controller/student/auth/useGetEmailExists';
+import { useAuthStore } from '@/stores';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -65,6 +67,9 @@ const EmailStep = ({ navigation }: OnboardingScreenProps<'Email'>) => {
         placeholder='pointer111@example.com'
         errorMessage={error ?? undefined}
       />
+      <Button title='[DEBUG] LOGOUT' onPress={() => {
+        useAuthStore.getState().signOut();
+      }} />
     </OnboardingLayout>
   );
 };

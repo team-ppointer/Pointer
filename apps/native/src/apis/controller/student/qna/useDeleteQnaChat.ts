@@ -22,23 +22,16 @@ const useDeleteQnaChat = (options?: Options) => {
     onSuccess: () => {
       if (options?.qnaId) {
         void queryClient.invalidateQueries({
-          queryKey: TanstackQueryClient.queryOptions(
-            'get',
-            '/api/student/qna/{qnaId}',
-            {
-              params: {
-                path: { qnaId: options.qnaId },
-              },
-            }
-          ).queryKey,
+          queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/{qnaId}', {
+            params: {
+              path: { qnaId: options.qnaId },
+            },
+          }).queryKey,
         });
       }
       void queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions(
-          'get',
-          '/api/student/qna/admin-chat',
-          {}
-        ).queryKey,
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/admin-chat', {})
+          .queryKey,
       });
       options?.onSuccess?.();
     },
@@ -49,4 +42,3 @@ const useDeleteQnaChat = (options?: Options) => {
 };
 
 export default useDeleteQnaChat;
-
