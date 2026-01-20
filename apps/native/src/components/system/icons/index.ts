@@ -26,7 +26,6 @@ import CircleCheckDashed from './CircleCheckDashed';
 import CircleXFilledIcon from './CircleXFilledIcon';
 import ScrapFolderDefalutIcon from './ScrapFolderDefaultIcon';
 import ScrapFolderStackIcon from './ScrapFolderStackIcon';
-import CircleXFilledIcon from './CircleXFilledIcon';
 
 export {
   AlertBellButtonIcon,
@@ -57,5 +56,4 @@ export {
   CircleXFilledIcon,
   ScrapFolderDefalutIcon,
   ScrapFolderStackIcon,
-  CircleXFilledIcon,
 };
