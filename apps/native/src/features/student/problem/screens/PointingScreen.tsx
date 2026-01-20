@@ -334,15 +334,6 @@ const PointingScreen = ({
           </Container>
         </View>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
-          <BottomActionBar.Button
-            animatedStyle={{ backgroundColor: scrapBgColor }}
-            onPress={handleTogglePointingScrap}>
-            <BookmarkIcon
-              size={22}
-              color={isPointingScraped ? colors['primary-500'] : colors['gray-700']}
-              fill={isPointingScraped ? colors['primary-500'] : 'transparent'}
-            />
-          </BottomActionBar.Button>
           {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
             <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
           </BottomActionBar.Button> */}
