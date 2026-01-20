@@ -21,7 +21,7 @@ export interface DraggableTabProps {
   onLayout: (event: any) => void;
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   tabLayouts: Record<number, { x: number; width: number }>;
-  scrollViewRef: React.RefObject<ScrollView>;
+  scrollViewRef: React.RefObject<ScrollView | null >;
   scrollX: SharedValue<number>;
   screenWidth: number;
 }

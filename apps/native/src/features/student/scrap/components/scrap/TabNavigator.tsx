@@ -23,7 +23,7 @@ export const TabNavigator = ({
   tabLayouts,
   onTabLayout,
 }: TabNavigatorProps) => {
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<ScrollView | null>(null);
   const scrollX = useSharedValue(0);
   const screenWidth = Dimensions.get('window').width;
 

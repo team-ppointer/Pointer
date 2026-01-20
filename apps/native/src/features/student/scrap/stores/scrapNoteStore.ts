@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 export type Note = {
   id: number;
+  folderId?: number | null;
   title: string;
 };
 
@@ -11,6 +12,7 @@ type NoteStore = {
 
   openNote: (note: Note) => void;
   closeNote: (noteId: number) => void;
+  closeNoteByFolderId: (folderId: number) => void;
   setActiveNote: (noteId: number) => void;
   reorderNotes: (fromIndex: number, toIndex: number) => void;
   updateNoteTitle: (noteId: number, title: string) => void;
@@ -44,6 +46,12 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       activeNoteId:
         noteId === activeNoteId ? (filtered[filtered.length - 1]?.id ?? null) : activeNoteId,
     });
+  },
+
+  closeNoteByFolderId: (folderId) => {  
+    const { openNotes } = get();
+    const filtered = openNotes.filter((n) => n.folderId !== folderId);
+    set({ openNotes: filtered, activeNoteId: filtered[filtered.length - 1]?.id ?? null });  
   },
 
   setActiveNote: (noteId) => {

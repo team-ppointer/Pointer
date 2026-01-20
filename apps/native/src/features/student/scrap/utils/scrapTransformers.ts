@@ -1,6 +1,6 @@
 import { components } from '@/types/api/schema';
 
-type ScrapExtendResp = components['schemas']['ScrapExtendResp'];
+type ScrapExtendResp = components['schemas']['ScrapDetailResp'];
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
 type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'];
 type ProblemWithStudyInfoResp = components['schemas']['ProblemWithStudyInfoResp'];
