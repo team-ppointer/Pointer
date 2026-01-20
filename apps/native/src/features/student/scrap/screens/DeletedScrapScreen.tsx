@@ -41,22 +41,18 @@ const DeletedScrapScreenContent = () => {
     return sortScrapData(itemsWithCreatedAt, sortKey, sortOrder);
   }, [trashItems, sortKey, sortOrder]);
 
-  const handlePermanentDelete = () => {
-      const items = reducerState.selectedItems;
-      permanentDelete({
+  const handlePermanentDelete = async () => {
+    const items = reducerState.selectedItems;
+    try {
+      await permanentDelete({
         items: items.map((item) => ({ id: item.id as number, type: item.type })),
-      },
-      {
-        onSuccess: () => {
-          dispatch({ type: 'CLEAR_SELECTION' });
-          setIsDeleteModalVisible(false);
-          showToast('success', '영구 삭제되었습니다.');
-        },
-        onError: (error: any) => {
-          showToast('error', error.message);
-        },
-      }
-    );
+      });
+      dispatch({ type: 'CLEAR_SELECTION' });
+      setIsDeleteModalVisible(false);
+      showToast('success', '영구 삭제되었습니다.');
+    } catch (error: any) {
+      showToast('error', error.message);
+    }
   };
 
   return (
@@ -79,21 +75,16 @@ const DeletedScrapScreenContent = () => {
             }
           },
           onRestore: async () => {
-              const items = reducerState.selectedItems;
-
+            const items = reducerState.selectedItems;
+            try {
               await restoreTrash({
                 items: items.map((item) => ({ id: item.id as number, type: item.type })),
-              },
-              {
-                onSuccess: () => {
-                  dispatch({ type: 'CLEAR_SELECTION' });
-                  showToast('success', '선택된 파일들이 복구되었습니다.');
-                },
-                onError: (error: any) => {
-                  showToast('error', error.message);
-                },
-              }
-            );
+              });
+              dispatch({ type: 'CLEAR_SELECTION' });
+              showToast('success', '선택된 파일들이 복구되었습니다.');
+            } catch (error: any) {
+              showToast('error', error.message);
+            }
           },
         }}
       />

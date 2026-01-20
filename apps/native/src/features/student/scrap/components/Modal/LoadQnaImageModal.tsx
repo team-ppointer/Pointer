@@ -16,7 +16,7 @@ interface LoadQnaImageModalProps {
 }
 
 export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageModalProps) => {
-  const { mutate: createScrapFromImage } = useCreateScrapFromImage();
+  const { mutateAsync: createScrapFromImage } = useCreateScrapFromImage();
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -43,27 +43,22 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   };
 
   // 선택된 이미지로 스크랩 생성 (AddItemTooltip과 동일한 로직)
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!selectedId) {
       showToast('error', '이미지를 선택해주세요.');
       return;
     }
 
-    createScrapFromImage(
-      {
-        imageId: selectedId,
-      },
-      {
-        onSuccess: () => {
-          showToast('success', '스크랩이 생성되었습니다.'); 
-          onSuccess?.();
-          onClose();
-        },  
-        onError: (error: any) => {
-          showToast('error', error.message);
-        },
-      }
-    );
+    try {
+    await createScrapFromImage({
+      imageId: selectedId,
+    });
+      showToast('success', '스크랩이 생성되었습니다.');
+      onClose();
+      onSuccess?.();
+    } catch (error: any) {
+      showToast('error', error.message);
+    }
   };
 
   useEffect(() => {

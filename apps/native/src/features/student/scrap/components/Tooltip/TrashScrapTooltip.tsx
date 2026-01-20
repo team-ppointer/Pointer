@@ -28,24 +28,20 @@ export const TrashScrapTooltip = ({ item, onClose, onDeletePress }: TrashScrapTo
   };
 
   const handleRestore = async () => {
-      restoreTrash({
+    try {
+      await restoreTrash({
         items: [
           {
             id: item.id,
             type: item.type as 'FOLDER' | 'SCRAP',
           },  
         ],
-      },
-      {
-        onSuccess: () => {
-          showToast('success', '선택된 파일이 복구되었습니다.');
-          onClose?.();
-        },
-        onError: (error: any) => {
-          showToast('error', error.message);
-        },
-      } 
-    );
+      });
+      showToast('success', '선택된 파일이 복구되었습니다.');
+      onClose?.();
+  } catch (error: any) {
+    showToast('error', error.message);
+  }
   }
 
   return (

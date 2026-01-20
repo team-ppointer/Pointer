@@ -23,7 +23,7 @@ export const AddScrapTooltip = ({
   onOpenQnaImgModal,
   onOpenFolderModal,
 }: AddScrapTooltipProps) => {
-  const { mutate: createScrapFromImage } = useCreateScrapFromImage();
+  const { mutateAsync: createScrapFromImage } = useCreateScrapFromImage();
   const { mutateAsync: uploadFile } = useUploadFile();
 
   // 이미지 선택 및 업로드 처리
@@ -31,27 +31,19 @@ export const AddScrapTooltip = ({
     if (!image || !image.uri) {
       return;
     }
-
+  
     try {
       const fileName = image.fileName || `${Date.now()}.jpg`;
       const files = await uploadFile([
         { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
       ]);
-
-      createScrapFromImage(
-        { imageId: files[0].id },
-        {
-          onSuccess: () => {
-            showToast('success', '스크랩이 생성되었습니다.');
-            onClose?.();
-          },
-          onError: (error) => {
-            console.error('스크랩 생성 실패:', error);
-          },
-        }
-      );
+  
+      await createScrapFromImage({ imageId: files[0].id });
+      
+      showToast('success', '스크랩이 생성되었습니다.');
+      onClose?.();
     } catch (error) {
-      showToast('error', (error as any).message);
+      showToast('error', (error as any).message || '스크랩 생성에 실패했습니다.');
     }
   };
 
@@ -69,7 +61,6 @@ export const AddScrapTooltip = ({
     }
   };
 
-  // onPressGallery 함수 간소화
   const onPressGallery = async () => {
     const image = await openImageLibraryWithErrorHandling((error) => {
       if (error.message?.includes('permission')) {

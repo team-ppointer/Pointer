@@ -28,7 +28,7 @@ export const MoveScrapModal = () => {
   });
 
   const { data: foldersData, refetch: refetchFolders } = useGetFolders();
-  const { mutateAsync: moveScraps } = useMoveScraps();
+  const { mutate: moveScraps } = useMoveScraps();
 
   // refetchFolders를 context에 등록
   useEffect(() => {
