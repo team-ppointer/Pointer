@@ -54,6 +54,7 @@ import {
 import { showToast } from '../components/Notification/Toast';
 import { withScrapModals } from '../hoc/withScrapModals';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
+import { useRecentScrapStore } from '../stores/recentScrapStore';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
@@ -73,11 +74,19 @@ const ScrapDetailScreen = () => {
     isLoading,
     refetch: refetchScrapDetail,
   } = useGetScrapDetail(scrapId, !!id);
+  const addScrap = useRecentScrapStore((state) => state.addScrap);
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes, updateNoteTitle } =
     useNoteStore();
 
+
   const [scrapName, setScrapName] = useState(scrapDetail?.name || '');
+
+  React.useEffect(() => {
+    if (scrapDetail) {
+      addScrap(scrapDetail);
+    }
+  }, [scrapDetail, addScrap]);
 
   // scrapDetail이 로드되면 scrapName 동기화
   useEffect(() => {

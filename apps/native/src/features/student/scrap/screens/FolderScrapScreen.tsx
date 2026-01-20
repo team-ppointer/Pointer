@@ -103,27 +103,23 @@ const FolderScrapScreenContent = () => {
               });
               dispatch({ type: 'CLEAR_SELECTION' });
             },
-            onDelete: () => {
+            onDelete: async () => {
               if (reducerState.selectedItems.length === 0) {
                 showToast('error', '삭제할 항목을 선택해주세요.');
                 return;
               }
               const items = reducerState.selectedItems;
 
-                deleteScrap({
+              try {
+                await deleteScrap({
                   items: items.map((item) => ({ id: item.id as number, type: item.type })),
-                },
-                {
-                  onSuccess: () => {
-                    dispatch({ type: 'CLEAR_SELECTION' });
-                    cleanupAfterDelete(items);
-                    showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-                  },
-                  onError: (error: any) => {
-                    showToast('error', error.message);
-                  },
-                }
-              );
+                });
+                dispatch({ type: 'CLEAR_SELECTION' });
+                cleanupAfterDelete(items);
+                showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
+              } catch (error: any) {
+                showToast('error', error.message);
+              }
             },
           }}
         />

@@ -15,14 +15,12 @@ type RecentScrapCardProps = {
 export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
-  const addScrap = useRecentScrapStore((state) => state.addScrap);
   const [isHovered, setIsHovered] = React.useState(false);
 
   return (
     <Pressable
       onPress={() => {
         openNote({ id: scrap.id, title: scrap.name ?? '' });
-        addScrap(scrap.id, scrap.folder?.id);
         navigation.push('ScrapContentDetail', { id: scrap.id });
       }}
       onHoverIn={() => setIsHovered(true)}

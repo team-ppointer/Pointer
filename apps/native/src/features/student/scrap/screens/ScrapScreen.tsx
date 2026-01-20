@@ -2,16 +2,17 @@ import { Container, LoadingScreen } from '@/components/common';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ImageBackground } from 'react-native';
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
 import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { sortScrapData, mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
+import { useQueryClient } from '@tanstack/react-query';
 import type { UISortKey, SortOrder, ScrapSearchResponse } from '../utils/types';
 import { showToast } from '../components/Notification/Toast';
-import { useSearchScraps, useDeleteScrap } from '@/apis';
+import { useSearchScraps, useDeleteScrap, client } from '@/apis';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { useQueries } from '@tanstack/react-query';
 import { TanstackQueryClient } from '@/apis';
@@ -27,9 +28,10 @@ const ScrapScreenContent = () => {
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-  const recentScraps = useRecentScrapStore((state) => state.scrapIds);
+  const recentScraps = useRecentScrapStore((state) => state.scraps);
   const { openMoveScrapModal, setRefetchScraps } = useScrapModal();
 
+  const queryClient = useQueryClient();
   const {
     data: searchData,
     isLoading,
@@ -38,47 +40,28 @@ const ScrapScreenContent = () => {
     sort: mapUIKeyToAPIKey(sortKey),
     order: sortOrder,
   });
+
   const { mutateAsync: deleteScrap } = useDeleteScrap();
   const removeScrap = useRecentScrapStore((state) => state.removeScrap);
-  const removeScrapsByFolderId = useRecentScrapStore((state) => state.removeScrapsByFolderId);
+  const removeScrapsByIds = useRecentScrapStore((state) => state.removeScrapsByIds);
   const closeNote = useNoteStore((state) => state.closeNote);
+  const closeNotesByScrapIds = useNoteStore((state) => state.closeNotesByScrapIds);
 
   // refetch를 context에 등록
   React.useEffect(() => {
     if (refetch) {
-      setRefetchScraps(() => refetch);
+      setRefetchScraps(refetch);
     }
   }, [refetch, setRefetchScraps]);
-
-  const recentScrapsQueries = useQueries({
-    queries:
-      recentScraps.length > 0
-        ? recentScraps.map((scrapId) => ({
-            ...TanstackQueryClient.queryOptions('get', '/api/student/scrap/{id}', {
-              params: {
-                path: { id: scrapId },
-              },
-            }),
-            enabled: scrapId > 0 && recentScraps.length > 0,
-          }))
-        : [],
-  });
 
   const recentScrapsData = useMemo(() => {
     if (recentScraps.length === 0) return [];
 
-    return recentScrapsQueries
-      .map((query) => {
-        const scrapDetail = query.data;
-        if (!scrapDetail) return null;
-
-        return {
-          ...scrapDetail,
-          type: 'SCRAP' as const,
-        };
-      })
-      .filter((scrap): scrap is NonNullable<typeof scrap> => scrap !== null);
-  }, [recentScrapsQueries, recentScraps.length]);
+    return recentScraps.map((item) => ({
+      ...item.scrapDetail,
+      type: 'SCRAP' as const,
+    }));
+  }, [recentScraps]);
 
   // ScrapSearchResponse는 folders와 scraps를 각각 반환하므로 합쳐야 함
   const data = useMemo(() => {
@@ -98,15 +81,11 @@ const ScrapScreenContent = () => {
     [data, sortKey, sortOrder]
   );
 
-  const cleanupAfterDelete = (items: SelectedItem[]) => {
-    items.forEach((item) => {
-      if (item.type === 'SCRAP') {
-        removeScrap(item.id);
-        closeNote(item.id);
-      } else if (item.type === 'FOLDER' && item.id !== undefined) {
-        removeScrapsByFolderId(item.id);  
-      }
-    });
+  const cleanupAfterDelete = (scrapIdsToRemove: number[]) => {
+    if (scrapIdsToRemove.length > 0) {
+      removeScrapsByIds(scrapIdsToRemove);
+      closeNotesByScrapIds(scrapIdsToRemove);
+    }
   };
 
   const isAllSelected = data.length > 0 && reducerState.selectedItems.length === data.length;
@@ -145,23 +124,49 @@ const ScrapScreenContent = () => {
                 return;
               }
 
-                const items = reducerState.selectedItems;
+              const items = reducerState.selectedItems;
+              const scrapIdsToRemove: number[] = [];
 
-                deleteScrap(
-                  {
-                    items: items.map((item) => ({ id: item.id as number, type: item.type })),
-                  },
-                  {
-                    onSuccess: () => {
-                      showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.'); 
-                      dispatch({ type: 'CLEAR_SELECTION' });
-                      cleanupAfterDelete(items);
-                    },
-                    onError: (error: any) => {
-                      showToast('error', error.message);
-                    },  
+              // 삭제 전에 폴더 내 스크랩 ID 목록을 미리 수집
+              for (const item of items) {
+                if (item.type === 'SCRAP') {
+                  scrapIdsToRemove.push(item.id as number);
+                } else if (item.type === 'FOLDER' && item.id !== undefined) {
+                  try {
+                    const folderScrapsData = await queryClient.fetchQuery(
+                      TanstackQueryClient.queryOptions(
+                        'get',
+                        '/api/student/scrap/folder/{folderId}/scraps',
+                        {
+                          params: {
+                            path: { folderId: item.id },
+                          },
+                        }
+                      )
+                    );
+
+                    const folderScrapIds =
+                      folderScrapsData?.data
+                        ?.filter((d: any) => d.type === 'SCRAP')
+                        .map((d: any) => d.id) || [];
+
+                    scrapIdsToRemove.push(...folderScrapIds);
+                  } catch (error: any) {
+                    showToast('error', error.message);
                   }
-                );  
+                }
+              }
+
+              try {
+                await deleteScrap({
+                  items: items.map((item) => ({ id: item.id as number, type: item.type })),
+                });
+                dispatch({ type: 'CLEAR_SELECTION' });
+                cleanupAfterDelete(scrapIdsToRemove);
+                showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
+              } catch (error: any) {
+                showToast('error', error.message);
+              }
             },
           }}
         />

@@ -133,7 +133,6 @@ export const ScrapCard = (props: ScrapListItemProps) => {
             navigation.push('ScrapContent', { id: props.id });
           } else if (props.type === 'SCRAP') {
             openNote({ id: props.id, title: props.name });
-            addScrap(props.id, folderId);
             navigation.push('ScrapContentDetail', { id: props.id });
           }
         }}>
