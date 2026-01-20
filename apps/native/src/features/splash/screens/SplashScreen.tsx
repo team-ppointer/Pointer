@@ -41,7 +41,7 @@ export const CustomSplashScreen = ({ isAppReady, onAnimationFinish }: Props) => 
 
   return (
     <Animated.View className='flex-1 items-center justify-center bg-gray-100 gap-[20px]'>
-      <Text className='text-16r text-gray-700'>문제를 접근하고{'\n'}생각하는 방식을 바꾸는</Text>
+      <Text className='text-16r text-gray-700 text-center'>문제를 접근하고{'\n'}생각하는 방식을 바꾸는</Text>
       <PointerLogo />
       <View className='h-[50px]' />
     </Animated.View>
