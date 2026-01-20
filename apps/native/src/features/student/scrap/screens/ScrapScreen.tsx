@@ -27,9 +27,7 @@ const ScrapScreenContent = () => {
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-  const recentScraps = useRecentScrapStore((state) => state.scraps);
-  const recentScrapIds = useMemo(() => recentScraps.map((item) => item.scrapId), [recentScraps]);
-
+  const recentScraps = useRecentScrapStore((state) => state.scrapIds);
   const { openMoveScrapModal, setRefetchScraps } = useScrapModal();
 
   const {
@@ -44,36 +42,30 @@ const ScrapScreenContent = () => {
   const removeScrap = useRecentScrapStore((state) => state.removeScrap);
   const removeScrapsByFolderId = useRecentScrapStore((state) => state.removeScrapsByFolderId);
   const closeNote = useNoteStore((state) => state.closeNote);
-  const closeNoteByFolderId = useNoteStore((state) => state.closeNoteByFolderId);
 
   // refetch를 context에 등록
   React.useEffect(() => {
     if (refetch) {
-      setRefetchScraps(refetch);
+      setRefetchScraps(() => refetch);
     }
-  }, [refetch]);
+  }, [refetch, setRefetchScraps]);
 
-  const queriesConfig = useMemo(
-    () => ({
-      queries:
-        recentScrapIds.length > 0
-          ? recentScrapIds.map((scrapId) => ({
-              ...TanstackQueryClient.queryOptions('get', '/api/student/scrap/{id}', {
-                params: {
-                  path: { id: scrapId },
-                },
-              }),
-              enabled: scrapId > 0 && recentScrapIds.length > 0,
-            }))
-          : [],
-    }),
-    [recentScrapIds]
-  );
-
-  const recentScrapsQueries = useQueries(queriesConfig);
+  const recentScrapsQueries = useQueries({
+    queries:
+      recentScraps.length > 0
+        ? recentScraps.map((scrapId) => ({
+            ...TanstackQueryClient.queryOptions('get', '/api/student/scrap/{id}', {
+              params: {
+                path: { id: scrapId },
+              },
+            }),
+            enabled: scrapId > 0 && recentScraps.length > 0,
+          }))
+        : [],
+  });
 
   const recentScrapsData = useMemo(() => {
-    if (recentScrapIds.length === 0) return [];
+    if (recentScraps.length === 0) return [];
 
     return recentScrapsQueries
       .map((query) => {
@@ -86,7 +78,7 @@ const ScrapScreenContent = () => {
         };
       })
       .filter((scrap): scrap is NonNullable<typeof scrap> => scrap !== null);
-  }, [recentScrapsQueries, recentScrapIds]);
+  }, [recentScrapsQueries, recentScraps.length]);
 
   // ScrapSearchResponse는 folders와 scraps를 각각 반환하므로 합쳐야 함
   const data = useMemo(() => {
@@ -112,8 +104,7 @@ const ScrapScreenContent = () => {
         removeScrap(item.id);
         closeNote(item.id);
       } else if (item.type === 'FOLDER' && item.id !== undefined) {
-        closeNoteByFolderId(item.id);
-        removeScrapsByFolderId(item.id);
+        removeScrapsByFolderId(item.id);  
       }
     });
   };

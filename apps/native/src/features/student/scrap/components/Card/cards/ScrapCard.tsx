@@ -28,7 +28,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const addScrap = useRecentScrapStore((state) => state.addScrap);
   const { openMoveScrapModal } = useScrapModal();
 
-  const folderId = props.type === 'SCRAP' && props.folderId !== null ? props.folderId : undefined;
+  const folderId = props.type === 'SCRAP' ? props.folderId : undefined;
 
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
   const { imageSources, isDiagonalLayout } = useCardImageSources(
@@ -132,7 +132,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
           if (props.type === 'FOLDER') {
             navigation.push('ScrapContent', { id: props.id });
           } else if (props.type === 'SCRAP') {
-            openNote({ id: props.id, title: props.name, folderId: folderId });
+            openNote({ id: props.id, title: props.name });
             addScrap(props.id, folderId);
             navigation.push('ScrapContentDetail', { id: props.id });
           }

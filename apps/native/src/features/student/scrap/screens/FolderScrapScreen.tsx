@@ -18,7 +18,6 @@ import { withScrapModals } from '../hoc';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { useNoteStore } from '../stores/scrapNoteStore';
 import { SelectedItem } from '../utils/reducer';
-import React from 'react';
 
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -40,12 +39,11 @@ const FolderScrapScreenContent = () => {
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // refetch를 context에 등록
-  React.useEffect(() => {
+  useEffect(() => {
     if (refetch) {
-      setRefetchScraps(refetch);
+      setRefetchScraps(() => refetch);
     }
-  }, [refetch]);
-  
+  }, [refetch, setRefetchScraps]);
   useEffect(() => {
     if (refetchFolders) {
       setRefetchFolders(refetchFolders);
