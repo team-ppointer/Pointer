@@ -28,7 +28,7 @@ export const MoveScrapModal = () => {
   });
 
   const { data: foldersData, refetch: refetchFolders } = useGetFolders();
-  const { mutateAsync: moveScraps } = useMoveScraps();
+  const { mutate: moveScraps } = useMoveScraps();
 
   // refetchFolders를 context에 등록
   useEffect(() => {
@@ -93,7 +93,7 @@ export const MoveScrapModal = () => {
   );
 
   // 이동 실행
-  const handleMove = async () => {
+  const handleMove = () => {
     // 선택된 폴더가 없으면 에러 (undefined는 전체 스크랩으로 이동하는 유효한 선택)
     const hasSelectedFolder = folderSelectionState.selectedItems.some(
       (item) => item.type === 'FOLDER'
@@ -112,21 +112,24 @@ export const MoveScrapModal = () => {
       return;
     }
 
-    try {
-      await moveScraps({
+      moveScraps({
         scrapIds: scrapsToMove.map((item) => item.id),
         targetFolderId: selectedFolderId,
-      });
-
-      showToast('success', `${folderName}으로 이동 완료`);
-      dispatch({ type: 'CLEAR_SELECTION' });
-      refetchFolders?.();
-      refetchScraps?.();
-      refetchScrapDetail?.();
-      closeMoveScrapModal();
-    } catch (error) {
-      showToast('error', '이동 중 오류가 발생했습니다.');
-    }
+      },
+      {
+        onSuccess: () => {
+          showToast('success', `${folderName}으로 이동 완료`);
+          dispatch({ type: 'CLEAR_SELECTION' });
+          refetchFolders?.();
+          refetchScraps?.();
+          refetchScrapDetail?.();
+          closeMoveScrapModal();
+        },
+        onError: (error: any) => {
+          showToast('error', error.message);
+        },
+      }
+    );
   };
 
   const folderName =

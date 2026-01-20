@@ -14,6 +14,7 @@ export const CreateFolderModal = () => {
     useScrapModal();
   const [folderName, setFolderName] = useState('');
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [imageId, setImageId] = useState<number | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const { mutateAsync: createFolder } = useCreateFolder();
   const { mutateAsync: uploadFile } = useUploadFile();
@@ -41,11 +42,24 @@ export const CreateFolderModal = () => {
     }
   };
 
-  const handleCreate = async () => {
-    if (isCreating) {
-      return;
+  const handleUploadImage = async (): Promise<number | null> => {
+    // 이미지가 있는 경우 먼저 업로드
+    if (selectedImage) {
+      const fileName = selectedImage.fileName || `${Date.now()}.jpg`;
+      try {
+        const files = await uploadFile([
+          { uri: selectedImage.uri, name: fileName, type: selectedImage.mimeType || 'image/jpeg' },
+        ]);
+        return files[0].id;
+      } catch (error: any) {
+        showToast('error', error.message);
+        throw error; // 에러를 다시 throw하여 상위에서 처리 가능하도록
+      }
     }
+    return null;
+  };
 
+  const handleCreateFolder = async () => {
     if (!folderName.trim()) {
       showToast('error', '폴더 이름을 입력해주세요.');
       return;
@@ -54,42 +68,32 @@ export const CreateFolderModal = () => {
     setIsCreating(true);
 
     try {
-      let thumbnailImageId: number | undefined;
+      // 이미지 업로드가 완료될 때까지 대기
+      const uploadedImageId = await handleUploadImage();
 
-      // 이미지가 있는 경우 먼저 업로드
-      if (selectedImage) {
-        const fileName = selectedImage.fileName || `${Date.now()}.jpg`;
-        const files = await uploadFile([
-          { uri: selectedImage.uri, name: fileName, type: selectedImage.mimeType || 'image/jpeg' },
-        ]);
-        thumbnailImageId = files[0].id;
-      }
-
+      // 폴더 생성
       await createFolder({
         name: folderName,
-        thumbnailImageId,
+        thumbnailImageId: uploadedImageId ?? undefined,
       });
 
-      closeCreateFolderModal();
       showToast('success', '폴더가 추가되었습니다.');
+      closeCreateFolderModal();
       refetchFolders?.();
       refetchScraps?.();
-    } catch (error) {
-      showToast('error', '폴더 추가에 실패했습니다.');
+      
+    } catch (error: any) {
+      showToast('error', error.message);
     } finally {
       setIsCreating(false);
     }
   };
 
-  const handleCancel = () => {
-    closeCreateFolderModal();
-  };
-
   return (
     <AddFolderScreenModal
       visible={isCreateFolderModalVisible}
-      onCancel={handleCancel}
-      onClose={handleCreate}>
+      onCancel={closeCreateFolderModal}
+      onClose={handleCreateFolder}>
       <KeyboardAvoidingView
         className='flex-1'
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -97,13 +101,14 @@ export const CreateFolderModal = () => {
         <View className='flex-1 items-center gap-[18px] p-[20px] pt-[80px]'>
           <View className='w-[320px] items-center gap-[20px] md:w-[424px]'>
             <Pressable className='min-w-[136px] items-center p-[10px]' onPress={onPressGallery}>
-              {selectedImage ? (
+              {selectedImage && (
                 <Image
                   source={{ uri: selectedImage.uri }}
                   className='h-[136px] w-[136px] rounded-[8px]'
                   resizeMode='cover'
                 />
-              ) : (
+              )}
+              {!selectedImage && (
                 <View className='bg-primary-500 h-[80px] w-[80px] items-center justify-center rounded-[10px] p-[10px]'>
                   <ImageIcon size={48} color={'#fff'} />
                 </View>

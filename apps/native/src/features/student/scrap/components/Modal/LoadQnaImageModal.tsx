@@ -7,6 +7,7 @@ import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
 import { SortOrder, UISortKey } from '../../utils/types';
 import { SortDropdown } from '../Dropdown';
 import { colors } from '@/theme/tokens';
+import { showToast } from '../Notification/Toast';
 
 interface LoadQnaImageModalProps {
   visible: boolean;
@@ -15,7 +16,7 @@ interface LoadQnaImageModalProps {
 }
 
 export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageModalProps) => {
-  const { mutate: createScrapFromImage } = useCreateScrapFromImage();
+  const { mutateAsync: createScrapFromImage } = useCreateScrapFromImage();
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -42,28 +43,22 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   };
 
   // 선택된 이미지로 스크랩 생성 (AddItemTooltip과 동일한 로직)
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!selectedId) {
-      Alert.alert('알림', '이미지를 선택해주세요.');
+      showToast('error', '이미지를 선택해주세요.');
       return;
     }
 
-    createScrapFromImage(
-      {
-        imageId: selectedId,
-      },
-      {
-        onSuccess: () => {
-          Alert.alert('성공', '스크랩이 생성되었습니다.');
-          onSuccess?.();
-          onClose();
-        },
-        onError: (error) => {
-          console.error('스크랩 생성 실패:', error);
-          Alert.alert('오류', '스크랩 생성에 실패했습니다.');
-        },
-      }
-    );
+    try {
+    await createScrapFromImage({
+      imageId: selectedId,
+    });
+      showToast('success', '스크랩이 생성되었습니다.');
+      onClose();
+      onSuccess?.();
+    } catch (error: any) {
+      showToast('error', error.message);
+    }
   };
 
   useEffect(() => {

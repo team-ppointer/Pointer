@@ -34,15 +34,15 @@ export const TrashScrapTooltip = ({ item, onClose, onDeletePress }: TrashScrapTo
           {
             id: item.id,
             type: item.type as 'FOLDER' | 'SCRAP',
-          },
+          },  
         ],
-      } as any);
-      onClose?.();
+      });
       showToast('success', '선택된 파일이 복구되었습니다.');
-    } catch (error) {
-      showToast('error', '복구 중 오류가 발생했습니다.');
-    }
-  };
+      onClose?.();
+  } catch (error: any) {
+    showToast('error', error.message);
+  }
+  }
 
   return (
     <TooltipContainer height='h-[88px]'>

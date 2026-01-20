@@ -24,6 +24,7 @@ import {
   useGetScrapDetail,
   useGetFolders,
   useUploadFile,
+  useGetScrapsByFolder,
 } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import {
@@ -50,15 +51,19 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
 
   const openNote = useNoteStore((state) => state.openNote);
   const closeNote = useNoteStore((state) => state.closeNote);
-  const closeNoteByFolderId = useNoteStore((state) => state.closeNoteByFolderId);
   const removeScrap = useRecentScrapStore((state) => state.removeScrap);
-  const removeScrapsByFolderId = useRecentScrapStore((state) => state.removeScrapsByFolderId);
+  const closeNotesByScrapIds = useNoteStore((state) => state.closeNotesByScrapIds);
 
   // API hooks
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
   const { mutateAsync: updateFolderName } = useUpdateFolderName();
   const { mutateAsync: updateFolderThumbnail } = useUpdateFolderThumbnail();
   const { mutateAsync: deleteScrap } = useDeleteScrap();
+  const removeScrapsByScrapIds = useRecentScrapStore((state) => state.removeScrapsByIds);
+  const { data: folderScrapsData } = useGetScrapsByFolder(
+    Number(props.id),
+    props.type === 'FOLDER'
+  );
 
   // 스크랩 상세 정보 가져오기 (필요한 경우)
   const { data: scrapDetail } = useGetScrapDetail(Number(props.id), props.type === 'SCRAP');
@@ -75,22 +80,21 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
       return;
     }
 
+    const fileName = image.fileName || `${Date.now()}.jpg`;
+    const files = await uploadFile([
+      { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
+    ]);
     try {
-      const fileName = image.fileName || `${Date.now()}.jpg`;
-      const files = await uploadFile([
-        { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
-      ]);
-
-      await updateFolderThumbnail({
+      updateFolderThumbnail({
         id: props.id,
         request: {
           thumbnailImageId: files[0].id,
         },
       });
       showToast('success', '표지가 변경되었습니다.');
-      handleClose();
-    } catch (error) {
-      showToast('error', '이미지 업로드에 실패했습니다.');
+      handleClose?.();
+    } catch (error: any) {
+      showToast('error', error.message);
     }
   };
 
@@ -105,7 +109,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
     });
 
     if (image) {
-      await handleUpdateFolderCover(image);
+      handleUpdateFolderCover(image);
     }
   };
 
@@ -140,15 +144,21 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
     }, 100);
   };
 
-  const cleanupAfterDelete = (id: number) => {
-    removeScrap(id);
-    closeNote(id);
-    if (props.type === 'FOLDER') {
-      closeNoteByFolderId(id);
-      removeScrapsByFolderId(id);
-    }
-    invalidateScrapSearchQueries;
+  const cleanupAfterDelete = async (id: number) => {
+    if (props.type === 'SCRAP') {
+      removeScrap(id);
+      closeNote(id);
+    } else if (props.type === 'FOLDER') {
+      // 폴더 삭제 시: 폴더 내 스크랩 ID 목록을 가져와서 노트 닫기
+      const folderScrapIds =
+        folderScrapsData?.data?.filter((item) => item.type === 'SCRAP').map((item) => item.id) ||
+        [];
 
+      if (folderScrapIds.length > 0) {
+        closeNotesByScrapIds(folderScrapIds);
+        removeScrapsByScrapIds(folderScrapIds);
+      }
+    }
   };
 
   const handleDelete = async () => {
@@ -156,18 +166,14 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
 
     try {
       await deleteScrap({
-        items: [
-          {
-            id: props.id,
-            type: props.type as 'FOLDER' | 'SCRAP',
-          },
-        ],
+        items: [{ id: props.id, type: props.type as 'FOLDER' | 'SCRAP' }],
       });
-      cleanupAfterDelete(props.id);
-
       showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
+      cleanupAfterDelete(props.id);
     } catch (error: any) {
       showToast('error', '삭제 중 오류가 발생했습니다.');
+    } finally {
+      handleClose?.();
     }
   };
 
@@ -191,17 +197,19 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
                       id: props.id,
                       request: { name: trimmedText },
                     });
+                    showToast('success', '폴더 이름이 변경되었습니다.');
                   } else {
                     await updateScrapName({
                       scrapId: props.id,
                       request: { name: trimmedText },
                     });
+                    showToast('success', '스크랩 이름이 변경되었습니다.');
                   }
-                  showToast('success', '이름이 변경되었습니다.');
-                } catch (error) {
-                  showToast('error', '이름 변경에 실패했습니다.');
-                  setText(initialTitle);
+                } catch (error: any) {
+                  showToast('error', error.message);
                 }
+              } else {
+                setText(initialTitle);
               }
             }}
           />
