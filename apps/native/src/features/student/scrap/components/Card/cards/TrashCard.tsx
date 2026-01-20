@@ -1,7 +1,7 @@
 import { Pressable, View, Text } from 'react-native';
 import React, { useState } from 'react';
 import { Check } from 'lucide-react-native';
-import { ChevronDownFilledIcon } from '@/components/system/icons';
+import { ChevronDownFilledIcon, ScrapFolderDeafultIcon, ScrapScrapDefalutIcon } from '@/components/system/icons';
 import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
 import { ConfirmationModal, PopUpModal } from '../../Dialog';
 import { showToast } from '../../Notification/Toast';
@@ -36,6 +36,24 @@ export const TrashCard = (props: TrashListItemProps) => {
     }
   };
 
+  const renderFallback = () => {
+    if (props.type === 'FOLDER') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapFolderDeafultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      )  
+    }
+    else if (props.type === 'SCRAP') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapScrapDefalutIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      )  
+    }
+    return <View className='aspect-square w-full rounded-[10px] bg-blue-200' />;
+  };
+
   const cardContent = (
     <View className='w-full items-center rounded-[10px] p-[10px]'>
       <View className='gap-3'>
@@ -49,7 +67,7 @@ export const TrashCard = (props: TrashListItemProps) => {
             resizeMode='cover'
             uniqueId={`${props.type}-${props.id}`}
             isDiagonalLayout={isDiagonalLayout}
-            fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
+            fallback={renderFallback()}
           />
           {state.isSelecting && (
             <Pressable

@@ -25,7 +25,7 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
   const { openCreateFolderModal } = useScrapModal();
 
   const addItemContent = (
-    <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
+    <View className='h-full w-full items-center rounded-[10px]'>
       <View className='gap-3'>
         <View className='aspect-square w-full items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-gray-600 p-[44px]'>
           <Plus size={24} color={colors['gray-600']} />

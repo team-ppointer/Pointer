@@ -2,7 +2,6 @@ import { create } from 'zustand';
 
 export type Note = {
   id: number;
-  folderId?: number | null;
   title: string;
 };
 
@@ -12,7 +11,7 @@ type NoteStore = {
 
   openNote: (note: Note) => void;
   closeNote: (noteId: number) => void;
-  closeNoteByFolderId: (folderId: number) => void;
+  closeNotesByScrapIds: (scrapIds: number[]) => void;
   setActiveNote: (noteId: number) => void;
   reorderNotes: (fromIndex: number, toIndex: number) => void;
   updateNoteTitle: (noteId: number, title: string) => void;
@@ -48,10 +47,18 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     });
   },
 
-  closeNoteByFolderId: (folderId) => {  
-    const { openNotes } = get();
-    const filtered = openNotes.filter((n) => n.folderId !== folderId);
-    set({ openNotes: filtered, activeNoteId: filtered[filtered.length - 1]?.id ?? null });  
+  closeNotesByScrapIds: (scrapIds) => {
+    const { openNotes, activeNoteId } = get();
+    const scrapIdsSet = new Set(scrapIds);
+    const filtered = openNotes.filter((n) => !scrapIdsSet.has(n.id));
+
+    set({
+      openNotes: filtered,
+      activeNoteId:
+        activeNoteId && scrapIdsSet.has(activeNoteId)
+          ? (filtered[filtered.length - 1]?.id ?? null)
+          : activeNoteId,
+    });
   },
 
   setActiveNote: (noteId) => {

@@ -69,7 +69,6 @@ const EditSchoolScreen = ({
       title='현재 재학중인 학교명을 입력해 주세요.'
       description='학교를 입력해 맞춤형 문제를 제공받아요.'
       onPressCTA={handleSave}
-      ctaDisabled={!schoolId}
       skipLabel='건너뛰기'
       onSkip={handleSkip}>
       <View>

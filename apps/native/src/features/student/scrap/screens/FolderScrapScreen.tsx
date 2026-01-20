@@ -18,7 +18,6 @@ import { withScrapModals } from '../hoc';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { useNoteStore } from '../stores/scrapNoteStore';
 import { SelectedItem } from '../utils/reducer';
-import React from 'react';
 
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -40,12 +39,11 @@ const FolderScrapScreenContent = () => {
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // refetch를 context에 등록
-  React.useEffect(() => {
+  useEffect(() => {
     if (refetch) {
-      setRefetchScraps(refetch);
+      setRefetchScraps(() => refetch);
     }
-  }, [refetch]);
-  
+  }, [refetch, setRefetchScraps]);
   useEffect(() => {
     if (refetchFolders) {
       setRefetchFolders(refetchFolders);
@@ -110,19 +108,17 @@ const FolderScrapScreenContent = () => {
                 showToast('error', '삭제할 항목을 선택해주세요.');
                 return;
               }
-
-              dispatch({ type: 'CLEAR_SELECTION' });
+              const items = reducerState.selectedItems;
 
               try {
-                const items = reducerState.selectedItems;
-
                 await deleteScrap({
                   items: items.map((item) => ({ id: item.id as number, type: item.type })),
                 });
+                dispatch({ type: 'CLEAR_SELECTION' });
                 cleanupAfterDelete(items);
                 showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
               } catch (error: any) {
-                showToast('error', '삭제 중 오류가 발생했습니다.');
+                showToast('error', error.message);
               }
             },
           }}
