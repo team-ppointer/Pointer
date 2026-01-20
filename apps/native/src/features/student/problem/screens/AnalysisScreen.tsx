@@ -9,7 +9,12 @@ import { colors, shadow } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
+import {
+  useGetScrapStatusById,
+  useToggleScrapFromProblem,
+  useToggleScrapFromReadingTip,
+  useToggleScrapFromOneStepMore,
+} from '@apis/student';
 import {
   selectCurrentProblem,
   selectGroup,
@@ -28,6 +33,8 @@ const AnalysisScreen = ({
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
   const [selectedTab, setSelectedTab] = useState(0);
   const [isScraped, setIsScraped] = useState(false);
+  const [isReadingTipScraped, setIsReadingTipScraped] = useState(false);
+  const [isOneStepMoreScraped, setIsOneStepMoreScraped] = useState(false);
   const scrapAnimValue = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
 
@@ -39,6 +46,8 @@ const AnalysisScreen = ({
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
   const toggleScrapMutation = useToggleScrapFromProblem();
+  const toggleReadingTipScrapMutation = useToggleScrapFromReadingTip();
+  const toggleOneStepMoreScrapMutation = useToggleScrapFromOneStepMore();
   const { data: scrapStatusData } = useGetScrapStatusById(problem?.id ?? 0, !!problem?.id);
 
   // Scrap animation interpolation
@@ -97,6 +106,18 @@ const AnalysisScreen = ({
     scrapAnimValue.setValue(isProblemScrapped ? 1 : 0);
   }, [scrapStatusData?.isProblemScrapped, scrapAnimValue]);
 
+  // Sync reading tip scrap state
+  useEffect(() => {
+    const isReadingTipScrapped = scrapStatusData?.isReadingTipScrapped ?? false;
+    setIsReadingTipScraped(isReadingTipScrapped);
+  }, [scrapStatusData?.isReadingTipScrapped]);
+
+  // Sync one step more scrap state
+  useEffect(() => {
+    const isOneStepMoreScrapped = scrapStatusData?.isOneStepMoreScrapped ?? false;
+    setIsOneStepMoreScraped(isOneStepMoreScrapped);
+  }, [scrapStatusData?.isOneStepMoreScrapped]);
+
   const handleBottomBarLayout = useCallback((event: LayoutChangeEvent) => {
     setBottomBarHeight(event.nativeEvent.layout.height);
   }, []);
@@ -143,6 +164,48 @@ const AnalysisScreen = ({
     );
   }, [problem?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
 
+  const handleToggleReadingTipScrap = useCallback(() => {
+    if (!problem?.id || toggleReadingTipScrapMutation.isPending) {
+      return;
+    }
+
+    // Optimistic update
+    const previousState = isReadingTipScraped;
+    const newScrapState = !previousState;
+    setIsReadingTipScraped(newScrapState);
+
+    toggleReadingTipScrapMutation.mutate(
+      { problemId: problem.id },
+      {
+        onError: () => {
+          setIsReadingTipScraped(previousState);
+          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
+        },
+      }
+    );
+  }, [problem?.id, isReadingTipScraped, toggleReadingTipScrapMutation]);
+
+  const handleToggleOneStepMoreScrap = useCallback(() => {
+    if (!problem?.id || toggleOneStepMoreScrapMutation.isPending) {
+      return;
+    }
+
+    // Optimistic update
+    const previousState = isOneStepMoreScraped;
+    const newScrapState = !previousState;
+    setIsOneStepMoreScraped(newScrapState);
+
+    toggleOneStepMoreScrapMutation.mutate(
+      { problemId: problem.id },
+      {
+        onError: () => {
+          setIsOneStepMoreScraped(previousState);
+          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
+        },
+      }
+    );
+  }, [problem?.id, isOneStepMoreScraped, toggleOneStepMoreScrapMutation]);
+
   const primaryButtonLabel = '학습 완료';
 
   const tipText = problem?.oneStepMoreContent || '1등급 TIP이 없습니다.';
@@ -177,8 +240,14 @@ const AnalysisScreen = ({
                 style={shadow[100]}>
                 <View className='mb-[6px] flex-row justify-between gap-[10px]'>
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
-                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
-                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  <AnimatedPressable
+                    className='h-[32px] w-[32px] items-center justify-center'
+                    onPress={handleToggleScrap}>
+                    <BookmarkIcon
+                      size={20}
+                      color={isScraped ? colors['gray-800'] : colors['gray-600']}
+                      fill={isScraped ? colors['gray-800'] : 'transparent'}
+                    />
                   </AnimatedPressable>
                 </View>
                 <ProblemViewer
@@ -195,8 +264,14 @@ const AnalysisScreen = ({
                   <View className='bg-primary-100 rounded-[4px] px-[6px] py-[2px]'>
                     <Text className='text-16b text-primary-500'>문제를 읽어내려갈 때</Text>
                   </View>
-                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
-                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  <AnimatedPressable
+                    className='h-[32px] w-[32px] items-center justify-center'
+                    onPress={handleToggleReadingTipScrap}>
+                    <BookmarkIcon
+                      size={20}
+                      color={isReadingTipScraped ? colors['gray-800'] : colors['gray-600']}
+                      fill={isReadingTipScraped ? colors['gray-800'] : 'transparent'}
+                    />
                   </AnimatedPressable>
                 </View>
                 <ProblemViewer problemContent={readingTipText} />
@@ -206,8 +281,14 @@ const AnalysisScreen = ({
                   <View className='bg-primary-100 rounded-[4px] px-[6px] py-[2px]'>
                     <Text className='text-16b text-primary-500'>한 걸음 더</Text>
                   </View>
-                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
-                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  <AnimatedPressable
+                    className='h-[32px] w-[32px] items-center justify-center'
+                    onPress={handleToggleOneStepMoreScrap}>
+                    <BookmarkIcon
+                      size={20}
+                      color={isOneStepMoreScraped ? colors['gray-800'] : colors['gray-600']}
+                      fill={isOneStepMoreScraped ? colors['gray-800'] : 'transparent'}
+                    />
                   </AnimatedPressable>
                 </View>
                 <ProblemViewer problemContent={oneStepMoreText} />

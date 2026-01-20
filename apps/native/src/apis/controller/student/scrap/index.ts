@@ -16,6 +16,8 @@ export * from './postCreateScrapFromPointing';
 export * from './postCreateScrapFromImage';
 export * from './postToggleScrapFromProblem';
 export * from './postToggleScrapFromPointing';
+export * from './postToggleScrapFromReadingTip';
+export * from './postToggleScrapFromOneStepMore';
 
 // PUT APIs
 export * from './putUpdateScrapName';

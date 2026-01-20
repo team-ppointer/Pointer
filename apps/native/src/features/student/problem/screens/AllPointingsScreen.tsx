@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { StudentRootStackParamList } from '@navigation/student/types';
@@ -11,6 +11,11 @@ import { BookmarkIcon, ChevronLeftIcon, MessageCircleMoreIcon } from 'lucide-rea
 import { components } from '@schema';
 import ProblemViewer from '../components/ProblemViewer';
 import { formatPublishDateLabel } from '../utils/formatters';
+import {
+  useGetScrapStatusById,
+  useToggleScrapFromProblem,
+  useToggleScrapFromPointing,
+} from '@apis/student';
 
 type AllPointingsNavigationProp = NativeStackNavigationProp<
   StudentRootStackParamList,
@@ -52,6 +57,11 @@ const getPointingBadgeLabel = (index: number) => {
 const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   const { navigation, route } = props;
   const [selectedTab, setSelectedTab] = useState(0);
+  const [isProblemScraped, setIsProblemScraped] = useState(false);
+  const [scrappedPointingIds, setScrappedPointingIds] = useState<number[]>([]);
+
+  const toggleProblemScrapMutation = useToggleScrapFromProblem();
+  const togglePointingScrapMutation = useToggleScrapFromPointing();
 
   const params = route?.params as AllPointingsRouteParams | undefined;
 
@@ -114,11 +124,76 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   const currentDescription = currentItem?.description ?? '';
   const pointings: PointingWithFeedbackResp[] = currentProblem?.pointings ?? [];
 
+  // Fetch scrap status for current problem
+  const { data: scrapStatusData } = useGetScrapStatusById(
+    currentProblem?.id ?? 0,
+    !!currentProblem?.id
+  );
+
+  // Sync scrap state with fetched data
+  useEffect(() => {
+    const isProblemScrapped = scrapStatusData?.isProblemScrapped ?? false;
+    setIsProblemScraped(isProblemScrapped);
+  }, [scrapStatusData?.isProblemScrapped]);
+
+  useEffect(() => {
+    const ids = scrapStatusData?.scrappedPointingIds ?? [];
+    setScrappedPointingIds(ids);
+  }, [scrapStatusData?.scrappedPointingIds]);
+
   const headerTitle = group ? `${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
 
   const handleClose = useCallback(() => {
     navigation?.goBack();
   }, [navigation]);
+
+  const handleToggleProblemScrap = useCallback(() => {
+    if (!currentProblem?.id || toggleProblemScrapMutation.isPending) {
+      return;
+    }
+
+    // Optimistic update
+    const previousState = isProblemScraped;
+    const newScrapState = !previousState;
+    setIsProblemScraped(newScrapState);
+
+    toggleProblemScrapMutation.mutate(
+      { problemId: currentProblem.id },
+      {
+        onError: () => {
+          setIsProblemScraped(previousState);
+          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
+        },
+      }
+    );
+  }, [currentProblem?.id, isProblemScraped, toggleProblemScrapMutation]);
+
+  const handleTogglePointingScrap = useCallback(
+    (pointingId: number) => {
+      if (togglePointingScrapMutation.isPending) {
+        return;
+      }
+
+      // Optimistic update
+      const previousIds = [...scrappedPointingIds];
+      const isCurrentlyScraped = scrappedPointingIds.includes(pointingId);
+      const newIds = isCurrentlyScraped
+        ? scrappedPointingIds.filter((id) => id !== pointingId)
+        : [...scrappedPointingIds, pointingId];
+      setScrappedPointingIds(newIds);
+
+      togglePointingScrapMutation.mutate(
+        { pointingId },
+        {
+          onError: () => {
+            setScrappedPointingIds(previousIds);
+            Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
+          },
+        }
+      );
+    },
+    [scrappedPointingIds, togglePointingScrapMutation]
+  );
 
   return (
     <View className='flex-1'>
@@ -159,8 +234,14 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                 style={shadow[100]}>
                 <View className='mb-[6px] flex-row justify-between gap-[10px]'>
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
-                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
-                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  <AnimatedPressable
+                    className='h-[32px] w-[32px] items-center justify-center'
+                    onPress={handleToggleProblemScrap}>
+                    <BookmarkIcon
+                      size={20}
+                      color={isProblemScraped ? colors['gray-800'] : colors['gray-600']}
+                      fill={isProblemScraped ? colors['gray-800'] : 'transparent'}
+                    />
                   </AnimatedPressable>
                 </View>
                 <ProblemViewer
@@ -171,7 +252,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
               </View>
             </View>
 
-            <ScrollView className='md:flex-1 overflow-visible' style={shadow[100]}>
+            <ScrollView className='overflow-visible md:flex-1' style={shadow[100]}>
               {pointings.length === 0 ? (
                 <View className='mt-[10px] rounded-[8px] border border-dashed border-gray-400 bg-gray-50 px-[16px] py-[24px]'>
                   <Text className='text-13m text-center text-gray-700'>
@@ -194,8 +275,22 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                             <Text className='text-16b text-primary-500 mr-[8px]'>{badgeLabel}</Text>
                             <Text className='text-13m text-gray-700'>포인팅 질문</Text>
                           </View>
-                          <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
-                            <BookmarkIcon size={20} color={colors['gray-600']} />
+                          <AnimatedPressable
+                            className='h-[32px] w-[32px] items-center justify-center'
+                            onPress={() => pointing.id && handleTogglePointingScrap(pointing.id)}>
+                            <BookmarkIcon
+                              size={20}
+                              color={
+                                pointing.id && scrappedPointingIds.includes(pointing.id)
+                                  ? colors['gray-800']
+                                  : colors['gray-600']
+                              }
+                              fill={
+                                pointing.id && scrappedPointingIds.includes(pointing.id)
+                                  ? colors['gray-800']
+                                  : 'transparent'
+                              }
+                            />
                           </AnimatedPressable>
                         </View>
                         <ProblemViewer problemContent={pointing?.questionContent ?? ''} />

@@ -8,7 +8,12 @@ import { colors, shadow } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { postPointing, useGetScrapStatusById, useToggleScrapFromPointing } from '@apis/student';
+import {
+  postPointing,
+  useGetScrapStatusById,
+  useToggleScrapFromPointing,
+  useToggleScrapFromProblem,
+} from '@apis/student';
 import {
   selectCurrentProblem,
   selectCurrentPointing,
@@ -29,8 +34,10 @@ const PointingScreen = ({
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
   const [hasSubmittedUnderstanding, setHasSubmittedUnderstanding] = useState(false);
   const [isSubmittingUnderstanding, setIsSubmittingUnderstanding] = useState(false);
-  const [isScraped, setIsScraped] = useState(false);
+  const [isPointingScraped, setIsPointingScraped] = useState(false);
+  const [isProblemScraped, setIsProblemScraped] = useState(false);
   const scrapAnimValue = useRef(new Animated.Value(0)).current;
+  const problemScrapAnimValue = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
 
   const phase = useProblemSessionStore(selectPhase);
@@ -46,7 +53,8 @@ const PointingScreen = ({
   const nextPointing = useProblemSessionStore((state) => state.nextPointing);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
-  const toggleScrapMutation = useToggleScrapFromPointing();
+  const togglePointingScrapMutation = useToggleScrapFromPointing();
+  const toggleProblemScrapMutation = useToggleScrapFromProblem();
   const { data: scrapStatusData } = useGetScrapStatusById(problem?.id ?? 0, !!problem?.id);
 
   // Scrap animation interpolation
@@ -132,9 +140,16 @@ const PointingScreen = ({
   useEffect(() => {
     const scrappedPointingIds = scrapStatusData?.scrappedPointingIds ?? [];
     const isPointingScrapped = pointing?.id != null && scrappedPointingIds.includes(pointing.id);
-    setIsScraped(isPointingScrapped);
+    setIsPointingScraped(isPointingScrapped);
     scrapAnimValue.setValue(isPointingScrapped ? 1 : 0);
   }, [scrapStatusData?.scrappedPointingIds, pointing?.id, scrapAnimValue]);
+
+  // Sync problem scrap state with fetched data
+  useEffect(() => {
+    const isProblemScrapped = scrapStatusData?.isProblemScrapped ?? false;
+    setIsProblemScraped(isProblemScrapped);
+    problemScrapAnimValue.setValue(isProblemScrapped ? 1 : 0);
+  }, [scrapStatusData?.isProblemScrapped, problemScrapAnimValue]);
 
   const handleUnderstandSelection = useCallback(
     async (isUnderstood: boolean) => {
@@ -183,15 +198,15 @@ const PointingScreen = ({
     }
   }, [navigation, nextPointing]);
 
-  const handleToggleScrap = useCallback(() => {
-    if (!pointing?.id || toggleScrapMutation.isPending) {
+  const handleTogglePointingScrap = useCallback(() => {
+    if (!pointing?.id || togglePointingScrapMutation.isPending) {
       return;
     }
 
     // Optimistic update with animation
-    const previousState = isScraped;
+    const previousState = isPointingScraped;
     const newScrapState = !previousState;
-    setIsScraped(newScrapState);
+    setIsPointingScraped(newScrapState);
     Animated.spring(scrapAnimValue, {
       toValue: newScrapState ? 1 : 0,
       useNativeDriver: false,
@@ -199,12 +214,12 @@ const PointingScreen = ({
       friction: 20,
     }).start();
 
-    toggleScrapMutation.mutate(
+    togglePointingScrapMutation.mutate(
       { pointingId: pointing.id },
       {
         onError: () => {
           // Revert to previous state on error
-          setIsScraped(previousState);
+          setIsPointingScraped(previousState);
           Animated.spring(scrapAnimValue, {
             toValue: previousState ? 1 : 0,
             useNativeDriver: false,
@@ -215,7 +230,41 @@ const PointingScreen = ({
         },
       }
     );
-  }, [pointing?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
+  }, [pointing?.id, isPointingScraped, scrapAnimValue, togglePointingScrapMutation]);
+
+  const handleToggleProblemScrap = useCallback(() => {
+    if (!problem?.id || toggleProblemScrapMutation.isPending) {
+      return;
+    }
+
+    // Optimistic update with animation
+    const previousState = isProblemScraped;
+    const newScrapState = !previousState;
+    setIsProblemScraped(newScrapState);
+    Animated.spring(problemScrapAnimValue, {
+      toValue: newScrapState ? 1 : 0,
+      useNativeDriver: false,
+      tension: 200,
+      friction: 20,
+    }).start();
+
+    toggleProblemScrapMutation.mutate(
+      { problemId: problem.id },
+      {
+        onError: () => {
+          // Revert to previous state on error
+          setIsProblemScraped(previousState);
+          Animated.spring(problemScrapAnimValue, {
+            toValue: previousState ? 1 : 0,
+            useNativeDriver: false,
+            tension: 200,
+            friction: 20,
+          }).start();
+          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
+        },
+      }
+    );
+  }, [problem?.id, isProblemScraped, problemScrapAnimValue, toggleProblemScrapMutation]);
 
   const pointingIndexLabel = total > 0 && index >= 0 ? String.fromCharCode(65 + index) : '';
 
@@ -236,8 +285,14 @@ const PointingScreen = ({
                 style={shadow[100]}>
                 <View className='mb-[6px] flex-row justify-between gap-[10px]'>
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
-                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
-                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  <AnimatedPressable
+                    className='h-[32px] w-[32px] items-center justify-center'
+                    onPress={handleToggleProblemScrap}>
+                    <BookmarkIcon
+                      size={20}
+                      color={isProblemScraped ? colors['gray-800'] : colors['gray-600']}
+                      fill={isProblemScraped ? colors['gray-800'] : 'transparent'}
+                    />
                   </AnimatedPressable>
                 </View>
                 <ProblemViewer
@@ -248,10 +303,10 @@ const PointingScreen = ({
               </View>
             </View>
 
-            <View className='md:flex-1 pb-[100px]' style={shadow[100]}>
+            <View className='pb-[100px] md:flex-1' style={shadow[100]}>
               <View className='flex flex-col overflow-hidden rounded-[8px] border border-gray-400 bg-gray-200'>
                 <View className='flex-col gap-[6px] border-b border-gray-400 bg-white p-[14px]'>
-                  <View className='flex-row justify-between items-start'>
+                  <View className='flex-row items-start justify-between'>
                     <View className='flex-row items-center'>
                       <Text className='text-16b mr-[4px] text-gray-800'>포인팅</Text>
                       <Text className='text-16b text-primary-500 mr-[8px]'>
@@ -259,8 +314,14 @@ const PointingScreen = ({
                       </Text>
                       <Text className='text-13m text-gray-700'>포인팅 질문</Text>
                     </View>
-                    <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
-                      <BookmarkIcon size={20} color={colors['gray-600']} />
+                    <AnimatedPressable
+                      className='h-[32px] w-[32px] items-center justify-center'
+                      onPress={handleTogglePointingScrap}>
+                      <BookmarkIcon
+                        size={20}
+                        color={isPointingScraped ? colors['gray-800'] : colors['gray-600']}
+                        fill={isPointingScraped ? colors['gray-800'] : 'transparent'}
+                      />
                     </AnimatedPressable>
                   </View>
                   <ProblemViewer problemContent={pointing?.questionContent ?? ''} />
@@ -275,11 +336,11 @@ const PointingScreen = ({
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
           <BottomActionBar.Button
             animatedStyle={{ backgroundColor: scrapBgColor }}
-            onPress={handleToggleScrap}>
+            onPress={handleTogglePointingScrap}>
             <BookmarkIcon
               size={22}
-              color={isScraped ? colors['primary-500'] : colors['gray-700']}
-              fill={isScraped ? colors['primary-500'] : 'transparent'}
+              color={isPointingScraped ? colors['primary-500'] : colors['gray-700']}
+              fill={isPointingScraped ? colors['primary-500'] : 'transparent'}
             />
           </BottomActionBar.Button>
           {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
