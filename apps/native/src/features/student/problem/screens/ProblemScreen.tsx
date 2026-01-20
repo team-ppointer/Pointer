@@ -360,9 +360,9 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
         <Header onClose={handleCloseFlow}>
-          {subtitle ? <Header.Subtitle>{subtitle}</Header.Subtitle> : null}
           <Header.TitleGroup>
             <Header.Title>{problemTitle}</Header.Title>
+            {subtitle ? <Header.Subtitle>{subtitle}</Header.Subtitle> : null}
             <Header.Status status={problemProgress ?? currentProblem?.progress} />
           </Header.TitleGroup>
         </Header>

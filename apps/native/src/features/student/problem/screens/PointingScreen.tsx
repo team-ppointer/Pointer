@@ -1,10 +1,10 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import { Container } from '@components/common';
+import { AnimatedPressable, Container } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
 import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';
-import { colors } from '@theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -217,44 +217,61 @@ const PointingScreen = ({
     );
   }, [pointing?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
 
-  const pointingIndexLabel = total > 0 && index >= 0 ? `포인팅 ${index + 1}/${total}` : '';
+  const pointingIndexLabel = total > 0 && index >= 0 ? String.fromCharCode(65 + index) : '';
 
   return (
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
         <Header onClose={handleClose}>
           <Header.TitleGroup>
-            <Header.Title variant='accent'>{pointingIndexLabel}</Header.Title>
+            <Header.Title variant='accent'>포인팅 {pointingIndexLabel}</Header.Title>
             <Header.Title variant='secondary'>{problemTitle}</Header.Title>
           </Header.TitleGroup>
         </Header>
-        <ScrollView>
-          <Container className='flex-1 pb-[32px]'>
-            <View className='my-[10px] overflow-hidden rounded-[8px] bg-white'>
-              <ProblemViewer
-                problemContent={problem?.problemContent ?? ''}
-                minHeight={200}
-                padding={20}
-                fontStyle='serif'
-              />
+        <View className='flex-1'>
+          <Container className='flex-1 flex-col gap-[20px] pb-[32px] md:flex-row'>
+            <View className='md:flex-1'>
+              <View
+                className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
+                style={shadow[100]}>
+                <View className='mb-[6px] flex-row justify-between gap-[10px]'>
+                  <Text className='text-16sb text-gray-600'>문제 본문</Text>
+                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
+                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  </AnimatedPressable>
+                </View>
+                <ProblemViewer
+                  problemContent={problem?.problemContent ?? ''}
+                  minHeight={200}
+                  fontStyle='serif'
+                />
+              </View>
             </View>
 
-            <View className='mt-[10px] flex flex-col rounded-[8px] border border-gray-400 bg-gray-200'>
-              <View className='flex-row gap-[10px] rounded-[8px] border-b border-gray-400 bg-white px-[12px] py-[14px]'>
-                <View className='h-[32px] w-[32px] items-center justify-center'>
-                  <Text className='text-32b text-primary-500 leading-[35px]'>?</Text>
-                </View>
-                <View className='flex-1'>
-                  <Text className='text-13b text-gray-900'>포인팅</Text>
+            <View className='md:flex-1 pb-[100px]' style={shadow[100]}>
+              <View className='flex flex-col overflow-hidden rounded-[8px] border border-gray-400 bg-gray-200'>
+                <View className='flex-col gap-[6px] border-b border-gray-400 bg-white p-[14px]'>
+                  <View className='flex-row justify-between items-start'>
+                    <View className='flex-row items-center'>
+                      <Text className='text-16b mr-[4px] text-gray-800'>포인팅</Text>
+                      <Text className='text-16b text-primary-500 mr-[8px]'>
+                        {pointingIndexLabel}
+                      </Text>
+                      <Text className='text-13m text-gray-700'>포인팅 질문</Text>
+                    </View>
+                    <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
+                      <BookmarkIcon size={20} color={colors['gray-600']} />
+                    </AnimatedPressable>
+                  </View>
                   <ProblemViewer problemContent={pointing?.questionContent ?? ''} />
                 </View>
-              </View>
-              <View className='ml-[42px] px-[12px] py-[14px]'>
-                <ProblemViewer problemContent={pointing?.commentContent ?? ''} />
+                <ScrollView className='p-[14px]'>
+                  <ProblemViewer problemContent={pointing?.commentContent ?? ''} />
+                </ScrollView>
               </View>
             </View>
           </Container>
-        </ScrollView>
+        </View>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
           <BottomActionBar.Button
             animatedStyle={{ backgroundColor: scrapBgColor }}

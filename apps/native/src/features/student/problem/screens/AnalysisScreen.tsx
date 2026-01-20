@@ -1,10 +1,11 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import { Container, SegmentedControl } from '@components/common';
+import { AnimatedPressable, Container } from '@components/common';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
 import { BookmarkIcon, MessageCircleMoreIcon, StarIcon } from 'lucide-react-native';
-import { colors } from '@theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -159,47 +160,61 @@ const AnalysisScreen = ({
         </Header>
         <Container>
           <SegmentedControl
-            options={['분석', '해설']}
+            values={['분석', '해설']}
             selectedIndex={selectedTab}
-            onChange={setSelectedTab}
+            onChange={(event) => setSelectedTab(event.nativeEvent.selectedSegmentIndex)}
+            appearance='light'
+            style={{ height: 40 }}
+            fontStyle={{ fontSize: 14, fontWeight: '500' }}
+            activeFontStyle={{ fontSize: 14, fontWeight: '600' }}
           />
         </Container>
-        <ScrollView>
-          <Container className='pb-[32px]'>
-            <View className='my-[10px] overflow-hidden rounded-[8px] bg-white'>
-              <ProblemViewer
-                problemContent={problem?.problemContent ?? ''}
-                minHeight={200}
-                padding={20}
-                fontStyle='serif'
-              />
+        <View className='flex-1 overflow-hidden'>
+          <Container className='flex-1 flex-col gap-[20px] pb-[32px] pt-[20px] md:flex-row'>
+            <View className='md:flex-1'>
+              <View
+                className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
+                style={shadow[100]}>
+                <View className='mb-[6px] flex-row justify-between gap-[10px]'>
+                  <Text className='text-16sb text-gray-600'>문제 본문</Text>
+                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
+                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  </AnimatedPressable>
+                </View>
+                <ProblemViewer
+                  problemContent={problem?.problemContent ?? ''}
+                  minHeight={200}
+                  fontStyle='serif'
+                />
+              </View>
             </View>
 
-            {selectedTab === 0 ? (
-              <>
-                {/* <View className='border-primary-500 bg-primary-100 mt-[10px] flex-row items-center rounded-[8px] border p-[14px]'>
-                  <StarIcon size={16} color={colors['primary-500']} fill={colors['primary-500']} />
-                  <Text className='text-13b ml-[4px] text-gray-800'>1등급 TIP</Text>
-                  <View className='bg-primary-200 mx-[14px] h-full w-[2px]' />
-                  <Text className='text-13r flex-1 text-black'>{tipText}</Text>
-                </View> */}
-                <View className='mt-[10px] flex-col rounded-[8px] border border-gray-400 bg-white p-[14px]'>
-                  <Text className='text-13b mb-[10px] text-gray-800'>문제를 읽어내려갈 때</Text>
-                  <ProblemViewer problemContent={readingTipText} />
+            <ScrollView className='overflow-visible md:flex-1' style={shadow[100]}>
+              <View className='mb-[16px] flex-col rounded-[8px] border border-gray-400 bg-white p-[14px]'>
+                <View className='mb-[10px] flex-row items-start justify-between'>
+                  <View className='bg-primary-100 rounded-[4px] px-[6px] py-[2px]'>
+                    <Text className='text-16b text-primary-500'>문제를 읽어내려갈 때</Text>
+                  </View>
+                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
+                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  </AnimatedPressable>
                 </View>
-                <View className='mt-[10px] flex-col rounded-[8px] border border-gray-400 bg-white p-[14px]'>
-                  <Text className='text-13b mb-[10px] text-gray-800'>한 걸음 더</Text>
-                  <ProblemViewer problemContent={oneStepMoreText} />
-                </View>
-              </>
-            ) : (
-              <View className='mt-[10px] flex-col rounded-[8px] border border-gray-400 bg-white p-[14px]'>
-                <Text className='text-13b mb-[10px] text-gray-800'>해설</Text>
-                <ProblemViewer problemContent={explanationText} />
+                <ProblemViewer problemContent={readingTipText} />
               </View>
-            )}
+              <View className='flex-col rounded-[8px] border border-gray-400 bg-white p-[14px]'>
+                <View className='mb-[10px] flex-row items-start justify-between'>
+                  <View className='bg-primary-100 rounded-[4px] px-[6px] py-[2px]'>
+                    <Text className='text-16b text-primary-500'>한 걸음 더</Text>
+                  </View>
+                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
+                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  </AnimatedPressable>
+                </View>
+                <ProblemViewer problemContent={oneStepMoreText} />
+              </View>
+            </ScrollView>
           </Container>
-        </ScrollView>
+        </View>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
           <BottomActionBar.Button
             animatedStyle={{ backgroundColor: scrapBgColor }}

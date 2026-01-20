@@ -1,12 +1,13 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, Text, View } from 'react-native';
-import { AnimatedPressable, Container, SegmentedControl } from '@components/common';
+import { AnimatedPressable, Container } from '@components/common';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { colors } from '@/theme/tokens';
-import { ChevronLeftIcon, MessageCircleMoreIcon } from 'lucide-react-native';
+import { colors, shadow } from '@theme/tokens';
+import { BookmarkIcon, ChevronLeftIcon, MessageCircleMoreIcon } from 'lucide-react-native';
 import { components } from '@schema';
 import ProblemViewer from '../components/ProblemViewer';
 import { formatPublishDateLabel } from '../utils/formatters';
@@ -140,68 +141,75 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
         {tabItems.length > 0 ? (
           <Container className='py-[10px]'>
             <SegmentedControl
-              options={tabItems.map((item) => item.label)}
+              values={tabItems.map((item) => item.label)}
               selectedIndex={selectedTab}
-              onChange={setSelectedTab}
+              onChange={(event) => setSelectedTab(event.nativeEvent.selectedSegmentIndex)}
+              appearance='light'
+              style={{ height: 40 }}
+              fontStyle={{ fontSize: 14, fontWeight: '500' }}
+              activeFontStyle={{ fontSize: 14, fontWeight: '600' }}
             />
           </Container>
         ) : null}
-        <ScrollView>
-          <Container className='flex-1 pb-[32px]'>
-            {currentProblem ? (
-              <View className='my-[10px] overflow-hidden rounded-[8px] bg-white'>
+        <View className='flex-1 overflow-hidden'>
+          <Container className='flex-1 flex-col gap-[20px] pb-[32px] md:flex-row'>
+            <View className='md:flex-1'>
+              <View
+                className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
+                style={shadow[100]}>
+                <View className='mb-[6px] flex-row justify-between gap-[10px]'>
+                  <Text className='text-16sb text-gray-600'>문제 본문</Text>
+                  <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
+                    <BookmarkIcon size={20} color={colors['gray-600']} />
+                  </AnimatedPressable>
+                </View>
                 <ProblemViewer
-                  problemContent={currentProblem.problemContent ?? ''}
+                  problemContent={currentProblem?.problemContent ?? ''}
                   minHeight={200}
-                  padding={20}
                   fontStyle='serif'
                 />
               </View>
-            ) : (
-              <View className='my-[10px] min-h-[160px] items-center justify-center rounded-[8px] border border-dashed border-gray-400 bg-white px-[16px] py-[24px]'>
-                <Text className='text-14r text-gray-600'>불러온 포인팅 정보가 없어요.</Text>
-              </View>
-            )}
+            </View>
 
-            {pointings.length === 0 ? (
-              <View className='mt-[10px] rounded-[8px] border border-dashed border-gray-400 bg-gray-50 px-[16px] py-[24px]'>
-                <Text className='text-13m text-center text-gray-700'>
-                  {currentProblem
-                    ? `${currentDescription}에 등록된 포인팅이 없어요.`
-                    : '포인팅을 불러올 수 없어요.'}
-                </Text>
-              </View>
-            ) : (
-              pointings.map((pointing, index) => {
-                const badgeLabel = getPointingBadgeLabel(index);
-                return (
-                  <View
-                    key={pointing.id ?? `${currentProblem.id}-${index}`}
-                    className='mt-[10px] flex flex-col rounded-[8px] border border-gray-400 bg-gray-200'>
-                    <View className='flex-row gap-[10px] rounded-[8px] border-b border-gray-400 bg-white px-[12px] py-[14px]'>
-                      <View className='h-[32px] w-[32px] items-center justify-center'>
-                        <Text className='text-32b text-primary-500 leading-[35px]'>
-                          {badgeLabel}
-                        </Text>
-                      </View>
-                      <View className='flex-1'>
-                        <View className='flex-row items-center gap-[6px]'>
-                          <Text className='text-13b text-gray-900'>포인팅</Text>
-                          <View className='h-[12px] w-[2px] bg-gray-400' />
-                          <Text className='text-13m text-gray-900'>{currentDescription}</Text>
+            <ScrollView className='md:flex-1 overflow-visible' style={shadow[100]}>
+              {pointings.length === 0 ? (
+                <View className='mt-[10px] rounded-[8px] border border-dashed border-gray-400 bg-gray-50 px-[16px] py-[24px]'>
+                  <Text className='text-13m text-center text-gray-700'>
+                    {currentProblem
+                      ? `${currentDescription}에 등록된 포인팅이 없어요.`
+                      : '포인팅을 불러올 수 없어요.'}
+                  </Text>
+                </View>
+              ) : (
+                pointings.map((pointing, index) => {
+                  const badgeLabel = getPointingBadgeLabel(index);
+                  return (
+                    <View
+                      key={pointing.id ?? `${currentProblem.id}-${index}`}
+                      className='mb-[16px] flex flex-col overflow-hidden rounded-[8px] border border-gray-400 bg-gray-200'>
+                      <View className='flex-col gap-[6px] border-b border-gray-400 bg-white p-[14px]'>
+                        <View className='flex-row items-start justify-between'>
+                          <View className='flex-row items-center'>
+                            <Text className='text-16b mr-[4px] text-gray-800'>포인팅</Text>
+                            <Text className='text-16b text-primary-500 mr-[8px]'>{badgeLabel}</Text>
+                            <Text className='text-13m text-gray-700'>포인팅 질문</Text>
+                          </View>
+                          <AnimatedPressable className='h-[32px] w-[32px] items-center justify-center'>
+                            <BookmarkIcon size={20} color={colors['gray-600']} />
+                          </AnimatedPressable>
                         </View>
-                        <ProblemViewer problemContent={pointing.questionContent ?? ''} />
+                        <ProblemViewer problemContent={pointing?.questionContent ?? ''} />
                       </View>
+                      <ScrollView className='p-[14px]'>
+                        <ProblemViewer problemContent={pointing?.commentContent ?? ''} />
+                      </ScrollView>
                     </View>
-                    <View className='ml-[42px] px-[12px] py-[14px]'>
-                      <ProblemViewer problemContent={pointing.commentContent ?? ''} />
-                    </View>
-                  </View>
-                );
-              })
-            )}
+                  );
+                })
+              )}
+            </ScrollView>
           </Container>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </View>
   );

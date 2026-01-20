@@ -70,21 +70,27 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
         onChange={handleSheetChange}
         onAnimate={onSheetAnimate}>
         <BottomSheetView className='bg-white px-[4px] pb-[20px]'>
-          <View className='items-center justify-center bg-gray-300 py-[20px]'>
+          <View className='items-center justify-center gap-[8px] py-[20px]'>
             <IconComponent />
+            <View className='flex-row items-center'>
+              <Text className={`text-18sb ${isCorrect ? 'text-green-500' : 'text-red-500'}`}>
+                {isCorrect ? '정답' : '오답'}
+              </Text>
+              <Text className='text-18m text-gray-800'>입니다</Text>
+            </View>
           </View>
           <View className='py-[10px]'>
             <Container className='flex-col items-center gap-[10px]'>
               {secondaryButtonLabel && onPressSecondary ? (
                 <AnimatedPressable
-                  className='h-[42px] w-full items-center justify-center rounded-[8px] border border-gray-500 px-[18px]'
+                  className='h-[48px] w-full items-center justify-center rounded-[8px] border border-gray-500 bg-gray-100 px-[12px]'
                   containerStyle={{ width: '100%' }}
                   onPress={onPressSecondary}>
                   <Text className='text-16m text-gray-900'>{secondaryButtonLabel}</Text>
                 </AnimatedPressable>
               ) : null}
               <AnimatedPressable
-                className='bg-primary-500 h-[42px] w-full items-center justify-center rounded-[8px] px-[18px]'
+                className='bg-primary-500 h-[48px] w-full items-center justify-center rounded-[8px] px-[12px]'
                 containerStyle={{ width: '100%' }}
                 onPress={onPressPrimary}>
                 <Text className='text-16m text-white'>{primaryButtonLabel}</Text>
@@ -100,9 +106,7 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
 ResultSheet.displayName = 'ResultSheet';
 
 const styles = StyleSheet.create({
-  sheetBackground: {
-    backgroundColor: colors['gray-300'],
-  },
+  sheetBackground: {},
   handleIndicator: {
     width: 56,
     height: 5,

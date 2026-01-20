@@ -81,7 +81,7 @@ const BottomActionBarButton = ({
     <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
       <Pressable
         className={combineClassName(
-          'items-center justify-center rounded-[8px] px-[18px] py-[10px]',
+          'items-center justify-center rounded-[8px] px-[18px] h-[42px]',
           className
         )}
         onPressIn={handlePressIn}
