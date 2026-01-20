@@ -1,11 +1,14 @@
 import React from 'react';
 import { Svg, Rect, Path } from 'react-native-svg';
 import type { LucideIcon, LucideProps } from 'lucide-react-native';
+import { StyleSheet } from 'react-native';
 
 const ScrapFolderStackIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
   ({ size = 124, style, ...rest }, ref) => {
     // style에 width나 height가 있으면 size를 무시
-    const hasStyleSize = style && (style.width || style.height);
+    const flattenedStyle = StyleSheet.flatten(style);
+    const hasStyleSize =
+      !!flattenedStyle && (flattenedStyle.width || flattenedStyle.height);
     const svgProps = hasStyleSize
       ? { ...rest, style }
       : { width: size, height: size, ...rest, style };

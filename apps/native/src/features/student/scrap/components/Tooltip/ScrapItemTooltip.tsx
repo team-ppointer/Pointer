@@ -50,7 +50,9 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
 
   const openNote = useNoteStore((state) => state.openNote);
   const closeNote = useNoteStore((state) => state.closeNote);
+  const closeNoteByFolderId = useNoteStore((state) => state.closeNoteByFolderId);
   const removeScrap = useRecentScrapStore((state) => state.removeScrap);
+  const removeScrapsByFolderId = useRecentScrapStore((state) => state.removeScrapsByFolderId);
 
   // API hooks
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
@@ -141,7 +143,12 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
   const cleanupAfterDelete = (id: number) => {
     removeScrap(id);
     closeNote(id);
+    if (props.type === 'FOLDER') {
+      closeNoteByFolderId(id);
+      removeScrapsByFolderId(id);
+    }
     invalidateScrapSearchQueries;
+
   };
 
   const handleDelete = async () => {
