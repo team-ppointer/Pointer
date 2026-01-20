@@ -4,7 +4,7 @@ import { Search } from 'lucide-react-native';
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
-import { colors } from '@theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
 import { useDebounce } from '@hooks';
 import useGetSchool from '@apis/controller/student/school/useGetSchool';
@@ -88,7 +88,9 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
           }}
         />
         {showDropdown ? (
-          <View className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px] shadow shadow-black/10'>
+          <View
+            className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px]'
+            style={shadow[100]}>
             {isLoading ? (
               <View className='items-center justify-center py-[20px]'>
                 <ActivityIndicator size='small' color={colors['gray-500']} />

@@ -16,10 +16,11 @@ import {
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon, XIcon } from 'lucide-react-native';
 import ProblemViewer from '../../problem/components/ProblemViewer';
-import { colors } from '@theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { PointerSymbol } from '@components/system/icons';
 import { BlurView } from 'expo-blur';
 import { useInvalidateAll } from '@hooks';
+
 const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());

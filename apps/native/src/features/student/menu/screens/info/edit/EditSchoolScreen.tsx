@@ -6,7 +6,7 @@ import { useGetSchool, usePutMe } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
-import { colors } from '@theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useDebounce } from '@hooks';
@@ -103,7 +103,9 @@ const EditSchoolScreen = ({
           }}
         />
         {showDropdown ? (
-          <View className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px] shadow shadow-black/10'>
+          <View
+            className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px]'
+            style={shadow[100]}>
             {isLoading ? (
               <View className='items-center justify-center py-[20px]'>
                 <ActivityIndicator size='small' color={colors['gray-500']} />

@@ -80,3 +80,20 @@ export const screens = {
   md: '768px',
   lg: '1024px',
 };
+
+export const shadow = {
+  100: {
+    shadowColor: '#0C0C0D',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  900: {
+    shadowColor: '#ff00ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+}
