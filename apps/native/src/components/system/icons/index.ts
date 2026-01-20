@@ -24,7 +24,7 @@ import KakaoIcon from './KakaoIcon';
 import AppleIcon from './AppleIcon';
 import CircleCheckDashed from './CircleCheckDashed';
 import CircleXFilledIcon from './CircleXFilledIcon';
-import ScrapFolderDefalutIcon from './ScrapFolderDefaultIcon';
+import ScrapFolderDefaultIcon from './ScrapFolderDefaultIcon';
 import ScrapFolderStackIcon from './ScrapFolderStackIcon';
 
 export {
@@ -54,6 +54,6 @@ export {
   GoogleIcon,
   KakaoIcon,
   CircleXFilledIcon,
-  ScrapFolderDefalutIcon,
+  ScrapFolderDefaultIcon,
   ScrapFolderStackIcon,
 };

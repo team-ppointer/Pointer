@@ -3,8 +3,8 @@ import React from 'react';
 import { Check } from 'lucide-react-native';
 import {
   ChevronDownFilledIcon,
-  ScrapFolderDeafultIcon,
-  ScrapScrapDefalutIcon,
+  ScrapFolderDefaultIcon,
+  ScrapFolderStackIcon,
 } from '@/components/system/icons';
 import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
 import { StudentRootStackParamList } from '@/navigation/student/types';
@@ -40,14 +40,14 @@ export const ScrapCard = (props: ScrapListItemProps) => {
     if (props.type === 'FOLDER') {
       return (
         <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
-          <ScrapFolderDeafultIcon style={{ width: '100%', height: '100%' }} />
+          <ScrapFolderDefaultIcon style={{ width: '100%', height: '100%' }} />
         </View> 
       )  
     }
     else if (props.type === 'SCRAP') {
       return (
         <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
-          <ScrapScrapDefalutIcon style={{ width: '100%', height: '100%' }} />
+          <ScrapFolderStackIcon style={{ width: '100%', height: '100%' }} />
         </View>
       )  
     }
