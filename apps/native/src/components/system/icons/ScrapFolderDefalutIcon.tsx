@@ -3,7 +3,7 @@ import { Svg, Rect, Path } from 'react-native-svg';
 import type { LucideIcon, LucideProps } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
 
-const ScrapFolderDefalutIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
+const ScrapFolderDefaultIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
   ({ size = 124, style, ...rest }, ref) => {
     // style에 width나 height가 있으면 size를 무시
     const flattenedStyle = StyleSheet.flatten(style);
@@ -27,4 +27,4 @@ const ScrapFolderDefalutIcon = React.forwardRef<React.ComponentRef<typeof Svg>, 
   }
 ) as LucideIcon;
 
-export default ScrapFolderDefalutIcon;
+export default ScrapFolderDefaultIcon;
