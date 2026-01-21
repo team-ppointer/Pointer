@@ -81,7 +81,6 @@ export const CreateFolderModal = () => {
       closeCreateFolderModal();
       refetchFolders?.();
       refetchScraps?.();
-      
     } catch (error: any) {
       showToast('error', error.message);
     } finally {
@@ -93,7 +92,11 @@ export const CreateFolderModal = () => {
     <AddFolderScreenModal
       visible={isCreateFolderModalVisible}
       onCancel={closeCreateFolderModal}
-      onClose={handleCreateFolder}>
+      onClose={() => {
+        if (!isCreating) {
+          handleCreateFolder();
+        }
+      }}>
       <KeyboardAvoidingView
         className='flex-1'
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

@@ -8,6 +8,7 @@ import { useCreateScrapFromImage, useUploadFile } from '@/apis';
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
 import { showToast } from '../Notification/Toast';
+import { useState } from 'react';
 
 export interface AddScrapTooltipProps {
   onClose?: () => void;
@@ -26,24 +27,29 @@ export const AddScrapTooltip = ({
   const { mutateAsync: createScrapFromImage } = useCreateScrapFromImage();
   const { mutateAsync: uploadFile } = useUploadFile();
 
+  const [isCreating, setIsCreating] = useState(false);
+
   // 이미지 선택 및 업로드 처리
   const handleImageSelect = async (image: any) => {
     if (!image || !image.uri) {
       return;
     }
-  
+
     try {
+      setIsCreating(true);
       const fileName = image.fileName || `${Date.now()}.jpg`;
       const files = await uploadFile([
         { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
       ]);
-  
+
       await createScrapFromImage({ imageId: files[0].id });
-      
+
       showToast('success', '스크랩이 생성되었습니다.');
       onClose?.();
     } catch (error) {
       showToast('error', (error as any).message || '스크랩 생성에 실패했습니다.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -77,8 +83,24 @@ export const AddScrapTooltip = ({
 
   return (
     <TooltipContainer height='h-[176px]'>
-      <TooltipMenuItem icon={<Camera size={20} />} label='사진 찍기' onPress={onPressCamera} />
-      <TooltipMenuItem icon={<Image size={20} />} label='이미지 선택' onPress={onPressGallery} />
+      <TooltipMenuItem
+        icon={<Camera size={20} />}
+        label='사진 찍기'
+        onPress={() => {
+          if (!isCreating) {
+            onPressCamera();
+          }
+        }}
+      />
+      <TooltipMenuItem
+        icon={<Image size={20} />}
+        label='이미지 선택'
+        onPress={() => {
+          if (!isCreating) {
+            onPressGallery();
+          }
+        }}
+      />
       <TooltipMenuItem
         icon={<Images size={20} />}
         label='QnA 사진 불러오기'

@@ -25,6 +25,8 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
 
+  const [isCreating, setIsCreating] = useState(false);
+
   const {
     data: qnaAllImagesData,
     isLoading,
@@ -50,14 +52,17 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
     }
 
     try {
-    await createScrapFromImage({
-      imageId: selectedId,
-    });
+      setIsCreating(true);
+      await createScrapFromImage({
+        imageId: selectedId,
+      });
       showToast('success', '스크랩이 생성되었습니다.');
       onClose();
       onSuccess?.();
     } catch (error: any) {
       showToast('error', error.message);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -69,7 +74,14 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
 
   return (
     <>
-      <LoadQnaImageScreenModal visible={visible} onCancel={onClose} onClose={handleComplete}>
+      <LoadQnaImageScreenModal
+        visible={visible}
+        onCancel={onClose}
+        onClose={() => {
+          if (!isCreating) {
+            handleComplete();
+          }
+        }}>
         <Container className='items-end py-[10px]'>
           <SortDropdown
             ordertype='IMAGE'
