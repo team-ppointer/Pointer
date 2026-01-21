@@ -36,6 +36,7 @@ import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
 import { useRecentScrapStore } from '../../stores/recentScrapStore';
 import { invalidateScrapSearchQueries } from '@/apis/controller/student/scrap/utils';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface ScrapItemTooltipProps {
   props: ScrapListItemProps;
@@ -64,6 +65,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
     Number(props.id),
     props.type === 'FOLDER'
   );
+  const queryClient = useQueryClient();
 
   // 스크랩 상세 정보 가져오기 (필요한 경우)
   const { data: scrapDetail } = useGetScrapDetail(Number(props.id), props.type === 'SCRAP');
