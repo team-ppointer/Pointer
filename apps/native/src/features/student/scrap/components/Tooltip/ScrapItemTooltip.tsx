@@ -210,6 +210,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
                 } catch (error: any) {
                   showToast('error', error.message);
                 }
+                invalidateScrapSearchQueries(queryClient);
               } else {
                 setText(initialTitle);
               }
