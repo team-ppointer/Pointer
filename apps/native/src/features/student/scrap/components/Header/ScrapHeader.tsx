@@ -62,7 +62,11 @@ const ScrapHeader = ({
           )}
           {navigateback ? (
             <View className='absolute left-0 right-0 items-center'>
-              <Text className='text-20b text-gray-900'>{title}</Text>
+              <Text
+                className='text-20b text-center text-gray-900 md:max-w-[344px] lg:max-w-[464px]'
+                numberOfLines={1}>
+                {title}
+              </Text>
             </View>
           ) : (
             <Text className='text-20b text-gray-900'>{title}</Text>
