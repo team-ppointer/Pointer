@@ -5,7 +5,7 @@ import { mathSubjectOptions, MathSubjectValue } from '@/features/student/onboard
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { showToast } from '@/features/student/scrap/components/Notification';
-import usePutMe from '@/apis/controller/student/me/putMe';
+import usePutMe from '@/apis/controller/student/me/usePutMe';
 import { OptionButton } from '@/features/student/onboarding/components';
 
 const EditMathSubjectScreen = ({

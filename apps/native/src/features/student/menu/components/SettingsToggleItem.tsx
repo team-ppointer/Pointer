@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Switch } from 'react-native';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 
 interface SettingsToggleItemProps {
   title: string;

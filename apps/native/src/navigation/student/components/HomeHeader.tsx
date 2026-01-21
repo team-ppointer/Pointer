@@ -1,6 +1,5 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AlertBellButtonIcon } from '@components/system/icons';
@@ -23,7 +22,7 @@ const HomeHeader = () => {
     (notificationCountData?.unreadCount ?? 0) >= 1 || (noticeCountData?.unreadCount ?? 0) >= 1;
 
   return (
-    <SafeAreaView edges={['top']}>
+    <View>
       <Container className='flex-row items-center justify-between py-[8px]'>
         <View className='flex-col'>
           <Text className='text-20b text-gray-900'>안녕하세요, {getName()} 학생!</Text>
@@ -35,7 +34,7 @@ const HomeHeader = () => {
           {hasUnread ? <AlertBellButtonIcon /> : <Bell size={24} color='black' />}
         </AnimatedPressable>
       </Container>
-    </SafeAreaView>
+    </View>
   );
 };
 

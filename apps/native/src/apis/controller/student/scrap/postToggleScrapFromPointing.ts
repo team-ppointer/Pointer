@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { client } from '@/apis/client';
-import { paths } from '@/types/api/schema';
+import { paths } from '@schema';
 import { invalidateScrapMutationQueries } from './utils';
 
 type ToggleScrapFromPointingRequest =

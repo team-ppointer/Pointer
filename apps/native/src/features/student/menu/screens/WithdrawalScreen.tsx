@@ -71,7 +71,7 @@ const WithdrawalScreen = () => {
           <View className='mb-[20px]'>
             {!showReasons && (
               <>
-                <Text className='text-18sb text-black mb-[6px]'>포인터를 탈퇴하시겠습니까?</Text>
+                <Text className='text-18sb mb-[6px] text-black'>포인터를 탈퇴하시겠습니까?</Text>
                 <Text className='text-12r text-gray-700'>
                   지금까지의 학습, 스크랩, 채팅 기록이 모두 삭제되고{`\n`}14일간 재가입 및 접속이
                   제한됩니다.
@@ -80,7 +80,7 @@ const WithdrawalScreen = () => {
             )}
             {showReasons && (
               <>
-                <Text className='text-18sb text-black mb-[6px]'>
+                <Text className='text-18sb mb-[6px] text-black'>
                   서비스 개선을 위해{`\n`}
                   탈퇴 사유를 알려주세요.
                 </Text>

@@ -56,7 +56,7 @@ const ChatRoomHeader = ({
               />
             )}
           </View>
-            {showBackButton && (<View className='h-[40px] w-[40px]' />)}
+          {showBackButton && <View className='h-[40px] w-[40px]' />}
         </View>
       </View>
 

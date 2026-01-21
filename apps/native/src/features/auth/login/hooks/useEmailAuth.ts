@@ -1,18 +1,18 @@
 import { useState, useCallback } from 'react';
-import { client } from '@/apis/client';
-import { postLoginLocal, postEmailSignup } from '@apis/student';
+import { client } from '@apis';
+import { postLoginLocal, postEmailSignup } from '@apis';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 
 export type EmailAuthStep =
-  | 'email'           // 이메일 입력
-  | 'login'           // 로그인 (비밀번호 입력)
-  | 'terms'           // 약관 동의 (회원가입)
-  | 'signup'          // 회원가입 (비밀번호 입력)
-  | 'forgot-email'    // 비밀번호 찾기 - 이메일 확인
-  | 'forgot-code'     // 비밀번호 찾기 - 코드 입력
-  | 'forgot-reset';   // 비밀번호 찾기 - 새 비밀번호
+  | 'email' // 이메일 입력
+  | 'login' // 로그인 (비밀번호 입력)
+  | 'terms' // 약관 동의 (회원가입)
+  | 'signup' // 회원가입 (비밀번호 입력)
+  | 'forgot-email' // 비밀번호 찾기 - 이메일 확인
+  | 'forgot-code' // 비밀번호 찾기 - 코드 입력
+  | 'forgot-reset'; // 비밀번호 찾기 - 새 비밀번호
 
 export type EmailAuthState = {
   step: EmailAuthStep;

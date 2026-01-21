@@ -26,4 +26,3 @@ const usePostReadNotification = (options?: Options) => {
 };
 
 export default usePostReadNotification;
-

@@ -51,7 +51,7 @@ const AnimatedPressable = ({
           useNativeDriver: true,
           tension: 300,
           friction: 10,
-        }),
+        })
       );
     }
 
@@ -75,7 +75,7 @@ const AnimatedPressable = ({
           useNativeDriver: true,
           tension: 300,
           friction: 10,
-        }),
+        })
       );
     }
 

@@ -1,10 +1,5 @@
 import { forwardRef, useCallback, useState, useMemo } from 'react';
-import {
-  Pressable,
-  Text,
-  View,
-  ActivityIndicator,
-} from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
@@ -557,7 +552,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
         keyboardBehavior='interactive'
         keyboardBlurBehavior='restore'
         android_keyboardInputMode='adjustResize'>
-        <BottomSheetView className='bg-white pb-[12px] pt-[4px]' style={{ paddingBottom: bottomInset + 12 }}>
+        <BottomSheetView
+          className='bg-white pb-[12px] pt-[4px]'
+          style={{ paddingBottom: bottomInset + 12 }}>
           <Container>
             {showBackButton && (
               <AnimatedPressable

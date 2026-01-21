@@ -71,7 +71,7 @@ const HeaderRoot = ({
 };
 
 const Subtitle = ({ children, className = '' }: { children: ReactNode; className?: string }) =>
-  children ? <Text className={`text-14r text-gray-700 ${className}`}>{children}</Text> : null;
+  children ? <Text className={`text-18m text-gray-700 ${className}`}>{children}</Text> : null;
 
 const TitleGroup = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
   <View className={`flex-row items-center gap-[10px] ${className}`}>{children}</View>

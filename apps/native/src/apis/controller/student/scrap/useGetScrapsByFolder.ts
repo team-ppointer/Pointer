@@ -1,5 +1,5 @@
 import { TanstackQueryClient } from '@/apis/client';
-import { paths } from '@/types/api/schema';
+import { paths } from '@schema';
 
 type GetScrapsByFolderResponse =
   paths['/api/student/scrap/folder/{folderId}/scraps']['get']['responses']['200']['content']['*/*'];
@@ -22,4 +22,3 @@ export const useGetScrapsByFolder = (folderId: number, enabled = true) => {
     }
   );
 };
-

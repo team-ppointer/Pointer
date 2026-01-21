@@ -81,7 +81,7 @@ const BottomActionBarButton = ({
     <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
       <Pressable
         className={combineClassName(
-          'items-center justify-center rounded-[8px] px-[18px] py-[10px]',
+          'items-center justify-center rounded-[8px] px-[18px] h-[42px]',
           className
         )}
         onPressIn={handlePressIn}
@@ -94,17 +94,14 @@ const BottomActionBarButton = ({
 
   if (animatedStyle) {
     return (
-      <Animated.View style={[{ borderRadius: 8, overflow: 'hidden' }, animatedStyle, containerStyle]}>
+      <Animated.View
+        style={[{ borderRadius: 8, overflow: 'hidden' }, animatedStyle, containerStyle]}>
         {innerContent}
       </Animated.View>
     );
   }
 
-  return (
-    <View style={containerStyle}>
-      {innerContent}
-    </View>
-  );
+  return <View style={containerStyle}>{innerContent}</View>;
 };
 
 const BottomActionBar = (({ bottomInset = 0, onLayout, children }: BottomActionBarProps) => (

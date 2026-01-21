@@ -64,27 +64,69 @@ function serializeImage(node: JSONNode): string {
   )}" title="${escapeAttr(title)}"${widthAttr}${heightAttr}>`;
 }
 
-function serializeInline(node: JSONNode): string {
-  if (node.type === 'text') {
-    const text = escapeHtml(node.text ?? '');
-    return renderMarks(text, node.marks);
+function areAttrsEqual(a?: Record<string, any>, b?: Record<string, any>): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const keysA = Object.keys(a).sort();
+  const keysB = Object.keys(b).sort();
+  if (keysA.length !== keysB.length) return false;
+  for (let i = 0; i < keysA.length; i++) {
+    const key = keysA[i];
+    if (key !== keysB[i]) return false;
+    if (a[key] !== b[key]) return false;
   }
+  return true;
+}
 
+function areMarksEqual(m1: JSONMark[] = [], m2: JSONMark[] = []): boolean {
+  if (m1.length !== m2.length) return false;
+  for (let i = 0; i < m1.length; i++) {
+    if (m1[i].type !== m2[i].type) return false;
+    if (!areAttrsEqual(m1[i].attrs, m2[i].attrs)) return false;
+  }
+  return true;
+}
+
+function getInlineNodeContent(node: JSONNode): string {
+  if (node.type === 'text') {
+    return escapeHtml(node.text ?? '');
+  }
   if (node.type === 'inlineMath') {
     const latex = node.attrs?.latex ?? '';
     return `<span data-latex="${escapeAttr(latex)}" data-type="inline-math"></span>`;
   }
-
   if (node.type === 'image') {
     return serializeImage(node);
   }
 
-  const children = (node.content ?? []).map(serializeInline).join('');
-  return children;
+  return serializeInlineList(node.content ?? []);
+}
+
+function serializeInlineList(nodes: JSONNode[]): string {
+  if (nodes.length === 0) return '';
+
+  const groups: { marks: JSONMark[]; content: string }[] = [];
+
+  for (const node of nodes) {
+    const nodeMarks = node.marks ?? [];
+    const nodeContent = getInlineNodeContent(node);
+
+    if (groups.length > 0) {
+      const lastGroup = groups[groups.length - 1];
+      if (areMarksEqual(lastGroup.marks, nodeMarks)) {
+        lastGroup.content += nodeContent;
+        continue;
+      }
+    }
+
+    groups.push({ marks: nodeMarks, content: nodeContent });
+  }
+
+  return groups.map((g) => renderMarks(g.content, g.marks)).join('');
 }
 
 function serializeParagraph(node: JSONNode): string {
-  const inner = (node.content ?? []).map(serializeInline).join('');
+  const inner = serializeInlineList(node.content ?? []);
   return `<p>${inner}</p>`;
 }
 
@@ -188,7 +230,7 @@ function serializeNode(node: JSONNode): string {
       return serializeImage(node);
     case 'text':
     case 'inlineMath':
-      return serializeInline(node);
+      return serializeInlineList([node]);
     default: {
       const inner = (node.content ?? []).map(serializeNode).join('');
       return inner;

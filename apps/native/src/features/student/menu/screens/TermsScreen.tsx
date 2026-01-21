@@ -3,7 +3,7 @@ import { Text, Pressable, ScrollView } from 'react-native';
 import { Container } from '@components/common';
 import { ChevronRight } from 'lucide-react-native';
 import { ScreenLayout } from '../components';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 
 interface TermsItem {
   id: string;

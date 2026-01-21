@@ -80,7 +80,7 @@ const useFcmToken = () => {
     // 4. 포그라운드 메시지 수신 (앱이 켜져 있을 때 로그 확인용)
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       console.log('[FCM] A new FCM message arrived!', JSON.stringify(remoteMessage));
-      
+
       // 앱이 켜져 있을 때도 상단 알림을 띄우고 싶다면 expo-notifications 사용
       await Notifications.scheduleNotificationAsync({
         content: {

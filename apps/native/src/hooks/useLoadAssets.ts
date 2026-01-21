@@ -32,7 +32,6 @@ const useLoadAssets = () => {
 
         if (fontsLoaded) {
           setIsReady(true);
-          await SplashScreen.hideAsync();
         }
       }
     };

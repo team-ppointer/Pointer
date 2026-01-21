@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, Pressable, Modal } from 'react-native';
+import { ScrollView, View, Text, Pressable, Modal, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedPressable, NotificationItem, Container } from '@components/common';
-import LearningStatus from '../components/LearningStatus';
+import { AnimatedPressable, Container } from '@components/common';
 import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';
 import { useNavigation } from '@react-navigation/native';
@@ -13,13 +12,15 @@ import {
   useGetLastDiagnosis,
   useGetMonthlyPublish,
   useGetPublishDetail,
-} from '@apis/student';
+} from '@apis';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon, XIcon } from 'lucide-react-native';
 import ProblemViewer from '../../problem/components/ProblemViewer';
-import { colors } from '@/theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { PointerSymbol } from '@components/system/icons';
 import { BlurView } from 'expo-blur';
+import { useInvalidateAll } from '@hooks';
+
 const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
@@ -59,8 +60,19 @@ const HomeScreen = () => {
     }
   };
 
+  const { invalidateAll } = useInvalidateAll();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await invalidateAll();
+    setRefreshing(false);
+  };
+
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 80 }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       <Container className='flex-col gap-[12px] pt-[20px] md:flex-row'>
         <View className='flex-1 flex-col'>
           <View className='mb-[10px] w-full flex-row items-center gap-[8px] p-[8px]'>
@@ -95,11 +107,11 @@ const HomeScreen = () => {
                 {diagnosisData?.content && <ProblemViewer problemContent={diagnosisData.content} />}
               </View>
             </LinearGradient>
-            <View className='flex-col rounded-[10px] bg-white p-[16px]'>
+            {/* <View className='flex-col rounded-[10px] bg-white p-[16px]'>
               <Text className='text-16sb text-primary-500 mb-[8px]'>이번 주 개념</Text>
-              {/* <ProblemViewer problemContent={diagnosisData?.content ?? ''} minHeight={200} /> */}
+              <ProblemViewer problemContent={diagnosisData?.content ?? ''} minHeight={200} />
               <Text>미구현</Text>
-            </View>
+            </View> */}
           </View>
         </View>
         <View className='flex-1 flex-col'>

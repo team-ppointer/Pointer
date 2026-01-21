@@ -96,7 +96,7 @@ const SearchScreen = () => {
   }, []);
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className='flex-1 bg-gray-100'>
       <SearchHeader
         value={searchText}
         onChange={handleSearchTextChange}
@@ -105,8 +105,8 @@ const SearchScreen = () => {
       />
 
       {isLoading || isFetching ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size='large' />
         </View>
       ) : hasSearched ? (
         <SearchResults

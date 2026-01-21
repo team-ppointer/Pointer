@@ -67,7 +67,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
   const toggleScrapMutation = useToggleScrapFromProblem();
-  const { data: scrapStatusData } = useGetScrapStatusById(currentProblem?.id ?? 0, !!currentProblem?.id);
+  const { data: scrapStatusData } = useGetScrapStatusById(
+    currentProblem?.id ?? 0,
+    !!currentProblem?.id
+  );
 
   const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
@@ -357,9 +360,9 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
         <Header onClose={handleCloseFlow}>
-          {subtitle ? <Header.Subtitle>{subtitle}</Header.Subtitle> : null}
           <Header.TitleGroup>
             <Header.Title>{problemTitle}</Header.Title>
+            {subtitle ? <Header.Subtitle>{subtitle}</Header.Subtitle> : null}
             <Header.Status status={problemProgress ?? currentProblem?.progress} />
           </Header.TitleGroup>
         </Header>
@@ -372,6 +375,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                 problemContent={currentProblem?.problemContent ?? ''}
                 minHeight={200}
                 padding={20}
+                fontStyle='serif'
               />
             </View>
 

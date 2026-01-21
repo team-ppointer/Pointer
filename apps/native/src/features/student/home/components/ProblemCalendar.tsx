@@ -332,6 +332,7 @@ const ProblemCalendar = ({
                     display='spinner'
                     value={pickerValue}
                     onChange={handleMonthPickerChange}
+                    textColor='black'
                   />
                 ) : (
                   <input

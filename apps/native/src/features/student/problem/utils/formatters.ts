@@ -8,8 +8,8 @@ export const formatPublishDateLabel = (publishAt?: string) => {
   if (Number.isNaN(date.getTime())) {
     return '';
   }
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1);
+  const day = String(date.getDate());
   const weekday = WEEKDAY_LABELS[date.getDay()];
   return `${month}월 ${day}일`; // ${weekday}`;
 };

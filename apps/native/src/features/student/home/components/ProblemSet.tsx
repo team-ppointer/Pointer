@@ -1,23 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  CircleIcon,
-  MinusIcon,
-  TriangleIcon,
-  XIcon,
-} from 'lucide-react-native';
+import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native';
 import { Alert, Text, View } from 'react-native';
 
 import { AnimatedPressable, TextButton } from '@components/common';
 import { components } from '@schema';
-import { colors } from '@theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import { useProblemSessionStore } from '@stores/problemSessionStore';
+import { useProblemSessionStore } from '@stores';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {
@@ -129,7 +120,9 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
   const { Icon, color, bgColor } = ProblemStatusIcon[group.problem.progress ?? 'NONE'];
 
   return (
-    <View className='flex-col gap-[12px] rounded-[10px] bg-white px-[14px] py-[10px]'>
+    <View
+      className='flex-col gap-[12px] rounded-[10px] bg-white px-[14px] py-[10px]'
+      style={shadow[100]}>
       <View className='flex-row items-center justify-between'>
         <View className='flex-col'>
           <View className='flex-row items-center'>
@@ -252,7 +245,8 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
           {startButtonLabel && (
             <AnimatedPressable
               className='bg-primary-500 mb-[4px] items-center justify-center rounded-[8px] p-[12px]'
-              onPress={handleStartFromFirst}>
+              onPress={handleStartFromFirst}
+              style={shadow[100]}>
               <Text className='text-16m text-white'>{startButtonLabel}</Text>
             </AnimatedPressable>
           )}

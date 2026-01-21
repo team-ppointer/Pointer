@@ -1,4 +1,4 @@
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
