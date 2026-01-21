@@ -23,9 +23,9 @@ import GoogleIcon from './GoogleIcon';
 import KakaoIcon from './KakaoIcon';
 import AppleIcon from './AppleIcon';
 import CircleCheckDashed from './CircleCheckDashed';
-import ScrapFolderDefalutIcon from './ScrapFolderDefaultIcon';
-import ScrapFolderStackIcon from './ScrapFolderStackIcon';
 import CircleXFilledIcon from './CircleXFilledIcon';
+import ScrapDefalutIcon from './ScrapDefalutIcon';
+import ScrapFolderDefalutIcon from './ScrapFolderDefalutIcon';
 
 export {
   AlertBellButtonIcon,
@@ -53,7 +53,7 @@ export {
   AppleIcon,
   GoogleIcon,
   KakaoIcon,
+  ScrapDefalutIcon,
   ScrapFolderDefalutIcon,
-  ScrapFolderStackIcon,
   CircleXFilledIcon,
 };
