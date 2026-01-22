@@ -77,7 +77,7 @@ export const fontSize = {
 
 export const screens = {
   sm: '0px',
-  md: '768px',
+  md: '740px',
   lg: '1024px',
 };
 
