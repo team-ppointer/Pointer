@@ -20,7 +20,17 @@ import { GradeValue, MathSubjectValue } from '@features/student/onboarding/const
 
 export type MenuStackParamList = {
   MenuMain: undefined;
-  MyInfo: undefined;
+  MyInfo: {
+    updatedData?: {
+      name?: string;
+      phoneNumber?: string;
+      grade?: GradeValue;
+      schoolId?: number;
+      school?: components['schemas']['SchoolResp'];
+      level?: number;
+      selectSubject?: MathSubjectValue;
+    };
+  };
   NotificationSettings: undefined;
   Notice: undefined;
   Feedback: undefined;
@@ -29,7 +39,7 @@ export type MenuStackParamList = {
   EditPhoneNumber: undefined;
   EditNickname: { initialNickname?: string };
   EditSchool: { initialSchool?: components['schemas']['SchoolResp'] & { grade?: GradeValue } };
-  EditGrade: { initialGrade?: GradeValue };
+  EditGrade: { initialSchoolId?: number, initialSchoolName?: string,  initialGrade?: GradeValue };
   EditScore: { initialScore?: number };
   EditMathSubject: { initialMathSubject?: MathSubjectValue };
 };
