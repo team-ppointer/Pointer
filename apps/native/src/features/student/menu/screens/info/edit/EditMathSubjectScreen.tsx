@@ -5,14 +5,12 @@ import { mathSubjectOptions, MathSubjectValue } from '@/features/student/onboard
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { showToast } from '@/features/student/scrap/components/Notification';
-import usePutMe from '@/apis/controller/student/me/usePutMe';
 import { OptionButton } from '@/features/student/onboarding/components';
 
 const EditMathSubjectScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditMathSubject'>) => {
-  const { mutate: putMeMutate } = usePutMe();
   const [selectSubject, setSelectSubject] = useState<MathSubjectValue | null>(
     route.params.initialMathSubject || null
   );
@@ -22,18 +20,15 @@ const EditMathSubjectScreen = ({
       showToast('error', '선택과목을 선택해 주세요.');
       return;
     }
-    putMeMutate(
-      { selectSubject },
-      {
-        onSuccess: () => {
-          navigation.goBack();
-          showToast('success', '선택과목이 변경되었습니다.');
-        },
-        onError: () => {
-          showToast('error', '선택과목 변경에 실패했습니다.');
-        },
-      }
-    );
+    // MyInfo로 돌아가면서 수정된 값 전달
+    navigation.reset({
+      index: 1,
+      routes: [
+        { name: 'MenuMain' },
+        { name: 'MyInfo', params: { updatedData: { selectSubject: selectSubject } } },
+      ],
+    });
+    showToast('success', '선택과목이 변경되었습니다.');
   };
 
   return (
