@@ -55,6 +55,7 @@ import { showToast } from '../components/Notification/Toast';
 import { withScrapModals } from '../hoc/withScrapModals';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
+import { ExplanationSection } from '../components/scrap/ExplanationSection';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
@@ -78,7 +79,6 @@ const ScrapDetailScreen = () => {
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes, updateNoteTitle } =
     useNoteStore();
-
 
   const [scrapName, setScrapName] = useState(scrapDetail?.name || '');
 
@@ -191,6 +191,8 @@ const ScrapDetailScreen = () => {
   // Visible content checks
   const showProblem = shouldShowProblem(uiState.selectedFilter);
   const hasPointings = hasVisiblePointings(scrapDetail, uiState.selectedFilter);
+  const showExplanation = uiState.selectedFilter === 0;
+  const hasExplanation = !!scrapDetail?.problem?.problemContent;
 
   // Handlers
   const handleViewAllPointings = useCallback(() => {
@@ -420,6 +422,15 @@ const ScrapDetailScreen = () => {
                       onExpand={uiState.openProblemModal}
                     />
                   )}
+
+                {hasExplanation && showExplanation && scrapDetail.problem?.mainAnalysisImage && (
+                  <ExplanationSection
+                    explanation={scrapDetail.pointings?.[0].commentContent || ''}
+                    title='해설'
+                  />
+                  // TODO: 포인팅 목록에서 해설 표시
+                )}
+
                 <View className='h-[1px] w-full bg-gray-400' />
                 {/* Pointings List */}
                 {hasPointings && (
