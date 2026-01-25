@@ -23,18 +23,18 @@ export const ExplanationSection = ({
   };
 
   return (
-    <View className="w-full bg-white rounded-lg border border-gray-400 overflow-hidden">
+    <View className='w-full overflow-hidden rounded-lg border border-gray-400 bg-white'>
       {/* Header */}
       <AnimatedPressable
-        className="flex-row items-center justify-between px-3.5 py-2.5"
+        className='flex-row items-center justify-between px-3.5 py-2.5'
         onPress={toggleOpen}
         style={{ minHeight: 44 }}
         disableScale>
-        <View className="flex-1 flex-row items-center justify-between">
-          <Text className="text-16sb text-gray-800" numberOfLines={1}>
+        <View className='flex-1 flex-row items-center justify-between'>
+          <Text className='text-16sb text-gray-800' numberOfLines={1}>
             {title}
           </Text>
-          <View className="w-6 h-6 items-center justify-center">
+          <View className='h-6 w-6 items-center justify-center'>
             {isOpen ? (
               <ChevronUpFilledIcon size={20} color={colors['gray-800']} />
             ) : (
@@ -46,12 +46,12 @@ export const ExplanationSection = ({
 
       {/* Content */}
       {isOpen && (
-        <View className="px-3.5 py-3.5 bg-gray-100">
+        <View className='bg-gray-100 px-3.5 py-3.5'>
           <ProblemViewer
             problemContent={explanation}
             minHeight={0}
-            padding={0}
-            fontStyle="serif"
+            padding={16}
+            fontStyle='serif'
           />
         </View>
       )}
