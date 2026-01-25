@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { AddFolderScreenModal } from './FullScreenModal';
 import { useCreateFolder, useUploadFile } from '@/apis';
@@ -12,7 +12,7 @@ import { useScrapModal } from '../../contexts/ScrapModalsContext';
 export const CreateFolderModal = () => {
   const { isCreateFolderModalVisible, closeCreateFolderModal, refetchFolders, refetchScraps } =
     useScrapModal();
-  const [folderName, setFolderName] = useState('');
+  const [folderName, setFolderName] = useState('제목 없음');
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [imageId, setImageId] = useState<number | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -88,6 +88,19 @@ export const CreateFolderModal = () => {
     }
   };
 
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 자동으로 포커스
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100); // 약간의 지연을 주어 화면 렌더링이 완료된 후 포커스
+
+    return () => clearTimeout(timer);
+  }, []);
+
+
+
   return (
     <AddFolderScreenModal
       visible={isCreateFolderModalVisible}
@@ -119,6 +132,7 @@ export const CreateFolderModal = () => {
             </Pressable>
             <View className='h-[40px] w-full rounded-[8px] border border-gray-400 bg-white px-3 py-2'>
               <TextInput
+                ref={inputRef}
                 className='text-16sb text-black'
                 placeholder='제목없음'
                 style={{ lineHeight: 20, paddingVertical: 0 }}
