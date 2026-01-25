@@ -36,6 +36,12 @@ export const ScrapDetailHeader = ({
     setLocalName(scrapName);
   }, [scrapName]);
 
+  useEffect(() => {
+    if (showSave && lottieRef.current) {
+      lottieRef.current.play();
+    }
+  }, [showSave]);
+
   return (
     <View className='w-full flex-row items-center justify-between bg-gray-800 px-[20px] py-[14px]'>
       {canGoBack && (
