@@ -1181,85 +1181,101 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const renderedTexts = useMemo(
       () =>
         font
-          ? texts.flatMap((textItem) => {
-              const allLines: string[] = [];
-
-              // 먼저 명시적 줄바꿈으로 분할
-              const paragraphs = textItem.text.split('\n');
-
-              // 각 문단을 너비 기준으로 추가 분할
-              paragraphs.forEach((paragraph) => {
-                if (!paragraph) {
-                  allLines.push(''); // 빈 줄 유지
-                  return;
+          ? texts
+              .filter((textItem) => {
+                // activeTextInput이 있고 id가 일치하면 편집 중이므로 렌더링하지 않음
+                if (activeTextInput && activeTextInput.id === textItem.id) {
+                  return false;
                 }
+                return true;
+              })
+              .flatMap((textItem) => {
+                const allLines: string[] = [];
 
-                const words = paragraph.split(' ');
-                let currentLine = '';
+                // 먼저 명시적 줄바꿈으로 분할
+                const paragraphs = textItem.text.split('\n');
 
-                words.forEach((word, idx) => {
-                  const testLine = currentLine ? `${currentLine} ${word}` : word;
-                  const textWidth = font.measureText(testLine).width;
-
-                  if (textWidth > maxTextWidth && currentLine) {
-                    // 현재 줄이 최대 너비를 초과하면 줄바꿈
-                    allLines.push(currentLine);
-                    currentLine = word;
-                  } else {
-                    currentLine = testLine;
+                // 각 문단을 너비 기준으로 추가 분할
+                paragraphs.forEach((paragraph) => {
+                  if (!paragraph) {
+                    allLines.push(''); // 빈 줄 유지
+                    return;
                   }
 
-                  // 마지막 단어인 경우 현재 줄 추가
-                  if (idx === words.length - 1) {
-                    allLines.push(currentLine);
-                  }
+                  const words = paragraph.split(' ');
+                  let currentLine = '';
+
+                  words.forEach((word, idx) => {
+                    const testLine = currentLine ? `${currentLine} ${word}` : word;
+                    const textWidth = font.measureText(testLine).width;
+
+                    if (textWidth > maxTextWidth && currentLine) {
+                      // 현재 줄이 최대 너비를 초과하면 줄바꿈
+                      allLines.push(currentLine);
+                      currentLine = word;
+                    } else {
+                      currentLine = testLine;
+                    }
+
+                    // 마지막 단어인 경우 현재 줄 추가
+                    if (idx === words.length - 1) {
+                      allLines.push(currentLine);
+                    }
+                  });
                 });
-              });
 
-              return allLines.map((line, lineIndex) => (
-                <Text
-                  key={`${textItem.id}-line-${lineIndex}`}
-                  x={textItem.x}
-                  y={textItem.y + lineIndex * 22.5}
-                  text={line}
-                  font={font}
-                  color={textItem.color}
-                />
-              ));
-            })
+                return allLines.map((line, lineIndex) => (
+                  <Text
+                    key={`${textItem.id}-line-${lineIndex}`}
+                    x={textItem.x}
+                    y={textItem.y + lineIndex * 22.5}
+                    text={line}
+                    font={font}
+                    color={textItem.color}
+                  />
+                ));
+              })
           : null,
-      [texts, font, maxTextWidth]
+      [texts, font, maxTextWidth, activeTextInput]
     );
 
     // 텍스트 삭제 버튼 렌더링 (텍스트 모드일 때만, 텍스트 시작 위치에 배치)
     const renderedTextDeleteButtons = useMemo(() => {
       if (!textMode || eraserMode) return null;
 
-      return texts.map((textItem) => {
-        const buttonSize = 20;
-        const buttonX = textItem.x - buttonSize + 10; // 텍스트 시작 왼쪽에 배치
-        const buttonY = textItem.y - 15 + (15 - buttonSize) / 2 + 10; // 고정 폰트 크기
+      return texts
+        .filter((textItem) => {
+          // activeTextInput이 있고 id가 일치하면 편집 중이므로 삭제 버튼도 표시하지 않음
+          if (activeTextInput && activeTextInput.id === textItem.id) {
+            return false;
+          }
+          return true;
+        })
+        .map((textItem) => {
+          const buttonSize = 20;
+          const buttonX = textItem.x - buttonSize + 10; // 텍스트 시작 왼쪽에 배치
+          const buttonY = textItem.y - 15 + (15 - buttonSize) / 2 + 10; // 고정 폰트 크기
 
-        return (
-          <Pressable
-            key={`delete-${textItem.id}`}
-            style={[
-              styles.deleteButton,
-              {
-                position: 'absolute',
-                left: buttonX,
-                top: buttonY,
-                width: buttonSize,
-                height: buttonSize,
-                zIndex: 100,
-              },
-            ]}
-            onPress={() => deleteText(textItem.id)}>
-            <RNText style={styles.deleteButtonText}>×</RNText>
-          </Pressable>
-        );
-      });
-    }, [texts, textMode, eraserMode, deleteText]);
+          return (
+            <Pressable
+              key={`delete-${textItem.id}`}
+              style={[
+                styles.deleteButton,
+                {
+                  position: 'absolute',
+                  left: buttonX,
+                  top: buttonY,
+                  width: buttonSize,
+                  height: buttonSize,
+                  zIndex: 100,
+                },
+              ]}
+              onPress={() => deleteText(textItem.id)}>
+              <RNText style={styles.deleteButtonText}>×</RNText>
+            </Pressable>
+          );
+        });
+    }, [texts, textMode, eraserMode, deleteText, activeTextInput]);
 
     return (
       <ScrollView

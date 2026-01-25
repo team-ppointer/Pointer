@@ -95,6 +95,16 @@ const ScrapDetailScreen = () => {
     }
   }, [scrapDetail?.name]);
 
+  // scrapId 변경 시 scrapName 즉시 업데이트 (제목이 바뀌지 않는 문제 해결)
+  useEffect(() => {
+    if (scrapDetail?.name) {
+      setScrapName(scrapDetail.name);
+    } else {
+      // scrapDetail이 아직 로드되지 않았으면 초기화
+      setScrapName('');
+    }
+  }, [scrapId, scrapDetail?.name]);
+
   useEffect(() => {
     if (scrapDetail?.name) {
       updateNoteTitle(scrapId, scrapDetail.name);
@@ -143,6 +153,9 @@ const ScrapDetailScreen = () => {
     }
   }, [refetchScrapDetail, setRefetchScrapDetail]);
 
+  // Save indicator timeout ref for cleanup
+  const saveIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const handwriting = useHandwritingManager({
     scrapId,
     canvasRef,
@@ -150,9 +163,25 @@ const ScrapDetailScreen = () => {
     onSaveSuccess: () => {
       drawingState.markAsSaved();
       uiState.showSaveIndicator();
-      setTimeout(() => uiState.hideSaveIndicator(), 2000);
+      // Clear previous timeout if exists
+      if (saveIndicatorTimeoutRef.current) {
+        clearTimeout(saveIndicatorTimeoutRef.current);
+      }
+      saveIndicatorTimeoutRef.current = setTimeout(() => {
+        uiState.hideSaveIndicator();
+        saveIndicatorTimeoutRef.current = null;
+      }, 2000);
     },
   });
+
+  // Cleanup save indicator timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveIndicatorTimeoutRef.current) {
+        clearTimeout(saveIndicatorTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Tab management
   const [tabLayouts, setTabLayouts] = useState<Record<number, { x: number; width: number }>>({});
@@ -164,15 +193,70 @@ const ScrapDetailScreen = () => {
     }
   }, [activeNoteId, scrapId, navigation]);
 
+  // scrapId 변경 시 모든 state 초기화
+  useEffect(() => {
+    // 저장 중이면 초기화 지연 (데이터 유실 방지)
+    if (handwriting.isSaving) {
+      // 저장이 완료될 때까지 대기
+      const checkSaveComplete = setInterval(() => {
+        if (!handwriting.isSaving) {
+          clearInterval(checkSaveComplete);
+          // 저장 완료 후 초기화
+          if (saveIndicatorTimeoutRef.current) {
+            clearTimeout(saveIndicatorTimeoutRef.current);
+            saveIndicatorTimeoutRef.current = null;
+          }
+          drawingState.reset();
+          uiState.reset();
+          canvasRef.current?.clear();
+          setTabLayouts({});
+        }
+      }, 100); // 100ms마다 체크
+
+      return () => clearInterval(checkSaveComplete);
+    }
+
+    // 저장 중이 아니면 즉시 초기화
+    // Save indicator timeout cleanup
+    if (saveIndicatorTimeoutRef.current) {
+      clearTimeout(saveIndicatorTimeoutRef.current);
+      saveIndicatorTimeoutRef.current = null;
+    }
+    // Drawing state 초기화
+    drawingState.reset();
+    // UI state 초기화
+    uiState.reset();
+    // Canvas 초기화
+    canvasRef.current?.clear();
+    // Tab layouts 초기화
+    setTabLayouts({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrapId, handwriting.isSaving]);
+
   // Save indicator animation interval
+  const indicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
     const interval = setInterval(() => {
       uiState.showSaveIndicator();
-      setTimeout(() => uiState.hideSaveIndicator(), 200);
+      // Clear previous timeout if exists
+      if (indicatorTimeoutRef.current) {
+        clearTimeout(indicatorTimeoutRef.current);
+      }
+      indicatorTimeoutRef.current = setTimeout(() => {
+        uiState.hideSaveIndicator();
+        indicatorTimeoutRef.current = null;
+      }, 200);
     }, 30000);
 
-    return () => clearInterval(interval);
-  }, [uiState]);
+    return () => {
+      clearInterval(interval);
+      if (indicatorTimeoutRef.current) {
+        clearTimeout(indicatorTimeoutRef.current);
+      }
+    };
+    // uiState 객체 대신 필요한 메서드만 dependency에 포함
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Derived state - Pointings with labels
   const pointingsWithLabels = useMemo(() => {
@@ -347,6 +431,22 @@ const ScrapDetailScreen = () => {
 
   return (
     <>
+      {handwriting.isSaving && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            zIndex: 9999,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <LoadingScreen label='저장 중입니다...' />
+        </View>
+      )}
       <View style={{ flex: 1, backgroundColor: '#F2F4F7' }}>
         {/* Header */}
         <SafeAreaView edges={['top']} className='bg-gray-800 text-white'>
@@ -355,7 +455,7 @@ const ScrapDetailScreen = () => {
             onScrapNameChange={handleUpdateScrapName}
             showSave={uiState.showSave}
             onBack={async () => {
-              const saved = await handwriting.handleSave(true);
+              const saved = await handwriting.handleSave(true, scrapId);
               if (saved) {
                 navigation.goBack();
               }
@@ -373,13 +473,17 @@ const ScrapDetailScreen = () => {
             activeNoteId={activeNoteId}
             onTabPress={async (noteId) => {
               if (noteId === activeNoteId) return;
-              const saved = await handwriting.handleSave(true);
+              // 저장 중이면 탭 전환 방지
+              if (handwriting.isSaving) return;
+              const saved = await handwriting.handleSave(true, scrapId);
               if (!saved) return;
               setActiveNote(noteId);
             }}
             onTabClose={async (noteId) => {
               if (noteId === activeNoteId) {
-                const saved = await handwriting.handleSave(true);
+                // 저장 중이면 탭 닫기 방지
+                if (handwriting.isSaving) return;
+                const saved = await handwriting.handleSave(true, scrapId);
                 if (!saved) return;
               }
               closeNote(noteId);
@@ -423,12 +527,17 @@ const ScrapDetailScreen = () => {
                     />
                   )}
 
-                {hasExplanation && showExplanation && scrapDetail.problem?.mainAnalysisImage && (
+                {hasExplanation && showExplanation && (
                   <ExplanationSection
-                    explanation={scrapDetail.pointings?.[0].commentContent || ''}
+                    explanation={
+                      scrapDetail.pointings
+                        .map((pointing) => pointing.commentContent)
+                        .filter(Boolean)
+                        .join('\n') || ''
+                    }
                     title='해설'
                   />
-                  // TODO: 포인팅 목록에서 해설 표시
+                  // TODO: 포인팅 목록에서 해설 표시 (임시로 문항 표시)
                 )}
 
                 <View className='h-[1px] w-full bg-gray-400' />
