@@ -570,6 +570,72 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           }
         }
 
+        // 기존 텍스트 클릭 확인
+        for (const textItem of texts) {
+          const lineCount = calculateTextLineCount(textItem.text);
+          const totalTextHeight = lineCount * 22.5; // 고정 줄 높이
+
+          // 텍스트 영역 확인 (X 좌표는 캔버스 전체 너비, Y 좌표만 확인)
+          const textTop = textItem.y - 15; // 고정 폰트 크기
+          const textBottom = textItem.y + totalTextHeight - 15;
+
+          // Y 좌표가 텍스트 영역 내에 있으면 편집 모드로 전환
+          if (y >= textTop && y <= textBottom) {
+            // 기존 텍스트를 편집 모드로 전환
+            setActiveTextInput({
+              id: textItem.id,
+              x: textItem.x,
+              y: textItem.y,
+              value: textItem.text,
+            });
+
+            // TextInput 포커스 및 키보드 처리
+            setTimeout(() => {
+              textInputRef.current?.focus();
+
+              // 키보드가 올라올 때 텍스트 입력 위치로 스크롤
+              const showListener = Keyboard.addListener(
+                Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+                (e) => {
+                  keyboardHeight.current = e.endCoordinates.height;
+
+                  setTimeout(() => {
+                    if (!containerLayout.current) return;
+
+                    const textInputY = textItem.y;
+                    const screenHeight = Dimensions.get('window').height;
+                    const keyboardTop = screenHeight - e.endCoordinates.height;
+
+                    const containerY = containerLayout.current.y;
+                    const textInputAbsoluteY = containerY + textInputY;
+                    const textInputBottom = textInputAbsoluteY + totalTextHeight + 40;
+
+                    if (textInputBottom > keyboardTop) {
+                      const scrollOffset = textInputBottom - keyboardTop + 20;
+
+                      scrollViewRef.current?.scrollTo({
+                        y: Math.max(0, scrollOffset),
+                        animated: true,
+                      });
+                    }
+                  }, 100);
+                }
+              );
+
+              const hideListener = Keyboard.addListener(
+                Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+                () => {
+                  keyboardHeight.current = 0;
+                  showListener.remove();
+                  hideListener.remove();
+                }
+              );
+            }, 100);
+
+            return; // 기존 텍스트 편집 모드로 전환했으므로 새 텍스트 추가하지 않음
+          }
+        }
+
         const padding = 16;
         const minGap = 32; // 필기 아래 32px
 
@@ -672,35 +738,70 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       if (activeTextInput && activeTextInput.value.trim()) {
         isConfirmingTextRef.current = true;
 
-        const newText: TextItem = {
-          id: activeTextInput.id,
-          text: activeTextInput.value,
-          x: activeTextInput.x,
-          y: activeTextInput.y,
-          fontSize: 15, // 고정 폰트 크기
-          color: '#1E1E21', // 고정 텍스트 색상
-        };
+        // 기존 텍스트 수정인지 새 텍스트 추가인지 확인
+        const existingTextIndex = texts.findIndex((t) => t.id === activeTextInput.id);
 
-        // 텍스트의 실제 줄 수 계산하여 최대 Y 좌표 업데이트
-        const lineCount = calculateTextLineCount(activeTextInput.value);
-        const totalTextHeight = lineCount * 22.5; // 고정 줄 높이 22.5px
-        const textBottomY = activeTextInput.y + totalTextHeight;
+        if (existingTextIndex >= 0) {
+          // 기존 텍스트 수정
+          setTexts((prev) => {
+            const next = prev.map((text) =>
+              text.id === activeTextInput.id
+                ? {
+                    ...text,
+                    text: activeTextInput.value,
+                  }
+                : text
+            );
+            textsRef.current = next;
 
-        if (textBottomY > maxY.current) {
-          maxY.current = textBottomY;
-          canvasHeight.current = Math.max(800, maxY.current + 200);
-          setTick((t) => t + 1); // 캔버스 높이 변경을 위한 리렌더링
+            // 텍스트의 실제 줄 수 계산하여 최대 Y 좌표 업데이트
+            const lineCount = calculateTextLineCount(activeTextInput.value);
+            const totalTextHeight = lineCount * 22.5;
+            const textBottomY = activeTextInput.y + totalTextHeight;
+
+            if (textBottomY > maxY.current) {
+              maxY.current = textBottomY;
+              canvasHeight.current = Math.max(800, maxY.current + 200);
+              setTick((t) => t + 1);
+            }
+
+            // 히스토리에 저장 (텍스트 수정)
+            setTimeout(() => saveToHistory(), 0);
+
+            return next;
+          });
+        } else {
+          // 새 텍스트 추가
+          const newText: TextItem = {
+            id: activeTextInput.id,
+            text: activeTextInput.value,
+            x: activeTextInput.x,
+            y: activeTextInput.y,
+            fontSize: 15, // 고정 폰트 크기
+            color: '#1E1E21', // 고정 텍스트 색상
+          };
+
+          // 텍스트의 실제 줄 수 계산하여 최대 Y 좌표 업데이트
+          const lineCount = calculateTextLineCount(activeTextInput.value);
+          const totalTextHeight = lineCount * 22.5; // 고정 줄 높이 22.5px
+          const textBottomY = activeTextInput.y + totalTextHeight;
+
+          if (textBottomY > maxY.current) {
+            maxY.current = textBottomY;
+            canvasHeight.current = Math.max(800, maxY.current + 200);
+            setTick((t) => t + 1); // 캔버스 높이 변경을 위한 리렌더링
+          }
+
+          setTexts((prev) => {
+            const next = [...prev, newText];
+            textsRef.current = next;
+
+            // 히스토리에 저장 (텍스트 추가)
+            setTimeout(() => saveToHistory(), 0);
+
+            return next;
+          });
         }
-
-        setTexts((prev) => {
-          const next = [...prev, newText];
-          textsRef.current = next;
-
-          // 히스토리에 저장 (텍스트 추가)
-          setTimeout(() => saveToHistory(), 0);
-
-          return next;
-        });
         // 상태 변경으로 자동 리렌더링
       }
 
@@ -711,7 +812,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       setTimeout(() => {
         isConfirmingTextRef.current = false;
       }, 0);
-    }, [activeTextInput, saveToHistory, calculateTextLineCount]);
+    }, [activeTextInput, saveToHistory, calculateTextLineCount, texts]);
 
     const handleTextInputBlur = useCallback(() => {
       // 이미 처리 중이거나 activeTextInput이 없으면 실행하지 않음
@@ -752,15 +853,116 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
       // 히스토리에서 이전 상태로 복원
       if (historyIndexRef.current > 0) {
-        historyIndexRef.current--;
-        restoreFromHistory(historyIndexRef.current);
+        const currentState = historyRef.current[historyIndexRef.current];
+        const previousState = historyRef.current[historyIndexRef.current - 1];
+
+        // 현재 상태와 이전 상태의 texts 비교
+        // 현재에만 있고 이전에 없던 텍스트 찾기 (마지막에 추가된 텍스트)
+        const currentTextIds = new Set(currentState.texts.map((t) => t.id));
+        const previousTextIds = new Set(previousState.texts.map((t) => t.id));
+
+        // 새로 추가된 텍스트 찾기
+        const newlyAddedText = currentState.texts.find((text) => !previousTextIds.has(text.id));
+
+        if (newlyAddedText) {
+          // 새로 추가된 텍스트가 있으면 편집 모드로 전환
+          // 이전 상태로 복원하되, 새로 추가된 텍스트는 activeTextInput으로 설정
+          historyIndexRef.current--;
+
+          // strokes는 이전 상태로 복원
+          const newPaths = previousState.strokes.map((stroke) => buildSmoothPath(stroke.points));
+          setStrokes(previousState.strokes);
+          setPaths(newPaths);
+          strokesRef.current = previousState.strokes;
+
+          // texts는 이전 상태로 복원 (새로 추가된 텍스트 제외)
+          setTexts(previousState.texts);
+          textsRef.current = previousState.texts;
+
+          // 새로 추가된 텍스트를 편집 모드로 설정
+          setActiveTextInput({
+            id: newlyAddedText.id,
+            x: newlyAddedText.x,
+            y: newlyAddedText.y,
+            value: newlyAddedText.text,
+          });
+
+          // TextInput 포커스
+          setTimeout(() => {
+            textInputRef.current?.focus();
+          }, 100);
+
+          // 최대 Y 좌표 재계산
+          let maxYValue = 0;
+          if (previousState.strokes.length > 0) {
+            const strokesMaxY = Math.max(
+              ...previousState.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+            );
+            maxYValue = Math.max(maxYValue, strokesMaxY);
+          }
+          if (previousState.texts.length > 0) {
+            const textsMaxY = Math.max(...previousState.texts.map((text) => text.y));
+            maxYValue = Math.max(maxYValue, textsMaxY);
+          }
+
+          if (maxYValue > 0) {
+            maxY.current = maxYValue;
+            canvasHeight.current = Math.max(800, maxY.current + 200);
+          } else {
+            maxY.current = 0;
+            canvasHeight.current = 800;
+          }
+
+          onChange?.(previousState.strokes);
+          notifyHistoryChange();
+        } else {
+          // 새로 추가된 텍스트가 없으면 일반적인 undo
+          historyIndexRef.current--;
+          restoreFromHistory(historyIndexRef.current);
+        }
       } else if (historyIndexRef.current === 0) {
         // 첫 번째 상태로 복원 (빈 상태)
-        historyIndexRef.current = -1;
-        restoreFromHistory(0);
+        const currentState = historyRef.current[0];
+        const previousState: HistoryState = { strokes: [], texts: [] };
+
+        // 현재 상태에 텍스트가 있고 이전 상태가 비어있으면
+        if (currentState.texts.length > 0 && previousState.texts.length === 0) {
+          const newlyAddedText = currentState.texts[0]; // 첫 번째 텍스트
+
+          // strokes는 빈 상태로
+          setStrokes([]);
+          setPaths([]);
+          strokesRef.current = [];
+
+          // texts는 빈 상태로
+          setTexts([]);
+          textsRef.current = [];
+
+          // 첫 번째 텍스트를 편집 모드로 설정
+          setActiveTextInput({
+            id: newlyAddedText.id,
+            x: newlyAddedText.x,
+            y: newlyAddedText.y,
+            value: newlyAddedText.text,
+          });
+
+          setTimeout(() => {
+            textInputRef.current?.focus();
+          }, 100);
+
+          maxY.current = 0;
+          canvasHeight.current = 800;
+
+          onChange?.([]);
+          historyIndexRef.current = -1;
+          notifyHistoryChange();
+        } else {
+          historyIndexRef.current = -1;
+          restoreFromHistory(0);
+        }
       }
       // historyIndexRef.current === -1이면 undo할 히스토리가 없음
-    }, [activeTextInput, restoreFromHistory]);
+    }, [activeTextInput, restoreFromHistory, onChange, notifyHistoryChange]);
 
     const redo = useCallback(() => {
       // 활성 텍스트 입력이 있으면 redo 불가
