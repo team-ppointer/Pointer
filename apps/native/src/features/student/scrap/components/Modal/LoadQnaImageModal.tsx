@@ -138,13 +138,20 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
                       resizeMode='cover'
                     />
 
-                    {/* 좌측 상단 체크 아이콘 */}
+                    {/* 좌측 상단 체크박스 */}
                     <Pressable
                       onPress={() => toggleSelect(item.id)}
-                      style={styles.checkIconWrapper}
+                      style={[styles.checkbox, selected && styles.checkboxSelected]}
                       hitSlop={8}>
-                      <Check size={22} color={selected ? '#4F46E5' : '#fff'} />
+                      {selected && (
+                        <View style={styles.checkIconContainer}>
+                          <Check size={10} color='#fff' strokeWidth={2.5} />
+                        </View>
+                      )}
                     </Pressable>
+
+                    {/* 하단 스크랩 표시 바 */}
+                    {item.isScrapped && <View style={styles.bottomBar} />}
                   </Pressable>
                 );
               }}
@@ -176,32 +183,41 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#617AF9', // primary
   },
-  checkBox: {
+  checkbox: {
     position: 'absolute',
-    top: 6,
-    left: 6,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    top: 8,
+    left: 8,
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors['gray-700'],
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  checkboxSelected: {
+    backgroundColor: colors['blue-500'],
+    borderWidth: 0,
+    width: 16,
+    height: 16,
+  },
+  checkIconContainer: {
+    width: 16,
+    height: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkIconWrapper: {
+  bottomBar: {
     position: 'absolute',
-    top: 6,
-    left: 6,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    borderRadius: 12,
-    padding: 2,
-  },
-  checkInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#4F46E5',
+    left: 0,
+    bottom: 0,
+    right: 0,
+    height: 12,
+    backgroundColor: colors['primary-500'],
+    borderBottomLeftRadius: 6,
+    borderBottomRightRadius: 6,
   },
   previewBackdrop: {
     flex: 1,
