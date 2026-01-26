@@ -4291,6 +4291,21 @@ export interface components {
       total: number;
       data: components['schemas']['UploadFileResp'][];
     };
+    ListRespQnaFileResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['QnaFileResp'][];
+    };
+    QnaFileResp: {
+      /** Format: int64 */
+      id: number;
+      fileName: string;
+      url: string;
+      /** @enum {string} */
+      fileType: 'IMAGE' | 'DOCUMENT' | 'OTHER';
+      /** @description 스크랩 여부 */
+      isScrapped: boolean;
+    };
     ListRespNotificationResp: {
       /** Format: int32 */
       total: number;
@@ -8381,7 +8396,13 @@ export interface operations {
   };
   getScrapsByFolder: {
     parameters: {
-      query?: never;
+      query?: {
+        /**
+         * @description 정렬 옵션 (CREATED_AT: 최신순, NAME: 이름순, TYPE: 유형별)
+         * @example CREATED_AT
+         */
+        sortOption?: 'CREATED_AT' | 'NAME' | 'TYPE' | 'SIMILARITY';
+      };
       header?: never;
       path: {
         folderId: number;
@@ -8526,7 +8547,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespUploadFileResp'];
+          '*/*': components['schemas']['ListRespQnaFileResp'];
         };
       };
     };

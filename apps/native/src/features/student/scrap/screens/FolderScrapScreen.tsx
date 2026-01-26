@@ -18,7 +18,7 @@ import { withScrapModals } from '../hoc';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { useNoteStore } from '../stores/scrapNoteStore';
 import { SelectedItem } from '../utils/reducer';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -36,7 +36,11 @@ const FolderScrapScreenContent = () => {
 
   // API 호출
   const { data: foldersData, refetch: refetchFolders } = useGetFolders();
-  const { data: contentsData, isLoading, refetch } = useGetScrapsByFolder(id);
+  const {
+    data: data,
+    isLoading,
+    refetch,
+  } = useGetScrapsByFolder({ folderId: Number(id) }, { sortOption: mapUIKeyToAPIKey(sortKey) });
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // refetch를 context에 등록
@@ -52,14 +56,14 @@ const FolderScrapScreenContent = () => {
   }, [refetchFolders, setRefetchFolders]);
 
   // 폴더 정보 가져오기
-  const folder = foldersData?.data?.find((f) => f.id === Number(id));
-  const contents = contentsData?.data || [];
+  const folder = data?.data?.find((f) => f.id === Number(id));
+  const contents = data?.data || [];
 
-  // 정렬된 데이터
-  const sortedData = useMemo(
-    () => sortScrapData(contents, sortKey, sortOrder),
-    [contents, sortKey, sortOrder]
-  );
+  // // 정렬된 데이터
+  // const sortedData = useMemo(
+  //   () => sortScrapData(contents, sortKey, sortOrder),
+  //   [contents, sortKey, sortOrder]
+  // );
 
   const cleanupAfterDelete = (items: SelectedItem[]) => {
     items.forEach((item) => {
@@ -73,58 +77,60 @@ const FolderScrapScreenContent = () => {
   const isAllSelected =
     reducerState.selectedItems.length === contents.length && contents.length > 0;
 
-  const insets = useSafeAreaInsets();
-
   return (
-    <View style={{ paddingTop: insets.top }} className='w-full flex-1 bg-gray-100'>
-      <ScrapHeader
-        reducerState={reducerState}
-        title={folder?.name}
-        navigateback={navigation}
-        isAllSelected={isAllSelected}
-        actions={{
-          onSearchPress: () => navigation.push('SearchScrap'),
-          onTrashPress: () => navigation.push('DeletedScrap'),
-          onEnterSelection: () => dispatch({ type: 'ENTER_SELECTION' }),
-          onExitSelection: () => dispatch({ type: 'EXIT_SELECTION' }),
-          onSelectAll: () => {
-            const allItems = contents.map((item) => ({ id: item.id, type: item.type }));
-            dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
-          },
-          onMove: () => {
-            if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
-              return;
-            }
-            if (reducerState.selectedItems.length === 0) {
-              showToast('error', '이동할 스크랩을 선택해주세요.');
-              return;
-            }
-            openMoveScrapModal({
-              currentFolderId: Number(id),
-              selectedItems: reducerState.selectedItems,
-            });
-            dispatch({ type: 'CLEAR_SELECTION' });
-          },
-          onDelete: async () => {
-            if (reducerState.selectedItems.length === 0) {
-              showToast('error', '삭제할 항목을 선택해주세요.');
-              return;
-            }
-            const items = reducerState.selectedItems;
-
-            try {
-              await deleteScrap({
-                items: items.map((item) => ({ id: item.id as number, type: item.type })),
+    <View className='w-full flex-1 bg-gray-100'>
+      <SafeAreaView
+        edges={['top']}
+        className={`bg-${!reducerState.isSelecting ? 'gray-100' : 'gray-200'}`}>
+        <ScrapHeader
+          reducerState={reducerState}
+          title={folder?.name}
+          navigateback={navigation}
+          isAllSelected={isAllSelected}
+          actions={{
+            onSearchPress: () => navigation.push('SearchScrap'),
+            onTrashPress: () => navigation.push('DeletedScrap'),
+            onEnterSelection: () => dispatch({ type: 'ENTER_SELECTION' }),
+            onExitSelection: () => dispatch({ type: 'EXIT_SELECTION' }),
+            onSelectAll: () => {
+              const allItems = contents.map((item) => ({ id: item.id, type: item.type }));
+              dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
+            },
+            onMove: () => {
+              if (reducerState.selectedItems.length === 0) {
+                showToast('error', '이동할 스크랩을 선택해주세요.');
+                return;
+              }
+              if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
+                return;
+              }
+              openMoveScrapModal({
+                currentFolderId: Number(id),
+                selectedItems: reducerState.selectedItems,
               });
               dispatch({ type: 'CLEAR_SELECTION' });
-              cleanupAfterDelete(items);
-              showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-            } catch (error: any) {
-              showToast('error', error.message);
-            }
-          },
-        }}
-      />
+            },
+            onDelete: async () => {
+              if (reducerState.selectedItems.length === 0) {
+                showToast('error', '삭제할 항목을 선택해주세요.');
+                return;
+              }
+              const items = reducerState.selectedItems;
+
+              try {
+                await deleteScrap({
+                  items: items.map((item) => ({ id: item.id as number, type: item.type })),
+                });
+                dispatch({ type: 'CLEAR_SELECTION' });
+                cleanupAfterDelete(items);
+                showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
+              } catch (error: any) {
+                showToast('error', error.message);
+              }
+            },
+          }}
+        />
+      </SafeAreaView>
       <View className='bg-gray-100'>
         <Container className='items-end gap-[10px] py-[10px]'>
           <SortDropdown
@@ -139,7 +145,7 @@ const FolderScrapScreenContent = () => {
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
-            <ScrapGrid data={sortedData} reducerState={reducerState} dispatch={dispatch} />
+            <ScrapGrid data={contents} reducerState={reducerState} dispatch={dispatch} />
           )}
         </Container>
       </View>
