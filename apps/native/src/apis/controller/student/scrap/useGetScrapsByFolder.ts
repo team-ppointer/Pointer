@@ -13,7 +13,7 @@ type GetScrapsByFolderQueryParams =
  */
 export const useGetScrapsByFolder = (
   params: GetScrapsByFolderParams,
-  queryParams: GetScrapsByFolderQueryParams,
+  queryParams?: GetScrapsByFolderQueryParams,
   enabled = true
 ) => {
   return TanstackQueryClient.useQuery(

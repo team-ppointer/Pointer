@@ -61,10 +61,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
   const { mutateAsync: updateFolderThumbnail } = useUpdateFolderThumbnail();
   const { mutateAsync: deleteScrap } = useDeleteScrap();
   const removeScrapsByScrapIds = useRecentScrapStore((state) => state.removeScrapsByIds);
-  const { data: folderScrapsData } = useGetScrapsByFolder(
-    Number(props.id),
-    props.type === 'FOLDER'
-  );
+  const { data: folderScrapsData } = useGetScrapsByFolder({ folderId: Number(props.id) });
   const queryClient = useQueryClient();
 
   // 스크랩 상세 정보 가져오기 (필요한 경우)
