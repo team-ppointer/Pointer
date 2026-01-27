@@ -44,7 +44,7 @@ import { useHandwritingManager } from '../hooks/useHandwritingManager';
 import { useScrapUIState } from '../hooks/useScrapUIState';
 
 // Utils
-import { convertScrapToGroup } from '../utils/scrapTransformers';
+import { convertScrapToGroup, mergeTipTapDocs } from '../utils/scrapTransformers';
 import {
   generateFilterOptions,
   shouldShowProblem,
@@ -276,8 +276,9 @@ const ScrapDetailScreen = () => {
   const showProblem = shouldShowProblem(uiState.selectedFilter);
   const hasPointings = hasVisiblePointings(scrapDetail, uiState.selectedFilter);
   const showExplanation = uiState.selectedFilter === 0;
-  const hasExplanation = !!scrapDetail?.problem?.problemContent;
-
+  const hasExplanation = !!(
+    scrapDetail?.pointings && scrapDetail.pointings.some((pointing) => pointing.commentContent)
+  );
   // Handlers
   const handleViewAllPointings = useCallback(() => {
     const group = convertScrapToGroup(scrapDetail!);
@@ -431,22 +432,6 @@ const ScrapDetailScreen = () => {
 
   return (
     <>
-      {handwriting.isSaving && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            zIndex: 9999,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <LoadingScreen label='저장 중입니다...' />
-        </View>
-      )}
       <View style={{ flex: 1, backgroundColor: '#F2F4F7' }}>
         {/* Header */}
         <SafeAreaView edges={['top']} className='bg-gray-800 text-white'>
@@ -503,17 +488,20 @@ const ScrapDetailScreen = () => {
               contentContainerStyle={{ padding: 20, gap: 14 }}>
               <View className='gap-[14px]'>
                 {/* Filter Bar */}
-                <FilterBar
-                  filterOptions={filterOptions}
-                  selectedFilter={uiState.selectedFilter}
-                  onFilterChange={uiState.setSelectedFilter}
-                  showViewAll={
-                    !!scrapDetail.pointings &&
-                    scrapDetail.pointings.length > 0 &&
-                    !!scrapDetail.problem
-                  }
-                  onViewAll={handleViewAllPointings}
-                />
+
+                {scrapDetail.problem?.problemContent && (
+                  <FilterBar
+                    filterOptions={filterOptions}
+                    selectedFilter={uiState.selectedFilter}
+                    onFilterChange={uiState.setSelectedFilter}
+                    showViewAll={
+                      !!scrapDetail.pointings &&
+                      scrapDetail.pointings.length > 0 &&
+                      !!scrapDetail.problem
+                    }
+                    onViewAll={handleViewAllPointings}
+                  />
+                )}
 
                 {/* Problem Section */}
                 {showProblem &&
@@ -530,17 +518,26 @@ const ScrapDetailScreen = () => {
                 {hasExplanation && showExplanation && (
                   <ExplanationSection
                     explanation={
-                      scrapDetail.pointings
-                        .map((pointing) => pointing.commentContent)
-                        .filter(Boolean)
-                        .join('\n') || ''
+                      // (scrapDetail.pointings || [])
+                      //   .map((pointing) => pointing.commentContent)
+                      //   .filter(
+                      //     (content): content is string =>
+                      //       typeof content === 'string' && content.trim().length > 0
+                      //   )
+                      //   .join('\n') || ''
+                      // scrapDetail.pointings[0]?.commentContent || ''
+                      mergeTipTapDocs(
+                        (scrapDetail.pointings || []).map((pointing) => pointing.commentContent),
+                        false
+                      ) || ''
                     }
                     title='해설'
                   />
-                  // TODO: 포인팅 목록에서 해설 표시 (임시로 문항 표시)
                 )}
+                {/* TODO: 포인팅 목록에서 해설 표시 (임시로 문항 표시) */}
 
-                <View className='h-[1px] w-full bg-gray-400' />
+                {hasPointings && <View className='h-[1px] w-full bg-gray-400' />}
+
                 {/* Pointings List */}
                 {hasPointings && (
                   <PointingsList
