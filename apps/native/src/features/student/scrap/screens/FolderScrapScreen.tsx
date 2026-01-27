@@ -40,7 +40,10 @@ const FolderScrapScreenContent = () => {
     data: data,
     isLoading,
     refetch,
-  } = useGetScrapsByFolder({ folderId: Number(id) }, { sortOption: mapUIKeyToAPIKey(sortKey) });
+  } = useGetScrapsByFolder(
+    { folderId: Number(id) },
+    { sortOption: mapUIKeyToAPIKey(sortKey), order: sortOrder }
+  );
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // refetch를 context에 등록

@@ -8402,6 +8402,11 @@ export interface operations {
          * @example CREATED_AT
          */
         sortOption?: 'CREATED_AT' | 'NAME' | 'TYPE' | 'SIMILARITY';
+        /**
+         * @description 정렬 방향 (ASC: 오름차순, DESC: 내림차순)
+         * @example DESC
+         */
+        order?: 'ASC' | 'DESC';
       };
       header?: never;
       path: {
