@@ -9,18 +9,24 @@ import { useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
 import { Container } from '@components/common';
 import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
-import { UserProfileCard, TeacherInfoCard, MenuListItem, MenuSection } from '../components';
+import {
+  UserProfileCard,
+  MobileProfileCard,
+  TeacherInfoCard,
+  MenuListItem,
+  MenuSection,
+} from '../components';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { showToast } from '../../scrap/components/Notification';
+import useIsTablet from '../../qna/hooks/useIsTablet';
 
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const signOut = useAuthStore((state) => state.signOut);
   const queryClient = useQueryClient();
   const { data: noticeCount } = useGetNoticeCount();
-  const { data, isLoading, isError } = useGetMe();
+  const { data } = useGetMe();
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
 
   useFocusEffect(
@@ -42,6 +48,8 @@ const MenuScreen = () => {
     }
   }, [signOut]);
 
+  const isTablet = useIsTablet();
+
   return (
     <View className='w-full flex-1'>
       <Container className='h-[52px] justify-center bg-gray-100'>
@@ -53,13 +61,26 @@ const MenuScreen = () => {
           contentContainerStyle={{ paddingBottom: 40 }}>
           <View className='h-[20px]' />
           <View className='gap-[10px]'>
-            <UserProfileCard
-              name={data?.name}
-              school={data?.school}
-              grade={data?.grade}
-              onEditPress={() => navigation.navigate('MyInfo')}
-            />
-            <TeacherInfoCard teacherName={data?.teacherName} />
+            {isTablet ? (
+              <>
+                <UserProfileCard
+                  name={data?.name}
+                  school={data?.school}
+                  grade={data?.grade}
+                  onEditPress={() => navigation.navigate('MyInfo', { updatedData: data })}
+                />
+                <TeacherInfoCard teacherName={data?.teacherName} />
+              </>
+            ) : (
+              <MobileProfileCard
+                name={data?.name}
+                school={data?.school}
+                grade={data?.grade}
+                teacherName={data?.teacherName}
+                onEditPress={() => navigation.navigate('MyInfo', { updatedData: data })}
+              />
+            )}
+
             <MenuSection>
               <MenuListItem
                 icon={Bell}
@@ -104,7 +125,7 @@ const MenuScreen = () => {
         visible={isLogoutVisible}
         onClose={() => setIsLogoutVisible(false)}
         title='로그아웃 하시겠어요?'
-        description='빠르게 돌아와 실력 향상을 위한 학습을 이어나가요!'
+        description={`빠르게 돌아와 실력 향상을 위한${isTablet ? ' ' : '\n'}학습을 이어나가요!`}
         buttons={[
           { label: '네', onPress: () => handleLogout(), variant: 'default' },
           { label: '아니오', onPress: () => setIsLogoutVisible(false), variant: 'primary' },

@@ -2,7 +2,7 @@ import { OnboardingInput } from '@features/student/onboarding/components';
 import { EditScreenLayout } from '../../../components';
 import { useState } from 'react';
 import { showToast } from '@features/student/scrap/components/Notification';
-import { useGetSchool, usePutMe } from '@apis';
+import { useGetSchool } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
@@ -15,12 +15,10 @@ const EditSchoolScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditSchool'>) => {
-  const { mutate: putMeMutate } = usePutMe();
-
   const [schoolId, setSchoolId] = useState<number | null>(route.params.initialSchool?.id || null);
 
   const [query, setQuery] = useState(route.params.initialSchool?.name || '');
-  const [selectedLabel, setSelectedLabel] = useState('');
+  const [selectedLabel, setSelectedLabel] = useState(route.params.initialSchool?.name || '');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const debouncedQuery = useDebounce(query.trim(), 300);
@@ -46,22 +44,23 @@ const EditSchoolScreen = ({
   };
 
   const handleSave = async () => {
-    putMeMutate(
-      { schoolId: schoolId ?? undefined },
-      {
-        onSuccess: () => {
-          navigation.push('EditGrade', { initialGrade: route.params.initialSchool?.grade });
-          showToast('success', '학교가 변경되었습니다.');
-        },
-      }
-    );
+    navigation.push('EditGrade', {
+      initialSchoolId: schoolId ?? undefined,
+      initialSchoolName: selectedLabel ?? undefined,
+      initialGrade: route.params.initialSchool?.grade,
+    });
+    showToast('success', '학교가 변경되었습니다.');
   };
 
   const handleSkip = () => {
     setSchoolId(null);
     setQuery('');
     setSelectedLabel('');
-    navigation.push('EditGrade', { initialGrade: route.params.initialSchool?.grade });
+    navigation.push('EditGrade', {
+      initialSchoolId: route.params.initialSchool?.id,
+      initialSchoolName: route.params.initialSchool?.name,
+      initialGrade: route.params.initialSchool?.grade,
+    });
   };
 
   return (

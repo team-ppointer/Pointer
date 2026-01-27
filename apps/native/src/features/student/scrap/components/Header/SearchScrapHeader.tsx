@@ -2,6 +2,7 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import { colors } from '@/theme/tokens';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft, CircleX, X } from 'lucide-react-native';
+import { useEffect, useRef } from 'react';
 import { Pressable, TextInput, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -18,11 +19,24 @@ const SearchScrapHeader = ({
   setQuery,
   onSubmitEditing,
 }: SearchScrapHeaderProps) => {
+
+  const inputRef = useRef<TextInput>(null); 
+
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 자동으로 포커스
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100); // 약간의 지연을 주어 화면 렌더링이 완료된 후 포커스
+
+    return () => clearTimeout(timer);
+  }, []);
+  
   return (
     <SafeAreaView edges={['top']} className='bg-gray-100'>
       <View className='flex-row items-center justify-between px-5 py-[14px]'>
         <View className='flex-1 flex-row justify-center rounded-[8px] border-[1px] border-gray-500 bg-white px-3.5 py-2'>
           <TextInput
+            ref={inputRef}
             className='text-18m flex-1 text-black'
             placeholder='스크랩 제목을 검색하세요.'
             style={{ lineHeight: 27 }}

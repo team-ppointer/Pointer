@@ -36,6 +36,12 @@ export const ScrapDetailHeader = ({
     setLocalName(scrapName);
   }, [scrapName]);
 
+  useEffect(() => {
+    if (showSave && lottieRef.current) {
+      lottieRef.current.play();
+    }
+  }, [showSave]);
+
   return (
     <View className='w-full flex-row items-center justify-between bg-gray-800 px-[20px] py-[14px]'>
       {canGoBack && (
@@ -59,7 +65,11 @@ export const ScrapDetailHeader = ({
           triggerBackgroundColor=''
           from={
             <View className='flex-row items-center gap-[10px]'>
-              <Text className='text-20b text-white'>{scrapName || '스크랩 상세'}</Text>
+              <Text
+                className='text-20b text-center text-white md:max-w-[344px] lg:max-w-[464px]'
+                numberOfLines={1}>
+                {scrapName || '스크랩 상세'}
+              </Text>
               <ChevronDownFilledIcon size={20} color={colors['gray-600']} />
             </View>
           }

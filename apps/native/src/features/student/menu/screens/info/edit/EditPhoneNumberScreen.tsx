@@ -106,10 +106,10 @@ const EditPhoneNumberScreen = () => {
     }
   };
 
-  const getCarrierLabel = (value: CarrierValue | null) => {
-    if (!value) return '';
-    return carrierOptions.find((opt) => opt.value === value)?.label ?? '';
-  };
+  // const getCarrierLabel = (value: CarrierValue | null) => {
+  //   if (!value) return '';
+  //   return carrierOptions.find((opt) => opt.value === value)?.label ?? '';
+  // };
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);

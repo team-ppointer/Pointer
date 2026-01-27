@@ -75,11 +75,12 @@ const ScrapScreenContent = () => {
     return [...folders, ...scraps];
   }, [searchData]);
 
-  // 클라이언트 사이드 정렬 (TYPE 정렬 등 추가 정렬 로직 적용)
-  const sortedData = useMemo(
-    () => sortScrapData(data, sortKey, sortOrder),
-    [data, sortKey, sortOrder]
-  );
+  // // 클라이언트 사이드 정렬 (TYPE 정렬 등 추가 정렬 로직 적용)
+  // deprecated
+  // const sortedData = useMemo(
+  //   () => sortScrapData(data, sortKey, sortOrder),
+  //   [data, sortKey, sortOrder]
+  // );
 
   const cleanupAfterDelete = (scrapIdsToRemove: number[]) => {
     if (scrapIdsToRemove.length > 0) {
@@ -106,11 +107,11 @@ const ScrapScreenContent = () => {
               dispatch({ type: 'SELECT_ALL', allItems: isAllSelected ? [] : allItems });
             },
             onMove: () => {
-              if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
-                return;
-              }
               if (reducerState.selectedItems.length === 0) {
                 showToast('error', '이동할 스크랩을 선택해주세요.');
+                return;
+              }
+              if (validateOnlyScrapCanMove(reducerState.selectedItems)) {
                 return;
               }
               openMoveScrapModal({
@@ -196,7 +197,7 @@ const ScrapScreenContent = () => {
               <LoadingScreen label='데이터를 불러오고 있습니다.' />
             ) : (
               <ScrapGrid
-                data={[{ ADD: true }, ...sortedData]}
+                data={[{ ADD: true }, ...data]}
                 reducerState={reducerState}
                 dispatch={dispatch}
               />

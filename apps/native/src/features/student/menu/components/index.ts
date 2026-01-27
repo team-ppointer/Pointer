@@ -1,4 +1,5 @@
 export { UserProfileCard } from './UserProfileCard';
+export { MobileProfileCard } from './MobileProfileCard';
 export { TeacherInfoCard } from './TeacherInfoCard';
 export { MenuListItem } from './MenuListItem';
 export { MenuSection } from './MenuSection';

@@ -17,7 +17,8 @@ type DrawingAction =
   | { type: 'SET_ERASER_SIZE'; size: number }
   | { type: 'SET_HISTORY_STATE'; canUndo: boolean; canRedo: boolean }
   | { type: 'SET_UNSAVED_CHANGES'; hasChanges: boolean }
-  | { type: 'MARK_AS_SAVED' };
+  | { type: 'MARK_AS_SAVED' }
+  | { type: 'RESET' };
 
 const initialState: DrawingState = {
   mode: 'pen',
@@ -47,6 +48,8 @@ function drawingReducer(state: DrawingState, action: DrawingAction): DrawingStat
       return { ...state, hasUnsavedChanges: action.hasChanges };
     case 'MARK_AS_SAVED':
       return { ...state, hasUnsavedChanges: false };
+    case 'RESET':
+      return initialState;
     default:
       return state;
   }
@@ -83,6 +86,10 @@ export function useDrawingState() {
     dispatch({ type: 'MARK_AS_SAVED' });
   }, []);
 
+  const reset = useCallback(() => {
+    dispatch({ type: 'RESET' });
+  }, []);
+
   return {
     // State
     mode: state.mode,
@@ -103,5 +110,6 @@ export function useDrawingState() {
     setEraserSize,
     setHistoryState,
     markAsSaved,
+    reset,
   };
 }
