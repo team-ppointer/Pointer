@@ -9,7 +9,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { analytics, type ButtonId, type ScreenName } from '@/analytics';
+import { analytics, type ButtonId, type ScreenName } from '@/features/student/analytics';
 
 type BottomActionBarProps = {
   bottomInset?: number;

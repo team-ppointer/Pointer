@@ -19,22 +19,20 @@ import { useOnboardingStore } from '@/features/student/onboarding/store/useOnboa
 import { useAuthStore } from '@/stores';
 import OnboardingScreen from '@/features/student/onboarding/screens/OnboardingScreen';
 import { useFcmToken } from '@/hooks';
+import {
+  AnalyticsProvider,
+  useScreenTracking,
+} from '@/features/student/analytics';
 
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();
 
-const StudentNavigator = () => {
-  const onboardingStatus = useOnboardingStore((state) => state.status);
-  const studentGrade = useAuthStore((state) => state.studentProfile?.grade);
-
-  // FCM 토큰 등록 (학생 화면 진입 시 자동으로 등록/갱신)
-  useFcmToken();
-
-  const shouldShowOnboarding =
-    onboardingStatus === 'in-progress' || (!studentGrade && onboardingStatus !== 'completed');
-
-  if (shouldShowOnboarding) {
-    return <OnboardingScreen />;
-  }
+/**
+ * Inner navigator component that uses screen tracking
+ * Must be inside AnalyticsProvider
+ */
+const StudentNavigatorContent = () => {
+  // Track screen navigation for analytics
+  useScreenTracking();
 
   return (
     <StudentRootStack.Navigator screenOptions={{ headerShown: false }}>
@@ -67,6 +65,27 @@ const StudentNavigator = () => {
       <StudentRootStack.Screen name='SearchScrap' component={SearchScrapScreen} />
       <StudentRootStack.Screen name='ScrapContentDetail' component={ScrapDetailScreen} />
     </StudentRootStack.Navigator>
+  );
+};
+
+const StudentNavigator = () => {
+  const onboardingStatus = useOnboardingStore((state) => state.status);
+  const studentGrade = useAuthStore((state) => state.studentProfile?.grade);
+
+  // FCM 토큰 등록 (학생 화면 진입 시 자동으로 등록/갱신)
+  useFcmToken();
+
+  const shouldShowOnboarding =
+    onboardingStatus === 'in-progress' || (!studentGrade && onboardingStatus !== 'completed');
+
+  if (shouldShowOnboarding) {
+    return <OnboardingScreen />;
+  }
+
+  return (
+    <AnalyticsProvider>
+      <StudentNavigatorContent />
+    </AnalyticsProvider>
   );
 };
 

@@ -1,7 +1,7 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import { Container } from '@components/common';
-import { TrackedAnimatedPressable, type ButtonId } from '@/analytics';
+import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
 import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';

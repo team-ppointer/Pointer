@@ -11,7 +11,7 @@ import type {
  * Public Analytics API
  *
  * Usage:
- *   import { analytics } from '@/analytics';
+ *   import { analytics } from '@/features/student/analytics';
  *
  *   // Initialize on app start
  *   analytics.init({ deviceType: 'MOBILE', appVersion: '1.0.0' });

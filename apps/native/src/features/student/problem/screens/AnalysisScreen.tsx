@@ -1,7 +1,7 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import { Container } from '@components/common';
-import { TrackedAnimatedPressable } from '@/analytics';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';

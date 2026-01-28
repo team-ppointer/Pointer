@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, ViewStyle } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
-import TrackedAnimatedPressable from '@/analytics/TrackedAnimatedPressable';
-import type { ButtonId, ScreenName } from '@/analytics';
+import TrackedAnimatedPressable from '@/features/student/analytics/TrackedAnimatedPressable';
+import type { ButtonId, ScreenName } from '@/features/student/analytics';
 
 interface ButtonProps {
   variant?: 'blue' | 'gray' | 'outline';

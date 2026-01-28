@@ -3,7 +3,7 @@ import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native'
 import { Alert, Text, View } from 'react-native';
 
 import { TextButton } from '@components/common';
-import { TrackedAnimatedPressable } from '@/analytics';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
 import { components } from '@schema';
 import { colors, shadow } from '@theme/tokens';
 import { useNavigation } from '@react-navigation/native';

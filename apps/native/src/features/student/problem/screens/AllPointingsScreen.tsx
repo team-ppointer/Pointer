@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alert, ScrollView, Text, View } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
-import { TrackedAnimatedPressable } from '@/analytics';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import type { RouteProp } from '@react-navigation/native';

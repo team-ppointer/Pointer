@@ -8,7 +8,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import type { Message } from '../../types';
 import ReplyPreview from './ReplyPreview';
 import { AnimatedPressable } from '@components/common';
-import { TrackedAnimatedPressable, type ButtonId } from '@/analytics';
+import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
 
 export interface SelectedImage {
   uri: string;
