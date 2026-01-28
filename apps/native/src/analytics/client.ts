@@ -22,26 +22,24 @@ export const analyticsClient = {
    * @returns success status and whether to retry on failure
    */
   async sendEvents({ events, sessionId, deviceType }: SendEventsParams): Promise<SendResult> {
+    const requestBody = {
+      events: events.map((event) => ({
+        eventType: event.eventType,
+        occurredAt: event.occurredAt,
+        metadata: event.metadata,
+      })),
+      sessionId,
+      deviceType,
+    };
+
     if (__DEV__) {
       console.log('[Analytics] 🌐 POST /api/analytics/events');
-      console.log('[Analytics] 📦 Request body:', {
-        sessionId,
-        deviceType,
-        eventsCount: events.length,
-      });
+      console.log('[Analytics] 📦 Request body:', JSON.stringify(requestBody, null, 2));
     }
 
     try {
       const response = await client.POST('/api/analytics/events', {
-        body: {
-          events: events.map((event) => ({
-            eventType: event.eventType,
-            occurredAt: event.occurredAt,
-            metadata: event.metadata,
-          })) as any,
-          sessionId,
-          deviceType,
-        },
+        body: requestBody as any,
       });
 
       if (response.response.ok) {
