@@ -92,3 +92,7 @@ export type {
   ScreenExitReason,
   StudyExitReason,
 } from './types';
+
+// Re-export components
+export { AnalyticsProvider } from './AnalyticsProvider';
+export { default as TrackedAnimatedPressable } from './TrackedAnimatedPressable';
