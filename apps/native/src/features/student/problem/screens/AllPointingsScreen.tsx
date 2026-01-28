@@ -1,6 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alert, ScrollView, Text, View } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
+import { TrackedAnimatedPressable } from '@/analytics';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import type { RouteProp } from '@react-navigation/native';
@@ -234,7 +235,8 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                 style={shadow[100]}>
                 <View className='mb-[6px] flex-row justify-between gap-[10px]'>
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
-                  <AnimatedPressable
+                  <TrackedAnimatedPressable
+                    buttonId={isProblemScraped ? 'remove_scrap' : 'add_scrap'}
                     className='h-[32px] w-[32px] items-center justify-center'
                     onPress={handleToggleProblemScrap}>
                     <BookmarkIcon
@@ -242,7 +244,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                       color={isProblemScraped ? colors['gray-800'] : colors['gray-600']}
                       fill={isProblemScraped ? colors['gray-800'] : 'transparent'}
                     />
-                  </AnimatedPressable>
+                  </TrackedAnimatedPressable>
                 </View>
                 <ProblemViewer
                   problemContent={currentProblem?.problemContent ?? ''}
@@ -275,7 +277,12 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                             <Text className='text-16b text-primary-500 mr-[8px]'>{badgeLabel}</Text>
                             <Text className='text-13m text-gray-700'>포인팅 질문</Text>
                           </View>
-                          <AnimatedPressable
+                          <TrackedAnimatedPressable
+                            buttonId={
+                              pointing.id && scrappedPointingIds.includes(pointing.id)
+                                ? 'remove_scrap'
+                                : 'add_scrap'
+                            }
                             className='h-[32px] w-[32px] items-center justify-center'
                             onPress={() => pointing.id && handleTogglePointingScrap(pointing.id)}>
                             <BookmarkIcon
@@ -291,7 +298,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                                   : 'transparent'
                               }
                             />
-                          </AnimatedPressable>
+                          </TrackedAnimatedPressable>
                         </View>
                         <ProblemViewer problemContent={pointing?.questionContent ?? ''} />
                       </View>

@@ -1,6 +1,7 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import { AnimatedPressable, Container } from '@components/common';
+import { Container } from '@components/common';
+import { TrackedAnimatedPressable } from '@/analytics';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
@@ -240,7 +241,8 @@ const AnalysisScreen = ({
                 style={shadow[100]}>
                 <View className='mb-[6px] flex-row justify-between gap-[10px]'>
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
-                  <AnimatedPressable
+                  <TrackedAnimatedPressable
+                    buttonId={isScraped ? 'remove_scrap' : 'add_scrap'}
                     className='h-[32px] w-[32px] items-center justify-center'
                     onPress={handleToggleScrap}>
                     <BookmarkIcon
@@ -248,7 +250,7 @@ const AnalysisScreen = ({
                       color={isScraped ? colors['gray-800'] : colors['gray-600']}
                       fill={isScraped ? colors['gray-800'] : 'transparent'}
                     />
-                  </AnimatedPressable>
+                  </TrackedAnimatedPressable>
                 </View>
                 <ProblemViewer
                   problemContent={problem?.problemContent ?? ''}
@@ -264,7 +266,8 @@ const AnalysisScreen = ({
                   <View className='bg-primary-100 rounded-[4px] px-[6px] py-[2px]'>
                     <Text className='text-16b text-primary-500'>문제를 읽어내려갈 때</Text>
                   </View>
-                  <AnimatedPressable
+                  <TrackedAnimatedPressable
+                    buttonId={isReadingTipScraped ? 'remove_scrap' : 'add_scrap'}
                     className='h-[32px] w-[32px] items-center justify-center'
                     onPress={handleToggleReadingTipScrap}>
                     <BookmarkIcon
@@ -272,7 +275,7 @@ const AnalysisScreen = ({
                       color={isReadingTipScraped ? colors['gray-800'] : colors['gray-600']}
                       fill={isReadingTipScraped ? colors['gray-800'] : 'transparent'}
                     />
-                  </AnimatedPressable>
+                  </TrackedAnimatedPressable>
                 </View>
                 <ProblemViewer problemContent={readingTipText} />
               </View>
@@ -281,7 +284,8 @@ const AnalysisScreen = ({
                   <View className='bg-primary-100 rounded-[4px] px-[6px] py-[2px]'>
                     <Text className='text-16b text-primary-500'>한 걸음 더</Text>
                   </View>
-                  <AnimatedPressable
+                  <TrackedAnimatedPressable
+                    buttonId={isOneStepMoreScraped ? 'remove_scrap' : 'add_scrap'}
                     className='h-[32px] w-[32px] items-center justify-center'
                     onPress={handleToggleOneStepMoreScrap}>
                     <BookmarkIcon
@@ -289,7 +293,7 @@ const AnalysisScreen = ({
                       color={isOneStepMoreScraped ? colors['gray-800'] : colors['gray-600']}
                       fill={isOneStepMoreScraped ? colors['gray-800'] : 'transparent'}
                     />
-                  </AnimatedPressable>
+                  </TrackedAnimatedPressable>
                 </View>
                 <ProblemViewer problemContent={oneStepMoreText} />
               </View>

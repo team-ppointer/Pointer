@@ -2,7 +2,8 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native';
 import { Alert, Text, View } from 'react-native';
 
-import { AnimatedPressable, TextButton } from '@components/common';
+import { TextButton } from '@components/common';
+import { TrackedAnimatedPressable } from '@/analytics';
 import { components } from '@schema';
 import { colors, shadow } from '@theme/tokens';
 import { useNavigation } from '@react-navigation/native';
@@ -133,7 +134,7 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
           </View>
           <Text className='text-13r text-gray-700'>문제 단원</Text>
         </View>
-        <TextButton variant={statusMeta.buttonVariant} onPress={handlePress}>
+        <TextButton variant={statusMeta.buttonVariant} onPress={handlePress} buttonId='start_study'>
           {statusMeta.buttonLabel}
         </TextButton>
       </View>
@@ -243,12 +244,13 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
       ) : (
         <>
           {startButtonLabel && (
-            <AnimatedPressable
+            <TrackedAnimatedPressable
+              buttonId='start_study'
               className='bg-primary-500 mb-[4px] items-center justify-center rounded-[8px] p-[12px]'
               onPress={handleStartFromFirst}
               style={shadow[100]}>
               <Text className='text-16m text-white'>{startButtonLabel}</Text>
-            </AnimatedPressable>
+            </TrackedAnimatedPressable>
           )}
           {groups.map((group, index) => {
             const key = group.problemId ?? index;
