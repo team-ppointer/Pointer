@@ -65,6 +65,9 @@ class AnalyticsTracker {
    * Set the current screen name
    */
   setCurrentScreen(screenName: ScreenName): void {
+    if (__DEV__) {
+      console.log('[Analytics] 📱 Screen changed:', this.currentScreen, '→', screenName);
+    }
     this.currentScreen = screenName;
   }
 
@@ -109,10 +112,6 @@ class AnalyticsTracker {
         ...(this.userId && { userId: this.userId }),
       },
     };
-
-    if (__DEV__) {
-      console.log('[Analytics] Track:', eventType, metadata);
-    }
 
     await analyticsQueue.enqueue(event);
   }
