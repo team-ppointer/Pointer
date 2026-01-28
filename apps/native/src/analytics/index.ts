@@ -79,6 +79,11 @@ export const analytics = {
    * Call on app termination
    */
   stop: () => analyticsTracker.stop(),
+
+  /**
+   * Clear all queued events (for debugging or migration)
+   */
+  clearQueue: () => analyticsTracker.clearQueue(),
 };
 
 // Re-export types for consumers

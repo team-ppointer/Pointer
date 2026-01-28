@@ -185,6 +185,18 @@ class AnalyticsQueue {
   }
 
   /**
+   * Clear all queued events (for debugging or migration)
+   */
+  async clear(): Promise<void> {
+    this.queue = [];
+    this.inflight = [];
+    await AsyncStorage.removeItem(STORAGE_KEY);
+    if (__DEV__) {
+      console.log('[Analytics] 🗑️ Queue cleared');
+    }
+  }
+
+  /**
    * Get current queue length (for debugging)
    */
   get length(): number {

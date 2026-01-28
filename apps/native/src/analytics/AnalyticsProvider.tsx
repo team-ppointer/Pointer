@@ -1,9 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { analytics } from './index';
 import type { DeviceType } from './types';
+
+const ANALYTICS_VERSION_KEY = '@analytics_version';
+const CURRENT_ANALYTICS_VERSION = 2; // Bump this to clear queue on next update
 
 /**
  * Determine device type based on screen characteristics
@@ -50,6 +54,18 @@ export const AnalyticsProvider = ({ children }: AnalyticsProviderProps) => {
     // Initialize analytics
     const initAnalytics = async () => {
       if (isInitialized.current) return;
+
+      // Check for analytics version migration
+      const storedVersion = await AsyncStorage.getItem(ANALYTICS_VERSION_KEY);
+      const needsMigration = storedVersion !== String(CURRENT_ANALYTICS_VERSION);
+
+      if (needsMigration) {
+        if (__DEV__) {
+          console.log('[Analytics] 🔄 Migration needed, clearing old queue...');
+        }
+        await analytics.clearQueue();
+        await AsyncStorage.setItem(ANALYTICS_VERSION_KEY, String(CURRENT_ANALYTICS_VERSION));
+      }
 
       const deviceType = getDeviceType();
       const appVersion = Constants.expoConfig?.version ?? 'unknown';

@@ -159,6 +159,13 @@ class AnalyticsTracker {
   }
 
   /**
+   * Clear all queued events (for debugging or migration)
+   */
+  async clearQueue(): Promise<void> {
+    await analyticsQueue.clear();
+  }
+
+  /**
    * Stop the tracker (call on app termination)
    */
   stop(): void {
