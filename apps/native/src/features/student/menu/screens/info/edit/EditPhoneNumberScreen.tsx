@@ -29,8 +29,9 @@ const EditPhoneNumberScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState(data?.phoneNumber || '');
   const [carrier, setCarrier] = useState<CarrierValue | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
+  const [verifyFeedbackMessage, setVerifyFeedbackMessage] = useState<string | null>(null);
   const [isCodeSent, setIsCodeSent] = useState(false);
-  const [carrierModalVisible, setCarrierModalVisible] = useState(false);
+  // const [carrierModalVisible, setCarrierModalVisible] = useState(false);
   const [timer, setTimer] = useState(120); // 2분 = 120초
 
   useEffect(() => {
@@ -82,22 +83,22 @@ const EditPhoneNumberScreen = () => {
     }
   };
 
-  const handleVerify = async () => {
-    if (!verificationCode || verificationCode.length !== 6) {
-      showToast('error', '인증번호 6자리를 입력해주세요.');
-      return;
+  const handleVerifyCodeChange = (text: string) => {
+    if (/^[0-9]*$/.test(text) && text.length <= 6) {
+      setVerificationCode(text);
     }
+  };
 
+  const handleVerify = async () => {
     try {
       const response = await postPhoneVerify(phoneNumber, verificationCode);
       if (response.data?.success) {
-        const verifyMessage = response.data.message || '인증이 완료되었습니다.';
         // 인증 성공 시 휴대폰 번호 업데이트
         putMeMutate(
           { phoneNumber },
           {
             onSuccess: () => {
-              showToast('success', verifyMessage);
+              showToast('success', '휴대폰 번호 변경이 완료되었습니다.');
               navigation.goBack();
             },
             onError: () => {
@@ -106,11 +107,11 @@ const EditPhoneNumberScreen = () => {
           }
         );
       } else {
-        showToast('error', response.data?.message || '인증에 실패했습니다.');
+        setVerifyFeedbackMessage(response.data?.message || '인증번호를 다시 확인해주세요.');
       }
     } catch (error) {
       console.error('Failed to verify verification code:', error);
-      showToast('error', '인증에 실패했습니다.');
+      showToast('error', (error as Error).message || '인증에 실패했습니다.');
     }
   };
 
@@ -179,8 +180,9 @@ const EditPhoneNumberScreen = () => {
                   />
                   {isCodeSent && (
                     <Pressable
+                      disabled={timer > 0}
                       className='bg-primary-500 items-center justify-center rounded-[8px]'
-                      style={{ width: 100, height: 48 }}
+                      style={{ width: 100, height: 48, opacity: timer > 0 ? 0.5 : 1 }}
                       onPress={handleResendCode}>
                       <Text className='text-16m text-white'>재전송</Text>
                     </Pressable>
@@ -226,7 +228,7 @@ const EditPhoneNumberScreen = () => {
                 <View className='w-full' style={{ position: 'relative' }}>
                   <TextInput
                     value={verificationCode}
-                    onChangeText={setVerificationCode}
+                    onChangeText={handleVerifyCodeChange}
                     placeholder='인증번호 6자리'
                     keyboardType='number-pad'
                     maxLength={6}
@@ -244,6 +246,12 @@ const EditPhoneNumberScreen = () => {
                     <Text className='text-14m text-primary-500'>{formatTime(timer)}</Text>
                   </View>
                 </View>
+                {verifyFeedbackMessage && (
+                  <View className='flex-row items-center gap-2'>
+                    <CircleAlert size={14} color={colors['red-500']} />
+                    <Text className='text-12r text-red-500'>{verifyFeedbackMessage}</Text>
+                  </View>
+                )}
               </View>
             )}
           </View>
