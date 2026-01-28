@@ -189,7 +189,9 @@ const MyInfoScreen = () => {
         isInitialized.current = false;
         hasLocalChanges.current = false;
         setLocalData({});
+        navigation.goBack();
       },
+
       onError: (error) => {
         showToast('error', error.message || '정보 저장에 실패했습니다.');
       },
