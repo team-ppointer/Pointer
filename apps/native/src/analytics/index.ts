@@ -96,3 +96,6 @@ export type {
 // Re-export components
 export { AnalyticsProvider } from './AnalyticsProvider';
 export { default as TrackedAnimatedPressable } from './TrackedAnimatedPressable';
+
+// Re-export hooks
+export { useScreenTracking } from './useScreenTracking';

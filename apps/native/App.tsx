@@ -17,6 +17,7 @@ import { toastConfig } from '@/features/student/scrap/components/Notification/To
 import { env } from '@utils';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { navigationRef } from '@/services/navigation';
+import { AnalyticsProvider, useScreenTracking } from '@/analytics';
 
 initializeKakaoSDK(env.kakaoNativeAppKey);
 
@@ -42,30 +43,37 @@ if ((TextInput as any).defaultProps == null) (TextInput as any).defaultProps = {
 export default function App() {
   const { isReady } = useLoadAssets();
   const [isSplashAnimationFinished, setIsSplashAnimationFinished] = useState(false);
+  const { onStateChange, onReady } = useScreenTracking();
 
   // FCM 푸시 알림 딥링크 핸들러
   useDeepLinkHandler();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaProvider>
-          {isReady && (
-            <NavigationContainer ref={navigationRef} theme={navigationTheme}>
-              <StatusBar style='dark' />
-              <RootNavigator />
-              <Toast config={toastConfig} />
-            </NavigationContainer>
-          )}
+      <AnalyticsProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <SafeAreaProvider>
+            {isReady && (
+              <NavigationContainer
+                ref={navigationRef}
+                theme={navigationTheme}
+                onStateChange={onStateChange}
+                onReady={onReady}>
+                <StatusBar style='dark' />
+                <RootNavigator />
+                <Toast config={toastConfig} />
+              </NavigationContainer>
+            )}
 
-          {!isSplashAnimationFinished && (
-            <CustomSplashScreen
-              isAppReady={isReady}
-              onAnimationFinish={() => setIsSplashAnimationFinished(true)}
-            />
-          )}
-        </SafeAreaProvider>
-      </GestureHandlerRootView>
+            {!isSplashAnimationFinished && (
+              <CustomSplashScreen
+                isAppReady={isReady}
+                onAnimationFinish={() => setIsSplashAnimationFinished(true)}
+              />
+            )}
+          </SafeAreaProvider>
+        </GestureHandlerRootView>
+      </AnalyticsProvider>
     </QueryClientProvider>
   );
 }
