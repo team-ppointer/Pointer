@@ -12,7 +12,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Container } from '@components/common';
-import { ChevronLeft, ChevronDown, CircleCheck } from 'lucide-react-native';
+import { ChevronLeft, ChevronDown, CircleCheck, CircleAlert } from 'lucide-react-native';
 import { useGetMe, usePutMe, postPhoneSend, postPhoneResend, postPhoneVerify } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -43,6 +43,14 @@ const EditPhoneNumberScreen = () => {
   }, [isCodeSent, timer]);
 
   const handleSendCode = async () => {
+    if (phoneNumber.length >= 2 && !phoneNumber.startsWith('01')) {
+      showToast('error', '01로 시작하는 숫자를 입력해 주세요.');
+      return;
+    }
+    if (phoneNumber.length !== 11) {
+      showToast('error', '휴대폰 번호는 11자를 입력해 주세요.');
+      return;
+    }
     try {
       const response = await postPhoneSend(phoneNumber);
       if (response.data?.success) {
@@ -117,6 +125,18 @@ const EditPhoneNumberScreen = () => {
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const isValidPhone = /^01\d{9}$/.test(phoneNumber);
+
+  const getPhoneFeedbackMessage = (): string | null => {
+    if (phoneNumber.length >= 2 && !phoneNumber.startsWith('01')) {
+      return '01로 시작하는 숫자를 입력해 주세요.';
+    }
+    if (phoneNumber.length > 0 && phoneNumber.length !== 11) {
+      return '휴대폰 번호는 11자를 입력해 주세요.';
+    }
+    return null;
+  };
+
   const handlePhoneNumberChange = (text: string) => {
     const phoneRegex = /^[0-9]*$/;
     if (phoneRegex.test(text) && text.length <= 11) {
@@ -166,12 +186,21 @@ const EditPhoneNumberScreen = () => {
                     </Pressable>
                   )}
                 </View>
-                {isCodeSent && (
-                  <View className='flex-row items-center gap-2'>
-                    <CircleCheck color={colors['blue-500']} size={14} />
-                    <Text className='text-12r text-blue-500'>문자로 인증번호를 전송했어요</Text>
-                  </View>
-                )}
+                <View className='flex-row items-center gap-2'>
+                  {isCodeSent ? (
+                    <>
+                      <CircleCheck color={colors['blue-500']} size={14} />
+                      <Text className='text-12r text-blue-500'>문자로 인증번호를 전송했어요</Text>
+                    </>
+                  ) : (
+                    <>
+                      {getPhoneFeedbackMessage() && (
+                        <CircleAlert size={14} color={colors['red-500']} />
+                      )}
+                      <Text className='text-12r text-red-500'>{getPhoneFeedbackMessage()}</Text>
+                    </>
+                  )}
+                </View>
               </View>
               {/* <View className='gap-[10px]'>
               <View className='gap-[6px]'>
@@ -224,8 +253,8 @@ const EditPhoneNumberScreen = () => {
           {!isCodeSent || timer == 0 ? (
             <Pressable
               onPress={handleSendCode}
-              disabled={phoneNumber.length !== 11}
-              className={`bg-primary-500 items-center rounded-[8px] px-[12px] py-[10px] ${phoneNumber.length !== 11 ? 'opacity-50' : ''}`}>
+              disabled={!isValidPhone}
+              className={`bg-primary-500 items-center rounded-[8px] px-[12px] py-[10px] ${!isValidPhone ? 'opacity-50' : ''}`}>
               <Text className='text-16m text-white'>인증번호 받기</Text>
             </Pressable>
           ) : (
