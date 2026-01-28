@@ -37,8 +37,8 @@ export const analyticsClient = {
           events: events.map((event) => ({
             eventType: event.eventType,
             occurredAt: event.occurredAt,
-            metadata: event.metadata as Record<string, unknown>,
-          })),
+            metadata: event.metadata,
+          })) as any,
           sessionId,
           deviceType,
         },
@@ -63,7 +63,8 @@ export const analyticsClient = {
 
       // 5xx errors: server error, should retry
       if (__DEV__) {
-        console.warn('[Analytics] Server error, will retry:', status);
+        console.error('[Analytics] Server error, will retry:', status);
+        console.error('[Analytics] Response:', response.error);
       }
       return { success: false, shouldRetry: true };
     } catch (error) {
