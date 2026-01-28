@@ -128,8 +128,7 @@ export function useScreenTracking() {
         exitReason,
       });
 
-      // Flush events on screen transition
-      analytics.flush();
+      // Flush is handled automatically by queue (threshold or timer)
     },
     []
   );
