@@ -9,6 +9,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { analytics, type ButtonId, type ScreenName } from '@/features/student/analytics';
 
 type BottomActionBarProps = {
   bottomInset?: number;
@@ -21,6 +22,12 @@ type BottomActionBarButtonProps = PressableProps & {
   children?: ReactNode;
   animatedStyle?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>;
   containerStyle?: StyleProp<ViewStyle>;
+  /** Button ID for analytics tracking (optional) */
+  buttonId?: ButtonId;
+  /** Button label for analytics (optional) */
+  buttonLabel?: string;
+  /** Override screen name for analytics (optional) */
+  screenName?: ScreenName;
 };
 
 type BottomActionBarComponent = ((props: BottomActionBarProps) => React.ReactElement) & {
@@ -35,8 +42,12 @@ const BottomActionBarButton = ({
   children,
   onPressIn,
   onPressOut,
+  onPress,
   animatedStyle,
   containerStyle,
+  buttonId,
+  buttonLabel,
+  screenName,
   ...rest
 }: BottomActionBarButtonProps) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -76,6 +87,14 @@ const BottomActionBarButton = ({
     onPressOut?.(e);
   };
 
+  const handlePress = (e: any) => {
+    // Track button click if buttonId is provided
+    if (buttonId) {
+      analytics.trackButtonClick(buttonId, buttonLabel, screenName);
+    }
+    onPress?.(e);
+  };
+
   // Separate Animated.Views: outer for non-native (backgroundColor), inner for native (scale, opacity)
   const innerContent = (
     <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
@@ -86,6 +105,7 @@ const BottomActionBarButton = ({
         )}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
+        onPress={handlePress}
         {...rest}>
         {children}
       </Pressable>
