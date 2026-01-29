@@ -1,6 +1,7 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import { AnimatedPressable, Container } from '@components/common';
+import { Container } from '@components/common';
+import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
 import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';
@@ -183,6 +184,9 @@ const PointingScreen = ({
     return '계속';
   }, [index, phase, total]);
 
+  // Button ID for analytics tracking (only 'next_problem' when applicable)
+  const ctaButtonId: ButtonId | undefined = ctaLabel === '다음 문제' ? 'next_problem' : undefined;
+
   const handleCtaPress = useCallback(() => {
     const prevPhase = useProblemSessionStore.getState().phase;
     nextPointing();
@@ -285,7 +289,8 @@ const PointingScreen = ({
                 style={shadow[100]}>
                 <View className='mb-[6px] flex-row justify-between gap-[10px]'>
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
-                  <AnimatedPressable
+                  <TrackedAnimatedPressable
+                    buttonId={isProblemScraped ? 'remove_scrap' : 'add_scrap'}
                     className='h-[32px] w-[32px] items-center justify-center'
                     onPress={handleToggleProblemScrap}>
                     <BookmarkIcon
@@ -293,7 +298,7 @@ const PointingScreen = ({
                       color={isProblemScraped ? colors['gray-800'] : colors['gray-600']}
                       fill={isProblemScraped ? colors['gray-800'] : 'transparent'}
                     />
-                  </AnimatedPressable>
+                  </TrackedAnimatedPressable>
                 </View>
                 <ProblemViewer
                   problemContent={problem?.problemContent ?? ''}
@@ -314,7 +319,8 @@ const PointingScreen = ({
                       </Text>
                       <Text className='text-13m text-gray-700'>포인팅 질문</Text>
                     </View>
-                    <AnimatedPressable
+                    <TrackedAnimatedPressable
+                      buttonId={isPointingScraped ? 'remove_scrap' : 'add_scrap'}
                       className='h-[32px] w-[32px] items-center justify-center'
                       onPress={handleTogglePointingScrap}>
                       <BookmarkIcon
@@ -322,7 +328,7 @@ const PointingScreen = ({
                         color={isPointingScraped ? colors['gray-800'] : colors['gray-600']}
                         fill={isPointingScraped ? colors['gray-800'] : 'transparent'}
                       />
-                    </AnimatedPressable>
+                    </TrackedAnimatedPressable>
                   </View>
                   <ProblemViewer problemContent={pointing?.questionContent ?? ''} />
                 </View>
@@ -341,7 +347,9 @@ const PointingScreen = ({
             <BottomActionBar.Button
               className='bg-primary-500 h-[42px]'
               containerStyle={{ flex: 1 }}
-              onPress={handleCtaPress}>
+              onPress={handleCtaPress}
+              buttonId={ctaButtonId}
+              buttonLabel={ctaLabel}>
               <Text className='text-16m text-white'>{ctaLabel}</Text>
             </BottomActionBar.Button>
           ) : (
@@ -350,14 +358,18 @@ const PointingScreen = ({
                 className={`bg-primary-500 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
                 containerStyle={{ flex: 1 }}
                 disabled={isSubmittingUnderstanding}
-                onPress={() => handleUnderstandSelection(true)}>
+                onPress={() => handleUnderstandSelection(true)}
+                buttonId='confirm_pointing'
+                buttonLabel='네'>
                 <Text className='text-16m text-white'>네</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
                 className={`bg-primary-500 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
                 containerStyle={{ flex: 1 }}
                 disabled={isSubmittingUnderstanding}
-                onPress={() => handleUnderstandSelection(false)}>
+                onPress={() => handleUnderstandSelection(false)}
+                buttonId='reject_pointing'
+                buttonLabel='아니오'>
                 <Text className='text-16m text-white'>아니오</Text>
               </BottomActionBar.Button>
             </View>

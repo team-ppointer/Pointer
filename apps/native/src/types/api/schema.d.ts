@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+  '/api/teacher/qna/{qnaId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Q&A 상태 변경 */
+    put: operations['updateStatus'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/teacher/qna/chat/{chatId}': {
     parameters: {
       query?: never;
@@ -256,6 +273,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/qna/{qnaId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Q&A 상태 변경 */
+    put: operations['updateStatus_1'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/qna/chat/{chatId}': {
     parameters: {
       query?: never;
@@ -360,6 +394,23 @@ export interface paths {
     get?: never;
     /** 담당 학생 수정 */
     put: operations['assignStudentsToTeacher'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/qna/{qnaId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Q&A 상태 변경 */
+    put: operations['updateStatus_2'];
     post?: never;
     delete?: never;
     options?: never;
@@ -2640,9 +2691,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ChatUpdateRequest: {
-      content: string;
-      files?: number[];
+    QnAStatusUpdateDTO: {
+      /**
+       * @description Q&A 상태
+       * @example QUESTIONING
+       * @enum {string}
+       */
+      status: 'QUESTIONING' | 'RESOLVED' | 'QUESTIONING' | 'RESOLVED';
     };
     ChatResp: {
       /** Format: int64 */
@@ -2679,6 +2734,8 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_QUESTION'
         | 'CHILD_PROBLEM_POINTING_COMMENT'
         | 'ADMIN_CHAT';
+      /** @enum {string} */
+      status: 'QUESTIONING' | 'RESOLVED';
       /** Format: date */
       publishDate: string;
       /** Format: int64 */
@@ -2711,6 +2768,8 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_QUESTION'
         | 'CHILD_PROBLEM_POINTING_COMMENT'
         | 'ADMIN_CHAT';
+      /** @enum {string} */
+      status: 'QUESTIONING' | 'RESOLVED';
       /** Format: date */
       publishDate: string;
       /** Format: int64 */
@@ -2740,6 +2799,10 @@ export interface components {
       url: string;
       /** @enum {string} */
       fileType: 'IMAGE' | 'DOCUMENT' | 'OTHER';
+    };
+    ChatUpdateRequest: {
+      content: string;
+      files?: number[];
     };
     NoticeUpdateRequest: {
       title: string;
@@ -4102,6 +4165,8 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_QUESTION'
         | 'CHILD_PROBLEM_POINTING_COMMENT'
         | 'ADMIN_CHAT';
+      /** @enum {string} */
+      qnaStatus?: 'QUESTIONING' | 'RESOLVED';
       /** Format: date */
       publishDate?: string;
       /** Format: int64 */
@@ -4225,6 +4290,21 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['UploadFileResp'][];
+    };
+    ListRespQnaFileResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['QnaFileResp'][];
+    };
+    QnaFileResp: {
+      /** Format: int64 */
+      id: number;
+      fileName: string;
+      url: string;
+      /** @enum {string} */
+      fileType: 'IMAGE' | 'DOCUMENT' | 'OTHER';
+      /** @description 스크랩 여부 */
+      isScrapped: boolean;
     };
     ListRespNotificationResp: {
       /** Format: int32 */
@@ -4662,6 +4742,15 @@ export interface components {
        */
       pointingId: number;
     };
+    ErrorResp: {
+      code?: string;
+      message?: string;
+      path?: string;
+      /** Format: date-time */
+      timestamp?: string;
+      rootCause?: string;
+      stackTrace?: string[];
+    };
   };
   responses: never;
   parameters: never;
@@ -4671,6 +4760,32 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  updateStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['QnAStatusUpdateDTO'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
+        };
+      };
+    };
+  };
   updateChat: {
     parameters: {
       query?: never;
@@ -5195,6 +5310,32 @@ export interface operations {
       };
     };
   };
+  updateStatus_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['QnAStatusUpdateDTO'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
+        };
+      };
+    };
+  };
   updateChat_1: {
     parameters: {
       query?: never;
@@ -5401,6 +5542,32 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['TeacherResp'];
+        };
+      };
+    };
+  };
+  updateStatus_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['QnAStatusUpdateDTO'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
         };
       };
     };
@@ -5808,12 +5975,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description OK */
+      /** @description 삭제 성공 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description 사용 중인 개념태그는 삭제할 수 없음 */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResp'];
+        };
       };
     };
   };
@@ -5854,12 +6030,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description OK */
+      /** @description 삭제 성공 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description 사용 중인 대분류는 삭제할 수 없음 */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResp'];
+        };
       };
     };
   };
@@ -7512,6 +7697,7 @@ export interface operations {
     parameters: {
       query?: {
         query?: string;
+        categoryId?: number;
         page?: number;
         size?: number;
       };
@@ -8210,7 +8396,18 @@ export interface operations {
   };
   getScrapsByFolder: {
     parameters: {
-      query?: never;
+      query?: {
+        /**
+         * @description 정렬 옵션 (CREATED_AT: 최신순, NAME: 이름순, TYPE: 유형별)
+         * @example CREATED_AT
+         */
+        sortOption?: 'CREATED_AT' | 'NAME' | 'TYPE' | 'SIMILARITY';
+        /**
+         * @description 정렬 방향 (ASC: 오름차순, DESC: 내림차순)
+         * @example DESC
+         */
+        order?: 'ASC' | 'DESC';
+      };
       header?: never;
       path: {
         folderId: number;
@@ -8355,7 +8552,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespUploadFileResp'];
+          '*/*': components['schemas']['ListRespQnaFileResp'];
         };
       };
     };

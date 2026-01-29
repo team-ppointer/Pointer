@@ -71,8 +71,10 @@ export const FilterBar = ({
       {showViewAll && (
         <View className='pl-[6px] pr-[8px]'>
           <Pressable className='flex-row items-center gap-0.5' onPress={onViewAll}>
-            {/* <Text className='text-16m text-gray-800'>전체보기</Text> */}
-            <ChevronRight size={16} color={colors['gray-700']} opacity={isScrollEnd ? 0.3 : 1} />
+            <View className={`flex-row items-center gap-0.5 ${isScrollEnd ? 'opacity-30' : ''}`}>
+              <Text className='text-16m text-gray-800'>전체보기</Text>
+              <ChevronRight size={16} color={colors['gray-700']} />
+            </View>
           </Pressable>
         </View>
       )}

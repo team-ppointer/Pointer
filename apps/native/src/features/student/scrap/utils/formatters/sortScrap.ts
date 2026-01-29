@@ -69,9 +69,10 @@ export const sortScrapData = <T extends ScrapItem | TrashItem>(
  * - TYPE, DATE → CREATED_AT (서버에서 생성일시 기준 정렬)
  * - TITLE → NAME (서버에서 이름 기준 정렬)
  */
-export const mapUIKeyToAPIKey = (uiKey: UISortKey): 'CREATED_AT' | 'NAME' => {
+export const mapUIKeyToAPIKey = (uiKey: UISortKey): 'CREATED_AT' | 'NAME' | 'TYPE' => {
   switch (uiKey) {
     case 'TYPE':
+      return 'TYPE';
     case 'DATE':
       return 'CREATED_AT';
     case 'TITLE':

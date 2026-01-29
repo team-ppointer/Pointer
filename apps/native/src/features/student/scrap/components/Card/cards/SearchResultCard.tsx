@@ -9,6 +9,7 @@ import { ScrapListItemProps } from '../types';
 import { useCardImageSources } from '../../../hooks';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 import { HighlightedText } from '../../../utils/HighlightedText';
+import { ScrapDefaultIcon, ScrapFolderDefaultIcon } from '@/components/system/icons';
 
 type SearchResultCardProps = ScrapListItemProps & {
   searchQuery?: string;
@@ -24,6 +25,23 @@ export const SearchResultCard = (props: SearchResultCardProps) => {
     folderTop2Thumbnail
   );
 
+  const renderFallback = () => {
+    if (props.type === 'FOLDER') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapFolderDefaultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      );
+    } else if (props.type === 'SCRAP') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapDefaultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      );
+    }
+    return <View className='aspect-square w-full rounded-[10px] bg-blue-200' />;
+  };
+
   const cardContent = (
     <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
       <View className='w-full gap-3'>
@@ -37,7 +55,7 @@ export const SearchResultCard = (props: SearchResultCardProps) => {
             resizeMode='cover'
             uniqueId={`${props.type}-${props.id}`}
             isDiagonalLayout={isDiagonalLayout}
-            fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
+            fallback={renderFallback()}
           />
         </View>
         <View className='w-full justify-between px-1'>

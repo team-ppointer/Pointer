@@ -11,7 +11,8 @@ type ScrapUIAction =
   | { type: 'SET_SELECTED_FILTER'; filter: number }
   | { type: 'SET_PROBLEM_EXPANDED'; expanded: boolean }
   | { type: 'SET_HOVERING_PROBLEM'; hovering: boolean }
-  | { type: 'SET_SHOW_SAVE'; show: boolean };
+  | { type: 'SET_SHOW_SAVE'; show: boolean }
+  | { type: 'RESET' };
 
 const initialState: ScrapUIState = {
   selectedFilter: 0,
@@ -30,6 +31,8 @@ function uiReducer(state: ScrapUIState, action: ScrapUIAction): ScrapUIState {
       return { ...state, isHoveringProblem: action.hovering };
     case 'SET_SHOW_SAVE':
       return { ...state, showSave: action.show };
+    case 'RESET':
+      return initialState;
     default:
       return state;
   }
@@ -63,6 +66,10 @@ export function useScrapUIState() {
     dispatch({ type: 'SET_SHOW_SAVE', show: false });
   }, []);
 
+  const reset = useCallback(() => {
+    dispatch({ type: 'RESET' });
+  }, []);
+
   return {
     // State
     selectedFilter: state.selectedFilter,
@@ -77,5 +84,6 @@ export function useScrapUIState() {
     setHoveringProblem,
     showSaveIndicator,
     hideSaveIndicator,
+    reset,
   };
 }

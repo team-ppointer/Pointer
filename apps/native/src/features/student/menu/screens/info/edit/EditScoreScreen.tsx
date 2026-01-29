@@ -6,7 +6,6 @@ import { useMemo, useState } from 'react';
 import { levelOptions } from '@features/student/onboarding/constants';
 import OptionButton from '@features/student/onboarding/components/OptionButton';
 import { showToast } from '@features/student/scrap/components/Notification';
-import { usePutMe } from '@apis';
 import { MessageSquareWarningFilledIcon } from '@components/system/icons';
 import { InfoCard } from '@features/student/onboarding/components';
 import { colors } from '@theme/tokens';
@@ -15,7 +14,6 @@ const EditScoreScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditScore'>) => {
-  const { mutate: putMeMutate } = usePutMe();
   const [level, setLevel] = useState<number | null>(route.params.initialScore || null);
 
   const levelRows = useMemo(() => {
@@ -31,18 +29,15 @@ const EditScoreScreen = ({
       showToast('error', '성적을 선택해 주세요.');
       return;
     }
-    putMeMutate(
-      { level: level },
-      {
-        onSuccess: () => {
-          navigation.goBack();
-          showToast('success', '성적이 변경되었습니다.');
-        },
-        onError: () => {
-          showToast('error', '성적 변경에 실패했습니다.');
-        },
-      }
-    );
+    // MyInfo로 돌아가면서 수정된 값 전달
+    navigation.reset({
+      index: 1,
+      routes: [
+        { name: 'MenuMain' },
+        { name: 'MyInfo', params: { updatedData: { level: level } } },
+      ],
+    });
+    showToast('success', '성적이 변경되었습니다.');
   };
 
   return (

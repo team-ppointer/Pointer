@@ -22,25 +22,53 @@ export function useHandwritingManager({
   const { data: handwritingData, isLoading } = useGetHandwriting(scrapId, !!scrapId);
   const { mutate: updateHandwriting, isPending: isSaving } = useUpdateHandwriting();
   const lastSavedDataRef = useRef<string>('');
+  const currentScrapIdRef = useRef<number>(scrapId);
+
+  // scrapId가 변경되면 lastSavedDataRef 초기화
+  useEffect(() => {
+    if (currentScrapIdRef.current !== scrapId) {
+      lastSavedDataRef.current = '';
+      currentScrapIdRef.current = scrapId;
+    }
+  }, [scrapId]);
 
   // 필기 데이터 로드
   useEffect(() => {
-    if (handwritingData?.data && canvasRef.current) {
-      try {
-        const decodedData = decodeHandwritingData(handwritingData.data);
-        canvasRef.current.setStrokes(decodedData.strokes);
-        canvasRef.current.setTexts(decodedData.texts);
-        lastSavedDataRef.current = handwritingData.data;
-      } catch (error) {
-        console.error('필기 데이터 로드 실패:', error);
-      }
+    // 저장 중이 아니고, scrapId가 일치할 때만 로드 (데이터 유실 방지)
+    if (
+      handwritingData?.data &&
+      canvasRef.current &&
+      currentScrapIdRef.current === scrapId &&
+      !isSaving
+    ) {
+      // clear() 완료를 보장하기 위해 약간의 지연 후 로드
+      const loadTimer = setTimeout(() => {
+        // 다시 한번 scrapId 확인 (clear() 실행 중일 수 있음)
+        if (currentScrapIdRef.current === scrapId && canvasRef.current && !isSaving) {
+          try {
+            const decodedData = decodeHandwritingData(handwritingData.data);
+            canvasRef.current.setStrokes(decodedData.strokes);
+            canvasRef.current.setTexts(decodedData.texts);
+            lastSavedDataRef.current = handwritingData.data;
+          } catch (error) {
+            console.error('필기 데이터 로드 실패:', error);
+          }
+        }
+      }, 50); // 50ms 지연으로 clear() 완료 보장
+
+      return () => clearTimeout(loadTimer);
     }
-  }, [handwritingData, canvasRef]);
+  }, [handwritingData, canvasRef, scrapId, isSaving]);
 
   // 저장하기 함수
   const handleSave = useCallback(
-    (isAutoSave = false) => {
+    (isAutoSave = false, targetScrapId?: number) => {
       if (!canvasRef.current) return Promise.resolve(false);
+      
+      // 이미 저장 중이면 중복 저장 방지
+      if (isSaving) {
+        return Promise.resolve(false);
+      }
 
       const strokes = canvasRef.current.getStrokes();
       const texts = canvasRef.current.getTexts();
@@ -56,10 +84,13 @@ export function useHandwritingManager({
           return Promise.resolve(true);
         }
 
+        // targetScrapId가 제공되면 그것을 사용, 아니면 scrapId 사용
+        const saveScrapId = targetScrapId ?? scrapId;
+
         return new Promise<boolean>((resolve) => {
           updateHandwriting(
             {
-              scrapId,
+              scrapId: saveScrapId,
               request: { data: base64Data },
             },
             {
@@ -90,7 +121,7 @@ export function useHandwritingManager({
         return Promise.resolve(false);
       }
     },
-    [scrapId, canvasRef, updateHandwriting, onSaveSuccess, onSaveError]
+    [scrapId, canvasRef, updateHandwriting, onSaveSuccess, onSaveError, isSaving]
   );
 
   // 10초마다 자동 저장
@@ -99,7 +130,7 @@ export function useHandwritingManager({
       if (hasUnsavedChanges && !isSaving) {
         handleSave(true);
       }
-    }, 10000); // 10초마다 실행
+    }, 5000); // 5초마다 실행
 
     return () => clearInterval(autoSaveInterval);
   }, [hasUnsavedChanges, isSaving, handleSave]);
