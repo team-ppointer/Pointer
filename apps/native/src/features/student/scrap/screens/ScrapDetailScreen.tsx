@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
+  Pressable,
 } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -424,8 +425,11 @@ const ScrapDetailScreen = () => {
   // Error state
   if (!scrapDetail) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
         <Text>스크랩을 찾을 수 없습니다.</Text>
+        <Pressable onPress={() => navigation.goBack()} className='rounded bg-gray-300 px-4 py-2'>
+          <Text>뒤로가기</Text>
+        </Pressable>
       </View>
     );
   }
