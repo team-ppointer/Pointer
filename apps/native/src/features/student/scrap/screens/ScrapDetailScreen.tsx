@@ -261,9 +261,9 @@ const ScrapDetailScreen = () => {
   // Derived state - Pointings with labels
   const pointingsWithLabels = useMemo(() => {
     if (!scrapDetail?.pointings) return [];
-    return scrapDetail.pointings.map((pointing, idx) => ({
+    return scrapDetail.pointings.map((pointing) => ({
       ...pointing,
-      label: toAlphabetSequence(idx),
+      label: toAlphabetSequence(pointing.no - 1),
     }));
   }, [scrapDetail?.pointings]);
 
