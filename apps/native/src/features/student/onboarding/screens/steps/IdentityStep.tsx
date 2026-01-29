@@ -140,7 +140,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
         onChangeText={(text) => updateField('name', text)}
         errorMessage={errors.name}
       />
-      <View className='flex-row items-end gap-[10px]'>
+      <View className='flex-row items-start gap-[10px]'>
         <OnboardingInput
           label='휴대폰 번호'
           placeholder='01012345678'
@@ -156,7 +156,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
           <AnimatedPressable
             onPress={timeLeft > 0 ? undefined : handleResend}
             disabled={timeLeft > 0}
-            className='h-[48px] w-[100px] items-center justify-center rounded-[8px] bg-primary-500'>
+            className='h-[48px] w-[100px] mt-[45px] items-center justify-center rounded-[8px] bg-primary-500'>
             <Text className='text-16m text-white'>
               {timeLeft > 0 ? formatTime(timeLeft) : isSent ? '재전송' : '인증 요청'}
             </Text>

@@ -67,9 +67,9 @@ const EmailStep = ({ navigation }: OnboardingScreenProps<'Email'>) => {
         placeholder='pointer111@example.com'
         errorMessage={error ?? undefined}
       />
-      <Button title='[DEBUG] LOGOUT' onPress={() => {
+      {/* <Button title='[DEBUG] LOGOUT' onPress={() => {
         useAuthStore.getState().signOut();
-      }} />
+      }} /> */}
     </OnboardingLayout>
   );
 };
