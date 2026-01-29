@@ -48,7 +48,7 @@ const ScrapHeader = ({
   const isActionEnabled = reducerState.selectedItems.length > 0;
 
   return (
-    <View className={`bg-${!reducerState.isSelecting ? 'background' : 'gray-200'}`}>
+    <View className={`bg-${!reducerState.isSelecting ? 'gray-100' : 'gray-200'}`}>
       {!reducerState.isSelecting && (
         <Container className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
           {navigateback && navigateback.canGoBack() && (
