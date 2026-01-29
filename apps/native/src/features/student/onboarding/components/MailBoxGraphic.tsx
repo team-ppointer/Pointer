@@ -1,12 +1,4 @@
-import Svg, {
-  Defs,
-  G,
-  LinearGradient,
-  Mask,
-  Path,
-  Rect,
-  Stop,
-} from 'react-native-svg';
+import Svg, { Defs, G, LinearGradient, Mask, Path, Rect, Stop } from 'react-native-svg';
 
 const MailBoxGraphic = () => {
   return (
@@ -33,10 +25,7 @@ const MailBoxGraphic = () => {
         />
       </G>
       <G opacity={0.5}>
-        <Path
-          d='M117.805 63.998H191.005V125.198H117.805V63.998Z'
-          fill='url(#paint1_linear)'
-        />
+        <Path d='M117.805 63.998H191.005V125.198H117.805V63.998Z' fill='url(#paint1_linear)' />
       </G>
       <Path
         d='M97.4062 39.3984C116.957 39.3984 132.807 55.2479 132.807 74.7988V123.999C132.807 130.295 127.702 135.398 121.406 135.398H73.4062C67.1103 135.398 62.006 130.295 62.0059 123.999V74.7988C62.0059 55.248 77.8554 39.3984 97.4062 39.3984Z'
@@ -213,4 +202,3 @@ const MailBoxGraphic = () => {
 };
 
 export default MailBoxGraphic;
-

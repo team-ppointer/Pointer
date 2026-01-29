@@ -50,10 +50,10 @@ interface MessageBubbleProps {
   onDelete?: (message: Message) => void;
 }
 
-const LEFT_SWIPE_THRESHOLD = -80;
+const LEFT_SWIPE_THRESHOLD = -90;
 const RIGHT_SWIPE_THRESHOLD = 60;
 const REPLY_TRIGGER_THRESHOLD = 50;
-const TIMESTAMP_WIDTH = 50;
+const TIMESTAMP_WIDTH = 80;
 const PROFILE_SIZE = 36;
 const PROFILE_GAP = 8;
 
@@ -379,7 +379,7 @@ const MessageBubble = ({
   onEdit,
   onDelete,
 }: MessageBubbleProps) => {
-  const { type, sender, content, timestamp, reply, file, image, files } = message;
+  const { type, sender, content, timestamp, reply, file, image, files, isEdited } = message;
   const isMe = sender === 'me';
 
   // Track downloading files
@@ -623,7 +623,7 @@ const MessageBubble = ({
         );
       case 'text':
       default:
-        return <Text className='text-16r text-black'>{content}</Text>;
+        return <Text className='text-16r text-black'>{content.trim()}</Text>;
     }
   };
 
@@ -645,7 +645,9 @@ const MessageBubble = ({
       <Animated.View
         style={[styles.timestampContainer, animatedTimestampStyle]}
         className='absolute bottom-0 right-[16px] top-0 justify-center'>
-        <Text className='text-10r text-gray-600'>{timestamp}</Text>
+        <Text className='text-10r text-gray-600'>
+          {isEdited ? `${timestamp}에 수정됨` : timestamp}
+        </Text>
       </Animated.View>
 
       {/* Swipeable Message Content */}
@@ -664,7 +666,7 @@ const MessageBubble = ({
               )}
 
               {/* Message Content */}
-              <View className='shrink'>
+              <View className='flex-col items-start'>
                 {/* Sender Name - only for first message */}
                 {showProfile && senderName && (
                   <Text className='text-12sb mb-[4px] text-gray-700'>{senderName}</Text>

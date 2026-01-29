@@ -1,85 +1,141 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { StudentRootStackParamList } from '@navigation/student/types';
-import {
-  useGetQnaList,
-  useGetQnaAdminChat,
-  useGetQnaById,
-} from '@apis/controller/student/qna';
+import type { StudentRootStackParamList, StudentTabParamList } from '@navigation/student/types';
+import { useGetQnaList, useGetQnaById, useInvalidateQnaData } from '@apis/controller/student/qna';
+import useSubscribeQnaList from '@apis/controller/common/qna/useGetSubscribeQnaList';
+import { getAccessToken } from '@utils/auth';
 import type { ChatRoom as ChatRoomType } from '../types';
-import { mapQnAMetaToChatRoom, mapAdminChatToChatRoom } from '../types';
+import { mapQnAMetaToChatRoom } from '../types';
 import { ChatRoomList } from '../components/ChatRoomList';
 import { ChatRoom } from '../components/ChatRoom';
 import { useIsTablet } from '../hooks/useIsTablet';
 
 type QnaScreenNavigationProp = NativeStackNavigationProp<StudentRootStackParamList>;
+type QnaScreenRouteProp = RouteProp<StudentTabParamList, 'Qna'>;
 
 const QnaScreen = () => {
   const navigation = useNavigation<QnaScreenNavigationProp>();
+  const route = useRoute<QnaScreenRouteProp>();
   const isTablet = useIsTablet();
+
+  // 딥링크로 전달된 초기 채팅방 ID
+  const initialChatRoomId = route.params?.initialChatRoomId;
 
   // Selected room state
   const [selectedRoom, setSelectedRoom] = useState<ChatRoomType | null>(null);
+  // 초기 채팅방 선택 여부를 추적
+  const hasInitializedRef = useRef(false);
 
-  // Fetch QnA list (teacher chats)
-  const {
-    data: qnaListData,
-    isLoading: isLoadingQnaList,
-    error: qnaListError,
-  } = useGetQnaList();
+  const token = getAccessToken();
+  const { invalidateQnaById, invalidateQnaList } = useInvalidateQnaData();
+  
+  // Debounce ref for qna_list events (prevent excessive invalidations)
+  const qnaListDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Subscribe to student QnA list SSE to receive real-time updates for read status (badge)
+  useSubscribeQnaList({
+    token: token ?? '',
+    enabled: !!token,
+    onQnaListEvent: useCallback(
+      (event: import('@apis/controller/common/qna/useGetSubscribeQnaList').QnAListEvent) => {
+        console.log('[QnaScreen] QnA list event received:', event);
+        // qna_list 이벤트 수신 시 현재 채팅방 및 리스트 데이터를 invalidate
+        // 디바운스 적용: 500ms 내 중복 이벤트는 무시
+        if (qnaListDebounceRef.current) {
+          clearTimeout(qnaListDebounceRef.current);
+        }
+        qnaListDebounceRef.current = setTimeout(() => {
+          // Invalidate the list to update badges
+          void invalidateQnaList();
+          
+          // If in tablet mode with a selected room, also invalidate that room's data
+          if (isTablet && selectedRoom && selectedRoom.id > 0) {
+            void invalidateQnaById(selectedRoom.id);
+          }
+          qnaListDebounceRef.current = null;
+        }, 500);
+      },
+      [isTablet, selectedRoom, invalidateQnaById, invalidateQnaList]
+    ),
+    onError: useCallback((error: Error) => {
+      console.error('[QnaScreen] SSE QnaList error:', error);
+    }, []),
+  });
 
-  // Fetch admin chat (publisher)
-  const {
-    data: adminChatData,
-    isLoading: isLoadingAdminChat,
-    error: adminChatError,
-  } = useGetQnaAdminChat();
+  // Fetch QnA list (includes both teacher chats and admin chat)
+  const { data: qnaListData, isLoading: isLoadingQnaList, error: qnaListError } = useGetQnaList();
 
-  // Determine if selected room is admin chat
-  const isSelectedRoomAdmin = selectedRoom?.type === 'publisher';
-
-  // Fetch selected QnA details (for teacher chats)
+  // Fetch selected QnA details (for both teacher and admin chats)
   const { data: selectedQnaData } = useGetQnaById({
     qnaId: selectedRoom?.id ?? 0,
-    enabled: isTablet && !!selectedRoom && !isSelectedRoomAdmin && selectedRoom.id > 0,
+    enabled: isTablet && !!selectedRoom && selectedRoom.id > 0,
   });
 
   // Map API responses to ChatRoom format
+  // Now handles both teacher chats and admin chat (type === 'ADMIN_CHAT') uniformly
+  // Also applies optimistic update: selected room's badge is hidden since accessing marks it as read
   const chatRooms = useMemo<ChatRoomType[]>(() => {
     const rooms: ChatRoomType[] = [];
 
-    // Add admin chat (publisher) at the top if exists
-    if (adminChatData) {
-      rooms.push(mapAdminChatToChatRoom(adminChatData));
-    }
-
-    // Add teacher chats
     if (qnaListData?.data?.groups) {
       qnaListData.data.groups.forEach((group) => {
         group.data?.forEach((qna) => {
-          rooms.push(mapQnAMetaToChatRoom(qna));
+          const room = mapQnAMetaToChatRoom(qna);
+          
+          // Optimistic update: if this room is selected (tablet mode), hide the badge
+          // because accessing the room marks it as read
+          if (isTablet && selectedRoom && room.id === selectedRoom.id) {
+            room.hasNewMessage = false;
+          }
+          
+          rooms.push(room);
         });
       });
     }
 
-    return rooms;
-  }, [qnaListData, adminChatData]);
+    // Sort by most recent message (newest first)
+    rooms.sort((a, b) => {
+      const timeA = a.lastMessageTimeRaw ? new Date(a.lastMessageTimeRaw).getTime() : 0;
+      const timeB = b.lastMessageTimeRaw ? new Date(b.lastMessageTimeRaw).getTime() : 0;
+      return timeB - timeA; // Descending order (newest first)
+    });
 
-  // Auto-select first room on tablet when data loads
-  React.useEffect(() => {
-    if (isTablet && chatRooms.length > 0 && !selectedRoom) {
-      setSelectedRoom(chatRooms[0]);
+    return rooms;
+  }, [qnaListData, isTablet, selectedRoom]);
+
+  // 초기 채팅방 선택 또는 첫 번째 채팅방 자동 선택 (태블릿)
+  useEffect(() => {
+    if (!isTablet || chatRooms.length === 0 || hasInitializedRef.current) {
+      return;
     }
-  }, [isTablet, chatRooms, selectedRoom]);
+
+    // 딥링크로 전달된 initialChatRoomId가 있으면 해당 채팅방 선택
+    if (initialChatRoomId) {
+      const targetRoom = chatRooms.find((room) => room.id === initialChatRoomId);
+      if (targetRoom) {
+        setSelectedRoom(targetRoom);
+        hasInitializedRef.current = true;
+        return;
+      }
+    }
+
+    // 없으면 첫 번째 채팅방 선택
+    if (!selectedRoom) {
+      setSelectedRoom(chatRooms[0]);
+      hasInitializedRef.current = true;
+    }
+  }, [isTablet, chatRooms, initialChatRoomId, selectedRoom]);
 
   const handleSelectRoom = (room: ChatRoomType) => {
     if (isTablet) {
       setSelectedRoom(room);
     } else {
-      navigation.navigate('ChatRoom', { chatRoomId: room.id });
+      navigation.navigate('ChatRoom', {
+        chatRoomId: room.id,
+      });
     }
   };
 
@@ -92,64 +148,67 @@ const QnaScreen = () => {
     navigation.navigate('QnaSearch');
   };
 
-  const isLoading = isLoadingQnaList || isLoadingAdminChat;
-  const hasError = qnaListError || adminChatError;
+  const isLoading = isLoadingQnaList;
+  const hasError = qnaListError;
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-gray-100" edges={['top']}>
-        <ActivityIndicator size="large" />
-      </SafeAreaView>
-    );
-  }
-
-  // Error state
-  if (hasError) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-gray-100" edges={['top']}>
-        <Text className="text-14r text-gray-600">데이터를 불러올 수 없습니다.</Text>
-      </SafeAreaView>
-    );
-  }
-
-  // Tablet: Split view
-  if (isTablet) {
-    return (
-      <SafeAreaView className="flex-1 flex-row bg-gray-100" edges={['top']}>
-        {/* Left Panel - Chat Room List */}
-        <View className="w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white">
-          <ChatRoomList
-            chatRooms={chatRooms}
-            selectedRoomId={selectedRoom?.id}
-            onSelectRoom={handleSelectRoom}
-            onNewQuestion={handleNewQuestion}
-            onSearch={handleSearch}
-          />
+  // 컨텐츠 렌더링 함수 - early return 대신 동일한 구조 유지
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size='large' />
         </View>
+      );
+    }
 
-        {/* Right Panel - Chat Room */}
-        <View className="flex-1">
-          <ChatRoom
-            chatRoom={selectedRoom}
-            qnaData={isSelectedRoomAdmin ? undefined : selectedQnaData}
-            adminChatData={isSelectedRoomAdmin ? adminChatData : undefined}
-          />
+    if (hasError) {
+      return (
+        <View className='flex-1 items-center justify-center'>
+          <Text className='text-14r text-gray-600'>데이터를 불러올 수 없습니다.</Text>
         </View>
-      </SafeAreaView>
-    );
-  }
+      );
+    }
 
-  // Mobile: List only
-  return (
-    <SafeAreaView className="flex-1 bg-gray-100" edges={['top']}>
+    if (isTablet) {
+      return (
+        <View className='flex-1 flex-row'>
+          {/* Left Panel - Chat Room List */}
+          <View className='w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white'>
+            <ChatRoomList
+              chatRooms={chatRooms}
+              selectedRoomId={selectedRoom?.id}
+              onSelectRoom={handleSelectRoom}
+              onNewQuestion={handleNewQuestion}
+              onSearch={handleSearch}
+            />
+          </View>
+
+          {/* Right Panel - Chat Room */}
+          <View className='flex-1'>
+            <ChatRoom
+              chatRoom={selectedRoom}
+              qnaData={selectedQnaData}
+            />
+          </View>
+        </View>
+      );
+    }
+
+    return (
       <ChatRoomList
         chatRooms={chatRooms}
         onSelectRoom={handleSelectRoom}
         onNewQuestion={handleNewQuestion}
         onSearch={handleSearch}
       />
-    </SafeAreaView>
+    );
+  };
+
+  // 항상 동일한 SafeAreaView 구조 유지
+  return (
+    <View className='flex-1 bg-gray-100'>
+      {renderContent()}
+    </View>
   );
 };
 

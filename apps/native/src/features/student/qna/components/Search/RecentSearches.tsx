@@ -21,8 +21,8 @@ const SearchTag = ({
 }) => (
   <Pressable
     onPress={onPress}
-    className="mr-[8px] flex-row items-center gap-[6px] rounded-full bg-gray-200 px-[12px] py-[8px] active:bg-gray-300">
-    <Text className="text-14r text-gray-800">{text}</Text>
+    className='mr-[8px] flex-row items-center gap-[6px] rounded-full bg-gray-200 px-[12px] py-[8px] active:bg-gray-300'>
+    <Text className='text-14r text-gray-800'>{text}</Text>
     <Pressable
       onPress={(e) => {
         e.stopPropagation();
@@ -34,23 +34,18 @@ const SearchTag = ({
   </Pressable>
 );
 
-const RecentSearches = ({
-  searches,
-  onSelect,
-  onRemove,
-  onClearAll,
-}: RecentSearchesProps) => {
+const RecentSearches = ({ searches, onSelect, onRemove, onClearAll }: RecentSearchesProps) => {
   if (searches.length === 0) {
     return null;
   }
 
   return (
-    <View className="py-[16px]">
+    <View className='py-[16px]'>
       {/* Header */}
-      <View className="flex-row items-center justify-between px-[24px] pb-[12px]">
-        <Text className="text-16sb text-gray-900">최근 검색어</Text>
+      <View className='flex-row items-center justify-between px-[24px] pb-[12px]'>
+        <Text className='text-16sb text-gray-900'>최근 검색어</Text>
         <Pressable onPress={onClearAll}>
-          <Text className="text-14m text-primary-500">전체 지우기</Text>
+          <Text className='text-14m text-primary-500'>전체 지우기</Text>
         </Pressable>
       </View>
 
@@ -73,4 +68,3 @@ const RecentSearches = ({
 };
 
 export default RecentSearches;
-

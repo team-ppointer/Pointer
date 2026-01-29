@@ -21,15 +21,10 @@ const usePostQna = (options?: Options) => {
     },
     onSuccess: (data) => {
       void queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna', {})
-          .queryKey,
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna', {}).queryKey,
       });
       void queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions(
-          'get',
-          '/api/student/qna/images',
-          {}
-        ).queryKey,
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/files', {}).queryKey,
       });
       options?.onSuccess?.(data);
     },
@@ -40,4 +35,3 @@ const usePostQna = (options?: Options) => {
 };
 
 export default usePostQna;
-

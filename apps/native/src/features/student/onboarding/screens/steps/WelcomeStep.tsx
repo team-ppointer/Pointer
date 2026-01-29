@@ -16,6 +16,7 @@ const WelcomeStep = (_props: OnboardingScreenProps<'Welcome'>) => {
 
   const handleFinish = async () => {
     const payload = getPayload();
+    console.log('[WelcomeStep] handleFinish called, payload:', payload);
 
     const registerData: StudentInitialRegisterReq = {
       isGteFourteen: true,
@@ -23,30 +24,32 @@ const WelcomeStep = (_props: OnboardingScreenProps<'Welcome'>) => {
       isAgreePersonalInformation: true,
       isAgreeReceiveMarketing: false,
       email: payload.email || undefined,
-      name: payload.identity.name || payload.nickname,
-      birth: payload.identity.birth ?? undefined,
-      gender: payload.identity.gender ?? undefined,
+      name: payload.identity.name,
       phoneNumber: payload.identity.phoneNumber || undefined,
-      mobileCarrier: payload.identity.mobileCarrier ?? undefined,
       grade: payload.grade ?? 'ONE',
       selectSubject: payload.selectSubject ?? undefined,
       schoolId: payload.schoolId ?? undefined,
       level: payload.level ?? undefined,
-      nickname: payload.nickname || undefined,
     };
+    console.log('[WelcomeStep] Sending registerData:', registerData);
 
     try {
-      const response = await postRegister(registerData);
+      const { data, error } = await postRegister(registerData);
+      console.log('[WelcomeStep] postRegister response - data:', data, 'error:', error);
 
-      if (response.data) {
-        await updateStudentProfile({
-          name: payload.identity.name || payload.nickname || null,
-          grade: payload.grade,
-        });
-        complete();
+      if (error || !data) {
+        console.error('[WelcomeStep] Registration failed:', error);
+        return;
       }
+
+      await updateStudentProfile({
+        name: payload.identity.name || null,
+        grade: payload.grade,
+      });
+      console.log('[WelcomeStep] Profile updated, calling complete()');
+      complete();
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error('[WelcomeStep] Registration exception:', error);
     }
   };
 

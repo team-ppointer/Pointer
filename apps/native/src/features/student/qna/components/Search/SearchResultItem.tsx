@@ -24,7 +24,7 @@ const HighlightedText = ({
     <Text className={className}>
       {parts.map((part, index) =>
         part.toLowerCase() === highlight.toLowerCase() ? (
-          <Text key={index} className="text-blue-500">
+          <Text key={index} className='text-blue-500'>
             {part}
           </Text>
         ) : (
@@ -47,15 +47,11 @@ export const ChatRoomResultItem = ({ result, onPress }: ChatRoomResultItemProps)
   return (
     <Pressable
       onPress={onPress}
-      className="mr-[12px] w-[140px] rounded-[12px] bg-white p-[12px] active:bg-gray-100">
+      className='mr-[12px] w-[140px] rounded-[12px] bg-white p-[12px] active:bg-gray-100'>
       {/* Thumbnail */}
-      <View className="mb-[10px] h-[100px] items-center justify-center overflow-hidden rounded-[8px] bg-gray-200">
+      <View className='mb-[10px] h-[100px] items-center justify-center overflow-hidden rounded-[8px] bg-gray-200'>
         {thumbnailUrl ? (
-          <Image
-            source={{ uri: thumbnailUrl }}
-            className="h-full w-full"
-            resizeMode="cover"
-          />
+          <Image source={{ uri: thumbnailUrl }} className='h-full w-full' resizeMode='cover' />
         ) : (
           <ImageIcon size={32} color={colors['gray-400']} />
         )}
@@ -65,11 +61,11 @@ export const ChatRoomResultItem = ({ result, onPress }: ChatRoomResultItemProps)
       <HighlightedText
         text={title}
         highlight={matchedKeyword}
-        className="text-14sb text-gray-900 mb-[4px]"
+        className='text-14sb mb-[4px] text-gray-900'
       />
 
       {/* Meta */}
-      <Text className="text-12r text-gray-600" numberOfLines={1}>
+      <Text className='text-12r text-gray-600' numberOfLines={1}>
         {status === 'asking' ? '질문중' : '해결완료'} | {date}
       </Text>
     </Pressable>
@@ -83,23 +79,18 @@ interface MessageResultItemProps {
 }
 
 export const MessageResultItem = ({ result, onPress }: MessageResultItemProps) => {
-  const { content, senderName, senderType, status, date, thumbnailUrl, matchedKeyword } =
-    result;
+  const { content, senderName, senderType, status, date, thumbnailUrl, matchedKeyword } = result;
 
   const isPublisher = senderType === 'publisher';
 
   return (
     <Pressable
       onPress={onPress}
-      className="mr-[12px] w-[200px] rounded-[12px] bg-white p-[12px] active:bg-gray-100">
+      className='mr-[12px] w-[200px] rounded-[12px] bg-white p-[12px] active:bg-gray-100'>
       {/* Thumbnail */}
-      <View className="mb-[10px] h-[80px] items-center justify-center overflow-hidden rounded-[8px] bg-gray-200">
+      <View className='mb-[10px] h-[80px] items-center justify-center overflow-hidden rounded-[8px] bg-gray-200'>
         {thumbnailUrl ? (
-          <Image
-            source={{ uri: thumbnailUrl }}
-            className="h-full w-full"
-            resizeMode="cover"
-          />
+          <Image source={{ uri: thumbnailUrl }} className='h-full w-full' resizeMode='cover' />
         ) : (
           <MessageSquareText size={32} color={colors['gray-400']} />
         )}
@@ -109,17 +100,17 @@ export const MessageResultItem = ({ result, onPress }: MessageResultItemProps) =
       <HighlightedText
         text={content}
         highlight={matchedKeyword}
-        className="text-13r text-gray-800 mb-[8px]"
+        className='text-13r mb-[8px] text-gray-800'
       />
 
       {/* Sender Info */}
-      <Text className="text-14sb text-gray-900 mb-[2px]">{senderName}</Text>
+      <Text className='text-14sb mb-[2px] text-gray-900'>{senderName}</Text>
 
       {/* Meta */}
-      <Text className="text-12r text-gray-600" numberOfLines={1}>
-        {isPublisher ? '출제진' : senderName} | {status === 'asking' ? '질문중' : '해결완료'} | {date}
+      <Text className='text-12r text-gray-600' numberOfLines={1}>
+        {isPublisher ? '출제진' : senderName} | {status === 'asking' ? '질문중' : '해결완료'} |{' '}
+        {date}
       </Text>
     </Pressable>
   );
 };
-

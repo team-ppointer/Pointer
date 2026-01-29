@@ -12,6 +12,7 @@ import {
   CalendarUnavailableIcon,
   ChevronDownFilledIcon,
 } from '@components/system/icons';
+import { AnimatedPressable } from '@components/common';
 import { components } from '@schema';
 
 type PublishResp = components['schemas']['PublishResp'];
@@ -53,18 +54,18 @@ interface CalendarHeaderProps {
 }
 
 const CalendarHeader = ({ label, onSelectMonth, onSelectToday }: CalendarHeaderProps) => (
-  <View className='flex-row items-center border-b border-gray-400 px-[20px] py-[8px]'>
-    <Pressable className='flex-row items-center' onPress={onSelectMonth}>
+  <View className='flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[8px]'>
+    <AnimatedPressable className='flex-row items-center' onPress={onSelectMonth}>
       <Text className='text-20b mr-[4px] text-gray-900'>{label}</Text>
       <View className='p-[4px]'>
         <ChevronDownFilledIcon />
       </View>
-    </Pressable>
-    <Pressable
+    </AnimatedPressable>
+    <AnimatedPressable
       className='ml-auto h-[32px] items-center justify-center rounded-[8px] bg-gray-300 px-[8px]'
       onPress={onSelectToday}>
       <Text className='text-14m text-gray-700'>오늘</Text>
-    </Pressable>
+    </AnimatedPressable>
   </View>
 );
 
@@ -77,11 +78,14 @@ const CalendarDate = ({
   const Icon = CalendarProgressIcon[progress];
   return (
     <View
-      className={`flex-col items-center justify-center rounded-[12px] overflow-hidden ${isSelected ? 'border border-primary-200' : ''} ${disabled ? 'opacity-30' : ''}`}>
+      className={`flex-col items-center justify-center overflow-hidden rounded-[12px] ${isSelected ? 'border-primary-200 border' : ''} ${disabled ? 'opacity-30' : ''}`}>
       <View className={`px-[12px] py-[3px] ${isSelected ? 'bg-blue-200' : ''}`}>
-      <Text className={`w-[30px] text-center ${isSelected ? 'text-16b text-primary-600' : 'text-15r text-gray-800'}`}>{date}</Text>
+        <Text
+          className={`w-[30px] text-center ${isSelected ? 'text-16b text-primary-600' : 'text-15r text-gray-800'}`}>
+          {date}
+        </Text>
       </View>
-      <View className='rounded-full bg-white w-[36px] h-[36px] items-center justify-center'>
+      <View className='h-[36px] w-[36px] items-center justify-center rounded-full bg-white'>
         <Icon />
       </View>
     </View>
@@ -123,16 +127,16 @@ const Calendar = ({ cells, onSelectDate }: CalendarProps) => {
       {WEEK_DAYS.map((day) => (
         <Text
           key={day}
-          className='text-16r text-center text-gray-600 mb-[8px]'
+          className='text-16r mb-[8px] text-center text-gray-600'
           style={{ width: `${100 / 7}%` }}>
           {day}
         </Text>
       ))}
       {cells.map((cell) => (
-        <Pressable
+        <AnimatedPressable
           key={cell.key}
           className='items-center justify-center'
-          style={{ width: `${100 / 7}%` }}
+          containerStyle={{ width: `${100 / 7}%` }}
           disabled={cell.disabled}
           onPress={() => onSelectDate(cell.date)}>
           <CalendarDate
@@ -141,7 +145,7 @@ const Calendar = ({ cells, onSelectDate }: CalendarProps) => {
             isSelected={cell.isSelected}
             disabled={cell.disabled}
           />
-        </Pressable>
+        </AnimatedPressable>
       ))}
     </View>
   );
@@ -328,6 +332,7 @@ const ProblemCalendar = ({
                     display='spinner'
                     value={pickerValue}
                     onChange={handleMonthPickerChange}
+                    textColor='black'
                   />
                 ) : (
                   <input
@@ -338,11 +343,11 @@ const ProblemCalendar = ({
                   />
                 )}
               </View>
-              <Pressable
+              <AnimatedPressable
                 className='bg-primary-500 mt-[12px] rounded-[8px] px-[16px] py-[10px]'
                 onPress={isWeb ? handleConfirmWebPicker : handleClosePicker}>
                 <Text className='text-14m text-center text-white'>완료</Text>
-              </Pressable>
+              </AnimatedPressable>
             </View>
           </View>
         </Modal>

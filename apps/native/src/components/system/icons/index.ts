@@ -4,13 +4,9 @@ import CalendarCompletedIcon from './CalendarCompletedIcon';
 import CalendarInProgressIcon from './CalendarInProgressIcon';
 import CalendarNotStartedIcon from './CalendarNotStartedIcon';
 import CalendarUnavailableIcon from './CalendarUnavailableIcon';
-import ChevronDownFilledIcon from './ChevronDownFilledIcon';
 import ChevronUpFilledIcon from './ChevronUpFilledIcon';
-import CircleCheckDashed from './CircleCheckDashed';
-import CircleXFilledIcon from './CircleXFilledIcon';
-import GoogleIcon from './GoogleIcon';
+import ChevronDownFilledIcon from './ChevronDownFilledIcon';
 import HomeFilledIcon from './HomeFilledIcon';
-import KakaoIcon from './KakaoIcon';
 import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
 import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
 import NoNotificationBellIcon from './NoNotificationBellIcon';
@@ -22,6 +18,14 @@ import BookHeartIcon from './BookHeartIcon';
 import CircleStarIcon from './CircleStarIcon';
 import PencilFilledIcon from './PencilFilledIcon';
 import EraserFilledIcon from './EraserFilledIcon';
+import PointerLogo from './PointerLogo';
+import GoogleIcon from './GoogleIcon';
+import KakaoIcon from './KakaoIcon';
+import AppleIcon from './AppleIcon';
+import CircleCheckDashed from './CircleCheckDashed';
+import CircleXFilledIcon from './CircleXFilledIcon';
+import ScrapDefaultIcon from './ScrapDefalutIcon';
+import ScrapFolderDefaultIcon from './ScrapFolderDefalutIcon';
 
 export {
   AlertBellButtonIcon,
@@ -32,11 +36,7 @@ export {
   CalendarUnavailableIcon,
   ChevronDownFilledIcon,
   ChevronUpFilledIcon,
-  CircleCheckDashed,
-  CircleXFilledIcon,
-  GoogleIcon,
   HomeFilledIcon,
-  KakaoIcon,
   MessageCircleMoreFilledIcon,
   MessageSquareWarningFilledIcon,
   NoNotificationBellIcon,
@@ -47,5 +47,13 @@ export {
   BookHeartIcon,
   PencilFilledIcon,
   EraserFilledIcon,
+  CircleCheckDashed,
   CircleStarIcon,
+  PointerLogo,
+  AppleIcon,
+  GoogleIcon,
+  KakaoIcon,
+  ScrapDefaultIcon,
+  ScrapFolderDefaultIcon,
+  CircleXFilledIcon,
 };

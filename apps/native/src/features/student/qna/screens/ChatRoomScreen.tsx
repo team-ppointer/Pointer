@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import type {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import { useGetQnaById, useGetQnaAdminChat } from '@apis/controller/student/qna';
+import { useGetQnaById } from '@apis/controller/student/qna';
 import type { ChatRoom as ChatRoomType } from '../types';
-import { mapQnAMetaToChatRoom, mapAdminChatToChatRoom } from '../types';
 import { ChatRoom } from '../components/ChatRoom';
 
 type ChatRoomScreenProps = NativeStackScreenProps<StudentRootStackParamList, 'ChatRoom'>;
@@ -16,80 +18,61 @@ const ChatRoomScreen = () => {
   const route = useRoute<ChatRoomScreenProps['route']>();
   const { chatRoomId } = route.params;
 
-  // Determine if this is the admin chat (publisher)
-  // Admin chat has a special ID or type indicator
-  const isAdminChat = chatRoomId === -1; // Convention: -1 for admin chat
-
-  // Fetch QnA by ID for teacher chats
+  // Fetch QnA by ID (works for both regular and admin chats)
   const {
     data: qnaData,
-    isLoading: isLoadingQna,
-    error: qnaError,
+    isLoading,
+    error,
   } = useGetQnaById({
     qnaId: chatRoomId,
-    enabled: !isAdminChat && chatRoomId > 0,
-  });
-
-  // Fetch admin chat for publisher
-  const {
-    data: adminChatData,
-    isLoading: isLoadingAdminChat,
-    error: adminChatError,
-  } = useGetQnaAdminChat({
-    enabled: isAdminChat,
+    enabled: chatRoomId > 0,
   });
 
   // Map to ChatRoom format
   const chatRoom = useMemo<ChatRoomType | null>(() => {
-    if (isAdminChat && adminChatData) {
-      return mapAdminChatToChatRoom(adminChatData);
-    }
-    if (!isAdminChat && qnaData) {
-      return {
-        id: qnaData.id,
-        type: qnaData.type === 'ADMIN_CHAT' ? 'publisher' : 'teacher',
-        title: qnaData.title,
-        lastMessage: qnaData.latestMessageContent ?? '',
-        lastMessageTime: '',
-        status: 'asking',
-        hasNewMessage: (qnaData.unreadCount ?? 0) > 0,
-        teacherName: qnaData.studentName,
-        publishId: qnaData.publishId,
-        publishDate: qnaData.publishDate,
-      };
-    }
-    return null;
-  }, [isAdminChat, qnaData, adminChatData]);
+    if (!qnaData) return null;
+    
+    const isAdminChat = qnaData.type === 'ADMIN_CHAT';
+    
+    return {
+      id: qnaData.id,
+      type: isAdminChat ? 'publisher' : 'teacher',
+      title: isAdminChat ? '포인터 출제진' : qnaData.title,
+      lastMessage: qnaData.latestMessageContent ?? '',
+      lastMessageTime: '',
+      status: 'asking',
+      hasNewMessage: (qnaData.unreadCount ?? 0) > 0,
+      teacherName: qnaData.studentName,
+      publishId: qnaData.publishId,
+      publishDate: qnaData.publishDate,
+    };
+  }, [qnaData]);
 
   const handleBack = () => {
     navigation.goBack();
   };
 
-  const isLoading = isLoadingQna || isLoadingAdminChat;
-  const hasError = qnaError || adminChatError;
-
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-100">
-        <ActivityIndicator size="large" />
+      <View className='flex-1 items-center justify-center bg-gray-100'>
+        <ActivityIndicator size='large' />
       </View>
     );
   }
 
-  if (hasError) {
+  if (error) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-100">
-        <Text className="text-14r text-gray-600">데이터를 불러올 수 없습니다.</Text>
+      <View className='flex-1 items-center justify-center bg-gray-100'>
+        <Text className='text-14r text-gray-600'>데이터를 불러올 수 없습니다.</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className='flex-1 bg-gray-100'>
       <ChatRoom
         chatRoom={chatRoom}
-        qnaData={isAdminChat ? undefined : qnaData}
-        adminChatData={isAdminChat ? adminChatData : undefined}
+        qnaData={qnaData}
         onBack={handleBack}
         showBackButton
       />

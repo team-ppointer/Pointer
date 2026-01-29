@@ -1,6 +1,15 @@
 import { Container } from '@components/common';
-import React, { ReactNode } from 'react';
-import { LayoutChangeEvent, Pressable, PressableProps, View } from 'react-native';
+import React, { ReactNode, useRef } from 'react';
+import {
+  Animated,
+  LayoutChangeEvent,
+  Pressable,
+  PressableProps,
+  StyleProp,
+  View,
+  ViewStyle,
+} from 'react-native';
+import { analytics, type ButtonId, type ScreenName } from '@/features/student/analytics';
 
 type BottomActionBarProps = {
   bottomInset?: number;
@@ -11,6 +20,14 @@ type BottomActionBarProps = {
 type BottomActionBarButtonProps = PressableProps & {
   className?: string;
   children?: ReactNode;
+  animatedStyle?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>;
+  containerStyle?: StyleProp<ViewStyle>;
+  /** Button ID for analytics tracking (optional) */
+  buttonId?: ButtonId;
+  /** Button label for analytics (optional) */
+  buttonLabel?: string;
+  /** Override screen name for analytics (optional) */
+  screenName?: ScreenName;
 };
 
 type BottomActionBarComponent = ((props: BottomActionBarProps) => React.ReactElement) & {
@@ -20,16 +37,92 @@ type BottomActionBarComponent = ((props: BottomActionBarProps) => React.ReactEle
 const combineClassName = (...classNames: Array<string | undefined>) =>
   classNames.filter(Boolean).join(' ');
 
-const BottomActionBarButton = ({ className, children, ...rest }: BottomActionBarButtonProps) => (
-  <Pressable
-    className={combineClassName(
-      'items-center justify-center rounded-[8px] px-[18px] py-[10px]',
-      className
-    )}
-    {...rest}>
-    {children}
-  </Pressable>
-);
+const BottomActionBarButton = ({
+  className,
+  children,
+  onPressIn,
+  onPressOut,
+  onPress,
+  animatedStyle,
+  containerStyle,
+  buttonId,
+  buttonLabel,
+  screenName,
+  ...rest
+}: BottomActionBarButtonProps) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = (e: any) => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 0.95,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 10,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 0.7,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    onPressIn?.(e);
+  };
+
+  const handlePressOut = (e: any) => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 10,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    onPressOut?.(e);
+  };
+
+  const handlePress = (e: any) => {
+    // Track button click if buttonId is provided
+    if (buttonId) {
+      analytics.trackButtonClick(buttonId, buttonLabel, screenName);
+    }
+    onPress?.(e);
+  };
+
+  // Separate Animated.Views: outer for non-native (backgroundColor), inner for native (scale, opacity)
+  const innerContent = (
+    <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
+      <Pressable
+        className={combineClassName(
+          'items-center justify-center rounded-[8px] px-[18px] h-[42px]',
+          className
+        )}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={handlePress}
+        {...rest}>
+        {children}
+      </Pressable>
+    </Animated.View>
+  );
+
+  if (animatedStyle) {
+    return (
+      <Animated.View
+        style={[{ borderRadius: 8, overflow: 'hidden' }, animatedStyle, containerStyle]}>
+        {innerContent}
+      </Animated.View>
+    );
+  }
+
+  return <View style={containerStyle}>{innerContent}</View>;
+};
 
 const BottomActionBar = (({ bottomInset = 0, onLayout, children }: BottomActionBarProps) => (
   <View

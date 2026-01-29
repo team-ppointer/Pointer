@@ -1,9 +1,13 @@
 import { Container } from '@/components/common';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Modal, Pressable, View, StyleSheet, Alert, Text } from 'react-native';
 import { LoadQnaImageScreenModal } from './FullScreenModal';
 import { Check } from 'lucide-react-native';
 import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
+import { SortOrder, UISortKey } from '../../utils/types';
+import { SortDropdown } from '../Dropdown';
+import { colors } from '@/theme/tokens';
+import { showToast } from '../Notification/Toast';
 
 interface LoadQnaImageModalProps {
   visible: boolean;
@@ -12,12 +16,25 @@ interface LoadQnaImageModalProps {
 }
 
 export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageModalProps) => {
-  const { data: qnaAllFilesData, isLoading } = useGetQnaFiles();
-  const { mutate: createScrapFromImage } = useCreateScrapFromImage();
+  const { mutateAsync: createScrapFromImage } = useCreateScrapFromImage();
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const [sortKey, setSortKey] = useState<UISortKey>('DATE');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+
+  const [isCreating, setIsCreating] = useState(false);
+
+  const {
+    data: qnaAllImagesData,
+    isLoading,
+    refetch,
+  } = useGetQnaFiles({
+    sort: 'CREATED_AT',
+    order: sortOrder,
+  });
 
   const NUM_COLUMNS = 4;
   const GAP = 5;
@@ -28,48 +45,72 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   };
 
   // 선택된 이미지로 스크랩 생성 (AddItemTooltip과 동일한 로직)
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!selectedId) {
-      Alert.alert('알림', '이미지를 선택해주세요.');
+      showToast('error', '이미지를 선택해주세요.');
       return;
     }
 
-    createScrapFromImage(
-      {
+    try {
+      setIsCreating(true);
+      await createScrapFromImage({
         imageId: selectedId,
-      },
-      {
-        onSuccess: () => {
-          Alert.alert('성공', '스크랩이 생성되었습니다.');
-          onSuccess?.();
-          onClose();
-        },
-        onError: (error) => {
-          console.error('스크랩 생성 실패:', error);
-          Alert.alert('오류', '스크랩 생성에 실패했습니다.');
-        },
-      }
-    );
+      });
+      showToast('success', '스크랩이 생성되었습니다.');
+      onClose();
+      onSuccess?.();
+    } catch (error: any) {
+      showToast('error', error.message);
+    } finally {
+      setIsCreating(false);
+    }
   };
+
+  useEffect(() => {
+    if (visible) {
+      refetch();
+    }
+  }, [visible, refetch]);
 
   return (
     <>
-      <LoadQnaImageScreenModal visible={visible} onCancel={onClose} onClose={handleComplete}>
-        <Container className='py-[10px]'>
-          <View />
+      <LoadQnaImageScreenModal
+        visible={visible}
+        onCancel={onClose}
+        onClose={() => {
+          if (!isCreating) {
+            handleComplete();
+          }
+        }}>
+        <Container className='items-end py-[10px]'>
+          <SortDropdown
+            ordertype='IMAGE'
+            orderValue={sortKey}
+            setOrderValue={setSortKey}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            colors={{
+              text: '#FFF',
+              border: colors['gray-700'],
+              background: colors['gray-700'],
+              itemBackground: colors['gray-600'],
+              focusBackground: colors['gray-700'],
+              checkIcon: '#FFF',
+            }}
+          />
         </Container>
         <Container className='flex-1 py-[10px]'>
           {isLoading ? (
             <View className='items-center justify-center'>
               <Text className='text-white'>로딩 중...</Text>
             </View>
-          ) : !qnaAllFilesData?.data || qnaAllFilesData.data.length === 0 ? (
+          ) : !qnaAllImagesData?.data || qnaAllImagesData.data.length === 0 ? (
             <View className='items-center justify-center'>
               <Text className='text-white'>이미지가 없습니다.</Text>
             </View>
           ) : (
             <FlatList
-              data={qnaAllFilesData.data}
+              data={qnaAllImagesData.data}
               keyExtractor={(item) => item.id.toString()}
               numColumns={NUM_COLUMNS}
               columnWrapperStyle={{ gap: GAP }}
@@ -97,13 +138,20 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
                       resizeMode='cover'
                     />
 
-                    {/* 좌측 상단 체크 아이콘 */}
+                    {/* 좌측 상단 체크박스 */}
                     <Pressable
                       onPress={() => toggleSelect(item.id)}
-                      style={styles.checkIconWrapper}
+                      style={[styles.checkbox, selected && styles.checkboxSelected]}
                       hitSlop={8}>
-                      <Check size={22} color={selected ? '#4F46E5' : '#fff'} />
+                      {selected && (
+                        <View style={styles.checkIconContainer}>
+                          <Check size={10} color='#fff' strokeWidth={2.5} />
+                        </View>
+                      )}
                     </Pressable>
+
+                    {/* 하단 스크랩 표시 바 */}
+                    {item.isScrapped && <View style={styles.bottomBar} />}
                   </Pressable>
                 );
               }}
@@ -135,32 +183,41 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#617AF9', // primary
   },
-  checkBox: {
+  checkbox: {
     position: 'absolute',
-    top: 6,
-    left: 6,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    top: 8,
+    left: 8,
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors['gray-700'],
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  checkboxSelected: {
+    backgroundColor: colors['blue-500'],
+    borderWidth: 0,
+    width: 16,
+    height: 16,
+  },
+  checkIconContainer: {
+    width: 16,
+    height: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkIconWrapper: {
+  bottomBar: {
     position: 'absolute',
-    top: 6,
-    left: 6,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    borderRadius: 12,
-    padding: 2,
-  },
-  checkInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#4F46E5',
+    left: 0,
+    bottom: 0,
+    right: 0,
+    height: 12,
+    backgroundColor: colors['primary-500'],
+    borderBottomLeftRadius: 6,
+    borderBottomRightRadius: 6,
   },
   previewBackdrop: {
     flex: 1,

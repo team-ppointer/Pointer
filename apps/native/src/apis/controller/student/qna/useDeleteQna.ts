@@ -23,7 +23,7 @@ const useDeleteQna = (options?: Options) => {
         queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna', {}).queryKey,
       });
       void queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/images', {}).queryKey,
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/qna/files', {}).queryKey,
       });
       options?.onSuccess?.();
     },

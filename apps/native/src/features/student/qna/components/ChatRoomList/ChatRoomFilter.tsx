@@ -9,14 +9,7 @@ interface ChatRoomFilterProps {
 }
 
 const ChatRoomFilter = ({ value, onChange }: ChatRoomFilterProps) => {
-  return (
-    <Dropdown
-      options={FILTER_OPTIONS}
-      value={value}
-      onChange={onChange}
-    />
-  );
+  return <Dropdown options={FILTER_OPTIONS} value={value} onChange={onChange} />;
 };
 
 export default ChatRoomFilter;
-

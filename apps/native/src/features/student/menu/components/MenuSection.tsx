@@ -14,10 +14,12 @@ export const MenuSection = ({ children }: MenuSectionProps) => {
         const isLast = index === childArray.length - 1;
 
         if (React.isValidElement(child)) {
-          return cloneElement(child as ReactElement<any>, {
-            key: index,
-            isLast,
-          });
+          return (
+            <React.Fragment key={index}>
+              {cloneElement(child as ReactElement<any>)}
+              {!isLast && <View className='mx-[16px] h-[1px] bg-gray-300' />}
+            </React.Fragment>
+          );
         }
 
         return child;

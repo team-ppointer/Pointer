@@ -1,23 +1,15 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  CircleIcon,
-  MinusIcon,
-  TriangleIcon,
-  XIcon,
-} from 'lucide-react-native';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native';
+import { Alert, Text, View } from 'react-native';
 
 import { TextButton } from '@components/common';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
 import { components } from '@schema';
-import { colors } from '@theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import { useProblemSessionStore } from '@stores/problemSessionStore';
+import { useProblemSessionStore } from '@stores';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {
@@ -129,7 +121,9 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
   const { Icon, color, bgColor } = ProblemStatusIcon[group.problem.progress ?? 'NONE'];
 
   return (
-    <View className='flex-col rounded-[10px] bg-white px-[14px] py-[10px] gap-[12px]'>
+    <View
+      className='flex-col gap-[12px] rounded-[10px] bg-white px-[14px] py-[10px]'
+      style={shadow[100]}>
       <View className='flex-row items-center justify-between'>
         <View className='flex-col'>
           <View className='flex-row items-center'>
@@ -140,7 +134,7 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
           </View>
           <Text className='text-13r text-gray-700'>문제 단원</Text>
         </View>
-        <TextButton variant={statusMeta.buttonVariant} onPress={handlePress}>
+        <TextButton variant={statusMeta.buttonVariant} onPress={handlePress} buttonId='start_study'>
           {statusMeta.buttonLabel}
         </TextButton>
       </View>
@@ -210,17 +204,54 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
     [navigation, publishAt, publishId, startSession, title]
   );
 
+  // 첫 번째 미완료 문제 찾기 (DOING 또는 NONE 상태)
+  const firstIncompleteInfo = useMemo(() => {
+    const index = groups.findIndex((group) => group.progress !== 'DONE');
+    if (index === -1) {
+      // 모든 문제 완료 시 첫 번째 문제 반환
+      return { index: 0, group: groups[0] };
+    }
+    return { index, group: groups[index] };
+  }, [groups]);
+
+  const handleStartFromFirst = useCallback(() => {
+    const { group } = firstIncompleteInfo;
+    if (!group) {
+      Alert.alert('진행할 문제가 없어요.');
+      return;
+    }
+    handleGroupAction(group);
+  }, [firstIncompleteInfo, handleGroupAction]);
+
+  // 모든 문제 완료 여부
+  const allDone = useMemo(
+    () => groups.length > 0 && groups.every((group) => group.progress === 'DONE'),
+    [groups]
+  );
+
+  // 버튼 레이블 결정 (allDone이면 버튼 숨김)
+  const startButtonLabel = useMemo(() => {
+    if (groups.length === 0 || allDone) return null;
+    return `${firstIncompleteInfo.index + 1}번부터 풀기`;
+  }, [groups, allDone, firstIncompleteInfo]);
+
   return (
-    <View className='rounded-[20px] bg-blue-100 p-[16px] md:flex-1 md:basis-1/2 gap-[12px]'>
+    <View className='gap-[12px] rounded-[20px] bg-blue-100 p-[16px] md:flex-1 md:basis-1/2'>
       {groups.length === 0 ? (
         <View className='h-full items-center justify-center'>
           <Text className='text-14r text-center text-gray-600'>표시할 문제가 없어요.</Text>
         </View>
       ) : (
         <>
-          <Pressable className='bg-primary-500 mb-[4px] items-center justify-center rounded-[8px] p-[12px]'>
-            <Text className='text-16m text-white'>1번부터 풀기</Text>
-          </Pressable>
+          {startButtonLabel && (
+            <TrackedAnimatedPressable
+              buttonId='start_study'
+              className='bg-primary-500 mb-[4px] items-center justify-center rounded-[8px] p-[12px]'
+              onPress={handleStartFromFirst}
+              style={shadow[100]}>
+              <Text className='text-16m text-white'>{startButtonLabel}</Text>
+            </TrackedAnimatedPressable>
+          )}
           {groups.map((group, index) => {
             const key = group.problemId ?? index;
             const isExpanded = expandedGroups[key] ?? false;

@@ -3,7 +3,7 @@ import { Check, Plus } from 'lucide-react-native';
 import { Pressable, View, Text } from 'react-native';
 import { TooltipPopover, AddItemTooltipBox, ReviewItemTooltipBox } from '../../Tooltip';
 import { Placement } from 'react-native-popover-view/dist/Types';
-import { ChevronDownFilledIcon } from '@/components/system/icons';
+import { BookmarkFilledIcon, ChevronDownFilledIcon } from '@/components/system/icons';
 import { ScrapListItemProps } from '../types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -25,7 +25,7 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
   const { openCreateFolderModal } = useScrapModal();
 
   const addItemContent = (
-    <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
+    <View className='h-full w-full items-center rounded-[10px]'>
       <View className='gap-3'>
         <View className='aspect-square w-full items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-gray-600 p-[44px]'>
           <Plus size={24} color={colors['gray-600']} />
@@ -87,7 +87,9 @@ export const ScrapAllCard = (props: ScrapHeadCardProps) => {
       }}>
       <View className='gap-3'>
         <View className='items-center'>
-          <View className='aspect-square w-full rounded-[10px] bg-gray-600' />
+          <View className='aspect-square w-full items-center justify-center rounded-[10px] bg-blue-200'>
+            <BookmarkFilledIcon color={colors['primary-500']} size={32} />
+          </View>
           {props.reducerState.isSelecting && (
             <Pressable
               className={

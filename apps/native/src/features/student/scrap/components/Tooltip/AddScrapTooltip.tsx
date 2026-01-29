@@ -4,11 +4,11 @@ import {
   openCameraWithErrorHandling,
   openImageLibraryWithErrorHandling,
 } from '../../utils/images/imagePicker';
-import { useCreateScrapFromImage } from '@/apis';
-import { uploadImageToS3 } from '../../utils/images/imageUpload';
-import { usePreSignedUrlAdapter } from '../../hooks';
+import { useCreateScrapFromImage, useUploadFile } from '@/apis';
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
+import { showToast } from '../Notification/Toast';
+import { useState } from 'react';
 
 export interface AddScrapTooltipProps {
   onClose?: () => void;
@@ -24,8 +24,10 @@ export const AddScrapTooltip = ({
   onOpenQnaImgModal,
   onOpenFolderModal,
 }: AddScrapTooltipProps) => {
-  const { mutate: createScrapFromImage } = useCreateScrapFromImage();
+  const { mutateAsync: createScrapFromImage } = useCreateScrapFromImage();
   const { mutateAsync: uploadFile } = useUploadFile();
+
+  const [isCreating, setIsCreating] = useState(false);
 
   // 이미지 선택 및 업로드 처리
   const handleImageSelect = async (image: any) => {
@@ -34,35 +36,29 @@ export const AddScrapTooltip = ({
     }
 
     try {
+      setIsCreating(true);
       const fileName = image.fileName || `${Date.now()}.jpg`;
       const files = await uploadFile([
         { uri: image.uri, name: fileName, type: image.mimeType || 'image/jpeg' },
       ]);
 
-      createScrapFromImage(
-        { imageId: files[0].id },
-        {
-          onSuccess: () => {
-            Alert.alert('성공', '스크랩이 생성되었습니다.');
-            onClose?.();
-          },
-          onError: (error) => {
-            console.error('스크랩 생성 실패:', error);
-            Alert.alert('오류', '스크랩 생성에 실패했습니다.');
-          },
-        }
-      );
+      await createScrapFromImage({ imageId: files[0].id });
+
+      showToast('success', '스크랩이 생성되었습니다.');
+      onClose?.();
     } catch (error) {
-      Alert.alert('오류', '이미지 업로드에 실패했습니다.');
+      showToast('error', (error as any).message || '스크랩 생성에 실패했습니다.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
   const onPressCamera = async () => {
     const image = await openCameraWithErrorHandling((error) => {
       if (error.message?.includes('permission')) {
-        Alert.alert('권한 필요', '카메라 권한이 필요합니다.');
+        showToast('error', '카메라 권한이 필요합니다.');
       } else {
-        console.error('카메라 오류:', error);
+        showToast('error', (error as any).message);
       }
     });
 
@@ -71,13 +67,12 @@ export const AddScrapTooltip = ({
     }
   };
 
-  // onPressGallery 함수 간소화
   const onPressGallery = async () => {
     const image = await openImageLibraryWithErrorHandling((error) => {
       if (error.message?.includes('permission')) {
-        Alert.alert('권한 필요', '갤러리 권한이 필요합니다.');
+        showToast('error', '갤러리 권한이 필요합니다.');
       } else {
-        console.error('갤러리 오류:', error);
+        showToast('error', (error as any).message);
       }
     });
 
@@ -88,8 +83,24 @@ export const AddScrapTooltip = ({
 
   return (
     <TooltipContainer height='h-[176px]'>
-      <TooltipMenuItem icon={<Camera size={20} />} label='사진 찍기' onPress={onPressCamera} />
-      <TooltipMenuItem icon={<Image size={20} />} label='이미지 선택' onPress={onPressGallery} />
+      <TooltipMenuItem
+        icon={<Camera size={20} />}
+        label='사진 찍기'
+        onPress={() => {
+          if (!isCreating) {
+            onPressCamera();
+          }
+        }}
+      />
+      <TooltipMenuItem
+        icon={<Image size={20} />}
+        label='이미지 선택'
+        onPress={() => {
+          if (!isCreating) {
+            onPressGallery();
+          }
+        }}
+      />
       <TooltipMenuItem
         icon={<Images size={20} />}
         label='QnA 사진 불러오기'

@@ -1,4 +1,4 @@
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -58,7 +58,7 @@ const Skeleton = ({ borderRadius }: { borderRadius: number }) => {
       style={[
         StyleSheet.absoluteFill,
         {
-          backgroundColor: colors['gray-600'],
+          backgroundColor: colors['gray-400'],
           borderRadius,
           opacity,
         },
@@ -117,7 +117,7 @@ const ImageWithSkeletonComponent = ({
   if (!source && imageUrls.length === 0) {
     return (
       <View
-        className={`aspect-square w-full rounded-[10px] bg-gray-600 ${className}`}
+        className={`aspect-square w-full rounded-[10px] bg-gray-400 ${className}`}
         style={style}
       />
     );
@@ -196,7 +196,7 @@ const ImageWithSkeletonComponent = ({
             style={{
               width: '80%',
               height: '80%',
-              backgroundColor: colors['gray-600'],
+              backgroundColor: colors['gray-400'],
               borderRadius: borderRadius,
             }}
           />
@@ -257,7 +257,7 @@ const ImageWithSkeletonComponent = ({
   // fallback
   return (
     <View
-      className={`aspect-square w-full rounded-[10px] bg-gray-600 ${className}`}
+      className={`aspect-square w-full rounded-[10px] bg-gray-400 ${className}`}
       style={style}
     />
   );

@@ -1,7 +1,13 @@
 import { client } from '@/apis/client';
+import { paths } from '@/types/api/schema';
 
-const deleteAccount = async () => {
-  return await client.DELETE('/api/student/auth/quit');
+type QuitRequest =
+  paths['/api/student/auth/quit']['post']['requestBody']['content']['application/json'];
+
+const deleteAccount = async (request: QuitRequest) => {
+  return await client.POST('/api/student/auth/quit', {
+    body: request,
+  });
 };
 
 export default deleteAccount;

@@ -19,6 +19,8 @@ export interface ChatRoom {
   title: string;
   lastMessage: string;
   lastMessageTime: string;
+  /** Raw ISO timestamp for sorting */
+  lastMessageTimeRaw?: string;
   status: ChatRoomStatus;
   hasNewMessage: boolean;
   thumbnailUrl?: string;
@@ -57,6 +59,9 @@ export interface Message {
   content: string;
   timestamp: string;
   date: string;
+  createdAt: string;
+  updatedAt: string;
+  isEdited: boolean;
   reply?: ReplyContent;
   file?: FileContent;
   image?: ImageContent;
@@ -104,7 +109,7 @@ export type ChatRoomFilterType = 'all' | 'asking' | 'resolved';
  */
 const formatDateTime = (dateTime?: string): string => {
   if (!dateTime) return '';
-  
+
   const date = new Date(dateTime);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -116,7 +121,7 @@ const formatDateTime = (dateTime?: string): string => {
   if (diffMins < 60) return `${diffMins}분 전`;
   if (diffHours < 24) return `${diffHours}시간 전`;
   if (diffDays < 7) return `${diffDays}일 전`;
-  
+
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
 };
 
@@ -147,52 +152,37 @@ const getFileExtension = (fileName: string): string => {
 };
 
 /**
- * Map QnAResp (admin chat) to ChatRoom
- */
-export const mapAdminChatToChatRoom = (resp: QnAResp): ChatRoom => ({
-  id: resp.id,
-  type: 'publisher',
-  title: '포인터 출제진',
-  lastMessage: resp.latestMessageContent ?? '',
-  lastMessageTime: formatDateTime(resp.latestMessageTime),
-  status: 'asking', // Admin chat doesn't have status
-  hasNewMessage: (resp.unreadCount ?? 0) > 0,
-  publishId: resp.publishId,
-  publishDate: resp.publishDate,
-});
-
-/**
  * Map QnAMetaResp to ChatRoom
+ * Handles both regular teacher chats and ADMIN_CHAT (publisher)
  */
-export const mapQnAMetaToChatRoom = (meta: QnAMetaResp): ChatRoom => ({
-  id: meta.id,
-  type: 'teacher',
-  title: meta.title,
-  lastMessage: meta.latestMessageContent ?? '',
-  lastMessageTime: formatDateTime(meta.latestMessageTime),
-  status: 'asking', // TODO: API doesn't seem to have status field in meta
-  hasNewMessage: (meta.unreadCount ?? 0) > 0,
-  teacherName: meta.studentName, // In student view, this would be teacher name
-  publishId: meta.publishId,
-  publishDate: meta.publishDate,
-});
+export const mapQnAMetaToChatRoom = (meta: QnAMetaResp): ChatRoom => {
+  const isAdminChat = meta.type === 'ADMIN_CHAT';
+  
+  return {
+    id: meta.id,
+    type: isAdminChat ? 'publisher' : 'teacher',
+    title: isAdminChat ? '포인터 출제진' : meta.title,
+    lastMessage: meta.latestMessageContent ?? '',
+    lastMessageTime: formatDateTime(meta.latestMessageTime),
+    lastMessageTimeRaw: meta.latestMessageTime,
+    status: 'asking', // TODO: API doesn't seem to have status field in meta
+    hasNewMessage: (meta.unreadCount ?? 0) > 0,
+    teacherName: meta.studentName, // In student view, this would be teacher name
+    publishId: meta.publishId,
+    publishDate: meta.publishDate,
+  };
+};
 
 /**
  * Map ChatResp to Message
  */
-export const mapChatRespToMessage = (
-  chat: ChatResp,
-  allChats: ChatResp[],
-  dateTime?: string
-): Message => {
+export const mapChatRespToMessage = (chat: ChatResp, allChats: ChatResp[]): Message => {
   const hasFiles = chat.files && chat.files.length > 0;
   const hasReply = chat.replyToId !== undefined && chat.replyToId !== null;
-  
+
   // Find the reply target
-  const replyTarget = hasReply 
-    ? allChats.find(c => c.id === chat.replyToId) 
-    : undefined;
-  
+  const replyTarget = hasReply ? allChats.find((c) => c.id === chat.replyToId) : undefined;
+
   // Determine message type
   let type: MessageType = 'text';
   if (hasReply && hasFiles) {
@@ -213,7 +203,7 @@ export const mapChatRespToMessage = (
   if (replyTarget) {
     const replyHasFiles = replyTarget.files && replyTarget.files.length > 0;
     const replyFirstFile = replyHasFiles ? replyTarget.files[0] : undefined;
-    
+
     reply = {
       type: replyFirstFile?.fileType === 'IMAGE' ? 'image' : 'text',
       title: replyTarget.isMine ? '내 메시지' : '상대방 메시지',
@@ -225,7 +215,7 @@ export const mapChatRespToMessage = (
   // Build file/image content
   let file: FileContent | undefined;
   let image: ImageContent | undefined;
-  
+
   if (hasFiles && !hasReply) {
     const firstFile = chat.files[0];
     if (firstFile?.fileType === 'IMAGE') {
@@ -241,13 +231,19 @@ export const mapChatRespToMessage = (
     }
   }
 
+  // Check if message was edited (createdAt differs from updatedAt)
+  const isEdited = chat.createdAt !== chat.updatedAt;
+
   return {
     id: chat.id,
     type,
     sender: chat.isMine ? 'me' : 'other',
     content: chat.content,
-    timestamp: formatTime(dateTime),
-    date: formatDate(dateTime),
+    timestamp: formatTime(chat.updatedAt),
+    date: formatDate(chat.createdAt),
+    createdAt: chat.createdAt,
+    updatedAt: chat.updatedAt,
+    isEdited,
     reply,
     file,
     image,
@@ -258,25 +254,17 @@ export const mapChatRespToMessage = (
 
 /**
  * Map QnAResp chats to Messages
- * Since ChatResp doesn't have individual timestamps, we sort by ID for consistent ordering
- * TODO: API에서 개별 메시지 타임스탬프가 추가되면 주석 해제
+ * Sort by createdAt for consistent ordering (oldest first)
  */
 export const mapQnARespToMessages = (qna: QnAResp): Message[] => {
   if (!qna.chats || qna.chats.length === 0) return [];
 
-  // 메시지를 ID 기준으로 정렬 (오래된 순 -> 최신 순)
-  const sortedChats = [...qna.chats].sort((a, b) => a.id - b.id);
+  // 메시지를 createdAt 기준으로 정렬 (오래된 순 -> 최신 순)
+  const sortedChats = [...qna.chats].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
-  // TODO: API에서 개별 메시지 타임스탬프가 추가되면 아래 주석 해제
-  // return sortedChats.map((chat) => {
-  //   // chat.createdAt 등의 필드를 사용
-  //   return mapChatRespToMessage(chat, sortedChats, chat.createdAt);
-  // });
-
-  // 현재는 타임스탬프 없이 반환
-  return sortedChats.map((chat) => {
-    return mapChatRespToMessage(chat, sortedChats, undefined);
-  });
+  return sortedChats.map((chat) => mapChatRespToMessage(chat, sortedChats));
 };
 
 /**
@@ -288,8 +276,8 @@ export const mapSearchResults = (searchResp: QnASearchResp): SearchResult => {
 
   // Map QnA results (grouped by week)
   if (searchResp.qnaResults?.data?.groups) {
-    searchResp.qnaResults.data.groups.forEach(group => {
-      group.data?.forEach(qna => {
+    searchResp.qnaResults.data.groups.forEach((group) => {
+      group.data?.forEach((qna) => {
         chatRooms.push({
           id: qna.id,
           title: qna.title,
@@ -304,7 +292,7 @@ export const mapSearchResults = (searchResp: QnASearchResp): SearchResult => {
 
   // Map chat results
   if (searchResp.chatResults?.data) {
-    searchResp.chatResults.data.forEach(chat => {
+    searchResp.chatResults.data.forEach((chat) => {
       messages.push({
         id: chat.chatId,
         chatRoomId: chat.qnaId,

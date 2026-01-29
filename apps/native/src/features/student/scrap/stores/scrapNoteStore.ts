@@ -11,6 +11,7 @@ type NoteStore = {
 
   openNote: (note: Note) => void;
   closeNote: (noteId: number) => void;
+  closeNotesByScrapIds: (scrapIds: number[]) => void;
   setActiveNote: (noteId: number) => void;
   reorderNotes: (fromIndex: number, toIndex: number) => void;
   updateNoteTitle: (noteId: number, title: string) => void;
@@ -46,6 +47,20 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     });
   },
 
+  closeNotesByScrapIds: (scrapIds) => {
+    const { openNotes, activeNoteId } = get();
+    const scrapIdsSet = new Set(scrapIds);
+    const filtered = openNotes.filter((n) => !scrapIdsSet.has(n.id));
+
+    set({
+      openNotes: filtered,
+      activeNoteId:
+        activeNoteId && scrapIdsSet.has(activeNoteId)
+          ? (filtered[filtered.length - 1]?.id ?? null)
+          : activeNoteId,
+    });
+  },
+
   setActiveNote: (noteId) => {
     set({ activeNoteId: noteId });
   },
@@ -69,9 +84,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
   updateNoteTitle: (noteId, title) => {
     const { openNotes } = get();
-    const updatedNotes = openNotes.map((note) =>
-      note.id === noteId ? { ...note, title } : note
-    );
+    const updatedNotes = openNotes.map((note) => (note.id === noteId ? { ...note, title } : note));
     set({ openNotes: updatedNotes });
   },
 }));

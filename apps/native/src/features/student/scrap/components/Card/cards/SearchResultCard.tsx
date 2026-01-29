@@ -5,11 +5,17 @@ import { useNavigation } from '@react-navigation/native';
 import { useGetFolderDetail } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
-import type { ScrapListItemProps } from '../types';
+import { ScrapListItemProps } from '../types';
 import { useCardImageSources } from '../../../hooks';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
+import { HighlightedText } from '../../../utils/HighlightedText';
+import { ScrapDefaultIcon, ScrapFolderDefaultIcon } from '@/components/system/icons';
 
-export const SearchResultCard = (props: ScrapListItemProps) => {
+type SearchResultCardProps = ScrapListItemProps & {
+  searchQuery?: string;
+};
+
+export const SearchResultCard = (props: SearchResultCardProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
 
@@ -18,6 +24,23 @@ export const SearchResultCard = (props: ScrapListItemProps) => {
     props.thumbnailUrl,
     folderTop2Thumbnail
   );
+
+  const renderFallback = () => {
+    if (props.type === 'FOLDER') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapFolderDefaultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      );
+    } else if (props.type === 'SCRAP') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapDefaultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      );
+    }
+    return <View className='aspect-square w-full rounded-[10px] bg-blue-200' />;
+  };
 
   const cardContent = (
     <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
@@ -32,14 +55,18 @@ export const SearchResultCard = (props: ScrapListItemProps) => {
             resizeMode='cover'
             uniqueId={`${props.type}-${props.id}`}
             isDiagonalLayout={isDiagonalLayout}
-            fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
+            fallback={renderFallback()}
           />
         </View>
         <View className='w-full justify-between px-1'>
           <View className='flex-row  gap-0.5'>
-            <Text className='text-16sb flex-1 text-[#1E1E21]' numberOfLines={2}>
-              {props.name}
-            </Text>
+            <HighlightedText
+              text={props.name}
+              query={props.searchQuery || ''}
+              className='text-16sb flex-1 text-[#1E1E21]'
+              highlightClassName='text-[#007AFF]'
+              numberOfLines={2}
+            />
             {props.type === 'FOLDER' && (
               <Text className='text-12m text-blue-500'>{props.scrapCount}</Text>
             )}

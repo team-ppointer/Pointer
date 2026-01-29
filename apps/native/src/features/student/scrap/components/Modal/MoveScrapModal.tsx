@@ -28,7 +28,7 @@ export const MoveScrapModal = () => {
   });
 
   const { data: foldersData, refetch: refetchFolders } = useGetFolders();
-  const { mutateAsync: moveScraps } = useMoveScraps();
+  const { mutate: moveScraps } = useMoveScraps();
 
   // refetchFolders를 context에 등록
   useEffect(() => {
@@ -93,7 +93,7 @@ export const MoveScrapModal = () => {
   );
 
   // 이동 실행
-  const handleMove = async () => {
+  const handleMove = () => {
     // 선택된 폴더가 없으면 에러 (undefined는 전체 스크랩으로 이동하는 유효한 선택)
     const hasSelectedFolder = folderSelectionState.selectedItems.some(
       (item) => item.type === 'FOLDER'
@@ -112,21 +112,24 @@ export const MoveScrapModal = () => {
       return;
     }
 
-    try {
-      await moveScraps({
+      moveScraps({
         scrapIds: scrapsToMove.map((item) => item.id),
         targetFolderId: selectedFolderId,
-      });
-
-      showToast('success', `${folderName}으로 이동 완료`);
-      dispatch({ type: 'CLEAR_SELECTION' });
-      refetchFolders?.();
-      refetchScraps?.();
-      refetchScrapDetail?.();
-      closeMoveScrapModal();
-    } catch (error) {
-      showToast('error', '이동 중 오류가 발생했습니다.');
-    }
+      },
+      {
+        onSuccess: () => {
+          showToast('success', `${folderName}으로 이동 완료`);
+          dispatch({ type: 'CLEAR_SELECTION' });
+          refetchFolders?.();
+          refetchScraps?.();
+          refetchScrapDetail?.();
+          closeMoveScrapModal();
+        },
+        onError: (error: any) => {
+          showToast('error', error.message);
+        },
+      }
+    );
   };
 
   const folderName =
@@ -142,8 +145,9 @@ export const MoveScrapModal = () => {
   return (
     <PopUpModal
       visibleState={isMoveScrapModalVisible && !isCreateFolderModalVisible}
-      setVisibleState={closeMoveScrapModal}>
-      <View className='h-[575px] min-w-[520px] max-w-[692px] rounded-[20px] border border-gray-400 bg-white shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
+      setVisibleState={closeMoveScrapModal}
+      className='px-2'>
+      <View className='h-[575px] max-w-[672px] rounded-[20px] border border-gray-400 bg-white shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
         <View className='relative flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[12px]'>
           <Pressable onPress={closeMoveScrapModal} className='items-start'>
             <Text className='text-14sb text-primary-600'>취소</Text>

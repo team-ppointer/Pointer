@@ -1,8 +1,8 @@
-import ProblemViewer from '@/features/student/problem/components/ProblemViewer';
+import ProblemViewer from '@features/student/problem/components/ProblemViewer';
 import { Container } from '@components/common';
 import { View, Text, ScrollView } from 'react-native';
-import { StudentRootStackParamList } from '@navigation/student/types';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { type StudentRootStackParamList } from '@navigation/student/types';
+import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 
 type Props = NativeStackScreenProps<StudentRootStackParamList, 'NotificationDetail'>;
 

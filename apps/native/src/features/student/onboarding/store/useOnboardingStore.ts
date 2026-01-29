@@ -1,12 +1,9 @@
 import { create } from 'zustand';
-import type { CarrierValue, GenderValue, GradeValue, MathSubjectValue } from '../constants';
+import type { GradeValue, MathSubjectValue } from '../constants';
 
 type IdentityInfo = {
   name: string;
-  birth: string | null; // YYYY-MM-DD format
-  gender: GenderValue | null;
   phoneNumber: string;
-  mobileCarrier: CarrierValue | null;
 };
 
 type OnboardingStatus = 'idle' | 'in-progress' | 'completed';
@@ -19,13 +16,12 @@ type OnboardingState = {
   selectSubject: MathSubjectValue | null;
   schoolId: number | null;
   level: number | null;
-  nickname: string;
 };
 
 export type OnboardingPayload = Omit<OnboardingState, 'status'>;
 
 type OnboardingActions = {
-  start: () => void;
+  start: (email?: string) => void;
   complete: () => void;
   reset: () => void;
   setEmail: (email: string) => void;
@@ -34,16 +30,12 @@ type OnboardingActions = {
   setSelectSubject: (subject: MathSubjectValue) => void;
   setSchoolId: (schoolId: number | null) => void;
   setLevel: (level: number | null) => void;
-  setNickname: (nickname: string) => void;
   getPayload: () => OnboardingPayload;
 };
 
 const emptyIdentity: IdentityInfo = {
   name: '',
-  birth: null,
-  gender: null,
   phoneNumber: '',
-  mobileCarrier: null,
 };
 
 const initialState: OnboardingState = {
@@ -54,15 +46,15 @@ const initialState: OnboardingState = {
   selectSubject: null,
   schoolId: null,
   level: null,
-  nickname: '',
 };
 
 export const useOnboardingStore = create<OnboardingState & OnboardingActions>((set, get) => ({
   ...initialState,
-  start: () =>
+  start: (email?: string) =>
     set(() => ({
       ...initialState,
       status: 'in-progress',
+      email: email ?? '',
     })),
   complete: () =>
     set((state) => ({
@@ -82,7 +74,6 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>((s
   setSelectSubject: (selectSubject) => set({ selectSubject }),
   setSchoolId: (schoolId) => set({ schoolId }),
   setLevel: (level) => set({ level }),
-  setNickname: (nickname) => set({ nickname }),
   getPayload: () => {
     const { status: _status, ...payload } = get();
     return payload;

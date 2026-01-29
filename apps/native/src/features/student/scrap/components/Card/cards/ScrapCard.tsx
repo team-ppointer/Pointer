@@ -1,7 +1,11 @@
 import { Pressable, View, Text, Image } from 'react-native';
 import React from 'react';
 import { Check } from 'lucide-react-native';
-import { ChevronDownFilledIcon } from '@/components/system/icons';
+import {
+  ChevronDownFilledIcon,
+  ScrapDefaultIcon,
+  ScrapFolderDefaultIcon,
+} from '@/components/system/icons';
 import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -32,8 +36,25 @@ export const ScrapCard = (props: ScrapListItemProps) => {
     folderTop2Thumbnail
   );
 
+  const renderFallback = () => {
+    if (props.type === 'FOLDER') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapFolderDefaultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      );
+    } else if (props.type === 'SCRAP') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapDefaultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      );
+    }
+    return <View className='aspect-square w-full rounded-[10px] bg-blue-200' />;
+  };
+
   const cardContent = (
-    <View className='w-full items-center rounded-[10px] p-[10px]'>
+    <View className='rounded-[10pxp-[10px] w-full items-center'>
       <View className='gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton
@@ -45,7 +66,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
             resizeMode='cover'
             uniqueId={`${props.type}-${props.id}`}
             isDiagonalLayout={isDiagonalLayout}
-            fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
+            fallback={renderFallback()}
           />
           {state.isSelecting && (
             <Pressable
@@ -61,30 +82,29 @@ export const ScrapCard = (props: ScrapListItemProps) => {
           )}
         </View>
         <View className='px-1'>
-          <View className='flex-row justify-between'>
+          <View className='flex-row items-center justify-between'>
             <View className={'flex-[0.8] flex-row'}>
-              <Text className='text-16sb  text-black' numberOfLines={2}>
+              <Text className='text-16sb mr-[2px]  text-black' numberOfLines={2}>
                 {props.name}
               </Text>
               {!state.isSelecting && (
-                <View className='h-[24px] w-[24px]'>
-                  <TooltipPopover
-                    from={<ChevronDownFilledIcon color={colors['gray-700']} />}
-                    children={(close) => (
-                      <ItemTooltipBox
-                        props={props}
-                        onClose={close}
-                        onMovePress={() => {
-                          close();
-                          openMoveScrapModal({
-                            currentFolderId: folderId,
-                            selectedItems: [{ id: props.id, type: props.type }],
-                          });
-                        }}
-                      />
-                    )}
-                  />
-                </View>
+                <TooltipPopover
+                  from={<ChevronDownFilledIcon color={colors['gray-700']} />}
+                  triggerBorderRadius={4}
+                  children={(close) => (
+                    <ItemTooltipBox
+                      props={props}
+                      onClose={close}
+                      onMovePress={() => {
+                        close();
+                        openMoveScrapModal({
+                          currentFolderId: folderId,
+                          selectedItems: [{ id: props.id, type: props.type }],
+                        });
+                      }}
+                    />
+                  )}
+                />
               )}
             </View>
             {props.type === 'FOLDER' && props.scrapCount !== undefined && (
@@ -115,7 +135,6 @@ export const ScrapCard = (props: ScrapListItemProps) => {
             navigation.push('ScrapContent', { id: props.id });
           } else if (props.type === 'SCRAP') {
             openNote({ id: props.id, title: props.name });
-            addScrap(props.id);
             navigation.push('ScrapContentDetail', { id: props.id });
           }
         }}>

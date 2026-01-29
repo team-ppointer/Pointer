@@ -12,19 +12,20 @@ interface InfoSectionProps {
   icon: React.ReactNode;
   title: string;
   fields: InfoField[];
+  showChevron?: boolean;
 }
 
-export const InfoSection = ({ icon, title, fields }: InfoSectionProps) => {
+export const InfoSection = ({ icon, title, fields, showChevron = true }: InfoSectionProps) => {
   return (
-    <View className='gap-4'>
-      <View className='flex-row items-center gap-2'>
+    <View className='gap-[10px]'>
+      <View className='mb-[6px] flex-row items-center gap-[4px]'>
         {icon}
         <Text className='text-18sb text-gray-900'>{title}</Text>
       </View>
       {fields.map((field, index) => (
-        <View key={index} className='gap-[6px]'>
+        <View key={index} className='gap-[3px]'>
           <Text className='text-14m text-gray-900'>{field.label}</Text>
-          <IconMenuItem title={field.value} onPress={field.onPress} />
+          <IconMenuItem title={field.value} onPress={field.onPress} showChevron={showChevron} />
         </View>
       ))}
     </View>

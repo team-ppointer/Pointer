@@ -1,9 +1,13 @@
 import { Pressable, View, Text } from 'react-native';
 import React, { useState } from 'react';
 import { Check } from 'lucide-react-native';
-import { ChevronDownFilledIcon } from '@/components/system/icons';
+import {
+  ChevronDownFilledIcon,
+  ScrapDefaultIcon,
+  ScrapFolderDefaultIcon,
+} from '@/components/system/icons';
 import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
-import { PopUpModal } from '../../Dialog';
+import { ConfirmationModal, PopUpModal } from '../../Dialog';
 import { showToast } from '../../Notification/Toast';
 import { usePermanentDeleteTrash } from '@/apis';
 import type { TrashListItemProps } from '../types';
@@ -24,8 +28,37 @@ export const TrashCard = (props: TrashListItemProps) => {
     folderTop2Thumbnail
   );
 
+  const handlePermanentDelete = async () => {
+    try {
+      await permanentDelete({
+        items: [{ id: Number(props.id), type: props.type as 'FOLDER' | 'SCRAP' }],
+      });
+      setIsDeleteModalVisible(false);
+      showToast('success', '영구 삭제되었습니다.');
+    } catch (error) {
+      showToast('error', '삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const renderFallback = () => {
+    if (props.type === 'FOLDER') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapFolderDefaultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      );
+    } else if (props.type === 'SCRAP') {
+      return (
+        <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
+          <ScrapDefaultIcon style={{ width: '100%', height: '100%' }} />
+        </View>
+      );
+    }
+    return <View className='aspect-square w-full rounded-[10px] bg-blue-200' />;
+  };
+
   const cardContent = (
-    <View className={`w-full items-center rounded-[10px] p-[10px] ${isSelected && 'bg-gray-300'}`}>
+    <View className='w-full items-center rounded-[10px] p-[10px]'>
       <View className='gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton
@@ -37,7 +70,7 @@ export const TrashCard = (props: TrashListItemProps) => {
             resizeMode='cover'
             uniqueId={`${props.type}-${props.id}`}
             isDiagonalLayout={isDiagonalLayout}
-            fallback={<View className='aspect-square w-full rounded-[10px] bg-gray-600' />}
+            fallback={renderFallback()}
           />
           {state.isSelecting && (
             <Pressable
@@ -64,7 +97,9 @@ export const TrashCard = (props: TrashListItemProps) => {
               <Text className='text-12r text-blue-500'>{props.itemCount}</Text>
             )}
           </View>
-          <Text className='text-10r text-gray-700' numberOfLines={1}>
+          <Text
+            className={`${props.daysUntilPermanentDelete <= 3 ? 'text-red-400' : 'text-gray-700'}`}
+            numberOfLines={1}>
             {props.daysUntilPermanentDelete}일 남음
           </Text>
         </View>
@@ -74,73 +109,49 @@ export const TrashCard = (props: TrashListItemProps) => {
 
   return (
     <>
-      {state.isSelecting ? (
-        <Pressable
-          className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
-          onPress={() => {
-            if (state.isSelecting) {
-              props.onCheckPress?.();
-              return;
-            }
-          }}>
-          {cardContent}
-        </Pressable>
-      ) : (
-        <TooltipPopover
-          from={cardContent}
-          children={(close) => (
-            <TrashItemTooltipBox
-              item={props}
-              onClose={close}
-              onDeletePress={() => {
-                close();
-                setTimeout(() => {
-                  setIsDeleteModalVisible(true);
-                }, 200);
-              }}
-            />
-          )}
-        />
-      )}
-
-      <PopUpModal
-        visibleState={isDeleteModalVisible}
-        setVisibleState={setIsDeleteModalVisible}
-        className='px-[60px] py-[65px]'>
-        <View className='w-[458px] max-w-[600px] items-center justify-center gap-[24px] rounded-[12px] border border-[#DFE2E7] bg-white p-[28px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)]'>
-          <View className='items-center gap-[12px]'>
-            <Text className='text-18b text-[#1E1E1E]'>스크랩을 영구적으로 삭제합니다.</Text>
-            <Text className='text-16m text-[#1E1E1E]'>되돌릴 수 없는 작업입니다.</Text>
-          </View>
-          <View className='flex-row gap-[6px]'>
-            <Pressable
-              className='flex-1 items-center justify-center rounded-[12px] border border-gray-500 bg-gray-300 py-[12px]'
-              onPress={() => setIsDeleteModalVisible(false)}>
-              <Text className='text-18m text-[#1E1E21]'>취소</Text>
-            </Pressable>
-            <Pressable
-              className='flex-1 items-center justify-center rounded-[12px] border border-gray-500 bg-red-400 py-[12px]'
-              onPress={async () => {
-                try {
-                  await permanentDelete({
-                    items: [
-                      {
-                        id: Number(props.id),
-                        type: props.type as 'FOLDER' | 'SCRAP',
-                      },
-                    ],
-                  } as any);
-                  setIsDeleteModalVisible(false);
-                  showToast('success', '영구 삭제되었습니다.');
-                } catch (error) {
-                  showToast('error', '삭제 중 오류가 발생했습니다.');
-                }
-              }}>
-              <Text className='text-18m text-white'>삭제하기</Text>
-            </Pressable>
-          </View>
-        </View>
-      </PopUpModal>
+      <Pressable
+        className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
+        onPress={() => {
+          if (state.isSelecting) {
+            props.onCheckPress?.();
+            return;
+          }
+        }}
+        disabled={!state.isSelecting}>
+        {state.isSelecting ? (
+          cardContent
+        ) : (
+          <TooltipPopover
+            from={cardContent}
+            children={(close) => (
+              <TrashItemTooltipBox
+                item={props}
+                onClose={close}
+                onDeletePress={() => {
+                  close();
+                  setTimeout(() => {
+                    setIsDeleteModalVisible(true);
+                  }, 200);
+                }}
+              />
+            )}
+          />
+        )}
+      </Pressable>
+      <ConfirmationModal
+        visible={isDeleteModalVisible}
+        onClose={() => setIsDeleteModalVisible(false)}
+        title='스크랩을 영구적으로 삭제합니다.'
+        description='되돌릴 수 없는 작업입니다.'
+        buttons={[
+          { label: '취소', onPress: () => setIsDeleteModalVisible(false), variant: 'default' },
+          {
+            label: '삭제하기',
+            onPress: handlePermanentDelete,
+            variant: 'danger',
+          },
+        ]}
+      />
     </>
   );
 };

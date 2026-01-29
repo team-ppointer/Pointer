@@ -9,6 +9,8 @@ export interface TooltipPopoverProps {
   children: React.ReactNode | ((close: () => void) => React.ReactNode);
   placement?: Placement;
   popoverStyle?: ViewStyle;
+  triggerBorderRadius?: number;
+  triggerBackgroundColor?: string;
 }
 
 const TooltipPopover = ({
@@ -16,6 +18,8 @@ const TooltipPopover = ({
   children,
   placement = Placement.AUTO,
   popoverStyle,
+  triggerBorderRadius = 10,
+  triggerBackgroundColor = colors['gray-300'],
 }: TooltipPopoverProps) => {
   const [isVisible, setIsVisible] = React.useState(false);
 
@@ -27,7 +31,11 @@ const TooltipPopover = ({
   const triggerElement = (
     <Pressable
       onPress={() => setIsVisible(true)}
-      className={`${isVisible ? 'aspect-square rounded-[4px] bg-gray-400' : ''} items-center`}>
+      style={{
+        borderRadius: triggerBorderRadius,
+        backgroundColor: isVisible ? triggerBackgroundColor : 'transparent',
+      }}
+      className='items-center justify-center'>
       {from}
     </Pressable>
   );

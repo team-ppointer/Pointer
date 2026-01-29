@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TextInput, Pressable, Platform, Alert } from 'react-native';
+import { Text, View, TextInput, Platform, Alert } from 'react-native';
 import { Camera, ImageIcon, Paperclip, ArrowUp, X, Pencil } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,6 +7,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import type { Message } from '../../types';
 import ReplyPreview from './ReplyPreview';
+import { AnimatedPressable } from '@components/common';
+import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
 
 export interface SelectedImage {
   uri: string;
@@ -42,20 +44,37 @@ const IconButton = ({
   onPress,
   icon: Icon,
   disabled,
+  buttonId,
 }: {
   onPress?: () => void;
   icon: typeof Camera;
   disabled?: boolean;
-}) => (
-  <Pressable
-    onPress={onPress}
-    disabled={disabled}
-    className={`h-[36px] w-[36px] items-center justify-center rounded-full ${
-      disabled ? 'opacity-50' : 'active:bg-gray-200'
-    }`}>
-    <Icon size={22} color={colors['gray-600']} />
-  </Pressable>
-);
+  buttonId?: ButtonId;
+}) => {
+  if (buttonId) {
+    return (
+      <TrackedAnimatedPressable
+        buttonId={buttonId}
+        onPress={onPress}
+        disabled={disabled}
+        className={`h-[36px] w-[36px] items-center justify-center rounded-full ${
+          disabled ? 'opacity-50' : ''
+        }`}>
+        <Icon size={22} color={colors['gray-600']} />
+      </TrackedAnimatedPressable>
+    );
+  }
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      disabled={disabled}
+      className={`h-[36px] w-[36px] items-center justify-center rounded-full ${
+        disabled ? 'opacity-50' : ''
+      }`}>
+      <Icon size={22} color={colors['gray-600']} />
+    </AnimatedPressable>
+  );
+};
 
 const MessageInput = ({
   replyTo,
@@ -203,9 +222,9 @@ const MessageInput = ({
             <Pencil size={16} color={colors['primary-500']} />
             <Text className='text-14sb text-primary-500'>메시지 수정 중</Text>
           </View>
-          <Pressable onPress={handleCancelEdit} hitSlop={8}>
+          <AnimatedPressable onPress={handleCancelEdit} hitSlop={8} className='p-1'>
             <X size={18} color={colors['gray-600']} />
-          </Pressable>
+          </AnimatedPressable>
         </View>
       )}
 
@@ -219,14 +238,15 @@ const MessageInput = ({
         className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pl-[12px] pr-[6px]' : 'pl-[8px] pr-[8px]'}`}>
         {/* Camera Button - hidden in typing mode or editing mode */}
         {!isTypingMode && !isEditing && (
-          <Pressable
+          <TrackedAnimatedPressable
+            buttonId='upload_image'
             onPress={handleCamera}
             disabled={disabled}
             className={`bg-primary-500 h-[30px] w-[30px] items-center justify-center rounded-full ${
-              disabled ? 'opacity-50' : 'active:bg-primary-600'
+              disabled ? 'opacity-50' : ''
             }`}>
             <Camera size={20} color='white' />
-          </Pressable>
+          </TrackedAnimatedPressable>
         )}
 
         {/* Text Input */}
@@ -256,21 +276,27 @@ const MessageInput = ({
         {/* Action Buttons - hidden in typing mode or editing mode */}
         {!isTypingMode && !isEditing && (
           <View className='flex-row'>
-            <IconButton icon={ImageIcon} onPress={handleImagePicker} disabled={disabled} />
+            <IconButton
+              icon={ImageIcon}
+              onPress={handleImagePicker}
+              disabled={disabled}
+              buttonId='upload_image'
+            />
             <IconButton icon={Paperclip} onPress={handleDocumentPicker} disabled={disabled} />
           </View>
         )}
 
         {/* Send/Update Button - shown only in typing mode or editing mode */}
         {(isTypingMode || isEditing) && (
-          <Pressable
+          <TrackedAnimatedPressable
+            buttonId='send_message'
             onPress={handleSend}
             disabled={!canSend}
             className={`h-[36px] w-[36px] items-center justify-center rounded-[10px] ${
-              canSend ? 'bg-primary-500 active:bg-primary-600' : 'bg-gray-300'
+              canSend ? 'bg-primary-500' : 'bg-gray-300'
             }`}>
             <ArrowUp size={22} color='white' />
-          </Pressable>
+          </TrackedAnimatedPressable>
         )}
       </View>
     </View>

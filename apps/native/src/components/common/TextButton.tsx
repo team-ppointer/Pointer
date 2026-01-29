@@ -1,5 +1,8 @@
 import React from 'react';
-import { Pressable, PressableStateCallbackType, Text, ViewStyle } from 'react-native';
+import { Text, ViewStyle } from 'react-native';
+import AnimatedPressable from './AnimatedPressable';
+import TrackedAnimatedPressable from '@/features/student/analytics/TrackedAnimatedPressable';
+import type { ButtonId, ScreenName } from '@/features/student/analytics';
 
 interface ButtonProps {
   variant?: 'blue' | 'gray' | 'outline';
@@ -7,17 +10,30 @@ interface ButtonProps {
   onPress?: () => void;
   children: React.ReactNode;
   style?: ViewStyle;
+  /** Button ID for analytics tracking (optional) */
+  buttonId?: ButtonId;
+  /** Button label for analytics (optional) */
+  buttonLabel?: string;
+  /** Override screen name for analytics (optional) */
+  screenName?: ScreenName;
 }
 
-type ExtendedPressableState = PressableStateCallbackType & { hovered?: boolean };
-
-const TextButton = ({ variant = 'blue', disabled = false, onPress, children }: ButtonProps) => {
+const TextButton = ({
+  variant = 'blue',
+  disabled = false,
+  onPress,
+  children,
+  style,
+  buttonId,
+  buttonLabel,
+  screenName,
+}: ButtonProps) => {
   const baseStyle = 'h-[32px] w-fit items-center justify-center rounded-[8px] px-[10px]';
 
   const variantStyles = {
-    blue: 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700',
-    gray: 'bg-gray-800 hover:bg-gray-900 active:bg-[#0E0E10]',
-    outline: 'bg-blue-200 hover:bg-blue-200 active:bg-blue-200',
+    blue: 'bg-blue-500',
+    gray: 'bg-gray-800',
+    outline: 'bg-blue-200',
   };
 
   const textStyles = {
@@ -26,10 +42,31 @@ const TextButton = ({ variant = 'blue', disabled = false, onPress, children }: B
     outline: 'text-blue-600 text-14m',
   };
 
+  const className = `${baseStyle} ${variantStyles[variant]}`;
+
+  if (buttonId) {
+    return (
+      <TrackedAnimatedPressable
+        onPress={onPress}
+        disabled={disabled}
+        className={className}
+        style={style}
+        buttonId={buttonId}
+        buttonLabel={buttonLabel}
+        screenName={screenName}>
+        <Text className={textStyles[variant]}>{children}</Text>
+      </TrackedAnimatedPressable>
+    );
+  }
+
   return (
-    <Pressable onPress={onPress} className={`${baseStyle} ${variantStyles[variant]}`}>
+    <AnimatedPressable
+      onPress={onPress}
+      disabled={disabled}
+      className={className}
+      style={style}>
       <Text className={textStyles[variant]}>{children}</Text>
-    </Pressable>
+    </AnimatedPressable>
   );
 };
 

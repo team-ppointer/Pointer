@@ -15,22 +15,26 @@ type RecentScrapCardProps = {
 export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
-  const addScrap = useRecentScrapStore((state) => state.addScrap);
+  const [isHovered, setIsHovered] = React.useState(false);
 
   return (
     <Pressable
       onPress={() => {
         openNote({ id: scrap.id, title: scrap.name ?? '' });
-        addScrap(scrap.id);
         navigation.push('ScrapContentDetail', { id: scrap.id });
       }}
-      className='bg-primary-200 h-[140px] w-[140px] flex-col items-center justify-end rounded-[12px] border border-gray-300'>
+      onHoverIn={() => setIsHovered(true)}
+      onHoverOut={() => setIsHovered(false)}
+      onPressIn={() => setIsHovered(true)}
+      onPressOut={() => setIsHovered(false)}
+      className='bg-primary-200 h-[140px] w-[140px] flex-col items-center justify-end overflow-hidden rounded-[12px] border border-gray-300'>
       <ImageBackground
         source={{ uri: scrap.thumbnailUrl }}
-        style={{ width: '100%', height: '100%', borderRadius: 12 }}
+        style={{ width: '100%', height: '100%' }}
         resizeMode='cover'
       />
-      <View className='h-[100px] w-full justify-between rounded-b-[12px] bg-white p-[10px]'>
+      <View
+        className={`h-[100px] w-full justify-between rounded-b-[12px] p-[10px] ${isHovered ? 'bg-gray-300' : 'bg-white'}`}>
         <Text className='text-16sb text-black' numberOfLines={2}>
           {scrap.name}
         </Text>

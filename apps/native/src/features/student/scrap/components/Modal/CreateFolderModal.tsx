@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { AddFolderScreenModal } from './FullScreenModal';
 import { useCreateFolder, useUploadFile } from '@/apis';
@@ -12,8 +12,10 @@ import { useScrapModal } from '../../contexts/ScrapModalsContext';
 export const CreateFolderModal = () => {
   const { isCreateFolderModalVisible, closeCreateFolderModal, refetchFolders, refetchScraps } =
     useScrapModal();
-  const [folderName, setFolderName] = useState('');
+  const [folderName, setFolderName] = useState('제목 없음');
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [imageId, setImageId] = useState<number | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
   const { mutateAsync: createFolder } = useCreateFolder();
   const { mutateAsync: uploadFile } = useUploadFile();
 
@@ -40,70 +42,100 @@ export const CreateFolderModal = () => {
     }
   };
 
-  const handleCreate = async () => {
+  const handleUploadImage = async (): Promise<number | null> => {
+    // 이미지가 있는 경우 먼저 업로드
+    if (selectedImage) {
+      const fileName = selectedImage.fileName || `${Date.now()}.jpg`;
+      try {
+        const files = await uploadFile([
+          { uri: selectedImage.uri, name: fileName, type: selectedImage.mimeType || 'image/jpeg' },
+        ]);
+        return files[0].id;
+      } catch (error: any) {
+        showToast('error', error.message);
+        throw error; // 에러를 다시 throw하여 상위에서 처리 가능하도록
+      }
+    }
+    return null;
+  };
+
+  const handleCreateFolder = async () => {
     if (!folderName.trim()) {
       showToast('error', '폴더 이름을 입력해주세요.');
       return;
     }
 
+    setIsCreating(true);
+
     try {
-      let thumbnailImageId: number | undefined;
+      // 이미지 업로드가 완료될 때까지 대기
+      const uploadedImageId = await handleUploadImage();
 
-      // 이미지가 있는 경우 먼저 업로드
-      if (selectedImage) {
-        const fileName = selectedImage.fileName || `${Date.now()}.jpg`;
-        const files = await uploadFile([
-          { uri: selectedImage.uri, name: fileName, type: selectedImage.mimeType || 'image/jpeg' },
-        ]);
-        thumbnailImageId = files[0].id;
-      }
-
+      // 폴더 생성
       await createFolder({
         name: folderName,
-        thumbnailImageId,
+        thumbnailImageId: uploadedImageId ?? undefined,
       });
 
       showToast('success', '폴더가 추가되었습니다.');
+      closeCreateFolderModal();
       refetchFolders?.();
       refetchScraps?.();
-      closeCreateFolderModal();
-    } catch (error) {
-      showToast('error', '폴더 추가에 실패했습니다.');
+    } catch (error: any) {
+      showToast('error', error.message);
+    } finally {
+      setIsCreating(false);
     }
   };
 
-  const handleCancel = () => {
-    closeCreateFolderModal();
-  };
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 자동으로 포커스
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100); // 약간의 지연을 주어 화면 렌더링이 완료된 후 포커스
+
+    return () => clearTimeout(timer);
+  }, []);
+
+
 
   return (
     <AddFolderScreenModal
       visible={isCreateFolderModalVisible}
-      onCancel={handleCancel}
-      onClose={handleCreate}>
+      onCancel={closeCreateFolderModal}
+      onClose={() => {
+        if (!isCreating) {
+          handleCreateFolder();
+        }
+      }}>
       <KeyboardAvoidingView
         className='flex-1'
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
         <View className='flex-1 items-center gap-[18px] p-[20px] pt-[80px]'>
-          <View className='w-[424px] items-center gap-[20px]'>
+          <View className='w-[320px] items-center gap-[20px] md:w-[424px]'>
             <Pressable className='min-w-[136px] items-center p-[10px]' onPress={onPressGallery}>
-              {selectedImage ? (
+              {selectedImage && (
                 <Image
                   source={{ uri: selectedImage.uri }}
                   className='h-[136px] w-[136px] rounded-[8px]'
                   resizeMode='cover'
                 />
-              ) : (
+              )}
+              {!selectedImage && (
                 <View className='bg-primary-500 h-[80px] w-[80px] items-center justify-center rounded-[10px] p-[10px]'>
                   <ImageIcon size={48} color={'#fff'} />
                 </View>
               )}
             </Pressable>
-            <View className='w-full rounded-[8px] border border-gray-400 bg-white px-3 py-2'>
+            <View className='h-[40px] w-full rounded-[8px] border border-gray-400 bg-white px-3 py-2'>
               <TextInput
+                ref={inputRef}
                 className='text-16sb text-black'
                 placeholder='제목없음'
+                style={{ lineHeight: 20, paddingVertical: 0 }}
                 placeholderTextColor={colors['gray-500']}
                 value={folderName}
                 onChangeText={setFolderName}

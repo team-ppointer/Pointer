@@ -48,9 +48,7 @@ const ScrapHeader = ({
   const isActionEnabled = reducerState.selectedItems.length > 0;
 
   return (
-    <SafeAreaView
-      edges={['top']}
-      className={`bg-${!reducerState.isSelecting ? 'background' : 'gray-200'}`}>
+    <View className={`bg-${!reducerState.isSelecting ? 'gray-100' : 'gray-200'}`}>
       {!reducerState.isSelecting && (
         <Container className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
           {navigateback && navigateback.canGoBack() && (
@@ -64,7 +62,11 @@ const ScrapHeader = ({
           )}
           {navigateback ? (
             <View className='absolute left-0 right-0 items-center'>
-              <Text className='text-20b text-gray-900'>{title}</Text>
+              <Text
+                className='text-20b text-center text-gray-900 md:max-w-[344px] lg:max-w-[464px]'
+                numberOfLines={1}>
+                {title}
+              </Text>
             </View>
           ) : (
             <Text className='text-20b text-gray-900'>{title}</Text>
@@ -111,7 +113,7 @@ const ScrapHeader = ({
               }}
               className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <ArrowRightLeft size={24} color={colors['primary-500']} />
-              <Text className='text-12m text-primary-500'>이동하기</Text>
+              <Text className='text-12m text-primary-500'>이동</Text>
             </Pressable>
             <Pressable
               onPress={() => {
@@ -119,12 +121,12 @@ const ScrapHeader = ({
               }}
               className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Trash2 size={24} color={colors['red-400']} />
-              <Text className='text-12m text-red-400'>삭제하기</Text>
+              <Text className='text-12m text-red-400'>삭제</Text>
             </Pressable>
           </View>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

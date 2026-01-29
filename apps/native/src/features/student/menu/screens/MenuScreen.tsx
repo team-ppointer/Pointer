@@ -1,29 +1,44 @@
 import React, { useCallback, useState } from 'react';
-import { Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { ScrollView, Text, View } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
+import { TanstackQueryClient } from '@apis';
 
-import { useGetMe } from '@apis/student';
+import { useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
 import { Container } from '@components/common';
-import { Bell, Headset, Megaphone, ThumbsUp } from 'lucide-react-native';
+import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
 import {
   UserProfileCard,
+  MobileProfileCard,
   TeacherInfoCard,
   MenuListItem,
-  TextOnlyMenuItem,
-  AppVersionItem,
   MenuSection,
 } from '../components';
-import { ScrollView } from 'react-native-gesture-handler';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
-import { MenuStackParamList } from '../MenuNavigator';
+import { MenuStackParamList } from '@navigation/student/MenuNavigator';
+import { showToast } from '../../scrap/components/Notification';
+import useIsTablet from '../../qna/hooks/useIsTablet';
 
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const signOut = useAuthStore((state) => state.signOut);
-  const { data, isLoading, isError } = useGetMe();
-  const userInfo = data ?? null;
+  const queryClient = useQueryClient();
+  const { data: noticeCount } = useGetNoticeCount();
+  const { data } = useGetMe();
+  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/notice/count').queryKey,
+      });
+    }, [queryClient])
+  );
 
   const handleLogout = useCallback(async () => {
     try {
@@ -33,78 +48,90 @@ const MenuScreen = () => {
     }
   }, [signOut]);
 
-  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
+  const isTablet = useIsTablet();
 
   return (
-    <>
-      <Container className='px-6 py-12'>
-        <View className='py-0.5'>
-          <Text className='text-20b text-black'>전체 메뉴</Text>
-        </View>
+    <View className='w-full flex-1'>
+      <Container className='h-[52px] justify-center bg-gray-100'>
+        <Text className='text-20b text-black'>전체 메뉴</Text>
+      </Container>
+      <Container className='flex-1'>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 40 }}>
           <View className='h-[20px]' />
           <View className='gap-[10px]'>
-            <UserProfileCard
-              name={data?.nickname ? data?.nickname : '포인터'}
-              school={data?.school}
-              grade={data?.grade}
-              onEditPress={() => navigation.navigate('MyInfo')}
-            />
-            <TeacherInfoCard teacherName={data?.teacherName} />
-            <MenuListItem
-              icon={Bell}
-              title='알림 설정'
-              onPress={() => navigation.navigate('NotificationSettings')}
-            />
+            {isTablet ? (
+              <>
+                <UserProfileCard
+                  name={data?.name}
+                  school={data?.school}
+                  grade={data?.grade}
+                  onEditPress={() => navigation.navigate('MyInfo', { updatedData: data })}
+                />
+                <TeacherInfoCard teacherName={data?.teacherName} />
+              </>
+            ) : (
+              <MobileProfileCard
+                name={data?.name}
+                school={data?.school}
+                grade={data?.grade}
+                teacherName={data?.teacherName}
+                onEditPress={() => navigation.navigate('MyInfo', { updatedData: data })}
+              />
+            )}
+
+            <MenuSection>
+              <MenuListItem
+                icon={Bell}
+                title='알림 설정'
+                onPress={() => navigation.navigate('NotificationSettings')}
+              />
+            </MenuSection>
             <MenuSection>
               <MenuListItem
                 icon={Megaphone}
                 title='공지사항'
+                isNew={!!noticeCount?.unreadCount && noticeCount.unreadCount > 0}
                 onPress={() => navigation.navigate('Notice')}
               />
-              <MenuListItem icon={Headset} title='고객센터' isNew onPress={() => {}} />
+              <MenuListItem
+                icon={Headset}
+                title='고객센터'
+                onPress={() => {
+                  showToast('info', '고객센터 준비 중입니다.');
+                }}
+              />
               <MenuListItem
                 icon={ThumbsUp}
                 title='피드백 보내기'
                 onPress={() => navigation.navigate('Feedback')}
               />
-              <AppVersionItem version='1.0.1' isLatest={true} onPress={() => {}} />
+              <MenuListItem icon={History} title='앱 버전' showChevron={false}>
+                <View className='justify-center'>
+                  <Text className='text-16m text-blue-500'>1.0.1 최신 버전</Text>
+                </View>
+              </MenuListItem>
             </MenuSection>
             <MenuSection>
-              <TextOnlyMenuItem title='서비스 약관' onPress={() => navigation.navigate('Terms')} />
-              <TextOnlyMenuItem title='로그아웃' onPress={() => setIsLogoutVisible(true)} />
-              <TextOnlyMenuItem
-                title='회원 탈퇴'
-                onPress={() => navigation.navigate('Withdrawal')}
-              />
+              <MenuListItem title='서비스 약관' onPress={() => navigation.navigate('Terms')} />
+              <MenuListItem title='로그아웃' onPress={() => setIsLogoutVisible(true)} />
+              <MenuListItem title='회원 탈퇴' onPress={() => navigation.navigate('Withdrawal')} />
             </MenuSection>
           </View>
         </ScrollView>
-
-        {/* {isLoading ? (
-        <Text>유저 정보 fetch 중...</Text>
-      ) : isError ? (
-        <Text>유저 정보 fetch 실패</Text>
-      ) : userInfo ? (
-        <Text>{JSON.stringify(userInfo).replace(/,/g, ',\n')}</Text>
-      ) : (
-        <Text>auth 정보 없음</Text>
-      )}
-      <TextButton onPress={handleLogout}>로그아웃</TextButton> */}
       </Container>
       <ConfirmationModal
         visible={isLogoutVisible}
         onClose={() => setIsLogoutVisible(false)}
         title='로그아웃 하시겠어요?'
-        description='빠르게 돌아와 실력 향상을 위한 학습을 이어나가요!'
+        description={`빠르게 돌아와 실력 향상을 위한${isTablet ? ' ' : '\n'}학습을 이어나가요!`}
         buttons={[
           { label: '네', onPress: () => handleLogout(), variant: 'default' },
           { label: '아니오', onPress: () => setIsLogoutVisible(false), variant: 'primary' },
         ]}
       />
-    </>
+    </View>
   );
 };
 
