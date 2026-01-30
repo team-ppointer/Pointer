@@ -4,7 +4,7 @@ export * from './useGetFoldersDetail';
 export * from './useGetFolders';
 export * from './useGetTrash';
 export * from './useSearchScraps';
-export * from './useGetScrapsByFolder';
+export * from './getScrapsByFolder';
 export * from './handwriting/useGetHandwriting';
 export * from './useGetScrapStatusById';
 
