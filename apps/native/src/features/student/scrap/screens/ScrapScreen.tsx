@@ -2,26 +2,23 @@ import { Container, LoadingScreen } from '@/components/common';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ImageBackground } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, ScrollView } from 'react-native';
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
 import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
-import { sortScrapData, mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
+import { mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
 import { useQueryClient } from '@tanstack/react-query';
 import type { UISortKey, SortOrder, ScrapSearchResponse } from '../utils/types';
 import { showToast } from '../components/Notification/Toast';
-import { useSearchScraps, useDeleteScrap, client } from '@/apis';
+import { useSearchScraps, useDeleteScrap, getScrapsByFolder } from '@/apis';
 import { validateOnlyScrapCanMove } from '../utils/validation';
-import { useQueries } from '@tanstack/react-query';
-import { TanstackQueryClient } from '@/apis';
 import { RecentScrapCard } from '../components/Card/cards/RecentScrapCard';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection } from '../hooks';
 import { withScrapModals } from '../hoc';
 import { useNoteStore } from '../stores/scrapNoteStore';
-import { SelectedItem } from '../utils/reducer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
 
@@ -32,8 +29,8 @@ const ScrapScreenContent = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const recentScraps = useRecentScrapStore((state) => state.scraps);
   const { openMoveScrapModal, setRefetchScraps } = useScrapModal();
-
   const queryClient = useQueryClient();
+
   const {
     data: searchData,
     isLoading,
@@ -146,17 +143,9 @@ const ScrapScreenContent = () => {
                 scrapIdsToRemove.push(item.id as number);
               } else if (item.type === 'FOLDER' && item.id !== undefined) {
                 try {
-                  const folderScrapsData = await queryClient.fetchQuery(
-                    TanstackQueryClient.queryOptions(
-                      'get',
-                      '/api/student/scrap/folder/{folderId}/scraps',
-                      {
-                        params: {
-                          path: { folderId: item.id },
-                        },
-                      }
-                    )
-                  );
+                  const folderScrapsData = await getScrapsByFolder(queryClient, {
+                    folderId: item.id,
+                  });
 
                   const folderScrapIds =
                     folderScrapsData?.data
@@ -204,7 +193,7 @@ const ScrapScreenContent = () => {
             setSortOrder={setSortOrder}
           />
         </Container>
-        <Container className='pb-[120px] pt-4'>
+        <Container className='pb-[120px] pt-[16px]'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
