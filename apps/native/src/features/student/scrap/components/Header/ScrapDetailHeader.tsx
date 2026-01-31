@@ -37,9 +37,19 @@ export const ScrapDetailHeader = ({
   }, [scrapName]);
 
   useEffect(() => {
-    if (showSave && lottieRef.current) {
-      lottieRef.current.play();
-    }
+    if (!showSave) return;
+
+    const playWhenReady = () => {
+      if (lottieRef.current) {
+        lottieRef.current.play();
+      }
+    };
+
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(playWhenReady);
+    });
+
+    return () => cancelAnimationFrame(id);
   }, [showSave]);
 
   return (
