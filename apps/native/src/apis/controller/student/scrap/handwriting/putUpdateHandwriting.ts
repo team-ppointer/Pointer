@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { client } from '@/apis/client';
+import { client, TanstackQueryClient } from '@/apis/client';
 import { paths } from '@schema';
 
 type UpdateHandwritingRequest =
@@ -29,8 +29,13 @@ export const useUpdateHandwriting = () => {
       return data as UpdateHandwritingResponse;
     },
     onSuccess: (_, { scrapId }) => {
-      queryClient.invalidateQueries({ queryKey: ['scrap', 'handwriting', scrapId] });
-      queryClient.invalidateQueries({ queryKey: ['scrap', 'detail', scrapId] });
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions(
+          'get',
+          '/api/student/scrap/{scrapId}/handwriting',
+          { params: { path: { scrapId } } }
+        ).queryKey,
+      });
     },
   });
 };
