@@ -23,7 +23,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { StudentRootStackParamList } from '@/navigation/student/types';
-import { useGetScrapDetail, useUpdateScrapName } from '@/apis';
+import { TanstackQueryClient, useGetScrapDetail, useUpdateScrapName } from '@/apis';
 import { LoadingScreen } from '@/components/common';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
@@ -57,6 +57,7 @@ import { withScrapModals } from '../hoc/withScrapModals';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { ExplanationSection } from '../components/scrap/ExplanationSection';
+import { useQueryClient } from '@tanstack/react-query';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
@@ -82,6 +83,7 @@ const ScrapDetailScreen = () => {
     useNoteStore();
 
   const [scrapName, setScrapName] = useState(scrapDetail?.name || '');
+  const queryClient = useQueryClient();
 
   React.useEffect(() => {
     if (scrapDetail) {
@@ -153,6 +155,18 @@ const ScrapDetailScreen = () => {
       setRefetchScrapDetail(refetchScrapDetail);
     }
   }, [refetchScrapDetail, setRefetchScrapDetail]);
+
+  useEffect(() => {
+    return () => {
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions(
+          'get',
+          '/api/student/scrap/{scrapId}/handwriting',
+          { params: { path: { scrapId } } }
+        ).queryKey,
+      });
+    };
+  }, [scrapId, queryClient]);
 
   // Save indicator timeout ref for cleanup
   const saveIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -231,8 +245,7 @@ const ScrapDetailScreen = () => {
     canvasRef.current?.clear();
     // Tab layouts 초기화
     setTabLayouts({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrapId, handwriting.isSaving]);
+  }, [scrapId]);
 
   // Save indicator animation interval
   const indicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -246,7 +259,7 @@ const ScrapDetailScreen = () => {
       indicatorTimeoutRef.current = setTimeout(() => {
         uiState.hideSaveIndicator();
         indicatorTimeoutRef.current = null;
-      }, 200);
+      }, 2000);
     }, 30000);
 
     return () => {
@@ -256,7 +269,6 @@ const ScrapDetailScreen = () => {
       }
     };
     // uiState 객체 대신 필요한 메서드만 dependency에 포함
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Derived state - Pointings with labels
