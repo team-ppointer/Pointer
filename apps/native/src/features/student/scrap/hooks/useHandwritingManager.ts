@@ -58,7 +58,7 @@ export function useHandwritingManager({
 
       return () => clearTimeout(loadTimer);
     }
-  }, [handwritingData, canvasRef, scrapId, isSaving]);
+  }, [handwritingData, canvasRef, scrapId]);
 
   // 저장하기 함수
   const handleSave = useCallback(
