@@ -64,7 +64,7 @@ export function useHandwritingManager({
   const handleSave = useCallback(
     (isAutoSave = false, targetScrapId?: number) => {
       if (!canvasRef.current) return Promise.resolve(false);
-      
+
       // 이미 저장 중이면 중복 저장 방지
       if (isSaving) {
         return Promise.resolve(false);
@@ -124,7 +124,7 @@ export function useHandwritingManager({
     [scrapId, canvasRef, updateHandwriting, onSaveSuccess, onSaveError, isSaving]
   );
 
-  // 10초마다 자동 저장
+  // 5초마다 자동 저장
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
       if (hasUnsavedChanges && !isSaving) {
