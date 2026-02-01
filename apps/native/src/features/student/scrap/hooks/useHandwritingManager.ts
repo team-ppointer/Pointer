@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { Alert } from 'react-native';
+import { Alert, AppState, AppStateStatus } from 'react-native';
 import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
 import { DrawingCanvasRef } from '../utils/skia/drawing';
 import { encodeHandwritingData, decodeHandwritingData } from '../utils/handwritingEncoder';
@@ -133,6 +133,15 @@ export function useHandwritingManager({
     }, 5000); // 5초마다 실행
 
     return () => clearInterval(autoSaveInterval);
+  }, [hasUnsavedChanges, isSaving, handleSave]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (nextState === 'background' && hasUnsavedChanges && !isSaving) {
+        handleSave(true);
+      }
+    });
+    return () => subscription.remove();
   }, [hasUnsavedChanges, isSaving, handleSave]);
 
   return {
