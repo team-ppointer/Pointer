@@ -29,7 +29,7 @@ import {
   Group,
 } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-handler';
-import { runOnJS, useSharedValue, useDerivedValue } from 'react-native-reanimated';
+import { runOnJS, useSharedValue, useDerivedValue, withSpring } from 'react-native-reanimated';
 import { buildSmoothPath } from '../../utils/skia/smoothing';
 
 export type Point = { x: number; y: number };
@@ -89,6 +89,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       y: number;
       value: string;
     } | null>(null);
+    const [isZoomed, setIsZoomed] = useState(false); // 줌 상태 추적 (ScrollView 제어용)
     const textInputRef = useRef<TextInput>(null);
     const scrollViewRef = useRef<ScrollView>(null);
     const containerLayout = useRef<{ x: number; y: number; width: number; height: number } | null>(
@@ -103,6 +104,29 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const hoverX = useSharedValue(0);
     const hoverY = useSharedValue(0);
     const showHover = useSharedValue(false);
+
+    // 줌/팬 상태를 위한 SharedValue
+    const scale = useSharedValue(1);
+    const translateX = useSharedValue(0);
+    const translateY = useSharedValue(0);
+    const savedScale = useSharedValue(1);
+    const savedTranslateX = useSharedValue(0);
+    const savedTranslateY = useSharedValue(0);
+    const focalX = useSharedValue(0);
+    const focalY = useSharedValue(0);
+
+    // 줌 제한 상수
+    const MIN_SCALE = 0.5;
+    const MAX_SCALE = 5.0;
+
+    // 화면 좌표 → 캔버스 좌표 변환 (worklet용)
+    const screenToCanvasWorklet = (screenX: number, screenY: number) => {
+      'worklet';
+      return {
+        x: (screenX - translateX.value) / scale.value,
+        y: (screenY - translateY.value) / scale.value,
+      };
+    };
 
     const livePath = useRef<SkPath>(Skia.Path.Make());
     const currentPoints = useRef<Point[]>([]);
@@ -1047,7 +1071,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           // 텍스트 입력은 손가락도 허용 (모든 입력 타입 허용)
           // activeTextInput이 있으면 새로운 텍스트 입력 생성하지 않음 (onBlur 처리 중일 수 있음)
           if (textMode && !eraserMode) {
-            runOnJS(addText)(e.x, e.y);
+            // 화면 좌표를 캔버스 좌표로 변환
+            const canvasPoint = screenToCanvasWorklet(e.x, e.y);
+            runOnJS(addText)(canvasPoint.x, canvasPoint.y);
           }
         }),
       [textMode, eraserMode, addText]
@@ -1057,7 +1083,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       () =>
         Gesture.Pan()
           .minPointers(1)
-          .maxPointers(1) // 한 손가락만 허용 (두 손가락은 스크롤)
+          .maxPointers(1) // 한 손가락만 허용 (두 손가락은 줌/팬)
           .onBegin((e) => {
             'worklet';
             // 펜슬만 허용 (제스처 이벤트에서 직접 pointerType 확인)
@@ -1067,10 +1093,14 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             }
             showHover.value = false; // 그리기 시작 시 호버 숨김
             if (textMode) return; // 텍스트 모드에서는 그리기 비활성화
+
+            // 화면 좌표를 캔버스 좌표로 변환
+            const canvasPoint = screenToCanvasWorklet(e.x, e.y);
+
             if (eraserMode) {
-              runOnJS(startEraser)(e.x, e.y);
+              runOnJS(startEraser)(canvasPoint.x, canvasPoint.y);
             } else {
-              runOnJS(startStroke)(e.x, e.y);
+              runOnJS(startStroke)(canvasPoint.x, canvasPoint.y);
             }
           })
           .onUpdate((e) => {
@@ -1081,10 +1111,14 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
               return;
             }
             if (textMode) return;
+
+            // 화면 좌표를 캔버스 좌표로 변환
+            const canvasPoint = screenToCanvasWorklet(e.x, e.y);
+
             if (eraserMode) {
-              runOnJS(addEraserPoint)(e.x, e.y);
+              runOnJS(addEraserPoint)(canvasPoint.x, canvasPoint.y);
             } else {
-              runOnJS(addPoint)(e.x, e.y);
+              runOnJS(addPoint)(canvasPoint.x, canvasPoint.y);
             }
           })
           .onEnd(() => {
@@ -1151,9 +1185,114 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       return showHover.value ? 0.6 : 0;
     }, [showHover]);
 
+    // 캔버스 transform을 위한 derived value
+    const canvasTransform = useDerivedValue(() => {
+      return [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+        { scale: scale.value },
+      ];
+    }, []);
+
+    // 핀치 제스처 (두 손가락 줌)
+    const pinchGesture = useMemo(
+      () =>
+        Gesture.Pinch()
+          .onBegin((e) => {
+            'worklet';
+            savedScale.value = scale.value;
+            savedTranslateX.value = translateX.value;
+            savedTranslateY.value = translateY.value;
+            focalX.value = e.focalX;
+            focalY.value = e.focalY;
+          })
+          .onUpdate((e) => {
+            'worklet';
+            // 새 스케일 계산 (제한 적용)
+            const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, savedScale.value * e.scale));
+
+            // 줌 중심점 기준으로 translate 조정
+            // 공식: 새 translate = focal - (focal - 이전 translate) * (새 scale / 이전 scale)
+            const scaleFactor = newScale / savedScale.value;
+            const newTranslateX = e.focalX - (focalX.value - savedTranslateX.value) * scaleFactor;
+            const newTranslateY = e.focalY - (focalY.value - savedTranslateY.value) * scaleFactor;
+
+            scale.value = newScale;
+            translateX.value = newTranslateX;
+            translateY.value = newTranslateY;
+          })
+          .onEnd(() => {
+            'worklet';
+            // 스케일이 1에 가까우면 1로 스냅
+            if (scale.value > 0.9 && scale.value < 1.1) {
+              scale.value = withSpring(1, { damping: 15, stiffness: 150 });
+              translateX.value = withSpring(0, { damping: 15, stiffness: 150 });
+              translateY.value = withSpring(0, { damping: 15, stiffness: 150 });
+              runOnJS(setIsZoomed)(false);
+            } else {
+              runOnJS(setIsZoomed)(true);
+            }
+          }),
+      []
+    );
+
+    // 두 손가락 팬 제스처 (캔버스 이동)
+    const twoFingerPan = useMemo(
+      () =>
+        Gesture.Pan()
+          .minPointers(2)
+          .maxPointers(2)
+          .onBegin(() => {
+            'worklet';
+            savedTranslateX.value = translateX.value;
+            savedTranslateY.value = translateY.value;
+          })
+          .onUpdate((e) => {
+            'worklet';
+            translateX.value = savedTranslateX.value + e.translationX;
+            translateY.value = savedTranslateY.value + e.translationY;
+          }),
+      []
+    );
+
+    // 더블탭 줌 리셋/토글
+    const doubleTap = useMemo(
+      () =>
+        Gesture.Tap()
+          .numberOfTaps(2)
+          .maxDuration(300)
+          .onEnd((e) => {
+            'worklet';
+            if (scale.value !== 1) {
+              // 현재 줌 상태면 1배로 리셋
+              scale.value = withSpring(1, { damping: 15, stiffness: 150 });
+              translateX.value = withSpring(0, { damping: 15, stiffness: 150 });
+              translateY.value = withSpring(0, { damping: 15, stiffness: 150 });
+              runOnJS(setIsZoomed)(false);
+            } else {
+              // 1배 상태면 2배로 줌인 (터치 위치 중심)
+              const targetScale = 2;
+              const newTranslateX = e.x - e.x * targetScale;
+              const newTranslateY = e.y - e.y * targetScale;
+
+              scale.value = withSpring(targetScale, { damping: 15, stiffness: 150 });
+              translateX.value = withSpring(newTranslateX, { damping: 15, stiffness: 150 });
+              translateY.value = withSpring(newTranslateY, { damping: 15, stiffness: 150 });
+              runOnJS(setIsZoomed)(true);
+            }
+          }),
+      []
+    );
+
+    // 줌/팬 제스처 조합
+    const zoomPanGesture = useMemo(
+      () => Gesture.Simultaneous(pinchGesture, twoFingerPan),
+      [pinchGesture, twoFingerPan]
+    );
+
     const composedGesture = useMemo(
-      () => Gesture.Simultaneous(Gesture.Race(tap, pan), hoverGesture),
-      [tap, pan, hoverGesture]
+      () => Gesture.Simultaneous(Gesture.Race(doubleTap, tap, pan), hoverGesture, zoomPanGesture),
+      [doubleTap, tap, pan, hoverGesture, zoomPanGesture]
     );
 
     // 경로 렌더링 최적화: paths 배열이 변경될 때만 재렌더링
@@ -1282,7 +1421,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={!isZoomed}
+        scrollEnabled={!isZoomed}
         nestedScrollEnabled={true}
         keyboardShouldPersistTaps='handled'>
         <GestureDetector gesture={composedGesture}>
@@ -1295,20 +1435,24 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
               // 실제 컨테이너 너비 업데이트
               setContainerWidth(width);
             }}>
-            <Canvas style={[styles.canvas, { height: canvasHeight.current }]}>
-              {renderedPaths}
-              {currentPoints.current.length > 0 && (
-                <Path
-                  path={livePath.current}
-                  style='stroke'
-                  strokeWidth={strokeWidth}
-                  color={strokeColor}
-                  strokeCap='round'
-                  strokeJoin='round'
-                />
-              )}
-              {renderedTexts}
+            <Canvas style={[styles.canvas, { height: canvasHeight.current * scale.value }]}>
+              {/* 줌/팬이 적용되는 캔버스 콘텐츠 */}
+              <Group transform={canvasTransform}>
+                {renderedPaths}
+                {currentPoints.current.length > 0 && (
+                  <Path
+                    path={livePath.current}
+                    style='stroke'
+                    strokeWidth={strokeWidth}
+                    color={strokeColor}
+                    strokeCap='round'
+                    strokeJoin='round'
+                  />
+                )}
+                {renderedTexts}
+              </Group>
 
+              {/* 호버 커서는 화면 좌표 유지 (줌과 무관) */}
               <Group>
                 <Circle
                   cx={hoverX}
