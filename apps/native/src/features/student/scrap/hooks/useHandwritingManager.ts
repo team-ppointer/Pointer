@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { Alert } from 'react-native';
+import { Alert, AppState, AppStateStatus } from 'react-native';
 import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
 import { DrawingCanvasRef } from '../utils/skia/drawing';
 import { encodeHandwritingData, decodeHandwritingData } from '../utils/handwritingEncoder';
@@ -58,13 +58,13 @@ export function useHandwritingManager({
 
       return () => clearTimeout(loadTimer);
     }
-  }, [handwritingData, canvasRef, scrapId, isSaving]);
+  }, [handwritingData, canvasRef, scrapId]);
 
   // 저장하기 함수
   const handleSave = useCallback(
     (isAutoSave = false, targetScrapId?: number) => {
       if (!canvasRef.current) return Promise.resolve(false);
-      
+
       // 이미 저장 중이면 중복 저장 방지
       if (isSaving) {
         return Promise.resolve(false);
@@ -124,7 +124,7 @@ export function useHandwritingManager({
     [scrapId, canvasRef, updateHandwriting, onSaveSuccess, onSaveError, isSaving]
   );
 
-  // 10초마다 자동 저장
+  // 5초마다 자동 저장
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
       if (hasUnsavedChanges && !isSaving) {
@@ -133,6 +133,15 @@ export function useHandwritingManager({
     }, 5000); // 5초마다 실행
 
     return () => clearInterval(autoSaveInterval);
+  }, [hasUnsavedChanges, isSaving, handleSave]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (nextState === 'background' && hasUnsavedChanges && !isSaving) {
+        handleSave(true);
+      }
+    });
+    return () => subscription.remove();
   }, [hasUnsavedChanges, isSaving, handleSave]);
 
   return {

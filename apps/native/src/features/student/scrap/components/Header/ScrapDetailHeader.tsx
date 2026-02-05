@@ -27,7 +27,9 @@ export const ScrapDetailHeader = ({
   canGoBack = true,
   onMoveFolderPress,
 }: ScrapDetailHeaderProps) => {
+  const [lottiePlayed, setLottiePlayed] = useState(false);
   const lottieRef = useRef<LottieView>(null);
+
   const [localName, setLocalName] = useState(scrapName);
   const textInputRef = useRef<TextInput>(null);
 
@@ -37,9 +39,21 @@ export const ScrapDetailHeader = ({
   }, [scrapName]);
 
   useEffect(() => {
-    if (showSave && lottieRef.current) {
-      lottieRef.current.play();
-    }
+    if (!showSave) return;
+
+    setLottiePlayed(true);
+
+    const playWhenReady = () => {
+      if (lottieRef.current) {
+        lottieRef.current.play();
+      }
+    };
+
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(playWhenReady);
+    });
+
+    return () => cancelAnimationFrame(id);
   }, [showSave]);
 
   return (
@@ -52,12 +66,15 @@ export const ScrapDetailHeader = ({
         </Pressable>
       )}
       <View className='flex-row items-center gap-[10px]'>
-        {showSave && (
+        {lottiePlayed && (
           <LottieView
             style={{ width: 24, height: 24 }}
             source={require('../../../../../../assets/lottie/refetch_cw.json')}
             ref={lottieRef}
             loop={false}
+            onAnimationFinish={() => {
+              setLottiePlayed(false);
+            }}
           />
         )}
         <TooltipPopover
