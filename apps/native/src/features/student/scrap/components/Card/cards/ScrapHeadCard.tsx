@@ -20,9 +20,8 @@ interface ScrapHeadCardProps {
 }
 
 export const ScrapAddCard = (props: ScrapHeadCardProps) => {
-  const [isQnaImageModalVisible, setisQnaImageModalVisible] = useState(false);
   const isSelecting = props?.reducerState.isSelecting ?? false;
-  const { openCreateFolderModal } = useScrapModal();
+  const { openCreateFolderModal, openLoadQnaImageModal } = useScrapModal();
 
   const addItemContent = (
     <View className='h-full w-full items-center rounded-[10px]'>
@@ -56,7 +55,7 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
               onOpenQnaImgModal={() => {
                 close();
                 setTimeout(() => {
-                  setisQnaImageModalVisible(true);
+                  openLoadQnaImageModal();
                 }, 200);
               }}
             />
@@ -64,11 +63,6 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
           from={addItemContent}
         />
       )}
-      <LoadQnaImageModal
-        visible={isQnaImageModalVisible}
-        onClose={() => setisQnaImageModalVisible(false)}
-        onSuccess={() => {}}
-      />
     </>
   );
 };
