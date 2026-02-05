@@ -63,7 +63,7 @@ const ScrapHeader = ({
           {navigateback ? (
             <View className='absolute left-0 right-0 items-center'>
               <Text
-                className='text-20b text-center text-gray-900 md:max-w-[344px] lg:max-w-[464px]'
+                className='text-18b text-center text-gray-900 md:max-w-[344px] lg:max-w-[464px]'
                 numberOfLines={1}>
                 {title}
               </Text>
@@ -94,24 +94,24 @@ const ScrapHeader = ({
       {reducerState.isSelecting && (
         <View className='flex-col border-b border-gray-400 bg-gray-200'>
           <View className='flex-row justify-between px-5 py-0.5'>
-            <Pressable onPress={actions.onSelectAll}>
-              <Text className='text-14m gap-[10px] px-2.5 text-blue-500'>
+            <Pressable onPress={actions.onSelectAll} className='h-[48px]'>
+              <Text className='text-16sb gap-[10px] px-2.5 text-blue-500'>
                 {!isAllSelected ? '전체 선택' : '전체 해제'}
               </Text>
             </Pressable>
-            <Text className='text-16sb text-gray-800'>{title}</Text>
-            <Pressable onPress={actions.onExitSelection}>
-              <Text className='text-14sb w-[72px] gap-[10px] rounded-[6px] px-1 text-blue-500'>
+            <Text className='text-18b text-gray-800'>{title}</Text>
+            <Pressable onPress={actions.onExitSelection} className='h-[48px]'>
+              <Text className='text-16sb w-[72px] gap-[10px] rounded-[6px] px-1 text-gray-800'>
                 완료
               </Text>
             </Pressable>
           </View>
-          <View className='flex-row items-center justify-center gap-[50px] py-[6px]'>
+          <View className='flex-row items-center justify-center gap-[160px] py-[4px]'>
             <Pressable
               onPress={() => {
                 if (isActionEnabled && actions.onMove) actions.onMove();
               }}
-              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
+              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] px-[10px] py-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <ArrowRightLeft size={24} color={colors['primary-500']} />
               <Text className='text-12m text-primary-500'>이동</Text>
             </Pressable>
@@ -119,9 +119,9 @@ const ScrapHeader = ({
               onPress={() => {
                 if (isActionEnabled && actions.onDelete) actions.onDelete();
               }}
-              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
+              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] px-[10px] py-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Trash2 size={24} color={colors['red-400']} />
-              <Text className='text-12m text-red-400'>삭제</Text>
+              <Text className='text-12m text-red-400'>휴지통으로 이동</Text>
             </Pressable>
           </View>
         </View>

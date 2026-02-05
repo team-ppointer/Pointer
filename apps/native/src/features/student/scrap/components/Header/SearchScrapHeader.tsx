@@ -19,8 +19,7 @@ const SearchScrapHeader = ({
   setQuery,
   onSubmitEditing,
 }: SearchScrapHeaderProps) => {
-
-  const inputRef = useRef<TextInput>(null); 
+  const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     // 컴포넌트가 마운트될 때 자동으로 포커스
@@ -30,18 +29,17 @@ const SearchScrapHeader = ({
 
     return () => clearTimeout(timer);
   }, []);
-  
+
   return (
     <SafeAreaView edges={['top']} className='bg-gray-100'>
       <View className='flex-row items-center justify-between px-5 py-[14px]'>
-        <View className='flex-1 flex-row justify-center rounded-[8px] border-[1px] border-gray-500 bg-white px-3.5 py-2'>
+        <View className='h-[48px] flex-1 flex-row justify-center rounded-[8px] border-[1px] border-gray-500 bg-white px-3.5 py-2'>
           <TextInput
             ref={inputRef}
             className='text-18m flex-1 text-black'
             placeholder='스크랩 제목을 검색하세요.'
-            style={{ lineHeight: 27 }}
+            style={{ lineHeight: 20 }}
             multiline={false}
-            textAlignVertical='center'
             placeholderTextColor={colors['gray-500']}
             numberOfLines={1}
             value={query}
