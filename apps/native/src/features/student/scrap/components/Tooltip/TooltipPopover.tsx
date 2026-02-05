@@ -50,8 +50,6 @@ const TooltipPopover = ({
       popoverStyle={{
         alignItems: 'center',
         borderRadius: 10,
-        borderWidth: 1,
-        borderColor: colors['gray-400'],
         shadowColor: '#0F0F12',
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.1,
