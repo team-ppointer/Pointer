@@ -18,17 +18,17 @@ interface OrderItem {
  * 목록 화면 정렬 옵션 (폴더 + 스크랩)
  */
 export const orderList: OrderItem[] = [
-  { label: '유형순', value: 'TYPE' },
-  { label: '이름순', value: 'TITLE' },
   { label: '최신순', value: 'DATE' },
+  { label: '이름순', value: 'NAME' },
+  { label: '유형순', value: 'TYPE' },
 ];
 
 /**
  * 콘텐츠 화면 정렬 옵션 (스크랩만)
  */
 export const orderContent: OrderItem[] = [
-  { label: '이름순', value: 'TITLE' },
   { label: '최신순', value: 'DATE' },
+  { label: '이름순', value: 'NAME' },
 ];
 
 /**
@@ -95,22 +95,23 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
       labelField='label'
       valueField='value'
       value={orderValue}
-      onChange={(item) => setOrderValue(item.value)}
+      onChange={(item) => {
+        if (item.value === orderValue) {
+          setSortOrder((prev) => (prev === 'ASC' ? 'DESC' : 'ASC'));
+        } else {
+          setOrderValue(item.value);
+        }
+      }}
       onFocus={() => setIsFocus(true)}
       onBlur={() => setIsFocus(false)}
       renderRightIcon={() => (
-        <Pressable
-          onPress={(e) => {
-            e.stopPropagation();
-            setSortOrder((prev) => (prev === 'ASC' ? 'DESC' : 'ASC'));
-          }}
-          style={styles.sortOrderButton}>
+        <>
           {sortOrder === 'ASC' ? (
             <ChevronUpFilledIcon color={textColor} />
           ) : (
             <ChevronDownFilledIcon color={textColor} />
           )}
-        </Pressable>
+        </>
       )}
       renderItem={(item) => {
         const isSelected = item.value === orderValue;
@@ -129,15 +130,15 @@ export default SortDropdown;
 
 const styles = StyleSheet.create({
   dropdown: {
-    width: 80,
+    width: 71,
     height: 29,
-    gap: 2,
     alignItems: 'center',
     paddingTop: 4,
     paddingRight: 4,
     paddingLeft: 8,
     paddingBottom: 4,
     borderRadius: 4,
+    gap: 4,
   },
   sortOrderButton: {
     width: 20,
