@@ -47,7 +47,7 @@ const NotificationScreen = () => {
   const queryClient = useQueryClient();
   const isTablet = useIsTablet();
 
-  const { data: noticeData } = useGetNotice();
+  const { data: noticeData } = useGetNotice({ size: 2 });
   const { data: notificationData } = useGetNotification({ dayLimit: 7 });
   const { data: notificationCountData } = useGetNotificationCount({});
   const { invalidateAll: invalidateNotifications } = useInvalidateNotificationData();
@@ -77,7 +77,11 @@ const NotificationScreen = () => {
     }
   };
 
-  const handleNotificationPress = async (notificationId: number, url?: string, isRead?: boolean) => {
+  const handleNotificationPress = async (
+    notificationId: number,
+    url?: string,
+    isRead?: boolean
+  ) => {
     if (!isRead) {
       readNotification(notificationId);
     }
@@ -117,8 +121,7 @@ const NotificationScreen = () => {
         }
 
         const groups = publishDetail.data ?? [];
-        const targetGroup =
-          groups.find((group) => group.progress !== 'DONE') ?? groups[0];
+        const targetGroup = groups.find((group) => group.progress !== 'DONE') ?? groups[0];
 
         if (!targetGroup) {
           Alert.alert('알림', '진행할 문제가 없습니다.');
@@ -228,4 +231,3 @@ const NotificationScreen = () => {
 };
 
 export default NotificationScreen;
-

@@ -1,7 +1,14 @@
 import { TanstackQueryClient } from '@/apis/client';
+import { paths } from '@/types/api/schema';
 
-const useGetNotice = () => {
-  return TanstackQueryClient.useQuery('get', '/api/student/notice', {});
+type UseGetNoticeParams = paths['/api/student/notice']['get']['parameters']['query'];
+
+const useGetNotice = (params?: UseGetNoticeParams) => {
+  return TanstackQueryClient.useQuery('get', '/api/student/notice', {
+    params: {
+      query: params,
+    },
+  });
 };
 
 export default useGetNotice;

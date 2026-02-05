@@ -4324,6 +4324,15 @@ export interface components {
       unreadCount: number;
       latestNotification?: components['schemas']['NotificationResp'];
     };
+    PageRespNoticeResp: {
+      /** Format: int32 */
+      page: number;
+      /** Format: int32 */
+      size: number;
+      /** Format: int32 */
+      lastPage: number;
+      data: components['schemas']['NoticeResp'][];
+    };
     NoticeUnreadCountResp: {
       /** Format: int64 */
       totalCount?: number;
@@ -8622,7 +8631,10 @@ export interface operations {
   };
   getsAvailable_1: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: number;
+        size?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -8635,7 +8647,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespNoticeResp'];
+          '*/*': components['schemas']['PageRespNoticeResp'];
         };
       };
     };
