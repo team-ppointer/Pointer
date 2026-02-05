@@ -8,8 +8,7 @@ import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
 import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
-import { mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
-import { useQueryClient } from '@tanstack/react-query';
+import { mapUIKeyToAPIKey, sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder, ScrapSearchResponse } from '../utils/types';
 import { showToast } from '../components/Notification/Toast';
 import { useSearchScraps, useDeleteScrap, getScrapsByFolder } from '@/apis';
@@ -74,19 +73,16 @@ const ScrapScreenContent = () => {
     return [...folders, ...scraps];
   }, [searchData]);
 
-  // // 클라이언트 사이드 정렬 (TYPE 정렬 등 추가 정렬 로직 적용)
-  // deprecated
-  // const sortedData = useMemo(
-  //   () => sortScrapData(data, sortKey, sortOrder),
-  //   [data, sortKey, sortOrder]
-  // );
-
   const cleanupAfterDelete = (scrapIdsToRemove: number[]) => {
     if (scrapIdsToRemove.length > 0) {
       removeScrapsByIds(scrapIdsToRemove);
       closeNotesByScrapIds(scrapIdsToRemove);
     }
   };
+
+  const sortedData = useMemo(() => {
+    return sortScrapData(data, sortKey, sortOrder);
+  }, [data, sortKey, sortOrder]);
 
   const isAllSelected = data.length > 0 && reducerState.selectedItems.length === data.length;
 
@@ -198,7 +194,7 @@ const ScrapScreenContent = () => {
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <ScrapGrid
-              data={[{ ADD: true }, ...data]}
+              data={[{ ADD: true }, ...sortedData]}
               reducerState={reducerState}
               dispatch={dispatch}
             />
