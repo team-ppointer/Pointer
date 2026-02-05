@@ -11,7 +11,7 @@ const ScrapDefaultIcon = React.forwardRef<React.ComponentRef<typeof Svg>, Lucide
     const numericSize = typeof size === 'number' ? size : Number(size) || 48;
     const svgProps = hasStyleSize
       ? { ...rest, style }
-      : { width: numericSize, height: (numericSize * 116) / 99, ...rest, style };
+      : { width: numericSize, height: numericSize, ...rest, style };
 
     return (
       <Svg ref={ref} viewBox='0 0 99 116' fill='none' {...svgProps}>
