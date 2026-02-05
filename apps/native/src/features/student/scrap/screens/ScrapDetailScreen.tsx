@@ -77,7 +77,7 @@ const ScrapDetailScreen = () => {
     isLoading,
     refetch: refetchScrapDetail,
   } = useGetScrapDetail(scrapId, !!id);
-  const addScrap = useRecentScrapStore((state) => state.addScrap);
+  const addScrapId = useRecentScrapStore((state) => state.addScrapId);
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes, updateNoteTitle } =
     useNoteStore();
@@ -87,9 +87,9 @@ const ScrapDetailScreen = () => {
 
   React.useEffect(() => {
     if (scrapDetail) {
-      addScrap(scrapDetail);
+      addScrapId(scrapDetail.id);
     }
-  }, [scrapDetail, addScrap]);
+  }, [scrapDetail, addScrapId]);
 
   // scrapDetail이 로드되면 scrapName 동기화
   useEffect(() => {
