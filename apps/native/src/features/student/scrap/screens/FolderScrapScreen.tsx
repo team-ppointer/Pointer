@@ -30,7 +30,6 @@ const FolderScrapScreenContent = () => {
   const { openMoveScrapModal, setRefetchScraps, setRefetchFolders } = useScrapModal();
 
   // API 호출
-  const { data: foldersData, refetch: refetchFolders } = useGetFolders();
   const {
     data: data,
     isLoading,
@@ -47,11 +46,6 @@ const FolderScrapScreenContent = () => {
       setRefetchScraps(() => refetch);
     }
   }, [refetch, setRefetchScraps]);
-  useEffect(() => {
-    if (refetchFolders) {
-      setRefetchFolders(refetchFolders);
-    }
-  }, [refetchFolders, setRefetchFolders]);
 
   // 폴더 정보 가져오기
   const folder = data?.data?.find((f) => f.id === Number(id));
