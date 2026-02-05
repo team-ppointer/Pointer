@@ -6,6 +6,11 @@ import {
   parseTimestamp,
 } from '@/features/student/scrap/utils/types';
 
+function getSortTimestamp(item: ScrapItem | TrashItem): string {
+  if ('updatedAt' in item && item.updatedAt) return item.updatedAt;
+  return item.createdAt; // TrashItem은 createdAt에 deletedAt이 매핑됨
+}
+
 /**
  * 스크랩 데이터 정렬 함수
  *
@@ -34,20 +39,20 @@ export const sortScrapData = <T extends ScrapItem | TrashItem>(
           return (a.type === 'FOLDER' ? -1 : 1) * mul;
         }
         // 같은 타입: 생성일시 기준
-        const timestampA = parseTimestamp(a.createdAt);
-        const timestampB = parseTimestamp(b.createdAt);
+        const timestampA = parseTimestamp(getSortTimestamp(a));
+        const timestampB = parseTimestamp(getSortTimestamp(b));
         return (timestampA - timestampB) * mul;
       }
 
-      case 'TITLE': {
+      case 'NAME': {
         // 이름 기준 (한글 로케일 지원)
         return a.name.localeCompare(b.name, 'ko', { numeric: true }) * mul;
       }
 
       case 'DATE': {
         // 생성일시 기준
-        const timestampA = parseTimestamp(a.createdAt);
-        const timestampB = parseTimestamp(b.createdAt);
+        const timestampA = parseTimestamp(getSortTimestamp(a));
+        const timestampB = parseTimestamp(getSortTimestamp(b));
         return (timestampA - timestampB) * mul;
       }
 
@@ -75,7 +80,7 @@ export const mapUIKeyToAPIKey = (uiKey: UISortKey): 'CREATED_AT' | 'NAME' | 'TYP
       return 'TYPE';
     case 'DATE':
       return 'CREATED_AT';
-    case 'TITLE':
+    case 'NAME':
       return 'NAME';
     default:
       return 'CREATED_AT';
