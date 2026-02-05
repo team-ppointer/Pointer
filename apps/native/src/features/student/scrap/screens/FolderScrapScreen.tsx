@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import ScrapHeader from '../components/Header/ScrapHeader';
-import { useMemo, useState, useEffect } from 'react';
-import { sortScrapData, mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
+import { useState, useEffect, useMemo } from 'react';
+import { mapUIKeyToAPIKey, sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -62,12 +62,6 @@ const FolderScrapScreenContent = () => {
   const folder = data?.data?.find((f) => f.id === Number(id));
   const contents = data?.data || [];
 
-  // // 정렬된 데이터
-  // const sortedData = useMemo(
-  //   () => sortScrapData(contents, sortKey, sortOrder),
-  //   [contents, sortKey, sortOrder]
-  // );
-
   const cleanupAfterDelete = (items: SelectedItem[]) => {
     items.forEach((item) => {
       if (item.type === 'SCRAP') {
@@ -76,6 +70,9 @@ const FolderScrapScreenContent = () => {
       }
     });
   };
+  const sortedData = useMemo(() => {
+    return sortScrapData(contents, sortKey, sortOrder);
+  }, [contents, sortKey, sortOrder]);
 
   const isAllSelected =
     reducerState.selectedItems.length === contents.length && contents.length > 0;
@@ -148,7 +145,7 @@ const FolderScrapScreenContent = () => {
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
-            <ScrapGrid data={contents} reducerState={reducerState} dispatch={dispatch} />
+            <ScrapGrid data={sortedData} reducerState={reducerState} dispatch={dispatch} />
           )}
         </Container>
       </View>
