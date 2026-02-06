@@ -35,6 +35,9 @@ import {
 } from '@stores/problemSessionStore';
 import { formatPublishDateLabel } from '../utils/formatters';
 import ProblemViewer from '../components/ProblemViewer';
+import { DrawingCanvas, DrawingCanvasRef } from '../../scrap/utils/skia';
+import { DrawingToolbar } from '../../scrap/components/scrap/DrawingToolbar';
+import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 
 type ProblemScreenProps = Partial<NativeStackScreenProps<StudentRootStackParamList, 'Problem'>>;
 
@@ -356,6 +359,9 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
 
   const subtitle = publishDateLabel ?? '';
 
+  const canvasRef = useRef<DrawingCanvasRef>(null);
+  const drawingState = useDrawingState();
+
   return (
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
@@ -381,6 +387,36 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
 
             {/* Writing Area */}
             {/* <WritingArea /> */}
+            <DrawingToolbar
+              canUndo={drawingState.canUndo}
+              canRedo={drawingState.canRedo}
+              onUndo={() => canvasRef.current?.undo()}
+              onRedo={() => canvasRef.current?.redo()}
+              isEraserMode={drawingState.isEraserMode}
+              isTextMode={drawingState.isTextMode}
+              onPenModePress={drawingState.setPenMode}
+              onEraserModePress={() => {
+                if (drawingState.isEraserMode) {
+                  drawingState.setPenMode();
+                } else {
+                  drawingState.setEraserMode();
+                }
+              }}
+              onTextModePress={drawingState.setTextMode}
+              strokeWidth={drawingState.strokeWidth}
+              eraserSize={drawingState.eraserSize}
+              onStrokeWidthChange={drawingState.setStrokeWidth}
+              onEraserSizeChange={drawingState.setEraserSize}
+            />
+            <DrawingCanvas
+              ref={canvasRef}
+              strokeColor='#1E1E21'
+              strokeWidth={drawingState.strokeWidth}
+              textMode={drawingState.isTextMode}
+              eraserMode={drawingState.isEraserMode}
+              eraserSize={drawingState.eraserSize}
+              onHistoryChange={drawingState.setHistoryState}
+            />
           </Container>
         </ScrollView>
         <AnswerKeyboardSheet
