@@ -385,38 +385,41 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
               />
             </View>
 
-            {/* Writing Area */}
-            {/* <WritingArea /> */}
-            <DrawingToolbar
-              canUndo={drawingState.canUndo}
-              canRedo={drawingState.canRedo}
-              onUndo={() => canvasRef.current?.undo()}
-              onRedo={() => canvasRef.current?.redo()}
-              isEraserMode={drawingState.isEraserMode}
-              isTextMode={drawingState.isTextMode}
-              onPenModePress={drawingState.setPenMode}
-              onEraserModePress={() => {
-                if (drawingState.isEraserMode) {
-                  drawingState.setPenMode();
-                } else {
-                  drawingState.setEraserMode();
-                }
-              }}
-              onTextModePress={drawingState.setTextMode}
-              strokeWidth={drawingState.strokeWidth}
-              eraserSize={drawingState.eraserSize}
-              onStrokeWidthChange={drawingState.setStrokeWidth}
-              onEraserSizeChange={drawingState.setEraserSize}
-            />
-            <DrawingCanvas
-              ref={canvasRef}
-              strokeColor='#1E1E21'
-              strokeWidth={drawingState.strokeWidth}
-              textMode={drawingState.isTextMode}
-              eraserMode={drawingState.isEraserMode}
-              eraserSize={drawingState.eraserSize}
-              onHistoryChange={drawingState.setHistoryState}
-            />
+            <View className='h-[355px] rounded-[8px] border border-gray-400'>
+              <View className='items-center'>
+                <DrawingToolbar
+                  canUndo={drawingState.canUndo}
+                  canRedo={drawingState.canRedo}
+                  onUndo={() => canvasRef.current?.undo()}
+                  onRedo={() => canvasRef.current?.redo()}
+                  isEraserMode={drawingState.isEraserMode}
+                  enableTextMode={false}
+                  isTextMode={drawingState.isTextMode}
+                  onPenModePress={drawingState.setPenMode}
+                  onEraserModePress={() => {
+                    if (drawingState.isEraserMode) {
+                      drawingState.setPenMode();
+                    } else {
+                      drawingState.setEraserMode();
+                    }
+                  }}
+                  onTextModePress={drawingState.setTextMode}
+                  strokeWidth={drawingState.strokeWidth}
+                  eraserSize={drawingState.eraserSize}
+                  onStrokeWidthChange={drawingState.setStrokeWidth}
+                  onEraserSizeChange={drawingState.setEraserSize}
+                />
+              </View>
+              <DrawingCanvas
+                ref={canvasRef}
+                strokeColor='#1E1E21'
+                strokeWidth={drawingState.strokeWidth}
+                textMode={drawingState.isTextMode}
+                eraserMode={drawingState.isEraserMode}
+                eraserSize={drawingState.eraserSize}
+                onHistoryChange={drawingState.setHistoryState}
+              />
+            </View>
           </Container>
         </ScrollView>
         <AnswerKeyboardSheet
