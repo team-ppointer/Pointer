@@ -1388,7 +1388,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   container: { minHeight: 400, position: 'relative' },
-  canvas: { width: '100%', backgroundColor: 'white' },
+  canvas: { width: '100%', backgroundColor: 'transparent' },
   textInputWrapper: {
     position: 'absolute',
     backgroundColor: 'transparent',
