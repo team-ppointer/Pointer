@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Animated,
+  Dimensions,
   LayoutChangeEvent,
   ScrollView,
   StyleSheet,
@@ -362,6 +363,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const canvasRef = useRef<DrawingCanvasRef>(null);
   const drawingState = useDrawingState();
 
+  const screenHeight = Dimensions.get('window').height;
+
   return (
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
@@ -376,49 +379,57 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
         <ScrollView>
           <Container className='flex-1'>
             {/* Problem */}
-            <View className='my-[10px] overflow-hidden rounded-[8px] bg-white'>
+            <View
+              className='my-[10px] overflow-hidden rounded-[8px] bg-white'
+              style={{ position: 'relative', height: screenHeight - 200 }}>
+              {/* 아래층: ProblemViewer */}
               <ProblemViewer
                 problemContent={currentProblem?.problemContent ?? ''}
                 minHeight={200}
                 padding={20}
                 fontStyle='serif'
               />
-            </View>
 
-            <View className='h-[355px] rounded-[8px] border border-gray-400'>
-              <View className='items-center'>
-                <DrawingToolbar
-                  canUndo={drawingState.canUndo}
-                  canRedo={drawingState.canRedo}
-                  onUndo={() => canvasRef.current?.undo()}
-                  onRedo={() => canvasRef.current?.redo()}
-                  isEraserMode={drawingState.isEraserMode}
-                  enableTextMode={false}
-                  isTextMode={drawingState.isTextMode}
-                  onPenModePress={drawingState.setPenMode}
-                  onEraserModePress={() => {
-                    if (drawingState.isEraserMode) {
-                      drawingState.setPenMode();
-                    } else {
-                      drawingState.setEraserMode();
-                    }
-                  }}
-                  onTextModePress={drawingState.setTextMode}
-                  strokeWidth={drawingState.strokeWidth}
-                  eraserSize={drawingState.eraserSize}
-                  onStrokeWidthChange={drawingState.setStrokeWidth}
-                  onEraserSizeChange={drawingState.setEraserSize}
-                />
+              {/* 위층: DrawingCanvas - ProblemViewer 위에 겹쳐짐 */}
+              <View
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                pointerEvents='box-none'>
+                <View pointerEvents='auto'>
+                  <DrawingToolbar
+                    canUndo={drawingState.canUndo}
+                    canRedo={drawingState.canRedo}
+                    onUndo={() => canvasRef.current?.undo()}
+                    onRedo={() => canvasRef.current?.redo()}
+                    isEraserMode={drawingState.isEraserMode}
+                    enableTextMode={false}
+                    isTextMode={drawingState.isTextMode}
+                    onPenModePress={drawingState.setPenMode}
+                    onEraserModePress={() => {
+                      if (drawingState.isEraserMode) {
+                        drawingState.setPenMode();
+                      } else {
+                        drawingState.setEraserMode();
+                      }
+                    }}
+                    onTextModePress={drawingState.setTextMode}
+                    strokeWidth={drawingState.strokeWidth}
+                    eraserSize={drawingState.eraserSize}
+                    onStrokeWidthChange={drawingState.setStrokeWidth}
+                    onEraserSizeChange={drawingState.setEraserSize}
+                  />
+                </View>
+                <View style={{ flex: 1 }} pointerEvents='auto'>
+                  <DrawingCanvas
+                    ref={canvasRef}
+                    strokeColor='#1E1E21'
+                    strokeWidth={drawingState.strokeWidth}
+                    textMode={drawingState.isTextMode}
+                    eraserMode={drawingState.isEraserMode}
+                    eraserSize={drawingState.eraserSize}
+                    onHistoryChange={drawingState.setHistoryState}
+                  />
+                </View>
               </View>
-              <DrawingCanvas
-                ref={canvasRef}
-                strokeColor='#1E1E21'
-                strokeWidth={drawingState.strokeWidth}
-                textMode={drawingState.isTextMode}
-                eraserMode={drawingState.isEraserMode}
-                eraserSize={drawingState.eraserSize}
-                onHistoryChange={drawingState.setHistoryState}
-              />
             </View>
           </Container>
         </ScrollView>
