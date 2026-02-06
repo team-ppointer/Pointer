@@ -51,6 +51,7 @@ import {
   shouldShowProblem,
   shouldShowPointing,
   hasVisiblePointings,
+  shouldShowAnalysisSection,
 } from '../utils/scrapFilters';
 import { showToast } from '../components/Notification/Toast';
 import { withScrapModals } from '../hoc/withScrapModals';
@@ -58,6 +59,9 @@ import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { ExplanationSection } from '../components/scrap/ExplanationSection';
 import { useQueryClient } from '@tanstack/react-query';
+import ProblemViewer from '../../problem/components/ProblemViewer';
+import { BookmarkIcon } from 'lucide-react-native';
+import { AnalysisSection } from '../components/scrap/AnalysisSection';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
@@ -288,6 +292,16 @@ const ScrapDetailScreen = () => {
   // Visible content checks
   const showProblem = shouldShowProblem(uiState.selectedFilter);
   const hasPointings = hasVisiblePointings(scrapDetail, uiState.selectedFilter);
+  const hasReadingTip = shouldShowAnalysisSection(
+    uiState.selectedFilter,
+    'readingTip',
+    pointingsWithLabels.length
+  );
+  const hasOneStepMore = shouldShowAnalysisSection(
+    uiState.selectedFilter,
+    'oneStepMore',
+    pointingsWithLabels.length
+  );
   const showExplanation = uiState.selectedFilter === 0;
   const hasExplanation = !!(
     scrapDetail?.pointings && scrapDetail.pointings.some((pointing) => pointing.commentContent)
@@ -561,6 +575,24 @@ const ScrapDetailScreen = () => {
                   <PointingsList
                     pointingsWithLabels={pointingsWithLabels}
                     shouldShowPointing={(idx) => shouldShowPointing(uiState.selectedFilter, idx)}
+                  />
+                )}
+
+                {hasPointings && <View className='h-[1px] w-full bg-gray-400' />}
+
+                {/* AnalysisSection */}
+                {hasReadingTip && (
+                  <AnalysisSection
+                    label='문제를 읽어내려갈 때'
+                    content={scrapDetail.problem?.readingTipContent || ''}
+                    isScraped={scrapDetail.isReadingTipScrapped || undefined}
+                  />
+                )}
+                {hasOneStepMore && (
+                  <AnalysisSection
+                    label='한 걸음 더'
+                    content={scrapDetail.problem?.oneStepMoreContent || ''}
+                    isScraped={scrapDetail.isOneStepMoreScrapped || undefined}
                   />
                 )}
               </View>
