@@ -1,15 +1,7 @@
 import { colors } from '@/theme/tokens';
-import {
-  ArrowRightLeft,
-  BookImage,
-  BookOpenText,
-  FileSymlink,
-  FolderOpen,
-  ImagePlay,
-  Trash2,
-} from 'lucide-react-native';
-import { useState } from 'react';
-import { TextInput, View, Alert } from 'react-native';
+import { ArrowRightLeft, BookImage, BookOpenText, Trash2 } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { TextInput, View } from 'react-native';
 import { showToast } from '../Notification/Toast';
 import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
@@ -17,20 +9,15 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import {
   useUpdateScrapName,
-  useUpdateFolder,
   useUpdateFolderName,
   useUpdateFolderThumbnail,
   useDeleteScrap,
   useGetScrapDetail,
   useGetFolders,
   useUploadFile,
-  useGetScrapsByFolder,
 } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import {
-  openImageLibrary,
-  openImageLibraryWithErrorHandling,
-} from '../../utils/images/imagePicker';
+import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
 
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
@@ -106,13 +93,16 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
     }
   };
 
-  // 초기 제목 설정
-  const initialTitle =
+  const sourceTitle =
     props.type === 'SCRAP'
-      ? scrapDetail?.name || props.name
-      : foldersData?.data?.find((f) => f.id === props.id)?.name || props.name;
+      ? (scrapDetail?.name ?? props.name)
+      : (foldersData?.data?.find((f) => f.id === props.id)?.name ?? props.name);
 
-  const [text, setText] = useState(initialTitle);
+  const [text, setText] = useState(sourceTitle);
+
+  useEffect(() => {
+    setText(sourceTitle);
+  }, [sourceTitle]);
 
   const handleClose = () => {
     onClose?.();
@@ -159,13 +149,12 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
         <View className='h-[32px] w-full rounded-[6px] bg-gray-300 px-[6px] py-1'>
           <TextInput
             className='text-16m flex-1 text-black'
-            numberOfLines={1}
             style={{ lineHeight: 20, paddingVertical: 0 }}
             value={text}
             onChangeText={setText}
             onEndEditing={async () => {
               const trimmedText = text.trim();
-              if (trimmedText.length > 0 && trimmedText !== initialTitle) {
+              if (trimmedText.length > 0 && trimmedText !== sourceTitle) {
                 try {
                   if (props.type === 'FOLDER') {
                     await updateFolderName({
@@ -185,7 +174,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
                 }
                 invalidateScrapSearchQueries(queryClient);
               } else {
-                setText(initialTitle);
+                setText(sourceTitle);
               }
             }}
           />
