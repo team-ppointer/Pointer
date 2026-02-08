@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from 'react-native';
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
 import { useDebounce } from '@hooks';
-import useGetEmailExists from '@apis/controller/student/auth/useGetEmailExists';
+import { getEmailExists } from '@apis/controller/student/auth/getEmailExists';
 import { useAuthStore } from '@/stores';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,39 +15,36 @@ const EmailStep = ({ navigation }: OnboardingScreenProps<'Email'>) => {
 
   const [email, setEmailInput] = useState(storedEmail);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const isValidEmail = emailRegex.test(email.toLowerCase());
   const debouncedEmail = useDebounce(email.trim().toLowerCase(), 300);
+  const isValidEmail = emailRegex.test(debouncedEmail);
 
-  const { data: emailExistsData, isFetching } = useGetEmailExists({
-    email: debouncedEmail,
-    enabled: isValidEmail && debouncedEmail.length > 0,
-  });
-
-  const emailExists = emailExistsData?.value ?? false;
-
-  useEffect(() => {
-    if (emailExists && !isFetching) {
-      setError('이미 가입된 이메일입니다.');
-    }
-  }, [emailExists, isFetching]);
-
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!isValidEmail) {
       setError('올바른 이메일 형식을 입력해 주세요.');
       return;
     }
 
-    if (emailExists) {
-      setError('이미 가입된 이메일입니다.');
-      return;
-    }
+    setIsLoading(true);
+    try {
+      const data = await getEmailExists(debouncedEmail);
 
-    setEmail(email);
-    navigation.navigate('Identity');
+      if (data?.value) {
+        setError('이미 가입된 이메일입니다.');
+        return;
+      }
+
+      setEmail(email);
+      navigation.navigate('Identity');
+    } catch {
+      setError('이메일 확인 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const isNextDisabled = !email || isFetching || emailExists;
+  const isNextDisabled = !email || !isValidEmail || isLoading;
 
   return (
     <OnboardingLayout

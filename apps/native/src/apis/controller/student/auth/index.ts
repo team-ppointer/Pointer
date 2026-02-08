@@ -9,7 +9,7 @@ import postRefreshToken from './postRefreshToken';
 import postRegister from './postRegister';
 import postSignUpLocal from './postSignUpLocal';
 import postSocialLogin from './postSocialLogin';
-import useGetEmailExists from './useGetEmailExists';
+import { getEmailExists, useGetEmailExists } from './getEmailExists';
 
 export type { OAuthNativeRequest, OAuthNativeResponse, OAuthNativeUser } from './postOauthNative';
 
@@ -25,5 +25,6 @@ export {
   postRegister,
   postSignUpLocal,
   postSocialLogin,
+  getEmailExists,
   useGetEmailExists,
 };
