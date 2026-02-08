@@ -65,7 +65,7 @@ import { AnalysisSection } from '../components/scrap/AnalysisSection';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
-const DRAG_HANDLE_WIDTH = 4;
+const DRAG_HANDLE_WIDTH = 6;
 const DIVIDER_WIDTH = 8;
 const DRAG_HANDLE_GAP = 10;
 
