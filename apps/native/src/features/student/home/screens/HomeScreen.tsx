@@ -8,7 +8,6 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore, useHomeStore } from '@stores';
 import {
-  useGetNotice,
   useGetLastDiagnosis,
   useGetMonthlyPublish,
   useGetPublishDetail,
