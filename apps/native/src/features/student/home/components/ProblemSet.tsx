@@ -94,7 +94,7 @@ const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
   return (
     <View className='flex-row items-center gap-[8px] py-[2px]'>
       <Text className='text-16m text-black'>{title}</Text>
-      <View className={`p-[4px] ${bgColor}`}>
+      <View className={`p-[4px] rounded-[4px] ${bgColor}`}>
         <Icon color={color} size={14} strokeWidth={2.5} />
       </View>
     </View>
@@ -138,8 +138,8 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
           {statusMeta.buttonLabel}
         </TextButton>
       </View>
-      {problems.length > 0 && <Divider />}
-      {problems.map((problem) => (
+      {group.problem.progress === 'INCORRECT' && problems.length > 0 && <Divider />}
+      {group.problem.progress === 'INCORRECT' && problems.map((problem) => (
         <ProblemItem key={problem.key} title={problem.title} status={problem.status} />
       ))}
     </View>
