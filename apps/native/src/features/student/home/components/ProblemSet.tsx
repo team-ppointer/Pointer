@@ -138,8 +138,8 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
           {statusMeta.buttonLabel}
         </TextButton>
       </View>
-      {problems.length > 0 && <Divider />}
-      {problems.map((problem) => (
+      {group.problem.progress === 'INCORRECT' && problems.length > 0 && <Divider />}
+      {group.problem.progress === 'INCORRECT' && problems.map((problem) => (
         <ProblemItem key={problem.key} title={problem.title} status={problem.status} />
       ))}
     </View>
