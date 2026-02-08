@@ -52,9 +52,11 @@ export const LoadQnaImageModal = () => {
       await createScrapFromImage({
         imageId: selectedId,
       });
-      showToast('success', '스크랩이 생성되었습니다.');
       closeLoadQnaImageModal();
       refetchScraps?.();
+      setTimeout(() => {
+        showToast('success', '스크랩이 생성되었습니다.');
+      }, 0);
     } catch (error: any) {
       showToast('error', error.message);
     } finally {

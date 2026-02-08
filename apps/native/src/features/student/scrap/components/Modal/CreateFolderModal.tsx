@@ -53,7 +53,6 @@ export const CreateFolderModal = () => {
         return files[0].id;
       } catch (error: any) {
         showToast('error', error.message);
-        throw error; // 에러를 다시 throw하여 상위에서 처리 가능하도록
       }
     }
     return null;
@@ -77,10 +76,12 @@ export const CreateFolderModal = () => {
         thumbnailImageId: uploadedImageId ?? undefined,
       });
 
-      showToast('success', '폴더가 추가되었습니다.');
       closeCreateFolderModal();
       refetchFolders?.();
       refetchScraps?.();
+      setTimeout(() => {
+        showToast('success', '폴더가 추가되었습니다.');
+      }, 0);
     } catch (error: any) {
       showToast('error', error.message);
     } finally {
@@ -98,8 +99,6 @@ export const CreateFolderModal = () => {
 
     return () => clearTimeout(timer);
   }, []);
-
-
 
   return (
     <AddFolderScreenModal
