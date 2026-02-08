@@ -222,10 +222,36 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     }
   }, [answer, closeKeyboard, currentProblem?.id, isSubmitting, openResultSheet, publishId]);
 
-  const handleIDontKnow = useCallback(() => {
-    setAnswer('');
-    closeKeyboard();
-  }, [closeKeyboard]);
+  const handleIDontKnow = useCallback(async () => {
+    if (isSubmitting) {
+      return;
+    }
+    if (!publishId || !currentProblem?.id) {
+      Alert.alert('문제를 불러올 수 없어요.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await postAnswer(publishId, currentProblem.id, null);
+      if (!response?.data) {
+        throw new Error('Missing submission response');
+      }
+
+      const { isCorrect } = response.data;
+      setIsAnswerCorrect(isCorrect);
+      setProblemProgress(isCorrect ? 'CORRECT' : 'INCORRECT');
+      setIncorrectAttemptCount((prev) => (isCorrect ? 0 : prev + 1));
+      setAnswer('');
+      closeKeyboard();
+      openResultSheet();
+    } catch (error) {
+      console.error('Failed to submit answer', error);
+      Alert.alert('답안을 제출할 수 없어요.', '잠시 후 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [closeKeyboard, currentProblem?.id, isSubmitting, openResultSheet, publishId]);
 
   const handleDeleteDigit = useCallback(() => {
     setAnswer((prev) => prev.slice(0, -1));
