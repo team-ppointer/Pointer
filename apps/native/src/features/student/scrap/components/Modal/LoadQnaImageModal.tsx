@@ -32,6 +32,13 @@ export const LoadQnaImageModal = () => {
     order: sortOrder,
   });
 
+  // 모달이 닫힐 때 상태 초기화
+  useEffect(() => {
+    if (!isLoadQnaImageModalVisible) {
+      setSelectedId(null);
+    }
+  }, [isLoadQnaImageModalVisible]);
+
   const NUM_COLUMNS = 4;
   const GAP = 5;
   const IMAGE_SIZE = (containerWidth - GAP * (NUM_COLUMNS + 1)) / NUM_COLUMNS;
