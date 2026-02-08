@@ -130,10 +130,10 @@ export const CreateFolderModal = () => {
                 </View>
               )}
             </Pressable>
-            <View className='h-[40px] w-full rounded-[8px] border border-gray-400 bg-white px-3 py-2'>
+            <View className='h-[40px] w-full rounded-[8px] border border-gray-500 bg-gray-200 px-3'>
               <TextInput
                 ref={inputRef}
-                className='text-16sb text-black'
+                className='text-16sb flex-1 text-black'
                 placeholder='제목없음'
                 style={{ lineHeight: 20, paddingVertical: 0 }}
                 placeholderTextColor={colors['gray-500']}
