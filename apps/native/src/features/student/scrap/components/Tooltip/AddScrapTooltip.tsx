@@ -9,6 +9,7 @@ import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
 import { showToast } from '../Notification/Toast';
 import { useState } from 'react';
+import { useScrapModal } from '../../contexts/ScrapModalsContext';
 
 export interface AddScrapTooltipProps {
   onClose?: () => void;
@@ -26,6 +27,7 @@ export const AddScrapTooltip = ({
 }: AddScrapTooltipProps) => {
   const { mutateAsync: createScrapFromImage } = useCreateScrapFromImage();
   const { mutateAsync: uploadFile } = useUploadFile();
+  const { refetchScraps } = useScrapModal();
 
   const [isCreating, setIsCreating] = useState(false);
 
@@ -46,6 +48,7 @@ export const AddScrapTooltip = ({
 
       showToast('success', '스크랩이 생성되었습니다.');
       onClose?.();
+      refetchScraps?.();
     } catch (error) {
       showToast('error', (error as any).message || '스크랩 생성에 실패했습니다.');
     } finally {
