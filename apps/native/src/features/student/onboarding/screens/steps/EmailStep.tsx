@@ -4,7 +4,7 @@ import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
 import { useDebounce } from '@hooks';
-import { client } from '@apis/client';
+import { getEmailExists } from '@apis/controller/student/auth/getEmailExists';
 import { useAuthStore } from '@/stores';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,13 +28,7 @@ const EmailStep = ({ navigation }: OnboardingScreenProps<'Email'>) => {
 
     setIsLoading(true);
     try {
-      const { data } = await client.GET('/api/student/auth/email/exists', {
-        params: {
-          query: {
-            email: debouncedEmail,
-          },
-        },
-      });
+      const data = await getEmailExists(debouncedEmail);
 
       if (data?.value) {
         setError('이미 가입된 이메일입니다.');
