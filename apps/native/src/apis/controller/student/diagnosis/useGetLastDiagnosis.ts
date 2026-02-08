@@ -8,6 +8,8 @@ const useGetLastDiagnosis = () => {
       const response = await client.GET('/api/student/diagnosis/last');
       return response.data ?? null;
     },
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 };
 

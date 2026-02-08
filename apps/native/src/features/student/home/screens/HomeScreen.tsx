@@ -6,9 +6,8 @@ import ProblemCalendar from '../components/ProblemCalendar';
 import ProblemSet from '../components/ProblemSet';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useAuthStore } from '@stores';
+import { useAuthStore, useHomeStore } from '@stores';
 import {
-  useGetNotice,
   useGetLastDiagnosis,
   useGetMonthlyPublish,
   useGetPublishDetail,
@@ -23,13 +22,17 @@ import { useInvalidateAll } from '@hooks';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedPublishId, setSelectedPublishId] = useState<number>(-1);
+  const {
+    selectedMonth,
+    selectedDate,
+    selectedPublishId,
+    setSelectedMonth,
+    setSelectedDate,
+    setSelectedPublishId,
+  } = useHomeStore();
   const [isCalendarModalVisible, setIsCalendarModalVisible] = useState(false);
   const studentName = useAuthStore((state) => state.studentProfile?.name);
 
-  const { data: noticeData } = useGetNotice();
   const { data: diagnosisData } = useGetLastDiagnosis();
   const { data: studyData } = useGetMonthlyPublish({
     year: selectedMonth.getFullYear(),
