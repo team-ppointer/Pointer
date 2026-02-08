@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
   Pressable,
 } from 'react-native';
-import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { RouteProp, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
@@ -160,6 +160,15 @@ const ScrapDetailScreen = () => {
     }
   }, [refetchScrapDetail, setRefetchScrapDetail]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (activeNoteId !== scrapId) {
+        return;
+      }
+      refetchScrapDetail();
+    }, [refetchScrapDetail, activeNoteId, scrapId])
+  );
+
   useEffect(() => {
     return () => {
       queryClient.invalidateQueries({
@@ -208,7 +217,11 @@ const ScrapDetailScreen = () => {
   // Active note sync
   useEffect(() => {
     if (activeNoteId && activeNoteId !== scrapId) {
-      navigation.setParams({ id: String(activeNoteId) });
+      try {
+        navigation.setParams({ id: String(activeNoteId) });
+      } catch (error) {
+        showToast('error', '스크랩 상세 페이지 이동에 실패했습니다.');
+      }
     }
   }, [activeNoteId, scrapId, navigation]);
 
@@ -272,8 +285,7 @@ const ScrapDetailScreen = () => {
         clearTimeout(indicatorTimeoutRef.current);
       }
     };
-    // uiState 객체 대신 필요한 메서드만 dependency에 포함
-  }, []);
+  }, [scrapId]);
 
   // Derived state - Pointings with labels
   const pointingsWithLabels = useMemo(() => {
@@ -315,7 +327,7 @@ const ScrapDetailScreen = () => {
       group,
       problemSetTitle: scrapDetail?.name || '스크랩',
     });
-  }, [scrapDetail, navigation]);
+  }, [scrapDetail?.pointings, navigation]);
 
   const handleTabLayout = useCallback((noteId: number, event: LayoutChangeEvent) => {
     const { x, width } = event.nativeEvent.layout;
@@ -539,6 +551,7 @@ const ScrapDetailScreen = () => {
                 {showProblem &&
                   (scrapDetail.problem?.problemContent || scrapDetail.thumbnailUrl) && (
                     <ProblemSection
+                      key={`problem-${scrapId}`}
                       problemContent={scrapDetail.problem?.problemContent}
                       thumbnailUrl={scrapDetail.thumbnailUrl}
                       isHovering={uiState.isHoveringProblem}
