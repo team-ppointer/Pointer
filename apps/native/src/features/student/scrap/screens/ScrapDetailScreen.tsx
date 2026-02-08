@@ -307,13 +307,16 @@ const ScrapDetailScreen = () => {
   const hasReadingTip = shouldShowAnalysisSection(
     uiState.selectedFilter,
     'readingTip',
-    pointingsWithLabels.length
+    pointingsWithLabels.length,
+    scrapDetail
   );
   const hasOneStepMore = shouldShowAnalysisSection(
     uiState.selectedFilter,
     'oneStepMore',
-    pointingsWithLabels.length
+    pointingsWithLabels.length,
+    scrapDetail
   );
+
   const showExplanation = uiState.selectedFilter === 0;
   const hasExplanation = !!(
     scrapDetail?.pointings && scrapDetail.pointings.some((pointing) => pointing.commentContent)
@@ -539,9 +542,12 @@ const ScrapDetailScreen = () => {
                     selectedFilter={uiState.selectedFilter}
                     onFilterChange={uiState.setSelectedFilter}
                     showViewAll={
-                      !!scrapDetail.pointings &&
-                      scrapDetail.pointings.length > 0 &&
-                      !!scrapDetail.problem
+                      (!!scrapDetail.problem &&
+                        ((scrapDetail.problem?.readingTipContent &&
+                          scrapDetail.problem?.readingTipContent.length > 0) ||
+                          (scrapDetail.problem?.oneStepMoreContent &&
+                            scrapDetail.problem?.oneStepMoreContent.length > 0))) ||
+                      (!!scrapDetail.pointings && scrapDetail.pointings.length > 0)
                     }
                     onViewAll={handleViewAllPointings}
                   />

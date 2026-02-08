@@ -65,10 +65,20 @@ export function shouldShowPointing(selectedFilter: number, pointingIndex: number
 export function shouldShowAnalysisSection(
   selectedFilter: number,
   sectionType: 'readingTip' | 'oneStepMore',
-  pointingsCount: number
+  pointingsCount: number,
+  scrapDetail?: ScrapExtendResp // 추가
 ): boolean {
   // 전체 선택 시 모두 표시
-  if (selectedFilter === 0) return true;
+  if (selectedFilter === 0) {
+    // content가 실제로 있는지 확인
+    if (sectionType === 'readingTip') {
+      return !!(scrapDetail?.problem?.readingTipContent && scrapDetail.isReadingTipScrapped);
+    }
+    if (sectionType === 'oneStepMore') {
+      return !!(scrapDetail?.problem?.oneStepMoreContent && scrapDetail.isOneStepMoreScrapped);
+    }
+    return false;
+  }
 
   // readingTip 인덱스: pointingsCount + 2
   // oneStepMore 인덱스: pointingsCount + 3
@@ -76,10 +86,16 @@ export function shouldShowAnalysisSection(
   const oneStepMoreIndex = pointingsCount + 3;
 
   if (sectionType === 'readingTip') {
-    return selectedFilter === readingTipIndex;
+    return (
+      selectedFilter === readingTipIndex &&
+      !!(scrapDetail?.problem?.readingTipContent && scrapDetail.isReadingTipScrapped)
+    );
   }
   if (sectionType === 'oneStepMore') {
-    return selectedFilter === oneStepMoreIndex;
+    return (
+      selectedFilter === oneStepMoreIndex &&
+      !!(scrapDetail?.problem?.oneStepMoreContent && scrapDetail.isOneStepMoreScrapped)
+    );
   }
   return false;
 }
