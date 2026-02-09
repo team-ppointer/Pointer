@@ -21,9 +21,6 @@ export interface DrawingToolbarProps {
   onEraserModePress: () => void;
   onTextModePress?: () => void;
 
-  //
-  enableTextMode?: boolean;
-
   // Size selection
   strokeWidth: number;
   eraserSize: number;
@@ -44,7 +41,6 @@ export const DrawingToolbar = ({
   onRedo,
   isEraserMode,
   isTextMode,
-  enableTextMode = true,
   onPenModePress,
   onEraserModePress,
   onTextModePress,
@@ -136,19 +132,17 @@ export const DrawingToolbar = ({
             size={36}
             radius={8}
           />
-          {enableTextMode && (
-            <IconButton
-              icon={Type}
-              disabled={!isTextMode}
-              backgroundColor='bg-blue-200'
-              disabledBackgroundColor='bg-gray-100'
-              iconColor={colors['primary-500']}
-              disabledColor={colors['gray-700']}
-              onPress={onTextModePress!}
-              size={36}
-              radius={8}
-            />
-          )}
+          <IconButton
+            icon={Type}
+            disabled={!isTextMode}
+            backgroundColor='bg-blue-200'
+            disabledBackgroundColor='bg-gray-100'
+            iconColor={colors['primary-500']}
+            disabledColor={colors['gray-700']}
+            onPress={onTextModePress!}
+            size={36}
+            radius={8}
+          />
         </View>
 
         {!isNarrow && <View className='h-[22px] w-[2px] bg-gray-500' />}
