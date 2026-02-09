@@ -39,6 +39,7 @@ import ProblemViewer from '../components/ProblemViewer';
 import { DrawingCanvas, DrawingCanvasRef } from '../../scrap/utils/skia';
 import { DrawingToolbar } from '../../scrap/components/scrap/DrawingToolbar';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
+import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
 
 type ProblemScreenProps = Partial<NativeStackScreenProps<StudentRootStackParamList, 'Problem'>>;
 
@@ -376,11 +377,40 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           </Header.TitleGroup>
         </Header>
 
+        <View
+          style={{
+            position: 'absolute',
+            left: 16,
+            top: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            zIndex: 100,
+          }}
+          pointerEvents='box-none'>
+          <View pointerEvents='auto'>
+            <ProblemDrawingToolbar
+              canUndo={drawingState.canUndo}
+              canRedo={drawingState.canRedo}
+              onUndo={() => canvasRef.current?.undo()}
+              onRedo={() => canvasRef.current?.redo()}
+              isEraserMode={drawingState.isEraserMode}
+              onPenModePress={drawingState.setPenMode}
+              onEraserModePress={() => {
+                if (drawingState.isEraserMode) {
+                  drawingState.setPenMode();
+                } else {
+                  drawingState.setEraserMode();
+                }
+              }}
+            />
+          </View>
+        </View>
+
         <ScrollView>
           <Container className='flex-1'>
             {/* Problem */}
             <View
-              className='my-[10px] overflow-hidden rounded-[8px] bg-white'
+              className='rounded-[8px my-[10px] overflow-hidden'
               style={{ position: 'relative', height: screenHeight - 200 }}>
               {/* 아래층: ProblemViewer */}
               <ProblemViewer
@@ -394,30 +424,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
               <View
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
                 pointerEvents='box-none'>
-                <View pointerEvents='auto'>
-                  <DrawingToolbar
-                    canUndo={drawingState.canUndo}
-                    canRedo={drawingState.canRedo}
-                    onUndo={() => canvasRef.current?.undo()}
-                    onRedo={() => canvasRef.current?.redo()}
-                    isEraserMode={drawingState.isEraserMode}
-                    enableTextMode={false}
-                    isTextMode={drawingState.isTextMode}
-                    onPenModePress={drawingState.setPenMode}
-                    onEraserModePress={() => {
-                      if (drawingState.isEraserMode) {
-                        drawingState.setPenMode();
-                      } else {
-                        drawingState.setEraserMode();
-                      }
-                    }}
-                    onTextModePress={drawingState.setTextMode}
-                    strokeWidth={drawingState.strokeWidth}
-                    eraserSize={drawingState.eraserSize}
-                    onStrokeWidthChange={drawingState.setStrokeWidth}
-                    onEraserSizeChange={drawingState.setEraserSize}
-                  />
-                </View>
                 <View style={{ flex: 1 }} pointerEvents='auto'>
                   <DrawingCanvas
                     ref={canvasRef}
