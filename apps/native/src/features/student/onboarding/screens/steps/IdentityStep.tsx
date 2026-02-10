@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, AppState, Text, View } from 'react-native';
 import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
 import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
 import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
@@ -12,6 +12,8 @@ type FormState = {
   name: string;
   phone: string;
 };
+
+const phoneRegex = /^010\d{8}$/;
 
 const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const email = useOnboardingStore((state) => state.email);
@@ -31,31 +33,66 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const [isSent, setIsSent] = useState(false);
   const [verifyCode, setVerifyCode] = useState('');
   const [timeLeft, setTimeLeft] = useState(0);
+  const deadlineRef = useRef<number>(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearCountdownInterval = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  const syncTimeLeft = useCallback(() => {
+    if (deadlineRef.current === 0) return;
+    const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+    setTimeLeft(remaining);
+    if (remaining <= 0) {
+      deadlineRef.current = 0;
+      clearCountdownInterval();
+    }
+  }, [clearCountdownInterval]);
+
+  const startCountdown = useCallback(
+    (durationSeconds: number) => {
+      clearCountdownInterval();
+      deadlineRef.current = Date.now() + durationSeconds * 1000;
+      setTimeLeft(durationSeconds);
+      intervalRef.current = setInterval(syncTimeLeft, 1000);
+    },
+    [clearCountdownInterval, syncTimeLeft]
+  );
+
+  const resetCountdown = useCallback(() => {
+    clearCountdownInterval();
+    deadlineRef.current = 0;
+    setTimeLeft(0);
+  }, [clearCountdownInterval]);
 
   useEffect(() => {
-    if (timeLeft === 0) return;
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timeLeft]);
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') syncTimeLeft();
+    });
+    return () => {
+      subscription.remove();
+      clearCountdownInterval();
+    };
+  }, [syncTimeLeft, clearCountdownInterval]);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: '' }));
-    // Phone number changed, reset auth state
     if (key === 'phone') {
       setIsSent(false);
       setVerifyCode('');
-      setTimeLeft(0);
+      resetCountdown();
     }
   };
 
   const validate = () => {
     const nextErrors: Record<string, string> = {};
     if (!form.name) nextErrors.name = '이름을 입력해 주세요.';
-    if (!/^010\d{7,8}$/.test(form.phone))
-      nextErrors.phone = '010으로 시작하는 번호를 입력해 주세요.';
+    if (!phoneRegex.test(form.phone)) nextErrors.phone = '010으로 시작하는 번호를 입력해 주세요.';
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -75,7 +112,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
       return;
     }
     setIsSent(true);
-    setTimeLeft(180);
+    startCountdown(180);
   };
 
   const handleResend = async () => {
@@ -84,7 +121,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
       Alert.alert('오류', '인증번호 재전송에 실패했습니다.');
       return;
     }
-    setTimeLeft(180);
+    startCountdown(180);
   };
 
   const handleVerify = async () => {
@@ -121,8 +158,9 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
     ]);
   };
 
-  const isFormComplete =
-    isSent ? Boolean(form.name) && /^010\d{7,8}$/.test(form.phone) && Boolean(verifyCode) : Boolean(form.name) && /^010\d{7,8}$/.test(form.phone);
+  const isFormComplete = isSent
+    ? Boolean(form.name) && phoneRegex.test(form.phone) && Boolean(verifyCode)
+    : Boolean(form.name) && phoneRegex.test(form.phone);
 
   return (
     <OnboardingLayout
@@ -156,7 +194,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
           <AnimatedPressable
             onPress={timeLeft > 0 ? undefined : handleResend}
             disabled={timeLeft > 0}
-            className='h-[48px] w-[100px] mt-[45px] items-center justify-center rounded-[8px] bg-primary-500'>
+            className='bg-primary-500 mt-[45px] h-[48px] w-[100px] items-center justify-center rounded-[8px]'>
             <Text className='text-16m text-white'>
               {timeLeft > 0 ? formatTime(timeLeft) : isSent ? '재전송' : '인증 요청'}
             </Text>
