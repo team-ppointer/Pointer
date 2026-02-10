@@ -367,7 +367,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const screenHeight = Dimensions.get('window').height;
 
   return (
-    <View className='flex-1'>
+    <View className='flex-1 bg-white'>
       <SafeAreaView className='flex-1' edges={['top']}>
         <Header onClose={handleCloseFlow}>
           <Header.TitleGroup>
@@ -428,10 +428,9 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                   <DrawingCanvas
                     ref={canvasRef}
                     strokeColor='#1E1E21'
-                    strokeWidth={drawingState.strokeWidth}
-                    textMode={drawingState.isTextMode}
+                    strokeWidth={2}
                     eraserMode={drawingState.isEraserMode}
-                    eraserSize={drawingState.eraserSize}
+                    eraserSize={12}
                     onHistoryChange={drawingState.setHistoryState}
                   />
                 </View>
