@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, AppState, Pressable, Text, View } from 'react-native';
 import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
 import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
 import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
@@ -31,23 +31,57 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const [isSent, setIsSent] = useState(false);
   const [verifyCode, setVerifyCode] = useState('');
   const [timeLeft, setTimeLeft] = useState(0);
+  const deadlineRef = useRef<number>(0);
 
+  const calcTimeLeft = useCallback(() => {
+    if (deadlineRef.current === 0) return 0;
+    return Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+  }, []);
+
+  const startCountdown = useCallback(
+    (durationSeconds: number) => {
+      deadlineRef.current = Date.now() + durationSeconds * 1000;
+      setTimeLeft(calcTimeLeft());
+    },
+    [calcTimeLeft]
+  );
+
+  const resetCountdown = useCallback(() => {
+    deadlineRef.current = 0;
+    setTimeLeft(0);
+  }, []);
+
+  // Tick every second based on deadline
   useEffect(() => {
-    if (timeLeft === 0) return;
+    if (deadlineRef.current === 0) return;
     const interval = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
+      const remaining = calcTimeLeft();
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        deadlineRef.current = 0;
+        clearInterval(interval);
+      }
     }, 1000);
     return () => clearInterval(interval);
-  }, [timeLeft]);
+  }, [timeLeft > 0, calcTimeLeft]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Recalculate on app foreground reentry
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && deadlineRef.current > 0) {
+        setTimeLeft(calcTimeLeft());
+      }
+    });
+    return () => subscription.remove();
+  }, [calcTimeLeft]);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: '' }));
-    // Phone number changed, reset auth state
     if (key === 'phone') {
       setIsSent(false);
       setVerifyCode('');
-      setTimeLeft(0);
+      resetCountdown();
     }
   };
 
@@ -74,7 +108,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
       return;
     }
     setIsSent(true);
-    setTimeLeft(180);
+    startCountdown(180);
   };
 
   const handleResend = async () => {
@@ -83,7 +117,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
       Alert.alert('오류', '인증번호 재전송에 실패했습니다.');
       return;
     }
-    setTimeLeft(180);
+    startCountdown(180);
   };
 
   const handleVerify = async () => {
