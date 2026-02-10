@@ -26,7 +26,8 @@ const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
       title='고등학교 학년을 선택해 주세요.'
       description='학년을 입력해 교육과정이 고려된 맞춤형 문제를 제공받아요.'
       onPressCTA={handleNext}
-      ctaDisabled={!grade}>
+      ctaDisabled={!grade}
+      showBackButton={false}>
       <View className='gap-[20px]'>
         {gradeOptions.map((option) => (
           <OptionButton
