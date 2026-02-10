@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { View } from 'react-native';
 import { gradeOptions } from '../../constants';
 import { OnboardingLayout, OptionButton } from '../../components';
@@ -7,13 +8,26 @@ import type { OnboardingScreenProps } from '../types';
 const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
   const grade = useOnboardingStore((state) => state.grade);
   const setGrade = useOnboardingStore((state) => state.setGrade);
+  const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
+
+  const handleNext = useCallback(() => {
+    if (!grade) return;
+
+    if (grade === 'ONE' || grade === 'TWO') {
+      setSelectSubject(null);
+      navigation.navigate('School');
+    } else {
+      navigation.navigate('MathSubject');
+    }
+  }, [grade, navigation, setSelectSubject]);
 
   return (
     <OnboardingLayout
       title='고등학교 학년을 선택해 주세요.'
       description='학년을 입력해 교육과정이 고려된 맞춤형 문제를 제공받아요.'
-      onPressCTA={() => navigation.navigate('MathSubject')}
-      ctaDisabled={!grade}>
+      onPressCTA={handleNext}
+      ctaDisabled={!grade}
+      showBackButton={false}>
       <View className='gap-[20px]'>
         {gradeOptions.map((option) => (
           <OptionButton

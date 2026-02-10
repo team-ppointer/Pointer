@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { ReactNode, useEffect } from 'react';
+import { BackHandler, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon } from 'lucide-react-native';
@@ -38,6 +38,15 @@ const OnboardingLayout = ({
   isScrollable = true,
 }: Props) => {
   const navigation = useNavigation();
+
+  useEffect(() => {
+    if (showBackButton) return;
+
+    navigation.setOptions({ gestureEnabled: false });
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+    return () => subscription.remove();
+  }, [showBackButton, navigation]);
 
   const handleBack = () => {
     if (!showBackButton) return;
