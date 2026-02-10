@@ -13,6 +13,8 @@ type FormState = {
   phone: string;
 };
 
+const phoneRegex = /^010\d{8}$/;
+
 const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const email = useOnboardingStore((state) => state.email);
   const identity = useOnboardingStore((state) => state.identity);
@@ -90,7 +92,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const validate = () => {
     const nextErrors: Record<string, string> = {};
     if (!form.name) nextErrors.name = '이름을 입력해 주세요.';
-    if (!/^010\d{8}$/.test(form.phone)) nextErrors.phone = '010으로 시작하는 번호를 입력해 주세요.';
+    if (!phoneRegex.test(form.phone)) nextErrors.phone = '010으로 시작하는 번호를 입력해 주세요.';
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -157,8 +159,8 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   };
 
   const isFormComplete = isSent
-    ? Boolean(form.name) && /^010\d{8}$/.test(form.phone) && Boolean(verifyCode)
-    : Boolean(form.name) && /^010\d{8}$/.test(form.phone);
+    ? Boolean(form.name) && phoneRegex.test(form.phone) && Boolean(verifyCode)
+    : Boolean(form.name) && phoneRegex.test(form.phone);
 
   return (
     <OnboardingLayout
