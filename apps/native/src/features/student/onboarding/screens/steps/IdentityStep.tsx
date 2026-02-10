@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, AppState, Pressable, Text, View } from 'react-native';
+import { Alert, AppState, Text, View } from 'react-native';
 import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
 import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
 import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
