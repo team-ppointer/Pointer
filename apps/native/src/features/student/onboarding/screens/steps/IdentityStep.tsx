@@ -32,48 +32,50 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const [verifyCode, setVerifyCode] = useState('');
   const [timeLeft, setTimeLeft] = useState(0);
   const deadlineRef = useRef<number>(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const calcTimeLeft = useCallback(() => {
-    if (deadlineRef.current === 0) return 0;
-    return Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+  const clearCountdownInterval = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
   }, []);
+
+  const syncTimeLeft = useCallback(() => {
+    if (deadlineRef.current === 0) return;
+    const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+    setTimeLeft(remaining);
+    if (remaining <= 0) {
+      deadlineRef.current = 0;
+      clearCountdownInterval();
+    }
+  }, [clearCountdownInterval]);
 
   const startCountdown = useCallback(
     (durationSeconds: number) => {
+      clearCountdownInterval();
       deadlineRef.current = Date.now() + durationSeconds * 1000;
-      setTimeLeft(calcTimeLeft());
+      setTimeLeft(durationSeconds);
+      intervalRef.current = setInterval(syncTimeLeft, 1000);
     },
-    [calcTimeLeft]
+    [clearCountdownInterval, syncTimeLeft]
   );
 
   const resetCountdown = useCallback(() => {
+    clearCountdownInterval();
     deadlineRef.current = 0;
     setTimeLeft(0);
-  }, []);
+  }, [clearCountdownInterval]);
 
-  // Tick every second based on deadline
-  useEffect(() => {
-    if (deadlineRef.current === 0) return;
-    const interval = setInterval(() => {
-      const remaining = calcTimeLeft();
-      setTimeLeft(remaining);
-      if (remaining <= 0) {
-        deadlineRef.current = 0;
-        clearInterval(interval);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timeLeft > 0, calcTimeLeft]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Recalculate on app foreground reentry
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active' && deadlineRef.current > 0) {
-        setTimeLeft(calcTimeLeft());
-      }
+      if (state === 'active') syncTimeLeft();
     });
-    return () => subscription.remove();
-  }, [calcTimeLeft]);
+    return () => {
+      subscription.remove();
+      clearCountdownInterval();
+    };
+  }, [syncTimeLeft, clearCountdownInterval]);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
