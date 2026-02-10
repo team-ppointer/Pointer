@@ -54,8 +54,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   const validate = () => {
     const nextErrors: Record<string, string> = {};
     if (!form.name) nextErrors.name = '이름을 입력해 주세요.';
-    if (!/^010\d{7,8}$/.test(form.phone))
-      nextErrors.phone = '010으로 시작하는 번호를 입력해 주세요.';
+    if (!/^010\d{8}$/.test(form.phone)) nextErrors.phone = '010으로 시작하는 번호를 입력해 주세요.';
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -121,8 +120,9 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
     ]);
   };
 
-  const isFormComplete =
-    isSent ? Boolean(form.name) && /^010\d{7,8}$/.test(form.phone) && Boolean(verifyCode) : Boolean(form.name) && /^010\d{7,8}$/.test(form.phone);
+  const isFormComplete = isSent
+    ? Boolean(form.name) && /^010\d{8}$/.test(form.phone) && Boolean(verifyCode)
+    : Boolean(form.name) && /^010\d{8}$/.test(form.phone);
 
   return (
     <OnboardingLayout
@@ -156,7 +156,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
           <AnimatedPressable
             onPress={timeLeft > 0 ? undefined : handleResend}
             disabled={timeLeft > 0}
-            className='h-[48px] w-[100px] mt-[45px] items-center justify-center rounded-[8px] bg-primary-500'>
+            className='bg-primary-500 mt-[45px] h-[48px] w-[100px] items-center justify-center rounded-[8px]'>
             <Text className='text-16m text-white'>
               {timeLeft > 0 ? formatTime(timeLeft) : isSent ? '재전송' : '인증 요청'}
             </Text>
