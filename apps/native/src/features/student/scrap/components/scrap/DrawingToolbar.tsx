@@ -16,10 +16,10 @@ export interface DrawingToolbarProps {
 
   // Mode selection
   isEraserMode: boolean;
-  isTextMode?: boolean;
+  isTextMode: boolean;
   onPenModePress: () => void;
   onEraserModePress: () => void;
-  onTextModePress?: () => void;
+  onTextModePress: () => void;
 
   // Size selection
   strokeWidth: number;
@@ -139,7 +139,7 @@ export const DrawingToolbar = ({
             disabledBackgroundColor='bg-gray-100'
             iconColor={colors['primary-500']}
             disabledColor={colors['gray-700']}
-            onPress={onTextModePress!}
+            onPress={onTextModePress}
             size={36}
             radius={8}
           />
