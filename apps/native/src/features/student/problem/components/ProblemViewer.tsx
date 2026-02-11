@@ -23,7 +23,12 @@ interface ProblemViewerProps {
   fontStyle?: 'sans-serif' | 'serif';
 }
 
-const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0, fontStyle = 'sans-serif' }: ProblemViewerProps) => {
+const ProblemViewer = ({
+  problemContent,
+  minHeight = 0,
+  padding = 0,
+  fontStyle = 'sans-serif',
+}: ProblemViewerProps) => {
   const [webViewHeight, setWebViewHeight] = useState(minHeight);
   const [isContentLoading, setIsContentLoading] = useState(true);
 
@@ -88,6 +93,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0, fontStyle =
 
     html, body {
       background: transparent !important;
+      overflow: hidden !important;
     }
 
     body {
@@ -324,6 +330,7 @@ const ProblemViewer = ({ problemContent, minHeight = 0, padding = 0, fontStyle =
           opacity: isContentLoading ? 0 : 1,
           width: '100%',
         }}
+        scrollEnabled={false}
         containerStyle={{ backgroundColor: 'transparent' }}
         androidLayerType='software'
       />
