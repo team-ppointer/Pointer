@@ -14,7 +14,7 @@ import {
   setRefreshToken,
   setTeacherName,
 } from '@utils/auth';
-import { env } from '@utils/env';
+import { bareClient } from '@apis/bareClient';
 
 export type UserRole = 'student' | 'teacher' | null;
 export type SessionStatus =
@@ -67,11 +67,10 @@ const verifyStudentSession = async (): Promise<{
 
   if (accessToken) {
     try {
-      const res = await fetch(`${env.apiBaseUrl}/api/student/me`, {
+      const { data } = await bareClient.GET('/api/student/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-      if (res.ok) {
-        const data = await res.json();
+      if (data) {
         return { valid: true, name: data.name, grade: data.grade };
       }
     } catch {
@@ -82,18 +81,16 @@ const verifyStudentSession = async (): Promise<{
   if (!refreshToken) return { valid: false };
 
   try {
-    const res = await fetch(`${env.apiBaseUrl}/api/student/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+    const { data, error } = await bareClient.POST('/api/student/auth/refresh', {
+      body: { refreshToken },
     });
-    if (!res.ok) return { valid: false };
 
-    const data = await res.json();
-    if (data?.token?.accessToken) {
+    if (error || !data) return { valid: false };
+
+    if (data.token.accessToken) {
       await setAccessToken(data.token.accessToken);
     }
-    if (data?.token?.refreshToken) {
+    if (data.token.refreshToken) {
       await setRefreshToken(data.token.refreshToken);
     }
 

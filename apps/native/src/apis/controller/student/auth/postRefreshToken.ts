@@ -1,19 +1,16 @@
-import { env, getRefreshToken } from '@utils';
+import { bareClient } from '@apis/bareClient';
+import { getRefreshToken } from '@utils';
 
 const postRefreshToken = async () => {
   try {
-    const res = await fetch(`${env.apiBaseUrl}/api/student/auth/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const { data, error } = await bareClient.POST('/api/student/auth/refresh', {
+      body: {
+        refreshToken: getRefreshToken() ?? '',
       },
-      body: JSON.stringify({
-        refreshToken: getRefreshToken(),
-      }),
     });
-    if (!res.ok) throw new Error('Refresh failed');
 
-    const data = await res.json();
+    if (error || !data) throw new Error('Refresh failed');
+
     return { isSuccess: true, data };
   } catch (e) {
     return { isSuccess: false, error: e };

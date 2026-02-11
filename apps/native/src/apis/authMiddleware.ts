@@ -15,9 +15,9 @@ import {
   setTeacherName,
   setTeacherRefreshToken,
 } from '@utils/auth';
+import { bareClient } from '@apis/bareClient';
 import { postRefreshToken } from '@apis/student';
 // import { postTeacherRefreshToken } from '@apis/controller-teacher/auth';
-import { env } from '@utils';
 
 const UNPROTECTED_ROUTES = [
   '/api/student/auth/login/social',
@@ -101,29 +101,21 @@ const authMiddleware: Middleware = {
       request.headers.set('Authorization', `Bearer ${accessToken}`);
     }
 
-    // 학생이고 로컬스토리지에 이름, 학년 없을때 내정보 api
     if (!isTeacher && !getName() && !getGrade()) {
-      const result = await fetch(`${env.apiBaseUrl}/api/student/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const { data } = await bareClient.GET('/api/student/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
-      if (result.ok) {
-        const data = await result.json();
+      if (data) {
         setName(data.name);
         setGrade(data.grade);
       }
     }
 
-    // 선생님이고 로컬스토리지에 이름 없을때
     if (isTeacher && !getTeacherName()) {
-      const result = await fetch(`${env.apiBaseUrl}/api/teacher/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const { data } = await bareClient.GET('/api/teacher/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
-      if (result.ok) {
-        const data = await result.json();
+      if (data) {
         setTeacherName(data.name);
       }
     }
