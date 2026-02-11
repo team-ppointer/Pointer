@@ -30,6 +30,8 @@ const FolderScrapScreenContent = () => {
   const { openMoveScrapModal, setRefetchScraps, setRefetchFolders } = useScrapModal();
 
   // API 호출
+  const { data: foldersData, refetch: refetchFolders } = useGetFolders(); // 폴더 정보 가져오기
+
   const {
     data: data,
     isLoading,
@@ -37,7 +39,15 @@ const FolderScrapScreenContent = () => {
   } = useGetScrapsByFolder(
     { folderId: Number(id) },
     { sortOption: mapUIKeyToAPIKey(sortKey), order: sortOrder }
-  );
+  ); // 해당 폴더의 스크랩 가져오기
+
+  // 폴더 변경 시 폴더 목록 refetch
+  useEffect(() => {
+    if (refetchFolders) {
+      setRefetchFolders(refetchFolders);
+    }
+  }, [refetchFolders, setRefetchFolders]);
+
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // refetch를 context에 등록
@@ -48,7 +58,7 @@ const FolderScrapScreenContent = () => {
   }, [refetch, setRefetchScraps]);
 
   // 폴더 정보 가져오기
-  const folder = data?.data?.find((f) => f.id === Number(id));
+  const folder = foldersData?.data?.find((f) => f.id === Number(id));
   const contents = data?.data || [];
 
   const sortedData = useMemo(() => {
