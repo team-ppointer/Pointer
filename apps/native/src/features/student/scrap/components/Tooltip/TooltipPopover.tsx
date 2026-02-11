@@ -11,6 +11,7 @@ export interface TooltipPopoverProps {
   popoverStyle?: ViewStyle;
   triggerBorderRadius?: number;
   triggerBackgroundColor?: string;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 const TooltipPopover = ({
@@ -20,17 +21,24 @@ const TooltipPopover = ({
   popoverStyle,
   triggerBorderRadius = 10,
   triggerBackgroundColor = colors['gray-300'],
+  onOpenChange,
 }: TooltipPopoverProps) => {
   const [isVisible, setIsVisible] = React.useState(false);
 
+  const open = () => {
+    setIsVisible(true);
+    onOpenChange?.(true);
+  };
+
   const close = () => {
     setIsVisible(false);
+    onOpenChange?.(false);
   };
 
   // from을 Pressable로 감싸서 클릭 시 열리도록 함
   const triggerElement = (
     <Pressable
-      onPress={() => setIsVisible(true)}
+      onPress={open}
       style={{
         borderRadius: triggerBorderRadius,
         backgroundColor: isVisible ? triggerBackgroundColor : 'transparent',
