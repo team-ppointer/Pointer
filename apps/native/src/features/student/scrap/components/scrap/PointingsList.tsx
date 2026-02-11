@@ -43,7 +43,7 @@ export const PointingsList = ({ pointingsWithLabels, shouldShowPointing }: Point
                 <ProblemViewer
                   problemContent={pointing.commentContent}
                   minHeight={100}
-                  padding={16}
+                  padding={14}
                 />
               </View>
             )}
