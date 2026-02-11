@@ -85,8 +85,7 @@ const OnboardingLayout = ({
   return (
     <KeyboardAvoidingView
       className='flex-1'
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}>
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View
         className='z-10 flex-row items-center justify-between bg-gray-100 px-[20px] pb-[14px]'
         style={{ paddingTop: inset.top + 14 }}>
