@@ -58,8 +58,8 @@ export const SearchResultCard = (props: SearchResultCardProps) => {
             fallback={renderFallback()}
           />
         </View>
-        <View className='w-full justify-between px-1'>
-          <View className='flex-row  gap-0.5'>
+        <View className='w-full justify-between'>
+          <View className='flex-row items-center gap-[2px]'>
             <HighlightedText
               text={props.name}
               query={props.searchQuery || ''}
