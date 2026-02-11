@@ -1,5 +1,13 @@
-import { ReactNode, useEffect } from 'react';
-import { BackHandler, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { ReactNode, useEffect, useState } from 'react';
+import {
+  BackHandler,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon } from 'lucide-react-native';
@@ -38,6 +46,20 @@ const OnboardingLayout = ({
   isScrollable = true,
 }: Props) => {
   const navigation = useNavigation();
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardVisible(false));
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (showBackButton) return;
@@ -115,7 +137,7 @@ const OnboardingLayout = ({
           className={`mt-[10px] rounded-[14px] py-[10px] ${
             ctaDisabled ? 'bg-primary-200' : 'bg-primary-500'
           }`}
-          style={{ marginBottom: inset.bottom + 18 }}>
+          style={{ marginBottom: isKeyboardVisible ? 18 : inset.bottom + 18 }}>
           <Text className='text-18sb text-center text-white'>{ctaLabel}</Text>
         </AnimatedPressable>
       </Container>
