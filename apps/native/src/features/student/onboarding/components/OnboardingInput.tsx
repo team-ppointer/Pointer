@@ -1,4 +1,13 @@
-import { ForwardedRef, ReactNode, forwardRef, useMemo, useState, useCallback } from 'react';
+import {
+  ForwardedRef,
+  ReactNode,
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
 import { Pressable, Text, TextInput, TextInputProps, View } from 'react-native';
 import { AlertCircle, CircleCheck } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
@@ -31,6 +40,9 @@ const OnboardingInput = forwardRef(
     }: Props,
     ref: ForwardedRef<TextInput>
   ) => {
+    const innerRef = useRef<TextInput>(null);
+    useImperativeHandle(ref, () => innerRef.current as TextInput);
+
     const [isFocused, setIsFocused] = useState(false);
 
     const borderStyle = useMemo(() => {
@@ -71,13 +83,14 @@ const OnboardingInput = forwardRef(
     return (
       <View className={`w-full ${containerClassName}`}>
         {label ? <Text className='text-14m mb-[6px] text-gray-900'>{label}</Text> : null}
-        <View
+        <Pressable
+          onPress={() => innerRef.current?.focus()}
           className={`h-[48px] flex-row items-center rounded-[10px] bg-white px-[16px] ${
             editable ? '' : 'bg-gray-200'
           }`}
           style={borderStyle}>
           <TextInput
-            ref={ref}
+            ref={innerRef}
             {...inputProps}
             style={textInputStyle}
             editable={editable}
@@ -95,7 +108,7 @@ const OnboardingInput = forwardRef(
               {rightAccessory}
             </Pressable>
           ) : null}
-        </View>
+        </Pressable>
         {hint ? <Text className='text-12r ml-[4px] mt-[8px] text-[#808087]'>{hint}</Text> : null}
         {errorMessage ? (
           <View className='mt-[8px] flex-row items-center gap-[4px]'>
