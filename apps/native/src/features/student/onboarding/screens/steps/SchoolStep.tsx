@@ -15,20 +15,17 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
 
   const [query, setQuery] = useState('');
   const [selectedLabel, setSelectedLabel] = useState('');
-  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const debouncedQuery = useDebounce(query.trim(), 300);
   const { data, isLoading } = useGetSchool({ query: debouncedQuery });
 
   const results = data?.data ?? [];
-  const showDropdown = dropdownVisible && (results.length > 0 || isLoading);
 
   const handleSelect = (id: number, name: string, sido: string) => {
     const label = `${name}(${sido})`;
     setSchoolId(id);
     setQuery(label);
     setSelectedLabel(label);
-    setDropdownVisible(false);
   };
 
   const handleClear = () => {
@@ -62,17 +59,12 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
           label='학교'
           placeholder='학교명을 입력해 주세요.'
           value={query}
-          onFocus={() => setDropdownVisible(true)}
-          onBlur={() => {
-            setTimeout(() => setDropdownVisible(false), 150);
-          }}
           onChangeText={(text) => {
             setQuery(text);
             if (selectedLabel && text !== selectedLabel) {
               setSchoolId(null);
               setSelectedLabel('');
             }
-            if (!dropdownVisible) setDropdownVisible(true);
           }}
           rightAccessory={
             schoolId ? (
@@ -87,7 +79,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
             }
           }}
         />
-        {showDropdown ? (
+        {!schoolId && results.length > 0 ? (
           <View
             className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px]'
             style={shadow[100]}>
