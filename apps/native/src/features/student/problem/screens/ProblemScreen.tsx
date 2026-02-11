@@ -37,7 +37,6 @@ import {
 import { formatPublishDateLabel } from '../utils/formatters';
 import ProblemViewer from '../components/ProblemViewer';
 import { DrawingCanvas, DrawingCanvasRef } from '../../scrap/utils/skia';
-import { DrawingToolbar } from '../../scrap/components/scrap/DrawingToolbar';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
 
