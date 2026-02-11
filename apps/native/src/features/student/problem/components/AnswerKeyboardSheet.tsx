@@ -129,6 +129,8 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
         index={-1}
         enableDynamicSizing
         bottomInset={bottomInset}
+        enableOverDrag={false}
+        enableContentPanningGesture={false}
         backdropComponent={renderBackdrop}
         enablePanDownToClose
         handleIndicatorStyle={styles.handleIndicator}
