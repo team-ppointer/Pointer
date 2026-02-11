@@ -5,15 +5,24 @@ import {
   getAccessToken,
   getGrade,
   getName,
+  getRefreshToken,
   getTeacherAccessToken,
   getTeacherName,
+  setAccessToken,
   setGrade,
   setName,
+  setRefreshToken,
   setTeacherName,
 } from '@utils/auth';
+import { env } from '@utils/env';
 
 export type UserRole = 'student' | 'teacher' | null;
-export type SessionStatus = 'unknown' | 'authenticated' | 'unauthenticated';
+export type SessionStatus =
+  | 'unknown'
+  | 'hydrating'
+  | 'checking'
+  | 'authenticated'
+  | 'unauthenticated';
 
 type StudentProfile = {
   name?: string | null;
@@ -33,6 +42,7 @@ type AuthState = {
 
 type AuthActions = {
   hydrateFromStorage: () => Promise<void>;
+  verifySession: () => Promise<void>;
   setRole: (role: UserRole) => void;
   setSessionStatus: (status: SessionStatus) => void;
   updateStudentProfile: (profile: StudentProfile) => Promise<void>;
@@ -47,16 +57,65 @@ const initialState: AuthState = {
   teacherProfile: undefined,
 };
 
+const verifyStudentSession = async (): Promise<{
+  valid: boolean;
+  name?: string;
+  grade?: string;
+}> => {
+  const accessToken = getAccessToken();
+  const refreshToken = getRefreshToken();
+
+  if (accessToken) {
+    try {
+      const res = await fetch(`${env.apiBaseUrl}/api/student/me`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return { valid: true, name: data.name, grade: data.grade };
+      }
+    } catch {
+      // noop
+    }
+  }
+
+  if (!refreshToken) return { valid: false };
+
+  try {
+    const res = await fetch(`${env.apiBaseUrl}/api/student/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+    if (!res.ok) return { valid: false };
+
+    const data = await res.json();
+    if (data?.token?.accessToken) {
+      await setAccessToken(data.token.accessToken);
+    }
+    if (data?.token?.refreshToken) {
+      await setRefreshToken(data.token.refreshToken);
+    }
+
+    return { valid: true, name: data.name, grade: data.grade };
+  } catch {
+    return { valid: false };
+  }
+};
+
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   ...initialState,
+
   hydrateFromStorage: async () => {
-    const hasStudentToken = Boolean(getAccessToken());
+    set({ sessionStatus: 'hydrating' });
+
+    const hasStudentToken = Boolean(getAccessToken()) || Boolean(getRefreshToken());
     const hasTeacherToken = Boolean(getTeacherAccessToken());
 
     if (hasTeacherToken) {
       set({
         role: 'teacher',
-        sessionStatus: 'authenticated',
+        sessionStatus: 'checking',
         teacherProfile: { name: getTeacherName() },
       });
       return;
@@ -65,7 +124,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     if (hasStudentToken) {
       set({
         role: 'student',
-        sessionStatus: 'authenticated',
+        sessionStatus: 'checking',
         studentProfile: { name: getName(), grade: getGrade() },
       });
       return;
@@ -78,8 +137,46 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       teacherProfile: undefined,
     });
   },
+
+  verifySession: async () => {
+    const state = useAuthStore.getState();
+
+    if (state.sessionStatus !== 'checking') return;
+
+    if (state.role === 'student') {
+      const result = await verifyStudentSession();
+
+      if (result.valid) {
+        if (result.name !== undefined || result.grade !== undefined) {
+          if (result.name) await setName(result.name);
+          if (result.grade) await setGrade(result.grade);
+        }
+        set({
+          sessionStatus: 'authenticated',
+          studentProfile: {
+            name: result.name ?? getName(),
+            grade: result.grade ?? getGrade(),
+          },
+        });
+      } else {
+        await clearAuthState();
+        set({ ...initialState, sessionStatus: 'unauthenticated' });
+      }
+      return;
+    }
+
+    // TODO: implement teacher token verification when teacher refresh API is ready
+    if (state.role === 'teacher') {
+      set({ sessionStatus: 'authenticated' });
+      return;
+    }
+
+    set({ ...initialState, sessionStatus: 'unauthenticated' });
+  },
+
   setRole: (role) => set({ role }),
   setSessionStatus: (sessionStatus) => set({ sessionStatus }),
+
   updateStudentProfile: async (profile) => {
     await Promise.all([
       profile.name !== undefined ? setName(profile.name) : Promise.resolve(),
@@ -92,6 +189,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       },
     }));
   },
+
   updateTeacherProfile: async (profile) => {
     if (profile.name !== undefined) {
       await setTeacherName(profile.name);
@@ -103,6 +201,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       },
     }));
   },
+
   signOut: async () => {
     await clearAuthState();
     set({ ...initialState, sessionStatus: 'unauthenticated' });

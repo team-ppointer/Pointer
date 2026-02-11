@@ -23,7 +23,11 @@ const RootNavigator = () => {
   useSocialLoginCallback();
 
   const getActiveScreen = () => {
-    if (sessionStatus === 'unknown') {
+    if (
+      sessionStatus === 'unknown' ||
+      sessionStatus === 'hydrating' ||
+      sessionStatus === 'checking'
+    ) {
       return { name: 'Splash' as const, component: LoadingScreen };
     }
 
