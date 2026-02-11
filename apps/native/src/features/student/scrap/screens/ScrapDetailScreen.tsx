@@ -23,7 +23,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { StudentRootStackParamList } from '@/navigation/student/types';
-import { TanstackQueryClient, useGetScrapDetail, useUpdateScrapName } from '@/apis';
+import {
+  TanstackQueryClient,
+  useGetScrapDetail,
+  useUpdateScrapName,
+  useGetEntireProblemPointing,
+  useGetEntireProblem,
+} from '@/apis';
 import { LoadingScreen } from '@/components/common';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
@@ -35,6 +41,7 @@ import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
 import { TabNavigator } from '../components/scrap/TabNavigator';
 import { FilterBar } from '../components/scrap/FilterBar';
 import { ProblemSection } from '../components/scrap/ProblemSection';
+import { AnalysisSection } from '../components/scrap/AnalysisSection';
 import { PointingsList } from '../components/scrap/PointingsList';
 import { DrawingToolbar } from '../components/scrap/DrawingToolbar';
 import { ProblemExpansionModal } from '../components/scrap/ProblemExpansionModal';
@@ -59,9 +66,6 @@ import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { ExplanationSection } from '../components/scrap/ExplanationSection';
 import { useQueryClient } from '@tanstack/react-query';
-import ProblemViewer from '../../problem/components/ProblemViewer';
-import { BookmarkIcon } from 'lucide-react-native';
-import { AnalysisSection } from '../components/scrap/AnalysisSection';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
@@ -81,6 +85,15 @@ const ScrapDetailScreen = () => {
     isLoading,
     refetch: refetchScrapDetail,
   } = useGetScrapDetail(scrapId, !!id);
+
+  const { data: entireProblemPointing, refetch: refetchEntireProblemPointing } =
+    useGetEntireProblemPointing(scrapDetail?.problem?.id as number, !!scrapDetail?.problem?.id);
+
+  const { data: entireProblem, refetch: refetchEntireProblem } = useGetEntireProblem(
+    scrapDetail?.problem?.id as number,
+    !!scrapDetail?.problem?.id
+  );
+
   const addScrapId = useRecentScrapStore((state) => state.addScrapId);
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes, updateNoteTitle } =
@@ -153,12 +166,18 @@ const ScrapDetailScreen = () => {
   const MIN_RIGHT_WIDTH = SCREEN_WIDTH * 0.25;
   const DEFAULT_LEFT_WIDTH = SCREEN_WIDTH * 0.5;
 
-  // refetchScrapDetail을 context에 등록
   useEffect(() => {
     if (refetchScrapDetail) {
       setRefetchScrapDetail(refetchScrapDetail);
     }
   }, [refetchScrapDetail, setRefetchScrapDetail]);
+
+  useEffect(() => {
+    if (scrapDetail?.problem?.id) {
+      refetchEntireProblemPointing();
+      refetchEntireProblem();
+    }
+  }, [scrapDetail?.problem?.id, refetchEntireProblemPointing, refetchEntireProblem]);
 
   useFocusEffect(
     useCallback(() => {
@@ -321,16 +340,18 @@ const ScrapDetailScreen = () => {
   const hasExplanation = !!(
     scrapDetail?.pointings && scrapDetail.pointings.some((pointing) => pointing.commentContent)
   );
+
   // Handlers
   const handleViewAllPointings = useCallback(() => {
-    const group = convertScrapToGroup(scrapDetail!);
+    const group = convertScrapToGroup(entireProblem?.data || [], entireProblemPointing?.data || []);
     if (!group) return;
 
     navigation.navigate('AllPointings', {
       group,
-      problemSetTitle: scrapDetail?.name || '스크랩',
+      // problemSetTitle: scrapDetail?.name || '스크랩',
+      // publishAt: scrapDetail?.createdAt,
     });
-  }, [scrapDetail?.pointings, navigation]);
+  }, [scrapDetail, navigation, entireProblemPointing, entireProblem]);
 
   const handleTabLayout = useCallback((noteId: number, event: LayoutChangeEvent) => {
     const { x, width } = event.nativeEvent.layout;
@@ -483,6 +504,7 @@ const ScrapDetailScreen = () => {
         {/* Header */}
         <SafeAreaView edges={['top']} className='bg-gray-800 text-white'>
           <ScrapDetailHeader
+            key={`scrap-detail-header-${scrapId}`}
             scrapName={scrapName || scrapDetail.name || '스크랩 상세'}
             onScrapNameChange={handleUpdateScrapName}
             showSave={uiState.showSave}
@@ -578,7 +600,9 @@ const ScrapDetailScreen = () => {
                       //   .join('\n') || ''
                       // scrapDetail.pointings[0]?.commentContent || ''
                       mergeTipTapDocs(
-                        (scrapDetail.pointings || []).map((pointing) => pointing.commentContent),
+                        (entireProblemPointing?.data || []).map(
+                          (pointing) => pointing.commentContent
+                        ),
                         false
                       ) || ''
                     }
@@ -662,6 +686,7 @@ const ScrapDetailScreen = () => {
                   drawingAreaWidth={currentDrawingWidth}
                 />
                 <DrawingCanvas
+                  key={`drawing-canvas-${scrapId}`}
                   ref={canvasRef}
                   strokeColor='#1E1E21'
                   strokeWidth={drawingState.strokeWidth}
