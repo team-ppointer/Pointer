@@ -308,7 +308,7 @@ const PointingScreen = ({
               </View>
             </View>
 
-            <View className='pb-[100px] md:flex-1' style={shadow[100]}>
+            <ScrollView className='pb-[100px] md:flex-1' style={shadow[100]}>
               <View className='flex flex-col overflow-hidden rounded-[8px] border border-gray-400 bg-gray-200'>
                 <View className='flex-col gap-[6px] border-b border-gray-400 bg-white p-[14px]'>
                   <View className='flex-row items-start justify-between'>
@@ -332,11 +332,9 @@ const PointingScreen = ({
                   </View>
                   <ProblemViewer problemContent={pointing?.questionContent ?? ''} />
                 </View>
-                <ScrollView className='p-[14px]'>
-                  <ProblemViewer problemContent={pointing?.commentContent ?? ''} />
-                </ScrollView>
+                <ProblemViewer problemContent={pointing?.commentContent ?? ''} padding={14} />
               </View>
-            </View>
+            </ScrollView>
           </Container>
         </View>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
