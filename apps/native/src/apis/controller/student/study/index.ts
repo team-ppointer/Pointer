@@ -6,6 +6,8 @@ import useGetProblem from './useGetProblem';
 import useGetPublishDetail from './useGetPublishDetail';
 import useGetWeeklyProgress from './useGetWeeklyProgress';
 import useGetWeeklyPublish from './useGetWeeklyPublish';
+import useGetEntireProblemPointing from './useGetEntireProblemPointing';
+import useGetEntireProblem from './useGetEntireProblem';
 
 export {
   getPublishDetailById,
@@ -16,4 +18,6 @@ export {
   useGetPublishDetail,
   useGetWeeklyProgress,
   useGetWeeklyPublish,
+  useGetEntireProblem,
+  useGetEntireProblemPointing,
 };
