@@ -39,6 +39,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
       return (
         <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
           <ScrapFolderDefaultIcon
+            isHovered={isSelected}
             style={{
               width: '100%',
               height: '100%',
@@ -64,6 +65,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const cardContent = (
     <View className='w-full flex-col items-center gap-3 rounded-[10px]'>
       <ImageWithSkeleton
+        isHovered={isSelected}
         key={`${props.type}-${props.id}`}
         source={imageSources}
         width='100%'

@@ -20,7 +20,10 @@ export const TrashCard = (props: TrashListItemProps) => {
   const state = props.reducerState ?? { isSelecting: false, selectedItems: [] };
   const isSelected = isItemSelected(state.selectedItems, props.id, props.type);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const { mutateAsync: permanentDelete } = usePermanentDeleteTrash();
+  
+  const shouldShowHover = state.isSelecting ? isSelected : isTooltipOpen;
 
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
   const { imageSources, isDiagonalLayout } = useCardImageSources(
@@ -44,7 +47,10 @@ export const TrashCard = (props: TrashListItemProps) => {
     if (props.type === 'FOLDER') {
       return (
         <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
-          <ScrapFolderDefaultIcon style={{ width: '100%', height: '100%' }} />
+          <ScrapFolderDefaultIcon
+            isHovered={shouldShowHover}
+            style={{ width: '100%', height: '100%' }}
+          />
         </View>
       );
     } else if (props.type === 'SCRAP') {
@@ -57,11 +63,12 @@ export const TrashCard = (props: TrashListItemProps) => {
     return <View className='aspect-square w-full rounded-[10px] bg-blue-200' />;
   };
 
-  const cardContent = (
+  const cardContent = () => (
     <View className='w-full items-center rounded-[10px] p-[10px]'>
       <View className='gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton
+            isHovered={shouldShowHover}
             key={`${props.type}-${props.id}`}
             source={imageSources}
             width='100%'
@@ -119,10 +126,11 @@ export const TrashCard = (props: TrashListItemProps) => {
         }}
         disabled={!state.isSelecting}>
         {state.isSelecting ? (
-          cardContent
+          cardContent()
         ) : (
           <TooltipPopover
-            from={cardContent}
+            from={cardContent()}
+            onOpenChange={setIsTooltipOpen}
             children={(close) => (
               <TrashItemTooltipBox
                 item={props}
