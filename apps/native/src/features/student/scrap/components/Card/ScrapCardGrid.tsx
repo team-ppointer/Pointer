@@ -40,7 +40,7 @@ interface ScrapGridProps {
 }
 export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
-  const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
+  const { numColumns, gap, itemWidth } = useGridLayout(containerWidth);
   const finalData = addPlaceholders(data as ScrapItem[], numColumns);
 
   return (
@@ -86,8 +86,9 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
 
         const spacingStyle = {
           width: itemWidth,
-          height: itemHeight,
           marginRight: isLastColumn ? 0 : gap,
+
+          maxHeight: 216,
         };
 
         // Check for placeholder first
@@ -155,7 +156,7 @@ interface SearchScrapGridProps {
 
 export const SearchScrapGrid = ({ data, searchQuery }: SearchScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
-  const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
+  const { numColumns, gap, itemWidth } = useGridLayout(containerWidth);
   const finalData = addPlaceholders(data, numColumns);
 
   return (
@@ -196,8 +197,9 @@ export const SearchScrapGrid = ({ data, searchQuery }: SearchScrapGridProps) => 
 
         const spacingStyle = {
           width: itemWidth,
-          height: itemHeight,
           marginRight: isLastColumn ? 0 : gap,
+
+          maxHeight: 216,
         };
 
         if ('placeholder' in item && item.placeholder) {
@@ -255,7 +257,7 @@ interface TrashScrapGridProps {
 
 export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
-  const { numColumns, gap, itemWidth, itemHeight } = useGridLayout(containerWidth);
+  const { numColumns, gap, itemWidth } = useGridLayout(containerWidth);
   const finalData = addPlaceholders(data, numColumns);
 
   return (
@@ -296,8 +298,9 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
 
         const spacingStyle = {
           width: itemWidth,
-          height: itemHeight,
           marginRight: isLastColumn ? 0 : gap,
+
+          maxHeight: 216,
         };
 
         // Check for placeholder first
