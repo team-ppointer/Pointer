@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Undo2, Redo2 } from 'lucide-react-native';
 import { PencilFilledIcon } from '@/components/system/icons';
 import EraserFilledIcon from '@/components/system/icons/EraserFilledIcon';
-import { colors, shadow } from '@/theme/tokens';
+import { colors } from '@/theme/tokens';
 import { AnimatedPressable } from '@/components/common';
 
 interface ProblemDrawingToolbarProps {
