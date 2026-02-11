@@ -142,7 +142,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     setScrappedPointingIds(ids);
   }, [scrapStatusData?.scrappedPointingIds]);
 
-  const headerTitle = group ? `${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
+  const headerTitle = group.no != null ? `${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
 
   const handleClose = useCallback(() => {
     navigation?.goBack();
