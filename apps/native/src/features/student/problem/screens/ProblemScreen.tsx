@@ -410,7 +410,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           <Container className='flex-1'>
             {/* Problem */}
             <View
-              className='rounded-[8px my-[10px] overflow-hidden'
+              className='rounded-[8px] my-[10px] overflow-hidden'
               style={{ position: 'relative', height: screenHeight - 200 }}>
               {/* 아래층: ProblemViewer */}
               <ProblemViewer
