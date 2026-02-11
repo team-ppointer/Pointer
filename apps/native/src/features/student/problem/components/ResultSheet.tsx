@@ -63,6 +63,7 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
         ref={ref}
         index={-1}
         enableDynamicSizing
+        enableOverDrag={false}
         bottomInset={bottomInset}
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={styles.handleIndicator}

@@ -95,6 +95,7 @@ const TermsConsentSheet = forwardRef<BottomSheet, TermsConsentSheetProps>(
         index={-1}
         enableDynamicSizing
         enablePanDownToClose
+        enableOverDrag={false}
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={{ display: 'none' }}
         onChange={handleSheetChange}
@@ -138,9 +139,8 @@ const TermsConsentSheet = forwardRef<BottomSheet, TermsConsentSheetProps>(
               className='mb-[12px]'
             />
             <AnimatedPressable
-              className={`my-[10px] items-center justify-center rounded-[12px] px-[12px] py-[10px] ${
-                isRequiredChecked ? 'bg-primary-500' : 'bg-primary-200'
-              }`}
+              className={`my-[10px] items-center justify-center rounded-[12px] px-[12px] py-[10px] ${isRequiredChecked ? 'bg-primary-500' : 'bg-primary-200'
+                }`}
               disabled={!isRequiredChecked}
               onPress={handleConfirm}>
               <Text className='text-16m text-white'>다음</Text>
@@ -180,9 +180,8 @@ const ConsentRow = ({
       disableScale>
       <View className='flex-1 flex-row gap-[10px]'>
         <View
-          className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${
-            checked ? 'border-blue-500 bg-blue-500' : 'border-gray-600 bg-white'
-          }`}>
+          className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${checked ? 'border-blue-500 bg-blue-500' : 'border-gray-600 bg-white'
+            }`}>
           {checked ? <CheckIcon size={20} strokeWidth={2} color='white' /> : null}
         </View>
         <View className='flex-1 gap-[2px]'>
