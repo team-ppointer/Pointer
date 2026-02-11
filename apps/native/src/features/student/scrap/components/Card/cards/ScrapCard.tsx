@@ -13,7 +13,6 @@ import { useNavigation } from '@react-navigation/native';
 import type { ScrapListItemProps } from '../types';
 import { isItemSelected } from '../../../utils/reducer';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
@@ -25,7 +24,6 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const isSelected = isItemSelected(state.selectedItems, props.id, props.type);
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
-  const addScrap = useRecentScrapStore((state) => state.addScrap);
   const { openMoveScrapModal } = useScrapModal();
 
   const folderId = props.type === 'SCRAP' ? props.folderId : undefined;
