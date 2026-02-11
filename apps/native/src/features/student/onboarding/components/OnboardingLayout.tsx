@@ -136,7 +136,7 @@ const OnboardingLayout = ({
           className={`mt-[10px] rounded-[14px] py-[10px] ${
             ctaDisabled ? 'bg-primary-200' : 'bg-primary-500'
           }`}
-          style={{ marginBottom: isKeyboardVisible ? 18 : inset.bottom + 18 }}>
+          containerStyle={{ marginBottom: isKeyboardVisible ? 18 : inset.bottom + 18 }}>
           <Text className='text-18sb text-center text-white'>{ctaLabel}</Text>
         </AnimatedPressable>
       </Container>
