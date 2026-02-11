@@ -77,19 +77,19 @@ export const TrashCard = (props: TrashListItemProps) => {
               onPress={props.onCheckPress}
               className={
                 isSelected
-                  ? 'absolute h-4 w-4 items-center justify-center rounded bg-blue-500'
-                  : 'absolute h-4 w-4 items-center justify-center rounded border border-gray-700 bg-white'
+                  ? 'absolute h-[18px] w-[18px] items-center justify-center rounded bg-blue-500'
+                  : 'absolute h-[18px] w-[18px] items-center justify-center rounded border border-gray-700 bg-white'
               }
-              style={{ bottom: 10 }}>
-              <Check size={16} color='#F5F5F5' />
+              style={{ top: 108 }}>
+              {isSelected && <Check size={16} color='#F5F5F5' />}
             </Pressable>
           )}
         </View>
 
-        <View className='px-1'>
-          <View className='flex-row justify-between'>
-            <View className={'flex-[0.8] flex-row gap-0.5'}>
-              <Text className='text-16sb  text-black' numberOfLines={1}>
+        <View className='w-full flex-col items-start gap-[2px]'>
+          <View className='flex-row items-center gap-[2px]'>
+            <View className={'min-w-0 flex-1 shrink flex-row items-center'}>
+              <Text className='text-16sb shrink text-black' numberOfLines={2}>
                 {props.name}
               </Text>
             </View>
@@ -98,7 +98,7 @@ export const TrashCard = (props: TrashListItemProps) => {
             )}
           </View>
           <Text
-            className={`${props.daysUntilPermanentDelete <= 3 ? 'text-red-400' : 'text-gray-700'}`}
+            className={`${props.daysUntilPermanentDelete <= 3 ? 'text-red-400' : 'text-gray-700'} text-12r`}
             numberOfLines={1}>
             {props.daysUntilPermanentDelete}일 남음
           </Text>
