@@ -22,16 +22,33 @@ const EditPhoneNumberScreen = () => {
   const [verifyFeedbackMessage, setVerifyFeedbackMessage] = useState<string | null>(null);
   const [isCodeSent, setIsCodeSent] = useState(false);
   // const [carrierModalVisible, setCarrierModalVisible] = useState(false);
-  const [timer, setTimer] = useState(120); // 2분 = 120초
+  const [timer, setTimer] = useState(120);
+  const [endTime, setEndTime] = useState<number | null>(null);
 
   useEffect(() => {
-    if (isCodeSent && timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(interval);
+    if (isCodeSent) {
+      const expires = Date.now() + 120 * 1000;
+      setEndTime(expires);
+      setTimer(120);
     }
-  }, [isCodeSent, timer]);
+  }, [isCodeSent]);
+
+  useEffect(() => {
+    if (!endTime) return;
+
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+
+      setTimer(remaining);
+
+      if (remaining === 0) {
+        clearInterval(interval);
+        // 여기서 인증 만료 처리해도 됨
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [endTime]);
 
   const handleSendCode = async () => {
     if (phoneNumber.length >= 2 && !phoneNumber.startsWith('01')) {
