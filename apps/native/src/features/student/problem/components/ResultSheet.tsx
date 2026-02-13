@@ -7,6 +7,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { forwardRef, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import type { SharedValue } from 'react-native-reanimated';
 
 import CorrectIcon from './icons/CorrectIcon';
 import IncorrectIcon from './icons/IncorrectIcon';
@@ -18,8 +19,7 @@ type ResultSheetProps = {
   onPressPrimary: () => void;
   secondaryButtonLabel?: string;
   onPressSecondary?: () => void;
-  onSheetChange: (isOpen: boolean) => void;
-  onSheetAnimate?: (fromIndex: number, toIndex: number) => void;
+  animatedIndex?: SharedValue<number>;
 };
 
 const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
@@ -31,8 +31,7 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
       onPressPrimary,
       secondaryButtonLabel,
       onPressSecondary,
-      onSheetChange,
-      onSheetAnimate,
+      animatedIndex,
     },
     ref
   ) => {
@@ -49,13 +48,6 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
       []
     );
 
-    const handleSheetChange = useCallback(
-      (index: number) => {
-        onSheetChange(index >= 0);
-      },
-      [onSheetChange]
-    );
-
     const IconComponent = isCorrect ? CorrectIcon : IncorrectIcon;
 
     return (
@@ -68,8 +60,7 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={styles.handleIndicator}
         backgroundStyle={styles.sheetBackground}
-        onChange={handleSheetChange}
-        onAnimate={onSheetAnimate}>
+        animatedIndex={animatedIndex}>
         <BottomSheetView className='bg-white px-[4px] pb-[20px]'>
           <View className='items-center justify-center gap-[8px] py-[20px]'>
             <IconComponent />

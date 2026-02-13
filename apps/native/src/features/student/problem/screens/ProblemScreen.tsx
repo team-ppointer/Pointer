@@ -14,6 +14,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import BottomActionBar from '../components/BottomActionBar';
@@ -44,6 +45,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const resultSheetRef = useRef<BottomSheet>(null);
+  const keyboardSheetIndex = useSharedValue(-1);
+  const resultSheetIndex = useSharedValue(-1);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [answer, setAnswer] = useState('');
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
@@ -54,6 +57,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const [problemProgress, setProblemProgress] = useState<ProblemProgress | null>(null);
   const [isScraped, setIsScraped] = useState(false);
   const scrapAnimValue = useRef(new Animated.Value(0)).current;
+  const actionBarFade = useRef(new Animated.Value(0)).current;
 
   const phase = useProblemSessionStore(selectPhase);
   const currentProblem = useProblemSessionStore(selectCurrentProblem);
@@ -128,12 +132,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
 
   useEffect(() => {
     setAnswer('');
-    setKeyboardVisible(false);
-    setResultSheetVisible(false);
     setIsAnswerCorrect(false);
     setIsSubmitting(false);
-    bottomSheetRef.current?.close();
-    resultSheetRef.current?.close();
+    bottomSheetRef.current?.forceClose();
+    resultSheetRef.current?.forceClose();
     setIncorrectAttemptCount(0);
   }, [currentProblem?.id]);
 
@@ -148,18 +150,46 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setProblemProgress(currentProblem?.progress ?? null);
   }, [currentProblem?.id, currentProblem?.progress]);
 
+  useAnimatedReaction(
+    () => keyboardSheetIndex.value,
+    (current, previous) => {
+      const isOpen = current >= -0.5;
+      const wasOpen = (previous ?? -1) >= -0.5;
+      if (isOpen !== wasOpen) {
+        runOnJS(setKeyboardVisible)(isOpen);
+      }
+    }
+  );
+
+  useEffect(() => {
+    Animated.timing(actionBarFade, {
+      toValue: isKeyboardVisible ? 1 : 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  }, [isKeyboardVisible, actionBarFade]);
+
+  useAnimatedReaction(
+    () => resultSheetIndex.value,
+    (current, previous) => {
+      const isOpen = current >= 0;
+      const wasOpen = (previous ?? -1) >= 0;
+      if (isOpen !== wasOpen) {
+        runOnJS(setResultSheetVisible)(isOpen);
+      }
+    }
+  );
+
   const handleBottomBarLayout = useCallback((event: LayoutChangeEvent) => {
     setBottomBarHeight(event.nativeEvent.layout.height);
   }, []);
 
   const openKeyboard = useCallback(() => {
-    setKeyboardVisible(true);
     bottomSheetRef.current?.expand();
   }, []);
 
   const closeKeyboard = useCallback(() => {
-    setKeyboardVisible(false);
-    bottomSheetRef.current?.close();
+    bottomSheetRef.current?.forceClose();
   }, []);
 
   const openResultSheet = useCallback(() => {
@@ -167,8 +197,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   }, []);
 
   const closeResultSheet = useCallback(() => {
-    setResultSheetVisible(false);
-    resultSheetRef.current?.close();
+    resultSheetRef.current?.forceClose();
   }, []);
 
   const toggleKeyboard = useCallback(() => {
@@ -261,24 +290,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setAnswer(choice);
   }, []);
 
-  const handleSheetVisibility = useCallback((isOpen: boolean) => {
-    if (!isOpen) {
-      setKeyboardVisible(false);
-    }
-  }, []);
-
-  const handleSheetAnimate = useCallback((fromIndex: number, toIndex: number) => {
-    setKeyboardVisible(toIndex >= 0);
-  }, []);
-
-  const handleResultSheetVisibility = useCallback((isOpen: boolean) => {
-    setResultSheetVisible(isOpen);
-  }, []);
-
-  const handleResultSheetAnimate = useCallback((fromIndex: number, toIndex: number) => {
-    setResultSheetVisible(toIndex >= 0);
-  }, []);
-
   const proceedToNextStep = useCallback(() => {
     closeResultSheet();
     if (phase === 'MAIN_PROBLEM') {
@@ -341,8 +352,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   );
 
   const handleRetry = useCallback(() => {
-    resultSheetRef.current?.close();
-    setResultSheetVisible(false);
+    resultSheetRef.current?.forceClose();
     setAnswer('');
   }, []);
 
@@ -414,17 +424,43 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           bottomInset={bottomBarHeight}
           value={answer}
           answerType={currentProblem?.answerType}
+          animatedIndex={keyboardSheetIndex}
           onAppendDigit={(digit) => setAnswer((prev) => prev + digit)}
           onSelectChoice={handleSelectChoice}
           onDelete={handleDeleteDigit}
-          onSubmit={handleSubmitAnswer}
-          onClose={closeKeyboard}
-          onSheetChange={handleSheetVisibility}
-          onSheetAnimate={handleSheetAnimate}
         />
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
-          {isKeyboardVisible ? (
-            <>
+          <View style={actionBarStyles.container}>
+            <Animated.View
+              style={[
+                actionBarStyles.layer,
+                {
+                  opacity: actionBarFade.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0],
+                  }),
+                },
+              ]}
+              pointerEvents={isKeyboardVisible ? 'none' : 'auto'}>
+              <BottomActionBar.Button
+                animatedStyle={{ backgroundColor: scrapBgColor }}
+                onPress={handleToggleScrap}>
+                <BookmarkIcon
+                  size={22}
+                  color={isScraped ? colors['primary-500'] : colors['gray-700']}
+                  fill={isScraped ? colors['primary-500'] : 'transparent'}
+                />
+              </BottomActionBar.Button>
+              <BottomActionBar.Button
+                className='bg-primary-500 h-[42px]'
+                containerStyle={{ flex: 1 }}
+                onPress={toggleKeyboard}>
+                <Text className='text-16m text-white'>답 입력하기</Text>
+              </BottomActionBar.Button>
+            </Animated.View>
+            <Animated.View
+              style={[actionBarStyles.layer, actionBarStyles.overlay, { opacity: actionBarFade }]}
+              pointerEvents={isKeyboardVisible ? 'auto' : 'none'}>
               <BottomActionBar.Button
                 className='bg-primary-200 h-[42px]'
                 containerStyle={{ flex: 1 }}
@@ -440,29 +476,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                   {isSubmitting ? '제출 중...' : '제출하기'}
                 </Text>
               </BottomActionBar.Button>
-            </>
-          ) : (
-            <>
-              <BottomActionBar.Button
-                animatedStyle={{ backgroundColor: scrapBgColor }}
-                onPress={handleToggleScrap}>
-                <BookmarkIcon
-                  size={22}
-                  color={isScraped ? colors['primary-500'] : colors['gray-700']}
-                  fill={isScraped ? colors['primary-500'] : 'transparent'}
-                />
-              </BottomActionBar.Button>
-              {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-                <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-              </BottomActionBar.Button> */}
-              <BottomActionBar.Button
-                className='bg-primary-500 h-[42px]'
-                containerStyle={{ flex: 1 }}
-                onPress={toggleKeyboard}>
-                <Text className='text-16m text-white'>답 입력하기</Text>
-              </BottomActionBar.Button>
-            </>
-          )}
+            </Animated.View>
+          </View>
         </BottomActionBar>
       </SafeAreaView>
       <View pointerEvents='box-none' style={StyleSheet.absoluteFill}>
@@ -474,12 +489,29 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           secondaryButtonLabel={showRetryButton ? '다시 풀어보기' : undefined}
           onPressSecondary={showRetryButton ? handleRetry : undefined}
           onPressPrimary={proceedToNextStep}
-          onSheetChange={handleResultSheetVisibility}
-          onSheetAnimate={handleResultSheetAnimate}
+          animatedIndex={resultSheetIndex}
         />
       </View>
     </View>
   );
 };
+
+const actionBarStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  layer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+});
 
 export default ProblemScreen;
