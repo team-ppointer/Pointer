@@ -1,6 +1,5 @@
 import { components } from '@schema';
 
-type ScrapDetailResp = components['schemas']['ScrapDetailResp'];
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
 type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'];
 type ProblemWithStudyInfoResp = components['schemas']['ProblemWithStudyInfoResp'];

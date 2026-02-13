@@ -3,7 +3,7 @@ import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
@@ -19,12 +19,12 @@ import { useScrapSelection, useScrapStoreSync } from '../hooks';
 import { withScrapModals } from '../hoc';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ScrapScreenContent = () => {
   const [reducerState, dispatch] = useScrapSelection();
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
-  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const recentScrapIds = useRecentScrapStore((state) => state.scrapIds);
   const { openMoveScrapModal, setRefetchScraps } = useScrapModal();
