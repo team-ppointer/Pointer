@@ -8,6 +8,7 @@ import BottomSheet, {
 import { DeleteIcon } from 'lucide-react-native';
 import { forwardRef, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import type { SharedValue } from 'react-native-reanimated';
 
 type AnswerType = 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
 
@@ -15,13 +16,12 @@ type AnswerKeyboardSheetProps = {
   bottomInset: number;
   value: string;
   answerType?: AnswerType;
+  animatedIndex?: SharedValue<number>;
   onAppendDigit: (digit: string) => void;
   onSelectChoice: (choice: string) => void;
   onDelete: () => void;
   onSubmit: () => void;
   onClose: () => void;
-  onSheetChange: (isOpen: boolean) => void;
-  onSheetAnimate?: (fromIndex: number, toIndex: number) => void;
 };
 
 const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
@@ -30,13 +30,12 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
       bottomInset,
       value,
       answerType = 'SHORT_ANSWER',
+      animatedIndex,
       onAppendDigit,
       onSelectChoice,
       onDelete,
       onSubmit,
       onClose,
-      onSheetChange,
-      onSheetAnimate,
     },
     ref
   ) => {
@@ -51,13 +50,6 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
         />
       ),
       []
-    );
-
-    const handleSheetChange = useCallback(
-      (index: number) => {
-        onSheetChange(index >= 0);
-      },
-      [onSheetChange]
     );
 
     const renderKey = (label: string, onPress: () => void, flex = 1) => (
@@ -135,8 +127,7 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
         enablePanDownToClose
         handleIndicatorStyle={styles.handleIndicator}
         backgroundStyle={styles.sheetBackground}
-        onChange={handleSheetChange}
-        onAnimate={onSheetAnimate}>
+        animatedIndex={animatedIndex}>
         <BottomSheetView className='bg-gray-300 px-[4px] pb-[20px]'>
           <Container>
             {answerType === 'MULTIPLE_CHOICE'
