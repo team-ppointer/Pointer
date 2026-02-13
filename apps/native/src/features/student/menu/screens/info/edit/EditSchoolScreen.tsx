@@ -44,32 +44,30 @@ const EditSchoolScreen = ({
   };
 
   const handleSave = async () => {
-    navigation.push('EditGrade', {
-      initialSchoolId: schoolId ?? undefined,
-      initialSchoolName: selectedLabel ?? undefined,
-      initialGrade: route.params.initialSchool?.grade,
+    navigation.reset({
+      index: 1,
+      routes: [
+        { name: 'MenuMain' },
+        {
+          name: 'MyInfo',
+          params: {
+            updatedData: {
+              schoolId: schoolId,
+              schoolName: selectedLabel,
+              grade: route.params.initialGrade,
+            },
+          },
+        },
+      ],
     });
     showToast('success', '학교가 변경되었습니다.');
-  };
-
-  const handleSkip = () => {
-    setSchoolId(null);
-    setQuery('');
-    setSelectedLabel('');
-    navigation.push('EditGrade', {
-      initialSchoolId: route.params.initialSchool?.id,
-      initialSchoolName: route.params.initialSchool?.name,
-      initialGrade: route.params.initialSchool?.grade,
-    });
   };
 
   return (
     <EditScreenLayout
       title='현재 재학중인 학교명을 입력해 주세요.'
       description='학교를 입력해 맞춤형 문제를 제공받아요.'
-      onPressCTA={handleSave}
-      skipLabel='건너뛰기'
-      onSkip={handleSkip}>
+      onPressCTA={handleSave}>
       <View>
         <OnboardingInput
           label='학교'
