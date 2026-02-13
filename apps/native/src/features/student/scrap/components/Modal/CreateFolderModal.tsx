@@ -52,7 +52,7 @@ export const CreateFolderModal = () => {
         ]);
         return files[0].id;
       } catch (error: any) {
-        showToast('error', error.message);
+        console.log('error', error.message);
       }
     }
     return null;
