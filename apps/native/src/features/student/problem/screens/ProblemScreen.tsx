@@ -152,8 +152,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   useAnimatedReaction(
     () => keyboardSheetIndex.value,
     (current, previous) => {
-      const isOpen = current >= 0;
-      const wasOpen = (previous ?? -1) >= 0;
+      const isOpen = current >= -0.5;
+      const wasOpen = (previous ?? -1) >= -0.5;
       if (isOpen !== wasOpen) {
         runOnJS(setKeyboardVisible)(isOpen);
       }
