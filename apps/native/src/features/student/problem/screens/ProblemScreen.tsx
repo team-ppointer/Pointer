@@ -57,6 +57,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const [problemProgress, setProblemProgress] = useState<ProblemProgress | null>(null);
   const [isScraped, setIsScraped] = useState(false);
   const scrapAnimValue = useRef(new Animated.Value(0)).current;
+  const actionBarFade = useRef(new Animated.Value(0)).current;
 
   const phase = useProblemSessionStore(selectPhase);
   const currentProblem = useProblemSessionStore(selectCurrentProblem);
@@ -159,6 +160,14 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       }
     }
   );
+
+  useEffect(() => {
+    Animated.timing(actionBarFade, {
+      toValue: isKeyboardVisible ? 1 : 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  }, [isKeyboardVisible, actionBarFade]);
 
   useAnimatedReaction(
     () => resultSheetIndex.value,
@@ -421,8 +430,37 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           onDelete={handleDeleteDigit}
         />
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
-          {isKeyboardVisible ? (
-            <>
+          <View style={actionBarStyles.container}>
+            <Animated.View
+              style={[
+                actionBarStyles.layer,
+                {
+                  opacity: actionBarFade.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0],
+                  }),
+                },
+              ]}
+              pointerEvents={isKeyboardVisible ? 'none' : 'auto'}>
+              <BottomActionBar.Button
+                animatedStyle={{ backgroundColor: scrapBgColor }}
+                onPress={handleToggleScrap}>
+                <BookmarkIcon
+                  size={22}
+                  color={isScraped ? colors['primary-500'] : colors['gray-700']}
+                  fill={isScraped ? colors['primary-500'] : 'transparent'}
+                />
+              </BottomActionBar.Button>
+              <BottomActionBar.Button
+                className='bg-primary-500 h-[42px]'
+                containerStyle={{ flex: 1 }}
+                onPress={toggleKeyboard}>
+                <Text className='text-16m text-white'>답 입력하기</Text>
+              </BottomActionBar.Button>
+            </Animated.View>
+            <Animated.View
+              style={[actionBarStyles.layer, actionBarStyles.overlay, { opacity: actionBarFade }]}
+              pointerEvents={isKeyboardVisible ? 'auto' : 'none'}>
               <BottomActionBar.Button
                 className='bg-primary-200 h-[42px]'
                 containerStyle={{ flex: 1 }}
@@ -438,29 +476,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                   {isSubmitting ? '제출 중...' : '제출하기'}
                 </Text>
               </BottomActionBar.Button>
-            </>
-          ) : (
-            <>
-              <BottomActionBar.Button
-                animatedStyle={{ backgroundColor: scrapBgColor }}
-                onPress={handleToggleScrap}>
-                <BookmarkIcon
-                  size={22}
-                  color={isScraped ? colors['primary-500'] : colors['gray-700']}
-                  fill={isScraped ? colors['primary-500'] : 'transparent'}
-                />
-              </BottomActionBar.Button>
-              {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-                <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-              </BottomActionBar.Button> */}
-              <BottomActionBar.Button
-                className='bg-primary-500 h-[42px]'
-                containerStyle={{ flex: 1 }}
-                onPress={toggleKeyboard}>
-                <Text className='text-16m text-white'>답 입력하기</Text>
-              </BottomActionBar.Button>
-            </>
-          )}
+            </Animated.View>
+          </View>
         </BottomActionBar>
       </SafeAreaView>
       <View pointerEvents='box-none' style={StyleSheet.absoluteFill}>
@@ -478,5 +495,23 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     </View>
   );
 };
+
+const actionBarStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  layer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+});
 
 export default ProblemScreen;
