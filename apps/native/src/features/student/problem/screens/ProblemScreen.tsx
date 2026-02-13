@@ -419,8 +419,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           onAppendDigit={(digit) => setAnswer((prev) => prev + digit)}
           onSelectChoice={handleSelectChoice}
           onDelete={handleDeleteDigit}
-          onSubmit={handleSubmitAnswer}
-          onClose={closeKeyboard}
         />
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
           {isKeyboardVisible ? (

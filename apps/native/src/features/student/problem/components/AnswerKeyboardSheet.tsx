@@ -20,8 +20,6 @@ type AnswerKeyboardSheetProps = {
   onAppendDigit: (digit: string) => void;
   onSelectChoice: (choice: string) => void;
   onDelete: () => void;
-  onSubmit: () => void;
-  onClose: () => void;
 };
 
 const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
@@ -34,8 +32,6 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
       onAppendDigit,
       onSelectChoice,
       onDelete,
-      onSubmit,
-      onClose,
     },
     ref
   ) => {
