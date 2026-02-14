@@ -31,17 +31,14 @@ export function convertScrapToGroup(
   const pointingsForProblem = entirePointing.filter((p) => p.problemId === mainProblem.problemId);
 
   // 포인팅 데이터 변환
-  const pointings: PointingWithFeedbackResp[] =
-    pointingsForProblem.map((pointing) => ({
-      ...pointing,
-    })) ?? [];
+  const pointings: PointingWithFeedbackResp[] = pointingsForProblem ?? [];
 
   // childProblems를 ProblemWithStudyInfoResp 형태로 변환
   const transformedChildProblems = childProblemsData.map((childProblem) => {
     const childPointings = entirePointing.filter((p) => p.problemId === childProblem.problemId);
     return {
       ...childProblem,
-      pointings: childPointings.map((p) => ({ ...p })),
+      pointings: childPointings,
       childProblems: [],
     } as unknown as ProblemWithStudyInfoResp;
   });
