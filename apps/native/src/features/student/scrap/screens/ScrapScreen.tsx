@@ -19,7 +19,6 @@ import { useScrapSelection, useScrapStoreSync } from '../hooks';
 import { withScrapModals } from '../hoc';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ScrapScreenContent = () => {
   const [reducerState, dispatch] = useScrapSelection();
