@@ -4,6 +4,9 @@
   "pnpm": {
     "overrides": {
       "esbuild": "0.25.12"
+    },
+    "patchedDependencies": {
+      "@gorhom/bottom-sheet@5.2.8": "patches/@gorhom__bottom-sheet@5.2.8.patch"
     }
   },
   "scripts": {
