@@ -26,14 +26,6 @@ const EditPhoneNumberScreen = () => {
   const [endTime, setEndTime] = useState<number | null>(null);
 
   useEffect(() => {
-    if (isCodeSent) {
-      const expires = Date.now() + 120 * 1000;
-      setEndTime(expires);
-      setTimer(120);
-    }
-  }, [isCodeSent]);
-
-  useEffect(() => {
     if (!endTime) return;
 
     const interval = setInterval(() => {
@@ -63,6 +55,7 @@ const EditPhoneNumberScreen = () => {
       const response = await postPhoneSend(phoneNumber);
       if (response.data?.success) {
         setIsCodeSent(true);
+        setEndTime(Date.now() + 120 * 1000);
         setTimer(120);
         showToast('success', response.data.message || '인증번호가 전송되었습니다.');
       } else {
@@ -79,6 +72,7 @@ const EditPhoneNumberScreen = () => {
       const response = await postPhoneResend(phoneNumber);
       if (response.data?.success) {
         setIsCodeSent(true);
+        setEndTime(Date.now() + 120 * 1000);
         setTimer(120);
         showToast('success', response.data.message || '인증번호가 재전송되었습니다.');
       } else {
