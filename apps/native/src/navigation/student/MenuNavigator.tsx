@@ -27,6 +27,8 @@ export type MenuStackParamList = {
       grade?: GradeValue;
       schoolId?: number;
       school?: components['schemas']['SchoolResp'];
+      schoolName?: string;
+      sido?: string;
       level?: number;
       selectSubject?: MathSubjectValue;
     };

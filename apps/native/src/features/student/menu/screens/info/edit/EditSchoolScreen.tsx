@@ -15,10 +15,11 @@ const EditSchoolScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditSchool'>) => {
-  const [schoolId, setSchoolId] = useState<number | null>(route.params.initialSchool?.id || null);
+  const [schoolId, setSchoolId] = useState<number | undefined>(route.params.initialSchool?.id || undefined);
 
   const [query, setQuery] = useState(route.params.initialSchool?.name || '');
   const [selectedLabel, setSelectedLabel] = useState(route.params.initialSchool?.name || '');
+  const [selectedSido, setSelectedSido] = useState(route.params.initialSchool?.sido || '');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const debouncedQuery = useDebounce(query.trim(), 300);
@@ -33,14 +34,16 @@ const EditSchoolScreen = ({
     const label = `${name}(${sido})`;
     setSchoolId(id);
     setQuery(label);
-    setSelectedLabel(label);
+    setSelectedLabel(name);
+    setSelectedSido(sido);
     setDropdownVisible(false);
   };
 
   const handleClear = () => {
-    setSchoolId(null);
+    setSchoolId(undefined);
     setQuery('');
     setSelectedLabel('');
+    setSelectedSido('');
   };
 
   const handleSave = async () => {
@@ -54,6 +57,7 @@ const EditSchoolScreen = ({
             updatedData: {
               schoolId: schoolId,
               schoolName: selectedLabel,
+              sido: selectedSido,
               grade: route.params.initialGrade,
             },
           },
@@ -80,8 +84,9 @@ const EditSchoolScreen = ({
           onChangeText={(text) => {
             setQuery(text);
             if (selectedLabel && text !== selectedLabel) {
-              setSchoolId(null);
+              setSchoolId(undefined);
               setSelectedLabel('');
+              setSelectedSido('');
             }
             if (!dropdownVisible) setDropdownVisible(true);
           }}
