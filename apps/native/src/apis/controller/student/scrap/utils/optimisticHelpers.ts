@@ -94,7 +94,10 @@ export const optimisticMoveScrap = async (
     return {
       folders: old.folders?.map((folder) => {
         const removedCount = sourceFolderCounts.get(folder.id) ?? 0;
-        const addedCount = folder.id === targetFolderId ? items.length : 0;
+        const addedCount =
+          folder.id === targetFolderId ? items.filter((item) => item.type === 'SCRAP').length : 0;
+        //  const addedCount =
+        //   folder.id === targetFolderId ? items.filter((item) => item.type === 'SCRAP').length : 0;
 
         return {
           ...folder,
