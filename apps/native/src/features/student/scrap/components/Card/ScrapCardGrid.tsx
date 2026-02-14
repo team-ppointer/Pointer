@@ -87,8 +87,6 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
         const spacingStyle = {
           width: itemWidth,
           marginRight: isLastColumn ? 0 : gap,
-
-          maxHeight: 216,
         };
 
         // Check for placeholder first
@@ -198,8 +196,6 @@ export const SearchScrapGrid = ({ data, searchQuery }: SearchScrapGridProps) => 
         const spacingStyle = {
           width: itemWidth,
           marginRight: isLastColumn ? 0 : gap,
-
-          maxHeight: 216,
         };
 
         if ('placeholder' in item && item.placeholder) {
@@ -299,8 +295,6 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
         const spacingStyle = {
           width: itemWidth,
           marginRight: isLastColumn ? 0 : gap,
-
-          maxHeight: 216,
         };
 
         // Check for placeholder first
