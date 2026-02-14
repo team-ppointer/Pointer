@@ -299,13 +299,13 @@ const MyInfoScreen = () => {
                     gradeOptions.find((option) => option.value === displayData.grade)?.label || ''
                   }`,
                   onPress: () =>
-                    navigation.navigate('EditSchool', {
+                    navigation.navigate('EditGrade', {
+                      initialGrade: displayData.grade,
                       initialSchool: displayData.schoolId
                         ? {
                             id: displayData.schoolId,
                             name: displayData.schoolName,
                             sido: displayData.sido,
-                            grade: displayData.grade,
                           }
                         : undefined,
                     }),

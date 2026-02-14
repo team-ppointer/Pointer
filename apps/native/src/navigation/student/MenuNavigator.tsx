@@ -27,6 +27,8 @@ export type MenuStackParamList = {
       grade?: GradeValue;
       schoolId?: number;
       school?: components['schemas']['SchoolResp'];
+      schoolName?: string;
+      sido?: string;
       level?: number;
       selectSubject?: MathSubjectValue;
     };
@@ -38,8 +40,8 @@ export type MenuStackParamList = {
   Withdrawal: undefined;
   EditPhoneNumber: undefined;
   EditNickname: { initialNickname?: string };
-  EditSchool: { initialSchool?: components['schemas']['SchoolResp'] & { grade?: GradeValue } };
-  EditGrade: { initialSchoolId?: number, initialSchoolName?: string,  initialGrade?: GradeValue };
+  EditGrade: { initialGrade?: GradeValue; initialSchool?: components['schemas']['SchoolResp'] };
+  EditSchool: { initialSchool?: components['schemas']['SchoolResp']; initialGrade?: GradeValue };
   EditScore: { initialScore?: number };
   EditMathSubject: { initialMathSubject?: MathSubjectValue };
 };

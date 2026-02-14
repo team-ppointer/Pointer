@@ -60,7 +60,7 @@ export const EditScreenLayout = ({
       className='flex-1'
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}>
-      <View className='z-10 flex-row items-center justify-between bg-gray-100 px-[20px] py-[14px]'>
+      <View className='z-10 flex-row items-center justify-between bg-gray-100 px-[20px] py-[4px]'>
         {showBackButton ? (
           <AnimatedPressable
             accessibilityRole='button'

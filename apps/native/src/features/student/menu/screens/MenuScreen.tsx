@@ -52,7 +52,7 @@ const MenuScreen = () => {
 
   return (
     <View className='w-full flex-1'>
-      <Container className='h-[52px] justify-center bg-gray-100'>
+      <Container className='h-[52px] justify-center bg-gray-100 py-[2px]'>
         <Text className='text-20b text-black'>전체 메뉴</Text>
       </Container>
       <Container className='flex-1'>

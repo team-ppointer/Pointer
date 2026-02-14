@@ -18,36 +18,30 @@ const EditGradeScreen = ({
       showToast('error', '학년을 선택해 주세요.');
       return;
     }
-    const updatedData: {
-      grade: GradeValue;
-      schoolId?: number;
-      schoolName?: string;
-      sido?: string;
-    } = {
-      grade: grade,
-    };
-    if (route.params.initialSchoolId) {
-      updatedData.schoolId = route.params.initialSchoolId;
-      updatedData.schoolName = route.params.initialSchoolName;
-      updatedData.sido = route.params.initialSido;
-    } else {
-      updatedData.schoolId = undefined;
-      updatedData.schoolName = '';
-      updatedData.sido = '';
-    }
 
-    navigation.reset({
-      index: 1,
-      routes: [{ name: 'MenuMain' }, { name: 'MyInfo', params: { updatedData } }],
+    navigation.push('EditSchool', {
+      initialSchool: route.params.initialSchool,
+      initialGrade: grade,
     });
+
     showToast('success', '학년이 변경되었습니다.');
   };
+
+  const handleSkip = () => {
+    navigation.push('EditSchool', {
+      initialSchool: route.params.initialSchool,
+      initialGrade: route.params.initialGrade,
+    });
+  };
+
   return (
     <EditScreenLayout
       title='고등학교 학년을 선택해 주세요.'
       description='학년을 입력해 교육과정이 고려된 맞춤형 문제를 제공받아요.'
       onPressCTA={handleSave}
-      ctaDisabled={!grade}>
+      ctaDisabled={!grade}
+      skipLabel='건너뛰기'
+      onSkip={handleSkip}>
       <View className='gap-[20px]'>
         {gradeOptions.map((option) => (
           <OptionButton

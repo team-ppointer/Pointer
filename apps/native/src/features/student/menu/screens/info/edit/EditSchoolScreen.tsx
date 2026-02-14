@@ -15,10 +15,11 @@ const EditSchoolScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditSchool'>) => {
-  const [schoolId, setSchoolId] = useState<number | null>(route.params.initialSchool?.id || null);
+  const [schoolId, setSchoolId] = useState<number | undefined>(route.params.initialSchool?.id || undefined);
 
   const [query, setQuery] = useState(route.params.initialSchool?.name || '');
   const [selectedLabel, setSelectedLabel] = useState(route.params.initialSchool?.name || '');
+  const [selectedSido, setSelectedSido] = useState(route.params.initialSchool?.sido || '');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const debouncedQuery = useDebounce(query.trim(), 300);
@@ -33,43 +34,44 @@ const EditSchoolScreen = ({
     const label = `${name}(${sido})`;
     setSchoolId(id);
     setQuery(label);
-    setSelectedLabel(label);
+    setSelectedLabel(name);
+    setSelectedSido(sido);
     setDropdownVisible(false);
   };
 
   const handleClear = () => {
-    setSchoolId(null);
+    setSchoolId(undefined);
     setQuery('');
     setSelectedLabel('');
+    setSelectedSido('');
   };
 
   const handleSave = async () => {
-    navigation.push('EditGrade', {
-      initialSchoolId: schoolId ?? undefined,
-      initialSchoolName: selectedLabel ?? undefined,
-      initialGrade: route.params.initialSchool?.grade,
+    navigation.reset({
+      index: 1,
+      routes: [
+        { name: 'MenuMain' },
+        {
+          name: 'MyInfo',
+          params: {
+            updatedData: {
+              schoolId: schoolId,
+              schoolName: selectedLabel,
+              sido: selectedSido,
+              grade: route.params.initialGrade,
+            },
+          },
+        },
+      ],
     });
     showToast('success', '학교가 변경되었습니다.');
-  };
-
-  const handleSkip = () => {
-    setSchoolId(null);
-    setQuery('');
-    setSelectedLabel('');
-    navigation.push('EditGrade', {
-      initialSchoolId: route.params.initialSchool?.id,
-      initialSchoolName: route.params.initialSchool?.name,
-      initialGrade: route.params.initialSchool?.grade,
-    });
   };
 
   return (
     <EditScreenLayout
       title='현재 재학중인 학교명을 입력해 주세요.'
       description='학교를 입력해 맞춤형 문제를 제공받아요.'
-      onPressCTA={handleSave}
-      skipLabel='건너뛰기'
-      onSkip={handleSkip}>
+      onPressCTA={handleSave}>
       <View>
         <OnboardingInput
           label='학교'
@@ -82,8 +84,9 @@ const EditSchoolScreen = ({
           onChangeText={(text) => {
             setQuery(text);
             if (selectedLabel && text !== selectedLabel) {
-              setSchoolId(null);
+              setSchoolId(undefined);
               setSelectedLabel('');
+              setSelectedSido('');
             }
             if (!dropdownVisible) setDropdownVisible(true);
           }}
