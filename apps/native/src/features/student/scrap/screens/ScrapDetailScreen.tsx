@@ -351,7 +351,7 @@ const ScrapDetailScreen = () => {
       // problemSetTitle: scrapDetail?.name || '스크랩',
       // publishAt: scrapDetail?.createdAt,
     });
-  }, [scrapDetail, navigation, entireProblemPointing, entireProblem]);
+  }, [navigation, entireProblemPointing, entireProblem]);
 
   const handleTabLayout = useCallback((noteId: number, event: LayoutChangeEvent) => {
     const { x, width } = event.nativeEvent.layout;
