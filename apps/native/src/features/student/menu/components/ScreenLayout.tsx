@@ -32,7 +32,7 @@ export const ScreenLayout = ({ title, children, onPressBack, rightElement }: Pro
           <ChevronLeft size={32} color='#000' />
         </AnimatedPressable>
         <Text className='text-20b text-gray-900'>{title}</Text>
-        {rightElement ?? <View className='h-[36px] w-[36px]' />}
+        {rightElement ?? <View className='h-[48px] w-[48px]' />}
       </View>
       {children}
     </View>
