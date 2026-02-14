@@ -33,12 +33,25 @@ export const optimisticDeleteScrap = async (
   // 이전 데이터 백업
   const previousQueries = queryClient.getQueriesData(searchQueryFilters);
 
-  // 낙관적 업데이트: 삭제된 항목을 즉시 제거
+  // 낙관적 업데이트: 삭제된 항목을 즉시 제거 + 폴더 정보 업데이트
   queryClient.setQueriesData<ScrapSearchResponse>(searchQueryFilters, (old) => {
     if (!old) return old;
 
+    // 삭제되는 스크랩들의 folderId별 개수 계산
+    const folderCountDeltas = new Map<number, number>();
+    old.scraps?.forEach((scrap) => {
+      if (deletedIds.has(`SCRAP-${scrap.id}`) && scrap.folderId != null) {
+        folderCountDeltas.set(scrap.folderId, (folderCountDeltas.get(scrap.folderId) ?? 0) + 1);
+      }
+    });
+
     return {
-      folders: old.folders?.filter((folder) => !deletedIds.has(`FOLDER-${folder.id}`)),
+      folders: old.folders
+        ?.filter((folder) => !deletedIds.has(`FOLDER-${folder.id}`))
+        .map((folder) => ({
+          ...folder,
+          scrapCount: (folder.scrapCount ?? 0) - (folderCountDeltas.get(folder.id) ?? 0),
+        })),
       scraps: old.scraps?.filter((scrap) => !deletedIds.has(`SCRAP-${scrap.id}`)),
     };
   });
@@ -48,11 +61,13 @@ export const optimisticDeleteScrap = async (
 
 /**
  * 스크랩 이동 낙관적 업데이트
+ * @param targetFolderId 이동할 폴더 ID (undefined면 전체 스크랩으로 이동)
  * @returns 롤백을 위한 이전 데이터
  */
 export const optimisticMoveScrap = async (
   queryClient: QueryClient,
-  items: Array<{ id: number; type: string }>
+  items: Array<{ id: number; type: string }>,
+  targetFolderId?: number
 ) => {
   const movedIds = createDeletedIdsSet(items);
   const searchQueryFilters = createSearchQueryFilters();
@@ -63,13 +78,35 @@ export const optimisticMoveScrap = async (
   // 이전 데이터 백업
   const previousQueries = queryClient.getQueriesData(searchQueryFilters);
 
-  // 낙관적 업데이트: 이동된 항목을 현재 폴더에서 제거
+  // 낙관적 업데이트: 이동된 스크랩의 folderId 변경
+  // 스크랩 이동 시 폴더 정보도 업데이트
   queryClient.setQueriesData<ScrapSearchResponse>(searchQueryFilters, (old) => {
     if (!old) return old;
 
+    // 이동되는 스크랩들의 원래 folderId 수집
+    const sourceFolderCounts = new Map<number, number>();
+    old.scraps?.forEach((scrap) => {
+      if (movedIds.has(`SCRAP-${scrap.id}`) && scrap.folderId != null) {
+        sourceFolderCounts.set(scrap.folderId, (sourceFolderCounts.get(scrap.folderId) ?? 0) + 1);
+      }
+    });
+
     return {
-      folders: old.folders?.filter((folder) => !movedIds.has(`FOLDER-${folder.id}`)),
-      scraps: old.scraps?.filter((scrap) => !movedIds.has(`SCRAP-${scrap.id}`)),
+      folders: old.folders?.map((folder) => {
+        const removedCount = sourceFolderCounts.get(folder.id) ?? 0;
+        const addedCount =
+          folder.id === targetFolderId ? items.filter((item) => item.type === 'SCRAP').length : 0;
+        //  const addedCount =
+        //   folder.id === targetFolderId ? items.filter((item) => item.type === 'SCRAP').length : 0;
+
+        return {
+          ...folder,
+          scrapCount: (folder.scrapCount ?? 0) - removedCount + addedCount,
+        };
+      }),
+      scraps: old.scraps?.map((scrap) =>
+        movedIds.has(`SCRAP-${scrap.id}`) ? { ...scrap, folderId: targetFolderId } : scrap
+      ),
     };
   });
 

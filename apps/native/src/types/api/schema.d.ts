@@ -990,6 +990,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/me/push/settings/init': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * 초기 푸시 설정
+     * @description 전체 푸시 관련 설정(마스터 토글, 서비스 알림, QnA 알림, 마케팅 알림)을 한 번에 true/false로 세팅합니다.
+     */
+    post: operations['initPushSettings'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/me/push/allow/toggle': {
     parameters: {
       query?: never;
@@ -1561,6 +1581,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/fcm/test': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 특정 토큰으로 FCM 푸시 테스트 발송 */
+    post: operations['sendTestPush'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/diagnosis': {
     parameters: {
       query?: never;
@@ -1979,6 +2016,40 @@ export interface paths {
     };
     /** 문제 상세 조회 */
     get: operations['getProblemById_1'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/study/problem/entire/{problemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 문제 그룹 전체 조회 (부모+형제 문제) */
+    get: operations['getEntireProblems'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/study/pointing/entire/{problemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 문제의 전체 포인팅 조회 (부모+새끼문제) */
+    get: operations['getEntirePointings'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2495,6 +2566,23 @@ export interface paths {
     };
     /** 학생 별 유효 공지사항(현재 학생이 볼 수 있는 공지사항) 조회 */
     get: operations['getsAvailable_2'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/fcm/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** FCM 초기화 상태 확인 */
+    get: operations['getStatus'];
     put?: never;
     post?: never;
     delete?: never;
@@ -3638,6 +3726,10 @@ export interface components {
     'StudentPushDTO.UpdateTokenRequest': {
       fcmToken: string;
     };
+    'StudentPushDTO.InitPushRequest': {
+      /** @description 푸시 허용 여부 (true: 전체 허용, false: 전체 차단) */
+      allow: boolean;
+    };
     'StudentPasswordDTO.UpdatePasswordRequest': {
       newPassword: string;
     };
@@ -4093,6 +4185,38 @@ export interface components {
       /** @description FCM 지원 여부 */
       fcmSupported: boolean;
     };
+    /** @description FCM 테스트 발송 요청 */
+    FcmTestReq: {
+      /**
+       * @description FCM 토큰
+       * @example dGVzdC10b2tlbi1mb3ItZmNtLXB1c2gtbm90aWZpY2F0aW9u
+       */
+      token: string;
+      /**
+       * @description 알림 제목
+       * @example 테스트 알림
+       */
+      title: string;
+      /**
+       * @description 알림 내용
+       * @example FCM 푸시 테스트 메시지입니다.
+       */
+      body: string;
+      /**
+       * @description 클릭 시 이동할 URL (선택)
+       * @example /home
+       */
+      url?: string;
+    };
+    /** @description FCM 테스트 발송 응답 */
+    FcmTestResp: {
+      /** @description 발송 성공 여부 */
+      success?: boolean;
+      /** @description 결과 메시지 */
+      message?: string;
+      /** @description 에러 상세 (실패 시) */
+      errorDetail?: string;
+    };
     DiagnosisCreateReq: {
       /** Format: int64 */
       studentId?: number;
@@ -4190,6 +4314,72 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['NoticeResp'][];
+    };
+    ListRespProblemEntireResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ProblemEntireResp'][];
+    };
+    ProblemEntireResp: {
+      /**
+       * Format: int64
+       * @description 문제 ID
+       */
+      problemId: number;
+      /** @description 부모문제 여부 (true: 부모문제, false: 새끼문제) */
+      isParent: boolean;
+      /** Format: int64 */
+      id: number;
+      /** @enum {string} */
+      problemType: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
+      /** Format: int64 */
+      parentProblem?: number;
+      parentProblemTitle?: string;
+      customId: string;
+      /** @enum {string} */
+      createType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      practiceTest: components['schemas']['PracticeTestResp'];
+      /** Format: int32 */
+      practiceTestNo: number;
+      problemContent: string;
+      title: string;
+      /** @enum {string} */
+      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      /** Format: int32 */
+      answer: number;
+      /** Format: int32 */
+      difficulty: number;
+      /** Format: int32 */
+      recommendedTimeSec: number;
+      memo: string;
+      concepts: components['schemas']['ConceptResp'][];
+      mainAnalysisImage: components['schemas']['UploadFileResp'];
+      mainHandAnalysisImage: components['schemas']['UploadFileResp'];
+      readingTipContent: string;
+      oneStepMoreContent: string;
+    };
+    ListRespPointingEntireResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['PointingEntireResp'][];
+    };
+    PointingEntireResp: {
+      /**
+       * Format: int64
+       * @description 포인팅이 속한 문제 ID
+       */
+      problemId: number;
+      /** @description 부모문제 여부 (true: 부모문제, false: 새끼문제) */
+      isParent: boolean;
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      questionContent: string;
+      commentContent: string;
+      concepts: components['schemas']['ConceptResp'][];
+      isUnderstood?: boolean;
+      isScrapped?: boolean;
     };
     ListRespTrashItemResp: {
       /** Format: int32 */
@@ -4509,6 +4699,11 @@ export interface components {
       /** Format: int32 */
       lastPage: number;
       data: components['schemas']['PracticeTestResp'][];
+    };
+    /** @description FCM 상태 응답 */
+    FcmStatusResp: {
+      /** @description Firebase 초기화 상태 */
+      initialized?: boolean;
     };
     PageRespConceptResp: {
       /** Format: int32 */
@@ -6747,6 +6942,30 @@ export interface operations {
       };
     };
   };
+  initPushSettings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentPushDTO.InitPushRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentPushDTO.SettingsResponse'];
+        };
+      };
+    };
+  };
   toggleAllowPush_1: {
     parameters: {
       query?: never;
@@ -7656,6 +7875,30 @@ export interface operations {
       };
     };
   };
+  sendTestPush: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FcmTestReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FcmTestResp'];
+        };
+      };
+    };
+  };
   gets_1: {
     parameters: {
       query: {
@@ -8284,6 +8527,50 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ProblemWithStudyInfoResp'];
+        };
+      };
+    };
+  };
+  getEntireProblems: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespProblemEntireResp'];
+        };
+      };
+    };
+  };
+  getEntirePointings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespPointingEntireResp'];
         };
       };
     };
@@ -9028,6 +9315,26 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ListRespNoticeResp'];
+        };
+      };
+    };
+  };
+  getStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FcmStatusResp'];
         };
       };
     };

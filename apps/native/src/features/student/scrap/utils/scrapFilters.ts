@@ -31,6 +31,13 @@ export function generateFilterOptions(
     });
   }
 
+  if (scrapDetail.isReadingTipScrapped) {
+    options.push('문제를 읽어내려갈 때');
+  }
+  if (scrapDetail.isOneStepMoreScrapped) {
+    options.push('한 걸음 더');
+  }
+
   return options;
 }
 
@@ -53,6 +60,44 @@ export function shouldShowPointing(selectedFilter: number, pointingIndex: number
   if (selectedFilter === 0) return true; // 전체
   if (selectedFilter === 1) return false; // 문제만
   return selectedFilter === pointingIndex + 2; // 특정 포인팅만
+}
+
+export function shouldShowAnalysisSection(
+  selectedFilter: number,
+  sectionType: 'readingTip' | 'oneStepMore',
+  pointingsCount: number,
+  scrapDetail?: ScrapExtendResp // 추가
+): boolean {
+  // 전체 선택 시 모두 표시
+  if (selectedFilter === 0) {
+    // content가 실제로 있는지 확인
+    if (sectionType === 'readingTip') {
+      return !!(scrapDetail?.problem?.readingTipContent && scrapDetail.isReadingTipScrapped);
+    }
+    if (sectionType === 'oneStepMore') {
+      return !!(scrapDetail?.problem?.oneStepMoreContent && scrapDetail.isOneStepMoreScrapped);
+    }
+    return false;
+  }
+
+  // readingTip 인덱스: pointingsCount + 2
+  // oneStepMore 인덱스: pointingsCount + 3
+  const readingTipIndex = pointingsCount + 2;
+  const oneStepMoreIndex = pointingsCount + 3;
+
+  if (sectionType === 'readingTip') {
+    return (
+      selectedFilter === readingTipIndex &&
+      !!(scrapDetail?.problem?.readingTipContent && scrapDetail.isReadingTipScrapped)
+    );
+  }
+  if (sectionType === 'oneStepMore') {
+    return (
+      selectedFilter === oneStepMoreIndex &&
+      !!(scrapDetail?.problem?.oneStepMoreContent && scrapDetail.isOneStepMoreScrapped)
+    );
+  }
+  return false;
 }
 
 /**

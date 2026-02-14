@@ -52,8 +52,7 @@ export const CreateFolderModal = () => {
         ]);
         return files[0].id;
       } catch (error: any) {
-        showToast('error', error.message);
-        throw error; // 에러를 다시 throw하여 상위에서 처리 가능하도록
+        console.log('error', error.message);
       }
     }
     return null;
@@ -77,10 +76,12 @@ export const CreateFolderModal = () => {
         thumbnailImageId: uploadedImageId ?? undefined,
       });
 
-      showToast('success', '폴더가 추가되었습니다.');
       closeCreateFolderModal();
       refetchFolders?.();
       refetchScraps?.();
+      setTimeout(() => {
+        showToast('success', '폴더가 추가되었습니다.');
+      }, 0);
     } catch (error: any) {
       showToast('error', error.message);
     } finally {
@@ -98,8 +99,6 @@ export const CreateFolderModal = () => {
 
     return () => clearTimeout(timer);
   }, []);
-
-
 
   return (
     <AddFolderScreenModal
@@ -130,10 +129,10 @@ export const CreateFolderModal = () => {
                 </View>
               )}
             </Pressable>
-            <View className='h-[40px] w-full rounded-[8px] border border-gray-400 bg-white px-3 py-2'>
+            <View className='h-[40px] w-full rounded-[8px] border border-gray-500 bg-gray-200 px-3'>
               <TextInput
                 ref={inputRef}
-                className='text-16sb text-black'
+                className='text-16sb flex-1 text-black'
                 placeholder='제목없음'
                 style={{ lineHeight: 20, paddingVertical: 0 }}
                 placeholderTextColor={colors['gray-500']}

@@ -1,15 +1,7 @@
 import { colors } from '@/theme/tokens';
-import {
-  ArrowRightLeft,
-  BookImage,
-  BookOpenText,
-  FileSymlink,
-  FolderOpen,
-  ImagePlay,
-  Trash2,
-} from 'lucide-react-native';
-import { useState } from 'react';
-import { TextInput, View, Alert } from 'react-native';
+import { ArrowRightLeft, BookImage, BookOpenText, Trash2 } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { TextInput, View } from 'react-native';
 import { showToast } from '../Notification/Toast';
 import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
@@ -17,24 +9,18 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import {
   useUpdateScrapName,
-  useUpdateFolder,
   useUpdateFolderName,
   useUpdateFolderThumbnail,
   useDeleteScrap,
   useGetScrapDetail,
   useGetFolders,
   useUploadFile,
-  useGetScrapsByFolder,
 } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import {
-  openImageLibrary,
-  openImageLibraryWithErrorHandling,
-} from '../../utils/images/imagePicker';
+import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
 
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
-import { useRecentScrapStore } from '../../stores/recentScrapStore';
 import { invalidateScrapSearchQueries } from '@/apis/controller/student/scrap/utils';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -51,17 +37,12 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
 
   const openNote = useNoteStore((state) => state.openNote);
-  const closeNote = useNoteStore((state) => state.closeNote);
-  const removeScrap = useRecentScrapStore((state) => state.removeScrap);
-  const closeNotesByScrapIds = useNoteStore((state) => state.closeNotesByScrapIds);
 
   // API hooks
   const { mutateAsync: updateScrapName } = useUpdateScrapName();
   const { mutateAsync: updateFolderName } = useUpdateFolderName();
   const { mutateAsync: updateFolderThumbnail } = useUpdateFolderThumbnail();
   const { mutateAsync: deleteScrap } = useDeleteScrap();
-  const removeScrapsByScrapIds = useRecentScrapStore((state) => state.removeScrapsByIds);
-  const { data: folderScrapsData } = useGetScrapsByFolder({ folderId: Number(props.id) });
   const queryClient = useQueryClient();
 
   // 스크랩 상세 정보 가져오기 (필요한 경우)
@@ -112,13 +93,16 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
     }
   };
 
-  // 초기 제목 설정
-  const initialTitle =
+  const sourceTitle =
     props.type === 'SCRAP'
-      ? scrapDetail?.name || props.name
-      : foldersData?.data?.find((f) => f.id === props.id)?.name || props.name;
+      ? (scrapDetail?.name ?? props.name)
+      : (foldersData?.data?.find((f) => f.id === props.id)?.name ?? props.name);
 
-  const [text, setText] = useState(initialTitle);
+  const [text, setText] = useState(sourceTitle);
+
+  useEffect(() => {
+    setText(sourceTitle);
+  }, [sourceTitle]);
 
   const handleClose = () => {
     onClose?.();
@@ -143,23 +127,6 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
     }, 100);
   };
 
-  const cleanupAfterDelete = async (id: number) => {
-    if (props.type === 'SCRAP') {
-      removeScrap(id);
-      closeNote(id);
-    } else if (props.type === 'FOLDER') {
-      // 폴더 삭제 시: 폴더 내 스크랩 ID 목록을 가져와서 노트 닫기
-      const folderScrapIds =
-        folderScrapsData?.data?.filter((item) => item.type === 'SCRAP').map((item) => item.id) ||
-        [];
-
-      if (folderScrapIds.length > 0) {
-        closeNotesByScrapIds(folderScrapIds);
-        removeScrapsByScrapIds(folderScrapIds);
-      }
-    }
-  };
-
   const handleDelete = async () => {
     handleClose();
 
@@ -168,7 +135,6 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
         items: [{ id: props.id, type: props.type as 'FOLDER' | 'SCRAP' }],
       });
       showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-      cleanupAfterDelete(props.id);
     } catch (error: any) {
       showToast('error', '삭제 중 오류가 발생했습니다.');
     } finally {
@@ -183,13 +149,12 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
         <View className='h-[32px] w-full rounded-[6px] bg-gray-300 px-[6px] py-1'>
           <TextInput
             className='text-16m flex-1 text-black'
-            numberOfLines={1}
             style={{ lineHeight: 20, paddingVertical: 0 }}
             value={text}
             onChangeText={setText}
             onEndEditing={async () => {
               const trimmedText = text.trim();
-              if (trimmedText.length > 0 && trimmedText !== initialTitle) {
+              if (trimmedText.length > 0 && trimmedText !== sourceTitle) {
                 try {
                   if (props.type === 'FOLDER') {
                     await updateFolderName({
@@ -209,7 +174,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
                 }
                 invalidateScrapSearchQueries(queryClient);
               } else {
-                setText(initialTitle);
+                setText(sourceTitle);
               }
             }}
           />

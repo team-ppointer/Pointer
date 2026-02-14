@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import ScrapHeader from '../components/Header/ScrapHeader';
-import { useMemo, useState, useEffect } from 'react';
-import { sortScrapData, mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
+import { useState, useEffect, useMemo } from 'react';
+import { mapUIKeyToAPIKey, sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -15,9 +15,6 @@ import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection } from '../hooks';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { withScrapModals } from '../hoc';
-import { useRecentScrapStore } from '../stores/recentScrapStore';
-import { useNoteStore } from '../stores/scrapNoteStore';
-import { SelectedItem } from '../utils/reducer';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
@@ -31,11 +28,10 @@ const FolderScrapScreenContent = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const { openMoveScrapModal, setRefetchScraps, setRefetchFolders } = useScrapModal();
-  const removeScrap = useRecentScrapStore((state) => state.removeScrap);
-  const closeNote = useNoteStore((state) => state.closeNote);
 
   // API 호출
-  const { data: foldersData, refetch: refetchFolders } = useGetFolders();
+  const { data: foldersData, refetch: refetchFolders } = useGetFolders(); // 폴더 정보 가져오기
+
   const {
     data: data,
     isLoading,
@@ -43,7 +39,15 @@ const FolderScrapScreenContent = () => {
   } = useGetScrapsByFolder(
     { folderId: Number(id) },
     { sortOption: mapUIKeyToAPIKey(sortKey), order: sortOrder }
-  );
+  ); // 해당 폴더의 스크랩 가져오기
+
+  // 폴더 변경 시 폴더 목록 refetch
+  useEffect(() => {
+    if (refetchFolders) {
+      setRefetchFolders(refetchFolders);
+    }
+  }, [refetchFolders, setRefetchFolders]);
+
   const { mutateAsync: deleteScrap } = useDeleteScrap();
 
   // refetch를 context에 등록
@@ -52,30 +56,14 @@ const FolderScrapScreenContent = () => {
       setRefetchScraps(() => refetch);
     }
   }, [refetch, setRefetchScraps]);
-  useEffect(() => {
-    if (refetchFolders) {
-      setRefetchFolders(refetchFolders);
-    }
-  }, [refetchFolders, setRefetchFolders]);
 
   // 폴더 정보 가져오기
-  const folder = data?.data?.find((f) => f.id === Number(id));
+  const folder = foldersData?.data?.find((f) => f.id === Number(id));
   const contents = data?.data || [];
 
-  // // 정렬된 데이터
-  // const sortedData = useMemo(
-  //   () => sortScrapData(contents, sortKey, sortOrder),
-  //   [contents, sortKey, sortOrder]
-  // );
-
-  const cleanupAfterDelete = (items: SelectedItem[]) => {
-    items.forEach((item) => {
-      if (item.type === 'SCRAP') {
-        removeScrap(item.id as number);
-        closeNote(item.id as number);
-      }
-    });
-  };
+  const sortedData = useMemo(() => {
+    return sortScrapData(contents, sortKey, sortOrder);
+  }, [contents, sortKey, sortOrder]);
 
   const isAllSelected =
     reducerState.selectedItems.length === contents.length && contents.length > 0;
@@ -125,7 +113,6 @@ const FolderScrapScreenContent = () => {
                   items: items.map((item) => ({ id: item.id as number, type: item.type })),
                 });
                 dispatch({ type: 'CLEAR_SELECTION' });
-                cleanupAfterDelete(items);
                 showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
               } catch (error: any) {
                 showToast('error', error.message);
@@ -148,7 +135,7 @@ const FolderScrapScreenContent = () => {
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
-            <ScrapGrid data={contents} reducerState={reducerState} dispatch={dispatch} />
+            <ScrapGrid data={sortedData} reducerState={reducerState} dispatch={dispatch} />
           )}
         </Container>
       </View>

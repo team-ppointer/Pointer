@@ -23,6 +23,8 @@ type ImageWithSkeletonProps = {
   fallback?: React.ReactNode;
   /** 대각선 레이아웃 사용 여부 (true면 대각선 배치, false면 전체 영역에 표시) */
   isDiagonalLayout?: boolean;
+  /** 선택된 이미지인지 여부 */
+  isHovered?: boolean;
 };
 
 // 스켈레톤 컴포넌트
@@ -79,6 +81,7 @@ const ImageWithSkeletonComponent = ({
   uniqueId = 'default',
   fallback,
   isDiagonalLayout = false,
+  isHovered = false,
 }: ImageWithSkeletonProps) => {
   // 이미지 로딩 상태 관리
   const [isLoading, setIsLoading] = useState(true);
@@ -176,6 +179,8 @@ const ImageWithSkeletonComponent = ({
               width: '80%',
               height: '80%',
               borderRadius: borderRadius,
+              borderWidth: 4,
+              borderColor: isHovered ? colors['gray-300'] : colors['gray-100'],
             }}>
             <Image
               source={{ uri: imageUrls[0] }}
@@ -186,6 +191,7 @@ const ImageWithSkeletonComponent = ({
                 width: '100%',
                 height: '100%',
                 borderRadius: borderRadius,
+                overflow: 'hidden',
               }}
             />
           </View>
@@ -198,6 +204,9 @@ const ImageWithSkeletonComponent = ({
               height: '80%',
               backgroundColor: colors['gray-400'],
               borderRadius: borderRadius,
+              overflow: 'hidden',
+              borderWidth: 4,
+              borderColor: isHovered ? colors['gray-300'] : colors['gray-100'],
             }}
           />
         )}
@@ -210,6 +219,8 @@ const ImageWithSkeletonComponent = ({
               width: '80%',
               height: '80%',
               borderRadius: borderRadius,
+              borderWidth: 4,
+              borderColor: isHovered ? colors['gray-300'] : colors['gray-100'],
             }}>
             <Image
               source={{ uri: imageToShow }}
@@ -220,6 +231,7 @@ const ImageWithSkeletonComponent = ({
                 width: '100%',
                 height: '100%',
                 borderRadius: borderRadius,
+                overflow: 'hidden',
               }}
             />
           </View>
@@ -302,6 +314,7 @@ export const ImageWithSkeleton = React.memo(ImageWithSkeletonComponent, (prevPro
     prevProps.height === nextProps.height &&
     prevProps.aspectRatio === nextProps.aspectRatio &&
     prevProps.borderRadius === nextProps.borderRadius &&
-    prevProps.resizeMode === nextProps.resizeMode
+    prevProps.resizeMode === nextProps.resizeMode &&
+    prevProps.isHovered === nextProps.isHovered
   );
 });

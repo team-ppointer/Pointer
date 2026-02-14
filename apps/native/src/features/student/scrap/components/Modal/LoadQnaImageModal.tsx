@@ -1,6 +1,6 @@
 import { Container } from '@/components/common';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, Modal, Pressable, View, StyleSheet, Alert, Text } from 'react-native';
+import { FlatList, Image, Modal, Pressable, View, StyleSheet, Text } from 'react-native';
 import { LoadQnaImageScreenModal } from './FullScreenModal';
 import { Check } from 'lucide-react-native';
 import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
@@ -8,14 +8,10 @@ import { SortOrder, UISortKey } from '../../utils/types';
 import { SortDropdown } from '../Dropdown';
 import { colors } from '@/theme/tokens';
 import { showToast } from '../Notification/Toast';
+import { useScrapModal } from '../../contexts/ScrapModalsContext';
 
-interface LoadQnaImageModalProps {
-  visible: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-}
-
-export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageModalProps) => {
+export const LoadQnaImageModal = () => {
+  const { isLoadQnaImageModalVisible, closeLoadQnaImageModal, refetchScraps } = useScrapModal();
   const { mutateAsync: createScrapFromImage } = useCreateScrapFromImage();
 
   const [containerWidth, setContainerWidth] = useState(0);
@@ -23,7 +19,7 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
 
   const [isCreating, setIsCreating] = useState(false);
 
@@ -35,6 +31,13 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
     sort: 'CREATED_AT',
     order: sortOrder,
   });
+
+  // 모달이 닫힐 때 상태 초기화
+  useEffect(() => {
+    if (!isLoadQnaImageModalVisible) {
+      setSelectedId(null);
+    }
+  }, [isLoadQnaImageModalVisible]);
 
   const NUM_COLUMNS = 4;
   const GAP = 5;
@@ -56,9 +59,11 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
       await createScrapFromImage({
         imageId: selectedId,
       });
-      showToast('success', '스크랩이 생성되었습니다.');
-      onClose();
-      onSuccess?.();
+      closeLoadQnaImageModal();
+      refetchScraps?.();
+      setTimeout(() => {
+        showToast('success', '스크랩이 생성되었습니다.');
+      }, 0);
     } catch (error: any) {
       showToast('error', error.message);
     } finally {
@@ -67,16 +72,16 @@ export const LoadQnaImageModal = ({ visible, onClose, onSuccess }: LoadQnaImageM
   };
 
   useEffect(() => {
-    if (visible) {
+    if (isLoadQnaImageModalVisible) {
       refetch();
     }
-  }, [visible, refetch]);
+  }, [isLoadQnaImageModalVisible, refetch]);
 
   return (
     <>
       <LoadQnaImageScreenModal
-        visible={visible}
-        onCancel={onClose}
+        visible={isLoadQnaImageModalVisible}
+        onCancel={closeLoadQnaImageModal}
         onClose={() => {
           if (!isCreating) {
             handleComplete();

@@ -24,11 +24,11 @@ export const useMoveScraps = () => {
       });
       return data as MoveScrapsResponse;
     },
-    // 낙관적 업데이트: 이동된 항목을 현재 폴더에서 즉시 제거
+    // 낙관적 업데이트: 이동된 스크랩의 folderId 변경
     onMutate: async (request) => {
       // scrapIds를 items 형태로 변환 (타입은 항상 SCRAP)
       const items = request.scrapIds.map((id) => ({ id, type: 'SCRAP' as const }));
-      return await optimisticMoveScrap(queryClient, items);
+      return await optimisticMoveScrap(queryClient, items, request.targetFolderId);
     },
     // 에러 발생 시 롤백
     onError: (error, request, context) => {

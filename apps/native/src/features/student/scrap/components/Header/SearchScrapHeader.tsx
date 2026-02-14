@@ -1,3 +1,4 @@
+import { CircleXFilledIcon } from '@/components/system/icons';
 import { StudentRootStackParamList } from '@/navigation/student/types';
 import { colors } from '@/theme/tokens';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,8 +20,7 @@ const SearchScrapHeader = ({
   setQuery,
   onSubmitEditing,
 }: SearchScrapHeaderProps) => {
-
-  const inputRef = useRef<TextInput>(null); 
+  const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     // 컴포넌트가 마운트될 때 자동으로 포커스
@@ -30,19 +30,18 @@ const SearchScrapHeader = ({
 
     return () => clearTimeout(timer);
   }, []);
-  
+
   return (
     <SafeAreaView edges={['top']} className='bg-gray-100'>
       <View className='flex-row items-center justify-between px-5 py-[14px]'>
-        <View className='flex-1 flex-row justify-center rounded-[8px] border-[1px] border-gray-500 bg-white px-3.5 py-2'>
+        <View className='h-[40px] flex-1 flex-row justify-center rounded-[8px] border-[1px] border-gray-500 bg-white px-3.5 py-2'>
           <TextInput
             ref={inputRef}
-            className='text-18m flex-1 text-black'
-            placeholder='스크랩 제목을 검색하세요.'
-            style={{ lineHeight: 27 }}
+            className='text-16r flex-1 text-black'
+            placeholder='검색어를 입력해 주세요.'
+            style={{ lineHeight: 20, paddingVertical: 0 }}
             multiline={false}
-            textAlignVertical='center'
-            placeholderTextColor={colors['gray-500']}
+            placeholderClassName='text-16r text-gray-600'
             numberOfLines={1}
             value={query}
             returnKeyType='search'
@@ -53,7 +52,7 @@ const SearchScrapHeader = ({
             <Pressable
               className='items-center justify-center gap-[10px] p-0.5'
               onPress={() => setQuery('')}>
-              <CircleX size={24} color={colors['gray-700']} />
+              <CircleXFilledIcon size={24} color={colors['gray-700']} />
             </Pressable>
           )}
         </View>

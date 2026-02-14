@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrapModalProvider } from '../contexts/ScrapModalsContext';
 import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
 import { CreateFolderModal } from '../components/Modal/CreateFolderModal';
+import { LoadQnaImageModal } from '../components/Modal/LoadQnaImageModal';
 
 /**
  * 스크랩 모달들을 자동으로 추가하는 HOC (Higher-Order Component)
@@ -23,6 +24,7 @@ export const withScrapModals = <P extends object>(Component: React.ComponentType
     return (
       <ScrapModalProvider>
         <Component {...props} />
+        <LoadQnaImageModal />
         <CreateFolderModal />
         <MoveScrapModal />
       </ScrapModalProvider>

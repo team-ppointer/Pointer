@@ -3,13 +3,12 @@ import { Pressable, View, Text, ImageBackground } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { StudentRootStackParamList } from '@/navigation/student/types';
-import type { ScrapDetailResp } from '@/features/student/scrap/utils/types';
+import type { ScrapListItemResp } from '@/features/student/scrap/utils/types';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 
 type RecentScrapCardProps = {
-  scrap: ScrapDetailResp & { type: 'SCRAP' };
+  scrap: ScrapListItemResp & { type: 'SCRAP' };
 };
 
 export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {

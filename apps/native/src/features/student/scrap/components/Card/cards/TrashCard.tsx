@@ -20,7 +20,10 @@ export const TrashCard = (props: TrashListItemProps) => {
   const state = props.reducerState ?? { isSelecting: false, selectedItems: [] };
   const isSelected = isItemSelected(state.selectedItems, props.id, props.type);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const { mutateAsync: permanentDelete } = usePermanentDeleteTrash();
+  
+  const shouldShowHover = state.isSelecting ? isSelected : isTooltipOpen;
 
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
   const { imageSources, isDiagonalLayout } = useCardImageSources(
@@ -44,7 +47,10 @@ export const TrashCard = (props: TrashListItemProps) => {
     if (props.type === 'FOLDER') {
       return (
         <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
-          <ScrapFolderDefaultIcon style={{ width: '100%', height: '100%' }} />
+          <ScrapFolderDefaultIcon
+            isHovered={shouldShowHover}
+            style={{ width: '100%', height: '100%' }}
+          />
         </View>
       );
     } else if (props.type === 'SCRAP') {
@@ -57,11 +63,12 @@ export const TrashCard = (props: TrashListItemProps) => {
     return <View className='aspect-square w-full rounded-[10px] bg-blue-200' />;
   };
 
-  const cardContent = (
+  const cardContent = () => (
     <View className='w-full items-center rounded-[10px] p-[10px]'>
       <View className='gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton
+            isHovered={shouldShowHover}
             key={`${props.type}-${props.id}`}
             source={imageSources}
             width='100%'
@@ -77,19 +84,19 @@ export const TrashCard = (props: TrashListItemProps) => {
               onPress={props.onCheckPress}
               className={
                 isSelected
-                  ? 'absolute h-4 w-4 items-center justify-center rounded bg-blue-500'
-                  : 'absolute h-4 w-4 items-center justify-center rounded border border-gray-700 bg-white'
+                  ? 'absolute h-[18px] w-[18px] items-center justify-center rounded bg-blue-500'
+                  : 'absolute h-[18px] w-[18px] items-center justify-center rounded border border-gray-700 bg-white'
               }
-              style={{ bottom: 10 }}>
-              <Check size={16} color='#F5F5F5' />
+              style={{ top: 108 }}>
+              {isSelected && <Check size={16} color='#F5F5F5' />}
             </Pressable>
           )}
         </View>
 
-        <View className='px-1'>
-          <View className='flex-row justify-between'>
-            <View className={'flex-[0.8] flex-row gap-0.5'}>
-              <Text className='text-16sb  text-black' numberOfLines={1}>
+        <View className='w-full flex-col items-start gap-[2px]'>
+          <View className='flex-row items-center gap-[2px]'>
+            <View className={'min-w-0 flex-1 shrink flex-row items-center'}>
+              <Text className='text-16sb shrink text-black' numberOfLines={2}>
                 {props.name}
               </Text>
             </View>
@@ -98,7 +105,7 @@ export const TrashCard = (props: TrashListItemProps) => {
             )}
           </View>
           <Text
-            className={`${props.daysUntilPermanentDelete <= 3 ? 'text-red-400' : 'text-gray-700'}`}
+            className={`${props.daysUntilPermanentDelete <= 3 ? 'text-red-400' : 'text-gray-700'} text-12r`}
             numberOfLines={1}>
             {props.daysUntilPermanentDelete}일 남음
           </Text>
@@ -119,10 +126,11 @@ export const TrashCard = (props: TrashListItemProps) => {
         }}
         disabled={!state.isSelecting}>
         {state.isSelecting ? (
-          cardContent
+          cardContent()
         ) : (
           <TooltipPopover
-            from={cardContent}
+            from={cardContent()}
+            onOpenChange={setIsTooltipOpen}
             children={(close) => (
               <TrashItemTooltipBox
                 item={props}

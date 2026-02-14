@@ -1,24 +1,22 @@
 import { Container, LoadingScreen } from '@/components/common';
 import { StudentRootStackParamList } from '@/navigation/student/types';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
 import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
-import { mapUIKeyToAPIKey } from '../utils/formatters/sortScrap';
-import { useQueryClient } from '@tanstack/react-query';
+import { mapUIKeyToAPIKey, sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder, ScrapSearchResponse } from '../utils/types';
 import { showToast } from '../components/Notification/Toast';
-import { useSearchScraps, useDeleteScrap, getScrapsByFolder } from '@/apis';
+import { useSearchScraps, useDeleteScrap } from '@/apis';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { RecentScrapCard } from '../components/Card/cards/RecentScrapCard';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
-import { useScrapSelection } from '../hooks';
+import { useScrapSelection, useScrapStoreSync } from '../hooks';
 import { withScrapModals } from '../hoc';
-import { useNoteStore } from '../stores/scrapNoteStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
 
@@ -27,9 +25,8 @@ const ScrapScreenContent = () => {
   const [sortKey, setSortKey] = useState<UISortKey>('DATE');
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-  const recentScraps = useRecentScrapStore((state) => state.scraps);
+  const recentScrapIds = useRecentScrapStore((state) => state.scrapIds);
   const { openMoveScrapModal, setRefetchScraps } = useScrapModal();
-  const queryClient = useQueryClient();
 
   const {
     data: searchData,
@@ -41,10 +38,6 @@ const ScrapScreenContent = () => {
   });
 
   const { mutateAsync: deleteScrap } = useDeleteScrap();
-  const removeScrap = useRecentScrapStore((state) => state.removeScrap);
-  const removeScrapsByIds = useRecentScrapStore((state) => state.removeScrapsByIds);
-  const closeNote = useNoteStore((state) => state.closeNote);
-  const closeNotesByScrapIds = useNoteStore((state) => state.closeNotesByScrapIds);
 
   // refetch를 context에 등록
   React.useEffect(() => {
@@ -53,14 +46,30 @@ const ScrapScreenContent = () => {
     }
   }, [refetch, setRefetchScraps]);
 
-  const recentScrapsData = useMemo(() => {
-    if (recentScraps.length === 0) return [];
+  // 화면 포커스 시 데이터 동기화 (다른 화면에서 변경 후 돌아왔을 때)
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
-    return recentScraps.map((item) => ({
-      ...item.scrapDetail,
-      type: 'SCRAP' as const,
-    }));
-  }, [recentScraps]);
+  // 최근 본 스크랩 데이터 (searchData에서 찾아서 최신 정보 표시)
+  const recentScrapsData = useMemo(() => {
+    if (recentScrapIds.length === 0 || !searchData) return [];
+
+    const typedSearchData = searchData as ScrapSearchResponse;
+    const allScraps = typedSearchData.scraps || [];
+    const scrapsMap = new Map(allScraps.map((scrap) => [scrap.id, scrap]));
+
+    // recentScrapIds 순서대로 스크랩 찾기 (존재하는 것만)
+    return recentScrapIds
+      .map((id) => scrapsMap.get(id))
+      .filter((scrap): scrap is NonNullable<typeof scrap> => scrap != null)
+      .map((scrap) => ({
+        ...scrap,
+        type: 'SCRAP' as const,
+      }));
+  }, [recentScrapIds, searchData]);
 
   // ScrapSearchResponse는 folders와 scraps를 각각 반환하므로 합쳐야 함
   const data = useMemo(() => {
@@ -74,19 +83,18 @@ const ScrapScreenContent = () => {
     return [...folders, ...scraps];
   }, [searchData]);
 
-  // // 클라이언트 사이드 정렬 (TYPE 정렬 등 추가 정렬 로직 적용)
-  // deprecated
-  // const sortedData = useMemo(
-  //   () => sortScrapData(data, sortKey, sortOrder),
-  //   [data, sortKey, sortOrder]
-  // );
+  // 유효한 스크랩 ID 목록 (폴더 내 스크랩 포함)
+  const validScrapIds = useMemo(() => {
+    if (!searchData) return undefined;
+    const typedSearchData = searchData as ScrapSearchResponse;
+    return (typedSearchData.scraps || []).map((scrap) => scrap.id);
+  }, [searchData]);
 
-  const cleanupAfterDelete = (scrapIdsToRemove: number[]) => {
-    if (scrapIdsToRemove.length > 0) {
-      removeScrapsByIds(scrapIdsToRemove);
-      closeNotesByScrapIds(scrapIdsToRemove);
-    }
-  };
+  useScrapStoreSync(validScrapIds);
+
+  const sortedData = useMemo(() => {
+    return sortScrapData(data, sortKey, sortOrder);
+  }, [data, sortKey, sortOrder]);
 
   const isAllSelected = data.length > 0 && reducerState.selectedItems.length === data.length;
 
@@ -135,36 +143,13 @@ const ScrapScreenContent = () => {
             }
 
             const items = reducerState.selectedItems;
-            const scrapIdsToRemove: number[] = [];
-
-            // 삭제 전에 폴더 내 스크랩 ID 목록을 미리 수집
-            for (const item of items) {
-              if (item.type === 'SCRAP') {
-                scrapIdsToRemove.push(item.id as number);
-              } else if (item.type === 'FOLDER' && item.id !== undefined) {
-                try {
-                  const folderScrapsData = await getScrapsByFolder(queryClient, {
-                    folderId: item.id,
-                  });
-
-                  const folderScrapIds =
-                    folderScrapsData?.data
-                      ?.filter((d: any) => d.type === 'SCRAP')
-                      .map((d: any) => d.id) || [];
-
-                  scrapIdsToRemove.push(...folderScrapIds);
-                } catch (error: any) {
-                  showToast('error', error.message);
-                }
-              }
-            }
 
             try {
               await deleteScrap({
                 items: items.map((item) => ({ id: item.id as number, type: item.type })),
               });
               dispatch({ type: 'CLEAR_SELECTION' });
-              cleanupAfterDelete(scrapIdsToRemove);
+              // 스크랩 삭제 후 쿼리 refetch → useScrapStoreSync가 자동으로 store 정리
               showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
             } catch (error: any) {
               showToast('error', error.message);
@@ -198,7 +183,7 @@ const ScrapScreenContent = () => {
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <ScrapGrid
-              data={[{ ADD: true }, ...data]}
+              data={[{ ADD: true }, ...sortedData]}
               reducerState={reducerState}
               dispatch={dispatch}
             />

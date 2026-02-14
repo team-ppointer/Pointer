@@ -68,19 +68,19 @@ const DeletedScrapHeader = ({
                 {!isAllSelected ? '전체 선택' : '전체 해제'}
               </Text>
             </Pressable>
-            <Text className='text-16sb text-gray-800'>스크랩</Text>
+            <Text className='text-16sb text-gray-900'>휴지통</Text>
             <Pressable onPress={actions.onExitSelection}>
               <Text className='text-14sb w-[72px] gap-[10px] rounded-[6px] px-1 text-blue-500'>
                 완료
               </Text>
             </Pressable>
           </View>
-          <View className='flex-row items-center justify-center gap-[50px] py-[6px]'>
+          <View className='flex-row items-center justify-center gap-[160px] py-[4px]'>
             <Pressable
               onPress={() => {
                 if (isActionEnabled && actions.onRestore) actions.onRestore();
               }}
-              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
+              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] px-[10px] py-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Undo2 size={24} color={colors['primary-500']} />
               <Text className='text-12m text-primary-500'>복구</Text>
             </Pressable>
@@ -88,7 +88,7 @@ const DeletedScrapHeader = ({
               onPress={() => {
                 if (isActionEnabled && actions.onDelete) actions.onDelete();
               }}
-              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] p-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
+              className={`flex-col items-center justify-center gap-0.5 rounded-[8px] px-[10px] py-[6px] ${reducerState.selectedItems.length > 0 ? '' : 'opacity-30'}`}>
               <Trash2 size={24} color={colors['red-400']} />
               <Text className='text-12m text-red-400'>영구 삭제</Text>
             </Pressable>

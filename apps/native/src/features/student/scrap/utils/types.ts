@@ -41,12 +41,12 @@ export type TrashItem = TrashItemResp & {
  * 정렬 키 타입
  * API의 sort 파라미터에 맞춤 (CREATED_AT, NAME)
  */
-export type ApiSortKey = 'CREATED_AT' | 'NAME';
+export type ApiSortKey = 'CREATED_AT' | 'NAME' | 'TYPE' | 'SIMILARITY';
 
 /**
  * UI 정렬 키 타입 (TYPE은 클라이언트 전용)
  */
-export type UISortKey = 'TYPE' | 'TITLE' | 'DATE';
+export type UISortKey = 'TYPE' | 'NAME' | 'DATE';
 
 /**
  * 정렬 방향 타입

@@ -13,7 +13,6 @@ import { useNavigation } from '@react-navigation/native';
 import type { ScrapListItemProps } from '../types';
 import { isItemSelected } from '../../../utils/reducer';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
@@ -25,7 +24,6 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   const isSelected = isItemSelected(state.selectedItems, props.id, props.type);
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
-  const addScrap = useRecentScrapStore((state) => state.addScrap);
   const { openMoveScrapModal } = useScrapModal();
 
   const folderId = props.type === 'SCRAP' ? props.folderId : undefined;
@@ -40,13 +38,24 @@ export const ScrapCard = (props: ScrapListItemProps) => {
     if (props.type === 'FOLDER') {
       return (
         <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
-          <ScrapFolderDefaultIcon style={{ width: '100%', height: '100%' }} />
+          <ScrapFolderDefaultIcon
+            isHovered={isSelected}
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+          />
         </View>
       );
     } else if (props.type === 'SCRAP') {
       return (
         <View className='aspect-square w-full overflow-hidden rounded-[10px]'>
-          <ScrapDefaultIcon style={{ width: '100%', height: '100%' }} />
+          <ScrapDefaultIcon
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+          />
         </View>
       );
     }
@@ -54,42 +63,42 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   };
 
   const cardContent = (
-    <View className='rounded-[10pxp-[10px] w-full items-center'>
-      <View className='gap-3'>
-        <View className='items-center'>
-          <ImageWithSkeleton
-            key={`${props.type}-${props.id}`}
-            source={imageSources}
-            width='100%'
-            aspectRatio={1}
-            borderRadius={10}
-            resizeMode='cover'
-            uniqueId={`${props.type}-${props.id}`}
-            isDiagonalLayout={isDiagonalLayout}
-            fallback={renderFallback()}
-          />
-          {state.isSelecting && (
-            <Pressable
-              onPress={props.onCheckPress}
-              className={
-                isSelected
-                  ? 'absolute h-4 w-4 items-center justify-center rounded bg-blue-500'
-                  : 'absolute h-4 w-4 items-center justify-center rounded border border-gray-700 bg-white'
-              }
-              style={{ bottom: 10 }}>
-              <Check size={16} color='#F5F5F5' />
-            </Pressable>
-          )}
-        </View>
-        <View className='px-1'>
-          <View className='flex-row items-center justify-between'>
-            <View className={'flex-[0.8] flex-row'}>
-              <Text className='text-16sb mr-[2px]  text-black' numberOfLines={2}>
-                {props.name}
-              </Text>
-              {!state.isSelecting && (
+    <View className='w-full flex-col items-center gap-3 rounded-[10px]'>
+      <ImageWithSkeleton
+        isHovered={isSelected}
+        key={`${props.type}-${props.id}`}
+        source={imageSources}
+        width='100%'
+        aspectRatio={1}
+        borderRadius={10}
+        resizeMode='cover'
+        uniqueId={`${props.type}-${props.id}`}
+        isDiagonalLayout={isDiagonalLayout}
+        fallback={renderFallback()}
+      />
+      {state.isSelecting && (
+        <Pressable
+          onPress={props.onCheckPress}
+          className={
+            isSelected
+              ? 'absolute h-[18px] w-[18px] items-center justify-center rounded bg-blue-500'
+              : 'absolute h-[18px] w-[18px] items-center justify-center rounded border border-gray-700 bg-white'
+          }
+          style={{ top: 108 }}>
+          {isSelected && <Check size={16} color='#F5F5F5' />}
+        </Pressable>
+      )}
+      <View className='w-full flex-col items-start gap-[2px]'>
+        <View className='w-full flex-row items-center justify-between gap-[2px]'>
+          <View
+            className={`min-w-0 flex-1 shrink flex-row items-center ${props.type === 'FOLDER' ? 'gap-[2px]' : 'justify-between gap-[2px]'}`}>
+            <Text className='text-16sb shrink text-black' numberOfLines={2}>
+              {props.name}
+            </Text>
+            {!state.isSelecting && (
+              <View className='shrink-0'>
                 <TooltipPopover
-                  from={<ChevronDownFilledIcon color={colors['gray-700']} />}
+                  from={<ChevronDownFilledIcon size={22} color={colors['gray-700']} />}
                   triggerBorderRadius={4}
                   children={(close) => (
                     <ItemTooltipBox
@@ -105,18 +114,18 @@ export const ScrapCard = (props: ScrapListItemProps) => {
                     />
                   )}
                 />
-              )}
-            </View>
-            {props.type === 'FOLDER' && props.scrapCount !== undefined && (
-              <Text className='text-12r text-blue-500'>{props.scrapCount}</Text>
+              </View>
             )}
           </View>
-          <Text className='text-10r text-gray-700' numberOfLines={1}>
-            {props.updatedAt
-              ? formatToMinute(new Date(props.updatedAt))
-              : formatToMinute(new Date(props.createdAt))}
-          </Text>
+          {props.type === 'FOLDER' && props.scrapCount !== undefined && (
+            <Text className='text-12r shrink-0 text-blue-500'>{props.scrapCount}</Text>
+          )}
         </View>
+        <Text className='text-12r text-gray-700' numberOfLines={1}>
+          {props.updatedAt
+            ? formatToMinute(new Date(props.updatedAt))
+            : formatToMinute(new Date(props.createdAt))}
+        </Text>
       </View>
     </View>
   );
@@ -124,7 +133,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
   return (
     <>
       <Pressable
-        className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
+        className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px] p-[10px]`}
         onPress={() => {
           if (state.isSelecting) {
             props.onCheckPress?.();

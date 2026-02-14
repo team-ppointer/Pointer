@@ -16,6 +16,11 @@ interface ScrapModalsContextValue {
   openMoveScrapModal: (props: { currentFolderId?: number; selectedItems: SelectedItem[] }) => void;
   closeMoveScrapModal: () => void;
 
+  // LoadQnaImageModal 상태
+  isLoadQnaImageModalVisible: boolean;
+  openLoadQnaImageModal: () => void;
+  closeLoadQnaImageModal: () => void;
+
   // 폴더 목록 refetch 함수
   refetchFolders?: () => void;
   setRefetchFolders: (refetch: () => void) => void;
@@ -55,6 +60,7 @@ interface ScrapModalsProviderProps {
 export const ScrapModalsProvider = ({ children }: ScrapModalsProviderProps) => {
   const [isCreateFolderModalVisible, setIsCreateFolderModalVisible] = useState(false);
   const [isMoveScrapModalVisible, setIsMoveScrapModalVisible] = useState(false);
+  const [isLoadQnaImageModalVisible, setIsLoadQnaImageModalVisible] = useState(false);
   const [moveScrapModalProps, setMoveScrapModalProps] = useState<{
     currentFolderId?: number;
     selectedItems: SelectedItem[];
@@ -87,6 +93,14 @@ export const ScrapModalsProvider = ({ children }: ScrapModalsProviderProps) => {
     setIsMoveScrapModalVisible(false);
   }, []);
 
+  const openLoadQnaImageModal = useCallback(() => {
+    setIsLoadQnaImageModalVisible(true);
+  }, []);
+
+  const closeLoadQnaImageModal = useCallback(() => {
+    setIsLoadQnaImageModalVisible(false);
+  }, []);
+
   const setRefetchFolders = useCallback((refetch: () => void) => {
     setRefetchFoldersState(() => refetch);
   }, []);
@@ -107,6 +121,9 @@ export const ScrapModalsProvider = ({ children }: ScrapModalsProviderProps) => {
     moveScrapModalProps,
     openMoveScrapModal,
     closeMoveScrapModal,
+    isLoadQnaImageModalVisible,
+    openLoadQnaImageModal,
+    closeLoadQnaImageModal,
     refetchFolders,
     setRefetchFolders,
     refetchScraps,
