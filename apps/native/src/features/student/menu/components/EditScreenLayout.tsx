@@ -94,7 +94,7 @@ export const EditScreenLayout = ({
         {isScrollable ? (
           <ScrollView
             className='flex-1 overflow-visible'
-            contentContainerStyle={{ paddingBottom: 32 }}
+            contentContainerClassName='pb-[32px]'
             keyboardShouldPersistTaps='handled'>
             <View className={description ? 'mb-[32px]' : 'mb-[20px]'}>
               <Text className='text-20b text-gray-800'>{title}</Text>

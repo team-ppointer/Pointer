@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import { Container } from '@components/common';
 import { ScreenLayout, SettingsToggleItem } from '../components';
@@ -9,19 +9,15 @@ const NotificationSettingsScreen = () => {
   const { data: pushSettingData } = useGetPushSetting({ enabled: true });
   const { mutate: updatePushSettings } = usePutAllowPush();
 
-  const [pushEnabled, setPushEnabled] = useState(false);
-  const [serviceNotification, setServiceNotification] = useState(false);
-  const [qnaNotification, setQnaNotification] = useState(false);
-  const [eventNotification, setEventNotification] = useState(false);
+  const [_pushEnabled, setPushEnabled] = useState<boolean | undefined>(undefined);
+  const [_serviceNotification, setServiceNotification] = useState<boolean | undefined>(undefined);
+  const [_qnaNotification, setQnaNotification] = useState<boolean | undefined>(undefined);
+  const [_eventNotification, setEventNotification] = useState<boolean | undefined>(undefined);
 
-  useEffect(() => {
-    if (pushSettingData) {
-      setPushEnabled(pushSettingData.isAllowPush ?? false);
-      setServiceNotification(pushSettingData.isAllowServicePush ?? false);
-      setQnaNotification(pushSettingData.isAllowQnaPush ?? false);
-      setEventNotification(pushSettingData.isAllowMarketingPush ?? false);
-    }
-  }, [pushSettingData]);
+  const pushEnabled = _pushEnabled ?? pushSettingData?.isAllowPush ?? false;
+  const serviceNotification = _serviceNotification ?? pushSettingData?.isAllowServicePush ?? false;
+  const qnaNotification = _qnaNotification ?? pushSettingData?.isAllowQnaPush ?? false;
+  const eventNotification = _eventNotification ?? pushSettingData?.isAllowMarketingPush ?? false;
 
   const handleSave = (
     isAllowPush: boolean,
