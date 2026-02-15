@@ -27,8 +27,8 @@ export interface DrawingToolbarProps {
   onStrokeWidthChange: (size: number) => void;
   onEraserSizeChange: (size: number) => void;
 
-  // Drawing area width for responsive layout
-  drawingAreaWidth?: number;
+  // Narrow layout flag (drawingAreaWidth < 380)
+  isNarrow?: boolean;
 }
 
 const STROKE_SIZES = [2, 1.2, 0.7];
@@ -48,9 +48,8 @@ export const DrawingToolbar = ({
   eraserSize,
   onStrokeWidthChange,
   onEraserSizeChange,
-  drawingAreaWidth = 1000,
+  isNarrow = false,
 }: DrawingToolbarProps) => {
-  const isNarrow = drawingAreaWidth < 380;
 
   const SizeSelectorComponent = (
     <>

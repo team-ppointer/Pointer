@@ -1,5 +1,5 @@
 import { Pressable, View, Text } from 'react-native';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Check } from 'lucide-react-native';
 import {
   ChevronDownFilledIcon,
@@ -9,19 +9,31 @@ import {
 import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
 import { ConfirmationModal, PopUpModal } from '../../Dialog';
 import { showToast } from '../../Notification/Toast';
-import { usePermanentDeleteTrash } from '@/apis';
 import type { TrashListItemProps } from '../types';
 import { isItemSelected } from '../../../utils/reducer';
 import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
 import { colors } from '@/theme/tokens';
 import { useCardImageSources } from '../../../hooks';
 
-export const TrashCard = (props: TrashListItemProps) => {
+type TrashCardExtraProps = {
+  onPermanentDelete?: (params: {
+    items: { id: number; type: 'FOLDER' | 'SCRAP' }[];
+  }) => Promise<any>;
+};
+
+export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
   const state = props.reducerState ?? { isSelecting: false, selectedItems: [] };
   const isSelected = isItemSelected(state.selectedItems, props.id, props.type);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
-  const { mutateAsync: permanentDelete } = usePermanentDeleteTrash();
+
+  const handleCheckPress = useCallback(() => {
+    props.dispatch?.({
+      type: 'SELECTING_ITEM',
+      id: props.id,
+      itemType: props.type,
+    });
+  }, [props.dispatch, props.id, props.type]);
   
   const shouldShowHover = state.isSelecting ? isSelected : isTooltipOpen;
 
@@ -32,8 +44,9 @@ export const TrashCard = (props: TrashListItemProps) => {
   );
 
   const handlePermanentDelete = async () => {
+    if (!props.onPermanentDelete) return;
     try {
-      await permanentDelete({
+      await props.onPermanentDelete({
         items: [{ id: Number(props.id), type: props.type as 'FOLDER' | 'SCRAP' }],
       });
       setIsDeleteModalVisible(false);
@@ -81,7 +94,7 @@ export const TrashCard = (props: TrashListItemProps) => {
           />
           {state.isSelecting && (
             <Pressable
-              onPress={props.onCheckPress}
+              onPress={handleCheckPress}
               className={
                 isSelected
                   ? 'absolute h-[18px] w-[18px] items-center justify-center rounded bg-blue-500'
@@ -120,7 +133,7 @@ export const TrashCard = (props: TrashListItemProps) => {
         className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px]`}
         onPress={() => {
           if (state.isSelecting) {
-            props.onCheckPress?.();
+            handleCheckPress();
             return;
           }
         }}
