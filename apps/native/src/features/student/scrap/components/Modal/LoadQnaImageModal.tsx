@@ -120,7 +120,10 @@ export const LoadQnaImageModal = () => {
               numColumns={NUM_COLUMNS}
               columnWrapperStyle={{ gap: GAP }}
               contentContainerStyle={{ padding: GAP, gap: GAP }}
-              onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+              onLayout={(e) => {
+                const w = Math.floor(e.nativeEvent.layout.width);
+                if (w > 0 && w !== containerWidth) setContainerWidth(w);
+              }}
               renderItem={({ item }) => {
                 const selected = selectedId === item.id;
 

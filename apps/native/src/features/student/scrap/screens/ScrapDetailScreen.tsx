@@ -99,7 +99,8 @@ const ScrapDetailScreen = () => {
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes, updateNoteTitle } =
     useNoteStore();
 
-  const [scrapName, setScrapName] = useState(scrapDetail?.name || '');
+  const [_scrapName, setScrapName] = useState<string | undefined>(undefined);
+  const scrapName = _scrapName ?? scrapDetail?.name ?? '';
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
@@ -108,22 +109,10 @@ const ScrapDetailScreen = () => {
     }
   }, [scrapDetail, addScrapId]);
 
-  // scrapDetail이 로드되면 scrapName 동기화
+  // scrapId 변경 시 로컬 오버라이드 리셋
   useEffect(() => {
-    if (scrapDetail?.name) {
-      setScrapName(scrapDetail.name);
-    }
-  }, [scrapDetail?.name]);
-
-  // scrapId 변경 시 scrapName 즉시 업데이트 (제목이 바뀌지 않는 문제 해결)
-  useEffect(() => {
-    if (scrapDetail?.name) {
-      setScrapName(scrapDetail.name);
-    } else {
-      // scrapDetail이 아직 로드되지 않았으면 초기화
-      setScrapName('');
-    }
-  }, [scrapId, scrapDetail?.name]);
+    setScrapName(undefined);
+  }, [scrapId]);
 
   useEffect(() => {
     if (scrapDetail?.name) {
@@ -416,11 +405,11 @@ const ScrapDetailScreen = () => {
     });
 
   const leftSectionAnimatedStyle = useAnimatedStyle(() => ({
-    width: leftWidth.value,
+    flex: leftWidth.value / SCREEN_WIDTH,
   }));
 
   const rightSectionAnimatedStyle = useAnimatedStyle(() => ({
-    width: SCREEN_WIDTH - leftWidth.value - DRAG_HANDLE_WIDTH,
+    flex: (SCREEN_WIDTH - leftWidth.value - DRAG_HANDLE_WIDTH) / SCREEN_WIDTH,
   }));
 
   // Drawing area width 계산
@@ -428,24 +417,17 @@ const ScrapDetailScreen = () => {
     return SCREEN_WIDTH - leftWidth.value - DRAG_HANDLE_WIDTH;
   });
 
-  // Animated value를 state로 변환 (380 기준선 근처에서만 업데이트하여 성능 최적화)
-  const [currentDrawingWidth, setCurrentDrawingWidth] = useState(
-    SCREEN_WIDTH - DEFAULT_LEFT_WIDTH - DRAG_HANDLE_WIDTH
+  // 드로잉 영역 너비가 380 미만인지 여부 (boolean만 React로 전달하여 리렌더링 최소화)
+  const isNarrowDrawing = useDerivedValue(() => drawingAreaWidth.value < 380);
+  const [isNarrow, setIsNarrow] = useState(
+    SCREEN_WIDTH - DEFAULT_LEFT_WIDTH - DRAG_HANDLE_WIDTH < 380
   );
 
   useAnimatedReaction(
-    () => drawingAreaWidth.value,
-    (width, prevWidth) => {
-      // 380 기준선을 넘나들 때 또는 큰 변화가 있을 때만 업데이트
-      const threshold = 380;
-      const shouldUpdate =
-        prevWidth === null ||
-        (width < threshold && prevWidth >= threshold) ||
-        (width >= threshold && prevWidth < threshold) ||
-        Math.abs(width - (prevWidth || 0)) > 10; // 10px 이상 변화 시
-
-      if (shouldUpdate) {
-        runOnJS(setCurrentDrawingWidth)(width);
+    () => isNarrowDrawing.value,
+    (narrow, prevNarrow) => {
+      if (narrow !== prevNarrow) {
+        runOnJS(setIsNarrow)(narrow);
       }
     }
   );
@@ -464,7 +446,7 @@ const ScrapDetailScreen = () => {
   }));
 
   const dragHandleContainerAnimatedStyle = useAnimatedStyle(() => ({
-    left: leftWidth.value,
+    transform: [{ translateX: leftWidth.value }],
   }));
 
   // 화면 회전 등으로 전체 너비가 줄어들었을 때,
@@ -683,7 +665,7 @@ const ScrapDetailScreen = () => {
                   eraserSize={drawingState.eraserSize}
                   onStrokeWidthChange={drawingState.setStrokeWidth}
                   onEraserSizeChange={drawingState.setEraserSize}
-                  drawingAreaWidth={currentDrawingWidth}
+                  isNarrow={isNarrow}
                 />
                 <DrawingCanvas
                   key={`drawing-canvas-${scrapId}`}
