@@ -30,13 +30,9 @@ export const ScrapDetailHeader = ({
   const [lottiePlayed, setLottiePlayed] = useState(false);
   const lottieRef = useRef<LottieView>(null);
 
-  const [localName, setLocalName] = useState(scrapName);
+  const [_localName, setLocalName] = useState<string | undefined>(undefined);
+  const localName = _localName ?? scrapName;
   const textInputRef = useRef<TextInput>(null);
-
-  // scrapName prop이 변경되면 로컬 상태 동기화
-  useEffect(() => {
-    setLocalName(scrapName);
-  }, [scrapName]);
 
   useEffect(() => {
     if (!showSave) return;
@@ -109,7 +105,7 @@ export const ScrapDetailHeader = ({
                         onScrapNameChange(trimmedName);
                       } else if (!trimmedName) {
                         // 빈 값이면 원래 이름으로 복원
-                        setLocalName(scrapName);
+                        setLocalName(undefined);
                       }
                     }}
                     onChangeText={(text) => {
@@ -120,7 +116,7 @@ export const ScrapDetailHeader = ({
                       if (trimmedName && trimmedName !== scrapName) {
                         onScrapNameChange(trimmedName);
                       } else if (!trimmedName) {
-                        setLocalName(scrapName);
+                        setLocalName(undefined);
                       }
                       textInputRef.current?.blur();
                     }}

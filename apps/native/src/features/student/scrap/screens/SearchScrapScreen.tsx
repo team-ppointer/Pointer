@@ -97,8 +97,8 @@ const SearchScrapScreen = () => {
       </View>
       <ScrollView className='px-[20px] py-[10px] pb-[120px]'>
         {query.length > 0 && folders.length > 0 && (
-          <View className=''>
-            <Text className='text-16m mb-[10px] text-gray-900'>폴더</Text>
+          <View className='gap-[10px]'>
+            <Text className='text-16m text-gray-900'>폴더</Text>
             <SearchScrapGrid data={folders} searchQuery={debouncedQuery} />
           </View>
         )}
@@ -106,8 +106,8 @@ const SearchScrapScreen = () => {
           <View className='h-[48px] w-full' />
         )}
         {query.length > 0 && scraps.length > 0 && (
-          <View className=''>
-            <Text className='text-16m mb-[10px] text-gray-900'>스크랩</Text>
+          <View className='gap-[10px]'>
+            <Text className='text-16m text-gray-900'>스크랩</Text>
             <SearchScrapGrid data={scraps} searchQuery={debouncedQuery} />
           </View>
         )}

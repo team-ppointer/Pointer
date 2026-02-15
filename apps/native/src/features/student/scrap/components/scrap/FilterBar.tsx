@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { Bookmark, ChevronRight } from 'lucide-react-native';
 import { TextButton } from '@/components/common';
@@ -21,11 +21,11 @@ export const FilterBar = ({
 }: FilterBarProps) => {
   const [isScrollEnd, setIsScrollEnd] = useState(false);
 
-  const handleScroll = (event: any) => {
+  const handleScroll = useCallback((event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const isEnd = layoutMeasurement.width + contentOffset.x >= contentSize.width - 1;
-    setIsScrollEnd(isEnd);
-  };
+    setIsScrollEnd((prev) => (prev === isEnd ? prev : isEnd));
+  }, []);
 
   return (
     <View className='flex-row items-center justify-center gap-2'>

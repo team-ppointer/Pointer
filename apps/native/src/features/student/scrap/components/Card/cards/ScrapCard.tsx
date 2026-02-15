@@ -1,5 +1,5 @@
 import { Pressable, View, Text, Image } from 'react-native';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Check } from 'lucide-react-native';
 import {
   ChevronDownFilledIcon,
@@ -16,15 +16,28 @@ import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
-import { useScrapModal } from '../../../contexts/ScrapModalsContext';
 import { useCardImageSources } from '../../../hooks';
 
-export const ScrapCard = (props: ScrapListItemProps) => {
+type ScrapCardExtraProps = {
+  onMovePress?: (params: {
+    currentFolderId?: number;
+    selectedItems: { id: number; type: string }[];
+  }) => void;
+};
+
+export const ScrapCard = (props: ScrapListItemProps & ScrapCardExtraProps) => {
   const state = props.reducerState ?? { isSelecting: false, selectedItems: [] };
   const isSelected = isItemSelected(state.selectedItems, props.id, props.type);
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const openNote = useNoteStore((state) => state.openNote);
-  const { openMoveScrapModal } = useScrapModal();
+
+  const handleCheckPress = useCallback(() => {
+    props.dispatch?.({
+      type: 'SELECTING_ITEM',
+      id: props.id,
+      itemType: props.type,
+    });
+  }, [props.dispatch, props.id, props.type]);
 
   const folderId = props.type === 'SCRAP' ? props.folderId : undefined;
 
@@ -78,7 +91,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
       />
       {state.isSelecting && (
         <Pressable
-          onPress={props.onCheckPress}
+          onPress={handleCheckPress}
           className={
             isSelected
               ? 'absolute h-[18px] w-[18px] items-center justify-center rounded bg-blue-500'
@@ -106,7 +119,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
                       onClose={close}
                       onMovePress={() => {
                         close();
-                        openMoveScrapModal({
+                        props.onMovePress?.({
                           currentFolderId: folderId,
                           selectedItems: [{ id: props.id, type: props.type }],
                         });
@@ -136,7 +149,7 @@ export const ScrapCard = (props: ScrapListItemProps) => {
         className={`${isSelected ? 'bg-gray-300' : ''} rounded-[10px] p-[10px]`}
         onPress={() => {
           if (state.isSelecting) {
-            props.onCheckPress?.();
+            handleCheckPress();
             return;
           }
 

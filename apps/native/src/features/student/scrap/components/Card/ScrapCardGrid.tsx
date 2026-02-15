@@ -6,7 +6,9 @@ import { TrashCard } from './cards/TrashCard';
 import { ScrapAddCard, ScrapAllCard } from './cards/ScrapHeadCard';
 import { ScrapItem, TrashItem } from '@/features/student/scrap/utils/types';
 import { useGridLayout } from '../../utils/layout/gridLayout';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useScrapModal } from '../../contexts/ScrapModalsContext';
+import { usePermanentDeleteTrash } from '@/apis';
 
 /**
  * ADD, ALL item type for ScrapGrid
@@ -41,7 +43,8 @@ interface ScrapGridProps {
 export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const { numColumns, gap, itemWidth } = useGridLayout(containerWidth);
-  const finalData = addPlaceholders(data as ScrapItem[], numColumns);
+  const finalData = useMemo(() => addPlaceholders(data as ScrapItem[], numColumns), [data, numColumns]);
+  const { openMoveScrapModal } = useScrapModal();
 
   return (
     <FlatList
@@ -134,13 +137,8 @@ export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
             <ScrapCard
               {...scrapItem}
               reducerState={reducerState}
-              onCheckPress={() =>
-                dispatch?.({
-                  type: 'SELECTING_ITEM',
-                  id: scrapItem.id,
-                  itemType: scrapItem.type,
-                })
-              }
+              dispatch={dispatch}
+              onMovePress={openMoveScrapModal}
             />
           </View>
         );
@@ -157,7 +155,7 @@ interface SearchScrapGridProps {
 export const SearchScrapGrid = ({ data, searchQuery }: SearchScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const { numColumns, gap, itemWidth } = useGridLayout(containerWidth);
-  const finalData = addPlaceholders(data, numColumns);
+  const finalData = useMemo(() => addPlaceholders(data, numColumns), [data, numColumns]);
 
   return (
     <FlatList
@@ -258,7 +256,8 @@ interface TrashScrapGridProps {
 export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const { numColumns, gap, itemWidth } = useGridLayout(containerWidth);
-  const finalData = addPlaceholders(data, numColumns);
+  const finalData = useMemo(() => addPlaceholders(data, numColumns), [data, numColumns]);
+  const { mutateAsync: permanentDelete } = usePermanentDeleteTrash();
 
   return (
     <FlatList
@@ -326,8 +325,7 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
           thumbnailUrl: trashItem.thumbnailUrl,
           daysUntilPermanentDelete: trashItem.daysUntilPermanentDelete,
           reducerState,
-          onCheckPress: () =>
-            dispatch({ type: 'SELECTING_ITEM', id: trashItem.id, itemType: trashItem.type }),
+          dispatch,
         };
 
         const trashCardProps =
@@ -346,7 +344,7 @@ export const TrashScrapGrid = ({ data, reducerState, dispatch }: TrashScrapGridP
 
         return (
           <View style={spacingStyle}>
-            <TrashCard {...trashCardProps} />
+            <TrashCard {...trashCardProps} onPermanentDelete={permanentDelete} />
           </View>
         );
       }}
