@@ -58,7 +58,7 @@ const MenuScreen = () => {
       <Container className='flex-1'>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}>
+          contentContainerClassName='pb-[40px]'>
           <View className='h-[20px]' />
           <View className='gap-[10px]'>
             {isTablet ? (

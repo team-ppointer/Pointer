@@ -4,6 +4,7 @@ import { colors } from '@theme/tokens';
 import type { components } from '@schema';
 import { ProfileIcon } from '@components/system/icons';
 import { AnimatedPressable } from '@components/common';
+import { gradeOptions } from '@features/student/onboarding/constants';
 
 interface UserProfileCardProps {
   name?: string;
@@ -11,16 +12,6 @@ interface UserProfileCardProps {
   grade?: string;
   onEditPress?: () => void;
 }
-
-const formatGrade = (grade?: string): string => {
-  const gradeMap: Record<string, string> = {
-    ONE: '1학년',
-    TWO: '2학년',
-    THREE: '3학년',
-    N_TIME: 'N수생',
-  };
-  return grade ? gradeMap[grade] || grade : '';
-};
 
 export const UserProfileCard = ({ name, school, grade, onEditPress }: UserProfileCardProps) => {
   return (
@@ -31,7 +22,7 @@ export const UserProfileCard = ({ name, school, grade, onEditPress }: UserProfil
         </View>
         <View className='flex-col'>
           <Text className='text-20b text-black'>{name}</Text>
-          <Text className='text-16r text-gray-700'>{`${school ? school?.name : ''}${school ? ' ' : ''}${formatGrade(grade)}`}</Text>
+          <Text className='text-16r text-gray-700'>{`${school ? school?.name : ''}${school ? ' ' : ''}${gradeOptions.find((opt) => opt.value === grade)?.label || ''}`}</Text>
         </View>
       </View>
       <AnimatedPressable
