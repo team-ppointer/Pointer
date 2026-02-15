@@ -20,6 +20,7 @@ const formatDate = (dateString: string) => {
 };
 
 const PAGE_SIZE = 20;
+const NOTICE_LIST_CONTENT_STYLE = { gap: 10, paddingTop: 16, flexGrow: 1 } as const;
 
 const NoticeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
@@ -42,12 +43,15 @@ const NoticeScreen = () => {
     }
   }, [noticeData, page]);
 
-  const readNotice = (noticeIds: number) => {
-    putReadNotice(noticeIds).then(() => {
-      invalidateNoticeCount();
-      invalidateNotice();
-    });
-  };
+  const readNotice = useCallback(
+    (noticeIds: number) => {
+      putReadNotice(noticeIds).then(() => {
+        invalidateNoticeCount();
+        invalidateNotice();
+      });
+    },
+    [invalidateNoticeCount, invalidateNotice]
+  );
 
   const hasMore = noticeData ? page < noticeData.lastPage : false;
 
@@ -98,7 +102,7 @@ const NoticeScreen = () => {
             keyExtractor={keyExtractor}
             onEndReached={handleEndReached}
             onEndReachedThreshold={0.3}
-            contentContainerStyle={{ gap: 10, paddingTop: 16, flexGrow: 1 }}
+            contentContainerStyle={NOTICE_LIST_CONTENT_STYLE}
           />
         </Container>
       )}

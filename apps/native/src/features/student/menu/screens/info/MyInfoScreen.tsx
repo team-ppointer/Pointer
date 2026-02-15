@@ -267,7 +267,7 @@ const MyInfoScreen = () => {
         }}>
         <ScrollView
           className='flex-1 bg-blue-100 pt-[10px]'
-          contentContainerStyle={{ flexGrow: 1 }}>
+          contentContainerClassName='flex-grow'>
           <Container className='-mt-[100%] gap-[28px] bg-gray-100 pb-[24px] pt-[100%]'>
             <InfoSection
               icon={<ProfileBasicIcon />}

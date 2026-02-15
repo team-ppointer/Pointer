@@ -8,8 +8,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
 import { colors, shadow } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { useDebounce } from '@hooks';
+import { AnimatedPressable } from '@components/common';
 
 const EditSchoolScreen = ({
   navigation,
@@ -111,19 +112,20 @@ const EditSchoolScreen = ({
             ) : (
               <ScrollView
                 keyboardShouldPersistTaps='handled'
-                style={{ maxHeight: 280 }}
+                className='max-h-[280px]'
                 contentContainerClassName='gap-[8px]'>
                 {results.map((item) => {
                   const label = `${item.name ?? ''}(${item.sido ?? ''})`;
                   return (
-                    <Pressable
+                    <AnimatedPressable
+                      disableScale
                       key={item.id}
                       className={`rounded-[6px] px-[10px] py-[6px] hover:bg-gray-100 active:bg-gray-200 ${
                         schoolId === item.id ? 'bg-gray-200' : 'bg-transparent'
                       }`}
                       onPress={() => handleSelect(item.id, item.name ?? '', item.sido ?? '')}>
                       <Text className='text-16m text-gray-800'>{label}</Text>
-                    </Pressable>
+                    </AnimatedPressable>
                   );
                 })}
               </ScrollView>
