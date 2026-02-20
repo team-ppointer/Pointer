@@ -9,7 +9,7 @@ import { colors, shadow } from '@theme/tokens';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import { useProblemSessionStore } from '@stores';
+import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {
@@ -94,7 +94,7 @@ const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
   return (
     <View className='flex-row items-center gap-[8px] py-[2px]'>
       <Text className='text-16m text-black'>{title}</Text>
-      <View className={`p-[4px] rounded-[4px] ${bgColor}`}>
+      <View className={`rounded-[4px] p-[4px] ${bgColor}`}>
         <Icon color={color} size={14} strokeWidth={2.5} />
       </View>
     </View>
@@ -139,9 +139,10 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
         </TextButton>
       </View>
       {group.problem.progress === 'INCORRECT' && problems.length > 0 && <Divider />}
-      {group.problem.progress === 'INCORRECT' && problems.map((problem) => (
-        <ProblemItem key={problem.key} title={problem.title} status={problem.status} />
-      ))}
+      {group.problem.progress === 'INCORRECT' &&
+        problems.map((problem) => (
+          <ProblemItem key={problem.key} title={problem.title} status={problem.status} />
+        ))}
     </View>
   );
 };
@@ -179,7 +180,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
     onDateChange(nextDate);
   };
 
-  const startSession = useProblemSessionStore((state) => state.init);
+  const initWithResume = useProblemSessionStore((state) => state.initWithResume);
 
   const handleGroupAction = useCallback(
     (group: PublishGroup) => {
@@ -195,13 +196,14 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
         Alert.alert('진행할 문제가 없어요.');
         return;
       }
-      startSession(group, {
+      initWithResume(group, {
         publishId,
         publishAt,
       });
-      navigation.navigate('Problem');
+      const phase = useProblemSessionStore.getState().phase;
+      navigation.navigate(getInitialScreenForPhase(phase));
     },
-    [navigation, publishAt, publishId, startSession, title]
+    [initWithResume, navigation, publishAt, publishId, title]
   );
 
   // 첫 번째 미완료 문제 찾기 (DOING 또는 NONE 상태)

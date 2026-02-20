@@ -6,7 +6,7 @@ import { CommonActions } from '@react-navigation/native';
 import { navigationRef, isNavigationReady } from '@/services/navigation';
 import { parseDeepLinkUrl, isValidDeepLink } from '@/utils/deepLink';
 import { getPublishDetailById } from '@/apis/controller/student/study';
-import { useProblemSessionStore } from '@/stores';
+import { useProblemSessionStore, getInitialScreenForPhase } from '@/stores';
 
 type RemoteMessage = FirebaseMessagingTypes.RemoteMessage;
 
@@ -51,7 +51,7 @@ const handleDeepLink = async (url: string | undefined | null) => {
   try {
     if (parsed.type === 'qna' && parsed.id) {
       const isTablet = isTabletScreen();
-      
+
       if (isTablet) {
         // 태블릿: Qna 탭으로 이동하면서 initialChatRoomId 전달
         navigationRef.dispatch(
@@ -92,27 +92,26 @@ const handleDeepLink = async (url: string | undefined | null) => {
 
       const groups = publishDetail.data ?? [];
       // 첫 번째 미완료 문제 찾기 (DOING 또는 NONE 상태), 없으면 첫 번째 문제
-      const targetGroup =
-        groups.find((group) => group.progress !== 'DONE') ?? groups[0];
+      const targetGroup = groups.find((group) => group.progress !== 'DONE') ?? groups[0];
 
       if (!targetGroup) {
         Alert.alert('알림', '진행할 문제가 없습니다.');
         return false;
       }
 
-      // 문제 세션 시작
-      const startSession = useProblemSessionStore.getState().init;
-      startSession(targetGroup, {
+      const initWithResume = useProblemSessionStore.getState().initWithResume;
+      initWithResume(targetGroup, {
         publishId: parsed.id,
         publishAt: publishDetail.publishAt,
       });
 
-      // Problem 화면으로 이동
+      const phase = useProblemSessionStore.getState().phase;
+      const screen = getInitialScreenForPhase(phase);
       navigationRef.dispatch(
         CommonActions.navigate({
           name: 'StudentApp',
           params: {
-            screen: 'Problem',
+            screen,
           },
         })
       );
@@ -128,7 +127,7 @@ const handleDeepLink = async (url: string | undefined | null) => {
 
 /**
  * FCM 알림과 딥링크를 처리하는 훅
- * 
+ *
  * - 앱이 백그라운드/종료 상태에서 알림을 탭했을 때 딥링크 처리
  * - 앱이 포그라운드에서 알림을 탭했을 때 딥링크 처리
  */
@@ -179,15 +178,13 @@ const useDeepLinkHandler = () => {
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      async (response) => {
-        console.log('[DeepLink] Notification response received:', response);
-        const url = response.notification.request.content.data?.url;
-        if (url) {
-          await handleDeepLink(url as string);
-        }
+    const subscription = Notifications.addNotificationResponseReceivedListener(async (response) => {
+      console.log('[DeepLink] Notification response received:', response);
+      const url = response.notification.request.content.data?.url;
+      if (url) {
+        await handleDeepLink(url as string);
       }
-    );
+    });
 
     return () => subscription.remove();
   }, []);

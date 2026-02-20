@@ -511,6 +511,23 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
   })
 );
 
+export const getInitialScreenForPhase = (
+  phase: SessionPhase
+): 'Problem' | 'Pointing' | 'Analysis' => {
+  switch (phase) {
+    case 'MAIN_PROBLEM':
+    case 'MAIN_PROBLEM_RETRY':
+    case 'CHILD_PROBLEM':
+      return 'Problem';
+    case 'CHILD_POINTINGS':
+    case 'MAIN_POINTINGS':
+      return 'Pointing';
+    case 'ANALYSIS':
+    case 'DONE':
+      return 'Analysis';
+  }
+};
+
 export const selectInitialized = (state: ProblemSessionState) => state.initialized;
 export const selectGroup = (state: ProblemSessionState) => state.group;
 export const selectPublishId = (state: ProblemSessionState) => state.publishId;
