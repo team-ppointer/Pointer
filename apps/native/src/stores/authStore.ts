@@ -82,6 +82,17 @@ const verifyStudentSession = async (): Promise<{
   const result = await refreshAndPersistTokens();
   if (!result.success) return { valid: false };
 
+  try {
+    const { data } = await bareClient.GET('/api/student/me', {
+      headers: { Authorization: `Bearer ${result.data.token.accessToken}` },
+    });
+    if (data) {
+      return { valid: true, name: data.name, grade: data.grade };
+    }
+  } catch {
+    // /me failed after successful refresh — use refresh response as fallback
+  }
+
   return { valid: true, name: result.data.name, grade: result.data.grade };
 };
 
