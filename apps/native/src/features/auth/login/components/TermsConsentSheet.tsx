@@ -1,13 +1,20 @@
 import { forwardRef, useCallback, useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
+import * as WebBrowser from 'expo-web-browser';
 import { colors } from '@theme/tokens';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react-native';
 import { AnimatedPressable, Container } from '@components/common';
+
+const TERMS_URLS = {
+  service: 'https://www.notion.so/2b4fa6e6a8fe80119c13d84d794a63a3?source=copy_link',
+  privacy: 'https://www.notion.so/2b4fa6e6a8fe8031ac2aef3009552575?source=copy_link',
+  marketing: 'https://www.notion.so/2b4fa6e6a8fe80359e8bf33c870967d9?source=copy_link',
+} as const;
 
 type AgreementState = {
   age: boolean;
@@ -124,23 +131,27 @@ const TermsConsentSheet = forwardRef<BottomSheet, TermsConsentSheetProps>(
               onToggle={() => toggleAgreement('service')}
               label='(필수) 서비스 이용약관 동의'
               withChevron
+              onChevronPress={() => WebBrowser.openBrowserAsync(TERMS_URLS.service)}
             />
             <ConsentRow
               checked={agreements.privacy}
               onToggle={() => toggleAgreement('privacy')}
               label='(필수) 개인정보 수집 및 이용 필수동의'
               withChevron
+              onChevronPress={() => WebBrowser.openBrowserAsync(TERMS_URLS.privacy)}
             />
             <ConsentRow
               checked={agreements.marketing}
               onToggle={() => toggleAgreement('marketing')}
               label='(선택) 마케팅 정보 수신 동의'
               withChevron
+              onChevronPress={() => WebBrowser.openBrowserAsync(TERMS_URLS.marketing)}
               className='mb-[12px]'
             />
             <AnimatedPressable
-              className={`my-[10px] items-center justify-center rounded-[12px] px-[12px] py-[10px] ${isRequiredChecked ? 'bg-primary-500' : 'bg-primary-200'
-                }`}
+              className={`my-[10px] items-center justify-center rounded-[12px] px-[12px] py-[10px] ${
+                isRequiredChecked ? 'bg-primary-500' : 'bg-primary-200'
+              }`}
               disabled={!isRequiredChecked}
               onPress={handleConfirm}>
               <Text className='text-16m text-white'>다음</Text>
@@ -159,6 +170,7 @@ type ConsentRowProps = {
   withChevron?: boolean;
   isBold?: boolean;
   onToggle: () => void;
+  onChevronPress?: () => void;
   className?: string;
 };
 
@@ -169,6 +181,7 @@ const ConsentRow = ({
   withChevron,
   isBold,
   onToggle,
+  onChevronPress,
   className,
 }: ConsentRowProps) => {
   return (
@@ -180,8 +193,9 @@ const ConsentRow = ({
       disableScale>
       <View className='flex-1 flex-row gap-[10px]'>
         <View
-          className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${checked ? 'border-blue-500 bg-blue-500' : 'border-gray-600 bg-white'
-            }`}>
+          className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${
+            checked ? 'border-blue-500 bg-blue-500' : 'border-gray-600 bg-white'
+          }`}>
           {checked ? <CheckIcon size={20} strokeWidth={2} color='white' /> : null}
         </View>
         <View className='flex-1 gap-[2px]'>
@@ -189,7 +203,11 @@ const ConsentRow = ({
           {description ? <Text className='text-14r text-gray-600'>{description}</Text> : null}
         </View>
       </View>
-      {withChevron ? <ChevronRightIcon size={18} color={colors['gray-600']} /> : null}
+      {withChevron ? (
+        <Pressable onPress={onChevronPress} hitSlop={8}>
+          <ChevronRightIcon size={18} color={colors['gray-600']} />
+        </Pressable>
+      ) : null}
     </AnimatedPressable>
   );
 };
