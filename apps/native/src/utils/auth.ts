@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEY_PREFIX = 'pointer-native';
 const KEYCHAIN_SERVICE = 'pointer-native-auth';
-const INSTALL_MARKER_KEY = `${KEY_PREFIX}.installMarker`;
+const INSTALL_ID_ASYNC_KEY = `${KEY_PREFIX}.installId`;
+const INSTALL_ID_SECURE_KEY = `${KEY_PREFIX}.installId`;
 
 const buildKey = (key: keyof AuthMemory) => `${KEY_PREFIX}.${key}`;
 const useSecureStore = Platform.OS !== 'web';
@@ -109,16 +110,24 @@ const hydrateItem = async (key: keyof AuthMemory) => {
 };
 
 /**
- * Detects app reinstall using AsyncStorage (cleared on uninstall) as a marker.
- * iOS Keychain persists across app reinstalls, so stale tokens must be cleared manually.
+ * Dual-marker reinstall detection:
+ * - installId is stored in BOTH SecureStore (survives reinstall) and AsyncStorage (cleared on uninstall)
+ * - SecureStore has id BUT AsyncStorage doesn't → true reinstall → clear stale tokens
+ * - Neither has id → fresh install or first run after update → just set markers
+ * - Both have id → normal launch → no-op
  */
 export const handleReinstallDetection = async () => {
   if (!useSecureStore) return;
 
   try {
-    const marker = await AsyncStorage.getItem(INSTALL_MARKER_KEY);
+    const [secureId, asyncId] = await Promise.all([
+      SecureStore.getItemAsync(INSTALL_ID_SECURE_KEY, secureStoreOptions),
+      AsyncStorage.getItem(INSTALL_ID_ASYNC_KEY),
+    ]);
 
-    if (marker === null) {
+    const isReinstall = secureId !== null && asyncId === null;
+
+    if (isReinstall) {
       const allKeys = Object.keys(memory) as (keyof AuthMemory)[];
       await Promise.all(
         allKeys.map(async (key) => {
@@ -131,8 +140,14 @@ export const handleReinstallDetection = async () => {
           }
         })
       );
+    }
 
-      await AsyncStorage.setItem(INSTALL_MARKER_KEY, Date.now().toString());
+    if (asyncId === null) {
+      const id = secureId ?? Date.now().toString();
+      await Promise.all([
+        SecureStore.setItemAsync(INSTALL_ID_SECURE_KEY, id, secureStoreOptions),
+        AsyncStorage.setItem(INSTALL_ID_ASYNC_KEY, id),
+      ]);
     }
   } catch (error) {
     console.warn('Reinstall detection failed', error);
