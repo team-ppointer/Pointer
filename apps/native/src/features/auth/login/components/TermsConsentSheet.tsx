@@ -204,7 +204,12 @@ const ConsentRow = ({
         </View>
       </View>
       {withChevron ? (
-        <Pressable onPress={onChevronPress} hitSlop={8}>
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            onChevronPress?.();
+          }}
+          hitSlop={8}>
           <ChevronRightIcon size={18} color={colors['gray-600']} />
         </Pressable>
       ) : null}
