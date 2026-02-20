@@ -26,6 +26,7 @@ import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
 import { components } from '@schema';
 import {
+  MAX_RETRY_ATTEMPTS,
   selectChildIndex,
   selectCurrentProblem,
   selectGroup,
@@ -57,7 +58,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const [isResultSheetVisible, setResultSheetVisible] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [incorrectAttemptCount, setIncorrectAttemptCount] = useState(0);
+  const [lastAttemptCount, setLastAttemptCount] = useState(0);
   const [problemProgress, setProblemProgress] = useState<ProblemProgress | null>(null);
   const [isScraped, setIsScraped] = useState(false);
   const scrapAnimValue = useRef(new Animated.Value(0)).current;
@@ -71,6 +72,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const publishId = useProblemSessionStore(selectPublishId);
   const publishAt = useProblemSessionStore(selectPublishAt);
   const finishMain = useProblemSessionStore((state) => state.finishMain);
+  const finishMainRetry = useProblemSessionStore((state) => state.finishMainRetry);
   const finishChildProblem = useProblemSessionStore((state) => state.finishChildProblem);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
@@ -96,7 +98,12 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     if (!group) {
       return '';
     }
-    if (phase === 'MAIN_PROBLEM' || phase === 'MAIN_POINTINGS' || phase === 'ANALYSIS') {
+    if (
+      phase === 'MAIN_PROBLEM' ||
+      phase === 'MAIN_PROBLEM_RETRY' ||
+      phase === 'MAIN_POINTINGS' ||
+      phase === 'ANALYSIS'
+    ) {
       return `실전문제 ${group.no}번`;
     }
     if (phase === 'CHILD_PROBLEM' || phase === 'CHILD_POINTINGS') {
@@ -140,7 +147,11 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setIsSubmitting(false);
     bottomSheetRef.current?.forceClose();
     resultSheetRef.current?.forceClose();
-    setIncorrectAttemptCount(0);
+    const isMainPhase = phase === 'MAIN_PROBLEM' || phase === 'MAIN_PROBLEM_RETRY';
+    const initialAttempts = isMainPhase
+      ? (group?.attemptCount ?? currentProblem?.attemptCount ?? 0)
+      : (currentProblem?.attemptCount ?? 0);
+    setLastAttemptCount(initialAttempts);
   }, [currentProblem?.id]);
 
   // Sync scrap state with fetched data
@@ -241,10 +252,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
         throw new Error('Missing submission response');
       }
 
-      const { isCorrect } = response.data;
+      const { isCorrect, attemptCount } = response.data;
       setIsAnswerCorrect(isCorrect);
       setProblemProgress(isCorrect ? 'CORRECT' : 'INCORRECT');
-      setIncorrectAttemptCount((prev) => (isCorrect ? 0 : prev + 1));
+      setLastAttemptCount(attemptCount ?? 1);
       closeKeyboard();
       openResultSheet();
     } catch (error) {
@@ -271,10 +282,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
         throw new Error('Missing submission response');
       }
 
-      const { isCorrect } = response.data;
+      const { isCorrect, attemptCount } = response.data;
       setIsAnswerCorrect(isCorrect);
       setProblemProgress(isCorrect ? 'CORRECT' : 'INCORRECT');
-      setIncorrectAttemptCount((prev) => (isCorrect ? 0 : prev + 1));
+      setLastAttemptCount(attemptCount ?? 1);
       setAnswer('');
       closeKeyboard();
       openResultSheet();
@@ -298,6 +309,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     closeResultSheet();
     if (phase === 'MAIN_PROBLEM') {
       finishMain(isAnswerCorrect);
+    } else if (phase === 'MAIN_PROBLEM_RETRY') {
+      finishMainRetry();
     } else if (phase === 'CHILD_PROBLEM') {
       finishChildProblem();
     }
@@ -308,7 +321,15 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     } else if (nextPhase === 'ANALYSIS') {
       navigation?.navigate('Analysis');
     }
-  }, [closeResultSheet, finishChildProblem, finishMain, isAnswerCorrect, navigation, phase]);
+  }, [
+    closeResultSheet,
+    finishChildProblem,
+    finishMain,
+    finishMainRetry,
+    isAnswerCorrect,
+    navigation,
+    phase,
+  ]);
 
   const handleCloseFlow = useCallback(() => {
     goHome();
@@ -334,6 +355,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       return mainPointingsCount > 0 ? '포인팅 학습하기' : '해설 보기';
     }
 
+    if (phase === 'MAIN_PROBLEM_RETRY') {
+      return mainPointingsCount > 0 ? '포인팅 학습하기' : '해설 보기';
+    }
+
     if (phase === 'CHILD_PROBLEM') {
       const child = childIndex >= 0 ? childProblems[childIndex] : undefined;
       const childPointingsCount = child?.pointings?.length ?? 0;
@@ -344,15 +369,16 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       if (nextChildExists) {
         return '다음 문제';
       }
-      return mainPointingsCount > 0 ? '포인팅 학습하기' : '해설 보기';
+      return '메인 문제 풀기';
     }
 
     return '계속';
   }, [childIndex, group, isAnswerCorrect, phase]);
 
   const showRetryButton = useMemo(
-    () => !isAnswerCorrect && incorrectAttemptCount === 1,
-    [incorrectAttemptCount, isAnswerCorrect]
+    () =>
+      phase !== 'MAIN_PROBLEM_RETRY' && !isAnswerCorrect && lastAttemptCount < MAX_RETRY_ATTEMPTS,
+    [phase, lastAttemptCount, isAnswerCorrect]
   );
 
   const handleRetry = useCallback(() => {
@@ -445,7 +471,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           <Container className='flex-1'>
             {/* Problem */}
             <View
-              className='rounded-[8px] my-[10px] overflow-hidden'
+              className='my-[10px] overflow-hidden rounded-[8px]'
               style={{ position: 'relative', height: screenHeight - 200 }}>
               {/* 아래층: ProblemViewer */}
               <ProblemViewer

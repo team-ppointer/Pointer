@@ -3491,6 +3491,11 @@ export interface components {
     PointingFeedbackRequest: {
       /** Format: int64 */
       pointingId: number;
+      /**
+       * Format: int64
+       * @description 발행(숙제) ID
+       */
+      publishId?: number;
       isUnderstood: boolean;
       /**
        * Format: int64
@@ -3523,6 +3528,11 @@ export interface components {
       submitAnswer: number;
       isCorrect: boolean;
       isDone: boolean;
+      /**
+       * Format: int32
+       * @description 제출 횟수
+       */
+      attemptCount?: number;
     };
     ScrapCreateRequest: {
       /**
@@ -3961,6 +3971,51 @@ export interface components {
       /** Format: date */
       publishAt: string;
     };
+    /** @description 마지막 진행 상태 정보 */
+    LastProgressInfo: {
+      /**
+       * Format: int64
+       * @description 마지막 답변한 포인팅 ID
+       */
+      lastAnsweredPointingId?: number;
+      /**
+       * Format: int32
+       * @description 마지막 답변한 포인팅 번호 (no 기준)
+       */
+      lastAnsweredPointingNo?: number;
+      /**
+       * Format: int64
+       * @description 마지막 푼 문제 ID
+       */
+      lastSolvedProblemId?: number;
+      /**
+       * Format: int32
+       * @description 마지막 푼 새끼 문제 번호 (no 기준, null이면 새끼문제 없음)
+       */
+      lastSolvedChildProblemNo?: number;
+      /** @description 메인 문제 풀이 여부 */
+      isMainProblemSolved?: boolean;
+      /**
+       * Format: int32
+       * @description 푼 새끼 문제 수
+       */
+      solvedChildProblemCount?: number;
+      /**
+       * Format: int32
+       * @description 전체 새끼 문제 수
+       */
+      totalChildProblemCount?: number;
+      /**
+       * Format: int32
+       * @description 답변한 포인팅 수
+       */
+      answeredPointingCount?: number;
+      /**
+       * Format: int32
+       * @description 전체 포인팅 수
+       */
+      totalPointingCount?: number;
+    };
     PointingWithFeedbackResp: {
       /** Format: int64 */
       id: number;
@@ -4068,6 +4123,11 @@ export interface components {
       submitAnswer: number;
       isCorrect: boolean;
       isDone: boolean;
+      /**
+       * Format: int32
+       * @description 제출 횟수
+       */
+      attemptCount?: number;
       scrapInfo?: components['schemas']['ProblemScrapInfo'];
       childProblems: components['schemas']['ProblemWithStudyInfoResp'][];
       ref?: components['schemas']['ProblemRef'];
@@ -4081,6 +4141,12 @@ export interface components {
       progress: 'DONE' | 'DOING' | 'NONE';
       problem: components['schemas']['ProblemWithStudyInfoResp'];
       childProblems: components['schemas']['ProblemWithStudyInfoResp'][];
+      lastProgressInfo?: components['schemas']['LastProgressInfo'];
+      /**
+       * Format: int32
+       * @description 메인 문제 제출 횟수
+       */
+      attemptCount?: number;
     };
     PublishResp: {
       /** Format: int64 */

@@ -159,7 +159,7 @@ const PointingScreen = ({
       }
       try {
         setIsSubmittingUnderstanding(true);
-        await postPointing(pointing.id, isUnderstood);
+        await postPointing(pointing.id, isUnderstood, publishId ?? undefined);
         setHasSubmittedUnderstanding(true);
       } catch (error) {
         console.error('Failed to submit pointing feedback', error);
@@ -176,13 +176,30 @@ const PointingScreen = ({
       return '다음 포인팅';
     }
     if (phase === 'CHILD_POINTINGS') {
-      return '다음 문제';
+      if (!group) return '다음 문제';
+      const mainCorrect = useProblemSessionStore.getState().mainCorrect;
+      const childProblems = group.childProblems ?? [];
+      const nextChildIndex = childIndex + 1;
+
+      if (mainCorrect) {
+        // 정답 경로: 다음 새끼 포인팅이 있으면 '다음 포인팅', 없으면 메인 포인팅/해설
+        const hasMoreChildPointings = childProblems
+          .slice(nextChildIndex)
+          .some((child) => (child.pointings?.length ?? 0) > 0);
+        if (hasMoreChildPointings) return '다음 포인팅';
+        const mainPointingsCount = group.problem.pointings?.length ?? 0;
+        return mainPointingsCount > 0 ? '포인팅 학습하기' : '해설 보기';
+      }
+
+      // 오답 경로: 다음 새끼문항이 있으면 '다음 문제', 없으면 '메인 문제 풀기'
+      if (nextChildIndex < childProblems.length) return '다음 문제';
+      return '메인 문제 풀기';
     }
     if (phase === 'MAIN_POINTINGS') {
       return '해설 보기';
     }
     return '계속';
-  }, [index, phase, total]);
+  }, [childIndex, group, index, phase, total]);
 
   // Button ID for analytics tracking (only 'next_problem' when applicable)
   const ctaButtonId: ButtonId | undefined = ctaLabel === '다음 문제' ? 'next_problem' : undefined;
@@ -192,7 +209,10 @@ const PointingScreen = ({
     nextPointing();
     const nextPhase = useProblemSessionStore.getState().phase;
 
-    if (prevPhase === 'CHILD_POINTINGS' && nextPhase === 'CHILD_PROBLEM') {
+    if (
+      prevPhase === 'CHILD_POINTINGS' &&
+      (nextPhase === 'CHILD_PROBLEM' || nextPhase === 'MAIN_PROBLEM_RETRY')
+    ) {
       navigation?.replace('Problem');
     } else if (
       (prevPhase === 'CHILD_POINTINGS' || prevPhase === 'MAIN_POINTINGS') &&

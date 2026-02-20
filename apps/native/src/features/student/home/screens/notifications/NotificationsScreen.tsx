@@ -16,7 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react-native';
 import { parseDeepLinkUrl, isValidDeepLink } from '@utils/deepLink';
 import { getPublishDetailById } from '@apis';
-import { useProblemSessionStore } from '@stores';
+import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
 import { useIsTablet } from '@/features/student/qna/hooks/useIsTablet';
 
 const formatDate = (dateString: string) => {
@@ -65,7 +65,7 @@ const NotificationScreen = () => {
     },
   });
 
-  const startSession = useProblemSessionStore((state) => state.init);
+  const initWithResume = useProblemSessionStore((state) => state.initWithResume);
 
   const notices = noticeData?.data ?? [];
   const notifications = notificationData?.data ?? [];
@@ -128,12 +128,13 @@ const NotificationScreen = () => {
           return;
         }
 
-        startSession(targetGroup, {
+        initWithResume(targetGroup, {
           publishId: parsed.id,
           publishAt: publishDetail.publishAt,
         });
 
-        navigation.navigate('Problem');
+        const phase = useProblemSessionStore.getState().phase;
+        navigation.navigate(getInitialScreenForPhase(phase));
         return;
       }
     } catch (error) {
