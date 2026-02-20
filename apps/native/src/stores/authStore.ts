@@ -8,13 +8,12 @@ import {
   getRefreshToken,
   getTeacherAccessToken,
   getTeacherName,
-  setAccessToken,
   setGrade,
   setName,
-  setRefreshToken,
   setTeacherName,
 } from '@utils/auth';
 import { bareClient } from '@apis/bareClient';
+import refreshAndPersistTokens from '@apis/refreshAndPersistTokens';
 
 export type UserRole = 'student' | 'teacher' | null;
 export type SessionStatus =
@@ -80,24 +79,10 @@ const verifyStudentSession = async (): Promise<{
 
   if (!refreshToken) return { valid: false };
 
-  try {
-    const { data, error } = await bareClient.POST('/api/student/auth/refresh', {
-      body: { refreshToken },
-    });
+  const result = await refreshAndPersistTokens();
+  if (!result.success) return { valid: false };
 
-    if (error || !data) return { valid: false };
-
-    if (data.token.accessToken) {
-      await setAccessToken(data.token.accessToken);
-    }
-    if (data.token.refreshToken) {
-      await setRefreshToken(data.token.refreshToken);
-    }
-
-    return { valid: true, name: data.name, grade: data.grade };
-  } catch {
-    return { valid: false };
-  }
+  return { valid: true, name: result.data.name, grade: result.data.grade };
 };
 
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({

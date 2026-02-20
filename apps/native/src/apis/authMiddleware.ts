@@ -10,13 +10,12 @@ import {
   setAccessToken,
   setGrade,
   setName,
-  setRefreshToken,
   setTeacherAccessToken,
   setTeacherName,
   setTeacherRefreshToken,
 } from '@utils/auth';
 import { bareClient } from '@apis/bareClient';
-import { postRefreshToken } from '@apis/student';
+import refreshAndPersistTokens from '@apis/refreshAndPersistTokens';
 import { useAuthStore } from '@stores';
 // import { postTeacherRefreshToken } from '@apis/controller-teacher/auth';
 
@@ -36,7 +35,7 @@ const isTeacherRoute = (schemaPath: string) => {
 };
 
 const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
-  let accessToken = getAccessToken();
+  const accessToken = getAccessToken();
 
   if (accessToken && !forceRefresh) {
     return accessToken;
@@ -46,29 +45,23 @@ const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
     await setAccessToken(null);
   }
 
-  const result = await postRefreshToken();
+  const result = await refreshAndPersistTokens();
 
-  if (!result.isSuccess || !result.data) {
+  if (!result.success) {
     console.warn('Student token refresh failed, clearing credentials.');
     await clearAuthState();
     useAuthStore.getState().signOut();
     return null;
   }
 
-  if (result.data?.token.accessToken) {
-    accessToken = result.data.token.accessToken;
-    await setAccessToken(accessToken);
-  }
-  if (result.data?.token.refreshToken) {
-    await setRefreshToken(result.data.token.refreshToken);
-  }
-  if (result.data?.name !== undefined) {
+  if (result.data.name !== undefined) {
     await setName(result.data.name);
   }
-  if (result.data?.grade !== undefined) {
+  if (result.data.grade !== undefined) {
     await setGrade(result.data.grade);
   }
-  return accessToken;
+
+  return result.data.token.accessToken;
 };
 
 const reissueTeacherToken = async () => {
