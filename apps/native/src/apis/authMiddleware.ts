@@ -101,7 +101,7 @@ const authMiddleware: Middleware = {
       request.headers.set('Authorization', `Bearer ${accessToken}`);
     }
 
-    if (!isTeacher && !getName() && !getGrade()) {
+    if (accessToken && !isTeacher && !getName() && !getGrade()) {
       const { data } = await bareClient.GET('/api/student/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
@@ -111,7 +111,7 @@ const authMiddleware: Middleware = {
       }
     }
 
-    if (isTeacher && !getTeacherName()) {
+    if (accessToken && isTeacher && !getTeacherName()) {
       const { data } = await bareClient.GET('/api/teacher/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
       });

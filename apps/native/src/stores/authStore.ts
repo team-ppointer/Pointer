@@ -144,15 +144,13 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       const result = await verifyStudentSession();
 
       if (result.valid) {
-        if (result.name !== undefined || result.grade !== undefined) {
-          if (result.name) await setName(result.name);
-          if (result.grade) await setGrade(result.grade);
-        }
+        if (result.name !== undefined) await setName(result.name ?? null);
+        if (result.grade !== undefined) await setGrade(result.grade ?? null);
         set({
           sessionStatus: 'authenticated',
           studentProfile: {
-            name: result.name ?? getName(),
-            grade: result.grade ?? getGrade(),
+            name: result.name !== undefined ? result.name : getName(),
+            grade: result.grade !== undefined ? result.grade : getGrade(),
           },
         });
       } else {
