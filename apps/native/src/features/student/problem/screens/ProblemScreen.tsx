@@ -147,8 +147,12 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setIsSubmitting(false);
     setKeyboardVisible(false);
     setResultSheetVisible(false);
-    bottomSheetRef.current?.forceClose();
-    resultSheetRef.current?.forceClose();
+    if (keyboardSheetIndex.value > -1) {
+      bottomSheetRef.current?.forceClose();
+    }
+    if (resultSheetIndex.value > -1) {
+      resultSheetRef.current?.forceClose();
+    }
     const isMainPhase = phase === 'MAIN_PROBLEM' || phase === 'MAIN_PROBLEM_RETRY';
     const initialAttempts = isMainPhase
       ? (group?.attemptCount ?? currentProblem?.attemptCount ?? 0)
