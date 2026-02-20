@@ -7,6 +7,7 @@ type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'
 
 type SessionPhase =
   | 'MAIN_PROBLEM'
+  | 'MAIN_PROBLEM_RETRY'
   | 'CHILD_PROBLEM'
   | 'CHILD_POINTINGS'
   | 'MAIN_POINTINGS'
@@ -33,6 +34,7 @@ type ProblemSessionActions = {
   init: (group: PublishProblemGroupResp, meta?: { publishId?: number; publishAt?: string }) => void;
 
   finishMain: (isCorrect: boolean) => void;
+  finishMainRetry: () => void;
   finishChildProblem: () => void;
   nextPointing: () => void;
 
@@ -138,6 +140,26 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         });
       }
     },
+    finishMainRetry: () => {
+      const { group } = get();
+      if (!group) {
+        return;
+      }
+      const mainPointings = getMainPointings(group);
+      if (mainPointings.length > 0) {
+        set({
+          phase: 'MAIN_POINTINGS',
+          pointingTarget: 'MAIN',
+          pointingIndex: 0,
+        });
+      } else {
+        set({
+          phase: 'ANALYSIS',
+          pointingTarget: undefined,
+          pointingIndex: INITIAL_INDEX,
+        });
+      }
+    },
     finishChildProblem: () => {
       const { group, childIndex } = get();
       if (!group || childIndex < 0) {
@@ -146,7 +168,6 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
       const childProblems = getChildProblems(group);
       const child = childProblems[childIndex];
       const childPointings = child?.pointings ?? [];
-      const mainPointings = getMainPointings(group);
 
       if (childPointings.length > 0) {
         set({
@@ -168,19 +189,13 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         return;
       }
 
-      if (mainPointings.length > 0) {
-        set({
-          phase: 'MAIN_POINTINGS',
-          pointingTarget: 'MAIN',
-          pointingIndex: 0,
-        });
-      } else {
-        set({
-          phase: 'ANALYSIS',
-          pointingTarget: undefined,
-          pointingIndex: INITIAL_INDEX,
-        });
-      }
+      // 오답 경로: 모든 새끼문항 완료 → 메인 재풀이
+      set({
+        phase: 'MAIN_PROBLEM_RETRY',
+        childIndex: INITIAL_INDEX,
+        pointingTarget: undefined,
+        pointingIndex: INITIAL_INDEX,
+      });
     },
     nextPointing: () => {
       const state = get();
@@ -242,19 +257,13 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
           return;
         }
 
-        if (mainPointings.length > 0) {
-          set({
-            phase: 'MAIN_POINTINGS',
-            pointingTarget: 'MAIN',
-            pointingIndex: 0,
-          });
-        } else {
-          set({
-            phase: 'ANALYSIS',
-            pointingTarget: undefined,
-            pointingIndex: INITIAL_INDEX,
-          });
-        }
+        // 오답 경로: 모든 새끼문항 포인팅 완료 → 메인 재풀이
+        set({
+          phase: 'MAIN_PROBLEM_RETRY',
+          childIndex: INITIAL_INDEX,
+          pointingTarget: undefined,
+          pointingIndex: INITIAL_INDEX,
+        });
         return;
       }
 
@@ -292,6 +301,7 @@ export const selectCurrentProblem = (
   }
   if (
     state.phase === 'MAIN_PROBLEM' ||
+    state.phase === 'MAIN_PROBLEM_RETRY' ||
     state.phase === 'MAIN_POINTINGS' ||
     state.phase === 'ANALYSIS'
   ) {
