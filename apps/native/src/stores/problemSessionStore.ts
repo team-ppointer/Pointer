@@ -30,8 +30,11 @@ type ProblemSessionState = {
   mainCorrect?: boolean;
 };
 
+type SessionMeta = { publishId?: number; publishAt?: string };
+
 type ProblemSessionActions = {
-  init: (group: PublishProblemGroupResp, meta?: { publishId?: number; publishAt?: string }) => void;
+  init: (group: PublishProblemGroupResp, meta?: SessionMeta) => void;
+  initWithResume: (group: PublishProblemGroupResp, meta?: SessionMeta) => void;
 
   finishMain: (isCorrect: boolean) => void;
   finishMainRetry: () => void;
@@ -56,8 +59,208 @@ const initialState: ProblemSessionState = {
   mainCorrect: undefined,
 };
 
+type LastProgressInfo = components['schemas']['LastProgressInfo'];
+
+type ResumeState = Pick<
+  ProblemSessionState,
+  'phase' | 'childIndex' | 'pointingIndex' | 'pointingTarget' | 'mainCorrect'
+>;
+
 const getChildProblems = (group?: PublishProblemGroupResp) => group?.childProblems ?? [];
 const getMainPointings = (group?: PublishProblemGroupResp) => group?.problem.pointings ?? [];
+
+const findChildIndexByNo = (
+  children: ProblemWithStudyInfoResp[],
+  no: number | undefined | null
+): number => {
+  if (no == null) return INITIAL_INDEX;
+  return children.findIndex((c) => c.no === no);
+};
+
+const findNextPointingIndex = (
+  pointings: PointingWithFeedbackResp[],
+  lastAnsweredNo: number | undefined | null
+): number => {
+  if (lastAnsweredNo == null) return 0;
+  const lastIdx = pointings.findIndex((p) => p.no === lastAnsweredNo);
+  if (lastIdx === -1) return 0;
+  return lastIdx + 1;
+};
+
+const countAnsweredChildPointings = (children: ProblemWithStudyInfoResp[]): number =>
+  children.reduce(
+    (sum, child) => sum + (child.pointings ?? []).filter((p) => p.isUnderstood != null).length,
+    0
+  );
+
+const computeResumeState = (
+  group: PublishProblemGroupResp,
+  info: LastProgressInfo
+): ResumeState => {
+  const children = getChildProblems(group);
+  const mainPointings = getMainPointings(group);
+  const isMainCorrect =
+    group.problem.progress === 'CORRECT' || group.problem.progress === 'SEMI_CORRECT';
+
+  if (!info.isMainProblemSolved) {
+    return {
+      phase: 'MAIN_PROBLEM',
+      childIndex: INITIAL_INDEX,
+      pointingIndex: INITIAL_INDEX,
+      pointingTarget: undefined,
+      mainCorrect: undefined,
+    };
+  }
+
+  if (isMainCorrect) {
+    for (let i = 0; i < children.length; i += 1) {
+      const cPointings = children[i].pointings ?? [];
+      if (cPointings.length === 0) continue;
+      const nextPIdx = cPointings.findIndex((p) => p.isUnderstood == null);
+      if (nextPIdx !== -1) {
+        return {
+          phase: 'CHILD_POINTINGS',
+          childIndex: i,
+          pointingIndex: nextPIdx,
+          pointingTarget: 'CHILD',
+          mainCorrect: true,
+        };
+      }
+    }
+
+    const mainNextPIdx = mainPointings.findIndex((p) => p.isUnderstood == null);
+    if (mainNextPIdx !== -1) {
+      return {
+        phase: 'MAIN_POINTINGS',
+        childIndex: INITIAL_INDEX,
+        pointingIndex: mainNextPIdx,
+        pointingTarget: 'MAIN',
+        mainCorrect: true,
+      };
+    }
+
+    return {
+      phase: 'ANALYSIS',
+      childIndex: INITIAL_INDEX,
+      pointingIndex: INITIAL_INDEX,
+      pointingTarget: undefined,
+      mainCorrect: true,
+    };
+  }
+
+  const totalChildren = info.totalChildProblemCount ?? children.length;
+  const solvedChildren = info.solvedChildProblemCount ?? 0;
+
+  if (totalChildren > 0 && solvedChildren < totalChildren) {
+    const lastChildNo = info.lastSolvedChildProblemNo;
+    if (lastChildNo == null) {
+      return {
+        phase: 'CHILD_PROBLEM',
+        childIndex: 0,
+        pointingIndex: INITIAL_INDEX,
+        pointingTarget: undefined,
+        mainCorrect: false,
+      };
+    }
+
+    const lastChildIdx = findChildIndexByNo(children, lastChildNo);
+    if (lastChildIdx !== -1) {
+      const child = children[lastChildIdx];
+      const cPointings = child.pointings ?? [];
+      const nextPIdx = cPointings.findIndex((p) => p.isUnderstood == null);
+      if (nextPIdx !== -1) {
+        return {
+          phase: 'CHILD_POINTINGS',
+          childIndex: lastChildIdx,
+          pointingIndex: nextPIdx,
+          pointingTarget: 'CHILD',
+          mainCorrect: false,
+        };
+      }
+    }
+
+    const nextChildIdx = lastChildIdx + 1;
+    if (nextChildIdx < children.length) {
+      return {
+        phase: 'CHILD_PROBLEM',
+        childIndex: nextChildIdx,
+        pointingIndex: INITIAL_INDEX,
+        pointingTarget: undefined,
+        mainCorrect: false,
+      };
+    }
+  }
+
+  if (totalChildren > 0 && solvedChildren >= totalChildren) {
+    const answeredChildPointingCount = countAnsweredChildPointings(children);
+    const totalChildPointingCount = children.reduce((s, c) => s + (c.pointings ?? []).length, 0);
+    const childPointingsDone = answeredChildPointingCount >= totalChildPointingCount;
+
+    if (!childPointingsDone) {
+      for (let i = 0; i < children.length; i += 1) {
+        const cPointings = children[i].pointings ?? [];
+        const nextPIdx = cPointings.findIndex((p) => p.isUnderstood == null);
+        if (nextPIdx !== -1) {
+          return {
+            phase: 'CHILD_POINTINGS',
+            childIndex: i,
+            pointingIndex: nextPIdx,
+            pointingTarget: 'CHILD',
+            mainCorrect: false,
+          };
+        }
+      }
+    }
+
+    const mainNextPIdx = mainPointings.findIndex((p) => p.isUnderstood == null);
+    if (mainNextPIdx !== -1 && mainNextPIdx > 0) {
+      return {
+        phase: 'MAIN_POINTINGS',
+        childIndex: INITIAL_INDEX,
+        pointingIndex: mainNextPIdx,
+        pointingTarget: 'MAIN',
+        mainCorrect: false,
+      };
+    }
+
+    if (mainNextPIdx === 0 || mainPointings.every((p) => p.isUnderstood == null)) {
+      return {
+        phase: 'MAIN_PROBLEM_RETRY',
+        childIndex: INITIAL_INDEX,
+        pointingIndex: INITIAL_INDEX,
+        pointingTarget: undefined,
+        mainCorrect: false,
+      };
+    }
+
+    return {
+      phase: 'ANALYSIS',
+      childIndex: INITIAL_INDEX,
+      pointingIndex: INITIAL_INDEX,
+      pointingTarget: undefined,
+      mainCorrect: false,
+    };
+  }
+
+  const mainNextPIdx = mainPointings.findIndex((p) => p.isUnderstood == null);
+  if (mainNextPIdx !== -1) {
+    return {
+      phase: 'MAIN_POINTINGS',
+      childIndex: INITIAL_INDEX,
+      pointingIndex: mainNextPIdx,
+      pointingTarget: 'MAIN',
+      mainCorrect: false,
+    };
+  }
+
+  return {
+    phase: 'ANALYSIS',
+    childIndex: INITIAL_INDEX,
+    pointingIndex: INITIAL_INDEX,
+    pointingTarget: undefined,
+    mainCorrect: false,
+  };
+};
 
 export const useProblemSessionStore = create<ProblemSessionState & ProblemSessionActions>(
   (set, get) => ({
@@ -71,6 +274,29 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         publishAt: meta?.publishAt,
         phase: 'MAIN_PROBLEM',
       }),
+    initWithResume: (group, meta) => {
+      if (group.progress !== 'DOING' || !group.lastProgressInfo) {
+        set({
+          ...initialState,
+          initialized: true,
+          group,
+          publishId: meta?.publishId,
+          publishAt: meta?.publishAt,
+          phase: 'MAIN_PROBLEM',
+        });
+        return;
+      }
+
+      const resumeState = computeResumeState(group, group.lastProgressInfo);
+      set({
+        ...initialState,
+        initialized: true,
+        group,
+        publishId: meta?.publishId,
+        publishAt: meta?.publishAt,
+        ...resumeState,
+      });
+    },
     finishMain: (isCorrect) => {
       const { group } = get();
       if (!group) {
