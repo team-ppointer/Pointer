@@ -47,6 +47,8 @@ type ProblemSessionActions = {
 
 const INITIAL_INDEX = -1;
 
+export const MAX_RETRY_ATTEMPTS = 3;
+
 const initialState: ProblemSessionState = {
   initialized: false,
   group: undefined,
@@ -112,6 +114,19 @@ const computeResumeState = (
     };
   }
 
+  const mainAttemptCount = group.attemptCount ?? group.problem.attemptCount ?? 0;
+  const mainHasRetry = !isMainCorrect && mainAttemptCount < MAX_RETRY_ATTEMPTS;
+
+  if (mainHasRetry) {
+    return {
+      phase: 'MAIN_PROBLEM',
+      childIndex: INITIAL_INDEX,
+      pointingIndex: INITIAL_INDEX,
+      pointingTarget: undefined,
+      mainCorrect: undefined,
+    };
+  }
+
   if (isMainCorrect) {
     for (let i = 0; i < children.length; i += 1) {
       const cPointings = children[i].pointings ?? [];
@@ -166,6 +181,18 @@ const computeResumeState = (
     const lastChildIdx = findChildIndexByNo(children, lastChildNo);
     if (lastChildIdx !== -1) {
       const child = children[lastChildIdx];
+      const childAttempts = child.attemptCount ?? 0;
+      const childCorrect = child.progress === 'CORRECT' || child.progress === 'SEMI_CORRECT';
+      if (!childCorrect && childAttempts < MAX_RETRY_ATTEMPTS) {
+        return {
+          phase: 'CHILD_PROBLEM',
+          childIndex: lastChildIdx,
+          pointingIndex: INITIAL_INDEX,
+          pointingTarget: undefined,
+          mainCorrect: false,
+        };
+      }
+
       const cPointings = child.pointings ?? [];
       const nextPIdx = cPointings.findIndex((p) => p.isUnderstood == null);
       if (nextPIdx !== -1) {

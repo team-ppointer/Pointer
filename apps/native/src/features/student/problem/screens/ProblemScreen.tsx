@@ -26,6 +26,7 @@ import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
 import { components } from '@schema';
 import {
+  MAX_RETRY_ATTEMPTS,
   selectChildIndex,
   selectCurrentProblem,
   selectGroup,
@@ -146,7 +147,11 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setIsSubmitting(false);
     bottomSheetRef.current?.forceClose();
     resultSheetRef.current?.forceClose();
-    setLastAttemptCount(0);
+    const isMainPhase = phase === 'MAIN_PROBLEM' || phase === 'MAIN_PROBLEM_RETRY';
+    const initialAttempts = isMainPhase
+      ? (group?.attemptCount ?? currentProblem?.attemptCount ?? 0)
+      : (currentProblem?.attemptCount ?? 0);
+    setLastAttemptCount(initialAttempts);
   }, [currentProblem?.id]);
 
   // Sync scrap state with fetched data
@@ -371,7 +376,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   }, [childIndex, group, isAnswerCorrect, phase]);
 
   const showRetryButton = useMemo(
-    () => phase !== 'MAIN_PROBLEM_RETRY' && !isAnswerCorrect && lastAttemptCount === 1,
+    () =>
+      phase !== 'MAIN_PROBLEM_RETRY' && !isAnswerCorrect && lastAttemptCount < MAX_RETRY_ATTEMPTS,
     [phase, lastAttemptCount, isAnswerCorrect]
   );
 
