@@ -136,33 +136,39 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
 
     if (state.sessionStatus !== 'checking') return;
 
-    if (state.role === 'student') {
-      const result = await verifyStudentSession();
+    try {
+      if (state.role === 'student') {
+        const result = await verifyStudentSession();
 
-      if (result.valid) {
-        if (result.name !== undefined) await setName(result.name ?? null);
-        if (result.grade !== undefined) await setGrade(result.grade ?? null);
-        set({
-          sessionStatus: 'authenticated',
-          studentProfile: {
-            name: result.name !== undefined ? result.name : getName(),
-            grade: result.grade !== undefined ? result.grade : getGrade(),
-          },
-        });
-      } else {
-        await clearAuthState();
-        set({ ...initialState, sessionStatus: 'unauthenticated' });
+        if (result.valid) {
+          if (result.name !== undefined) await setName(result.name ?? null);
+          if (result.grade !== undefined) await setGrade(result.grade ?? null);
+          set({
+            sessionStatus: 'authenticated',
+            studentProfile: {
+              name: result.name !== undefined ? result.name : getName(),
+              grade: result.grade !== undefined ? result.grade : getGrade(),
+            },
+          });
+        } else {
+          await clearAuthState();
+          set({ ...initialState, sessionStatus: 'unauthenticated' });
+        }
+        return;
       }
-      return;
-    }
 
-    // TODO: implement teacher token verification when teacher refresh API is ready
-    if (state.role === 'teacher') {
-      set({ sessionStatus: 'authenticated' });
-      return;
-    }
+      // TODO: implement teacher token verification when teacher refresh API is ready
+      if (state.role === 'teacher') {
+        set({ sessionStatus: 'authenticated' });
+        return;
+      }
 
-    set({ ...initialState, sessionStatus: 'unauthenticated' });
+      set({ ...initialState, sessionStatus: 'unauthenticated' });
+    } catch (error) {
+      console.warn('Session verification failed unexpectedly', error);
+      await clearAuthState().catch(() => {});
+      set({ ...initialState, sessionStatus: 'unauthenticated' });
+    }
   },
 
   setRole: (role) => set({ role }),
