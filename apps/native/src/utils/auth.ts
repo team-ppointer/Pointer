@@ -4,8 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEY_PREFIX = 'pointer-native';
 const KEYCHAIN_SERVICE = 'pointer-native-auth';
-const INSTALL_ID_ASYNC_KEY = `${KEY_PREFIX}.installId`;
-const INSTALL_ID_SECURE_KEY = `${KEY_PREFIX}.installId`;
+const INSTALL_ID_KEY = `${KEY_PREFIX}.installId`;
 
 const buildKey = (key: keyof AuthMemory) => `${KEY_PREFIX}.${key}`;
 const useSecureStore = Platform.OS !== 'web';
@@ -121,8 +120,8 @@ export const handleReinstallDetection = async () => {
 
   try {
     const [secureId, asyncId] = await Promise.all([
-      SecureStore.getItemAsync(INSTALL_ID_SECURE_KEY, secureStoreOptions),
-      AsyncStorage.getItem(INSTALL_ID_ASYNC_KEY),
+      SecureStore.getItemAsync(INSTALL_ID_KEY, secureStoreOptions),
+      AsyncStorage.getItem(INSTALL_ID_KEY),
     ]);
 
     const isReinstall = secureId !== null && asyncId === null;
@@ -145,8 +144,8 @@ export const handleReinstallDetection = async () => {
     if (asyncId === null) {
       const id = secureId ?? Date.now().toString();
       await Promise.all([
-        SecureStore.setItemAsync(INSTALL_ID_SECURE_KEY, id, secureStoreOptions),
-        AsyncStorage.setItem(INSTALL_ID_ASYNC_KEY, id),
+        SecureStore.setItemAsync(INSTALL_ID_KEY, id, secureStoreOptions),
+        AsyncStorage.setItem(INSTALL_ID_KEY, id),
       ]);
     }
   } catch (error) {
