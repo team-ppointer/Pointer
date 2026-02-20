@@ -1,7 +1,6 @@
 import { Middleware } from 'openapi-fetch';
 
 import {
-  clearAuthState,
   getAccessToken,
   getGrade,
   getName,
@@ -10,14 +9,14 @@ import {
   setAccessToken,
   setGrade,
   setName,
-  setRefreshToken,
   setTeacherAccessToken,
   setTeacherName,
   setTeacherRefreshToken,
 } from '@utils/auth';
-import { postRefreshToken } from '@apis/student';
+import { bareClient } from '@apis/bareClient';
+import refreshAndPersistTokens from '@apis/refreshAndPersistTokens';
+import { useAuthStore } from '@stores';
 // import { postTeacherRefreshToken } from '@apis/controller-teacher/auth';
-import { env } from '@utils';
 
 const UNPROTECTED_ROUTES = [
   '/api/student/auth/login/social',
@@ -34,32 +33,33 @@ const isTeacherRoute = (schemaPath: string) => {
   return schemaPath.startsWith('/api/teacher/') || schemaPath.includes('teacher');
 };
 
-const reissueStudentToken = async () => {
-  let accessToken = getAccessToken();
+const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
+  const accessToken = getAccessToken();
 
-  if (accessToken) {
+  if (accessToken && !forceRefresh) {
     return accessToken;
   }
 
-  const result = await postRefreshToken();
+  if (forceRefresh) {
+    await setAccessToken(null);
+  }
 
-  if (!result.isSuccess || !result.data) {
+  const result = await refreshAndPersistTokens();
+
+  if (!result.success) {
     console.warn('Student token refresh failed, clearing credentials.');
-    await clearAuthState();
+    await useAuthStore.getState().signOut();
     return null;
   }
 
-  if (result.data?.token.accessToken) {
-    accessToken = result.data.token.accessToken;
-    await setAccessToken(accessToken);
+  if (result.data.name !== undefined) {
+    await setName(result.data.name);
   }
-  if (result.data?.token.refreshToken) {
-    await setRefreshToken(result.data.token.refreshToken);
+  if (result.data.grade !== undefined) {
+    await setGrade(result.data.grade);
   }
-  if (result.data?.name) {
-    await Promise.all([setName(result.data.name), setGrade(result.data.grade)]);
-  }
-  return accessToken;
+
+  return result.data.token.accessToken;
 };
 
 const reissueTeacherToken = async () => {
@@ -101,29 +101,21 @@ const authMiddleware: Middleware = {
       request.headers.set('Authorization', `Bearer ${accessToken}`);
     }
 
-    // 학생이고 로컬스토리지에 이름, 학년 없을때 내정보 api
-    if (!isTeacher && !getName() && !getGrade()) {
-      const result = await fetch(`${env.apiBaseUrl}/api/student/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    if (accessToken && !isTeacher && !getName() && !getGrade()) {
+      const { data } = await bareClient.GET('/api/student/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
-      if (result.ok) {
-        const data = await result.json();
+      if (data) {
         setName(data.name);
         setGrade(data.grade);
       }
     }
 
-    // 선생님이고 로컬스토리지에 이름 없을때
-    if (isTeacher && !getTeacherName()) {
-      const result = await fetch(`${env.apiBaseUrl}/api/teacher/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    if (accessToken && isTeacher && !getTeacherName()) {
+      const { data } = await bareClient.GET('/api/teacher/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
-      if (result.ok) {
-        const data = await result.json();
+      if (data) {
         setTeacherName(data.name);
       }
     }
@@ -136,7 +128,9 @@ const authMiddleware: Middleware = {
       const isTeacher = isTeacherRoute(schemaPath);
       console.warn(`${isTeacher ? '선생님' : '학생'} Access token expired. Attempting reissue...`);
 
-      const newAccessToken = isTeacher ? await reissueTeacherToken() : await reissueStudentToken();
+      const newAccessToken = isTeacher
+        ? await reissueTeacherToken()
+        : await reissueStudentToken({ forceRefresh: true });
 
       if (!newAccessToken) {
         console.warn('Reissue failed, redirecting to login page.');

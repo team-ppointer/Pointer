@@ -21,8 +21,9 @@ const useLoadAssets = () => {
 
     const prepare = async () => {
       try {
-        await Promise.all([hydrateAuthState()]);
+        await hydrateAuthState();
         await useAuthStore.getState().hydrateFromStorage();
+        await useAuthStore.getState().verifySession();
       } catch (error) {
         console.error('Failed to load assets', error);
       } finally {
