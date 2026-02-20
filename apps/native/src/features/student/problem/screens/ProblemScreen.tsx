@@ -145,6 +145,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setAnswer('');
     setIsAnswerCorrect(false);
     setIsSubmitting(false);
+    setKeyboardVisible(false);
+    setResultSheetVisible(false);
     bottomSheetRef.current?.forceClose();
     resultSheetRef.current?.forceClose();
     const isMainPhase = phase === 'MAIN_PROBLEM' || phase === 'MAIN_PROBLEM_RETRY';
