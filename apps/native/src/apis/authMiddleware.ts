@@ -17,6 +17,7 @@ import {
 } from '@utils/auth';
 import { bareClient } from '@apis/bareClient';
 import { postRefreshToken } from '@apis/student';
+import { useAuthStore } from '@stores';
 // import { postTeacherRefreshToken } from '@apis/controller-teacher/auth';
 
 const UNPROTECTED_ROUTES = [
@@ -34,11 +35,15 @@ const isTeacherRoute = (schemaPath: string) => {
   return schemaPath.startsWith('/api/teacher/') || schemaPath.includes('teacher');
 };
 
-const reissueStudentToken = async () => {
+const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
   let accessToken = getAccessToken();
 
-  if (accessToken) {
+  if (accessToken && !forceRefresh) {
     return accessToken;
+  }
+
+  if (forceRefresh) {
+    await setAccessToken(null);
   }
 
   const result = await postRefreshToken();
@@ -46,6 +51,7 @@ const reissueStudentToken = async () => {
   if (!result.isSuccess || !result.data) {
     console.warn('Student token refresh failed, clearing credentials.');
     await clearAuthState();
+    useAuthStore.getState().signOut();
     return null;
   }
 
@@ -56,8 +62,11 @@ const reissueStudentToken = async () => {
   if (result.data?.token.refreshToken) {
     await setRefreshToken(result.data.token.refreshToken);
   }
-  if (result.data?.name) {
-    await Promise.all([setName(result.data.name), setGrade(result.data.grade)]);
+  if (result.data?.name !== undefined) {
+    await setName(result.data.name);
+  }
+  if (result.data?.grade !== undefined) {
+    await setGrade(result.data.grade);
   }
   return accessToken;
 };
@@ -128,7 +137,9 @@ const authMiddleware: Middleware = {
       const isTeacher = isTeacherRoute(schemaPath);
       console.warn(`${isTeacher ? '선생님' : '학생'} Access token expired. Attempting reissue...`);
 
-      const newAccessToken = isTeacher ? await reissueTeacherToken() : await reissueStudentToken();
+      const newAccessToken = isTeacher
+        ? await reissueTeacherToken()
+        : await reissueStudentToken({ forceRefresh: true });
 
       if (!newAccessToken) {
         console.warn('Reissue failed, redirecting to login page.');
