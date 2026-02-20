@@ -1,7 +1,6 @@
 import { Middleware } from 'openapi-fetch';
 
 import {
-  clearAuthState,
   getAccessToken,
   getGrade,
   getName,
@@ -49,8 +48,7 @@ const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
 
   if (!result.success) {
     console.warn('Student token refresh failed, clearing credentials.');
-    await clearAuthState();
-    useAuthStore.getState().signOut();
+    await useAuthStore.getState().signOut();
     return null;
   }
 
