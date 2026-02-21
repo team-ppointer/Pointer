@@ -148,10 +148,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     setKeyboardVisible(false);
     setResultSheetVisible(false);
     if (keyboardSheetIndex.value > -1) {
-      bottomSheetRef.current?.forceClose();
+      bottomSheetRef.current?.close();
     }
     if (resultSheetIndex.value > -1) {
-      resultSheetRef.current?.forceClose();
+      resultSheetRef.current?.close();
     }
     const isMainPhase = phase === 'MAIN_PROBLEM' || phase === 'MAIN_PROBLEM_RETRY';
     const initialAttempts = isMainPhase
@@ -210,7 +210,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   }, []);
 
   const closeKeyboard = useCallback(() => {
-    bottomSheetRef.current?.forceClose();
+    bottomSheetRef.current?.close();
   }, []);
 
   const openResultSheet = useCallback(() => {
@@ -218,7 +218,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   }, []);
 
   const closeResultSheet = useCallback(() => {
-    resultSheetRef.current?.forceClose();
+    resultSheetRef.current?.close();
   }, []);
 
   const toggleKeyboard = useCallback(() => {
@@ -388,7 +388,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   );
 
   const handleRetry = useCallback(() => {
-    resultSheetRef.current?.forceClose();
+    resultSheetRef.current?.close();
     setAnswer('');
   }, []);
 
