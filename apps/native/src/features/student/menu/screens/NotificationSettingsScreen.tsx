@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, ScrollView, Linking, AppState } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 import { Container } from '@components/common';
 import { ScreenLayout, SettingsToggleItem } from '../components';
 import { usePutAllowPush, useGetPushSetting } from '@apis';
 import { showToast } from '@features/student/scrap/components/Notification';
 
+const checkOsNotificationPermission = async (): Promise<boolean> => {
+  const status = await messaging().hasPermission();
+  return (
+    status === messaging.AuthorizationStatus.AUTHORIZED ||
+    status === messaging.AuthorizationStatus.PROVISIONAL
+  );
+};
+
 const NotificationSettingsScreen = () => {
   const { data: pushSettingData } = useGetPushSetting({ enabled: true });
   const { mutate: updatePushSettings } = usePutAllowPush();
+
+  const [osPermissionGranted, setOsPermissionGranted] = useState(false);
+  const isInitialCheckRef = useRef(true);
+  const wasOsPermissionGrantedRef = useRef(false);
 
   const [_pushEnabled, setPushEnabled] = useState<boolean | undefined>(undefined);
   const [_serviceNotification, setServiceNotification] = useState<boolean | undefined>(undefined);
@@ -18,6 +31,44 @@ const NotificationSettingsScreen = () => {
   const serviceNotification = _serviceNotification ?? pushSettingData?.isAllowServicePush ?? false;
   const qnaNotification = _qnaNotification ?? pushSettingData?.isAllowQnaPush ?? false;
   const eventNotification = _eventNotification ?? pushSettingData?.isAllowMarketingPush ?? false;
+
+  useEffect(() => {
+    const syncPermission = async () => {
+      const granted = await checkOsNotificationPermission();
+      const wasGranted = wasOsPermissionGrantedRef.current;
+      wasOsPermissionGrantedRef.current = granted;
+      setOsPermissionGranted(granted);
+
+      // 초기 확인이 아닌 경우에만 "새로 허용됨" 판단
+      // (초기 로드 시 이미 허용돼 있어도 전체 ON 처리하지 않음)
+      if (!isInitialCheckRef.current && !wasGranted && granted) {
+        // 시스템 설정에서 알림을 허용하고 돌아온 경우 → 모든 토글 ON
+        setPushEnabled(true);
+        setServiceNotification(true);
+        setQnaNotification(true);
+        setEventNotification(true);
+        updatePushSettings({
+          isAllowPush: true,
+          isAllowServicePush: true,
+          isAllowQnaPush: true,
+          isAllowMarketingPush: true,
+        });
+        showToast('success', '알림 설정이 변경되었습니다.');
+      }
+
+      isInitialCheckRef.current = false;
+    };
+
+    void syncPermission();
+
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        void syncPermission();
+      }
+    });
+
+    return () => subscription.remove();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = (
     isAllowPush: boolean,
@@ -35,6 +86,12 @@ const NotificationSettingsScreen = () => {
   };
 
   const handlePushEnabledChange = (newValue: boolean) => {
+    if (!osPermissionGranted) {
+      // OS 알림 미허용 → 시스템 설정으로 이동 (앱 내부 상태 변경 없음)
+      void Linking.openSettings();
+      return;
+    }
+    // OS 알림 허용됨 → 앱 내부 설정만 ON/OFF 변경
     setPushEnabled(newValue);
     handleSave(newValue, serviceNotification, qnaNotification, eventNotification);
   };
