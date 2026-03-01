@@ -107,11 +107,21 @@ const ImageWithSkeletonComponent = ({
       .filter((uri): uri is string => uri !== null);
   }, [source, isSourceArray]);
 
-  // imageUrls가 변경될 때마다 로딩 상태 초기화
+  // 이전 URL을 추적하여, 변경된 이미지만 로딩 상태 초기화
+  const prevUrlsRef = React.useRef<string[]>([]);
   useEffect(() => {
-    setIsLoading(true);
-    setFirstImageLoaded(false);
-    setSecondImageLoaded(false);
+    const prevUrls = prevUrlsRef.current;
+    prevUrlsRef.current = imageUrls;
+
+    // 첫 번째 이미지가 변경된 경우에만 리셋
+    if (imageUrls[0] !== prevUrls[0]) {
+      setIsLoading(true);
+      setFirstImageLoaded(false);
+    }
+    // 두 번째 이미지가 새로 추가되거나 변경된 경우에만 리셋
+    if (imageUrls[1] !== prevUrls[1]) {
+      setSecondImageLoaded(false);
+    }
   }, [imageUrls]);
 
   // fallback 처리
@@ -162,19 +172,12 @@ const ImageWithSkeletonComponent = ({
     const hasSecondImage = imageUrls.length > 1 && imageUrls[1];
     const imageToShow = hasSecondImage ? imageUrls[1] : imageUrls[0]; // 1개면 오른쪽 아래에 표시
 
-    // 두 이미지가 모두 로드되었는지 확인
-    const allImagesLoaded = hasSecondImage
-      ? firstImageLoaded && secondImageLoaded
-      : secondImageLoaded;
-
     return (
       <View
         className={`relative w-full overflow-hidden ${className}`}
         style={[{ aspectRatio, borderRadius }, style]}>
-        {!allImagesLoaded && <Skeleton borderRadius={borderRadius} />}
         {/* 왼쪽 위: 2개면 첫 번째 이미지, 1개면 회색 배경 */}
         {hasSecondImage ? (
-          // 2개일 때: 왼쪽 위에 첫 번째 이미지
           <View
             className='absolute top-0 left-0'
             style={{
@@ -183,7 +186,9 @@ const ImageWithSkeletonComponent = ({
               borderRadius: borderRadius,
               borderWidth: 4,
               borderColor: isHovered ? colors['gray-300'] : colors['gray-100'],
+              overflow: 'hidden',
             }}>
+            {!firstImageLoaded && <Skeleton borderRadius={0} />}
             <Image
               source={{ uri: imageUrls[0] }}
               resizeMode={resizeMode}
@@ -193,12 +198,10 @@ const ImageWithSkeletonComponent = ({
                 width: '100%',
                 height: '100%',
                 borderRadius: borderRadius,
-                overflow: 'hidden',
               }}
             />
           </View>
         ) : (
-          // 1개일 때: 왼쪽 위에 회색 배경
           <View
             className='absolute top-0 left-0'
             style={{
@@ -223,7 +226,9 @@ const ImageWithSkeletonComponent = ({
               borderRadius: borderRadius,
               borderWidth: 4,
               borderColor: isHovered ? colors['gray-300'] : colors['gray-100'],
+              overflow: 'hidden',
             }}>
+            {!secondImageLoaded && <Skeleton borderRadius={0} />}
             <Image
               source={{ uri: imageToShow }}
               resizeMode={resizeMode}
@@ -233,7 +238,6 @@ const ImageWithSkeletonComponent = ({
                 width: '100%',
                 height: '100%',
                 borderRadius: borderRadius,
-                overflow: 'hidden',
               }}
             />
           </View>
