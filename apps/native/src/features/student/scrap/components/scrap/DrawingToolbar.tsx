@@ -50,10 +50,16 @@ export const DrawingToolbar = ({
   onEraserSizeChange,
   isNarrow = false,
 }: DrawingToolbarProps) => {
-
   const SizeSelectorComponent = (
-    <>
-      {!isTextMode && !isEraserMode && (
+    <View style={{ opacity: isTextMode ? 0 : 1, pointerEvents: isTextMode ? 'none' : 'auto' }}>
+      {isEraserMode ? (
+        <SizeSelector
+          type='eraser'
+          sizes={ERASER_SIZES}
+          selectedSize={eraserSize}
+          onSizeChange={onEraserSizeChange}
+        />
+      ) : (
         <SizeSelector
           type='stroke'
           sizes={STROKE_SIZES}
@@ -61,16 +67,7 @@ export const DrawingToolbar = ({
           onSizeChange={onStrokeWidthChange}
         />
       )}
-
-      {isEraserMode && (
-        <SizeSelector
-          type='eraser'
-          sizes={ERASER_SIZES}
-          selectedSize={eraserSize}
-          onSizeChange={onEraserSizeChange}
-        />
-      )}
-    </>
+    </View>
   );
 
   return (
