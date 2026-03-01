@@ -17,7 +17,6 @@ import {
   MathSubjectValue,
 } from '@features/student/onboarding/constants';
 import { showToast } from '@features/student/scrap/components/Notification';
-import { components } from '@schema';
 import { ConfirmationModal } from '@/features/student/scrap/components/Dialog/ConfirmationModal';
 
 // 컴포넌트 외부에 저장 (리마운트 후에도 유지됨)
@@ -253,6 +252,19 @@ const MyInfoScreen = () => {
     selectSubject: localData.selectSubject ?? data?.selectSubject,
   };
 
+  const providerFormatter = (provider: string | undefined) => {
+    switch (provider) {
+      case 'KAKAO':
+        return '카카오';
+      case 'APPLE':
+        return '애플';
+      case 'GOOGLE':
+        return '구글';
+      default:
+        return '이메일';
+    }
+  };
+
   return (
     <>
       <ScreenLayout
@@ -265,9 +277,7 @@ const MyInfoScreen = () => {
           }
           navigation.goBack();
         }}>
-        <ScrollView
-          className='flex-1 bg-blue-100 pt-[10px]'
-          contentContainerClassName='flex-grow'>
+        <ScrollView className='flex-1 bg-blue-100 pt-[10px]' contentContainerClassName='flex-grow'>
           <Container className='-mt-[100%] gap-[28px] bg-gray-100 pb-[24px] pt-[100%]'>
             <InfoSection
               icon={<ProfileBasicIcon />}
@@ -339,7 +349,7 @@ const MyInfoScreen = () => {
               title='계정 정보'
               showChevron={false}
               fields={[
-                { label: '연동 계정', value: data?.provider || '' },
+                { label: '연동 계정', value: providerFormatter(data?.provider) || '' },
                 { label: '이메일', value: data?.email || '' },
               ]}
             />
