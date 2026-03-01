@@ -190,7 +190,6 @@ const ScrapDetailScreen = () => {
   }, [scrapId, queryClient]);
 
   // Save indicator timeout ref for cleanup
-  const saveIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handwriting = useHandwritingManager({
     scrapId,
@@ -198,26 +197,8 @@ const ScrapDetailScreen = () => {
     hasUnsavedChanges: drawingState.hasUnsavedChanges,
     onSaveSuccess: () => {
       drawingState.markAsSaved();
-      uiState.showSaveIndicator();
-      // Clear previous timeout if exists
-      if (saveIndicatorTimeoutRef.current) {
-        clearTimeout(saveIndicatorTimeoutRef.current);
-      }
-      saveIndicatorTimeoutRef.current = setTimeout(() => {
-        uiState.hideSaveIndicator();
-        saveIndicatorTimeoutRef.current = null;
-      }, 2000);
     },
   });
-
-  // Cleanup save indicator timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (saveIndicatorTimeoutRef.current) {
-        clearTimeout(saveIndicatorTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Tab management
   const [tabLayouts, setTabLayouts] = useState<Record<number, { x: number; width: number }>>({});
@@ -242,10 +223,6 @@ const ScrapDetailScreen = () => {
         if (!handwriting.isSaving) {
           clearInterval(checkSaveComplete);
           // 저장 완료 후 초기화
-          if (saveIndicatorTimeoutRef.current) {
-            clearTimeout(saveIndicatorTimeoutRef.current);
-            saveIndicatorTimeoutRef.current = null;
-          }
           drawingState.reset();
           uiState.reset();
           canvasRef.current?.clear();
@@ -257,11 +234,6 @@ const ScrapDetailScreen = () => {
     }
 
     // 저장 중이 아니면 즉시 초기화
-    // Save indicator timeout cleanup
-    if (saveIndicatorTimeoutRef.current) {
-      clearTimeout(saveIndicatorTimeoutRef.current);
-      saveIndicatorTimeoutRef.current = null;
-    }
     // Drawing state 초기화
     drawingState.reset();
     // UI state 초기화
