@@ -8,7 +8,6 @@ interface IconMenuItemProps {
   title: string;
   onPress?: () => void;
   className?: string;
-  iconColor?: string;
   showChevron?: boolean;
 }
 
@@ -22,6 +21,7 @@ export const IconMenuItem = ({
     <AnimatedPressable
       className='flex-row items-center gap-1 rounded-[10px] border border-gray-300 bg-white px-[16px] py-[11px]'
       onPress={onPress}
+      accessibilityLabel={title}
       disableScale>
       <View className='flex-1'>
         <Text className='text-16r text-black'>{title}</Text>

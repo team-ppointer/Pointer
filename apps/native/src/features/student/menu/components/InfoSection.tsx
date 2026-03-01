@@ -22,8 +22,8 @@ export const InfoSection = ({ icon, title, fields, showChevron = true }: InfoSec
         {icon}
         <Text className='text-18sb text-gray-900'>{title}</Text>
       </View>
-      {fields.map((field, index) => (
-        <View key={index} className='gap-[3px]'>
+      {fields.map((field) => (
+        <View key={field.label} className='gap-[3px]'>
           <Text className='text-14m text-gray-900'>{field.label}</Text>
           <IconMenuItem title={field.value} onPress={field.onPress} showChevron={showChevron} />
         </View>

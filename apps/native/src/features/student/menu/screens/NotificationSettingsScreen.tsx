@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, Linking, AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
+import { useQueryClient } from '@tanstack/react-query';
 import { Container } from '@components/common';
 import { ScreenLayout, SettingsToggleItem } from '../components';
 import { usePutAllowPush, useGetPushSetting } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 import { showToast } from '@features/student/scrap/components/Notification';
 
 const checkOsNotificationPermission = async (): Promise<boolean> => {
@@ -15,6 +17,7 @@ const checkOsNotificationPermission = async (): Promise<boolean> => {
 };
 
 const NotificationSettingsScreen = () => {
+  const queryClient = useQueryClient();
   const { data: pushSettingData } = useGetPushSetting({ enabled: true });
   const { mutate: updatePushSettings } = usePutAllowPush();
 
@@ -47,13 +50,27 @@ const NotificationSettingsScreen = () => {
         setServiceNotification(true);
         setQnaNotification(true);
         setEventNotification(true);
-        updatePushSettings({
-          isAllowPush: true,
-          isAllowServicePush: true,
-          isAllowQnaPush: true,
-          isAllowMarketingPush: true,
-        });
-        showToast('success', '알림 설정이 변경되었습니다.');
+        updatePushSettings(
+          {
+            isAllowPush: true,
+            isAllowServicePush: true,
+            isAllowQnaPush: true,
+            isAllowMarketingPush: true,
+          },
+          {
+            onSuccess: () => {
+              showToast('success', '알림 설정이 변경되었습니다.');
+            },
+            onError: () => {
+              // 실패 시 변경 전 값으로 롤백
+              setPushEnabled(wasGranted ? (pushSettingData?.isAllowPush ?? false) : false);
+              setServiceNotification(wasGranted ? (pushSettingData?.isAllowServicePush ?? false) : false);
+              setQnaNotification(wasGranted ? (pushSettingData?.isAllowQnaPush ?? false) : false);
+              setEventNotification(wasGranted ? (pushSettingData?.isAllowMarketingPush ?? false) : false);
+              showToast('error', '알림 설정 변경에 실패했습니다. 다시 시도해주세요.');
+            },
+          }
+        );
       }
 
       isInitialCheckRef.current = false;
@@ -68,7 +85,7 @@ const NotificationSettingsScreen = () => {
     });
 
     return () => subscription.remove();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [updatePushSettings, pushSettingData]);
 
   const handleSave = (
     isAllowPush: boolean,
@@ -76,13 +93,25 @@ const NotificationSettingsScreen = () => {
     isAllowQnaPush: boolean,
     isAllowMarketingPush: boolean
   ) => {
-    updatePushSettings({
-      isAllowPush,
-      isAllowServicePush,
-      isAllowQnaPush,
-      isAllowMarketingPush,
-    });
-    showToast('success', '알림 설정이 변경되었습니다.');
+    updatePushSettings(
+      {
+        isAllowPush,
+        isAllowServicePush,
+        isAllowQnaPush,
+        isAllowMarketingPush,
+      },
+      {
+        onSuccess: () => {
+          showToast('success', '알림 설정이 변경되었습니다.');
+          void queryClient.invalidateQueries({
+            queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me/push/settings').queryKey,
+          });
+        },
+        onError: () => {
+          showToast('error', '알림 설정 변경에 실패했습니다. 다시 시도해주세요.');
+        },
+      }
+    );
   };
 
   const handlePushEnabledChange = (newValue: boolean) => {
