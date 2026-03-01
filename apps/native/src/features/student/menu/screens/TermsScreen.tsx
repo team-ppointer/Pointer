@@ -19,7 +19,6 @@ const TERMS_LIST: TermsItem[] = [
 
 const TermsScreen = () => {
   const handleTermPress = (term: TermsItem) => {
-    console.log('Term pressed:', term);
   };
 
   return (

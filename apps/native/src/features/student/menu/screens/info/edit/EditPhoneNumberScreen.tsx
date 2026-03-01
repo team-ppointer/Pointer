@@ -9,9 +9,10 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
 import { AnimatedPressable, Container } from '@components/common';
 import { ChevronLeft, CircleCheck, CircleAlert } from 'lucide-react-native';
-import { useGetMe, usePutMe, postPhoneSend, postPhoneResend, postPhoneVerify } from '@apis';
+import { useGetMe, usePutMe, postPhoneSend, postPhoneResend, postPhoneVerify, TanstackQueryClient } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@theme/tokens';
@@ -30,6 +31,7 @@ const EditPhoneNumberScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
 
+  const queryClient = useQueryClient();
   const { mutate: putMeMutate } = usePutMe();
 
   const [phoneNumber, setPhoneNumber] = useState(data?.phoneNumber || '');
@@ -102,6 +104,9 @@ const EditPhoneNumberScreen = () => {
           { phoneNumber },
           {
             onSuccess: () => {
+              queryClient.invalidateQueries({
+                queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
+              });
               showToast('success', '휴대폰 번호 변경이 완료되었습니다.');
               navigation.goBack();
             },
@@ -143,6 +148,8 @@ const EditPhoneNumberScreen = () => {
       setPhoneNumber(text);
     }
   };
+
+  const phoneFeedback = getPhoneFeedbackMessage();
 
   return (
     <KeyboardAvoidingView
@@ -195,10 +202,10 @@ const EditPhoneNumberScreen = () => {
                     </>
                   ) : (
                     <>
-                      {getPhoneFeedbackMessage() && (
+                      {phoneFeedback && (
                         <CircleAlert size={14} color={colors['red-500']} />
                       )}
-                      <Text className='text-12r text-red-500'>{getPhoneFeedbackMessage()}</Text>
+                      <Text className='text-12r text-red-500'>{phoneFeedback}</Text>
                     </>
                   )}
                 </View>
@@ -235,7 +242,7 @@ const EditPhoneNumberScreen = () => {
         </ScrollView>
 
         <SafeAreaView edges={['bottom']} className='mb-[10px]'>
-          {!isCodeSent || timer == 0 ? (
+          {!isCodeSent || timer === 0 ? (
             <AnimatedPressable
               onPress={handleSendCode}
               disabled={!isValidPhone}
