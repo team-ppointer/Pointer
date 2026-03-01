@@ -56,7 +56,7 @@ const WithdrawalScreen = () => {
         reasons,
         ...(hasOther && { otherReason: '' }),
       });
-      signOut();
+      await signOut();
     } catch (error) {
       console.error('Failed to withdraw', error);
       Alert.alert('오류', '회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
@@ -68,7 +68,7 @@ const WithdrawalScreen = () => {
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
         <Container>
           <View className='mb-[20px]'>
-            {!showReasons && (
+            {!showReasons ? (
               <>
                 <Text className='text-18sb mb-[6px] text-black'>포인터를 탈퇴하시겠습니까?</Text>
                 <Text className='text-12r text-gray-700'>
@@ -76,8 +76,7 @@ const WithdrawalScreen = () => {
                   제한됩니다.
                 </Text>
               </>
-            )}
-            {showReasons && (
+            ) : (
               <>
                 <Text className='text-18sb mb-[6px] text-black'>
                   서비스 개선을 위해{`\n`}

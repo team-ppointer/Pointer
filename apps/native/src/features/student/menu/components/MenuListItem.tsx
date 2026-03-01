@@ -25,13 +25,14 @@ export const MenuListItem = ({
     <AnimatedPressable
       className='h-[48px] flex-row items-center bg-white px-[16px]'
       onPress={onPress}
+      accessibilityLabel={title}
       disableScale>
       <View className='h-[48px] flex-1 flex-row items-center'>
-        {Icon && (
+        {Icon ? (
           <View className='mr-[4px] h-[30px] w-[30px] items-center justify-center'>
             <Icon size={20} color={colors['gray-700']} />
           </View>
-        )}
+        ) : null}
         <Text className={`text-16m flex-1 ${Icon ? 'text-black' : 'text-gray-700'}`}>{title}</Text>
         <View className='flex-row items-center gap-[4px]'>
           {isNew && (

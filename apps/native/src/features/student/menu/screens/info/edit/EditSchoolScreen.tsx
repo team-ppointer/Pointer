@@ -1,6 +1,6 @@
 import { OnboardingInput } from '@features/student/onboarding/components';
 import { EditScreenLayout } from '../../../components';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { showToast } from '@features/student/scrap/components/Notification';
 import { useGetSchool } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
@@ -22,10 +22,20 @@ const EditSchoolScreen = ({
   const [selectedLabel, setSelectedLabel] = useState(route.params.initialSchool?.name || '');
   const [selectedSido, setSelectedSido] = useState(route.params.initialSchool?.sido || '');
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const dropdownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (dropdownTimerRef.current !== null) {
+        clearTimeout(dropdownTimerRef.current);
+      }
+    };
+  }, []);
 
   const debouncedQuery = useDebounce(query.trim(), 300);
   const { data, isLoading } = useGetSchool(
-    debouncedQuery.length > 0 ? { query: debouncedQuery } : { query: '' }
+    { query: debouncedQuery },
+    debouncedQuery.length > 0
   );
 
   const results = data?.data ?? [];
@@ -80,7 +90,7 @@ const EditSchoolScreen = ({
           value={query}
           onFocus={() => setDropdownVisible(true)}
           onBlur={() => {
-            setTimeout(() => setDropdownVisible(false), 150);
+            dropdownTimerRef.current = setTimeout(() => setDropdownVisible(false), 150);
           }}
           onChangeText={(text) => {
             setQuery(text);

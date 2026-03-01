@@ -8,7 +8,7 @@ import { usePostFeedback } from '@apis';
 import { showToast } from '@features/student/scrap/components/Notification';
 
 const FeedbackScreen = () => {
-  const { mutate: postFeedback } = usePostFeedback();
+  const { mutate: postFeedback, isPending } = usePostFeedback();
 
   const [content, setContent] = useState('');
 
@@ -21,9 +21,18 @@ const FeedbackScreen = () => {
       showToast('error', '최소 10자 이상 입력해주세요.');
       return;
     }
-    postFeedback({ content });
-    showToast('success', '피드백이 제출되었습니다.');
-    setContent('');
+    postFeedback(
+      { content },
+      {
+        onSuccess: () => {
+          showToast('success', '피드백이 제출되었습니다.');
+          setContent('');
+        },
+        onError: () => {
+          showToast('error', '피드백 제출에 실패했습니다. 다시 시도해주세요.');
+        },
+      }
+    );
   };
 
   return (
@@ -62,8 +71,9 @@ const FeedbackScreen = () => {
           <SafeAreaView edges={['bottom']} className='mb-[18px]'>
             <AnimatedPressable
               onPress={handleSubmit}
+              disabled={isPending || content.length < 10}
               className={`bg-primary-500 items-center rounded-[8px] py-[10px] ${
-                content.length < 10 ? 'opacity-50' : ''
+                isPending || content.length < 10 ? 'opacity-50' : ''
               }`}>
               <Text className='text-16m text-white'>보내기</Text>
             </AnimatedPressable>
