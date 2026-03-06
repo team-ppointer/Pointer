@@ -51,7 +51,9 @@ export const DrawingToolbar = ({
   isNarrow = false,
 }: DrawingToolbarProps) => {
   const SizeSelectorComponent = (
-    <View style={{ opacity: isTextMode ? 0 : 1, pointerEvents: isTextMode ? 'none' : 'auto' }}>
+    <View
+      pointerEvents={isTextMode ? 'none' : 'auto'}
+      style={{ opacity: isTextMode ? 0 : 1 }}>
       {isEraserMode ? (
         <SizeSelector
           type='eraser'
