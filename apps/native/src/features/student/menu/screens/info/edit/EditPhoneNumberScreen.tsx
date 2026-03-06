@@ -39,15 +39,25 @@ const EditPhoneNumberScreen = () => {
   const [verifyFeedbackMessage, setVerifyFeedbackMessage] = useState<string | null>(null);
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [timer, setTimer] = useState(120); // 2분 = 120초
+  const [expiresAt, setExpiresAt] = useState<number | null>(null);
 
   useEffect(() => {
-    if (isCodeSent && timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(interval);
+    if (!isCodeSent || expiresAt === null) {
+      return;
     }
-  }, [isCodeSent, timer]);
+
+    const syncRemainingTime = () => {
+      const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+      setTimer(remaining);
+      if (remaining === 0) {
+        setExpiresAt(null);
+      }
+    };
+
+    syncRemainingTime();
+    const interval = setInterval(syncRemainingTime, 1000);
+    return () => clearInterval(interval);
+  }, [isCodeSent, expiresAt]);
 
   const handleSendCode = async () => {
     if (phoneNumber.length >= 2 && !phoneNumber.startsWith('01')) {
@@ -62,6 +72,7 @@ const EditPhoneNumberScreen = () => {
       const response = await postPhoneSend(phoneNumber);
       if (response.data?.success) {
         setIsCodeSent(true);
+        setExpiresAt(Date.now() + 120 * 1000);
         setTimer(120);
         showToast('success', response.data.message || '인증번호가 전송되었습니다.');
       } else {
@@ -78,6 +89,7 @@ const EditPhoneNumberScreen = () => {
       const response = await postPhoneResend(phoneNumber);
       if (response.data?.success) {
         setIsCodeSent(true);
+        setExpiresAt(Date.now() + 120 * 1000);
         setTimer(120);
         showToast('success', response.data.message || '인증번호가 재전송되었습니다.');
       } else {

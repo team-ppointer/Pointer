@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, ScrollView, Linking, AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,6 +16,13 @@ const checkOsNotificationPermission = async (): Promise<boolean> => {
   );
 };
 
+type PushSettingsPayload = {
+  isAllowPush: boolean;
+  isAllowServicePush: boolean;
+  isAllowQnaPush: boolean;
+  isAllowMarketingPush: boolean;
+};
+
 const NotificationSettingsScreen = () => {
   const queryClient = useQueryClient();
   const { data: pushSettingData } = useGetPushSetting({ enabled: true });
@@ -24,6 +31,7 @@ const NotificationSettingsScreen = () => {
   const [osPermissionGranted, setOsPermissionGranted] = useState(false);
   const isInitialCheckRef = useRef(true);
   const wasOsPermissionGrantedRef = useRef(false);
+  const hasInitializedSubTogglesRef = useRef(false);
 
   const [_pushEnabled, setPushEnabled] = useState<boolean | undefined>(undefined);
   const [_serviceNotification, setServiceNotification] = useState<boolean | undefined>(undefined);
@@ -34,6 +42,56 @@ const NotificationSettingsScreen = () => {
   const serviceNotification = _serviceNotification ?? pushSettingData?.isAllowServicePush ?? false;
   const qnaNotification = _qnaNotification ?? pushSettingData?.isAllowQnaPush ?? false;
   const eventNotification = _eventNotification ?? pushSettingData?.isAllowMarketingPush ?? false;
+
+  const getCurrentSettings = useCallback(
+    (): PushSettingsPayload => ({
+      isAllowPush: pushEnabled,
+      isAllowServicePush: serviceNotification,
+      isAllowQnaPush: qnaNotification,
+      isAllowMarketingPush: eventNotification,
+    }),
+    [pushEnabled, serviceNotification, qnaNotification, eventNotification]
+  );
+
+  const applyLocalSettings = useCallback((settings: PushSettingsPayload) => {
+    setPushEnabled(settings.isAllowPush);
+    setServiceNotification(settings.isAllowServicePush);
+    setQnaNotification(settings.isAllowQnaPush);
+    setEventNotification(settings.isAllowMarketingPush);
+  }, []);
+
+  const saveSettings = useCallback(
+    (nextSettings: PushSettingsPayload, previousSettings?: PushSettingsPayload) => {
+      updatePushSettings(nextSettings, {
+        onSuccess: () => {
+          showToast('success', '알림 설정이 변경되었습니다.');
+          void queryClient.invalidateQueries({
+            queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me/push/settings').queryKey,
+          });
+        },
+        onError: () => {
+          if (previousSettings) {
+            applyLocalSettings(previousSettings);
+          }
+          showToast('error', '알림 설정 변경에 실패했습니다. 다시 시도해주세요.');
+        },
+      });
+    },
+    [updatePushSettings, queryClient, applyLocalSettings]
+  );
+
+  useEffect(() => {
+    if (!pushSettingData) return;
+
+    if (
+      !!pushSettingData.isAllowPush ||
+      !!pushSettingData.isAllowServicePush ||
+      !!pushSettingData.isAllowQnaPush ||
+      !!pushSettingData.isAllowMarketingPush
+    ) {
+      hasInitializedSubTogglesRef.current = true;
+    }
+  }, [pushSettingData]);
 
   useEffect(() => {
     const syncPermission = async () => {
@@ -46,31 +104,17 @@ const NotificationSettingsScreen = () => {
       // (초기 로드 시 이미 허용돼 있어도 전체 ON 처리하지 않음)
       if (!isInitialCheckRef.current && !wasGranted && granted) {
         // 시스템 설정에서 알림을 허용하고 돌아온 경우 → 모든 토글 ON
-        setPushEnabled(true);
-        setServiceNotification(true);
-        setQnaNotification(true);
-        setEventNotification(true);
-        updatePushSettings(
-          {
-            isAllowPush: true,
-            isAllowServicePush: true,
-            isAllowQnaPush: true,
-            isAllowMarketingPush: true,
-          },
-          {
-            onSuccess: () => {
-              showToast('success', '알림 설정이 변경되었습니다.');
-            },
-            onError: () => {
-              // 실패 시 변경 전 값으로 롤백
-              setPushEnabled(wasGranted ? (pushSettingData?.isAllowPush ?? false) : false);
-              setServiceNotification(wasGranted ? (pushSettingData?.isAllowServicePush ?? false) : false);
-              setQnaNotification(wasGranted ? (pushSettingData?.isAllowQnaPush ?? false) : false);
-              setEventNotification(wasGranted ? (pushSettingData?.isAllowMarketingPush ?? false) : false);
-              showToast('error', '알림 설정 변경에 실패했습니다. 다시 시도해주세요.');
-            },
-          }
-        );
+        const previousSettings = getCurrentSettings();
+        const nextSettings: PushSettingsPayload = {
+          isAllowPush: true,
+          isAllowServicePush: true,
+          isAllowQnaPush: true,
+          isAllowMarketingPush: true,
+        };
+
+        hasInitializedSubTogglesRef.current = true;
+        applyLocalSettings(nextSettings);
+        saveSettings(nextSettings, previousSettings);
       }
 
       isInitialCheckRef.current = false;
@@ -85,34 +129,7 @@ const NotificationSettingsScreen = () => {
     });
 
     return () => subscription.remove();
-  }, [updatePushSettings, pushSettingData]);
-
-  const handleSave = (
-    isAllowPush: boolean,
-    isAllowServicePush: boolean,
-    isAllowQnaPush: boolean,
-    isAllowMarketingPush: boolean
-  ) => {
-    updatePushSettings(
-      {
-        isAllowPush,
-        isAllowServicePush,
-        isAllowQnaPush,
-        isAllowMarketingPush,
-      },
-      {
-        onSuccess: () => {
-          showToast('success', '알림 설정이 변경되었습니다.');
-          void queryClient.invalidateQueries({
-            queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me/push/settings').queryKey,
-          });
-        },
-        onError: () => {
-          showToast('error', '알림 설정 변경에 실패했습니다. 다시 시도해주세요.');
-        },
-      }
-    );
-  };
+  }, [getCurrentSettings, applyLocalSettings, saveSettings]);
 
   const handlePushEnabledChange = (newValue: boolean) => {
     if (!osPermissionGranted) {
@@ -120,24 +137,67 @@ const NotificationSettingsScreen = () => {
       void Linking.openSettings();
       return;
     }
+
+    const previousSettings = getCurrentSettings();
+
+    let nextSettings: PushSettingsPayload = {
+      ...previousSettings,
+      isAllowPush: newValue,
+    };
+
+    // 최초 푸시 ON 시점에만 하위 3개를 모두 ON 처리
+    if (newValue && !hasInitializedSubTogglesRef.current) {
+      nextSettings = {
+        ...nextSettings,
+        isAllowServicePush: true,
+        isAllowQnaPush: true,
+        isAllowMarketingPush: true,
+      };
+      hasInitializedSubTogglesRef.current = true;
+    }
+
+    if (
+      previousSettings.isAllowPush === nextSettings.isAllowPush &&
+      previousSettings.isAllowServicePush === nextSettings.isAllowServicePush &&
+      previousSettings.isAllowQnaPush === nextSettings.isAllowQnaPush &&
+      previousSettings.isAllowMarketingPush === nextSettings.isAllowMarketingPush
+    ) {
+      return;
+    }
+
     // OS 알림 허용됨 → 앱 내부 설정만 ON/OFF 변경
-    setPushEnabled(newValue);
-    handleSave(newValue, serviceNotification, qnaNotification, eventNotification);
+    applyLocalSettings(nextSettings);
+    saveSettings(nextSettings, previousSettings);
   };
 
   const handleServiceNotificationChange = (newValue: boolean) => {
-    setServiceNotification(newValue);
-    handleSave(pushEnabled, newValue, qnaNotification, eventNotification);
+    const previousSettings = getCurrentSettings();
+    const nextSettings = {
+      ...previousSettings,
+      isAllowServicePush: newValue,
+    };
+    applyLocalSettings(nextSettings);
+    saveSettings(nextSettings, previousSettings);
   };
 
   const handleQnaNotificationChange = (newValue: boolean) => {
-    setQnaNotification(newValue);
-    handleSave(pushEnabled, serviceNotification, newValue, eventNotification);
+    const previousSettings = getCurrentSettings();
+    const nextSettings = {
+      ...previousSettings,
+      isAllowQnaPush: newValue,
+    };
+    applyLocalSettings(nextSettings);
+    saveSettings(nextSettings, previousSettings);
   };
 
   const handleEventNotificationChange = (newValue: boolean) => {
-    setEventNotification(newValue);
-    handleSave(pushEnabled, serviceNotification, qnaNotification, newValue);
+    const previousSettings = getCurrentSettings();
+    const nextSettings = {
+      ...previousSettings,
+      isAllowMarketingPush: newValue,
+    };
+    applyLocalSettings(nextSettings);
+    saveSettings(nextSettings, previousSettings);
   };
 
   return (
