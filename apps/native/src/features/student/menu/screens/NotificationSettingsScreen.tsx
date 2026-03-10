@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, ScrollView, Linking, AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
-import { useQueryClient } from '@tanstack/react-query';
 import { Container } from '@components/common';
 import { ScreenLayout, SettingsToggleItem } from '../components';
 import { usePutAllowPush, useGetPushSetting } from '@apis';
-import { TanstackQueryClient } from '@/apis/client';
 import { showToast } from '@features/student/scrap/components/Notification';
 
 const checkOsNotificationPermission = async (): Promise<boolean> => {
@@ -33,7 +31,6 @@ const hasSameSettings = (
   a.isAllowMarketingPush === b.isAllowMarketingPush;
 
 const NotificationSettingsScreen = () => {
-  const queryClient = useQueryClient();
   const { data: pushSettingData } = useGetPushSetting({ enabled: true });
   const { mutate: updatePushSettings } = usePutAllowPush();
 
@@ -74,9 +71,6 @@ const NotificationSettingsScreen = () => {
       updatePushSettings(nextSettings, {
         onSuccess: () => {
           showToast('success', '알림 설정이 변경되었습니다.');
-          void queryClient.invalidateQueries({
-            queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me/push/settings').queryKey,
-          });
         },
         onError: () => {
           applyLocalSettings(previousSettings);
@@ -84,7 +78,7 @@ const NotificationSettingsScreen = () => {
         },
       });
     },
-    [updatePushSettings, queryClient, applyLocalSettings]
+    [updatePushSettings, applyLocalSettings]
   );
 
   useEffect(() => {
