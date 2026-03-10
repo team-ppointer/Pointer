@@ -189,7 +189,6 @@ const ScrapDetailScreen = () => {
     };
   }, [scrapId, queryClient]);
 
-  // Save indicator timeout ref for cleanup
 
   const handwriting = useHandwritingManager({
     scrapId,
