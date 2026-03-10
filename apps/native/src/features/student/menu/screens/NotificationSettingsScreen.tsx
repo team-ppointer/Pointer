@@ -23,6 +23,15 @@ type PushSettingsPayload = {
   isAllowMarketingPush: boolean;
 };
 
+const hasSameSettings = (
+  a: PushSettingsPayload,
+  b: PushSettingsPayload
+): boolean =>
+  a.isAllowPush === b.isAllowPush &&
+  a.isAllowServicePush === b.isAllowServicePush &&
+  a.isAllowQnaPush === b.isAllowQnaPush &&
+  a.isAllowMarketingPush === b.isAllowMarketingPush;
+
 const NotificationSettingsScreen = () => {
   const queryClient = useQueryClient();
   const { data: pushSettingData } = useGetPushSetting({ enabled: true });
@@ -61,7 +70,7 @@ const NotificationSettingsScreen = () => {
   }, []);
 
   const saveSettings = useCallback(
-    (nextSettings: PushSettingsPayload, previousSettings?: PushSettingsPayload) => {
+    (nextSettings: PushSettingsPayload, previousSettings: PushSettingsPayload) => {
       updatePushSettings(nextSettings, {
         onSuccess: () => {
           showToast('success', '알림 설정이 변경되었습니다.');
@@ -70,9 +79,7 @@ const NotificationSettingsScreen = () => {
           });
         },
         onError: () => {
-          if (previousSettings) {
-            applyLocalSettings(previousSettings);
-          }
+          applyLocalSettings(previousSettings);
           showToast('error', '알림 설정 변경에 실패했습니다. 다시 시도해주세요.');
         },
       });
@@ -101,18 +108,31 @@ const NotificationSettingsScreen = () => {
       setOsPermissionGranted(granted);
 
       // 초기 확인이 아닌 경우에만 "새로 허용됨" 판단
-      // (초기 로드 시 이미 허용돼 있어도 전체 ON 처리하지 않음)
+      // (초기 로드 시 이미 허용돼 있어도 자동 저장하지 않음)
       if (!isInitialCheckRef.current && !wasGranted && granted) {
-        // 시스템 설정에서 알림을 허용하고 돌아온 경우 → 모든 토글 ON
         const previousSettings = getCurrentSettings();
-        const nextSettings: PushSettingsPayload = {
-          isAllowPush: true,
-          isAllowServicePush: true,
-          isAllowQnaPush: true,
-          isAllowMarketingPush: true,
-        };
+        const isFirstPushEnable = !hasInitializedSubTogglesRef.current;
+        const nextSettings: PushSettingsPayload = isFirstPushEnable
+          ? {
+              isAllowPush: true,
+              isAllowServicePush: true,
+              isAllowQnaPush: true,
+              isAllowMarketingPush: true,
+            }
+          : {
+              ...previousSettings,
+              isAllowPush: true,
+            };
 
-        hasInitializedSubTogglesRef.current = true;
+        if (isFirstPushEnable) {
+          hasInitializedSubTogglesRef.current = true;
+        }
+
+        if (hasSameSettings(previousSettings, nextSettings)) {
+          isInitialCheckRef.current = false;
+          return;
+        }
+
         applyLocalSettings(nextSettings);
         saveSettings(nextSettings, previousSettings);
       }
@@ -132,8 +152,8 @@ const NotificationSettingsScreen = () => {
   }, [getCurrentSettings, applyLocalSettings, saveSettings]);
 
   const handlePushEnabledChange = (newValue: boolean) => {
-    if (!osPermissionGranted) {
-      // OS 알림 미허용 → 시스템 설정으로 이동 (앱 내부 상태 변경 없음)
+    if (!osPermissionGranted && newValue) {
+      // OS 알림 미허용 상태에서 푸시를 ON 하려는 경우 → 시스템 설정으로 이동
       void Linking.openSettings();
       return;
     }
@@ -156,12 +176,7 @@ const NotificationSettingsScreen = () => {
       hasInitializedSubTogglesRef.current = true;
     }
 
-    if (
-      previousSettings.isAllowPush === nextSettings.isAllowPush &&
-      previousSettings.isAllowServicePush === nextSettings.isAllowServicePush &&
-      previousSettings.isAllowQnaPush === nextSettings.isAllowQnaPush &&
-      previousSettings.isAllowMarketingPush === nextSettings.isAllowMarketingPush
-    ) {
+    if (hasSameSettings(previousSettings, nextSettings)) {
       return;
     }
 
