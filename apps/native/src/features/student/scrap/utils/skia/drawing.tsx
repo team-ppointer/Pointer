@@ -207,7 +207,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           canvasHeight.current = 800;
         }
 
-        onChange?.(state.strokes);
+        onChange?.(restoredStrokes);
         // 상태 변경으로 자동 리렌더링
         notifyHistoryChange();
       },
@@ -315,8 +315,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           },
         ];
         historyIndexRef.current = 0;
+        notifyHistoryChange();
       },
-      [onChange]
+      [onChange, notifyHistoryChange]
     );
 
     const loadTexts = useCallback((newTexts: TextItem[]) => {
@@ -434,20 +435,17 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         color: strokeColor,
         width: strokeWidth,
       };
+      const nextStrokes = [...strokesRef.current, strokeData];
 
-      // 상태 업데이트를 분리 (React 18 automatic batching으로 한 번에 처리됨)
-      setStrokes((prev) => {
-        const next = [...prev, strokeData];
-        strokesRef.current = next;
-        return next;
-      });
+      // ref를 먼저 동기화해 history/onChange가 항상 최신값을 사용하도록 보장
+      strokesRef.current = nextStrokes;
+      setStrokes(nextStrokes);
       setPaths((prev) => [...prev, newPath]);
 
       currentPoints.current = [];
       livePath.current.reset();
 
-      // 사이드이펙트는 updater 외부에서
-      onChange?.([...strokesRef.current]);
+      onChange?.(nextStrokes);
       saveToHistory();
     }, [strokeColor, strokeWidth, onChange, saveToHistory]);
 
@@ -656,29 +654,27 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
       if (activeTextInput && activeTextInput.value.trim()) {
         isConfirmingTextRef.current = true;
+        const currentTexts = textsRef.current;
 
         // 기존 텍스트 수정인지 새 텍스트 추가인지 확인
-        const existingTextIndex = texts.findIndex((t) => t.id === activeTextInput.id);
+        const existingTextIndex = currentTexts.findIndex((t) => t.id === activeTextInput.id);
 
         // 텍스트의 실제 줄 수 계산하여 최대 Y 좌표 업데이트
         const lineCount = calculateTextLineCount(activeTextInput.value);
         const totalTextHeight = lineCount * 22.5;
         const textBottomY = activeTextInput.y + totalTextHeight;
+        let nextTexts: TextItem[];
 
         if (existingTextIndex >= 0) {
           // 기존 텍스트 수정
-          setTexts((prev) => {
-            const next = prev.map((text) =>
-              text.id === activeTextInput.id
-                ? {
-                    ...text,
-                    text: activeTextInput.value,
-                  }
-                : text
-            );
-            textsRef.current = next;
-            return next;
-          });
+          nextTexts = currentTexts.map((text) =>
+            text.id === activeTextInput.id
+              ? {
+                  ...text,
+                  text: activeTextInput.value,
+                }
+              : text
+          );
         } else {
           // 새 텍스트 추가
           const newText: TextItem = {
@@ -690,12 +686,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             color: '#1E1E21', // 고정 텍스트 색상
           };
 
-          setTexts((prev) => {
-            const next = [...prev, newText];
-            textsRef.current = next;
-            return next;
-          });
+          nextTexts = [...currentTexts, newText];
         }
+
+        textsRef.current = nextTexts;
+        setTexts(nextTexts);
 
         // 사이드이펙트는 updater 외부에서 (가이드 수정 2 원칙)
         if (textBottomY > maxY.current) {
@@ -712,7 +707,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
       // 플래그 리셋
       isConfirmingTextRef.current = false;
-    }, [activeTextInput, saveToHistory, calculateTextLineCount, texts]);
+    }, [activeTextInput, saveToHistory, calculateTextLineCount]);
 
     const handleTextInputBlur = useCallback(() => {
       // 이미 처리 중이거나 activeTextInput이 없으면 실행하지 않음
