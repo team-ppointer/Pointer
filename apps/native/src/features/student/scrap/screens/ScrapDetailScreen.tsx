@@ -376,11 +376,11 @@ const ScrapDetailScreen = () => {
     });
 
   const leftSectionAnimatedStyle = useAnimatedStyle(() => ({
-    flex: leftWidth.value / SCREEN_WIDTH,
+    width: leftWidth.value,
   }));
 
   const rightSectionAnimatedStyle = useAnimatedStyle(() => ({
-    flex: (SCREEN_WIDTH - leftWidth.value - DRAG_HANDLE_WIDTH) / SCREEN_WIDTH,
+    width: SCREEN_WIDTH - leftWidth.value - DRAG_HANDLE_WIDTH,
   }));
 
   // Drawing area width 계산
@@ -417,7 +417,7 @@ const ScrapDetailScreen = () => {
   }));
 
   const dragHandleContainerAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: leftWidth.value }],
+    left: leftWidth.value,
   }));
 
   // 화면 회전 등으로 전체 너비가 줄어들었을 때,
