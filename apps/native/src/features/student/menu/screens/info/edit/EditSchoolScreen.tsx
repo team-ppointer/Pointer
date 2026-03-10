@@ -1,6 +1,6 @@
 import { OnboardingInput } from '@features/student/onboarding/components';
 import { EditScreenLayout } from '../../../components';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { showToast } from '@features/student/scrap/components/Notification';
 import { useGetSchool } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
@@ -24,13 +24,18 @@ const EditSchoolScreen = ({
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const clearDropdownTimer = useCallback(() => {
+    if (dropdownTimerRef.current !== null) {
+      clearTimeout(dropdownTimerRef.current);
+      dropdownTimerRef.current = null;
+    }
+  }, []);
+
   useEffect(() => {
     return () => {
-      if (dropdownTimerRef.current !== null) {
-        clearTimeout(dropdownTimerRef.current);
-      }
+      clearDropdownTimer();
     };
-  }, []);
+  }, [clearDropdownTimer]);
 
   const debouncedQuery = useDebounce(query.trim(), 300);
   const { data, isLoading } = useGetSchool(
@@ -42,6 +47,7 @@ const EditSchoolScreen = ({
   const showDropdown = dropdownVisible && (results.length > 0 || isLoading);
 
   const handleSelect = (id: number, name: string, sido: string) => {
+    clearDropdownTimer();
     const label = `${name}(${sido})`;
     setSchoolId(id);
     setQuery(label);
@@ -88,8 +94,12 @@ const EditSchoolScreen = ({
           label='학교'
           placeholder='학교명을 입력해 주세요.'
           value={query}
-          onFocus={() => setDropdownVisible(true)}
+          onFocus={() => {
+            clearDropdownTimer();
+            setDropdownVisible(true);
+          }}
           onBlur={() => {
+            clearDropdownTimer();
             dropdownTimerRef.current = setTimeout(() => setDropdownVisible(false), 150);
           }}
           onChangeText={(text) => {
