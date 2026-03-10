@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -41,6 +41,14 @@ const EditPhoneNumberScreen = () => {
   const [timer, setTimer] = useState(120); // 2분 = 120초
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
 
+  const resetVerificationSession = useCallback(() => {
+    setIsCodeSent(false);
+    setVerificationCode('');
+    setVerifyFeedbackMessage(null);
+    setExpiresAt(null);
+    setTimer(0);
+  }, []);
+
   useEffect(() => {
     if (!isCodeSent || expiresAt === null) {
       return;
@@ -50,14 +58,14 @@ const EditPhoneNumberScreen = () => {
       const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
       setTimer(remaining);
       if (remaining === 0) {
-        setExpiresAt(null);
+        resetVerificationSession();
       }
     };
 
     syncRemainingTime();
     const interval = setInterval(syncRemainingTime, 1000);
     return () => clearInterval(interval);
-  }, [isCodeSent, expiresAt]);
+  }, [isCodeSent, expiresAt, resetVerificationSession]);
 
   const handleSendCode = async () => {
     if (phoneNumber.length >= 2 && !phoneNumber.startsWith('01')) {
@@ -72,6 +80,8 @@ const EditPhoneNumberScreen = () => {
       const response = await postPhoneSend(phoneNumber);
       if (response.data?.success) {
         setIsCodeSent(true);
+        setVerificationCode('');
+        setVerifyFeedbackMessage(null);
         setExpiresAt(Date.now() + 120 * 1000);
         setTimer(120);
         showToast('success', response.data.message || '인증번호가 전송되었습니다.');
@@ -89,6 +99,8 @@ const EditPhoneNumberScreen = () => {
       const response = await postPhoneResend(phoneNumber);
       if (response.data?.success) {
         setIsCodeSent(true);
+        setVerificationCode('');
+        setVerifyFeedbackMessage(null);
         setExpiresAt(Date.now() + 120 * 1000);
         setTimer(120);
         showToast('success', response.data.message || '인증번호가 재전송되었습니다.');
