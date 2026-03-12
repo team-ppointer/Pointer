@@ -23,11 +23,11 @@ const HomeHeader = () => {
 
   return (
     <View>
-      <Container className='flex-row items-center justify-between py-[8px]'>
-        <View className='flex-col'>
+      <Container className='flex-row items-center justify-end py-[4px]'>
+        {/* <View className='flex-col'>
           <Text className='text-20b text-gray-900'>안녕하세요, {getName()} 학생!</Text>
           <Text className='text-16m text-gray-700'>포인터가 보낸 학습 코멘트가 도착했어요.</Text>
-        </View>
+        </View> */}
         <AnimatedPressable
           onPress={() => navigation.navigate('Notifications')}
           className='h-[48px] w-[48px] items-center justify-center gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
