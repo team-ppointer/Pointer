@@ -41,6 +41,7 @@ import ProblemViewer from '../components/ProblemViewer';
 import { DrawingCanvas, DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
+import { ConfirmationModal } from '../../scrap/components/Dialog';
 
 type ProblemScreenProps = Partial<NativeStackScreenProps<StudentRootStackParamList, 'Problem'>>;
 
@@ -56,6 +57,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const [answer, setAnswer] = useState('');
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
   const [isResultSheetVisible, setResultSheetVisible] = useState(false);
+  const [isCloseVisible, setIsCloseVisible] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastAttemptCount, setLastAttemptCount] = useState(0);
@@ -436,7 +438,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   return (
     <View className='flex-1 bg-white'>
       <SafeAreaView className='flex-1' edges={['top']}>
-        <Header onClose={handleCloseFlow}>
+        <Header onClose={() => setIsCloseVisible(true)}>
           <Header.TitleGroup>
             <Header.Title>{problemTitle}</Header.Title>
             {subtitle ? <Header.Subtitle>{subtitle}</Header.Subtitle> : null}
@@ -578,6 +580,16 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           animatedIndex={resultSheetIndex}
         />
       </View>
+      <ConfirmationModal
+        visible={isCloseVisible}
+        onClose={() => setIsCloseVisible(false)}
+        title='문제 풀이 화면을 나갈까요?'
+        description={`풀이 과정이 저장되지 않습니다.`}
+        buttons={[
+          { label: '나가기', onPress: () => handleCloseFlow(), variant: 'default' },
+          { label: '계속 풀기', onPress: () => setIsCloseVisible(false), variant: 'primary' },
+        ]}
+      />
     </View>
   );
 };
