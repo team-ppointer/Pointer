@@ -392,8 +392,8 @@ export function PointerEditor({
             open={mathState.open}
             latex={mathState.latex}
             pos={mathState.pos}
-            variant='toolbar'
-            minWidth='100%'
+            variant='floating'
+            minWidth='16rem'
             container={useContainerPortal ? editorWrapperRef.current : null}
             onPreview={(nextLatex) => {
               if (!editor) return;

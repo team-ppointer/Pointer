@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import type { Editor } from '@tiptap/react';
 import { posToDOMRect } from '@tiptap/core';
 import { computePosition, offset, flip, shift } from '@floating-ui/dom';
 
-import { Button, ButtonGroup, Card, CardBody, Popover, PopoverContent } from '../base';
+import { Button, ButtonGroup, Card, CardBody } from '../base';
 import { CloseIcon, CornerDownLeftIcon } from '../../assets';
 
 import './mathfield.scss';
@@ -288,21 +289,6 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     return false;
   }, []);
 
-  // Radix Popover: prevent outside-interact dismissal when using the virtual keyboard
-  const handleInteractOutside = React.useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (e: any) => {
-      try {
-        if (isInMathliveUI(e?.target)) {
-          e.preventDefault?.();
-        }
-      } catch {
-        // ignore
-      }
-    },
-    [isInMathliveUI]
-  );
-
   const setFloatingRef = React.useCallback(
     (el: HTMLDivElement | null) => {
       floatingRef.current = el;
@@ -318,14 +304,13 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
   );
 
   React.useEffect(() => {
-    if (!open || isFloating) return;
+    if (!open) return;
 
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
-      if (toolbarRef.current?.contains(target)) return;
-      if (isInMathliveUI(target)) {
-        return;
-      }
+      const popoverEl = isFloating ? floatingRef.current : toolbarRef.current;
+      if (popoverEl?.contains(target)) return;
+      if (isInMathliveUI(target)) return;
       onOpenChange(false);
     };
 
@@ -410,23 +395,14 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     );
   }
 
-  return (
-    <Popover open={open} onOpenChange={onOpenChange}>
-      {/* We don't use Trigger; this is fully controlled and positioned via style */}
-      <PopoverContent
-        align='center'
-        sideOffset={8}
-        container={container}
-        onInteractOutside={handleInteractOutside}>
-        <div ref={setFloatingRef} style={floatingStyle}>
-          <Card>
-            <CardBody>
-              {renderContent()}
-            </CardBody>
-          </Card>
-        </div>
-      </PopoverContent>
-    </Popover>
+  if (!open) return null;
+  return createPortal(
+    <div ref={setFloatingRef} className='math-inline-floating' style={floatingStyle}>
+      <Card>
+        <CardBody>{renderContent()}</CardBody>
+      </Card>
+    </div>,
+    container || document.body
   );
 };
 

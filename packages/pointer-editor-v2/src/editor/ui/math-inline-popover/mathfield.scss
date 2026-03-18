@@ -46,6 +46,11 @@ math-field:focus-within {
   flex-shrink: 0;
 }
 
+.math-inline-floating {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.12));
+  border-radius: var(--tt-radius-md, 12px);
+}
+
 @media (max-width: 480px) {
   .math-inline-bar {
     top: auto;
