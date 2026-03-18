@@ -62,6 +62,8 @@
           left: 0.5em;
           user-select: none;
           pointer-events: none;
+          top: 50%;
+          transform: translateY(-50%);
         }
       }
 
