@@ -1,4 +1,4 @@
-import type { TiptapPayload } from '@team-ppointer/pointer-editor-v2';
+import type { TiptapPayload } from '@repo/pointer-editor-v2';
 import { components } from '@schema';
 
 type ProblemInfoResp = components['schemas']['ProblemInfoResp'];

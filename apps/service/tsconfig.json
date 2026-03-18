@@ -53,9 +53,6 @@
       ],
       "@/*": [
         "./src/*"
-      ],
-      "@repo/pointer-editor/*": [
-        "../../packages/pointer-editor"
       ]
     }
   },

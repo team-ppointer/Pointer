@@ -1,0 +1,15 @@
+{
+  "extends": "../../packages/typescript-config/react-library.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["vite/client"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/editor/*": ["./src/editor/*"],
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
-import { ProblemEditor, type TiptapPayload } from '@team-ppointer/pointer-editor-v2';
+import { ProblemEditor, type TiptapPayload } from '@repo/pointer-editor-v2';
 import { getEmptyContentString, parseEditorContent, serializeEditorPayload } from '@utils';
 
 interface EditorFieldProps<TFieldValues extends FieldValues> {

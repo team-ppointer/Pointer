@@ -27,7 +27,7 @@ import {
   Files,
 } from 'lucide-react';
 import { SegmentedControl, Tag } from '@components';
-import { InlineProblemViewer } from '@team-ppointer/pointer-editor-v2';
+import { InlineProblemViewer } from '@repo/pointer-editor-v2';
 
 const PROBLEM_TYPE_ALL = 'ALL';
 

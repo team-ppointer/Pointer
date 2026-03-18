@@ -1,4 +1,4 @@
-import { ProblemViewer } from '@team-ppointer/pointer-editor-v2';
+import { ProblemViewer } from '@repo/pointer-editor-v2';
 import { Trash2, MessageSquare } from 'lucide-react';
 
 interface ProblemCardProps {

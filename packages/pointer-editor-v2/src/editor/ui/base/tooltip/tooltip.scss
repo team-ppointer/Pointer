@@ -1,0 +1,42 @@
+.tiptap-tooltip {
+  --tt-tooltip-bg: var(--white);
+  --tt-tooltip-text: var(--tt-gray-light-900);
+  --tt-tooltip-border: var(--tt-gray-light-200);
+  --tt-kbd: var(--tt-gray-dark-a-400);
+}
+
+.tiptap-tooltip {
+  z-index: 200;
+  overflow: hidden;
+  border-radius: var(--tt-radius-md, 6px);
+  background-color: var(--tt-tooltip-bg);
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tt-tooltip-text);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  border: 1px solid var(--tt-tooltip-border);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  kbd {
+    display: inline-block;
+    text-align: center;
+    vertical-align: baseline;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      "Noto Sans",
+      sans-serif;
+    text-transform: capitalize;
+    color: var(--tt-kbd);
+  }
+}

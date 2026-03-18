@@ -39,7 +39,7 @@ import {
 } from '@/components/problem';
 import CreatePracticeTestModal from '@/components/common/Modals/CreatePracticeTestModal';
 
-import '@team-ppointer/pointer-editor-v2/style.css';
+import '@repo/pointer-editor-v2/style.css';
 
 export const Route = createFileRoute('/_GNBLayout/problem/$problemId/')({
   component: RouteComponent,

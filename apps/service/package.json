@@ -12,10 +12,9 @@
   "dependencies": {
     "@next/third-parties": "^15.2.4",
     "@repo/pointer-design-system": "workspace:*",
-    "@repo/pointer-editor": "workspace:*",
+    "@repo/pointer-editor-v2": "workspace:*",
     "@tanstack/react-query": "^5.66.0",
     "@tanstack/react-query-devtools": "^5.66.0",
-    "@team-ppointer/pointer-editor-v2": "^2.3.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "html2canvas": "^1.4.1",
