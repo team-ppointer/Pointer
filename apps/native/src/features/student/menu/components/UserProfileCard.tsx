@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { colors } from '@theme/tokens';
 import type { components } from '@schema';
 import { ProfileIcon } from '@components/system/icons';
 import { AnimatedPressable } from '@components/common';
+import { gradeOptions } from '@features/student/onboarding/constants';
 
 interface UserProfileCardProps {
   name?: string;
@@ -12,17 +13,12 @@ interface UserProfileCardProps {
   onEditPress?: () => void;
 }
 
-const formatGrade = (grade?: string): string => {
-  const gradeMap: Record<string, string> = {
-    ONE: '1학년',
-    TWO: '2학년',
-    THREE: '3학년',
-    N_TIME: 'N수생',
-  };
-  return grade ? gradeMap[grade] || grade : '';
-};
-
 export const UserProfileCard = ({ name, school, grade, onEditPress }: UserProfileCardProps) => {
+  const schoolGradeLabel = useMemo(() => {
+    const gradeLabel = gradeOptions.find((opt) => opt.value === grade)?.label ?? '';
+    return school ? `${school.name} ${gradeLabel}` : gradeLabel;
+  }, [school, grade]);
+
   return (
     <View className='flex-row items-center justify-between px-[16px] py-[10px]'>
       <View className='flex-row items-center gap-[12px]'>
@@ -31,7 +27,7 @@ export const UserProfileCard = ({ name, school, grade, onEditPress }: UserProfil
         </View>
         <View className='flex-col'>
           <Text className='text-20b text-black'>{name}</Text>
-          <Text className='text-16r text-gray-700'>{`${school ? school?.name : ''}${school ? ' ' : ''}${formatGrade(grade)}`}</Text>
+          <Text className='text-16r text-gray-700'>{schoolGradeLabel}</Text>
         </View>
       </View>
       <AnimatedPressable

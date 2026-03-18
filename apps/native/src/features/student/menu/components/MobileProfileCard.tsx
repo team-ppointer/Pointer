@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { AnimatedPressable } from '@components/common';
 import { ProfileIcon } from '@/components/system/icons';
 import { colors } from '@/theme/tokens';
 import type { components } from '@schema';
+import { gradeOptions } from '@features/student/onboarding/constants';
 
 interface MobileProfileCardProps {
   name?: string;
@@ -14,16 +15,6 @@ interface MobileProfileCardProps {
   onEditPress?: () => void;
 }
 
-const formatGrade = (grade?: string): string => {
-  const gradeMap: Record<string, string> = {
-    ONE: '1학년',
-    TWO: '2학년',
-    THREE: '3학년',
-    N_TIME: 'N수생',
-  };
-  return grade ? gradeMap[grade] || grade : '';
-};
-
 export const MobileProfileCard = ({
   name,
   school,
@@ -31,6 +22,12 @@ export const MobileProfileCard = ({
   teacherName,
   onEditPress,
 }: MobileProfileCardProps) => {
+  const schoolGradeLabel = useMemo(
+    () =>
+      [school?.name, gradeOptions.find((opt) => opt.value === grade)?.label].filter(Boolean).join(' '),
+    [school?.name, grade]
+  );
+
   return (
     <View className='flex-1 gap-4 rounded-[20px] bg-blue-100 p-4'>
       <View className='flex-row items-center gap-1'>
@@ -50,7 +47,7 @@ export const MobileProfileCard = ({
         <View className='flex-[0.5] gap-0.5 rounded-[12px] bg-white px-3 py-2.5'>
           <Text className='text-13r text-gray-700'>고등학교 / 학년</Text>
           <Text className='text-16m text-black'>
-            {[school?.name, formatGrade(grade)].filter(Boolean).join(' ')}
+            {schoolGradeLabel}
           </Text>
         </View>
         <View className='flex-[0.5] gap-0.5 rounded-[12px] bg-white px-3 py-2.5'>

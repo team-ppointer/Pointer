@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { AnimatedPressable, Container } from '@components/common';
 import { useAuthStore } from '@stores';
 import { ScreenLayout } from '../components';
@@ -40,7 +40,7 @@ const WithdrawalScreen = () => {
     }
   };
 
-  const handleWithdrawalClick = () => {
+  const handleWithdrawalClick = async () => {
     if (!showReasons) {
       setShowReasons(true);
       return;
@@ -52,12 +52,11 @@ const WithdrawalScreen = () => {
       );
       const hasOther = reasons.includes('OTHER');
 
-      deleteAccount({
+      await deleteAccount({
         reasons,
         ...(hasOther && { otherReason: '' }),
-      }).then(() => {
-        signOut();
       });
+      await signOut();
     } catch (error) {
       console.error('Failed to withdraw', error);
       Alert.alert('오류', '회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
@@ -69,7 +68,7 @@ const WithdrawalScreen = () => {
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
         <Container>
           <View className='mb-[20px]'>
-            {!showReasons && (
+            {!showReasons ? (
               <>
                 <Text className='text-18sb mb-[6px] text-black'>포인터를 탈퇴하시겠습니까?</Text>
                 <Text className='text-12r text-gray-700'>
@@ -77,8 +76,7 @@ const WithdrawalScreen = () => {
                   제한됩니다.
                 </Text>
               </>
-            )}
-            {showReasons && (
+            ) : (
               <>
                 <Text className='text-18sb mb-[6px] text-black'>
                   서비스 개선을 위해{`\n`}
@@ -92,7 +90,8 @@ const WithdrawalScreen = () => {
           </View>
           {showReasons &&
             WITHDRAWAL_REASONS.map((reason) => (
-              <Pressable
+              <AnimatedPressable
+                disableScale
                 key={reason}
                 onPress={() => toggleReason(reason)}
                 className='h-[48px] flex-row items-center gap-[10px]'>
@@ -105,7 +104,7 @@ const WithdrawalScreen = () => {
                   )}
                 </View>
                 <Text className='text-16r flex-1 text-black'>{reason}</Text>
-              </Pressable>
+              </AnimatedPressable>
             ))}
         </Container>
       </ScrollView>

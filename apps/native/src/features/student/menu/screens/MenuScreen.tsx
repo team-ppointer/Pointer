@@ -58,7 +58,7 @@ const MenuScreen = () => {
       <Container className='flex-1'>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}>
+          contentContainerClassName='pb-[40px]'>
           <View className='h-[20px]' />
           <View className='gap-[10px]'>
             {isTablet ? (
@@ -92,7 +92,7 @@ const MenuScreen = () => {
               <MenuListItem
                 icon={Megaphone}
                 title='공지사항'
-                isNew={!!noticeCount?.unreadCount && noticeCount.unreadCount > 0}
+                isNew={(noticeCount?.unreadCount ?? 0) > 0}
                 onPress={() => navigation.navigate('Notice')}
               />
               <MenuListItem
@@ -127,7 +127,7 @@ const MenuScreen = () => {
         title='로그아웃 하시겠어요?'
         description={`빠르게 돌아와 실력 향상을 위한${isTablet ? ' ' : '\n'}학습을 이어나가요!`}
         buttons={[
-          { label: '네', onPress: () => handleLogout(), variant: 'default' },
+          { label: '네', onPress: handleLogout, variant: 'default' },
           { label: '아니오', onPress: () => setIsLogoutVisible(false), variant: 'primary' },
         ]}
       />

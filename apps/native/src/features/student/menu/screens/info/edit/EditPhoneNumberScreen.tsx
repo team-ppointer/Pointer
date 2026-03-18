@@ -1,46 +1,71 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import React, { useCallback, useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CircleCheck, CircleAlert } from 'lucide-react-native';
-import { useGetMe, usePutMe, postPhoneSend, postPhoneResend, postPhoneVerify } from '@apis';
+import { useQueryClient } from '@tanstack/react-query';
+import { AnimatedPressable, Container } from '@components/common';
+import { ChevronLeft, CircleCheck, CircleAlert } from 'lucide-react-native';
+import { useGetMe, usePutMe, postPhoneSend, postPhoneResend, postPhoneVerify, TanstackQueryClient } from '@apis';
 import { MenuStackParamList } from '@navigation/student/MenuNavigator';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@theme/tokens';
-import { carrierOptions, type CarrierValue } from '@features/student/onboarding/constants';
 import { showToast } from '@features/student/scrap/components/Notification';
-import { EditScreenLayout } from '@features/student/menu/components/EditScreenLayout';
+
+const INPUT_STYLE = { lineHeight: 20, paddingVertical: 0 } as const;
+const TIMER_CONTAINER_STYLE = {
+  position: 'absolute' as const,
+  right: 16,
+  top: 0,
+  height: 48,
+  justifyContent: 'center' as const,
+};
 
 const EditPhoneNumberScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
 
+  const queryClient = useQueryClient();
   const { mutate: putMeMutate } = usePutMe();
 
   const [phoneNumber, setPhoneNumber] = useState(data?.phoneNumber || '');
-  const [carrier, setCarrier] = useState<CarrierValue | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
   const [verifyFeedbackMessage, setVerifyFeedbackMessage] = useState<string | null>(null);
   const [isCodeSent, setIsCodeSent] = useState(false);
-  // const [carrierModalVisible, setCarrierModalVisible] = useState(false);
-  const [timer, setTimer] = useState(120);
-  const [endTime, setEndTime] = useState<number | null>(null);
+  const [timer, setTimer] = useState(120); // 2분 = 120초
+  const [expiresAt, setExpiresAt] = useState<number | null>(null);
+
+  const resetVerificationSession = useCallback(() => {
+    setIsCodeSent(false);
+    setVerificationCode('');
+    setVerifyFeedbackMessage(null);
+    setExpiresAt(null);
+    setTimer(0);
+  }, []);
 
   useEffect(() => {
-    if (!endTime) return;
+    if (!isCodeSent || expiresAt === null) {
+      return;
+    }
 
-    const interval = setInterval(() => {
-      const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-
+    const syncRemainingTime = () => {
+      const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
       setTimer(remaining);
-
       if (remaining === 0) {
-        clearInterval(interval);
-        // 여기서 인증 만료 처리해도 됨
+        resetVerificationSession();
       }
-    }, 1000);
+    };
 
+    syncRemainingTime();
+    const interval = setInterval(syncRemainingTime, 1000);
     return () => clearInterval(interval);
-  }, [endTime]);
+  }, [isCodeSent, expiresAt, resetVerificationSession]);
 
   const handleSendCode = async () => {
     if (phoneNumber.length >= 2 && !phoneNumber.startsWith('01')) {
@@ -55,7 +80,9 @@ const EditPhoneNumberScreen = () => {
       const response = await postPhoneSend(phoneNumber);
       if (response.data?.success) {
         setIsCodeSent(true);
-        setEndTime(Date.now() + 120 * 1000);
+        setVerificationCode('');
+        setVerifyFeedbackMessage(null);
+        setExpiresAt(Date.now() + 120 * 1000);
         setTimer(120);
         showToast('success', response.data.message || '인증번호가 전송되었습니다.');
       } else {
@@ -72,7 +99,9 @@ const EditPhoneNumberScreen = () => {
       const response = await postPhoneResend(phoneNumber);
       if (response.data?.success) {
         setIsCodeSent(true);
-        setEndTime(Date.now() + 120 * 1000);
+        setVerificationCode('');
+        setVerifyFeedbackMessage(null);
+        setExpiresAt(Date.now() + 120 * 1000);
         setTimer(120);
         showToast('success', response.data.message || '인증번호가 재전송되었습니다.');
       } else {
@@ -99,6 +128,9 @@ const EditPhoneNumberScreen = () => {
           { phoneNumber },
           {
             onSuccess: () => {
+              queryClient.invalidateQueries({
+                queryKey: TanstackQueryClient.queryOptions('get', '/api/student/me').queryKey,
+              });
               showToast('success', '휴대폰 번호 변경이 완료되었습니다.');
               navigation.goBack();
             },
@@ -115,11 +147,6 @@ const EditPhoneNumberScreen = () => {
       showToast('error', (error as Error).message || '인증에 실패했습니다.');
     }
   };
-
-  // const getCarrierLabel = (value: CarrierValue | null) => {
-  //   if (!value) return '';
-  //   return carrierOptions.find((opt) => opt.value === value)?.label ?? '';
-  // };
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -146,85 +173,117 @@ const EditPhoneNumberScreen = () => {
     }
   };
 
-  return (
-    <EditScreenLayout
-      title='변경할 휴대폰 번호를 입력해 주세요.'
-      description='인증이 완료되면 새로운 번호가 바로 적용돼요.'
-      ctaLabel={!isCodeSent || timer === 0 ? '인증번호 받기' : '인증 완료'}
-      ctaDisabled={(!isCodeSent || timer === 0) && !isValidPhone}
-      onPressCTA={!isCodeSent || timer === 0 ? handleSendCode : handleVerify}
-      onPressBack={() => navigation.goBack()}
-      contentClassName='gap-[20px]'>
-      <View className='gap-[6px]'>
-        <Text className='text-14m text-gray-900'>휴대폰 번호</Text>
-        <View className='flex-row items-center gap-[10px]'>
-          <TextInput
-            value={phoneNumber}
-            onChangeText={handlePhoneNumberChange}
-            placeholder='01012345678'
-            placeholderTextColor={colors['gray-600']}
-            keyboardType='phone-pad'
-            style={{ lineHeight: 20, paddingVertical: 0 }}
-            className={`text-16r h-[48px] flex-1 rounded-[10px] border bg-white px-4 text-black ${isCodeSent ? 'border-blue-500' : 'border-gray-300'}`}
-          />
-          {isCodeSent && (
-            <Pressable
-              disabled={timer > 0}
-              className='bg-primary-500 items-center justify-center rounded-[8px]'
-              style={{ width: 100, height: 48, opacity: timer > 0 ? 0.5 : 1 }}
-              onPress={handleResendCode}>
-              <Text className='text-16m text-white'>재전송</Text>
-            </Pressable>
-          )}
-        </View>
-        <View className='flex-row items-center gap-2'>
-          {isCodeSent ? (
-            <>
-              <CircleCheck color={colors['blue-500']} size={14} />
-              <Text className='text-12r text-blue-500'>문자로 인증번호를 전송했어요</Text>
-            </>
-          ) : (
-            <>
-              {getPhoneFeedbackMessage() && <CircleAlert size={14} color={colors['red-500']} />}
-              <Text className='text-12r text-red-500'>{getPhoneFeedbackMessage()}</Text>
-            </>
-          )}
-        </View>
-      </View>
+  const phoneFeedback = getPhoneFeedbackMessage();
 
-      {isCodeSent && (
-        <View className='gap-[6px]'>
-          <Text className='text-14m text-gray-900'>인증번호</Text>
-          <View className='w-full' style={{ position: 'relative' }}>
-            <TextInput
-              value={verificationCode}
-              onChangeText={handleVerifyCodeChange}
-              placeholder='인증번호 6자리'
-              keyboardType='number-pad'
-              maxLength={6}
-              style={{ lineHeight: 20, paddingVertical: 0 }}
-              className='text-16r h-[48px] w-full rounded-[10px] border border-gray-300 bg-white px-4 pr-[60px] text-black'
-            />
-            <View
-              style={{
-                position: 'absolute',
-                right: 16,
-                top: 0,
-                height: 48,
-                justifyContent: 'center',
-              }}>
-              <Text className='text-14m text-primary-500'>{formatTime(timer)}</Text>
+  return (
+    <KeyboardAvoidingView
+      className='w-full flex-1'
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}>
+      <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
+        <AnimatedPressable onPress={() => navigation.goBack()} className='p-2'>
+          <ChevronLeft size={32} color='#000' />
+        </AnimatedPressable>
+      </SafeAreaView>
+      <Container className='flex-1'>
+        <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
+          <View className='gap-[32px]'>
+            <View className='gap-1'>
+              <Text className='text-20b text-gray-800'>변경할 휴대폰 번호를 입력해 주세요.</Text>
+              <Text className='text-16r  text-gray-700'>
+                인증이 완료되면 새로운 번호가 바로 적용돼요.
+              </Text>
             </View>
+
+            <View className='gap-[20px]'>
+              <View className='gap-[6px]'>
+                <Text className='text-14m  text-gray-900'>휴대폰 번호</Text>
+                <View className='flex-row items-center gap-[10px]'>
+                  <TextInput
+                    value={phoneNumber}
+                    onChangeText={handlePhoneNumberChange}
+                    placeholder='01012345678'
+                    placeholderTextColor={colors['gray-600']}
+                    keyboardType='phone-pad'
+                    style={INPUT_STYLE}
+                    className={`text-16r h-[48px] flex-1 rounded-[10px] border bg-white px-4 text-black ${isCodeSent ? 'border-blue-500' : 'border-gray-300'}`}
+                  />
+                  {isCodeSent && (
+                    <AnimatedPressable
+                      disabled={timer > 0}
+                      className='bg-primary-500 items-center justify-center rounded-[8px]'
+                      style={{ width: 100, height: 48, opacity: timer > 0 ? 0.5 : 1 }}
+                      onPress={handleResendCode}>
+                      <Text className='text-16m text-white'>재전송</Text>
+                    </AnimatedPressable>
+                  )}
+                </View>
+                <View className='flex-row items-center gap-2'>
+                  {isCodeSent ? (
+                    <>
+                      <CircleCheck color={colors['blue-500']} size={14} />
+                      <Text className='text-12r text-blue-500'>문자로 인증번호를 전송했어요</Text>
+                    </>
+                  ) : (
+                    <>
+                      {phoneFeedback && (
+                        <CircleAlert size={14} color={colors['red-500']} />
+                      )}
+                      <Text className='text-12r text-red-500'>{phoneFeedback}</Text>
+                    </>
+                  )}
+                </View>
+              </View>
+            </View>
+
+            {isCodeSent && (
+              <View className='gap-[6px]'>
+                <Text className='text-14m  text-gray-900'>인증번호</Text>
+                <View className='w-full' style={{ position: 'relative' }}>
+                  <TextInput
+                    value={verificationCode}
+                    onChangeText={handleVerifyCodeChange}
+                    placeholder='인증번호 6자리'
+                    keyboardType='number-pad'
+                    maxLength={6}
+                    style={INPUT_STYLE}
+                    className='text-16r h-[48px] w-full rounded-[10px] border border-gray-300 bg-white px-4 pr-[60px] text-black'
+                  />
+                  <View
+                    style={TIMER_CONTAINER_STYLE}>
+                    <Text className='text-14m text-primary-500'>{formatTime(timer)}</Text>
+                  </View>
+                </View>
+                {verifyFeedbackMessage ? (
+                  <View className='flex-row items-center gap-2'>
+                    <CircleAlert size={14} color={colors['red-500']} />
+                    <Text className='text-12r text-red-500'>{verifyFeedbackMessage}</Text>
+                  </View>
+                ) : null}
+              </View>
+            )}
           </View>
-          {verifyFeedbackMessage && (
-            <View className='flex-row items-center gap-2'>
-              <CircleAlert size={14} color={colors['red-500']} />
-              <Text className='text-12r text-red-500'>{verifyFeedbackMessage}</Text>
-            </View>
+        </ScrollView>
+
+        <SafeAreaView edges={['bottom']} className='mb-[10px]'>
+          {!isCodeSent || timer === 0 ? (
+            <AnimatedPressable
+              onPress={handleSendCode}
+              disabled={!isValidPhone}
+              className={`bg-primary-500 items-center rounded-[8px] px-[12px] py-[10px] ${!isValidPhone ? 'opacity-50' : ''}`}>
+              <Text className='text-16m text-white'>인증번호 받기</Text>
+            </AnimatedPressable>
+          ) : (
+            <AnimatedPressable
+              onPress={handleVerify}
+              className='bg-primary-500 items-center rounded-[8px] px-[12px] py-[10px]'>
+              <Text className='text-16m text-white'>인증 완료</Text>
+            </AnimatedPressable>
           )}
-        </View>
-      )}
-    </EditScreenLayout>
+        </SafeAreaView>
+      </Container>
+
+    </KeyboardAvoidingView>
   );
 };
 

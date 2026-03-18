@@ -28,7 +28,11 @@ export const ScreenLayout = ({ title, children, onPressBack, rightElement }: Pro
   return (
     <View className='w-full flex-1'>
       <View className='flex-row items-center justify-between px-[20px] py-[4px]'>
-        <AnimatedPressable onPress={handleBack} className='items-center justify-center p-[8px]'>
+        <AnimatedPressable
+          onPress={handleBack}
+          className='items-center justify-center p-[8px]'
+          accessibilityRole="button"
+          accessibilityLabel="뒤로가기">
           <ChevronLeft size={32} color='#000' />
         </AnimatedPressable>
         <Text className='text-20b text-gray-900'>{title}</Text>

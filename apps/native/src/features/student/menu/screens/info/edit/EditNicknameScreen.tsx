@@ -28,7 +28,7 @@ const EditNicknameScreen = ({
           name: 'MyInfo',
           params: {
             updatedData: {
-              name: name,
+              name,
             },
           },
         },
