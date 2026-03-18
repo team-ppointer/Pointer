@@ -7,7 +7,7 @@ import { Modal, Tag, TagSelectModal, Input } from '@components';
 import { useModal } from '@hooks';
 import { components } from '@schema';
 import { GetProblemsSearchParams } from '@types';
-import { ProblemViewer } from '@team-ppointer/pointer-editor-v2';
+import { ProblemViewer } from '@repo/pointer-editor-v2';
 
 type ProblemMetaResp = components['schemas']['ProblemMetaResp'];
 

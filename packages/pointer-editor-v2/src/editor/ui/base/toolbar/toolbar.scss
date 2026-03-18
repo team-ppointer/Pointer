@@ -1,0 +1,109 @@
+:root {
+  --tt-toolbar-height: 44px;
+  --tt-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --tt-toolbar-bg-color: var(--white);
+  --tt-toolbar-border-color: var(--tt-gray-light-a-100);
+}
+
+.dark {
+  --tt-toolbar-bg-color: var(--black);
+  --tt-toolbar-border-color: var(--tt-gray-dark-a-50);
+}
+
+.tiptap-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  flex-wrap: nowrap;
+  overflow: scroll;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+
+  &-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+
+    &:empty {
+      display: none;
+    }
+
+    &:empty + .tiptap-separator,
+    .tiptap-separator + &:empty {
+      display: none;
+    }
+  }
+
+  &[data-variant='fixed'] {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    min-height: var(--tt-toolbar-height);
+    // background: var(--tt-toolbar-bg-color);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--tt-toolbar-border-color);
+    padding: 0 8px;
+    // overflow-x: auto;
+    // overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      position: sticky;
+      top: calc(100% - var(--tt-toolbar-height));
+      height: calc(var(--tt-toolbar-height) + var(--tt-safe-area-bottom));
+      width: 100%;
+      border-top: 1px solid var(--tt-toolbar-border-color);
+      border-bottom: none;
+      padding: 0 8px var(--tt-safe-area-bottom);
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: scroll;
+
+      .tiptap-toolbar-group {
+        flex: 0 0 auto;
+      }
+    }
+  }
+
+  &[data-variant='floating'] {
+    width: auto;
+    flex-wrap: nowrap;
+    --tt-toolbar-padding: 2px;
+    --tt-toolbar-border-width: 1px;
+
+    padding: 3px;
+    border-radius: calc(
+      var(--tt-toolbar-padding) + var(--tt-radius-lg) + var(--tt-toolbar-border-width)
+    );
+    border: var(--tt-toolbar-border-width) solid var(--tt-toolbar-border-color);
+    background-color: var(--tt-toolbar-bg-color);
+    box-shadow: var(--tt-shadow-elevated-md);
+    outline: none;
+    overflow: hidden;
+
+    &[data-plain='true'] {
+      padding: 0;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      background-color: transparent;
+    }
+
+    @media screen and (max-width: 480px) {
+      width: 100%;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+    }
+  }
+}

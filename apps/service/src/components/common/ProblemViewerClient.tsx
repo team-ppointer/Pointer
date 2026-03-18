@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 
 const ProblemViewer = dynamic(
   () =>
-    import('@team-ppointer/pointer-editor-v2').then(
+    import('@repo/pointer-editor-v2').then(
       (mod) => mod.ProblemViewer,
     ),
   {

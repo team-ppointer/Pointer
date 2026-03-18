@@ -1,0 +1,80 @@
+.simple-editor-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: white;
+}
+
+.simple-editor-scroll-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.simple-editor-content {
+  max-width: 648px;
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor {
+  flex: 1;
+  padding: 48px 48px 30vh;
+}
+
+@media screen and (max-width: 480px) {
+  .simple-editor-content .tiptap.ProseMirror.simple-editor {
+    padding: 16px 24px 30vh;
+  }
+}
+
+.simple-editor-content img.ProseMirror-separator {
+  display: inline !important;
+  border: none !important;
+  margin: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.tiptap.ProseMirror .selection {
+  display: inline-block !important;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor {
+  flex: 1;
+  padding: 48px 48px;
+}
+
+.tiptap.ProseMirror .ProseMirror-selectednode:not(img):not(pre):not(.react-renderer) {
+  background-color: transparent;
+}
+
+@media screen and (max-width: 480px) {
+  .simple-editor-content .tiptap.ProseMirror.simple-editor {
+    padding: 16px 24px;
+  }
+}
+
+.tiptap.ProseMirror img:not([data-type='emoji'] img).ProseMirror-selectednode {
+  outline-color: transparent;
+}
+
+.simple-editor-content--problem {
+  max-width: none;
+  width: 100%;
+}
+
+.simple-editor-content--problem .tiptap.ProseMirror.simple-editor {
+  padding: var(--simple-editor-viewer-padding, 0);
+}

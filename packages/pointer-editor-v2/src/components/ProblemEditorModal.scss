@@ -1,0 +1,21 @@
+@import '../styles/_keyframe-animations.scss';
+
+.pointer-editor-modal-container {
+  &.modal-open {
+    animation: fadeIn 200ms ease-out forwards;
+  }
+
+  &.modal-close {
+    animation: fadeOut 200ms ease-in forwards;
+  }
+}
+
+.pointer-editor-modal-content {
+  &.modal-open {
+    animation: zoomIn 200ms ease-out forwards;
+  }
+
+  &.modal-close {
+    animation: zoomOut 200ms ease-in forwards;
+  }
+}

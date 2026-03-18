@@ -25,10 +25,10 @@ import {
   ProblemEditor,
   ProblemViewer,
   type TiptapPayload,
-} from '@team-ppointer/pointer-editor-v2';
+} from '@repo/pointer-editor-v2';
 import { parseEditorContent, serializeEditorPayload, getEmptyContentString } from '@utils';
 
-import '@team-ppointer/pointer-editor-v2/style.css';
+import '@repo/pointer-editor-v2/style.css';
 
 export const Route = createFileRoute('/_GNBLayout/notice/')({
   component: RouteComponent,

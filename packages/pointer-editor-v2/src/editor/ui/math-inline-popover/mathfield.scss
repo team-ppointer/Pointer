@@ -1,0 +1,61 @@
+.ML__container {
+  color-scheme: light !important;
+  --primary: var(--tt-brand-color-500);
+  --_caret-color: var(--tt-brand-color-500);
+  --selection-background-color: var(--tt-brand-color-200);
+}
+
+math-field {
+  color-scheme: light !important;
+  background: transparent !important;
+}
+
+math-field:focus-within {
+  outline: none;
+  border-radius: 4px;
+}
+
+.math-inline-bar {
+  position: sticky;
+  top: var(--tt-toolbar-height);
+  z-index: 9;
+  width: 100%;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--tt-toolbar-border-color);
+
+  &__inner {
+    max-width: 648px;
+    margin: 0 auto;
+  }
+}
+
+.math-inline-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.math-inline-field {
+  flex: 1;
+  display: flex;
+}
+
+.math-inline-actions {
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .math-inline-bar {
+    top: auto;
+    bottom: calc(var(--tt-toolbar-height) + var(--tt-safe-area-bottom));
+    border-top: 1px solid var(--tt-toolbar-border-color);
+    border-bottom: none;
+    padding: 8px 16px calc(8px + var(--tt-safe-area-bottom));
+  }
+
+  .math-inline-bar__inner {
+    width: 100%;
+  }
+}

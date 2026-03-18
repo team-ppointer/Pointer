@@ -1,0 +1,102 @@
+{
+  "name": "@repo/pointer-editor-v2",
+  "private": true,
+  "version": "2.3.0",
+  "type": "module",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css",
+    "**/*.scss"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "prepublishOnly": "pnpm build",
+    "dev": "vite build --watch"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.7.4",
+    "@floating-ui/react": "^0.27.16",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@tiptap/core": "^3.3.0",
+    "@tiptap/extension-blockquote": "^3.3.0",
+    "@tiptap/extension-bold": "^3.3.0",
+    "@tiptap/extension-bubble-menu": "^3.3.0",
+    "@tiptap/extension-color": "^3.3.0",
+    "@tiptap/extension-document": "^3.3.0",
+    "@tiptap/extension-highlight": "^3.3.0",
+    "@tiptap/extension-history": "^3.3.0",
+    "@tiptap/extension-horizontal-rule": "^3.3.0",
+    "@tiptap/extension-image": "^3.3.0",
+    "@tiptap/extension-italic": "^3.3.0",
+    "@tiptap/extension-list": "^3.3.0",
+    "@tiptap/extension-mathematics": "^3.3.0",
+    "@tiptap/extension-paragraph": "^3.3.0",
+    "@tiptap/extension-subscript": "^3.3.0",
+    "@tiptap/extension-superscript": "^3.3.0",
+    "@tiptap/extension-table": "^3.3.0",
+    "@tiptap/extension-text": "^3.3.0",
+    "@tiptap/extension-text-align": "^3.3.0",
+    "@tiptap/extension-text-style": "^3.3.0",
+    "@tiptap/extension-typography": "^3.3.0",
+    "@tiptap/extension-underline": "^3.3.0",
+    "@tiptap/extensions": "^3.3.0",
+    "@tiptap/pm": "^3.3.0",
+    "@tiptap/react": "^3.3.0",
+    "@tiptap/starter-kit": "^3.3.0",
+    "axios": "^1.11.0",
+    "dompurify": "^3.3.0",
+    "katex": "^0.16.11",
+    "lodash": "^4.17.21",
+    "lodash.throttle": "^4.1.1",
+    "mathlive": "0.107.0",
+    "react-hotkeys-hook": "^5.1.0",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/lodash": "^4.17.20",
+    "@types/lodash.throttle": "^4.1.9",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "eslint": "^9.33.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "sass-embedded": "^1.91.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.39.1",
+    "vite": "^7.1.2"
+  }
+}
