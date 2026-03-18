@@ -88,6 +88,7 @@ export function useMathematics(config?: UseMathematicsConfig) {
   useHotkeys(
     MATHEMATICS_SHORTCUT_KEY,
     (event) => {
+      if (!editor?.isFocused) return;
       event.preventDefault();
       insertInlineMath();
     },
