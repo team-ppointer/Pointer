@@ -1,6 +1,6 @@
 import axios, { type AxiosProgressEvent } from 'axios';
 
-const baseUrl = 'https://api.math-pointer.com';
+const baseUrl = 'https://dev.api.math-pointer.com';
 
 const axiosInstance = axios.create({
   baseURL: baseUrl,
