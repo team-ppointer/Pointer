@@ -33,6 +33,8 @@ export interface MathInlinePopoverProps {
   onOpenChange: (open: boolean) => void;
   /** Called with saved latex */
   onSave: (latex: string) => void;
+  /** Called on every input with the current latex for live preview */
+  onPreview?: (latex: string) => void;
 }
 
 /**
@@ -50,6 +52,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
   variant = 'floating',
   onOpenChange,
   onSave,
+  onPreview,
 }) => {
   const [value, setValue] = React.useState(latex);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -163,11 +166,23 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
   positionNowRef.current = positionNow;
   const valueRef = React.useRef(value);
   valueRef.current = value;
+  const onPreviewRef = React.useRef(onPreview);
+  onPreviewRef.current = onPreview;
 
   React.useEffect(() => {
     if (!open) return;
     let destroyed = false;
     let ro: ResizeObserver | null = null;
+
+    const onInput = () => {
+      try {
+        const mf = mathfieldRef.current;
+        if (!mf || typeof mf.getValue !== 'function') return;
+        onPreviewRef.current?.(mf.getValue('latex'));
+      } catch {
+        // ignore
+      }
+    };
 
     const onKeyDown = (ev: KeyboardEvent) => {
       if (ev.key === 'Enter' && !ev.shiftKey && !ev.altKey && !ev.ctrlKey && !ev.metaKey) {
@@ -210,6 +225,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
       containerRef.current.appendChild(mf);
       mf.focus();
 
+      mf.addEventListener('input', onInput);
       mf.addEventListener('keydown', onKeyDown);
 
       requestAnimationFrame(() => {
@@ -242,6 +258,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
         const mf = mathfieldRef.current;
         try {
           if (mf && typeof mf.removeEventListener === 'function') {
+            mf.removeEventListener('input', onInput);
             mf.removeEventListener('keydown', onKeyDown);
           }
         } catch {
