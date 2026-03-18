@@ -70,7 +70,6 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     setValue(latex);
   }, [latex, open]);
 
-  // Normalize minWidth prop into a CSS length (default: 200px)
   const minWidthCss = React.useMemo(() => {
     if (typeof minWidth === 'number') return `${minWidth}px`;
     if (typeof minWidth === 'string' && minWidth.trim()) return minWidth;
@@ -158,6 +157,13 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     onOpenChange(false);
   }, [onSave, onOpenChange, value]);
 
+  const handleSaveRef = React.useRef(handleSave);
+  handleSaveRef.current = handleSave;
+  const positionNowRef = React.useRef(positionNow);
+  positionNowRef.current = positionNow;
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
   React.useEffect(() => {
     if (!open) return;
     let destroyed = false;
@@ -170,10 +176,10 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
         ev.stopPropagation();
         try {
           requestAnimationFrame(() => {
-            handleSave();
+            handleSaveRef.current();
           });
         } catch {
-          handleSave();
+          handleSaveRef.current();
         }
       }
     };
@@ -184,36 +190,31 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
       if (!containerRef.current) return;
 
       const mf = new MathfieldElement({});
-      // Apply min width to the mathfield element
       try {
         (mf as HTMLElement).style.minWidth = minWidthCss;
       } catch {
         // ignore
       }
-      mf.value = value;
+      mf.value = valueRef.current;
       mathfieldRef.current = mf;
       containerRef.current.innerHTML = '';
       containerRef.current.appendChild(mf);
       mf.focus();
 
-      // Close & save on Enter (without modifiers)
       mf.addEventListener('keydown', onKeyDown);
 
-      // Ensure initial position is computed AFTER mathfield is in the DOM and laid out.
-      // Double rAF lets the browser flush style/layout for the inserted element.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          if (!destroyed) positionNow();
+          if (!destroyed) positionNowRef.current();
         });
       });
 
-      // Recompute position when the mathfield/content size changes (e.g., font load, edits).
       if (typeof ResizeObserver !== 'undefined') {
         const target = floatingRef.current ?? containerRef.current;
         if (target) {
           ro = new ResizeObserver(() => {
             if (!destroyed && open) {
-              requestAnimationFrame(() => positionNow());
+              requestAnimationFrame(() => positionNowRef.current());
             }
           });
           ro.observe(target);
@@ -243,7 +244,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
       }
       mathfieldRef.current = null;
     };
-  }, [open, value, positionNow, minWidthCss, handleSave]);
+  }, [open, minWidthCss]);
 
   const handleCancel = React.useCallback(() => {
     onOpenChange(false);
