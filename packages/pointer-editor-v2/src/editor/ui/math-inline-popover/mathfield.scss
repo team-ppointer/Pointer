@@ -47,8 +47,7 @@ math-field:focus-within {
 }
 
 .math-inline-floating {
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.12));
-  border-radius: var(--tt-radius-md, 12px);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 480px) {
