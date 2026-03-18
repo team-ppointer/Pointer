@@ -96,6 +96,8 @@ const ScrapScreenContent = () => {
     return sortScrapData(data, sortKey, sortOrder);
   }, [data, sortKey, sortOrder]);
 
+  const gridData = useMemo(() => [{ ADD: true } as const, ...sortedData], [sortedData]);
+
   const isAllSelected = data.length > 0 && reducerState.selectedItems.length === data.length;
 
   const insets = useSafeAreaInsets();
@@ -183,7 +185,7 @@ const ScrapScreenContent = () => {
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <ScrapGrid
-              data={[{ ADD: true }, ...sortedData]}
+              data={gridData}
               reducerState={reducerState}
               dispatch={dispatch}
             />

@@ -27,8 +27,8 @@ export interface DrawingToolbarProps {
   onStrokeWidthChange: (size: number) => void;
   onEraserSizeChange: (size: number) => void;
 
-  // Drawing area width for responsive layout
-  drawingAreaWidth?: number;
+  // Narrow layout flag (drawingAreaWidth < 380)
+  isNarrow?: boolean;
 }
 
 const STROKE_SIZES = [2, 1.2, 0.7];
@@ -48,13 +48,20 @@ export const DrawingToolbar = ({
   eraserSize,
   onStrokeWidthChange,
   onEraserSizeChange,
-  drawingAreaWidth = 1000,
+  isNarrow = false,
 }: DrawingToolbarProps) => {
-  const isNarrow = drawingAreaWidth < 380;
-
   const SizeSelectorComponent = (
-    <>
-      {!isTextMode && !isEraserMode && (
+    <View
+      pointerEvents={isTextMode ? 'none' : 'auto'}
+      style={{ opacity: isTextMode ? 0 : 1 }}>
+      {isEraserMode ? (
+        <SizeSelector
+          type='eraser'
+          sizes={ERASER_SIZES}
+          selectedSize={eraserSize}
+          onSizeChange={onEraserSizeChange}
+        />
+      ) : (
         <SizeSelector
           type='stroke'
           sizes={STROKE_SIZES}
@@ -62,16 +69,7 @@ export const DrawingToolbar = ({
           onSizeChange={onStrokeWidthChange}
         />
       )}
-
-      {isEraserMode && (
-        <SizeSelector
-          type='eraser'
-          sizes={ERASER_SIZES}
-          selectedSize={eraserSize}
-          onSizeChange={onEraserSizeChange}
-        />
-      )}
-    </>
+    </View>
   );
 
   return (

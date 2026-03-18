@@ -65,6 +65,18 @@ type Props = {
   textFontPath?: any; // Skia에서 사용할 폰트 파일 경로 (require로 전달)
 };
 
+const deepCopyStrokes = (strokes: Stroke[]): Stroke[] =>
+  strokes.map((stroke) => ({
+    points: stroke.points.map((p) => ({ ...p })),
+    color: stroke.color,
+    width: stroke.width,
+  }));
+
+const deepCopyTexts = (texts: TextItem[]): TextItem[] => texts.map((text) => ({ ...text }));
+
+const safeMax = (arr: number[], fallback = 0): number =>
+  arr.length > 0 ? arr.reduce((max, v) => (v > max ? v : max), arr[0]) : fallback;
+
 const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
   (
     {
@@ -98,11 +110,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const maxY = useRef<number>(0); // 그려진 내용의 최대 Y 좌표
     const keyboardHeight = useRef<number>(0); // 키보드 높이
     const isConfirmingTextRef = useRef<boolean>(false); // 텍스트 확인 중 플래그
+    const keyboardListenersRef = useRef<Array<{ remove: () => void }>>([]);
 
     // 호버 좌표를 저장할 SharedValue (성능을 위해 스레드 분리)
     const hoverX = useSharedValue(0);
     const hoverY = useSharedValue(0);
     const showHover = useSharedValue(false);
+    const isActiveGesture = useSharedValue(false);
 
     const livePath = useRef<SkPath>(Skia.Path.Make());
     const currentPoints = useRef<Point[]>([]);
@@ -110,6 +124,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const textsRef = useRef<TextItem[]>([]);
     const eraserPoints = useRef<Point[]>([]);
     const lastEraserTime = useRef<number>(0);
+    const eraserDidModify = useRef<boolean>(false);
     const ERASER_THROTTLE_MS = 16; // ~60fps
 
     // 히스토리 관리 (모든 동작에 대한 undo 지원)
@@ -131,19 +146,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
       onHistoryChange(canUndo, canRedo);
     }, [onHistoryChange, activeTextInput]);
-
-    // Deep copy 헬퍼 함수 (최적화)
-    const deepCopyStrokes = (strokes: Stroke[]): Stroke[] => {
-      return strokes.map((stroke) => ({
-        points: stroke.points.map((p) => ({ ...p })),
-        color: stroke.color,
-        width: stroke.width,
-      }));
-    };
-
-    const deepCopyTexts = (texts: TextItem[]): TextItem[] => {
-      return texts.map((text) => ({ ...text }));
-    };
 
     // 현재 상태를 히스토리에 저장
     const saveToHistory = useCallback(() => {
@@ -174,24 +176,26 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         if (index < 0 || index >= historyRef.current.length) return;
 
         const state = historyRef.current[index];
-        const newPaths = state.strokes.map((stroke) => buildSmoothPath(stroke.points));
+        const restoredStrokes = deepCopyStrokes(state.strokes);
+        const restoredTexts = deepCopyTexts(state.texts);
+        const newPaths = restoredStrokes.map((stroke) => buildSmoothPath(stroke.points));
 
-        setStrokes(state.strokes);
+        setStrokes(restoredStrokes);
         setPaths(newPaths);
-        setTexts(state.texts);
-        strokesRef.current = state.strokes;
-        textsRef.current = state.texts;
+        setTexts(restoredTexts);
+        strokesRef.current = restoredStrokes;
+        textsRef.current = restoredTexts;
 
         // 최대 Y 좌표 재계산
         let maxYValue = 0;
         if (state.strokes.length > 0) {
-          const strokesMaxY = Math.max(
-            ...state.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+          const strokesMaxY = safeMax(
+            state.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
           );
           maxYValue = Math.max(maxYValue, strokesMaxY);
         }
         if (state.texts.length > 0) {
-          const textsMaxY = Math.max(...state.texts.map((text) => text.y));
+          const textsMaxY = safeMax(state.texts.map((text) => text.y));
           maxYValue = Math.max(maxYValue, textsMaxY);
         }
 
@@ -203,7 +207,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           canvasHeight.current = 800;
         }
 
-        onChange?.(state.strokes);
+        onChange?.(restoredStrokes);
         // 상태 변경으로 자동 리렌더링
         notifyHistoryChange();
       },
@@ -290,8 +294,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
         // 최대 Y 좌표 계산
         if (newStrokes.length > 0) {
-          const maxYValue = Math.max(
-            ...newStrokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+          const maxYValue = safeMax(
+            newStrokes.flatMap((stroke) => stroke.points.map((p) => p.y))
           );
           maxY.current = maxYValue;
           canvasHeight.current = Math.max(800, maxYValue + 200);
@@ -304,19 +308,16 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         onChange?.(newStrokes);
 
         // 히스토리 초기화 및 초기 상태 저장 (외부에서 로드한 경우)
-        historyRef.current = [];
-        historyIndexRef.current = -1;
-        // 초기 상태를 히스토리에 저장
-        setTimeout(() => {
-          const initialState: HistoryState = {
+        historyRef.current = [
+          {
             strokes: deepCopyStrokes(newStrokes),
             texts: deepCopyTexts(textsRef.current),
-          };
-          historyRef.current = [initialState];
-          historyIndexRef.current = 0;
-        }, 0);
+          },
+        ];
+        historyIndexRef.current = 0;
+        notifyHistoryChange();
       },
-      [onChange]
+      [onChange, notifyHistoryChange]
     );
 
     const loadTexts = useCallback((newTexts: TextItem[]) => {
@@ -328,15 +329,15 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
       // strokes의 최대 Y 계산
       if (strokesRef.current.length > 0) {
-        const strokesMaxY = Math.max(
-          ...strokesRef.current.flatMap((stroke) => stroke.points.map((p) => p.y))
+        const strokesMaxY = safeMax(
+          strokesRef.current.flatMap((stroke) => stroke.points.map((p) => p.y))
         );
         maxYValue = Math.max(maxYValue, strokesMaxY);
       }
 
       // texts의 최대 Y 계산
       if (newTexts.length > 0) {
-        const textsMaxY = Math.max(...newTexts.map((text) => text.y));
+        const textsMaxY = safeMax(newTexts.map((text) => text.y));
         maxYValue = Math.max(maxYValue, textsMaxY);
       }
 
@@ -362,8 +363,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           const totalTextHeight = lineCount * 22.5; // 고정 줄 높이
 
           // 텍스트 영역의 Y 범위 (32px 여백 포함, X는 캔버스 전체 너비)
-          const textTop = textItem.y - 15 - safeDistance; // 고정 폰트 크기
-          const textBottom = textItem.y + totalTextHeight - 15 + safeDistance;
+          const textTop = textItem.y - safeDistance;
+          const textBottom = textItem.y + totalTextHeight + safeDistance;
 
           // Y 좌표가 텍스트 영역 내에 있으면 캔버스 전체 너비에서 필기 차단
           if (y >= textTop && y <= textBottom) {
@@ -415,14 +416,14 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
     const finalizeStroke = useCallback(() => {
       if (currentPoints.current.length === 0) {
-        livePath.current = Skia.Path.Make();
+        livePath.current.reset();
         setTick((t) => t + 1);
         return;
       }
 
       const pointsToFinalize = [...currentPoints.current];
       // 최대 Y 좌표 업데이트
-      const strokeMaxY = Math.max(...pointsToFinalize.map((p) => p.y));
+      const strokeMaxY = safeMax(pointsToFinalize.map((p) => p.y));
       if (strokeMaxY > maxY.current) {
         maxY.current = strokeMaxY;
         canvasHeight.current = Math.max(800, maxY.current + 200);
@@ -434,67 +435,48 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         color: strokeColor,
         width: strokeWidth,
       };
+      const nextStrokes = [...strokesRef.current, strokeData];
 
-      // 배치 업데이트: paths와 strokes를 함께 업데이트 (상태 변경으로 자동 리렌더링)
-      setStrokes((prev) => {
-        const next = [...prev, strokeData];
-        setPaths((prevPaths) => [...prevPaths, newPath]);
-        strokesRef.current = next;
-        onChange?.(next);
-
-        // 히스토리에 저장
-        setTimeout(() => saveToHistory(), 0);
-
-        return next;
-      });
+      // ref를 먼저 동기화해 history/onChange가 항상 최신값을 사용하도록 보장
+      strokesRef.current = nextStrokes;
+      setStrokes(nextStrokes);
+      setPaths((prev) => [...prev, newPath]);
 
       currentPoints.current = [];
-      livePath.current = Skia.Path.Make();
+      livePath.current.reset();
+
+      onChange?.(nextStrokes);
+      saveToHistory();
     }, [strokeColor, strokeWidth, onChange, saveToHistory]);
 
     // 지우개: 터치한 위치에서 가까운 점들을 제거
     const eraseAtPoint = useCallback(
       (x: number, y: number) => {
         const now = Date.now();
-        // Throttle: 너무 자주 호출되지 않도록 제한
-        if (now - lastEraserTime.current < ERASER_THROTTLE_MS) {
-          return;
-        }
+        if (now - lastEraserTime.current < ERASER_THROTTLE_MS) return;
         lastEraserTime.current = now;
 
-        const thresholdSquared = eraserSize * eraserSize; // 제곱 비교로 sqrt 제거
-
-        setStrokes((prevStrokes) => {
-          // 1. 지울 선들을 걸러냅니다. (선 위의 점 중 하나라도 지우개 반경에 닿으면 삭제)
-          const nextStrokes = prevStrokes.filter((stroke) => {
-            // 최적화: 제곱 거리 비교 (sqrt 제거)
-            const isTouched = stroke.points.some((point) => {
-              const dx = point.x - x;
-              const dy = point.y - y;
-              const distanceSquared = dx * dx + dy * dy;
-              return distanceSquared < thresholdSquared;
-            });
-            return !isTouched; // 닿지 않은 선들만 남김
+        const thresholdSquared = eraserSize * eraserSize;
+        const prevStrokes = strokesRef.current;
+        const nextStrokes = prevStrokes.filter((stroke) => {
+          const isTouched = stroke.points.some((point) => {
+            const dx = point.x - x;
+            const dy = point.y - y;
+            return dx * dx + dy * dy < thresholdSquared;
           });
-
-          // 2. 만약 지워진 선이 있다면 Path 배열도 업데이트 (상태 변경으로 자동 리렌더링)
-          if (nextStrokes.length !== prevStrokes.length) {
-            // 경로를 한 번에 생성
-            const newPaths = nextStrokes.map((s) => buildSmoothPath(s.points));
-            setPaths(newPaths);
-            strokesRef.current = nextStrokes;
-            onChange?.(nextStrokes);
-
-            // 히스토리에 저장 (지우개 동작)
-            setTimeout(() => saveToHistory(), 0);
-
-            return nextStrokes;
-          }
-
-          return prevStrokes;
+          return !isTouched;
         });
+
+        if (nextStrokes.length !== prevStrokes.length) {
+          const newPaths = nextStrokes.map((s) => buildSmoothPath(s.points));
+          setStrokes(nextStrokes);
+          setPaths(newPaths);
+          strokesRef.current = nextStrokes;
+          onChange?.(nextStrokes);
+          eraserDidModify.current = true;
+        }
       },
-      [eraserSize, onChange, saveToHistory]
+      [eraserSize, onChange]
     );
 
     const addEraserPoint = useCallback(
@@ -515,7 +497,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
     const finalizeEraser = useCallback(() => {
       eraserPoints.current = [];
-    }, []);
+      if (eraserDidModify.current) {
+        saveToHistory();
+        eraserDidModify.current = false;
+      }
+    }, [saveToHistory]);
 
     const deleteText = useCallback((textId: string) => {
       setTexts((prev) => {
@@ -526,24 +512,53 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       // 상태 변경으로 자동 리렌더링
     }, []);
 
-    // 필기(stroke) 위에 텍스트 박스를 생성할 수 있는지 확인
-    // 필기 위는 차단 (캔버스 전체 너비), 필기 아래 16px부터는 허용
-    const canAddTextAtPosition = useCallback(
-      (y: number): boolean => {
-        const minGap = 32; // 필기 아래 최소 16px 간격
+    const cleanupKeyboardListeners = useCallback(() => {
+      keyboardListenersRef.current.forEach((l) => l.remove());
+      keyboardListenersRef.current = [];
+    }, []);
 
-        for (const stroke of strokes) {
-          // stroke의 최대 Y 좌표 (가장 아래)
-          const strokeMaxY = Math.max(...stroke.points.map((p) => p.y));
+    const scrollToTextInput = useCallback(
+      (textInputY: number, textHeight: number) => {
+        setTimeout(() => {
+          textInputRef.current?.focus();
 
-          // Y 좌표가 stroke보다 위에 있으면 차단 (X 좌표 무관, 캔버스 전체 너비)
-          if (y < strokeMaxY + minGap) {
-            return false; // 필기 위 또는 너무 가까움
-          }
-        }
-        return true; // 텍스트 생성 가능
+          // 기존 리스너 정리 (중복 등록 방지)
+          cleanupKeyboardListeners();
+
+          const showListener = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+            (e) => {
+              keyboardHeight.current = e.endCoordinates.height;
+              setTimeout(() => {
+                if (!containerLayout.current) return;
+                const screenHeight = Dimensions.get('window').height;
+                const keyboardTop = screenHeight - e.endCoordinates.height;
+                const containerY = containerLayout.current.y;
+                const textInputAbsoluteY = containerY + textInputY;
+                const textInputBottom = textInputAbsoluteY + textHeight + 40;
+                if (textInputBottom > keyboardTop) {
+                  const scrollOffset = textInputBottom - keyboardTop + 20;
+                  scrollViewRef.current?.scrollTo({
+                    y: Math.max(0, scrollOffset),
+                    animated: true,
+                  });
+                }
+              }, 100);
+            }
+          );
+
+          const hideListener = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+            () => {
+              keyboardHeight.current = 0;
+              cleanupKeyboardListeners();
+            }
+          );
+
+          keyboardListenersRef.current = [showListener, hideListener];
+        }, 100);
       },
-      [strokes]
+      [cleanupKeyboardListeners]
     );
 
     const addText = useCallback(
@@ -557,7 +572,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         const buttonSize = 20;
         for (const textItem of texts) {
           const buttonX = textItem.x - buttonSize + 10;
-          const buttonY = textItem.y - 15 + (15 - buttonSize) / 2 + 10;
+          const buttonY = textItem.y + (15 - buttonSize) / 2 + 10;
 
           // 터치 위치가 삭제 버튼 영역 내에 있는지 확인
           if (
@@ -576,12 +591,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           const totalTextHeight = lineCount * 22.5; // 고정 줄 높이
 
           // 텍스트 영역 확인 (X 좌표는 캔버스 전체 너비, Y 좌표만 확인)
-          const textTop = textItem.y - 15; // 고정 폰트 크기
-          const textBottom = textItem.y + totalTextHeight - 15;
+          const textTop = textItem.y;
+          const textBottom = textItem.y + totalTextHeight;
 
           // Y 좌표가 텍스트 영역 내에 있으면 편집 모드로 전환
           if (y >= textTop && y <= textBottom) {
-            // 기존 텍스트를 편집 모드로 전환
             setActiveTextInput({
               id: textItem.id,
               x: textItem.x,
@@ -589,50 +603,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
               value: textItem.text,
             });
 
-            // TextInput 포커스 및 키보드 처리
-            setTimeout(() => {
-              textInputRef.current?.focus();
-
-              // 키보드가 올라올 때 텍스트 입력 위치로 스크롤
-              const showListener = Keyboard.addListener(
-                Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-                (e) => {
-                  keyboardHeight.current = e.endCoordinates.height;
-
-                  setTimeout(() => {
-                    if (!containerLayout.current) return;
-
-                    const textInputY = textItem.y;
-                    const screenHeight = Dimensions.get('window').height;
-                    const keyboardTop = screenHeight - e.endCoordinates.height;
-
-                    const containerY = containerLayout.current.y;
-                    const textInputAbsoluteY = containerY + textInputY;
-                    const textInputBottom = textInputAbsoluteY + totalTextHeight + 40;
-
-                    if (textInputBottom > keyboardTop) {
-                      const scrollOffset = textInputBottom - keyboardTop + 20;
-
-                      scrollViewRef.current?.scrollTo({
-                        y: Math.max(0, scrollOffset),
-                        animated: true,
-                      });
-                    }
-                  }, 100);
-                }
-              );
-
-              const hideListener = Keyboard.addListener(
-                Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-                () => {
-                  keyboardHeight.current = 0;
-                  showListener.remove();
-                  hideListener.remove();
-                }
-              );
-            }, 100);
-
-            return; // 기존 텍스트 편집 모드로 전환했으므로 새 텍스트 추가하지 않음
+            scrollToTextInput(textItem.y, totalTextHeight);
+            return;
           }
         }
 
@@ -644,8 +616,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
         if (strokes.length > 0) {
           // 모든 stroke의 최대 Y 좌표 찾기
-          const maxStrokeY = Math.max(
-            ...strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+          const maxStrokeY = safeMax(
+            strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
           );
           textY = maxStrokeY + minGap; // 가장 아래 필기 + 32px
         }
@@ -655,9 +627,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           const textBottoms = texts.map((text) => {
             const lineCount = calculateTextLineCount(text.text);
             const totalHeight = lineCount * 22.5; // 고정 줄 높이
-            return text.y + totalHeight - 15; // 고정 폰트 크기
+            return text.y + totalHeight;
           });
-          const maxTextBottom = Math.max(...textBottoms);
+          const maxTextBottom = safeMax(textBottoms);
           textY = Math.max(textY, maxTextBottom + minGap);
         }
 
@@ -669,64 +641,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           value: '',
         });
 
-        // TextInput 포커스 및 키보드 처리
-        setTimeout(() => {
-          textInputRef.current?.focus();
-
-          // 키보드가 올라올 때 텍스트 입력 위치로 스크롤
-          const showListener = Keyboard.addListener(
-            Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-            (e) => {
-              keyboardHeight.current = e.endCoordinates.height;
-
-              // 약간의 지연 후 스크롤 (레이아웃 업데이트 대기)
-              setTimeout(() => {
-                if (!containerLayout.current) return;
-
-                // 텍스트 입력 위치 계산 (ScrollView 내부 기준)
-                const textInputY = textY;
-                const screenHeight = Dimensions.get('window').height;
-                const keyboardTop = screenHeight - e.endCoordinates.height;
-
-                // 컨테이너의 절대 위치 계산
-                const containerY = containerLayout.current.y;
-                const textInputAbsoluteY = containerY + textInputY;
-                const textInputBottom = textInputAbsoluteY + 15 + 40; // 고정 폰트 크기 + 여백
-
-                // 키보드가 텍스트 입력을 가릴 수 있는지 확인
-                if (textInputBottom > keyboardTop) {
-                  // 스크롤할 거리 계산 (키보드 위로 여유 공간 확보)
-                  const scrollOffset = textInputBottom - keyboardTop + 20;
-
-                  // ScrollView를 스크롤
-                  scrollViewRef.current?.scrollTo({
-                    y: Math.max(0, scrollOffset),
-                    animated: true,
-                  });
-                }
-              }, 100);
-            }
-          );
-
-          // 키보드가 내려갈 때 리스너 제거
-          const hideListener = Keyboard.addListener(
-            Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-            () => {
-              keyboardHeight.current = 0;
-              showListener.remove();
-              hideListener.remove();
-            }
-          );
-        }, 100);
+        scrollToTextInput(textY, 15);
       },
-      [
-        activeTextInput,
-        isNearExistingText,
-        canAddTextAtPosition,
-        strokes,
-        texts,
-        calculateTextLineCount,
-      ]
+      [activeTextInput, scrollToTextInput, strokes, texts, calculateTextLineCount]
     );
 
     const confirmTextInput = useCallback(() => {
@@ -737,39 +654,27 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
       if (activeTextInput && activeTextInput.value.trim()) {
         isConfirmingTextRef.current = true;
+        const currentTexts = textsRef.current;
 
         // 기존 텍스트 수정인지 새 텍스트 추가인지 확인
-        const existingTextIndex = texts.findIndex((t) => t.id === activeTextInput.id);
+        const existingTextIndex = currentTexts.findIndex((t) => t.id === activeTextInput.id);
+
+        // 텍스트의 실제 줄 수 계산하여 최대 Y 좌표 업데이트
+        const lineCount = calculateTextLineCount(activeTextInput.value);
+        const totalTextHeight = lineCount * 22.5;
+        const textBottomY = activeTextInput.y + totalTextHeight;
+        let nextTexts: TextItem[];
 
         if (existingTextIndex >= 0) {
           // 기존 텍스트 수정
-          setTexts((prev) => {
-            const next = prev.map((text) =>
-              text.id === activeTextInput.id
-                ? {
-                    ...text,
-                    text: activeTextInput.value,
-                  }
-                : text
-            );
-            textsRef.current = next;
-
-            // 텍스트의 실제 줄 수 계산하여 최대 Y 좌표 업데이트
-            const lineCount = calculateTextLineCount(activeTextInput.value);
-            const totalTextHeight = lineCount * 22.5;
-            const textBottomY = activeTextInput.y + totalTextHeight;
-
-            if (textBottomY > maxY.current) {
-              maxY.current = textBottomY;
-              canvasHeight.current = Math.max(800, maxY.current + 200);
-              setTick((t) => t + 1);
-            }
-
-            // 히스토리에 저장 (텍스트 수정)
-            setTimeout(() => saveToHistory(), 0);
-
-            return next;
-          });
+          nextTexts = currentTexts.map((text) =>
+            text.id === activeTextInput.id
+              ? {
+                  ...text,
+                  text: activeTextInput.value,
+                }
+              : text
+          );
         } else {
           // 새 텍스트 추가
           const newText: TextItem = {
@@ -781,38 +686,28 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             color: '#1E1E21', // 고정 텍스트 색상
           };
 
-          // 텍스트의 실제 줄 수 계산하여 최대 Y 좌표 업데이트
-          const lineCount = calculateTextLineCount(activeTextInput.value);
-          const totalTextHeight = lineCount * 22.5; // 고정 줄 높이 22.5px
-          const textBottomY = activeTextInput.y + totalTextHeight;
-
-          if (textBottomY > maxY.current) {
-            maxY.current = textBottomY;
-            canvasHeight.current = Math.max(800, maxY.current + 200);
-            setTick((t) => t + 1); // 캔버스 높이 변경을 위한 리렌더링
-          }
-
-          setTexts((prev) => {
-            const next = [...prev, newText];
-            textsRef.current = next;
-
-            // 히스토리에 저장 (텍스트 추가)
-            setTimeout(() => saveToHistory(), 0);
-
-            return next;
-          });
+          nextTexts = [...currentTexts, newText];
         }
-        // 상태 변경으로 자동 리렌더링
+
+        textsRef.current = nextTexts;
+        setTexts(nextTexts);
+
+        // 사이드이펙트는 updater 외부에서 (가이드 수정 2 원칙)
+        if (textBottomY > maxY.current) {
+          maxY.current = textBottomY;
+          canvasHeight.current = Math.max(800, maxY.current + 200);
+          setTick((t) => t + 1);
+        }
+
+        saveToHistory();
       }
 
       // activeTextInput을 먼저 null로 설정하여 중복 실행 방지
       setActiveTextInput(null);
 
-      // 플래그 리셋 (다음 프레임에서)
-      setTimeout(() => {
-        isConfirmingTextRef.current = false;
-      }, 0);
-    }, [activeTextInput, saveToHistory, calculateTextLineCount, texts]);
+      // 플래그 리셋
+      isConfirmingTextRef.current = false;
+    }, [activeTextInput, saveToHistory, calculateTextLineCount]);
 
     const handleTextInputBlur = useCallback(() => {
       // 이미 처리 중이거나 activeTextInput이 없으면 실행하지 않음
@@ -856,9 +751,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         const currentState = historyRef.current[historyIndexRef.current];
         const previousState = historyRef.current[historyIndexRef.current - 1];
 
-        // 현재 상태와 이전 상태의 texts 비교
         // 현재에만 있고 이전에 없던 텍스트 찾기 (마지막에 추가된 텍스트)
-        const currentTextIds = new Set(currentState.texts.map((t) => t.id));
         const previousTextIds = new Set(previousState.texts.map((t) => t.id));
 
         // 새로 추가된 텍스트 찾기
@@ -895,13 +788,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           // 최대 Y 좌표 재계산
           let maxYValue = 0;
           if (previousState.strokes.length > 0) {
-            const strokesMaxY = Math.max(
-              ...previousState.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+            const strokesMaxY = safeMax(
+              previousState.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
             );
             maxYValue = Math.max(maxYValue, strokesMaxY);
           }
           if (previousState.texts.length > 0) {
-            const textsMaxY = Math.max(...previousState.texts.map((text) => text.y));
+            const textsMaxY = safeMax(previousState.texts.map((text) => text.y));
             maxYValue = Math.max(maxYValue, textsMaxY);
           }
 
@@ -997,6 +890,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       notifyHistoryChange();
     }, [activeTextInput, notifyHistoryChange]);
 
+    // unmount 시 키보드 리스너 정리
+    useEffect(() => {
+      return () => {
+        cleanupKeyboardListeners();
+      };
+    }, [cleanupKeyboardListeners]);
+
     useImperativeHandle(ref, () => ({
       clear() {
         setPaths([]);
@@ -1005,7 +905,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         setActiveTextInput(null);
         strokesRef.current = [];
         textsRef.current = [];
-        livePath.current = Skia.Path.Make();
+        livePath.current.reset();
         maxY.current = 0;
         canvasHeight.current = 800;
         // 상태 변경으로 자동 리렌더링
@@ -1014,6 +914,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         // 히스토리 초기화
         historyRef.current = [];
         historyIndexRef.current = -1;
+        notifyHistoryChange();
       },
       undo,
       redo,
@@ -1065,6 +966,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             if (pointerType !== PointerType.STYLUS && pointerType !== PointerType.MOUSE) {
               return;
             }
+            isActiveGesture.value = true;
             showHover.value = false; // 그리기 시작 시 호버 숨김
             if (textMode) return; // 텍스트 모드에서는 그리기 비활성화
             if (eraserMode) {
@@ -1089,6 +991,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           })
           .onEnd(() => {
             'worklet';
+            if (!isActiveGesture.value) return;
+            isActiveGesture.value = false;
             if (textMode) return;
             if (eraserMode) {
               runOnJS(finalizeEraser)();
@@ -1164,7 +1068,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           const stroke = strokes[i];
           return (
             <Path
-              key={`path-${i}-${paths.length}`}
+              key={`path-${i}`}
               path={p}
               style='stroke'
               strokeWidth={stroke?.width || strokeWidth}
@@ -1228,7 +1132,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
                   <Text
                     key={`${textItem.id}-line-${lineIndex}`}
                     x={textItem.x}
-                    y={textItem.y + lineIndex * 22.5}
+                    y={textItem.y + 15 + lineIndex * 22.5}
                     text={line}
                     font={font}
                     color={textItem.color}
@@ -1254,7 +1158,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         .map((textItem) => {
           const buttonSize = 20;
           const buttonX = textItem.x - buttonSize + 10; // 텍스트 시작 왼쪽에 배치
-          const buttonY = textItem.y - 15 + (15 - buttonSize) / 2 + 10; // 고정 폰트 크기
+          const buttonY = textItem.y + (15 - buttonSize) / 2 + 10;
 
           return (
             <Pressable
@@ -1335,14 +1239,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
                     top: Math.max(
                       16,
                       Math.min(
-                        activeTextInput.y - 15, // 고정 폰트 크기
+                        activeTextInput.y,
                         (containerLayout.current?.height || 400) - 16 - 15
                       )
                     ),
                     width: maxTextWidth, // 동적 너비 적용
                   },
-                ]}
-                onLayout={(e) => {}}>
+                ]}>
                 <TextInput
                   ref={textInputRef}
                   style={[

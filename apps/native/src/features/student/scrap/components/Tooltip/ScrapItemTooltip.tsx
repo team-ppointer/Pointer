@@ -1,6 +1,6 @@
 import { colors } from '@/theme/tokens';
 import { ArrowRightLeft, BookImage, BookOpenText, Trash2 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { showToast } from '../Notification/Toast';
 import { ScrapListItemProps } from '../Card/types';
@@ -98,11 +98,8 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
       ? (scrapDetail?.name ?? props.name)
       : (foldersData?.data?.find((f) => f.id === props.id)?.name ?? props.name);
 
-  const [text, setText] = useState(sourceTitle);
-
-  useEffect(() => {
-    setText(sourceTitle);
-  }, [sourceTitle]);
+  const [_text, setText] = useState<string | undefined>(undefined);
+  const text = _text ?? sourceTitle;
 
   const handleClose = () => {
     onClose?.();
@@ -174,7 +171,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
                 }
                 invalidateScrapSearchQueries(queryClient);
               } else {
-                setText(sourceTitle);
+                setText(undefined);
               }
             }}
           />

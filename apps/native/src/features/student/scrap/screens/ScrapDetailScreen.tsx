@@ -99,7 +99,8 @@ const ScrapDetailScreen = () => {
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes, updateNoteTitle } =
     useNoteStore();
 
-  const [scrapName, setScrapName] = useState(scrapDetail?.name || '');
+  const [_scrapName, setScrapName] = useState<string | undefined>(undefined);
+  const scrapName = _scrapName ?? scrapDetail?.name ?? '';
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
@@ -108,22 +109,10 @@ const ScrapDetailScreen = () => {
     }
   }, [scrapDetail, addScrapId]);
 
-  // scrapDetail이 로드되면 scrapName 동기화
+  // scrapId 변경 시 로컬 오버라이드 리셋
   useEffect(() => {
-    if (scrapDetail?.name) {
-      setScrapName(scrapDetail.name);
-    }
-  }, [scrapDetail?.name]);
-
-  // scrapId 변경 시 scrapName 즉시 업데이트 (제목이 바뀌지 않는 문제 해결)
-  useEffect(() => {
-    if (scrapDetail?.name) {
-      setScrapName(scrapDetail.name);
-    } else {
-      // scrapDetail이 아직 로드되지 않았으면 초기화
-      setScrapName('');
-    }
-  }, [scrapId, scrapDetail?.name]);
+    setScrapName(undefined);
+  }, [scrapId]);
 
   useEffect(() => {
     if (scrapDetail?.name) {
@@ -200,8 +189,6 @@ const ScrapDetailScreen = () => {
     };
   }, [scrapId, queryClient]);
 
-  // Save indicator timeout ref for cleanup
-  const saveIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handwriting = useHandwritingManager({
     scrapId,
@@ -209,26 +196,8 @@ const ScrapDetailScreen = () => {
     hasUnsavedChanges: drawingState.hasUnsavedChanges,
     onSaveSuccess: () => {
       drawingState.markAsSaved();
-      uiState.showSaveIndicator();
-      // Clear previous timeout if exists
-      if (saveIndicatorTimeoutRef.current) {
-        clearTimeout(saveIndicatorTimeoutRef.current);
-      }
-      saveIndicatorTimeoutRef.current = setTimeout(() => {
-        uiState.hideSaveIndicator();
-        saveIndicatorTimeoutRef.current = null;
-      }, 2000);
     },
   });
-
-  // Cleanup save indicator timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (saveIndicatorTimeoutRef.current) {
-        clearTimeout(saveIndicatorTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Tab management
   const [tabLayouts, setTabLayouts] = useState<Record<number, { x: number; width: number }>>({});
@@ -253,10 +222,6 @@ const ScrapDetailScreen = () => {
         if (!handwriting.isSaving) {
           clearInterval(checkSaveComplete);
           // 저장 완료 후 초기화
-          if (saveIndicatorTimeoutRef.current) {
-            clearTimeout(saveIndicatorTimeoutRef.current);
-            saveIndicatorTimeoutRef.current = null;
-          }
           drawingState.reset();
           uiState.reset();
           canvasRef.current?.clear();
@@ -268,11 +233,6 @@ const ScrapDetailScreen = () => {
     }
 
     // 저장 중이 아니면 즉시 초기화
-    // Save indicator timeout cleanup
-    if (saveIndicatorTimeoutRef.current) {
-      clearTimeout(saveIndicatorTimeoutRef.current);
-      saveIndicatorTimeoutRef.current = null;
-    }
     // Drawing state 초기화
     drawingState.reset();
     // UI state 초기화
@@ -428,24 +388,17 @@ const ScrapDetailScreen = () => {
     return SCREEN_WIDTH - leftWidth.value - DRAG_HANDLE_WIDTH;
   });
 
-  // Animated value를 state로 변환 (380 기준선 근처에서만 업데이트하여 성능 최적화)
-  const [currentDrawingWidth, setCurrentDrawingWidth] = useState(
-    SCREEN_WIDTH - DEFAULT_LEFT_WIDTH - DRAG_HANDLE_WIDTH
+  // 드로잉 영역 너비가 380 미만인지 여부 (boolean만 React로 전달하여 리렌더링 최소화)
+  const isNarrowDrawing = useDerivedValue(() => drawingAreaWidth.value < 380);
+  const [isNarrow, setIsNarrow] = useState(
+    SCREEN_WIDTH - DEFAULT_LEFT_WIDTH - DRAG_HANDLE_WIDTH < 380
   );
 
   useAnimatedReaction(
-    () => drawingAreaWidth.value,
-    (width, prevWidth) => {
-      // 380 기준선을 넘나들 때 또는 큰 변화가 있을 때만 업데이트
-      const threshold = 380;
-      const shouldUpdate =
-        prevWidth === null ||
-        (width < threshold && prevWidth >= threshold) ||
-        (width >= threshold && prevWidth < threshold) ||
-        Math.abs(width - (prevWidth || 0)) > 10; // 10px 이상 변화 시
-
-      if (shouldUpdate) {
-        runOnJS(setCurrentDrawingWidth)(width);
+    () => isNarrowDrawing.value,
+    (narrow, prevNarrow) => {
+      if (narrow !== prevNarrow) {
+        runOnJS(setIsNarrow)(narrow);
       }
     }
   );
@@ -683,7 +636,7 @@ const ScrapDetailScreen = () => {
                   eraserSize={drawingState.eraserSize}
                   onStrokeWidthChange={drawingState.setStrokeWidth}
                   onEraserSizeChange={drawingState.setEraserSize}
-                  drawingAreaWidth={currentDrawingWidth}
+                  isNarrow={isNarrow}
                 />
                 <DrawingCanvas
                   key={`drawing-canvas-${scrapId}`}

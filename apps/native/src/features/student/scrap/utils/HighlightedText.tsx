@@ -31,7 +31,7 @@ export const HighlightedText: React.FC<HighlightedTextProps> = ({
       {parts.map((part, index) => {
         const isMatch = part.toLowerCase() === query.toLowerCase();
         return (
-          <Text key={index} className={isMatch ? highlightClassName : ''}>
+          <Text key={index} className={isMatch ? highlightClassName : undefined}>
             {part}
           </Text>
         );
