@@ -165,10 +165,10 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
 
     const onKeyDown = (ev: KeyboardEvent) => {
       if (ev.key === 'Enter' && !ev.shiftKey && !ev.altKey && !ev.ctrlKey && !ev.metaKey) {
+        if (ev.defaultPrevented) return;
         ev.preventDefault();
         ev.stopPropagation();
         try {
-          // Let React flush before closing
           requestAnimationFrame(() => {
             handleSave();
           });
@@ -249,13 +249,16 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     onOpenChange(false);
   }, [onOpenChange]);
 
-  // Treat MathLive virtual keyboard as "inside" the popover
-  const isInMathliveVK = React.useCallback((target: EventTarget | null): boolean => {
+  const isInMathliveUI = React.useCallback((target: EventTarget | null): boolean => {
     const el = target as HTMLElement | null;
     if (!el) return false;
-    return !!el.closest(
-      '.ML__keyboard, .ML__VK, [data-ml-keyboard], [data-mathlive-virtual-keyboard], [aria-label="MathLive Virtual Keyboard"]'
-    );
+    if (
+      el.closest(
+        '.ML__keyboard, .ML__VK, [data-ml-keyboard], [data-mathlive-virtual-keyboard], [aria-label="MathLive Virtual Keyboard"], #mathlive-suggestion-popover'
+      )
+    )
+      return true;
+    return false;
   }, []);
 
   // Radix Popover: prevent outside-interact dismissal when using the virtual keyboard
@@ -263,14 +266,14 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       try {
-        if (isInMathliveVK(e?.target)) {
+        if (isInMathliveUI(e?.target)) {
           e.preventDefault?.();
         }
       } catch {
         // ignore
       }
     },
-    [isInMathliveVK]
+    [isInMathliveUI]
   );
 
   const setFloatingRef = React.useCallback(
@@ -293,7 +296,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
       if (toolbarRef.current?.contains(target)) return;
-      if (isInMathliveVK(target)) {
+      if (isInMathliveUI(target)) {
         return;
       }
       onOpenChange(false);
@@ -303,7 +306,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, true);
     };
-  }, [open, isFloating, isInMathliveVK, onOpenChange]);
+  }, [open, isFloating, isInMathliveUI, onOpenChange]);
 
   React.useLayoutEffect(() => {
     if (!isFloating) return;
