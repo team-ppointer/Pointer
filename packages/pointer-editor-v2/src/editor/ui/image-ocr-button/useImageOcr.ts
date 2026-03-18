@@ -81,6 +81,7 @@ export function useImageOCR(config?: UseImageOCRConfig) {
   useHotkeys(
     IMAGE_OCR_SHORTCUT_KEY,
     (event) => {
+      if (!editor?.isFocused) return;
       event.preventDefault();
       handleInsertOCRNode();
     },

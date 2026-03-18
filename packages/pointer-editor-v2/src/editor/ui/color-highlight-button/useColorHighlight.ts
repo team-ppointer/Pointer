@@ -204,6 +204,7 @@ export function useColorHighlight(config: UseColorHighlightConfig) {
   useHotkeys(
     COLOR_HIGHLIGHT_SHORTCUT_KEY,
     (event) => {
+      if (!editor?.isFocused) return;
       event.preventDefault();
       handleColorHighlight();
     },

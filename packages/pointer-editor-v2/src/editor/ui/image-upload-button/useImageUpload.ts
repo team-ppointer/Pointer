@@ -166,6 +166,7 @@ export function useImageUpload(config?: UseImageUploadConfig) {
   useHotkeys(
     IMAGE_UPLOAD_SHORTCUT_KEY,
     (event) => {
+      if (!editor?.isFocused) return;
       event.preventDefault();
       handleImage();
     },
