@@ -182,6 +182,15 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
           handleSaveRef.current();
         }
       }
+      if (ev.key === 'k' && (ev.metaKey || ev.ctrlKey) && !ev.shiftKey && !ev.altKey) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const vk = window.mathVirtualKeyboard;
+        if (vk) {
+          if (vk.visible) vk.hide({ animate: true });
+          else vk.show({ animate: true });
+        }
+      }
     };
 
     async function mount() {
