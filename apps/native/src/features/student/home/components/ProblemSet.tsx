@@ -117,7 +117,7 @@ const ProblemList = ({ group, index, onToggle, onActionPress, title }: ProblemLi
       title: `${index + 1}-${childIndex + 1}번`,
       status: child.progress ?? 'NONE',
     }));
-  }, [group]);
+  }, [group, index]);
 
   const { Icon, color, bgColor } = ProblemStatusIcon[group.problem.progress ?? 'NONE'];
 
