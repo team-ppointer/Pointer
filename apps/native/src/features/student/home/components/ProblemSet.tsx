@@ -32,7 +32,7 @@ interface ProblemItemProps {
 
 interface ProblemListProps {
   group: PublishGroup;
-  title: string;
+  unitTitle: string;
   index: number;
   isExpanded: boolean;
   onToggle: () => void;
@@ -102,7 +102,7 @@ const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
   );
 };
 
-const ProblemList = ({ group, index, onToggle, onActionPress, title }: ProblemListProps) => {
+const ProblemList = ({ group, index, onToggle, onActionPress, unitTitle }: ProblemListProps) => {
   const statusMeta = groupStatusMeta[group.progress];
   const handlePress = useCallback(() => {
     if (!statusMeta.actionable) {
@@ -133,7 +133,7 @@ const ProblemList = ({ group, index, onToggle, onActionPress, title }: ProblemLi
               <Icon color={color} size={14} strokeWidth={2.5} />
             </View>
           </View>
-          <Text className='text-13r text-gray-700'>{title}</Text>
+          <Text className='text-13r text-gray-700'>{unitTitle}</Text>
         </View>
         <TextButton variant={statusMeta.buttonVariant} onPress={handlePress} buttonId='start_study'>
           {statusMeta.buttonLabel}
@@ -263,7 +263,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
                 <ProblemList
                   group={group}
                   index={index}
-                  title={title}
+                  unitTitle={title}
                   isExpanded={isExpanded}
                   onToggle={() => handleToggleGroup(key)}
                   onActionPress={handleGroupAction}
