@@ -142,7 +142,7 @@ const PointingScreen = ({
       setFeedbackStep('question');
     }
     setIsSubmitting(false);
-  }, [pointing?.id]);
+  }, [pointing?.id, pointing?.isQuestionUnderstood, pointing?.isCommentUnderstood]);
 
   // Sync scrap state with fetched data
   useEffect(() => {
