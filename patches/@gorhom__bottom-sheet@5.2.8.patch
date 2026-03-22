@@ -1,8 +1,21 @@
 diff --git a/src/components/bottomSheet/BottomSheet.tsx b/src/components/bottomSheet/BottomSheet.tsx
-index 6748c93cac1a29c745480fe2282b8d8f6b36226f..19bd4e3fa7afc49d220bb53568326149cbf5fe46 100644
+index 6748c93cac1a29c745480fe2282b8d8f6b36226f..536880a31648ee7d18a2c3338193c641e3606520 100644
 --- a/src/components/bottomSheet/BottomSheet.tsx
 +++ b/src/components/bottomSheet/BottomSheet.tsx
-@@ -1746,6 +1746,33 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
+@@ -895,8 +895,11 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
+ 
+         /**
+          * return the current index position.
++         * If index is -1 (closed), return closedDetentPosition instead of detents[-1]
+          */
+-        return detents[currentIndex];
++        return currentIndex === -1
++          ? closedDetentPosition
++          : detents[currentIndex];
+       },
+       [
+         animatedContentGestureState,
+@@ -1746,6 +1749,33 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
        [_providedAnimatedPosition, topInset]
      );
  
