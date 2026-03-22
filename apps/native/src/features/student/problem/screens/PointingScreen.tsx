@@ -4,7 +4,7 @@ import { Container } from '@components/common';
 import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
 import BottomActionBar from '../components/BottomActionBar';
 import Header from '../components/Header';
-import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';
+import { BookmarkIcon } from 'lucide-react-native';
 import { colors, shadow } from '@theme/tokens';
 import { StudentRootStackParamList } from '@navigation/student/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -32,9 +32,10 @@ import ProblemViewer from '../components/ProblemViewer';
 const PointingScreen = ({
   navigation,
 }: Partial<NativeStackScreenProps<StudentRootStackParamList, 'Pointing'>>) => {
+  type FeedbackStep = 'question' | 'comment' | 'done';
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
-  const [hasSubmittedUnderstanding, setHasSubmittedUnderstanding] = useState(false);
-  const [isSubmittingUnderstanding, setIsSubmittingUnderstanding] = useState(false);
+  const [feedbackStep, setFeedbackStep] = useState<FeedbackStep>('question');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPointingScraped, setIsPointingScraped] = useState(false);
   const [isProblemScraped, setIsProblemScraped] = useState(false);
   const scrapAnimValue = useRef(new Animated.Value(0)).current;
@@ -133,8 +134,14 @@ const PointingScreen = ({
   }, [goHome]);
 
   useEffect(() => {
-    setHasSubmittedUnderstanding(pointing?.isUnderstood != null);
-    setIsSubmittingUnderstanding(false);
+    if (pointing?.isQuestionUnderstood != null && pointing?.isCommentUnderstood != null) {
+      setFeedbackStep('done');
+    } else if (pointing?.isQuestionUnderstood != null) {
+      setFeedbackStep('comment');
+    } else {
+      setFeedbackStep('question');
+    }
+    setIsSubmitting(false);
   }, [pointing?.id]);
 
   // Sync scrap state with fetched data
@@ -152,23 +159,30 @@ const PointingScreen = ({
     problemScrapAnimValue.setValue(isProblemScrapped ? 1 : 0);
   }, [scrapStatusData?.isProblemScrapped, problemScrapAnimValue]);
 
-  const handleUnderstandSelection = useCallback(
-    async (isUnderstood: boolean) => {
-      if (!pointing?.id || isSubmittingUnderstanding) {
+  const handleFeedbackSelection = useCallback(
+    async (understood: boolean) => {
+      if (!pointing?.id || isSubmitting) {
         return;
       }
       try {
-        setIsSubmittingUnderstanding(true);
-        await postPointing(pointing.id, isUnderstood, publishId ?? undefined);
-        setHasSubmittedUnderstanding(true);
+        setIsSubmitting(true);
+        const body = {
+          pointingId: pointing.id,
+          publishId: publishId ?? undefined,
+          ...(feedbackStep === 'question'
+            ? { isQuestionUnderstood: understood }
+            : { isCommentUnderstood: understood }),
+        };
+        await postPointing(body);
+        setFeedbackStep(feedbackStep === 'question' ? 'comment' : 'done');
       } catch (error) {
         console.error('Failed to submit pointing feedback', error);
         Alert.alert('학습 여부를 저장할 수 없어요.', '잠시 후 다시 시도해주세요.');
       } finally {
-        setIsSubmittingUnderstanding(false);
+        setIsSubmitting(false);
       }
     },
-    [isSubmittingUnderstanding, pointing?.id]
+    [isSubmitting, pointing?.id, publishId, feedbackStep]
   );
 
   const ctaLabel = useMemo(() => {
@@ -352,16 +366,15 @@ const PointingScreen = ({
                   </View>
                   <ProblemViewer problemContent={pointing?.questionContent ?? ''} />
                 </View>
-                <ProblemViewer problemContent={pointing?.commentContent ?? ''} padding={14} />
+                {feedbackStep !== 'question' && (
+                  <ProblemViewer problemContent={pointing?.commentContent ?? ''} padding={14} />
+                )}
               </View>
             </ScrollView>
           </Container>
         </View>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
-          {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-            <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-          </BottomActionBar.Button> */}
-          {hasSubmittedUnderstanding ? (
+          {feedbackStep === 'done' ? (
             <BottomActionBar.Button
               className='bg-primary-500 h-[42px]'
               containerStyle={{ flex: 1 }}
@@ -373,19 +386,19 @@ const PointingScreen = ({
           ) : (
             <View className='flex-1 flex-row gap-[10px]'>
               <BottomActionBar.Button
-                className={`bg-primary-500 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                className={`bg-primary-500 h-[42px] ${isSubmitting ? 'opacity-60' : ''}`}
                 containerStyle={{ flex: 1 }}
-                disabled={isSubmittingUnderstanding}
-                onPress={() => handleUnderstandSelection(true)}
+                disabled={isSubmitting}
+                onPress={() => handleFeedbackSelection(true)}
                 buttonId='confirm_pointing'
                 buttonLabel='네'>
                 <Text className='text-16m text-white'>네</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className={`bg-primary-500 h-[42px] ${isSubmittingUnderstanding ? 'opacity-60' : ''}`}
+                className={`bg-primary-500 h-[42px] ${isSubmitting ? 'opacity-60' : ''}`}
                 containerStyle={{ flex: 1 }}
-                disabled={isSubmittingUnderstanding}
-                onPress={() => handleUnderstandSelection(false)}
+                disabled={isSubmitting}
+                onPress={() => handleFeedbackSelection(false)}
                 buttonId='reject_pointing'
                 buttonLabel='아니오'>
                 <Text className='text-16m text-white'>아니오</Text>
