@@ -29,15 +29,6 @@ export const PointingsList = ({ pointingsWithLabels, shouldShowPointing }: Point
                 <ProblemViewer problemContent={pointing.questionContent} padding={16} />
               </View>
             )}
-            {pointing.concepts && pointing.concepts.length > 0 && (
-              <View className='flex-row flex-wrap gap-1 bg-white px-[14px]'>
-                {pointing.concepts.map((concept) => (
-                  <View key={concept.id} className='rounded-full bg-blue-100 px-2 py-1'>
-                    <Text className='text-12r text-blue-700'>{concept.name}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
             {pointing.commentContent && (
               <View className='gap-2 rounded-b-[8px] bg-gray-100 px-[14px]'>
                 <ProblemViewer
