@@ -32,6 +32,7 @@ interface ProblemItemProps {
 
 interface ProblemListProps {
   group: PublishGroup;
+  unitTitle: string;
   index: number;
   isExpanded: boolean;
   onToggle: () => void;
@@ -101,7 +102,7 @@ const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
   );
 };
 
-const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps) => {
+const ProblemList = ({ group, index, onToggle, onActionPress, unitTitle }: ProblemListProps) => {
   const statusMeta = groupStatusMeta[group.progress];
   const handlePress = useCallback(() => {
     if (!statusMeta.actionable) {
@@ -113,10 +114,10 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
     const childProblems = group.childProblems ?? [];
     return childProblems.map((child, childIndex) => ({
       key: `child-${child.id}-${childIndex}`,
-      title: `연습 문제 ${childIndex + 1}번`,
+      title: `${index + 1}-${childIndex + 1}번`,
       status: child.progress ?? 'NONE',
     }));
-  }, [group]);
+  }, [group, index]);
 
   const { Icon, color, bgColor } = ProblemStatusIcon[group.problem.progress ?? 'NONE'];
 
@@ -127,12 +128,12 @@ const ProblemList = ({ group, index, onToggle, onActionPress }: ProblemListProps
       <View className='flex-row items-center justify-between'>
         <View className='flex-col'>
           <View className='flex-row items-center'>
-            <Text className='text-16b mr-[8px] text-black'>{`실전 문제 ${index + 1}번`}</Text>
+            <Text className='text-16b mr-[8px] text-black'>{`문제 ${index + 1}번`}</Text>
             <View className={`rounded-[4px] p-[4px] ${bgColor}`}>
               <Icon color={color} size={14} strokeWidth={2.5} />
             </View>
           </View>
-          <Text className='text-13r text-gray-700'>문제 단원</Text>
+          <Text className='text-13r text-gray-700'>{unitTitle}</Text>
         </View>
         <TextButton variant={statusMeta.buttonVariant} onPress={handlePress} buttonId='start_study'>
           {statusMeta.buttonLabel}
@@ -262,6 +263,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
                 <ProblemList
                   group={group}
                   index={index}
+                  unitTitle={title}
                   isExpanded={isExpanded}
                   onToggle={() => handleToggleGroup(key)}
                   onActionPress={handleGroupAction}
