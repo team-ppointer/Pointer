@@ -79,19 +79,12 @@ const findChildIndexByNo = (
   return children.findIndex((c) => c.no === no);
 };
 
-const findNextPointingIndex = (
-  pointings: PointingWithFeedbackResp[],
-  lastAnsweredNo: number | undefined | null
-): number => {
-  if (lastAnsweredNo == null) return 0;
-  const lastIdx = pointings.findIndex((p) => p.no === lastAnsweredNo);
-  if (lastIdx === -1) return 0;
-  return lastIdx + 1;
-};
+const isPointingCompleted = (p: PointingWithFeedbackResp): boolean =>
+  p.isQuestionUnderstood != null && p.isCommentUnderstood != null;
 
 const countAnsweredChildPointings = (children: ProblemWithStudyInfoResp[]): number =>
   children.reduce(
-    (sum, child) => sum + (child.pointings ?? []).filter((p) => p.isUnderstood != null).length,
+    (sum, child) => sum + (child.pointings ?? []).filter(isPointingCompleted).length,
     0
   );
 
@@ -131,7 +124,7 @@ const computeResumeState = (
     for (let i = 0; i < children.length; i += 1) {
       const cPointings = children[i].pointings ?? [];
       if (cPointings.length === 0) continue;
-      const nextPIdx = cPointings.findIndex((p) => p.isUnderstood == null);
+      const nextPIdx = cPointings.findIndex((p) => !isPointingCompleted(p));
       if (nextPIdx !== -1) {
         return {
           phase: 'CHILD_POINTINGS',
@@ -143,7 +136,7 @@ const computeResumeState = (
       }
     }
 
-    const mainNextPIdx = mainPointings.findIndex((p) => p.isUnderstood == null);
+    const mainNextPIdx = mainPointings.findIndex((p) => !isPointingCompleted(p));
     if (mainNextPIdx !== -1) {
       return {
         phase: 'MAIN_POINTINGS',
@@ -194,7 +187,7 @@ const computeResumeState = (
       }
 
       const cPointings = child.pointings ?? [];
-      const nextPIdx = cPointings.findIndex((p) => p.isUnderstood == null);
+      const nextPIdx = cPointings.findIndex((p) => !isPointingCompleted(p));
       if (nextPIdx !== -1) {
         return {
           phase: 'CHILD_POINTINGS',
@@ -226,7 +219,7 @@ const computeResumeState = (
     if (!childPointingsDone) {
       for (let i = 0; i < children.length; i += 1) {
         const cPointings = children[i].pointings ?? [];
-        const nextPIdx = cPointings.findIndex((p) => p.isUnderstood == null);
+        const nextPIdx = cPointings.findIndex((p) => !isPointingCompleted(p));
         if (nextPIdx !== -1) {
           return {
             phase: 'CHILD_POINTINGS',
@@ -239,7 +232,7 @@ const computeResumeState = (
       }
     }
 
-    const mainNextPIdx = mainPointings.findIndex((p) => p.isUnderstood == null);
+    const mainNextPIdx = mainPointings.findIndex((p) => !isPointingCompleted(p));
     if (mainNextPIdx !== -1 && mainNextPIdx > 0) {
       return {
         phase: 'MAIN_POINTINGS',
@@ -250,7 +243,7 @@ const computeResumeState = (
       };
     }
 
-    if (mainNextPIdx === 0 || mainPointings.every((p) => p.isUnderstood == null)) {
+    if (mainNextPIdx === 0 || mainPointings.every((p) => !isPointingCompleted(p))) {
       return {
         phase: 'MAIN_PROBLEM_RETRY',
         childIndex: INITIAL_INDEX,
@@ -269,7 +262,7 @@ const computeResumeState = (
     };
   }
 
-  const mainNextPIdx = mainPointings.findIndex((p) => p.isUnderstood == null);
+  const mainNextPIdx = mainPointings.findIndex((p) => !isPointingCompleted(p));
   if (mainNextPIdx !== -1) {
     return {
       phase: 'MAIN_POINTINGS',

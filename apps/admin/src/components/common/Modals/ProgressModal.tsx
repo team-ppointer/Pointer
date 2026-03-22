@@ -51,6 +51,10 @@ const UNDERSTAND_META = {
     label: '미이해',
     className: 'border-red-200 bg-red-50 text-red-600',
   },
+  null: {
+    label: '미응답',
+    className: 'border-gray-200 bg-gray-50 text-gray-600',
+  },
 };
 
 const getStatusMeta = (status?: StudyStatus) => {
@@ -58,7 +62,8 @@ const getStatusMeta = (status?: StudyStatus) => {
   return STATUS_META[status];
 };
 
-const getUnderstandMeta = (value?: boolean) => UNDERSTAND_META[value ? 'true' : 'false'];
+const getUnderstandMeta = (value?: boolean | null) =>
+  value == null ? UNDERSTAND_META['null'] : UNDERSTAND_META[value ? 'true' : 'false'];
 
 const toInlineContent = (raw?: string | null) => JSON.stringify(parseEditorContent(raw));
 
@@ -212,7 +217,8 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
                     </div>
                     <div className='space-y-2'>
                       {mainProblem.pointings.map((pointing) => {
-                        const understandMeta = getUnderstandMeta(pointing.isUnderstood);
+                        const questionMeta = getUnderstandMeta(pointing.isQuestionUnderstood);
+                        const commentMeta = getUnderstandMeta(pointing.isCommentUnderstood);
                         return (
                           <div
                             key={pointing.id}
@@ -224,15 +230,21 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
                                 </InlineProblemViewer>
                               </div>
                               <span
-                                className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${understandMeta.className}`}>
-                                {understandMeta.label}
+                                className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${questionMeta.className}`}>
+                                질문: {questionMeta.label}
                               </span>
                             </div>
                             {pointing.commentContent && (
-                              <div className='mt-2 border-t border-gray-100 pt-2 text-xs text-gray-500'>
-                                <InlineProblemViewer maxLine={2}>
-                                  {toInlineContent(pointing.commentContent)}
-                                </InlineProblemViewer>
+                              <div className='mt-2 flex items-start gap-3 border-t border-gray-100 pt-2 text-xs text-gray-500'>
+                                <div className='flex-1'>
+                                  <InlineProblemViewer maxLine={2}>
+                                    {toInlineContent(pointing.commentContent)}
+                                  </InlineProblemViewer>
+                                </div>
+                                <span
+                                  className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${commentMeta.className}`}>
+                                  해설: {commentMeta.label}
+                                </span>
                               </div>
                             )}
                           </div>
@@ -286,7 +298,8 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
                           </p>
                           <div className='space-y-2'>
                             {child.pointings.map((pointing) => {
-                              const understandMeta = getUnderstandMeta(pointing.isUnderstood);
+                              const questionMeta = getUnderstandMeta(pointing.isQuestionUnderstood);
+                              const commentMeta = getUnderstandMeta(pointing.isCommentUnderstood);
                               return (
                                 <div
                                   key={pointing.id}
@@ -298,15 +311,21 @@ const ProgressModal = ({ publishData, onClose }: ProgressModalProps) => {
                                       </InlineProblemViewer>
                                     </div>
                                     <span
-                                      className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${understandMeta.className}`}>
-                                      {understandMeta.label}
+                                      className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${questionMeta.className}`}>
+                                      질문: {questionMeta.label}
                                     </span>
                                   </div>
                                   {pointing.commentContent && (
-                                    <div className='mt-2 border-t border-gray-100 pt-2 text-xs text-gray-500'>
-                                      <InlineProblemViewer maxLine={2}>
-                                        {toInlineContent(pointing.commentContent)}
-                                      </InlineProblemViewer>
+                                    <div className='mt-2 flex items-start gap-3 border-t border-gray-100 pt-2 text-xs text-gray-500'>
+                                      <div className='flex-1'>
+                                        <InlineProblemViewer maxLine={2}>
+                                          {toInlineContent(pointing.commentContent)}
+                                        </InlineProblemViewer>
+                                      </div>
+                                      <span
+                                        className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold ${commentMeta.className}`}>
+                                        해설: {commentMeta.label}
+                                      </span>
                                     </div>
                                   )}
                                 </div>

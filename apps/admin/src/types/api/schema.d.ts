@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+  '/api/teacher/qna/{qnaId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Q&A 상태 변경 */
+    put: operations['updateStatus'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/teacher/qna/chat/{chatId}': {
     parameters: {
       query?: never;
@@ -35,6 +52,30 @@ export interface paths {
     post?: never;
     /** 삭제 */
     delete: operations['delete'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/teacher/me/push/settings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 푸시 알림 설정 조회
+     * @description 전체 푸시, 서비스 알림, QnA 알림, 마케팅 알림 설정을 조회합니다.
+     */
+    get: operations['getPushSettings'];
+    /**
+     * 푸시 알림 설정 수정
+     * @description 전체 푸시, 서비스 알림, QnA 알림, 마케팅 알림 설정을 수정합니다. 부분 업데이트를 지원합니다.
+     */
+    put: operations['updatePushSettings'];
+    post?: never;
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -232,6 +273,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/qna/{qnaId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Q&A 상태 변경 */
+    put: operations['updateStatus_1'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/qna/chat/{chatId}': {
     parameters: {
       query?: never;
@@ -285,6 +343,30 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/me/push/settings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 푸시 알림 설정 조회
+     * @description 전체 푸시, 서비스 알림, QnA 알림, 마케팅 알림 설정을 조회합니다.
+     */
+    get: operations['getPushSettings_1'];
+    /**
+     * 푸시 알림 설정 수정
+     * @description 전체 푸시, 서비스 알림, QnA 알림, 마케팅 알림 설정을 수정합니다. 부분 업데이트를 지원합니다.
+     */
+    put: operations['updatePushSettings_1'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/teacher/{id}': {
     parameters: {
       query?: never;
@@ -312,6 +394,23 @@ export interface paths {
     get?: never;
     /** 담당 학생 수정 */
     put: operations['assignStudentsToTeacher'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/qna/{qnaId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Q&A 상태 변경 */
+    put: operations['updateStatus_2'];
     post?: never;
     delete?: never;
     options?: never;
@@ -544,7 +643,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** 푸시 알림 허용 토글 */
+    /**
+     * 푸시 알림 허용 토글
+     * @deprecated
+     * @description Deprecated: /push/settings API 사용 권장
+     */
     post: operations['toggleAllowPush'];
     delete?: never;
     options?: never;
@@ -664,7 +767,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** 문제 기반 스크랩 토글 (있으면 삭제, 없으면 생성) */
+    /**
+     * 문제 기반 스크랩 토글 (있으면 삭제, 없으면 복원/생성)
+     * @description 활성 스크랩 있음 → 휴지통으로 이동(isScraped=false). 휴지통에 스크랩 있음 → 휴지통에서 복원(isScraped=true). 스크랩 없음 → 새로 생성(isScraped=true). 2회 연속 호출 시: 1회차 생성 → 2회차 휴지통 → 3회차 복원.
+     */
     post: operations['toggleScrapFromProblem'];
     delete?: never;
     options?: never;
@@ -681,7 +787,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** 포인팅 기반 스크랩 토글 (있으면 삭제, 없으면 생성) */
+    /**
+     * 포인팅 기반 스크랩 토글 (있으면 삭제, 없으면 복원/생성)
+     * @description 해당 포인팅이 스크랩에 있으면 제거(다른 콘텐츠 없으면 휴지통 이동). 포인팅 없으면: 활성 스크랩에 추가, 휴지통 스크랩 복원 후 추가, 또는 새로 생성. 2회 연속 호출 시: 1회차 추가 → 2회차 제거 및 휴지통 → 3회차 복원.
+     */
     post: operations['toggleScrapFromPointing'];
     delete?: never;
     options?: never;
@@ -881,6 +990,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/me/push/settings/init': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * 초기 푸시 설정
+     * @description 전체 푸시 관련 설정(마스터 토글, 서비스 알림, QnA 알림, 마케팅 알림)을 한 번에 true/false로 세팅합니다.
+     */
+    post: operations['initPushSettings'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/me/push/allow/toggle': {
     parameters: {
       query?: never;
@@ -890,7 +1019,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** 푸시 알림 허용 토글 */
+    /**
+     * 푸시 알림 허용 토글
+     * @deprecated
+     * @description Deprecated: /push/settings API 사용 권장
+     */
     post: operations['toggleAllowPush_1'];
     delete?: never;
     options?: never;
@@ -909,6 +1042,23 @@ export interface paths {
     put?: never;
     /** 비밀번호 변경 */
     post: operations['changePassword'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/feedback': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 서비스 피드백 제출 */
+    post: operations['submitFeedback'];
     delete?: never;
     options?: never;
     head?: never;
@@ -966,6 +1116,86 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/auth/quit': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * 회원 탈퇴
+     * @description 탈퇴 사유를 선택하고 회원 탈퇴를 진행합니다. 복수 선택 가능합니다.
+     */
+    post: operations['quit'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/password/reset': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * [학생] 비밀번호 찾기 - 비밀번호 재설정
+     * @description 인증 코드 검증 후 새 비밀번호로 재설정합니다.
+     */
+    post: operations['resetPassword'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/password/reset/verify-code': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * [학생] 비밀번호 찾기 - 인증 코드 검증
+     * @description 이메일로 발송된 인증 코드를 검증합니다.
+     */
+    post: operations['verifyPasswordResetCode'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/password/reset/send-code': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * [학생] 비밀번호 찾기 - 인증 코드 발송
+     * @description 등록된 이메일로 6자리 인증 코드를 발송합니다. 코드는 10분간 유효합니다.
+     */
+    post: operations['sendPasswordResetCode'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/auth/login/social': {
     parameters: {
       query?: never;
@@ -977,6 +1207,23 @@ export interface paths {
     put?: never;
     /** 소셜 로그인 URL 요청 [네이버만 완료] */
     post: operations['getSocialLoginUrl'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/auth/login/local': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 이메일 로그인 */
+    post: operations['login_1'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1045,6 +1292,58 @@ export interface paths {
     put?: never;
     /** 휴대폰 인증 코드 재발송 */
     post: operations['resend'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/analytics/events': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * 클라이언트 이벤트 배치 수집
+     * @description ## 이벤트 수집 API
+     *
+     *     화면 이탈, 버튼 클릭 등 사용자 행동 이벤트를 배치로 수집합니다.
+     *     비로그인 사용자도 sessionId로 추적됩니다.
+     *
+     *     ### 전송 규칙
+     *     - 최대 100개 이벤트까지 한 번에 전송 가능
+     *     - 10개 이상 쌓이거나 30초마다 전송 권장
+     *     - 화면 전환/앱 백그라운드 시 즉시 전송
+     *
+     *     ### 이벤트 타입별 metadata 규칙
+     *
+     *     | eventType | 필수 metadata | 선택 metadata |
+     *     |-----------|--------------|---------------|
+     *     | SESSION_START | - | appVersion, osVersion |
+     *     | SESSION_END | - | sessionDurationMs |
+     *     | SCREEN_ENTER | screenName | previousScreen, params |
+     *     | SCREEN_EXIT | screenName, dwellTimeMs | nextScreen, exitReason |
+     *     | BUTTON_CLICK | buttonId, screenName | buttonLabel |
+     *     | STUDY_START | problemSetId | problemSetTitle, totalProblems |
+     *     | STUDY_END | problemSetId, completedCount, studyDurationMs | correctCount, exitReason |
+     *     | PROBLEM_VIEW | problemId, problemSetId | problemIndex, isRetry |
+     *     | POINTING_VIEW | pointingId, problemId | pointingType |
+     *
+     *     ### screenName 값
+     *     `Main`, `StudyList`, `StudyDetail`, `Problem`, `Pointing`, `Scrap`, `ScrapDetail`, `QnA`, `QnAChat`, `Notification`, `Settings`, `Profile`
+     *
+     *     ### buttonId 값
+     *     `start_study`, `view_scrap`, `view_qna`, `submit_answer`, `next_problem`, `prev_problem`, `confirm_pointing`, `reject_pointing`, `add_scrap`, `remove_scrap`, `send_message`, `upload_image`
+     *
+     *     ### exitReason 값
+     *     - SCREEN_EXIT용: `navigation`, `back`, `background`, `timeout`
+     *     - STUDY_END용: `completed`, `paused`, `abandoned`
+     */
+    post: operations['collectEvents'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1151,6 +1450,25 @@ export interface paths {
     /** 단일 생성 */
     post: operations['createProblem'];
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/problem/{parentId}/children': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 자식 문제 목록 조회 */
+    get: operations['getChildren'];
+    put?: never;
+    /** 자식 문제 추가 */
+    post: operations['addChild'];
+    /** 자식 문제 삭제 */
+    delete: operations['removeChildren'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1263,6 +1581,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/fcm/test': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 특정 토큰으로 FCM 푸시 테스트 발송 */
+    post: operations['sendTestPush'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/diagnosis': {
     parameters: {
       query?: never;
@@ -1344,7 +1679,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** 이메일 로그인 */
-    post: operations['login_1'];
+    post: operations['login_2'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1689,6 +2024,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/study/problem/entire/{problemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 문제 그룹 전체 조회 (부모+형제 문제) */
+    get: operations['getEntireProblems'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/study/pointing/entire/{problemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 문제의 전체 포인팅 조회 (부모+새끼문제) */
+    get: operations['getEntirePointings'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/scrap/{id}': {
     parameters: {
       query?: never;
@@ -1750,6 +2119,23 @@ export interface paths {
     };
     /** 폴더 내 스크랩 목록 조회 */
     get: operations['getScrapsByFolder'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/scrap/by-problem/{problemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 문제별 스크랩 정보 조회 */
+    get: operations['getScrapInfoByProblem'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2188,6 +2574,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/fcm/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** FCM 초기화 상태 확인 */
+    get: operations['getStatus'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/auth/issue-admin-token': {
     parameters: {
       query?: never;
@@ -2196,6 +2599,106 @@ export interface paths {
       cookie?: never;
     };
     get: operations['issueTemporaryToken'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/analytics/first-feature-stats': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 디바이스별 첫 기능 사용 통계 조회
+     * @description 디바이스 타입별로 가장 먼저 사용하는 기능 통계를 조회합니다
+     */
+    get: operations['getFirstFeatureStats'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/analytics/daily-solve-count/{studentId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 일별 문제 풀이 수 조회
+     * @description 특정 학생의 일별 문제 풀이 수와 평균/표준편차를 조회합니다
+     */
+    get: operations['getDailySolveCount'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/analytics/concept-history/{studentId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 개념태그별 정답/오답 히스토리 조회
+     * @description 학생의 개념태그별 정답률과 취약점을 조회합니다
+     */
+    get: operations['getConceptHistory'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/analytics/completion-rate/{problemSetId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 세트별 완료율 조회
+     * @description 문제 세트별 학생들의 완료율을 조회합니다
+     */
+    get: operations['getCompletionRate'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/analytics/access-stats': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * 접속 통계 조회
+     * @description 날짜별/요일별 서비스 접속 통계를 조회합니다
+     */
+    get: operations['getAccessStats'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2216,23 +2719,6 @@ export interface paths {
     post?: never;
     /** 휴지통 비우기 */
     delete: operations['emptyTrash'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/student/auth/quit': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** 회원 탈퇴 */
-    delete: operations['quit'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2293,13 +2779,21 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ChatUpdateRequest: {
-      content: string;
-      files?: number[];
+    QnAStatusUpdateDTO: {
+      /**
+       * @description Q&A 상태
+       * @example QUESTIONING
+       * @enum {string}
+       */
+      status: 'QUESTIONING' | 'RESOLVED' | 'QUESTIONING' | 'RESOLVED';
     };
     ChatResp: {
       /** Format: int64 */
       id: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
       isMine: boolean;
       content: string;
       files: components['schemas']['UploadFileResp'][];
@@ -2328,6 +2822,8 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_QUESTION'
         | 'CHILD_PROBLEM_POINTING_COMMENT'
         | 'ADMIN_CHAT';
+      /** @enum {string} */
+      status: 'QUESTIONING' | 'RESOLVED';
       /** Format: date */
       publishDate: string;
       /** Format: int64 */
@@ -2360,6 +2856,8 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_QUESTION'
         | 'CHILD_PROBLEM_POINTING_COMMENT'
         | 'ADMIN_CHAT';
+      /** @enum {string} */
+      status: 'QUESTIONING' | 'RESOLVED';
       /** Format: date */
       publishDate: string;
       /** Format: int64 */
@@ -2389,6 +2887,10 @@ export interface components {
       url: string;
       /** @enum {string} */
       fileType: 'IMAGE' | 'DOCUMENT' | 'OTHER';
+    };
+    ChatUpdateRequest: {
+      content: string;
+      files?: number[];
     };
     NoticeUpdateRequest: {
       title: string;
@@ -2451,6 +2953,26 @@ export interface components {
       /** Format: int64 */
       teacherId?: number;
       teacherName?: string;
+    };
+    'TeacherPushDTO.UpdateSettingsRequest': {
+      /** @description 전체 푸시 알림 허용 여부 (마스터 토글) */
+      isAllowPush?: boolean;
+      /** @description 서비스 알림 허용 여부 (학습 안내, 문장 등록 안내 등) */
+      isAllowServicePush?: boolean;
+      /** @description QnA 채팅 알림 허용 여부 (출제진 피드백, 선생님 답변 알림 등) */
+      isAllowQnaPush?: boolean;
+      /** @description 마케팅 알림 허용 여부 (이벤트 및 업데이트 관련 알림) */
+      isAllowMarketingPush?: boolean;
+    };
+    'TeacherPushDTO.SettingsResponse': {
+      /** @description 전체 푸시 알림 허용 여부 (마스터 토글) */
+      isAllowPush?: boolean;
+      /** @description 서비스 알림 허용 여부 (학습 안내, 문장 등록 안내 등) */
+      isAllowServicePush?: boolean;
+      /** @description QnA 채팅 알림 허용 여부 (출제진 피드백, 선생님 답변 알림 등) */
+      isAllowQnaPush?: boolean;
+      /** @description 마케팅 알림 허용 여부 (이벤트 및 업데이트 관련 알림) */
+      isAllowMarketingPush?: boolean;
     };
     ScrapUpdateRequest: {
       /**
@@ -2758,6 +3280,26 @@ export interface components {
       level?: number;
       nickname?: string;
     };
+    'StudentPushDTO.UpdateSettingsRequest': {
+      /** @description 전체 푸시 알림 허용 여부 (마스터 토글) */
+      isAllowPush?: boolean;
+      /** @description 서비스 알림 허용 여부 (학습 안내, 문장 등록 안내 등) */
+      isAllowServicePush?: boolean;
+      /** @description QnA 채팅 알림 허용 여부 (출제진 피드백, 선생님 답변 알림 등) */
+      isAllowQnaPush?: boolean;
+      /** @description 마케팅 알림 허용 여부 (이벤트 및 업데이트 관련 알림) */
+      isAllowMarketingPush?: boolean;
+    };
+    'StudentPushDTO.SettingsResponse': {
+      /** @description 전체 푸시 알림 허용 여부 (마스터 토글) */
+      isAllowPush?: boolean;
+      /** @description 서비스 알림 허용 여부 (학습 안내, 문장 등록 안내 등) */
+      isAllowServicePush?: boolean;
+      /** @description QnA 채팅 알림 허용 여부 (출제진 피드백, 선생님 답변 알림 등) */
+      isAllowQnaPush?: boolean;
+      /** @description 마케팅 알림 허용 여부 (이벤트 및 업데이트 관련 알림) */
+      isAllowMarketingPush?: boolean;
+    };
     TeacherUpdateRequest: {
       name: string;
       email: string;
@@ -2949,7 +3491,25 @@ export interface components {
     PointingFeedbackRequest: {
       /** Format: int64 */
       pointingId: number;
-      isUnderstood: boolean;
+      /**
+       * Format: int64
+       * @description 발행(숙제) ID
+       */
+      publishId?: number;
+      /** @description 질문 이해 여부 */
+      isQuestionUnderstood?: boolean;
+      /** @description 해설 이해 여부 */
+      isCommentUnderstood?: boolean;
+      /**
+       * Format: int64
+       * @description 포인팅에 머무른 시간 (밀리초)
+       */
+      dwellTimeMs?: number;
+      /**
+       * Format: int64
+       * @description O/X 응답까지 걸린 시간 (밀리초)
+       */
+      responseTimeMs?: number;
     };
     SubmissionRequest: {
       /** Format: int64 */
@@ -2958,6 +3518,11 @@ export interface components {
       problemId?: number;
       /** Format: int32 */
       submitAnswer?: number;
+      /**
+       * Format: int64
+       * @description 문항 풀이 시간 (밀리초)
+       */
+      solveTimeMs?: number;
     };
     SubmissionResp: {
       /** @enum {string} */
@@ -2966,6 +3531,11 @@ export interface components {
       submitAnswer: number;
       isCorrect: boolean;
       isDone: boolean;
+      /**
+       * Format: int32
+       * @description 제출 횟수
+       */
+      attemptCount?: number;
     };
     ScrapCreateRequest: {
       /**
@@ -3169,8 +3739,16 @@ export interface components {
     'StudentPushDTO.UpdateTokenRequest': {
       fcmToken: string;
     };
+    'StudentPushDTO.InitPushRequest': {
+      /** @description 푸시 허용 여부 (true: 전체 허용, false: 전체 차단) */
+      allow: boolean;
+    };
     'StudentPasswordDTO.UpdatePasswordRequest': {
       newPassword: string;
+    };
+    'FeedbackDTO.Request': {
+      /** @description 피드백 내용 (최소 10자 이상) */
+      content: string;
     };
     StudentSignupReq: {
       email: string;
@@ -3239,6 +3817,39 @@ export interface components {
       level?: number;
       nickname?: string;
     };
+    'WithdrawDTO.Request': {
+      /** @description 탈퇴 사유 목록 (복수 선택 가능) */
+      reasons: (
+        | 'DIFFICULT_TO_USE'
+        | 'NOT_HELPFUL'
+        | 'LACK_OF_FEATURES'
+        | 'NO_LONGER_NEEDED'
+        | 'OTHER'
+      )[];
+      /** @description 기타 사유 (OTHER 선택 시 입력, 선택) */
+      otherReason?: string;
+    };
+    'PasswordResetDTO.ResetPasswordRequest': {
+      /** @description 이메일 */
+      email: string;
+      /** @description 인증 코드 (6자리) */
+      code: string;
+      /** @description 새 비밀번호 */
+      newPassword: string;
+    };
+    'PasswordResetDTO.VerifyCodeRequest': {
+      /** @description 이메일 */
+      email: string;
+      /** @description 인증 코드 (6자리) */
+      code: string;
+    };
+    BooleanResp: {
+      value: boolean;
+    };
+    'PasswordResetDTO.SendCodeRequest': {
+      /** @description 이메일 */
+      email: string;
+    };
     SocialLoginReq: {
       /** @enum {string} */
       provider: 'KAKAO' | 'GOOGLE' | 'APPLE';
@@ -3248,6 +3859,12 @@ export interface components {
       /** @enum {string} */
       provider: 'KAKAO' | 'GOOGLE' | 'APPLE';
       loginUrl: string;
+    };
+    StudentLoginReq: {
+      /** @description 이메일 */
+      email: string;
+      /** @description 비밀번호 */
+      password: string;
     };
     PreSignedReq: {
       fileName: string;
@@ -3289,6 +3906,53 @@ export interface components {
       /** @description 인증 용도 (예: signup, reset-password 등) */
       purpose?: string;
     };
+    /** @description 클라이언트 이벤트 배치 요청 */
+    UserEventBatchRequest: {
+      /** @description 이벤트 목록 */
+      events: components['schemas']['UserEventRequest'][];
+      /** @description 클라이언트 세션 ID */
+      sessionId: string;
+      /**
+       * @description 디바이스 타입
+       * @enum {string}
+       */
+      deviceType?: 'TABLET' | 'MOBILE' | 'DESKTOP' | 'UNKNOWN';
+    };
+    /** @description 개별 사용자 이벤트 */
+    UserEventRequest: {
+      /**
+       * @description 이벤트 타입
+       * @enum {string}
+       */
+      eventType:
+        | 'SCREEN_ENTER'
+        | 'SCREEN_EXIT'
+        | 'BUTTON_CLICK'
+        | 'STUDY_START'
+        | 'STUDY_END'
+        | 'PROBLEM_VIEW'
+        | 'POINTING_VIEW'
+        | 'SESSION_START'
+        | 'SESSION_END';
+      /**
+       * Format: date-time
+       * @description 이벤트 발생 시각
+       */
+      occurredAt: string;
+      /**
+       * @description 이벤트 추가 데이터. 이벤트 타입별 권장 필드는 API 설명을 참고하세요.
+       * @example {
+       *       "screenName": "Problem",
+       *       "dwellTimeMs": 120000,
+       *       "exitReason": "navigation"
+       *     }
+       */
+      metadata?: {
+        [key: string]: Record<string, never>;
+      };
+      /** @description 클라이언트에서 생성한 이벤트 고유 ID (중복 방지용) */
+      clientEventId?: string;
+    };
     AdminCreateRequest: {
       email: string;
       password: string;
@@ -3310,6 +3974,51 @@ export interface components {
       /** Format: date */
       publishAt: string;
     };
+    /** @description 마지막 진행 상태 정보 */
+    LastProgressInfo: {
+      /**
+       * Format: int64
+       * @description 마지막 답변한 포인팅 ID
+       */
+      lastAnsweredPointingId?: number;
+      /**
+       * Format: int32
+       * @description 마지막 답변한 포인팅 번호 (no 기준)
+       */
+      lastAnsweredPointingNo?: number;
+      /**
+       * Format: int64
+       * @description 마지막 푼 문제 ID
+       */
+      lastSolvedProblemId?: number;
+      /**
+       * Format: int32
+       * @description 마지막 푼 새끼 문제 번호 (no 기준, null이면 새끼문제 없음)
+       */
+      lastSolvedChildProblemNo?: number;
+      /** @description 메인 문제 풀이 여부 */
+      isMainProblemSolved?: boolean;
+      /**
+       * Format: int32
+       * @description 푼 새끼 문제 수
+       */
+      solvedChildProblemCount?: number;
+      /**
+       * Format: int32
+       * @description 전체 새끼 문제 수
+       */
+      totalChildProblemCount?: number;
+      /**
+       * Format: int32
+       * @description 답변한 포인팅 수
+       */
+      answeredPointingCount?: number;
+      /**
+       * Format: int32
+       * @description 전체 포인팅 수
+       */
+      totalPointingCount?: number;
+    };
     PointingWithFeedbackResp: {
       /** Format: int64 */
       id: number;
@@ -3318,7 +4027,8 @@ export interface components {
       questionContent: string;
       commentContent: string;
       concepts: components['schemas']['ConceptResp'][];
-      isUnderstood?: boolean;
+      isQuestionUnderstood?: boolean;
+      isCommentUnderstood?: boolean;
       isScrapped?: boolean;
     };
     ProblemRef: {
@@ -3338,10 +4048,42 @@ export interface components {
        */
       parentId?: number;
     };
+    /** @description 문제별 스크랩 정보 */
     ProblemScrapInfo: {
+      /**
+       * Format: int64
+       * @description 스크랩 ID (스크랩이 없으면 null)
+       * @example 123
+       */
+      scrapId?: number;
+      /**
+       * @description 문제 스크랩 여부
+       * @example true
+       */
       isProblemScrapped?: boolean;
+      /**
+       * @description 리딩팁 스크랩 여부
+       * @example false
+       */
       isReadingTipScrapped?: boolean;
+      /**
+       * @description 원스텝모어 스크랩 여부
+       * @example true
+       */
       isOneStepMoreScrapped?: boolean;
+      /**
+       * @description 오답 여부
+       * @example false
+       */
+      isWrongAnswer?: boolean;
+      /**
+       * @description 스크랩된 포인팅 ID 목록
+       * @example [
+       *       1,
+       *       2,
+       *       3
+       *     ]
+       */
       scrappedPointingIds?: number[];
     };
     ProblemWithStudyInfoResp: {
@@ -3385,6 +4127,11 @@ export interface components {
       submitAnswer: number;
       isCorrect: boolean;
       isDone: boolean;
+      /**
+       * Format: int32
+       * @description 제출 횟수
+       */
+      attemptCount?: number;
       scrapInfo?: components['schemas']['ProblemScrapInfo'];
       childProblems: components['schemas']['ProblemWithStudyInfoResp'][];
       ref?: components['schemas']['ProblemRef'];
@@ -3398,6 +4145,12 @@ export interface components {
       progress: 'DONE' | 'DOING' | 'NONE';
       problem: components['schemas']['ProblemWithStudyInfoResp'];
       childProblems: components['schemas']['ProblemWithStudyInfoResp'][];
+      lastProgressInfo?: components['schemas']['LastProgressInfo'];
+      /**
+       * Format: int32
+       * @description 메인 문제 제출 횟수
+       */
+      attemptCount?: number;
     };
     PublishResp: {
       /** Format: int64 */
@@ -3417,8 +4170,6 @@ export interface components {
       concepts?: number[];
     };
     ProblemCreateRequest: {
-      /** Format: int64 */
-      parentProblemId?: number;
       /** @enum {string} */
       createType?: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
       /** Format: int64 */
@@ -3504,6 +4255,38 @@ export interface components {
       /** @description FCM 지원 여부 */
       fcmSupported: boolean;
     };
+    /** @description FCM 테스트 발송 요청 */
+    FcmTestReq: {
+      /**
+       * @description FCM 토큰
+       * @example dGVzdC10b2tlbi1mb3ItZmNtLXB1c2gtbm90aWZpY2F0aW9u
+       */
+      token: string;
+      /**
+       * @description 알림 제목
+       * @example 테스트 알림
+       */
+      title: string;
+      /**
+       * @description 알림 내용
+       * @example FCM 푸시 테스트 메시지입니다.
+       */
+      body: string;
+      /**
+       * @description 클릭 시 이동할 URL (선택)
+       * @example /home
+       */
+      url?: string;
+    };
+    /** @description FCM 테스트 발송 응답 */
+    FcmTestResp: {
+      /** @description 발송 성공 여부 */
+      success?: boolean;
+      /** @description 결과 메시지 */
+      message?: string;
+      /** @description 에러 상세 (실패 시) */
+      errorDetail?: string;
+    };
     DiagnosisCreateReq: {
       /** Format: int64 */
       studentId?: number;
@@ -3576,6 +4359,8 @@ export interface components {
         | 'CHILD_PROBLEM_POINTING_QUESTION'
         | 'CHILD_PROBLEM_POINTING_COMMENT'
         | 'ADMIN_CHAT';
+      /** @enum {string} */
+      qnaStatus?: 'QUESTIONING' | 'RESOLVED';
       /** Format: date */
       publishDate?: string;
       /** Format: int64 */
@@ -3599,6 +4384,73 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['NoticeResp'][];
+    };
+    ListRespProblemEntireResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ProblemEntireResp'][];
+    };
+    ProblemEntireResp: {
+      /**
+       * Format: int64
+       * @description 문제 ID
+       */
+      problemId: number;
+      /** @description 부모문제 여부 (true: 부모문제, false: 새끼문제) */
+      isParent: boolean;
+      /** Format: int64 */
+      id: number;
+      /** @enum {string} */
+      problemType: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
+      /** Format: int64 */
+      parentProblem?: number;
+      parentProblemTitle?: string;
+      customId: string;
+      /** @enum {string} */
+      createType: 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM' | 'CREATION_PROBLEM';
+      practiceTest: components['schemas']['PracticeTestResp'];
+      /** Format: int32 */
+      practiceTestNo: number;
+      problemContent: string;
+      title: string;
+      /** @enum {string} */
+      answerType: 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
+      /** Format: int32 */
+      answer: number;
+      /** Format: int32 */
+      difficulty: number;
+      /** Format: int32 */
+      recommendedTimeSec: number;
+      memo: string;
+      concepts: components['schemas']['ConceptResp'][];
+      mainAnalysisImage: components['schemas']['UploadFileResp'];
+      mainHandAnalysisImage: components['schemas']['UploadFileResp'];
+      readingTipContent: string;
+      oneStepMoreContent: string;
+    };
+    ListRespPointingEntireResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['PointingEntireResp'][];
+    };
+    PointingEntireResp: {
+      /**
+       * Format: int64
+       * @description 포인팅이 속한 문제 ID
+       */
+      problemId: number;
+      /** @description 부모문제 여부 (true: 부모문제, false: 새끼문제) */
+      isParent: boolean;
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      questionContent: string;
+      commentContent: string;
+      concepts: components['schemas']['ConceptResp'][];
+      isQuestionUnderstood?: boolean;
+      isCommentUnderstood?: boolean;
+      isScrapped?: boolean;
     };
     ListRespTrashItemResp: {
       /** Format: int32 */
@@ -3700,6 +4552,21 @@ export interface components {
       total: number;
       data: components['schemas']['UploadFileResp'][];
     };
+    ListRespQnaFileResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['QnaFileResp'][];
+    };
+    QnaFileResp: {
+      /** Format: int64 */
+      id: number;
+      fileName: string;
+      url: string;
+      /** @enum {string} */
+      fileType: 'IMAGE' | 'DOCUMENT' | 'OTHER';
+      /** @description 스크랩 여부 */
+      isScrapped: boolean;
+    };
     ListRespNotificationResp: {
       /** Format: int32 */
       total: number;
@@ -3718,6 +4585,15 @@ export interface components {
       unreadCount: number;
       latestNotification?: components['schemas']['NotificationResp'];
     };
+    PageRespNoticeResp: {
+      /** Format: int32 */
+      page: number;
+      /** Format: int32 */
+      size: number;
+      /** Format: int32 */
+      lastPage: number;
+      data: components['schemas']['NoticeResp'][];
+    };
     NoticeUnreadCountResp: {
       /** Format: int64 */
       totalCount?: number;
@@ -3729,9 +4605,6 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['DiagnosisResp'][];
-    };
-    BooleanResp: {
-      value: boolean;
     };
     /** @description Q&A 채팅 이벤트 (SSE event name: chat) */
     QnAChatEvent: {
@@ -3872,6 +4745,11 @@ export interface components {
       lastPage: number;
       data: components['schemas']['ProblemMetaResp'][];
     };
+    ListRespProblemInfoResp: {
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ProblemInfoResp'][];
+    };
     ProblemCustomIdResp: {
       customId?: string;
     };
@@ -3893,6 +4771,11 @@ export interface components {
       lastPage: number;
       data: components['schemas']['PracticeTestResp'][];
     };
+    /** @description FCM 상태 응답 */
+    FcmStatusResp: {
+      /** @description Firebase 초기화 상태 */
+      initialized?: boolean;
+    };
     PageRespConceptResp: {
       /** Format: int32 */
       page: number;
@@ -3910,6 +4793,205 @@ export interface components {
       /** Format: int32 */
       lastPage: number;
       data: components['schemas']['ConceptCategoryResp'][];
+    };
+    /** @description 디바이스별 통계 */
+    FeatureStat: {
+      /** @description 기능 이름 */
+      featureName?: string;
+      /**
+       * Format: int64
+       * @description 사용 횟수
+       */
+      count?: number;
+      /**
+       * Format: double
+       * @description 비율 (0-100)
+       */
+      percentage?: number;
+    };
+    /** @description 디바이스별 첫 기능 사용 통계 */
+    FirstFeatureStatResp: {
+      /** @description 디바이스별 통계 */
+      deviceStats?: {
+        [key: string]: components['schemas']['FeatureStat'][];
+      };
+    };
+    /** @description 일별 데이터 */
+    DailyCount: {
+      /**
+       * Format: date
+       * @description 날짜
+       */
+      date?: string;
+      /**
+       * Format: int64
+       * @description 풀이 수
+       */
+      count?: number;
+    };
+    /** @description 일별 문제 풀이 수 응답 */
+    DailySolveCountResp: {
+      /**
+       * Format: int64
+       * @description 학생 ID
+       */
+      studentId?: number;
+      /**
+       * Format: date
+       * @description 조회 시작 날짜
+       */
+      startDate?: string;
+      /**
+       * Format: date
+       * @description 조회 종료 날짜
+       */
+      endDate?: string;
+      /**
+       * Format: int64
+       * @description 총 풀이 수
+       */
+      totalCount?: number;
+      /**
+       * Format: double
+       * @description 일평균 풀이 수
+       */
+      averagePerDay?: number;
+      /**
+       * Format: double
+       * @description 표준편차
+       */
+      standardDeviation?: number;
+      /** @description 일별 데이터 */
+      dailyCounts?: components['schemas']['DailyCount'][];
+    };
+    /** @description 개념태그별 정답/오답 히스토리 */
+    ConceptHistoryResp: {
+      /**
+       * Format: int64
+       * @description 학생 ID
+       */
+      studentId?: number;
+      /** @description 개념별 히스토리 */
+      conceptStats?: components['schemas']['ConceptStat'][];
+    };
+    /** @description 개념별 히스토리 */
+    ConceptStat: {
+      /**
+       * Format: int64
+       * @description 개념 ID
+       */
+      conceptId?: number;
+      /** @description 개념 이름 */
+      conceptName?: string;
+      /**
+       * Format: int32
+       * @description 총 시도 횟수
+       */
+      totalAttempts?: number;
+      /**
+       * Format: int32
+       * @description 정답 횟수
+       */
+      correctCount?: number;
+      /**
+       * Format: int32
+       * @description 오답 횟수
+       */
+      incorrectCount?: number;
+      /**
+       * Format: double
+       * @description 정답률 (0-100)
+       */
+      correctRate?: number;
+      /**
+       * Format: date
+       * @description 최근 시도 날짜
+       */
+      lastAttemptDate?: string;
+    };
+    /** @description 세트별 완료율 응답 */
+    CompletionRateResp: {
+      /**
+       * Format: int64
+       * @description 문제 세트 ID
+       */
+      problemSetId?: number;
+      /** @description 세트 제목 */
+      title?: string;
+      /**
+       * Format: int32
+       * @description 총 문제 수
+       */
+      totalProblems?: number;
+      /** @description 학생별 완료율 */
+      studentRates?: components['schemas']['StudentCompletionRate'][];
+    };
+    /** @description 학생별 완료율 */
+    StudentCompletionRate: {
+      /**
+       * Format: int64
+       * @description 학생 ID
+       */
+      studentId?: number;
+      /** @description 학생 이름 */
+      studentName?: string;
+      /**
+       * Format: int32
+       * @description 완료한 문제 수
+       */
+      completedCount?: number;
+      /**
+       * Format: double
+       * @description 완료율 (0-100)
+       */
+      completionRate?: number;
+    };
+    /** @description 접속 통계 응답 */
+    AccessStatResp: {
+      /**
+       * Format: date
+       * @description 조회 시작 날짜
+       */
+      startDate?: string;
+      /**
+       * Format: date
+       * @description 조회 종료 날짜
+       */
+      endDate?: string;
+      /**
+       * Format: int64
+       * @description 총 접속 수
+       */
+      totalAccess?: number;
+      /**
+       * Format: int64
+       * @description 고유 사용자 수
+       */
+      uniqueUsers?: number;
+      /** @description 일별 접속 수 */
+      dailyAccess?: components['schemas']['DailyAccess'][];
+      /** @description 요일별 접속 비율 */
+      dayOfWeekRatio?: {
+        [key: string]: number;
+      };
+    };
+    /** @description 일별 접속 수 */
+    DailyAccess: {
+      /**
+       * Format: date
+       * @description 날짜
+       */
+      date?: string;
+      /**
+       * Format: int64
+       * @description 접속 수
+       */
+      count?: number;
+      /**
+       * Format: int64
+       * @description 고유 사용자 수
+       */
+      uniqueUsers?: number;
     };
     ScrapBatchDeleteRequest: {
       /** @description 삭제할 항목 목록 (폴더/스크랩 혼합) */
@@ -3935,6 +5017,15 @@ export interface components {
        */
       pointingId: number;
     };
+    ErrorResp: {
+      code?: string;
+      message?: string;
+      path?: string;
+      /** Format: date-time */
+      timestamp?: string;
+      rootCause?: string;
+      stackTrace?: string[];
+    };
   };
   responses: never;
   parameters: never;
@@ -3944,6 +5035,32 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  updateStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['QnAStatusUpdateDTO'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
+        };
+      };
+    };
+  };
   updateChat: {
     parameters: {
       query?: never;
@@ -4035,6 +5152,50 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  getPushSettings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['TeacherPushDTO.SettingsResponse'];
+        };
+      };
+    };
+  };
+  updatePushSettings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TeacherPushDTO.UpdateSettingsRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['TeacherPushDTO.SettingsResponse'];
+        };
       };
     };
   };
@@ -4424,6 +5585,32 @@ export interface operations {
       };
     };
   };
+  updateStatus_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['QnAStatusUpdateDTO'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
+        };
+      };
+    };
+  };
   updateChat_1: {
     parameters: {
       query?: never;
@@ -4538,6 +5725,50 @@ export interface operations {
       };
     };
   };
+  getPushSettings_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentPushDTO.SettingsResponse'];
+        };
+      };
+    };
+  };
+  updatePushSettings_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentPushDTO.UpdateSettingsRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentPushDTO.SettingsResponse'];
+        };
+      };
+    };
+  };
   update_3: {
     parameters: {
       query?: never;
@@ -4586,6 +5817,32 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['TeacherResp'];
+        };
+      };
+    };
+  };
+  updateStatus_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        qnaId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['QnAStatusUpdateDTO'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['QnAResp'];
         };
       };
     };
@@ -4993,12 +6250,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description OK */
+      /** @description 삭제 성공 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description 사용 중인 개념태그는 삭제할 수 없음 */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResp'];
+        };
       };
     };
   };
@@ -5039,12 +6305,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description OK */
+      /** @description 삭제 성공 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description 사용 중인 대분류는 삭제할 수 없음 */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ErrorResp'];
+        };
       };
     };
   };
@@ -5738,6 +7013,30 @@ export interface operations {
       };
     };
   };
+  initPushSettings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentPushDTO.InitPushRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentPushDTO.SettingsResponse'];
+        };
+      };
+    };
+  };
   toggleAllowPush_1: {
     parameters: {
       query?: never;
@@ -5779,6 +7078,28 @@ export interface operations {
         content: {
           '*/*': components['schemas']['StudentResp'];
         };
+      };
+    };
+  };
+  submitFeedback: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FeedbackDTO.Request'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -5854,6 +7175,96 @@ export interface operations {
       };
     };
   };
+  quit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['WithdrawDTO.Request'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  resetPassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PasswordResetDTO.ResetPasswordRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  verifyPasswordResetCode: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PasswordResetDTO.VerifyCodeRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['BooleanResp'];
+        };
+      };
+    };
+  };
+  sendPasswordResetCode: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PasswordResetDTO.SendCodeRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   getSocialLoginUrl: {
     parameters: {
       query?: never;
@@ -5874,6 +7285,30 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['SocialLoginUrlResp'];
+        };
+      };
+    };
+  };
+  login_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentLoginReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudentTokenResp'];
         };
       };
     };
@@ -5971,6 +7406,35 @@ export interface operations {
         content: {
           '*/*': components['schemas']['SimpleSuccessResp'];
         };
+      };
+    };
+  };
+  collectEvents: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UserEventBatchRequest'];
+      };
+    };
+    responses: {
+      /** @description 이벤트 저장 성공 */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description 잘못된 요청 (검증 실패) */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -6194,6 +7658,76 @@ export interface operations {
       };
     };
   };
+  getChildren: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        parentId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespProblemInfoResp'];
+        };
+      };
+    };
+  };
+  addChild: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        parentId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ProblemCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemInfoResp'];
+        };
+      };
+    };
+  };
+  removeChildren: {
+    parameters: {
+      query: {
+        childIds: number[];
+      };
+      header?: never;
+      path: {
+        parentId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   createProblemWithChild: {
     parameters: {
       query?: never;
@@ -6412,6 +7946,30 @@ export interface operations {
       };
     };
   };
+  sendTestPush: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FcmTestReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FcmTestResp'];
+        };
+      };
+    };
+  };
   gets_1: {
     parameters: {
       query: {
@@ -6462,6 +8020,7 @@ export interface operations {
     parameters: {
       query?: {
         query?: string;
+        categoryId?: number;
         page?: number;
         size?: number;
       };
@@ -6578,7 +8137,7 @@ export interface operations {
       };
     };
   };
-  login_1: {
+  login_2: {
     parameters: {
       query?: never;
       header?: never;
@@ -7043,6 +8602,50 @@ export interface operations {
       };
     };
   };
+  getEntireProblems: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespProblemEntireResp'];
+        };
+      };
+    };
+  };
+  getEntirePointings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespPointingEntireResp'];
+        };
+      };
+    };
+  };
   getScrap: {
     parameters: {
       query?: never;
@@ -7160,7 +8763,18 @@ export interface operations {
   };
   getScrapsByFolder: {
     parameters: {
-      query?: never;
+      query?: {
+        /**
+         * @description 정렬 옵션 (CREATED_AT: 최신순, NAME: 이름순, TYPE: 유형별)
+         * @example CREATED_AT
+         */
+        sortOption?: 'CREATED_AT' | 'NAME' | 'TYPE' | 'SIMILARITY';
+        /**
+         * @description 정렬 방향 (ASC: 오름차순, DESC: 내림차순)
+         * @example DESC
+         */
+        order?: 'ASC' | 'DESC';
+      };
       header?: never;
       path: {
         folderId: number;
@@ -7176,6 +8790,28 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ListRespScrapListItemResp'];
+        };
+      };
+    };
+  };
+  getScrapInfoByProblem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ProblemScrapInfo'];
         };
       };
     };
@@ -7283,7 +8919,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespUploadFileResp'];
+          '*/*': components['schemas']['ListRespQnaFileResp'];
         };
       };
     };
@@ -7353,7 +8989,10 @@ export interface operations {
   };
   getsAvailable_1: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: number;
+        size?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -7366,7 +9005,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ListRespNoticeResp'];
+          '*/*': components['schemas']['PageRespNoticeResp'];
         };
       };
     };
@@ -7751,6 +9390,26 @@ export interface operations {
       };
     };
   };
+  getStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FcmStatusResp'];
+        };
+      };
+    };
+  };
   issueTemporaryToken: {
     parameters: {
       query: {
@@ -7774,25 +9433,176 @@ export interface operations {
       };
     };
   };
-  emptyTrash: {
+  getFirstFeatureStats: {
     parameters: {
-      query?: never;
+      query: {
+        /** @description 시작 날짜 (YYYY-MM-DD) */
+        startDate: string;
+        /** @description 종료 날짜 (YYYY-MM-DD) */
+        endDate: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description OK */
+      /** @description 조회 성공 */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          '*/*': components['schemas']['FirstFeatureStatResp'];
+        };
+      };
+      /** @description 잘못된 날짜 범위 */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FirstFeatureStatResp'];
+        };
       };
     };
   };
-  quit: {
+  getDailySolveCount: {
+    parameters: {
+      query: {
+        /** @description 시작 날짜 (YYYY-MM-DD) */
+        startDate: string;
+        /** @description 종료 날짜 (YYYY-MM-DD) */
+        endDate: string;
+      };
+      header?: never;
+      path: {
+        /** @description 학생 ID */
+        studentId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 조회 성공 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DailySolveCountResp'];
+        };
+      };
+      /** @description 잘못된 날짜 범위 */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DailySolveCountResp'];
+        };
+      };
+      /** @description 권한 없음 */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DailySolveCountResp'];
+        };
+      };
+    };
+  };
+  getConceptHistory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description 학생 ID */
+        studentId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 조회 성공 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ConceptHistoryResp'];
+        };
+      };
+    };
+  };
+  getCompletionRate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description 문제 세트 ID */
+        problemSetId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 조회 성공 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['CompletionRateResp'];
+        };
+      };
+      /** @description 문제 세트를 찾을 수 없음 */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['CompletionRateResp'];
+        };
+      };
+    };
+  };
+  getAccessStats: {
+    parameters: {
+      query: {
+        /** @description 시작 날짜 (YYYY-MM-DD) */
+        startDate: string;
+        /** @description 종료 날짜 (YYYY-MM-DD) */
+        endDate: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 조회 성공 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AccessStatResp'];
+        };
+      };
+      /** @description 잘못된 날짜 범위 */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AccessStatResp'];
+        };
+      };
+    };
+  };
+  emptyTrash: {
     parameters: {
       query?: never;
       header?: never;

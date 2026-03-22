@@ -3496,7 +3496,10 @@ export interface components {
        * @description 발행(숙제) ID
        */
       publishId?: number;
-      isUnderstood: boolean;
+      /** @description 질문 이해 여부 */
+      isQuestionUnderstood?: boolean;
+      /** @description 해설 이해 여부 */
+      isCommentUnderstood?: boolean;
       /**
        * Format: int64
        * @description 포인팅에 머무른 시간 (밀리초)
@@ -4024,7 +4027,8 @@ export interface components {
       questionContent: string;
       commentContent: string;
       concepts: components['schemas']['ConceptResp'][];
-      isUnderstood?: boolean;
+      isQuestionUnderstood?: boolean;
+      isCommentUnderstood?: boolean;
       isScrapped?: boolean;
     };
     ProblemRef: {
@@ -4444,7 +4448,8 @@ export interface components {
       questionContent: string;
       commentContent: string;
       concepts: components['schemas']['ConceptResp'][];
-      isUnderstood?: boolean;
+      isQuestionUnderstood?: boolean;
+      isCommentUnderstood?: boolean;
       isScrapped?: boolean;
     };
     ListRespTrashItemResp: {
