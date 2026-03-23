@@ -191,7 +191,7 @@ export const screens = {
 export const shadow = {
   // Normal
   100: {
-    shadowColor: '#1E1E21',
+    shadowColor: '#0C0C0D',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -234,7 +234,7 @@ export const shadow = {
   },
   // Bottom Sheet
   bottomsheet: {
-    shadowColor: '#1E1E21',
+    shadowColor: '#0C0C0D',
     shadowOffset: { width: 0, height: -1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
