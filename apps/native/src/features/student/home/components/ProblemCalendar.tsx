@@ -10,16 +10,19 @@ import {
   CalendarInProgressIcon,
   CalendarNotStartedIcon,
   CalendarUnavailableIcon,
-  ChevronDownFilledIcon,
 } from '@components/system/icons';
 import { AnimatedPressable } from '@components/common';
 import { type components } from '@schema';
+
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { colors } from '@theme/tokens';
 
 type PublishResp = components['schemas']['PublishResp'];
 type CalendarProgress = 'completed' | 'inprogress' | 'notstarted' | 'unavailable';
 
 interface CalendarDateProps {
   date: number;
+  dayOfWeek: number;
   progress: CalendarProgress;
   isSelected?: boolean;
   disabled?: boolean;
@@ -49,39 +52,65 @@ const formatDateKey = (date: Date) => {
 
 interface CalendarHeaderProps {
   label: string;
+  onPrevMonth: () => void;
+  onNextMonth: () => void;
   onSelectMonth: () => void;
   onSelectToday: () => void;
 }
 
-const CalendarHeader = ({ label, onSelectMonth, onSelectToday }: CalendarHeaderProps) => (
-  <View className='flex-row items-center justify-between border-b border-gray-400 px-[20px] py-[8px]'>
-    <AnimatedPressable className='flex-row items-center' onPress={onSelectMonth}>
-      <Text className='text-20b mr-[4px] text-gray-900'>{label}</Text>
-      <View className='p-[4px]'>
-        <ChevronDownFilledIcon />
-      </View>
-    </AnimatedPressable>
-    <AnimatedPressable
-      className='ml-auto h-[32px] items-center justify-center rounded-[8px] bg-gray-300 px-[8px]'
-      onPress={onSelectToday}>
-      <Text className='text-14m text-gray-700'>오늘</Text>
-    </AnimatedPressable>
+const CalendarHeader = ({
+  label,
+  onPrevMonth,
+  onNextMonth,
+  onSelectMonth,
+  onSelectToday,
+}: CalendarHeaderProps) => (
+  <View className='h-14 flex-row items-center border-b border-gray-400 px-3'>
+    <View className='flex-1' />
+    <View className='flex-row items-center gap-1'>
+      <AnimatedPressable className='size-12 items-end justify-center p-1' onPress={onPrevMonth}>
+        <ChevronLeft size={20} color={colors['gray-700']} />
+      </AnimatedPressable>
+      <AnimatedPressable className='flex-row items-center' onPress={onSelectMonth}>
+        <Text className='typo-title-2-bold text-black'>{label}</Text>
+      </AnimatedPressable>
+      <AnimatedPressable className='size-12 items-start justify-center p-1' onPress={onNextMonth}>
+        <ChevronRight size={20} color={colors['gray-700']} />
+      </AnimatedPressable>
+    </View>
+    <View className='flex-1 items-end'>
+      <AnimatedPressable
+        className='h-9 items-center justify-center rounded-lg bg-gray-300 px-3'
+        onPress={onSelectToday}>
+        <Text className='typo-label-medium text-gray-700'>오늘</Text>
+      </AnimatedPressable>
+    </View>
   </View>
 );
 
+const getDayOfWeekColor = (dayOfWeek: number, isSelected: boolean) => {
+  if (isSelected) return 'text-primary-600';
+  if (dayOfWeek === 6) return 'text-blue-500'; // Saturday
+  if (dayOfWeek === 0) return 'text-red-500'; // Sunday
+  return 'text-gray-800';
+};
+
 const CalendarDate = ({
   date,
+  dayOfWeek,
   progress,
   isSelected = false,
   disabled = false,
 }: CalendarDateProps) => {
   const Icon = CalendarProgressIcon[progress];
+  const dateColor = getDayOfWeekColor(dayOfWeek, isSelected);
   return (
     <View
-      className={`flex-col items-center justify-center overflow-hidden rounded-[12px] ${isSelected ? 'border-primary-200 border' : ''} ${disabled ? 'opacity-30' : ''}`}>
-      <View className={`px-[12px] py-[3px] ${isSelected ? 'bg-blue-200' : ''}`}>
+      className={`h-[66px] w-[54px] flex-col items-center justify-center overflow-hidden rounded-xl ${isSelected ? 'border-primary-200 border' : ''} ${disabled ? 'opacity-30' : ''}`}>
+      <View
+        className={`h-[30px] w-full items-center justify-center ${isSelected ? 'bg-blue-200' : ''}`}>
         <Text
-          className={`w-[30px] text-center ${isSelected ? 'text-16b text-primary-600' : 'text-15r text-gray-800'}`}>
+          className={`w-[30px] text-center ${isSelected ? 'typo-heading-2-bold' : 'typo-body-1-regular'} ${dateColor}`}>
           {date}
         </Text>
       </View>
@@ -96,13 +125,13 @@ const CalendarLegend = () => {
   return (
     <View className='flex flex-row items-center justify-end px-[30px]'>
       <CalendarCompletedIcon width={20} height={20} />
-      <Text className='text-14m mr-[16px] ml-[4px] text-gray-900'>풀이 완료</Text>
+      <Text className='typo-label-medium mr-4 ml-1 text-gray-800'>풀이 완료</Text>
       <CalendarInProgressIcon width={20} height={20} />
-      <Text className='text-14m mr-[16px] ml-[4px] text-gray-900'>진행 중</Text>
+      <Text className='typo-label-medium mr-4 ml-1 text-gray-800'>진행 중</Text>
       <CalendarNotStartedIcon width={20} height={20} />
-      <Text className='text-14m mr-[16px] ml-[4px] text-gray-900'>시작 전</Text>
+      <Text className='typo-label-medium mr-4 ml-1 text-gray-800'>시작 전</Text>
       <CalendarUnavailableIcon width={20} height={20} />
-      <Text className='text-14m ml-[4px] text-gray-900'>미출제</Text>
+      <Text className='typo-label-medium ml-1 text-gray-800'>미출제</Text>
     </View>
   );
 };
@@ -123,11 +152,11 @@ interface CalendarProps {
 
 const Calendar = ({ cells, onSelectDate }: CalendarProps) => {
   return (
-    <View className='flex flex-row flex-wrap gap-y-[8px] p-[20px]'>
-      {WEEK_DAYS.map((day) => (
+    <View className='flex flex-row flex-wrap gap-y-2 p-5'>
+      {WEEK_DAYS.map((day, index) => (
         <Text
           key={day}
-          className='text-16r mb-[8px] text-center text-gray-600'
+          className={`typo-body-1-medium mb-3 text-center ${index === 5 ? 'text-blue-500' : index === 6 ? 'text-red-500' : 'text-gray-700'}`}
           style={{ width: `${100 / 7}%` }}>
           {day}
         </Text>
@@ -141,6 +170,7 @@ const Calendar = ({ cells, onSelectDate }: CalendarProps) => {
           onPress={() => onSelectDate(cell.date)}>
           <CalendarDate
             date={cell.label}
+            dayOfWeek={cell.date.getDay()}
             progress={cell.progress}
             isSelected={cell.isSelected}
             disabled={cell.disabled}
@@ -216,6 +246,16 @@ const ProblemCalendar = ({
 
   const handleSelectToday = () => {
     applyDateSelection(new Date());
+  };
+
+  const handlePrevMonth = () => {
+    const prev = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1);
+    onChangeMonth(prev);
+  };
+
+  const handleNextMonth = () => {
+    const next = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1);
+    onChangeMonth(next);
   };
 
   const pickerValue = new Date(
@@ -303,14 +343,14 @@ const ProblemCalendar = ({
 
   const monthLabel = `${selectedMonth.getFullYear()}년 ${selectedMonth.getMonth() + 1}월`;
 
-  const containerClassName = isModal
-    ? ''
-    : 'rounded-[12px] bg-white p-[20px] shadow-[0px_4px_4px_-4px_rgba(12,12,13,0.05),_0px_16px_32px_-4px_rgba(12,12,13,0.10)] md:flex-1 md:basis-1/2';
+  const containerClassName = isModal ? '' : 'rounded-[14px] bg-white md:flex-1 md:basis-1/2';
 
   return (
     <View className={containerClassName}>
       <CalendarHeader
         label={monthLabel}
+        onPrevMonth={handlePrevMonth}
+        onNextMonth={handleNextMonth}
         onSelectMonth={handleOpenMonthPicker}
         onSelectToday={handleSelectToday}
       />
@@ -337,16 +377,16 @@ const ProblemCalendar = ({
                 ) : (
                   <input
                     type='month'
-                    className='text-16r w-full rounded-[8px] border border-gray-200 px-[12px] py-[10px] text-gray-900 outline-none'
+                    className='typo-body-1-regular w-full rounded-[8px] border border-gray-200 px-[12px] py-[10px] text-gray-900 outline-none'
                     value={`${webPickerDate.getFullYear()}-${String(webPickerDate.getMonth() + 1).padStart(2, '0')}`}
                     onChange={handleWebInputChange}
                   />
                 )}
               </View>
               <AnimatedPressable
-                className='bg-primary-500 mt-[12px] rounded-[8px] px-[16px] py-[10px]'
+                className='bg-primary-500 mt-5 h-[50px] items-center justify-center rounded-lg'
                 onPress={isWeb ? handleConfirmWebPicker : handleClosePicker}>
-                <Text className='text-14m text-center text-white'>완료</Text>
+                <Text className='typo-body-1-medium text-center text-white'>완료</Text>
               </AnimatedPressable>
             </View>
           </View>

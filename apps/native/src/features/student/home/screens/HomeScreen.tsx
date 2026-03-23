@@ -157,7 +157,7 @@ const HomeScreen = () => {
               className='absolute inset-0'
               onPress={() => setIsCalendarModalVisible(false)}
             />
-            <View className='mx-[20px] w-full max-w-[600px] rounded-[20px] bg-white'>
+            <View className='mx-5 w-full max-w-[540px] rounded-[14px] bg-white'>
               {/* Modal Header */}
               <AnimatedPressable
                 onPress={() => setIsCalendarModalVisible(false)}
@@ -181,8 +181,8 @@ const HomeScreen = () => {
                   setIsCalendarModalVisible(false);
                   // Navigate to problem set if available
                 }}
-                className='bg-primary-500 m-[20px] rounded-[8px] p-[12px]'>
-                <Text className='text-16m text-center text-white'>
+                className='bg-primary-500 m-5 h-[50px] items-center justify-center rounded-lg px-5'>
+                <Text className='typo-body-1-medium text-center text-white'>
                   {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일 문제 세트로 이동
                 </Text>
               </AnimatedPressable>
