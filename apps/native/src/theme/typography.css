@@ -1,0 +1,129 @@
+@layer components {
+  /* ============================================================
+   * Typography Utility Classes (typo-*)
+   *
+   * These classes encapsulate responsive typography.
+   * Mobile styles apply by default; tablet overrides at md (740px).
+   * Use these instead of text-* tokens directly.
+   * ============================================================ */
+
+  /* Display 1 */
+  .typo-display-1-bold {
+    @apply text-display-1-bold;
+  }
+
+  /* Title 1 */
+  .typo-title-1-bold {
+    @apply text-title-1-bold;
+  }
+  .typo-title-1-semibold {
+    @apply text-title-1-semibold;
+  }
+
+  /* Title 2 */
+  .typo-title-2-bold {
+    @apply text-title-2-bold;
+  }
+  .typo-title-2-semibold {
+    @apply text-title-2-semibold;
+  }
+
+  /* Heading 1 */
+  .typo-heading-1-bold {
+    @apply text-heading-1-bold;
+  }
+  .typo-heading-1-semibold {
+    @apply text-heading-1-semibold;
+  }
+
+  /* Heading 2 */
+  .typo-heading-2-bold {
+    @apply text-heading-2-bold;
+  }
+  .typo-heading-2-semibold {
+    @apply text-heading-2-semibold;
+  }
+
+  /* Body 1 */
+  .typo-body-1-medium {
+    @apply text-body-1-medium;
+  }
+  .typo-body-1-regular {
+    @apply text-body-1-regular;
+  }
+
+  /* Body 2 (tablet = mobile) */
+  .typo-body-2-medium {
+    @apply text-body-2-medium;
+  }
+  .typo-body-2-regular {
+    @apply text-body-2-regular;
+  }
+
+  /* Label 1 (tablet = mobile) */
+  .typo-label-1-semibold {
+    @apply text-label-1-semibold;
+  }
+  .typo-label-1-medium {
+    @apply text-label-1-medium;
+  }
+
+  /* Caption (tablet = mobile) */
+  .typo-caption-medium {
+    @apply text-caption-medium;
+  }
+  .typo-caption-regular {
+    @apply text-caption-regular;
+  }
+}
+
+/* ============================================================
+ * Tablet Overrides (md: 740px+)
+ * Only for tokens where tablet specs differ from mobile.
+ * ============================================================ */
+@media (min-width: 740px) {
+  /* Display 1 */
+  .typo-display-1-bold {
+    @apply text-display-1-bold-tablet;
+  }
+
+  /* Title 1 */
+  .typo-title-1-bold {
+    @apply text-title-1-bold-tablet;
+  }
+  .typo-title-1-semibold {
+    @apply text-title-1-semibold-tablet;
+  }
+
+  /* Title 2 */
+  .typo-title-2-bold {
+    @apply text-title-2-bold-tablet;
+  }
+  .typo-title-2-semibold {
+    @apply text-title-2-semibold-tablet;
+  }
+
+  /* Heading 1 */
+  .typo-heading-1-bold {
+    @apply text-heading-1-bold-tablet;
+  }
+  .typo-heading-1-semibold {
+    @apply text-heading-1-semibold-tablet;
+  }
+
+  /* Heading 2 */
+  .typo-heading-2-bold {
+    @apply text-heading-2-bold-tablet;
+  }
+  .typo-heading-2-semibold {
+    @apply text-heading-2-semibold-tablet;
+  }
+
+  /* Body 1 */
+  .typo-body-1-medium {
+    @apply text-body-1-medium-tablet;
+  }
+  .typo-body-1-regular {
+    @apply text-body-1-regular-tablet;
+  }
+}
