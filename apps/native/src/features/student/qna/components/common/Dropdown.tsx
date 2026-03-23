@@ -85,8 +85,6 @@ const Dropdown = <T extends string>({
                   minWidth: buttonLayout?.width,
                 }}
                 className='rounded-[8px] bg-white py-[4px] shadow-lg'
-                // Shadow for iOS
-                // eslint-disable-next-line react-native/no-inline-styles
                 pointerEvents='auto'>
                 {options.map((option, index) => {
                   const isSelected = option.value === value;

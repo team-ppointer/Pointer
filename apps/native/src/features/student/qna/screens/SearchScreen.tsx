@@ -106,25 +106,27 @@ const SearchScreen = () => {
         onCancel={handleCancel}
       />
 
-      {isLoading || isFetching ? (
+      {(isLoading || isFetching) && (
         <View className='flex-1 items-center justify-center'>
           <ActivityIndicator size='large' />
         </View>
-      ) : (hasSearched ? (
+      )}
+      {!(isLoading || isFetching) && hasSearched && (
         <SearchResults
           chatRooms={searchResults.chatRooms}
           messages={searchResults.messages}
           onSelectChatRoom={handleSelectChatRoom}
           onSelectMessage={handleSelectMessage}
         />
-      ) : (
+      )}
+      {!(isLoading || isFetching) && !hasSearched && (
         <RecentSearches
           searches={recentSearches}
           onSelect={handleSelectRecentSearch}
           onRemove={handleRemoveRecentSearch}
           onClearAll={handleClearAllRecentSearches}
         />
-      ))}
+      )}
     </View>
   );
 };

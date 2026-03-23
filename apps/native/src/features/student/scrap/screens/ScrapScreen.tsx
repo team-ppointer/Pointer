@@ -155,8 +155,8 @@ const ScrapScreenContent = () => {
               dispatch({ type: 'CLEAR_SELECTION' });
               // 스크랩 삭제 후 쿼리 refetch → useScrapStoreSync가 자동으로 store 정리
               showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-            } catch (error: any) {
-              showToast('error', error.message);
+            } catch (error: unknown) {
+              showToast('error', error instanceof Error ? error.message : '삭제에 실패했습니다.');
             }
           },
         }}

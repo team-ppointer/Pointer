@@ -38,8 +38,6 @@ import { colors } from '@/theme/tokens';
 
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
 import DrawingCanvas, { type DrawingCanvasRef } from '../utils/skia/drawing';
-
-// Components
 import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
 import { TabNavigator } from '../components/scrap/TabNavigator';
 import { FilterBar } from '../components/scrap/FilterBar';
@@ -48,13 +46,9 @@ import { AnalysisSection } from '../components/scrap/AnalysisSection';
 import { PointingsList } from '../components/scrap/PointingsList';
 import { DrawingToolbar } from '../components/scrap/DrawingToolbar';
 import { ProblemExpansionModal } from '../components/scrap/ProblemExpansionModal';
-
-// Hooks
 import { useDrawingState } from '../hooks/useDrawingState';
 import { useHandwritingManager } from '../hooks/useHandwritingManager';
 import { useScrapUIState } from '../hooks/useScrapUIState';
-
-// Utils
 import { convertScrapToGroup, mergeTipTapDocs } from '../utils/scrapTransformers';
 import {
   generateFilterOptions,

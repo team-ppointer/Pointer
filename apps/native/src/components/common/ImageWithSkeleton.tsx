@@ -95,7 +95,8 @@ const ImageWithSkeletonComponent = ({
 
   // source 배열에서 이미지 URL 추출 (메모이제이션)
   const imageUrls = useMemo(() => {
-    const sourceArray = isSourceArray ? source : source ? [source] : [];
+    const nonArraySource = source ? [source] : [];
+    const sourceArray = isSourceArray ? source : nonArraySource;
     return sourceArray
       .map((s) => {
         if (typeof s === 'object' && s && 'uri' in s) {

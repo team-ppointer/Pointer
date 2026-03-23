@@ -30,4 +30,6 @@ const CalendarCompletedIcon = React.forwardRef<React.ComponentRef<typeof Svg>, L
   }
 ) as LucideIcon;
 
+CalendarCompletedIcon.displayName = 'CalendarCompletedIcon';
+
 export default CalendarCompletedIcon;

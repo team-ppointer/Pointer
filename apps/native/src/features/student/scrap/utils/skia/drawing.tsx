@@ -63,7 +63,7 @@ type Props = {
   eraserMode?: boolean;
   eraserSize?: number;
   textMode?: boolean;
-  textFontPath?: any; // Skia에서 사용할 폰트 파일 경로 (require로 전달)
+  textFontPath?: number; // Skia에서 사용할 폰트 파일 경로 (require로 전달)
 };
 
 const deepCopyStrokes = (strokes: Stroke[]): Stroke[] =>
@@ -236,7 +236,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         // 캐시 확인
         const cacheKey = `${text}-${maxTextWidth}`;
         if (textLineCountCache.current.has(cacheKey)) {
-          return textLineCountCache.current.get(cacheKey)!;
+          return textLineCountCache.current.get(cacheKey) ?? 1;
         }
 
         let totalLines = 0;
@@ -1279,6 +1279,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     );
   }
 );
+
+DrawingCanvas.displayName = 'DrawingCanvas';
 
 const styles = StyleSheet.create({
   scrollView: {

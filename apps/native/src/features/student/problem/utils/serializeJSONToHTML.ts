@@ -1,11 +1,11 @@
 type JSONMark = {
   type: string;
-  attrs?: Record<string, any>;
+  attrs?: Record<string, unknown>;
 };
 
 type JSONNode = {
   type: string;
-  attrs?: Record<string, any>;
+  attrs?: Record<string, unknown>;
   content?: JSONNode[];
   text?: string;
   marks?: JSONMark[];
@@ -35,7 +35,7 @@ function renderMarks(text: string, marks?: JSONMark[]): string {
       case 'highlight': {
         const color = mark.attrs?.color;
         if (!color) return acc;
-        const escColor = escapeAttr(color);
+        const escColor = escapeAttr(String(color));
         return `<mark data-color="${escColor}" style="background-color: ${escColor}; color: inherit;">${acc}</mark>`;
       }
       default:
@@ -46,7 +46,7 @@ function renderMarks(text: string, marks?: JSONMark[]): string {
 
 function serializeImage(node: JSONNode): string {
   const attrs = node.attrs ?? {};
-  const src = attrs.src ?? '';
+  const src = String(attrs.src ?? '');
   const altRaw = (attrs.alt ?? '').toString().trim();
   const titleRaw = (attrs.title ?? '').toString().trim();
 
@@ -64,7 +64,7 @@ function serializeImage(node: JSONNode): string {
   )}" title="${escapeAttr(title)}"${widthAttr}${heightAttr}>`;
 }
 
-function areAttrsEqual(a?: Record<string, any>, b?: Record<string, any>): boolean {
+function areAttrsEqual(a?: Record<string, unknown>, b?: Record<string, unknown>): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
   const keysA = Object.keys(a).sort();
@@ -92,7 +92,7 @@ function getInlineNodeContent(node: JSONNode): string {
     return escapeHtml(node.text ?? '');
   }
   if (node.type === 'inlineMath') {
-    const latex = node.attrs?.latex ?? '';
+    const latex = String(node.attrs?.latex ?? '');
     return `<span data-latex="${escapeAttr(latex)}" data-type="inline-math"></span>`;
   }
   if (node.type === 'image') {
@@ -145,7 +145,7 @@ function serializeOrderedList(node: JSONNode): string {
   const start = attrs.start ?? 1;
   const type = attrs.type ?? null;
 
-  const typeAttr = type ? ` type="${escapeAttr(type)}"` : '';
+  const typeAttr = type ? ` type="${escapeAttr(String(type))}"` : '';
   const startAttr = start !== 1 ? ` start="${start}"` : '';
 
   const items = (node.content ?? []).map(serializeListItem).join('');
@@ -155,7 +155,7 @@ function serializeOrderedList(node: JSONNode): string {
 
 function countTableColumns(row: JSONNode): number {
   return (row.content ?? []).reduce((sum, cell) => {
-    const colspan = cell.attrs?.colspan ?? 1;
+    const colspan = Number(cell.attrs?.colspan ?? 1);
     return sum + colspan;
   }, 0);
 }

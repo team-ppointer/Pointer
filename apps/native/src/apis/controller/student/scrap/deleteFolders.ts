@@ -38,11 +38,11 @@ export const useDeleteFolders = () => {
       const previousQueries = queryClient.getQueriesData(searchQueryFilters);
 
       // 낙관적 업데이트: 폴더 목록에서 삭제된 폴더 제거
-      queryClient.setQueryData(folderQueryKey, (old: any) => {
+      queryClient.setQueryData(folderQueryKey, (old: { data?: { id: number }[] } | undefined) => {
         if (!old?.data) return old;
         return {
           ...old,
-          data: old.data.filter((folder: any) => !deletedFolderIds.has(folder.id)),
+          data: old.data.filter((folder: { id: number }) => !deletedFolderIds.has(folder.id)),
         };
       });
 

@@ -115,11 +115,11 @@ const useEmailAuth = (): UseEmailAuthReturn => {
         emailExists: exists,
         step: exists ? 'login' : 'terms',
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       setState((prev) => ({
         ...prev,
         isLoading: false,
-        error: error?.message ?? '이메일 확인 중 오류가 발생했습니다.',
+        error: error instanceof Error ? error.message : '이메일 확인 중 오류가 발생했습니다.',
       }));
     }
   }, [state.email]);
@@ -194,11 +194,11 @@ const useEmailAuth = (): UseEmailAuthReturn => {
         });
 
         setState(initialState);
-      } catch (error: any) {
+      } catch (error: unknown) {
         setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: error?.message ?? '로그인에 실패했습니다.',
+          error: error instanceof Error ? error.message : '로그인에 실패했습니다.',
         }));
       }
     },
@@ -235,11 +235,11 @@ const useEmailAuth = (): UseEmailAuthReturn => {
         });
 
         setState(initialState);
-      } catch (error: any) {
+      } catch (error: unknown) {
         setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: error?.message ?? '회원가입에 실패했습니다.',
+          error: error instanceof Error ? error.message : '회원가입에 실패했습니다.',
         }));
       }
     },

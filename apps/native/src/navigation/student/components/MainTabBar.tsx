@@ -13,10 +13,15 @@ import { colors } from '@/theme/tokens';
 
 import { useTabTransition } from './TabScreenTransition';
 
+type IconProps = {
+  size: number;
+  color: string;
+};
+
 type TabItemProps = {
   isFocused: boolean;
   label: string;
-  IconComponent: React.ComponentType<any> | null;
+  IconComponent: React.ComponentType<IconProps> | null;
   onPress: () => void;
   onLongPress: () => void;
 };
@@ -153,7 +158,7 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
               };
 
               let label = '';
-              let IconComponent: React.ComponentType<any> | null = null;
+              let IconComponent: React.ComponentType<IconProps> | null = null;
 
               switch (route.name) {
                 case 'Home':

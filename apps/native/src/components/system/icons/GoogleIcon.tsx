@@ -216,4 +216,6 @@ const GoogleIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>
   )
 ) as LucideIcon;
 
+GoogleIcon.displayName = 'GoogleIcon';
+
 export default GoogleIcon;

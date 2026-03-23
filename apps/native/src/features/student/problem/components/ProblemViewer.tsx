@@ -10,7 +10,7 @@ async function loadFontAsBase64() {
   const asset = Asset.fromModule(require('@assets/fonts/PretendardVariable.ttf'));
   await asset.downloadAsync();
   const fileUri = asset.localUri || asset.uri;
-  const base64 = await FileSystem.readAsStringAsync(fileUri!, {
+  const base64 = await FileSystem.readAsStringAsync(fileUri ?? '', {
     encoding: 'base64',
   });
 

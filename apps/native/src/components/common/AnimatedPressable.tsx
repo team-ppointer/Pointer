@@ -1,6 +1,7 @@
 import React, { type ReactNode, useRef } from 'react';
 import {
   Animated,
+  type GestureResponderEvent,
   Pressable,
   type PressableProps,
   type StyleProp,
@@ -41,7 +42,7 @@ const AnimatedPressable = ({
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
 
-  const handlePressIn = (e: any) => {
+  const handlePressIn = (e: GestureResponderEvent) => {
     const animations = [
       Animated.timing(opacityAnim, {
         toValue: 0.7,
@@ -65,7 +66,7 @@ const AnimatedPressable = ({
     onPressIn?.(e);
   };
 
-  const handlePressOut = (e: any) => {
+  const handlePressOut = (e: GestureResponderEvent) => {
     const animations = [
       Animated.timing(opacityAnim, {
         toValue: 1,

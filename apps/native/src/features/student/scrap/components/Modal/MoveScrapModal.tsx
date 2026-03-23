@@ -127,8 +127,8 @@ export const MoveScrapModal = () => {
           refetchScrapDetail?.();
           closeMoveScrapModal();
         },
-        onError: (error: any) => {
-          showToast('error', error.message);
+        onError: (error: unknown) => {
+          showToast('error', error instanceof Error ? error.message : '이동에 실패했습니다.');
         },
       }
     );

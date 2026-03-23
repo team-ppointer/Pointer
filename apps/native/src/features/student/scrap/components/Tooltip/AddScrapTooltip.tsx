@@ -1,6 +1,7 @@
 import { Camera, Image, Images, FolderPlus } from 'lucide-react-native';
 import { Alert } from 'react-native';
 import { useState } from 'react';
+import type * as ImagePicker from 'expo-image-picker';
 
 import { useCreateScrapFromImage, useUploadFile } from '@/apis';
 
@@ -35,7 +36,7 @@ export const AddScrapTooltip = ({
   const [isCreating, setIsCreating] = useState(false);
 
   // 이미지 선택 및 업로드 처리
-  const handleImageSelect = async (image: any) => {
+  const handleImageSelect = async (image: ImagePicker.ImagePickerAsset) => {
     if (!image || !image.uri) {
       return;
     }
@@ -53,7 +54,7 @@ export const AddScrapTooltip = ({
       onClose?.();
       refetchScraps?.();
     } catch (error) {
-      showToast('error', (error as any).message || '스크랩 생성에 실패했습니다.');
+      showToast('error', error instanceof Error ? error.message : '스크랩 생성에 실패했습니다.');
     } finally {
       setIsCreating(false);
     }
@@ -64,7 +65,7 @@ export const AddScrapTooltip = ({
       if (error.message?.includes('permission')) {
         showToast('error', '카메라 권한이 필요합니다.');
       } else {
-        showToast('error', (error as any).message);
+        showToast('error', error instanceof Error ? error.message : '오류가 발생했습니다.');
       }
     });
 
@@ -78,7 +79,7 @@ export const AddScrapTooltip = ({
       if (error.message?.includes('permission')) {
         showToast('error', '갤러리 권한이 필요합니다.');
       } else {
-        showToast('error', (error as any).message);
+        showToast('error', error instanceof Error ? error.message : '오류가 발생했습니다.');
       }
     });
 

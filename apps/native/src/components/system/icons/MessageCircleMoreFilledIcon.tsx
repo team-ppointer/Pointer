@@ -42,4 +42,6 @@ const MessageCircleMoreFilledIcon = React.forwardRef<React.ComponentRef<typeof S
   }
 ) as LucideIcon;
 
+MessageCircleMoreFilledIcon.displayName = 'MessageCircleMoreFilledIcon';
+
 export default MessageCircleMoreFilledIcon;

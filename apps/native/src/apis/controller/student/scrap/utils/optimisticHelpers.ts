@@ -201,6 +201,6 @@ export const rollbackOptimisticUpdate = (
   previousQueries: readonly [queryKey: unknown, data: unknown][]
 ): void => {
   previousQueries.forEach(([queryKey, data]) => {
-    queryClient.setQueryData(queryKey as any, data);
+    queryClient.setQueryData(queryKey as readonly unknown[], data);
   });
 };

@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { StudentRootStackParamList, StudentTabParamList } from '@navigation/student/types';
 import { useGetQnaList, useGetQnaById, useInvalidateQnaData } from '@apis/controller/student/qna';
 import useSubscribeQnaList from '@apis/controller/common/qna/useGetSubscribeQnaList';
+import type { QnAListEvent } from '@apis/controller/common/qna/useGetSubscribeQnaList';
 import { getAccessToken } from '@utils/auth';
 
 import type { ChatRoom as ChatRoomType } from '../types';
@@ -42,7 +43,7 @@ const QnaScreen = () => {
     token: token ?? '',
     enabled: !!token,
     onQnaListEvent: useCallback(
-      (event: import('@apis/controller/common/qna/useGetSubscribeQnaList').QnAListEvent) => {
+      (event: QnAListEvent) => {
         console.log('[QnaScreen] QnA list event received:', event);
         // qna_list 이벤트 수신 시 현재 채팅방 및 리스트 데이터를 invalidate
         // 디바운스 적용: 500ms 내 중복 이벤트는 무시

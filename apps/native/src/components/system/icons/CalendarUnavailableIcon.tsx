@@ -28,4 +28,6 @@ const CalendarUnavailableIcon = React.forwardRef<React.ComponentRef<typeof Svg>,
   }
 ) as LucideIcon;
 
+CalendarUnavailableIcon.displayName = 'CalendarUnavailableIcon';
+
 export default CalendarUnavailableIcon;

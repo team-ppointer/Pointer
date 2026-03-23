@@ -67,27 +67,8 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   const togglePointingScrapMutation = useToggleScrapFromPointing();
 
   const params = route?.params as AllPointingsRouteParams | undefined;
-
-  if (!params) {
-    return (
-      <View className='flex-1'>
-        <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
-          <View className='h-[66px] flex-row items-center justify-between gap-[10px] px-[20px] py-[14px]'>
-            <AnimatedPressable className='p-[8px]' onPress={() => navigation.goBack()}>
-              <ChevronLeftIcon color={colors.black} size={32} />
-            </AnimatedPressable>
-            <Text className='text-20b text-primary-600'>포인팅 전체보기</Text>
-            <View className='w-[40px]' />
-          </View>
-          <View className='flex-1 items-center justify-center px-[24px]'>
-            <Text className='text-14m text-gray-600'>포인팅 정보를 불러올 수 없어요.</Text>
-          </View>
-        </SafeAreaView>
-      </View>
-    );
-  }
-
-  const { group, publishAt, problemSetTitle } = params;
+  const group = params?.group;
+  const publishAt = params?.publishAt;
 
   const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
@@ -144,7 +125,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     setScrappedPointingIds(ids);
   }, [scrapStatusData?.scrappedPointingIds]);
 
-  const headerTitle = group.no != null ? `${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
+  const headerTitle = group?.no != null ? `${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
 
   const handleClose = useCallback(() => {
     navigation?.goBack();
@@ -197,6 +178,25 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     },
     [scrappedPointingIds, togglePointingScrapMutation]
   );
+
+  if (!params) {
+    return (
+      <View className='flex-1'>
+        <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
+          <View className='h-[66px] flex-row items-center justify-between gap-[10px] px-[20px] py-[14px]'>
+            <AnimatedPressable className='p-[8px]' onPress={() => navigation.goBack()}>
+              <ChevronLeftIcon color={colors.black} size={32} />
+            </AnimatedPressable>
+            <Text className='text-20b text-primary-600'>포인팅 전체보기</Text>
+            <View className='w-[40px]' />
+          </View>
+          <View className='flex-1 items-center justify-center px-[24px]'>
+            <Text className='text-14m text-gray-600'>포인팅 정보를 불러올 수 없어요.</Text>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
 
   return (
     <View className='flex-1'>

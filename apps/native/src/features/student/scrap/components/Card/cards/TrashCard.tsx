@@ -20,7 +20,7 @@ import { useCardImageSources } from '../../../hooks';
 type TrashCardExtraProps = {
   onPermanentDelete?: (params: {
     items: { id: number; type: 'FOLDER' | 'SCRAP' }[];
-  }) => Promise<any>;
+  }) => Promise<unknown>;
 };
 
 export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
@@ -143,10 +143,8 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
         {state.isSelecting ? (
           cardContent()
         ) : (
-          <TooltipPopover
-            from={cardContent()}
-            onOpenChange={setIsTooltipOpen}
-            children={(close) => (
+          <TooltipPopover from={cardContent()} onOpenChange={setIsTooltipOpen}>
+            {(close) => (
               <TrashItemTooltipBox
                 item={props}
                 onClose={close}
@@ -158,7 +156,7 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
                 }}
               />
             )}
-          />
+          </TooltipPopover>
         )}
       </Pressable>
       <ConfirmationModal

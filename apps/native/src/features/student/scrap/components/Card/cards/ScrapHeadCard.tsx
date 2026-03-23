@@ -36,9 +36,8 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
       {isSelecting ? (
         <View style={{ opacity: 0.5 }}>{addItemContent}</View>
       ) : (
-        <TooltipPopover
-          placement={Placement.BOTTOM}
-          children={(close: () => void) => (
+        <TooltipPopover placement={Placement.BOTTOM} from={addItemContent}>
+          {(close: () => void) => (
             <AddItemTooltipBox
               onClose={close}
               onOpenFolderModal={() => {
@@ -55,8 +54,7 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
               }}
             />
           )}
-          from={addItemContent}
-        />
+        </TooltipPopover>
       )}
     </>
   );

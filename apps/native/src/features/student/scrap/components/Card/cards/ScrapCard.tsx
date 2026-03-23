@@ -114,8 +114,8 @@ export const ScrapCard = (props: ScrapListItemProps & ScrapCardExtraProps) => {
               <View className='shrink-0'>
                 <TooltipPopover
                   from={<ChevronDownFilledIcon size={22} color={colors['gray-700']} />}
-                  triggerBorderRadius={4}
-                  children={(close) => (
+                  triggerBorderRadius={4}>
+                  {(close) => (
                     <ItemTooltipBox
                       props={props}
                       onClose={close}
@@ -128,7 +128,7 @@ export const ScrapCard = (props: ScrapListItemProps & ScrapCardExtraProps) => {
                       }}
                     />
                   )}
-                />
+                </TooltipPopover>
               </View>
             )}
           </View>

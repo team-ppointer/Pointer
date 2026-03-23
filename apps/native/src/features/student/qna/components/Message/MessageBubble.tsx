@@ -576,22 +576,19 @@ const MessageBubble = ({
 
   const renderContent = () => {
     switch (type) {
-      case 'file':
+      case 'file': {
+        const fileUrl = file?.url ?? files?.[0]?.url;
+        const isFileDownloading = fileUrl ? downloadingFiles.has(fileUrl) : false;
         return (
           <FileAttachment
             file={file}
             uploadFile={files?.[0]}
             isMe={isMe}
             onDownload={handleDownload}
-            isDownloading={
-              file?.url
-                ? downloadingFiles.has(file.url)
-                : files?.[0]?.url
-                  ? downloadingFiles.has(files[0].url)
-                  : false
-            }
+            isDownloading={isFileDownloading}
           />
         );
+      }
       case 'image':
         return (
           <ImageMessage

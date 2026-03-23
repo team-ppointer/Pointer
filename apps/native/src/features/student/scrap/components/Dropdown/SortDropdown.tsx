@@ -80,6 +80,13 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
   const backgroundColor = customColors?.background || 'white';
   const itemBackground = customColors?.itemBackground || colors['gray-300'];
 
+  const dataByType: Record<string, typeof orderList> = {
+    LIST: orderList,
+    CONTENT: orderContent,
+    IMAGE: orderImage,
+  };
+  const dropdownData = dataByType[ordertype] ?? orderImage;
+
   return (
     <Dropdown
       style={[
@@ -93,7 +100,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
       itemContainerStyle={styles.itemContainer}
       placeholderStyle={[styles.placeholder, { color: textColor }]}
       selectedTextStyle={[styles.selectedText, { color: textColor }]}
-      data={ordertype === 'LIST' ? orderList : (ordertype === 'CONTENT' ? orderContent : orderImage)}
+      data={dropdownData}
       labelField='label'
       valueField='value'
       value={orderValue}

@@ -151,8 +151,8 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
           throw new Error('인증 코드 전송에 실패했습니다.');
         }
         setStep('forgot-code');
-      } catch (e: any) {
-        setResetError(e?.message ?? '인증 코드 전송에 실패했습니다.');
+      } catch (e: unknown) {
+        setResetError(e instanceof Error ? e.message : '인증 코드 전송에 실패했습니다.');
       } finally {
         setResetLoading(false);
       }
@@ -171,8 +171,8 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
           throw new Error('인증 코드가 올바르지 않습니다.');
         }
         setStep('forgot-reset');
-      } catch (e: any) {
-        setResetError(e?.message ?? '인증 코드 확인에 실패했습니다.');
+      } catch (e: unknown) {
+        setResetError(e instanceof Error ? e.message : '인증 코드 확인에 실패했습니다.');
       } finally {
         setResetLoading(false);
       }
@@ -202,8 +202,8 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
         setPassword('');
         setResetCode('');
         setNewPassword('');
-      } catch (e: any) {
-        setResetError(e?.message ?? '비밀번호 재설정에 실패했습니다.');
+      } catch (e: unknown) {
+        setResetError(e instanceof Error ? e.message : '비밀번호 재설정에 실패했습니다.');
       } finally {
         setResetLoading(false);
       }

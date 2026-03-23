@@ -42,8 +42,8 @@ export const TrashScrapTooltip = ({ item, onClose, onDeletePress }: TrashScrapTo
       });
       showToast('success', '선택된 파일이 복구되었습니다.');
       onClose?.();
-    } catch (error: any) {
-      showToast('error', error.message);
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : '복구에 실패했습니다.');
     }
   };
 

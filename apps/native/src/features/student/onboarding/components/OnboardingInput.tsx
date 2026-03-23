@@ -8,7 +8,15 @@ import {
   useState,
   useCallback,
 } from 'react';
-import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-native';
+import {
+  type NativeSyntheticEvent,
+  Pressable,
+  Text,
+  TextInput,
+  type TextInputProps,
+  type TargetedEvent,
+  View,
+} from 'react-native';
 import { AlertCircle, CircleCheck } from 'lucide-react-native';
 
 import { colors } from '@theme/tokens';
@@ -60,7 +68,7 @@ const OnboardingInput = forwardRef(
     }, [errorMessage, isFocused, successMessage]);
 
     const handleFocus = useCallback(
-      (event: any) => {
+      (event: NativeSyntheticEvent<TargetedEvent>) => {
         setIsFocused(true);
         onFocus?.(event);
       },
@@ -68,7 +76,7 @@ const OnboardingInput = forwardRef(
     );
 
     const handleBlur = useCallback(
-      (event: any) => {
+      (event: NativeSyntheticEvent<TargetedEvent>) => {
         setIsFocused(false);
         onBlur?.(event);
       },

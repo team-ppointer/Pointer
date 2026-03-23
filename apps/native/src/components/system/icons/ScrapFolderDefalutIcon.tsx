@@ -30,4 +30,6 @@ const ScrapFolderDefaultIcon = React.forwardRef<
   );
 });
 
+ScrapFolderDefaultIcon.displayName = 'ScrapFolderDefaultIcon';
+
 export default ScrapFolderDefaultIcon;

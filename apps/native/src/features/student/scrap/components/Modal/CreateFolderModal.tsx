@@ -54,8 +54,8 @@ export const CreateFolderModal = () => {
           { uri: selectedImage.uri, name: fileName, type: selectedImage.mimeType || 'image/jpeg' },
         ]);
         return files[0].id;
-      } catch (error: any) {
-        console.log('error', error.message);
+      } catch (error: unknown) {
+        console.log('error', error instanceof Error ? error.message : error);
       }
     }
     return null;
@@ -85,8 +85,8 @@ export const CreateFolderModal = () => {
       setTimeout(() => {
         showToast('success', '폴더가 추가되었습니다.');
       }, 0);
-    } catch (error: any) {
-      showToast('error', error.message);
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : '폴더 생성에 실패했습니다.');
     } finally {
       setIsCreating(false);
     }

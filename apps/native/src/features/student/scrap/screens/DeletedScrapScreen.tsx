@@ -52,8 +52,8 @@ const DeletedScrapScreenContent = () => {
       dispatch({ type: 'CLEAR_SELECTION' });
       setIsDeleteModalVisible(false);
       showToast('success', '영구 삭제되었습니다.');
-    } catch (error: any) {
-      showToast('error', error.message);
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : '오류가 발생했습니다.');
     }
   };
 
@@ -84,8 +84,8 @@ const DeletedScrapScreenContent = () => {
               });
               dispatch({ type: 'CLEAR_SELECTION' });
               showToast('success', '선택된 파일들이 복구되었습니다.');
-            } catch (error: any) {
-              showToast('error', error.message);
+            } catch (error: unknown) {
+              showToast('error', error instanceof Error ? error.message : '복구에 실패했습니다.');
             }
           },
         }}

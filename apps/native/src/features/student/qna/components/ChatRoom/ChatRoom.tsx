@@ -12,6 +12,7 @@ import {
 import { useUploadFile } from '@apis/controller/common/file';
 import useSubscribeQna from '@apis/controller/common/qna/useGetSubscribeQna';
 import { getAccessToken } from '@utils/auth';
+import type { components } from '@schema';
 
 import type { ChatRoom as ChatRoomType, Message, ChatRoomStatus, QnAResp } from '../../types';
 import { mapQnARespToMessages } from '../../types';
@@ -83,7 +84,7 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
     token: token ?? '',
     enabled: !!qnaId && !!token,
     onChatEvent: useCallback(
-      (event: import('@schema').components['schemas']['QnAChatEvent']) => {
+      (event: components['schemas']['QnAChatEvent']) => {
         console.log('[ChatRoom] Chat event received:', event);
         // Invalidate queries to refresh data
         if (event.qnaId) {
@@ -180,15 +181,6 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
     }
     return messages;
   }, [messages, isPublisher, selectedTab]);
-
-  if (!chatRoom) {
-    return <EmptyState />;
-  }
-
-  // Sender name: "포인터 출제진" for publisher, teacherName for others
-  const senderName = isPublisher ? '포인터 출제진' : chatRoom.teacherName;
-  // Profile image: undefined for publisher (will show default icon), thumbnailUrl for teachers
-  const profileImageUrl = isPublisher ? undefined : chatRoom.thumbnailUrl;
 
   const handleReply = useCallback((message: Message) => {
     setReplyTo(message);
@@ -315,6 +307,15 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
     },
     [qnaId, editingMessage, updateChatMutation, postChatMutation]
   );
+
+  if (!chatRoom) {
+    return <EmptyState />;
+  }
+
+  // Sender name: "포인터 출제진" for publisher, teacherName for others
+  const senderName = isPublisher ? '포인터 출제진' : chatRoom.teacherName;
+  // Profile image: undefined for publisher (will show default icon), thumbnailUrl for teachers
+  const profileImageUrl = isPublisher ? undefined : chatRoom.thumbnailUrl;
 
   const showCommentsOnly = isPublisher && selectedTab === 1;
   const isSending =

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Pressable, type ScrollView } from 'react-native';
+import { View, Text, Pressable, type ScrollView, type LayoutChangeEvent } from 'react-native';
 import { X } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -19,7 +19,7 @@ export interface DraggableTabProps {
   isActive: boolean;
   onPress: () => void;
   onClose: () => void;
-  onLayout: (event: any) => void;
+  onLayout: (event: LayoutChangeEvent) => void;
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   tabLayouts: Record<number, { x: number; width: number }>;
   scrollViewRef: React.RefObject<ScrollView | null>;

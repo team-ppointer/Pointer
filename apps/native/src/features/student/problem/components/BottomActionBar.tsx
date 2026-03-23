@@ -1,6 +1,7 @@
 import React, { type ReactNode, useRef } from 'react';
 import {
   Animated,
+  type GestureResponderEvent,
   type LayoutChangeEvent,
   Pressable,
   type PressableProps,
@@ -54,7 +55,7 @@ const BottomActionBarButton = ({
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
 
-  const handlePressIn = (e: any) => {
+  const handlePressIn = (e: GestureResponderEvent) => {
     Animated.parallel([
       Animated.spring(scaleAnim, {
         toValue: 0.95,
@@ -71,7 +72,7 @@ const BottomActionBarButton = ({
     onPressIn?.(e);
   };
 
-  const handlePressOut = (e: any) => {
+  const handlePressOut = (e: GestureResponderEvent) => {
     Animated.parallel([
       Animated.spring(scaleAnim, {
         toValue: 1,
@@ -88,7 +89,7 @@ const BottomActionBarButton = ({
     onPressOut?.(e);
   };
 
-  const handlePress = (e: any) => {
+  const handlePress = (e: GestureResponderEvent) => {
     // Track button click if buttonId is provided
     if (buttonId) {
       analytics.trackButtonClick(buttonId, buttonLabel, screenName);

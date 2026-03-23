@@ -35,4 +35,6 @@ const PencilFilledIcon = React.forwardRef<React.ComponentRef<typeof Svg>, Lucide
   }
 ) as LucideIcon;
 
+PencilFilledIcon.displayName = 'PencilFilledIcon';
+
 export default PencilFilledIcon;

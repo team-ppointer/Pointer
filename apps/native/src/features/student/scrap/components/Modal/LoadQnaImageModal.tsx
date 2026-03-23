@@ -67,8 +67,8 @@ export const LoadQnaImageModal = () => {
       setTimeout(() => {
         showToast('success', '스크랩이 생성되었습니다.');
       }, 0);
-    } catch (error: any) {
-      showToast('error', error.message);
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : '스크랩 생성에 실패했습니다.');
     } finally {
       setIsCreating(false);
     }
@@ -108,15 +108,17 @@ export const LoadQnaImageModal = () => {
           />
         </Container>
         <Container className='flex-1 py-[10px]'>
-          {isLoading ? (
+          {isLoading && (
             <View className='items-center justify-center'>
               <Text className='text-white'>로딩 중...</Text>
             </View>
-          ) : !qnaAllImagesData?.data || qnaAllImagesData.data.length === 0 ? (
+          )}
+          {!isLoading && (!qnaAllImagesData?.data || qnaAllImagesData.data.length === 0) && (
             <View className='items-center justify-center'>
               <Text className='text-white'>이미지가 없습니다.</Text>
             </View>
-          ) : (
+          )}
+          {!isLoading && qnaAllImagesData?.data && qnaAllImagesData.data.length > 0 && (
             <FlatList
               data={qnaAllImagesData.data}
               keyExtractor={(item) => item.id.toString()}

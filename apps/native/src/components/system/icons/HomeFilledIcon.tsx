@@ -24,4 +24,6 @@ const HomeFilledIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucidePr
   }
 ) as LucideIcon;
 
+HomeFilledIcon.displayName = 'HomeFilledIcon';
+
 export default HomeFilledIcon;

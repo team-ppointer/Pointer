@@ -20,9 +20,9 @@ export const openCameraWithErrorHandling = async (
 ): Promise<ImagePicker.ImagePickerAsset | null> => {
   try {
     return await openCamera();
-  } catch (error: any) {
+  } catch (error: unknown) {
     const handler = onError || defaultErrorHandler;
-    handler(error);
+    handler(error instanceof Error ? error : new Error(String(error)));
     return null;
   }
 };
@@ -33,9 +33,9 @@ export const openImageLibraryWithErrorHandling = async (
 ): Promise<ImagePicker.ImagePickerAsset | null> => {
   try {
     return await openImageLibrary();
-  } catch (error: any) {
+  } catch (error: unknown) {
     const handler = onError || defaultErrorHandler;
-    handler(error);
+    handler(error instanceof Error ? error : new Error(String(error)));
     return null;
   }
 };

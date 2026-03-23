@@ -87,8 +87,8 @@ export const ScrapDetailHeader = ({
               </Text>
               <ChevronDownFilledIcon size={20} color={colors['gray-600']} />
             </View>
-          }
-          children={(close) => (
+          }>
+          {(close) => (
             <TooltipContainer
               height=''
               header={
@@ -141,7 +141,8 @@ export const ScrapDetailHeader = ({
                 isLastItem
               />
             </TooltipContainer>
-          )}></TooltipPopover>
+          )}
+        </TooltipPopover>
       </View>
       <Pressable onPress={onMessagePress}>
         {/* 미구현 <MessageCircleMore size={24} color={'#FFF'} />` */}

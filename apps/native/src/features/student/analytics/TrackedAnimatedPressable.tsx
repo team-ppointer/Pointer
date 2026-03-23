@@ -1,4 +1,5 @@
 import React from 'react';
+import { type GestureResponderEvent } from 'react-native';
 
 import AnimatedPressable from '@/components/common/AnimatedPressable';
 
@@ -35,7 +36,7 @@ const TrackedAnimatedPressable = ({
   onPress,
   ...rest
 }: TrackedAnimatedPressableProps) => {
-  const handlePress = (event: any) => {
+  const handlePress = (event: GestureResponderEvent) => {
     // Track button click
     analytics.trackButtonClick(buttonId, buttonLabel, screenName);
 

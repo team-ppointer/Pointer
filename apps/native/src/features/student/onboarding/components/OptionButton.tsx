@@ -55,11 +55,8 @@ const OptionButton = ({
         borderRadius: 8,
       }}>
       <Text className={`text-14m text-black`}>{label}</Text>
-      {description ? (
-        <Text className='text-14r text-gray-600'>{description}</Text>
-      ) : (rightSlot ? (
-        rightSlot
-      ) : null)}
+      {description && <Text className='text-14r text-gray-600'>{description}</Text>}
+      {!description && rightSlot}
     </AnimatedPressable>
   );
 };
