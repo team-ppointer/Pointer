@@ -33,11 +33,17 @@ const ProblemCalendar = ({
   };
 
   const handlePrevMonth = () => {
-    onChangeMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
+    const prevMonth = selectedMonth.getMonth() - 1;
+    const prevYear = selectedMonth.getFullYear();
+    onChangeMonth(new Date(prevYear, prevMonth, 1));
+    onDateSelect(clampDayToMonth(selectedDate.getDate(), prevYear, prevMonth));
   };
 
   const handleNextMonth = () => {
-    onChangeMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
+    const nextMonth = selectedMonth.getMonth() + 1;
+    const nextYear = selectedMonth.getFullYear();
+    onChangeMonth(new Date(nextYear, nextMonth, 1));
+    onDateSelect(clampDayToMonth(selectedDate.getDate(), nextYear, nextMonth));
   };
 
   const handleSelectToday = () => {
