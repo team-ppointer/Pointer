@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
 import DateTimePicker, {
   DateTimePickerAndroid,
@@ -18,8 +18,6 @@ interface MonthPickerPopoverProps {
 const MonthPickerPopover = ({ value, onSelect, children }: MonthPickerPopoverProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [pendingDate, setPendingDate] = useState(value);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const triggerRef = useRef<any>(null);
 
   useEffect(() => {
     if (isVisible) {
@@ -51,44 +49,39 @@ const MonthPickerPopover = ({ value, onSelect, children }: MonthPickerPopoverPro
     setIsVisible(false);
   };
 
+  const triggerElement = <Pressable onPress={handleOpen}>{children}</Pressable>;
+
   return (
-    <>
-      <Pressable ref={triggerRef} onPress={handleOpen}>
-        {children}
-      </Pressable>
-      {Platform.OS === 'ios' && (
-        <Popover
-          isVisible={isVisible}
-          onRequestClose={() => setIsVisible(false)}
-          from={triggerRef}
-          placement={Placement.BOTTOM}
-          animationConfig={{ duration: 100 }}
-          popoverStyle={{
-            borderRadius: 14,
-            shadowColor: '#0F0F12',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.1,
-            shadowRadius: 16,
-            padding: 16,
-          }}
-          backgroundStyle={{ backgroundColor: 'transparent' }}>
-          <View>
-            <DateTimePicker
-              mode='date'
-              display='spinner'
-              value={pendingDate}
-              onChange={handleSpinnerChange}
-              textColor='black'
-            />
-            <AnimatedPressable
-              className='bg-primary-500 mt-2 items-center justify-center self-stretch rounded-lg py-2'
-              onPress={handleConfirm}>
-              <Text className='typo-body-1-medium text-white'>확인</Text>
-            </AnimatedPressable>
-          </View>
-        </Popover>
-      )}
-    </>
+    <Popover
+      isVisible={isVisible}
+      onRequestClose={() => setIsVisible(false)}
+      from={triggerElement}
+      placement={Placement.BOTTOM}
+      animationConfig={{ duration: 100 }}
+      popoverStyle={{
+        borderRadius: 14,
+        shadowColor: '#0F0F12',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.1,
+        shadowRadius: 16,
+        padding: 16,
+      }}
+      backgroundStyle={{ backgroundColor: 'transparent' }}>
+      <View>
+        <DateTimePicker
+          mode='date'
+          display='spinner'
+          value={pendingDate}
+          onChange={handleSpinnerChange}
+          textColor='black'
+        />
+        <AnimatedPressable
+          className='bg-primary-500 mt-2 items-center justify-center self-stretch rounded-lg py-2'
+          onPress={handleConfirm}>
+          <Text className='typo-body-1-medium text-white'>확인</Text>
+        </AnimatedPressable>
+      </View>
+    </Popover>
   );
 };
 
