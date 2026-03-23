@@ -108,7 +108,10 @@ export const fontSize = {
 
   // Heading 1
   'heading-1-bold': ['17px', { fontWeight: '700', lineHeight: '26px', letterSpacing: '-0.17px' }],
-  'heading-1-semibold': ['17px', { fontWeight: '600', lineHeight: '26px', letterSpacing: '-0.17px' }],
+  'heading-1-semibold': [
+    '17px',
+    { fontWeight: '600', lineHeight: '26px', letterSpacing: '-0.17px' },
+  ],
 
   // Heading 2 (same size as Body 1, semantic distinction)
   'heading-2-bold': ['15px', { fontWeight: '700', lineHeight: '24px' }],
@@ -122,9 +125,9 @@ export const fontSize = {
   'body-2-medium': ['14px', { fontWeight: '500', lineHeight: '22px', letterSpacing: '0.07px' }],
   'body-2-regular': ['14px', { fontWeight: '400', lineHeight: '22px', letterSpacing: '0.07px' }],
 
-  // Label 1
-  'label-1-semibold': ['13px', { fontWeight: '600', lineHeight: '20px', letterSpacing: '0.13px' }],
-  'label-1-medium': ['13px', { fontWeight: '500', lineHeight: '20px', letterSpacing: '0.13px' }],
+  // Label
+  'label-semibold': ['13px', { fontWeight: '600', lineHeight: '20px', letterSpacing: '0.13px' }],
+  'label-medium': ['13px', { fontWeight: '500', lineHeight: '20px', letterSpacing: '0.13px' }],
 
   // Caption
   'caption-medium': ['12px', { fontWeight: '500', lineHeight: '18px', letterSpacing: '0.18px' }],
@@ -135,19 +138,40 @@ export const fontSize = {
   // ============================================================
 
   // Display 1
-  'display-1-bold-tablet': ['28px', { fontWeight: '700', lineHeight: '36px', letterSpacing: '-0.84px' }],
+  'display-1-bold-tablet': [
+    '28px',
+    { fontWeight: '700', lineHeight: '36px', letterSpacing: '-0.84px' },
+  ],
 
   // Title 1
-  'title-1-bold-tablet': ['24px', { fontWeight: '700', lineHeight: '32px', letterSpacing: '-0.6px' }],
-  'title-1-semibold-tablet': ['24px', { fontWeight: '600', lineHeight: '32px', letterSpacing: '-0.6px' }],
+  'title-1-bold-tablet': [
+    '24px',
+    { fontWeight: '700', lineHeight: '32px', letterSpacing: '-0.6px' },
+  ],
+  'title-1-semibold-tablet': [
+    '24px',
+    { fontWeight: '600', lineHeight: '32px', letterSpacing: '-0.6px' },
+  ],
 
   // Title 2
-  'title-2-bold-tablet': ['20px', { fontWeight: '700', lineHeight: '28px', letterSpacing: '-0.4px' }],
-  'title-2-semibold-tablet': ['20px', { fontWeight: '600', lineHeight: '28px', letterSpacing: '-0.4px' }],
+  'title-2-bold-tablet': [
+    '20px',
+    { fontWeight: '700', lineHeight: '28px', letterSpacing: '-0.4px' },
+  ],
+  'title-2-semibold-tablet': [
+    '20px',
+    { fontWeight: '600', lineHeight: '28px', letterSpacing: '-0.4px' },
+  ],
 
   // Heading 1
-  'heading-1-bold-tablet': ['18px', { fontWeight: '700', lineHeight: '28px', letterSpacing: '-0.18px' }],
-  'heading-1-semibold-tablet': ['18px', { fontWeight: '600', lineHeight: '28px', letterSpacing: '-0.18px' }],
+  'heading-1-bold-tablet': [
+    '18px',
+    { fontWeight: '700', lineHeight: '28px', letterSpacing: '-0.18px' },
+  ],
+  'heading-1-semibold-tablet': [
+    '18px',
+    { fontWeight: '600', lineHeight: '28px', letterSpacing: '-0.18px' },
+  ],
 
   // Heading 2 (same size as Body 1 tablet)
   'heading-2-bold-tablet': ['16px', { fontWeight: '700', lineHeight: '26px' }],

@@ -44,7 +44,7 @@ const TYPOGRAPHY_TOKEN_PREFIXES = [
   'heading-2-',
   'body-1-',
   'body-2-',
-  'label-1-',
+  'label-',
   'caption-',
 ];
 

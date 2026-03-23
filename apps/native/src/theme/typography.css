@@ -61,11 +61,11 @@
   }
 
   /* Label 1 (tablet = mobile) */
-  .typo-label-1-semibold {
-    @apply text-label-1-semibold;
+  .typo-label-semibold {
+    @apply text-label-semibold;
   }
-  .typo-label-1-medium {
-    @apply text-label-1-medium;
+  .typo-label-medium {
+    @apply text-label-medium;
   }
 
   /* Caption (tablet = mobile) */
