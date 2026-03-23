@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
+
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';

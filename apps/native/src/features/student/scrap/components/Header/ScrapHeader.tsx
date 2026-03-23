@@ -1,12 +1,14 @@
-import { Container } from '@/components/common';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, Search, Trash2 } from 'lucide-react-native';
-import { CircleCheckDashed } from '@/components/system/icons';
-import { State } from '../../utils/reducer';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import { colors } from '@/theme/tokens';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+import { CircleCheckDashed } from '@/components/system/icons';
+import { Container } from '@/components/common';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import { type State } from '../../utils/reducer';
 
 export interface ScrapHeaderActions {
   /** 검색 화면으로 이동 */

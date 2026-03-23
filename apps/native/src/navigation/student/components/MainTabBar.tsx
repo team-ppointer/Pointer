@@ -1,17 +1,17 @@
-import React from 'react';
-import { StyleSheet, View, Dimensions } from 'react-native';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import React, { useRef } from 'react';
+import { StyleSheet, View, Dimensions, Animated, Pressable, Text } from 'react-native';
+import { type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Bookmark, Home, Menu, MessageCircleMore } from 'lucide-react-native';
+
 import {
   BookmarkFilledIcon,
   HomeFilledIcon,
   MessageCircleMoreFilledIcon,
 } from '@components/system/icons';
 import { colors } from '@/theme/tokens';
+
 import { useTabTransition } from './TabScreenTransition';
-import { useRef } from 'react';
-import { Animated, Pressable, Text } from 'react-native';
 
 type TabItemProps = {
   isFocused: boolean;
@@ -87,7 +87,11 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
 
   const { options } = descriptors[state.routes[state.index].key];
   const tabBarStyle = options.tabBarStyle as { display?: string } | undefined;
-  const isTabBarVisible = !(tabBarStyle && typeof tabBarStyle === 'object' && tabBarStyle.display === 'none');
+  const isTabBarVisible = !(
+    tabBarStyle &&
+    typeof tabBarStyle === 'object' &&
+    tabBarStyle.display === 'none'
+  );
 
   // If tab bar is hidden, we usually just want full screen content.
   // But our architecture relies on this component rendering the content to hide the default navigator.
@@ -99,18 +103,23 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
   // Text: ~17px (line height of 14b)
   // Spacing/Padding: ~10px
   // Total content ~ 60px + Inset
-  const TAB_BAR_HEIGHT = 65 + insets.bottom; 
+  const TAB_BAR_HEIGHT = 65 + insets.bottom;
 
   return (
     <View style={[StyleSheet.absoluteFill, { zIndex: 10 }]}>
       <View style={[StyleSheet.absoluteFill, { backgroundColor: colors['gray-100'] }]}>
         {state.routes.map((route, i) => {
-           const { render } = descriptors[route.key];
-           return (
-             <View key={route.key} style={[StyleSheet.absoluteFill, { paddingBottom: isTabBarVisible ? TAB_BAR_HEIGHT : 0 }]}>
-               {render()}
-             </View>
-           );
+          const { render } = descriptors[route.key];
+          return (
+            <View
+              key={route.key}
+              style={[
+                StyleSheet.absoluteFill,
+                { paddingBottom: isTabBarVisible ? TAB_BAR_HEIGHT : 0 },
+              ]}>
+              {render()}
+            </View>
+          );
         })}
       </View>
 
@@ -118,13 +127,12 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
         <View
           className='absolute bottom-0 left-0 right-0 z-50 items-center justify-center bg-gray-100 pt-[4px]'
           style={{ paddingBottom: 4 + insets.bottom }}
-          pointerEvents="box-none"
-        >
+          pointerEvents='box-none'>
           {/* Tab Bar Content */}
-           <View className='w-full max-w-[572px] flex-row justify-between px-[28px]'>
+          <View className='w-full max-w-[572px] flex-row justify-between px-[28px]'>
             {state.routes.map((route, index) => {
               const isFocused = state.index === index;
-              
+
               const onPress = () => {
                 const event = navigation.emit({
                   type: 'tabPress',
@@ -136,7 +144,7 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
                   navigation.navigate(route.name);
                 }
               };
-              
+
               const onLongPress = () => {
                 navigation.emit({
                   type: 'tabLongPress',

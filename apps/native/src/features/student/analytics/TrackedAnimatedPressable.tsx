@@ -1,7 +1,10 @@
 import React from 'react';
+
 import AnimatedPressable from '@/components/common/AnimatedPressable';
-import { analytics } from './index';
+
 import type { ButtonId, ScreenName } from './types';
+
+import { analytics } from './index';
 
 type AnimatedPressableProps = React.ComponentProps<typeof AnimatedPressable>;
 

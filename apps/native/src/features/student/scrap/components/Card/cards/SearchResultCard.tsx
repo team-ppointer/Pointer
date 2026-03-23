@@ -1,15 +1,17 @@
 import { Pressable, View, Text, Image } from 'react-native';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 import { useGetFolderDetail } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
-import { ScrapListItemProps } from '../types';
+import { ScrapDefaultIcon, ScrapFolderDefaultIcon } from '@/components/system/icons';
+
+import { type ScrapListItemProps } from '../types';
 import { useCardImageSources } from '../../../hooks';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 import { HighlightedText } from '../../../utils/HighlightedText';
-import { ScrapDefaultIcon, ScrapFolderDefaultIcon } from '@/components/system/icons';
 
 type SearchResultCardProps = ScrapListItemProps & {
   searchQuery?: string;

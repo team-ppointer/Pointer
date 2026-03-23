@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { TanstackQueryClient, client } from '@/apis/client';
-import { components } from '@schema';
+import { type components } from '@schema';
 
 type ChatCreateRequest = components['schemas']['ChatCreateRequest'];
 

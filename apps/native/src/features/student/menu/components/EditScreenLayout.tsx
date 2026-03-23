@@ -1,8 +1,9 @@
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
 

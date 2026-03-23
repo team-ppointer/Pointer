@@ -1,14 +1,15 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Bell } from 'lucide-react-native';
+
 import { AlertBellButtonIcon } from '@components/system/icons';
-import { StudentRootStackParamList } from '../types';
 import { AnimatedPressable, Container } from '@components/common';
 import { useGetNotificationCount } from '@/apis/controller/student/notification';
 import { useGetNoticeCount } from '@/apis/controller/student/notice';
-import { Bell } from 'lucide-react-native';
 
+import { type StudentRootStackParamList } from '../types';
 
 type RootNav = NativeStackNavigationProp<StudentRootStackParamList>;
 

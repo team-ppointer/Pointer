@@ -1,14 +1,16 @@
 import { View } from 'react-native';
-import { EditScreenLayout } from '../../../components';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { MenuStackParamList } from '@navigation/student/MenuNavigator';
+import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
+
+import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { levelOptions } from '@features/student/onboarding/constants';
 import OptionButton from '@features/student/onboarding/components/OptionButton';
 import { showToast } from '@features/student/scrap/components/Notification';
 import { MessageSquareWarningFilledIcon } from '@components/system/icons';
 import { InfoCard } from '@features/student/onboarding/components';
 import { colors } from '@theme/tokens';
+
+import { EditScreenLayout } from '../../../components';
 
 const EditScoreScreen = ({
   navigation,
@@ -32,10 +34,7 @@ const EditScoreScreen = ({
     // MyInfo로 돌아가면서 수정된 값 전달
     navigation.reset({
       index: 1,
-      routes: [
-        { name: 'MenuMain' },
-        { name: 'MyInfo', params: { updatedData: { level: level } } },
-      ],
+      routes: [{ name: 'MenuMain' }, { name: 'MyInfo', params: { updatedData: { level: level } } }],
     });
     showToast('success', '성적이 변경되었습니다.');
   };

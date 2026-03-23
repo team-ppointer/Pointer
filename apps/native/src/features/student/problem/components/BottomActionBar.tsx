@@ -1,14 +1,15 @@
-import { Container } from '@components/common';
-import React, { ReactNode, useRef } from 'react';
+import React, { type ReactNode, useRef } from 'react';
 import {
   Animated,
-  LayoutChangeEvent,
+  type LayoutChangeEvent,
   Pressable,
-  PressableProps,
-  StyleProp,
+  type PressableProps,
+  type StyleProp,
   View,
-  ViewStyle,
+  type ViewStyle,
 } from 'react-native';
+
+import { Container } from '@components/common';
 import { analytics, type ButtonId, type ScreenName } from '@/features/student/analytics';
 
 type BottomActionBarProps = {
@@ -34,7 +35,7 @@ type BottomActionBarComponent = ((props: BottomActionBarProps) => React.ReactEle
   Button: (props: BottomActionBarButtonProps) => React.ReactElement;
 };
 
-const combineClassName = (...classNames: Array<string | undefined>) =>
+const combineClassName = (...classNames: (string | undefined)[]) =>
   classNames.filter(Boolean).join(' ');
 
 const BottomActionBarButton = ({
@@ -100,7 +101,7 @@ const BottomActionBarButton = ({
     <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
       <Pressable
         className={combineClassName(
-          'items-center justify-center rounded-[8px] px-[18px] h-[42px]',
+          'h-[42px] items-center justify-center rounded-[8px] px-[18px]',
           className
         )}
         onPressIn={handlePressIn}

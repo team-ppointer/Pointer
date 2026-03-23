@@ -1,9 +1,11 @@
-import { EditScreenLayout } from '../../../components';
-import { OnboardingInput } from '@/features/student/onboarding/components';
 import { useState } from 'react';
-import { MenuStackParamList } from '@navigation/student/MenuNavigator';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { type NativeStackScreenProps } from '@react-navigation/native-stack';
+
+import { OnboardingInput } from '@/features/student/onboarding/components';
+import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { showToast } from '@/features/student/scrap/components/Notification';
+
+import { EditScreenLayout } from '../../../components';
 
 const nicknameRegex = /^[가-힣]{2,4}$/;
 

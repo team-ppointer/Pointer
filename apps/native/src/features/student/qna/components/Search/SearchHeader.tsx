@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, TextInput, Pressable, Text } from 'react-native';
 import { X } from 'lucide-react-native';
-import { colors } from '@theme/tokens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { colors } from '@theme/tokens';
 
 interface SearchHeaderProps {
   value: string;

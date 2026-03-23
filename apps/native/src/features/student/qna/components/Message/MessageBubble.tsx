@@ -20,7 +20,6 @@ import {
   File,
   FileSpreadsheet,
 } from 'lucide-react-native';
-import { colors } from '@theme/tokens';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
@@ -28,12 +27,15 @@ import Animated, {
   withTiming,
   interpolate,
   Extrapolation,
-  SharedValue,
+  type SharedValue,
   runOnJS,
   Easing,
 } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
+
+import { colors } from '@theme/tokens';
+
 import type { Message, UploadFileResp } from '../../types';
 
 interface MessageBubbleProps {
@@ -44,7 +46,7 @@ interface MessageBubbleProps {
   showProfile?: boolean;
   showTail?: boolean;
   onReply?: (message: Message) => void;
-  onPressImages?: (images: Array<{ uri: string }>, initialIndex: number) => void;
+  onPressImages?: (images: { uri: string }[], initialIndex: number) => void;
   onPressFile?: (url: string) => void;
   onEdit?: (message: Message) => void;
   onDelete?: (message: Message) => void;
@@ -231,7 +233,7 @@ const ImagesGrid = ({
   onPressImage,
 }: {
   images: NonNullable<Message['files']>;
-  onPressImage?: (images: Array<{ uri: string }>, index: number) => void;
+  onPressImage?: (images: { uri: string }[], index: number) => void;
 }) => {
   const count = images.length;
   const imageUris = images.map((img) => ({ uri: img.url }));
@@ -260,9 +262,9 @@ const ImagesGrid = ({
   }
 
   // 3+ images - 2-column grid layout
-  const rows: Array<Array<{ img: (typeof images)[0]; index: number }>> = [];
+  const rows: { img: (typeof images)[0]; index: number }[][] = [];
   for (let i = 0; i < images.length; i += 2) {
-    const row: Array<{ img: (typeof images)[0]; index: number }> = [];
+    const row: { img: (typeof images)[0]; index: number }[] = [];
     row.push({ img: images[i], index: i });
     if (i + 1 < images.length) {
       row.push({ img: images[i + 1], index: i + 1 });
@@ -300,7 +302,7 @@ const ImageMessage = ({
   image?: Message['image'];
   files?: Message['files'];
   isMe: boolean;
-  onPressImages?: (images: Array<{ uri: string }>, index: number) => void;
+  onPressImages?: (images: { uri: string }[], index: number) => void;
   onDownload?: (url: string, fileName: string) => void;
   downloadingFiles?: Set<string>;
 }) => {

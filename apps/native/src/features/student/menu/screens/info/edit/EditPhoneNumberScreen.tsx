@@ -1,20 +1,21 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
-import { AnimatedPressable, Container } from '@components/common';
 import { ChevronLeft, CircleCheck, CircleAlert } from 'lucide-react-native';
-import { useGetMe, usePutMe, postPhoneSend, postPhoneResend, postPhoneVerify, TanstackQueryClient } from '@apis';
-import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { AnimatedPressable, Container } from '@components/common';
+import {
+  useGetMe,
+  usePutMe,
+  postPhoneSend,
+  postPhoneResend,
+  postPhoneVerify,
+  TanstackQueryClient,
+} from '@apis';
+import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { colors } from '@theme/tokens';
 import { showToast } from '@features/student/scrap/components/Notification';
 
@@ -226,9 +227,7 @@ const EditPhoneNumberScreen = () => {
                     </>
                   ) : (
                     <>
-                      {phoneFeedback && (
-                        <CircleAlert size={14} color={colors['red-500']} />
-                      )}
+                      {phoneFeedback && <CircleAlert size={14} color={colors['red-500']} />}
                       <Text className='text-12r text-red-500'>{phoneFeedback}</Text>
                     </>
                   )}
@@ -249,8 +248,7 @@ const EditPhoneNumberScreen = () => {
                     style={INPUT_STYLE}
                     className='text-16r h-[48px] w-full rounded-[10px] border border-gray-300 bg-white px-4 pr-[60px] text-black'
                   />
-                  <View
-                    style={TIMER_CONTAINER_STYLE}>
+                  <View style={TIMER_CONTAINER_STYLE}>
                     <Text className='text-14m text-primary-500'>{formatTime(timer)}</Text>
                   </View>
                 </View>
@@ -282,7 +280,6 @@ const EditPhoneNumberScreen = () => {
           )}
         </SafeAreaView>
       </Container>
-
     </KeyboardAvoidingView>
   );
 };

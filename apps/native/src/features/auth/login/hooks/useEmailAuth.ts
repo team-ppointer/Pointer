@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { client } from '@apis';
-import { postLoginLocal, postEmailSignup } from '@apis';
+
+import { client, postLoginLocal, postEmailSignup } from '@apis';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
+
 import { PopUpModal } from './ConfirmationDialog';
 
 type ButtonVariant = 'default' | 'primary' | 'danger';

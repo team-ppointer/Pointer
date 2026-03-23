@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, ScrollView, Linking, AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
+
 import { Container } from '@components/common';
-import { ScreenLayout, SettingsToggleItem } from '../components';
 import { usePutAllowPush, useGetPushSetting } from '@apis';
 import { showToast } from '@features/student/scrap/components/Notification';
+
+import { ScreenLayout, SettingsToggleItem } from '../components';
 
 const checkOsNotificationPermission = async (): Promise<boolean> => {
   const status = await messaging().hasPermission();
@@ -21,10 +23,7 @@ type PushSettingsPayload = {
   isAllowMarketingPush: boolean;
 };
 
-const hasSameSettings = (
-  a: PushSettingsPayload,
-  b: PushSettingsPayload
-): boolean =>
+const hasSameSettings = (a: PushSettingsPayload, b: PushSettingsPayload): boolean =>
   a.isAllowPush === b.isAllowPush &&
   a.isAllowServicePush === b.isAllowServicePush &&
   a.isAllowQnaPush === b.isAllowQnaPush &&
@@ -39,10 +38,10 @@ const NotificationSettingsScreen = () => {
   const wasOsPermissionGrantedRef = useRef(false);
   const hasInitializedSubTogglesRef = useRef(false);
 
-  const [_pushEnabled, setPushEnabled] = useState<boolean | undefined>(undefined);
-  const [_serviceNotification, setServiceNotification] = useState<boolean | undefined>(undefined);
-  const [_qnaNotification, setQnaNotification] = useState<boolean | undefined>(undefined);
-  const [_eventNotification, setEventNotification] = useState<boolean | undefined>(undefined);
+  const [_pushEnabled, setPushEnabled] = useState<boolean | undefined>();
+  const [_serviceNotification, setServiceNotification] = useState<boolean | undefined>();
+  const [_qnaNotification, setQnaNotification] = useState<boolean | undefined>();
+  const [_eventNotification, setEventNotification] = useState<boolean | undefined>();
 
   const pushEnabled = _pushEnabled ?? pushSettingData?.isAllowPush ?? false;
   const serviceNotification = _serviceNotification ?? pushSettingData?.isAllowServicePush ?? false;

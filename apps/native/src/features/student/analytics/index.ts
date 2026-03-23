@@ -1,11 +1,5 @@
 import { analyticsTracker } from './tracker';
-import type {
-  ButtonId,
-  DeviceInfo,
-  EventMetadata,
-  EventType,
-  ScreenName,
-} from './types';
+import type { ButtonId, DeviceInfo, EventMetadata, EventType, ScreenName } from './types';
 
 /**
  * Public Analytics API

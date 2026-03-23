@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { Bookmark, ChevronRight } from 'lucide-react-native';
+
 import { TextButton } from '@/components/common';
 import { colors } from '@/theme/tokens';
 

@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { StyleSheet, View, ViewProps, LayoutChangeEvent } from 'react-native';
+import { StyleSheet, View, type ViewProps, LayoutChangeEvent } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   withSpring,
-  SharedValue,
+  type SharedValue,
   interpolate,
   Extrapolation,
   Easing,
@@ -22,7 +22,7 @@ type TabTransitionContextType = {
   translateProgress: SharedValue<number>;
   opacityProgress: SharedValue<number>;
   setIndex: (index: number) => void;
-  // We keep track of which screens should be "mounted" (rendered) 
+  // We keep track of which screens should be "mounted" (rendered)
   // to save resources and avoid the "ghost" lag.
   mountedIndices: number[];
 };
@@ -42,60 +42,73 @@ type TabTransitionProviderProps = {
   initialIndex?: number;
 };
 
-export const TabTransitionProvider = ({ children, initialIndex = 0 }: TabTransitionProviderProps) => {
+export const TabTransitionProvider = ({
+  children,
+  initialIndex = 0,
+}: TabTransitionProviderProps) => {
   const currentIndex = useSharedValue(initialIndex);
   const prevIndex = useSharedValue(initialIndex);
   const translateProgress = useSharedValue(1);
   const opacityProgress = useSharedValue(1);
-  
+
   // State to control actual rendering (mounting/unmounting)
   // Initially only the start index is mounted.
   const [mountedIndices, setMountedIndices] = useState<number[]>([initialIndex]);
 
-  const setIndex = useCallback((index: number) => {
-    // If clicking same tab, do nothing (except ensuring it's mounted?)
-    if (index === currentIndex.value) return;
+  const setIndex = useCallback(
+    (index: number) => {
+      // If clicking same tab, do nothing (except ensuring it's mounted?)
+      if (index === currentIndex.value) return;
 
-    // 1. Mount the new screen immediately so it can render
-    //    We keep the old one mounted too during transition.
-    const oldIndex = currentIndex.value;
-    setMountedIndices((prev) => {
-      const unique = new Set([...prev, index, oldIndex]);
-      return Array.from(unique);
-    });
+      // 1. Mount the new screen immediately so it can render
+      //    We keep the old one mounted too during transition.
+      const oldIndex = currentIndex.value;
+      setMountedIndices((prev) => {
+        const unique = new Set([...prev, index, oldIndex]);
+        return Array.from(unique);
+      });
 
-    // 2. Start Animation Reanimated values
-    prevIndex.value = oldIndex;
-    currentIndex.value = index;
+      // 2. Start Animation Reanimated values
+      prevIndex.value = oldIndex;
+      currentIndex.value = index;
 
-    // Start from 0 each transition
-    translateProgress.value = 0;
-    opacityProgress.value = 0;
+      // Start from 0 each transition
+      translateProgress.value = 0;
+      opacityProgress.value = 0;
 
-    // Translate: spring for a "native" feel
-    translateProgress.value = withSpring(1, {
-      // Smoother, less snappy, and explicitly no-overshoot
-      damping: 26,
-      stiffness: 180,
-      mass: 1.1,
-      overshootClamping: true,
-    });
+      // Translate: spring for a "native" feel
+      translateProgress.value = withSpring(1, {
+        // Smoother, less snappy, and explicitly no-overshoot
+        damping: 26,
+        stiffness: 180,
+        mass: 1.1,
+        overshootClamping: true,
+      });
 
-    // Opacity: timing for a clean fade
-    opacityProgress.value = withTiming(1, {
-      duration: 260,
-      easing: Easing.out(Easing.quad),
-    });
+      // Opacity: timing for a clean fade
+      opacityProgress.value = withTiming(1, {
+        duration: 260,
+        easing: Easing.out(Easing.quad),
+      });
 
-    // 3. Cleanup (Unmount) old screens after animation + small buffer
-    setTimeout(() => {
-      setMountedIndices([index]);
-    }, 300 + 120);
-
-  }, [currentIndex, prevIndex, translateProgress, opacityProgress]);
+      // 3. Cleanup (Unmount) old screens after animation + small buffer
+      setTimeout(() => {
+        setMountedIndices([index]);
+      }, 300 + 120);
+    },
+    [currentIndex, prevIndex, translateProgress, opacityProgress]
+  );
 
   return (
-    <TabTransitionContext.Provider value={{ currentIndex, prevIndex, translateProgress, opacityProgress, setIndex, mountedIndices }}>
+    <TabTransitionContext.Provider
+      value={{
+        currentIndex,
+        prevIndex,
+        translateProgress,
+        opacityProgress,
+        setIndex,
+        mountedIndices,
+      }}>
       {children}
     </TabTransitionContext.Provider>
   );
@@ -107,12 +120,13 @@ type TabScreenProps = ViewProps & {
 };
 
 export const TabScreen = ({ index, children, style, ...props }: TabScreenProps) => {
-  const { currentIndex, prevIndex, translateProgress, opacityProgress, mountedIndices } = useTabTransition();
+  const { currentIndex, prevIndex, translateProgress, opacityProgress, mountedIndices } =
+    useTabTransition();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
-  
+
   // Move optimization check AFTER hook calls to follow Rules of Hooks
-  
+
   const animatedStyle = useAnimatedStyle(() => {
     const curr = currentIndex.value;
     const prev = prevIndex.value;
@@ -140,14 +154,14 @@ export const TabScreen = ({ index, children, style, ...props }: TabScreenProps) 
       opacity = interpolate(o, [0, 1], [1, 0], Extrapolation.CLAMP);
       zIndex = 0;
     } else if (index === curr) {
-       // Stable state (animation done)
-       translateX = 0;
-       opacity = 1;
-       zIndex = 1;
+      // Stable state (animation done)
+      translateX = 0;
+      opacity = 1;
+      zIndex = 1;
     } else {
-       // Should be handled by return null below, but for safety in reanimated thread:
-       opacity = 0;
-       zIndex = -1;
+      // Should be handled by return null below, but for safety in reanimated thread:
+      opacity = 0;
+      zIndex = -1;
     }
 
     return {
@@ -169,11 +183,7 @@ export const TabScreen = ({ index, children, style, ...props }: TabScreenProps) 
 
   return (
     <Animated.View
-      style={[
-        StyleSheet.absoluteFill,
-        style,
-        animatedStyle,
-      ]}
+      style={[StyleSheet.absoluteFill, style, animatedStyle]}
       pointerEvents={isFocused ? 'auto' : 'none'}
       {...props}>
       {children}

@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Search } from 'lucide-react-native';
-import { OnboardingLayout, OnboardingInput } from '../../components';
-import { useOnboardingStore } from '../../store/useOnboardingStore';
-import type { OnboardingScreenProps } from '../types';
+
 import { colors, shadow } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
 import { useDebounce } from '@hooks';
 import useGetSchool from '@apis/controller/student/school/useGetSchool';
+
+import type { OnboardingScreenProps } from '../types';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
+import { OnboardingLayout, OnboardingInput } from '../../components';
 
 const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   const schoolId = useOnboardingStore((state) => state.schoolId);

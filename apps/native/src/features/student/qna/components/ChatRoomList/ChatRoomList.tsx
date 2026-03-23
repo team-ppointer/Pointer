@@ -1,8 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { Text, View, ScrollView, Pressable } from 'react-native';
 import { Search } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
+
 import type { ChatRoom, ChatRoomFilterType } from '../../types';
+
 import ChatRoomItem from './ChatRoomItem';
 import ChatRoomFilter from './ChatRoomFilter';
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import { Text, View, Image } from 'react-native';
 import { X, ImageIcon } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
-import type { Message } from '../../types';
 import { AnimatedPressable } from '@components/common';
+
+import type { Message } from '../../types';
 
 interface ReplyPreviewProps {
   message: Message;

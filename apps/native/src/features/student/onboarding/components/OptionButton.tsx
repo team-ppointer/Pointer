@@ -1,5 +1,6 @@
-import { ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated, Text } from 'react-native';
+
 import { AnimatedPressable } from '@components/common';
 import { colors } from '@theme/tokens';
 
@@ -56,9 +57,9 @@ const OptionButton = ({
       <Text className={`text-14m text-black`}>{label}</Text>
       {description ? (
         <Text className='text-14r text-gray-600'>{description}</Text>
-      ) : rightSlot ? (
+      ) : (rightSlot ? (
         rightSlot
-      ) : null}
+      ) : null)}
     </AnimatedPressable>
   );
 };

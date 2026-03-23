@@ -1,15 +1,17 @@
-import Container from '@/components/common/Container';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { colors } from '@/theme/tokens';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SearchScrapGrid } from '../components/Card/ScrapCardGrid';
+
+import { colors } from '@/theme/tokens';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+import Container from '@/components/common/Container';
 import { useSearchHistoryStore } from '@/features/student/scrap/stores/searchHistoryStore';
-import SearchScrapHeader from '../components/Header/SearchScrapHeader';
 import { useSearchScraps } from '@/apis';
+
+import { SearchScrapGrid } from '../components/Card/ScrapCardGrid';
+import SearchScrapHeader from '../components/Header/SearchScrapHeader';
 
 const SearchScrapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
@@ -102,9 +104,7 @@ const SearchScrapScreen = () => {
             <SearchScrapGrid data={folders} searchQuery={debouncedQuery} />
           </View>
         )}
-        {folders.length > 0 && scraps.length > 0 && (
-          <View className='h-[48px] w-full' />
-        )}
+        {folders.length > 0 && scraps.length > 0 && <View className='h-[48px] w-full' />}
         {query.length > 0 && scraps.length > 0 && (
           <View className='gap-[10px]'>
             <Text className='text-16m text-gray-900'>스크랩</Text>

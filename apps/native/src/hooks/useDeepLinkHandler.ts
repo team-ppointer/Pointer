@@ -1,8 +1,9 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { Platform, Alert, Dimensions } from 'react-native';
-import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import messaging, { type FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import * as Notifications from 'expo-notifications';
 import { CommonActions } from '@react-navigation/native';
+
 import { navigationRef, isNavigationReady } from '@/services/navigation';
 import { parseDeepLinkUrl, isValidDeepLink } from '@/utils/deepLink';
 import { getPublishDetailById } from '@/apis/controller/student/study';

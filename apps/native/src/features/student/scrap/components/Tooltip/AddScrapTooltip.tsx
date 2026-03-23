@@ -1,15 +1,18 @@
 import { Camera, Image, Images, FolderPlus } from 'lucide-react-native';
 import { Alert } from 'react-native';
+import { useState } from 'react';
+
+import { useCreateScrapFromImage, useUploadFile } from '@/apis';
+
 import {
   openCameraWithErrorHandling,
   openImageLibraryWithErrorHandling,
 } from '../../utils/images/imagePicker';
-import { useCreateScrapFromImage, useUploadFile } from '@/apis';
+import { showToast } from '../Notification/Toast';
+import { useScrapModal } from '../../contexts/ScrapModalsContext';
+
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
-import { showToast } from '../Notification/Toast';
-import { useState } from 'react';
-import { useScrapModal } from '../../contexts/ScrapModalsContext';
 
 export interface AddScrapTooltipProps {
   onClose?: () => void;

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+
 import ProblemViewer from '../../../problem/components/ProblemViewer';
-import { PointingWithLabel } from '../../utils/scrapFilters';
+import { type PointingWithLabel } from '../../utils/scrapFilters';
 
 export interface PointingsListProps {
   pointingsWithLabels: PointingWithLabel[];

@@ -1,6 +1,7 @@
+import { type QueryClient } from '@tanstack/react-query';
+
 import { TanstackQueryClient } from '@/apis/client';
-import { paths } from '@schema';
-import { QueryClient } from '@tanstack/react-query';
+import { type paths } from '@schema';
 
 type GetScrapsByFolderParams =
   paths['/api/student/scrap/folder/{folderId}/scraps']['get']['parameters']['path'];

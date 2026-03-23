@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { FilterType, ApiSortKey, SortOrder } from '@/features/student/scrap/utils/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import type { FilterType, ApiSortKey, SortOrder } from '@/features/student/scrap/utils/types';
 
 interface SearchHistoryStore {
   keywords: string[];

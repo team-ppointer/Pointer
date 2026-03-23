@@ -1,14 +1,15 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StudentTabParamList } from './types';
+import { View } from 'react-native';
+
 import { HomeScreen } from '@features/student/home';
 import { ScrapScreen } from '@features/student/scrap';
 import { QnaScreen } from '@features/student/qna';
+
+import { type StudentTabParamList } from './types';
 import MenuNavigator from './MenuNavigator';
 import MainTabBar from './components/MainTabBar';
 import HomeHeader from './components/HomeHeader';
-
-import { View } from 'react-native';
 import { TabScreen, TabTransitionProvider } from './components/TabScreenTransition';
 
 const Tab = createBottomTabNavigator<StudentTabParamList>();

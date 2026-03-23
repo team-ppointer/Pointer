@@ -1,4 +1,4 @@
-import { paths, components } from '@/types/api/schema';
+import { type paths, type components } from '@/types/api/schema';
 
 /**
  * API 응답 타입 추출

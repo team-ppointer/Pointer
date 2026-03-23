@@ -1,5 +1,5 @@
 import { TanstackQueryClient } from '@/apis/client';
-import { paths } from '@/types/api/schema';
+import { type paths } from '@/types/api/schema';
 
 type GetQnaFilesParams = paths['/api/student/qna/files']['get']['parameters']['query'];
 

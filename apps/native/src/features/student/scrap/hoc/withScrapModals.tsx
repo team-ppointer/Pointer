@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ScrapModalProvider } from '../contexts/ScrapModalsContext';
 import { MoveScrapModal } from '../components/Modal/MoveScrapModal';
 import { CreateFolderModal } from '../components/Modal/CreateFolderModal';

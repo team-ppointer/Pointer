@@ -13,7 +13,7 @@ import {
   ChevronDownFilledIcon,
 } from '@components/system/icons';
 import { AnimatedPressable } from '@components/common';
-import { components } from '@schema';
+import { type components } from '@schema';
 
 type PublishResp = components['schemas']['PublishResp'];
 type CalendarProgress = 'completed' | 'inprogress' | 'notstarted' | 'unavailable';

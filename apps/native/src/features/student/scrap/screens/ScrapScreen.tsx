@@ -1,24 +1,26 @@
-import { Container, LoadingScreen } from '@/components/common';
-import { StudentRootStackParamList } from '@/navigation/student/types';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Container, LoadingScreen } from '@/components/common';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
+import { useSearchScraps, useDeleteScrap } from '@/apis';
+import { colors } from '@/theme/tokens';
+
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
-import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { mapUIKeyToAPIKey, sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder, ScrapSearchResponse } from '../utils/types';
 import { showToast } from '../components/Notification/Toast';
-import { useSearchScraps, useDeleteScrap } from '@/apis';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { RecentScrapCard } from '../components/Card/cards/RecentScrapCard';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection, useScrapStoreSync } from '../hooks';
 import { withScrapModals } from '../hoc';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '@/theme/tokens';
 
 const ScrapScreenContent = () => {
   const [reducerState, dispatch] = useScrapSelection();
@@ -85,7 +87,7 @@ const ScrapScreenContent = () => {
 
   // 유효한 스크랩 ID 목록 (폴더 내 스크랩 포함)
   const validScrapIds = useMemo(() => {
-    if (!searchData) return undefined;
+    if (!searchData) return;
     const typedSearchData = searchData as ScrapSearchResponse;
     return (typedSearchData.scraps || []).map((scrap) => scrap.id);
   }, [searchData]);
@@ -184,11 +186,7 @@ const ScrapScreenContent = () => {
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
-            <ScrapGrid
-              data={gridData}
-              reducerState={reducerState}
-              dispatch={dispatch}
-            />
+            <ScrapGrid data={gridData} reducerState={reducerState} dispatch={dispatch} />
           )}
         </Container>
       </ScrollView>

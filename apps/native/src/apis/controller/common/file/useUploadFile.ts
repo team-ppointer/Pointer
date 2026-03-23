@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { Alert } from 'react-native';
+
 import { client } from '@/apis/client';
-import { components } from '@schema';
+import { type components } from '@schema';
 
 type PreSignedReq = components['schemas']['PreSignedReq'];
 type PreSignedResp = components['schemas']['PreSignedResp'];

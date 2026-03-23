@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { useNoteStore } from '../stores/scrapNoteStore';
 

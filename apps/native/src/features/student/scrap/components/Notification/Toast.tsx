@@ -1,4 +1,4 @@
-import Toast, { BaseToast, ToastConfig } from 'react-native-toast-message';
+import Toast, { BaseToast, type ToastConfig } from 'react-native-toast-message';
 import { StyleSheet } from 'react-native';
 import { Check, X } from 'lucide-react-native';
 

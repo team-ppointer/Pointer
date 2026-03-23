@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useNavigationState } from '@react-navigation/native';
-import { analytics } from './index';
+
 import type { ScreenName } from './types';
+
+import { analytics } from './index';
 
 /**
  * Map navigation route names to analytics screen names

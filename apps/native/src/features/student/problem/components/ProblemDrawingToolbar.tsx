@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Undo2, Redo2 } from 'lucide-react-native';
+
 import { PencilFilledIcon } from '@/components/system/icons';
 import EraserFilledIcon from '@/components/system/icons/EraserFilledIcon';
 import { colors } from '@/theme/tokens';

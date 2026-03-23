@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Platform } from 'react-native';
+import { AppState, type AppStateStatus, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
-import { analytics } from './index';
+
 import type { DeviceType } from './types';
+
+import { analytics } from './index';
 
 const ANALYTICS_VERSION_KEY = '@analytics_version';
 const CURRENT_ANALYTICS_VERSION = 2; // Bump this to clear queue on next update

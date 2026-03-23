@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Pressable, Modal, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedPressable, Container } from '@components/common';
-import ProblemCalendar from '../components/ProblemCalendar';
-import ProblemSet from '../components/ProblemSet';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useAuthStore, useHomeStore } from '@stores';
-import {
-  useGetLastDiagnosis,
-  useGetMonthlyPublish,
-  useGetPublishDetail,
-} from '@apis';
-import { StudentRootStackParamList } from '@navigation/student/types';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon, XIcon } from 'lucide-react-native';
-import ProblemViewer from '../../problem/components/ProblemViewer';
+import { BlurView } from 'expo-blur';
+
+import { useAuthStore, useHomeStore } from '@stores';
+import { useGetLastDiagnosis, useGetMonthlyPublish, useGetPublishDetail } from '@apis';
+import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors, shadow } from '@theme/tokens';
 import { PointerSymbol } from '@components/system/icons';
-import { BlurView } from 'expo-blur';
+import { AnimatedPressable, Container } from '@components/common';
 import { useInvalidateAll } from '@hooks';
+
+import ProblemViewer from '../../problem/components/ProblemViewer';
+import ProblemSet from '../components/ProblemSet';
+import ProblemCalendar from '../components/ProblemCalendar';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();

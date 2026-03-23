@@ -1,4 +1,5 @@
 import { client } from '@/apis/client';
+
 import type { AnalyticsEvent, DeviceType } from './types';
 
 interface SendEventsParams {

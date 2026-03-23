@@ -1,21 +1,21 @@
+import { useNavigation } from '@react-navigation/native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, Text, ScrollView, Alert } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
+import { ChevronRight } from 'lucide-react-native';
+
 import { AnimatedPressable, Container, NotificationItem } from '@components/common';
 import { NoNotificationBellIcon } from '@components/system/icons';
-import { StudentRootStackParamList } from '@navigation/student/types';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { type StudentRootStackParamList } from '@navigation/student/types';
 import {
   useGetNotification,
   useGetNotificationCount,
   usePostReadAllNotification,
   usePostReadNotification,
 } from '@apis/controller/student/notification';
-import { useGetNotice, putReadNotice, useInvalidateNoticeData } from '@apis';
+import { useGetNotice, putReadNotice, useInvalidateNoticeData, getPublishDetailById } from '@apis';
 import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
-import { useQueryClient } from '@tanstack/react-query';
-import { ChevronRight } from 'lucide-react-native';
 import { parseDeepLinkUrl, isValidDeepLink } from '@utils/deepLink';
-import { getPublishDetailById } from '@apis';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
 import { useIsTablet } from '@/features/student/qna/hooks/useIsTablet';
 

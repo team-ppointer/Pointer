@@ -1,16 +1,17 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, type ScrollView } from 'react-native';
 import { X } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  SharedValue,
+  type SharedValue,
   runOnJS,
 } from 'react-native-reanimated';
+
 import { colors } from '@/theme/tokens';
-import { useNoteStore, Note } from '@/features/student/scrap/stores/scrapNoteStore';
+import { useNoteStore, type Note } from '@/features/student/scrap/stores/scrapNoteStore';
 
 export interface DraggableTabProps {
   note: Note;
@@ -21,7 +22,7 @@ export interface DraggableTabProps {
   onLayout: (event: any) => void;
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   tabLayouts: Record<number, { x: number; width: number }>;
-  scrollViewRef: React.RefObject<ScrollView | null >;
+  scrollViewRef: React.RefObject<ScrollView | null>;
   scrollX: SharedValue<number>;
   screenWidth: number;
 }

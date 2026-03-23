@@ -12,4 +12,3 @@ const getPublishDetailById = async (publishId: number) => {
 };
 
 export default getPublishDetailById;
-

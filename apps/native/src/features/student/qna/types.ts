@@ -1,4 +1,4 @@
-import { components } from '@schema';
+import { type components } from '@schema';
 
 // API Response Types
 export type QnAMetaResp = components['schemas']['QnAMetaResp'];
@@ -157,7 +157,7 @@ const getFileExtension = (fileName: string): string => {
  */
 export const mapQnAMetaToChatRoom = (meta: QnAMetaResp): ChatRoom => {
   const isAdminChat = meta.type === 'ADMIN_CHAT';
-  
+
   return {
     id: meta.id,
     type: isAdminChat ? 'publisher' : 'teacher',

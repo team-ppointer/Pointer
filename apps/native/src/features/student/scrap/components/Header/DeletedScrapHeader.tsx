@@ -1,12 +1,14 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { State } from '../../utils/reducer';
-import { Container } from '@/components/common';
 import { View, Text, Pressable } from 'react-native';
-import { CircleCheckDashed } from '@/components/system/icons';
 import { ArrowRightLeft, ChevronLeft, Trash2, Undo2 } from 'lucide-react-native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { Container } from '@/components/common';
+import { CircleCheckDashed } from '@/components/system/icons';
 import { colors } from '@/theme/tokens';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import { type State } from '../../utils/reducer';
 
 export interface DeletedScrapHeaderActions {
   onEnterSelection?: () => void;

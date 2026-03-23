@@ -2,12 +2,13 @@ import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
-  BottomSheetBackdropProps,
+  type BottomSheetBackdropProps,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import * as WebBrowser from 'expo-web-browser';
-import { colors } from '@theme/tokens';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react-native';
+
+import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
 
 const TERMS_URLS = {
@@ -29,8 +30,8 @@ type TermsConsentSheetProps = {
   onSheetChange?: (isOpen: boolean) => void;
 };
 
-const REQUIRED_KEYS: Array<keyof AgreementState> = ['age', 'service', 'privacy'];
-const ALL_KEYS: Array<keyof AgreementState> = [...REQUIRED_KEYS, 'marketing'];
+const REQUIRED_KEYS: (keyof AgreementState)[] = ['age', 'service', 'privacy'];
+const ALL_KEYS: (keyof AgreementState)[] = [...REQUIRED_KEYS, 'marketing'];
 const createDefaultState = (): AgreementState => ({
   age: false,
   service: false,

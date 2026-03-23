@@ -1,4 +1,4 @@
-import React, { Children, cloneElement, ReactElement, ReactNode } from 'react';
+import React, { Children, cloneElement, type ReactElement, type ReactNode } from 'react';
 import { View } from 'react-native';
 
 interface MenuSectionProps {

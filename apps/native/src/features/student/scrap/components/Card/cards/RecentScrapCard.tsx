@@ -1,10 +1,12 @@
 import React from 'react';
 import { Pressable, View, Text, ImageBackground } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 import type { ScrapListItemResp } from '@/features/student/scrap/utils/types';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
+
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 
 type RecentScrapCardProps = {

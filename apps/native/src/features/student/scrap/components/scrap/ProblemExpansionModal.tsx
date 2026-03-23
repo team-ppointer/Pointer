@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, Pressable, ScrollView, Image, Dimensions } from 'react-native';
 import { X } from 'lucide-react-native';
+
 import ProblemViewer from '../../../problem/components/ProblemViewer';
 
 export interface ProblemExpansionModalProps {
@@ -43,7 +44,12 @@ export const ProblemExpansionModal = ({
           </View>
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true}>
             {problemContent && (
-              <ProblemViewer problemContent={problemContent} minHeight={400} padding={20} fontStyle='serif' />
+              <ProblemViewer
+                problemContent={problemContent}
+                minHeight={400}
+                padding={20}
+                fontStyle='serif'
+              />
             )}
             {!problemContent && thumbnailUrl && (
               <Image

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+
 import type { SelectedItem } from '../utils/reducer';
 
 interface ScrapModalsContextValue {
@@ -67,11 +68,9 @@ export const ScrapModalsProvider = ({ children }: ScrapModalsProviderProps) => {
   }>({
     selectedItems: [],
   });
-  const [refetchFolders, setRefetchFoldersState] = useState<(() => void) | undefined>(undefined);
-  const [refetchScraps, setRefetchScrapsState] = useState<(() => void) | undefined>(undefined);
-  const [refetchScrapDetail, setRefetchScrapDetailState] = useState<(() => void) | undefined>(
-    undefined
-  );
+  const [refetchFolders, setRefetchFoldersState] = useState<(() => void) | undefined>();
+  const [refetchScraps, setRefetchScrapsState] = useState<(() => void) | undefined>();
+  const [refetchScrapDetail, setRefetchScrapDetailState] = useState<(() => void) | undefined>();
 
   const openCreateFolderModal = useCallback(() => {
     setIsCreateFolderModalVisible(true);

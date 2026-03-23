@@ -1,22 +1,24 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alert, ScrollView, Text, View } from 'react-native';
-import { AnimatedPressable, Container } from '@components/common';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { StudentRootStackParamList } from '@navigation/student/types';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { colors, shadow } from '@theme/tokens';
 import { BookmarkIcon, ChevronLeftIcon, MessageCircleMoreIcon } from 'lucide-react-native';
-import { components } from '@schema';
-import ProblemViewer from '../components/ProblemViewer';
-import { formatPublishDateLabel } from '../utils/formatters';
+
+import { AnimatedPressable, Container } from '@components/common';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
+import { type StudentRootStackParamList } from '@navigation/student/types';
+import { colors, shadow } from '@theme/tokens';
+import { type components } from '@schema';
 import {
   useGetScrapStatusById,
   useToggleScrapFromProblem,
   useToggleScrapFromPointing,
 } from '@apis/student';
+
+import ProblemViewer from '../components/ProblemViewer';
+import { formatPublishDateLabel } from '../utils/formatters';
 
 type AllPointingsNavigationProp = NativeStackNavigationProp<
   StudentRootStackParamList,

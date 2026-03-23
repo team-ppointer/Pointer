@@ -1,6 +1,6 @@
 import {
-  ForwardedRef,
-  ReactNode,
+  type ForwardedRef,
+  type ReactNode,
   forwardRef,
   useImperativeHandle,
   useMemo,
@@ -8,8 +8,9 @@ import {
   useState,
   useCallback,
 } from 'react';
-import { Pressable, Text, TextInput, TextInputProps, View } from 'react-native';
+import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-native';
 import { AlertCircle, CircleCheck } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 
 type Props = TextInputProps & {

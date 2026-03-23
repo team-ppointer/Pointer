@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { AddFolderScreenModal } from './FullScreenModal';
+import type * as ImagePicker from 'expo-image-picker';
+import { ImageIcon } from 'lucide-react-native';
+
 import { useCreateFolder, useUploadFile } from '@/apis';
+import { colors } from '@/theme/tokens';
+
 import { showToast } from '../Notification/Toast';
 import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
-import { colors } from '@/theme/tokens';
-import * as ImagePicker from 'expo-image-picker';
-import { ImageIcon } from 'lucide-react-native';
 import { useScrapModal } from '../../contexts/ScrapModalsContext';
+
+import { AddFolderScreenModal } from './FullScreenModal';
 
 export const CreateFolderModal = () => {
   const { isCreateFolderModalVisible, closeCreateFolderModal, refetchFolders, refetchScraps } =

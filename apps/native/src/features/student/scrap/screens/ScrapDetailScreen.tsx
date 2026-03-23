@@ -3,15 +3,15 @@ import {
   View,
   Text,
   ScrollView,
-  LayoutChangeEvent,
+  type LayoutChangeEvent,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
   Pressable,
 } from 'react-native';
-import { RouteProp, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type RouteProp, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -22,7 +22,9 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 import {
   TanstackQueryClient,
   useGetScrapDetail,
@@ -32,9 +34,10 @@ import {
 } from '@/apis';
 import { LoadingScreen } from '@/components/common';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
-import DrawingCanvas, { DrawingCanvasRef } from '../utils/skia/drawing';
 import { colors } from '@/theme/tokens';
+
+import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
+import DrawingCanvas, { type DrawingCanvasRef } from '../utils/skia/drawing';
 
 // Components
 import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
@@ -65,7 +68,6 @@ import { withScrapModals } from '../hoc/withScrapModals';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { ExplanationSection } from '../components/scrap/ExplanationSection';
-import { useQueryClient } from '@tanstack/react-query';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
@@ -99,7 +101,7 @@ const ScrapDetailScreen = () => {
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes, updateNoteTitle } =
     useNoteStore();
 
-  const [_scrapName, setScrapName] = useState<string | undefined>(undefined);
+  const [_scrapName, setScrapName] = useState<string | undefined>();
   const scrapName = _scrapName ?? scrapDetail?.name ?? '';
   const queryClient = useQueryClient();
 
@@ -188,7 +190,6 @@ const ScrapDetailScreen = () => {
       });
     };
   }, [scrapId, queryClient]);
-
 
   const handwriting = useHandwritingManager({
     scrapId,

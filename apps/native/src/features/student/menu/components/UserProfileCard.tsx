@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
+
 import { colors } from '@theme/tokens';
 import type { components } from '@schema';
 import { ProfileIcon } from '@components/system/icons';

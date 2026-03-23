@@ -1,14 +1,13 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import { Container } from '@components/common';
-import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
-import BottomActionBar from '../components/BottomActionBar';
-import Header from '../components/Header';
+import { Alert, Animated, type LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import { BookmarkIcon } from 'lucide-react-native';
-import { colors, shadow } from '@theme/tokens';
-import { StudentRootStackParamList } from '@navigation/student/types';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { colors, shadow } from '@theme/tokens';
+import { type StudentRootStackParamList } from '@navigation/student/types';
+import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
+import { Container } from '@components/common';
 import {
   postPointing,
   useGetScrapStatusById,
@@ -27,6 +26,9 @@ import {
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import { useInvalidateStudyData } from '@hooks';
+
+import Header from '../components/Header';
+import BottomActionBar from '../components/BottomActionBar';
 import ProblemViewer from '../components/ProblemViewer';
 
 const PointingScreen = ({

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
+
 import { AnimatedPressable } from '@components/common';
 import { ProfileIcon } from '@/components/system/icons';
 import { colors } from '@/theme/tokens';
@@ -24,7 +25,9 @@ export const MobileProfileCard = ({
 }: MobileProfileCardProps) => {
   const schoolGradeLabel = useMemo(
     () =>
-      [school?.name, gradeOptions.find((opt) => opt.value === grade)?.label].filter(Boolean).join(' '),
+      [school?.name, gradeOptions.find((opt) => opt.value === grade)?.label]
+        .filter(Boolean)
+        .join(' '),
     [school?.name, grade]
   );
 
@@ -46,9 +49,7 @@ export const MobileProfileCard = ({
       <View className='flex-row items-center gap-2'>
         <View className='flex-[0.5] gap-0.5 rounded-[12px] bg-white px-3 py-2.5'>
           <Text className='text-13r text-gray-700'>고등학교 / 학년</Text>
-          <Text className='text-16m text-black'>
-            {schoolGradeLabel}
-          </Text>
+          <Text className='text-16m text-black'>{schoolGradeLabel}</Text>
         </View>
         <View className='flex-[0.5] gap-0.5 rounded-[12px] bg-white px-3 py-2.5'>
           <Text className='text-13r text-gray-700'>내 선생님</Text>

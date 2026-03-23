@@ -1,5 +1,5 @@
 import { TanstackQueryClient } from '@/apis/client';
-import { paths } from '@/types/api/schema';
+import { type paths } from '@/types/api/schema';
 
 type SchoolParams = paths['/api/student/school']['get']['parameters']['query'];
 

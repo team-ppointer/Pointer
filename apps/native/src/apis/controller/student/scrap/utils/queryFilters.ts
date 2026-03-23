@@ -1,4 +1,4 @@
-import { Query } from '@tanstack/react-query';
+import { type Query } from '@tanstack/react-query';
 
 /**
  * 스크랩 검색 API 쿼리 필터

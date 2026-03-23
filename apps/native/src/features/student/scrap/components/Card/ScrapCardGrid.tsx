@@ -1,14 +1,17 @@
 import { Dimensions, FlatList, View } from 'react-native';
-import { Action, State } from '../../utils/reducer';
+import { useMemo, useState } from 'react';
+
+import { type ScrapItem, type TrashItem } from '@/features/student/scrap/utils/types';
+import { usePermanentDeleteTrash } from '@/apis';
+
+import { type Action, type State } from '../../utils/reducer';
+import { useGridLayout } from '../../utils/layout/gridLayout';
+import { useScrapModal } from '../../contexts/ScrapModalsContext';
+
 import { ScrapCard } from './cards/ScrapCard';
 import { SearchResultCard } from './cards/SearchResultCard';
 import { TrashCard } from './cards/TrashCard';
 import { ScrapAddCard, ScrapAllCard } from './cards/ScrapHeadCard';
-import { ScrapItem, TrashItem } from '@/features/student/scrap/utils/types';
-import { useGridLayout } from '../../utils/layout/gridLayout';
-import { useMemo, useState } from 'react';
-import { useScrapModal } from '../../contexts/ScrapModalsContext';
-import { usePermanentDeleteTrash } from '@/apis';
 
 /**
  * ADD, ALL item type for ScrapGrid
@@ -43,7 +46,10 @@ interface ScrapGridProps {
 export const ScrapGrid = ({ data, reducerState, dispatch }: ScrapGridProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const { numColumns, gap, itemWidth } = useGridLayout(containerWidth);
-  const finalData = useMemo(() => addPlaceholders(data as ScrapItem[], numColumns), [data, numColumns]);
+  const finalData = useMemo(
+    () => addPlaceholders(data as ScrapItem[], numColumns),
+    [data, numColumns]
+  );
   const { openMoveScrapModal } = useScrapModal();
 
   return (

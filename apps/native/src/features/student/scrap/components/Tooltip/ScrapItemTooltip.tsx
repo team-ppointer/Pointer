@@ -1,12 +1,12 @@
-import { colors } from '@/theme/tokens';
 import { ArrowRightLeft, BookImage, BookOpenText, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { TextInput, View } from 'react-native';
-import { showToast } from '../Notification/Toast';
-import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { colors } from '@/theme/tokens';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 import {
   useUpdateScrapName,
   useUpdateFolderName,
@@ -17,12 +17,14 @@ import {
   useUploadFile,
 } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
+import { invalidateScrapSearchQueries } from '@/apis/controller/student/scrap/utils';
+
+import { showToast } from '../Notification/Toast';
+import { type ScrapListItemProps } from '../Card/types';
 import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
 
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
-import { invalidateScrapSearchQueries } from '@/apis/controller/student/scrap/utils';
-import { useQueryClient } from '@tanstack/react-query';
 
 export interface ScrapItemTooltipProps {
   props: ScrapListItemProps;
@@ -98,7 +100,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
       ? (scrapDetail?.name ?? props.name)
       : (foldersData?.data?.find((f) => f.id === props.id)?.name ?? props.name);
 
-  const [_text, setText] = useState<string | undefined>(undefined);
+  const [_text, setText] = useState<string | undefined>();
   const text = _text ?? sourceTitle;
 
   const handleClose = () => {

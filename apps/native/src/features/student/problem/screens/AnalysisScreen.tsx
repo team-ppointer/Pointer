@@ -1,15 +1,14 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import { Container } from '@components/common';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
+import { Alert, Animated, type LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import BottomActionBar from '../components/BottomActionBar';
-import Header from '../components/Header';
 import { BookmarkIcon, MessageCircleMoreIcon, StarIcon } from 'lucide-react-native';
-import { colors, shadow } from '@theme/tokens';
-import { StudentRootStackParamList } from '@navigation/student/types';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { colors, shadow } from '@theme/tokens';
+import { type StudentRootStackParamList } from '@navigation/student/types';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
+import { Container } from '@components/common';
 import {
   useGetScrapStatusById,
   useToggleScrapFromProblem,
@@ -25,6 +24,9 @@ import {
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
+
+import Header from '../components/Header';
+import BottomActionBar from '../components/BottomActionBar';
 import { formatPublishDateLabel } from '../utils/formatters';
 import ProblemViewer from '../components/ProblemViewer';
 

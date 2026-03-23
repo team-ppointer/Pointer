@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, TextInput, Platform, Alert } from 'react-native';
 import { Camera, ImageIcon, Paperclip, ArrowUp, X, Pencil } from 'lucide-react-native';
-import { colors } from '@theme/tokens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
-import type { Message } from '../../types';
-import ReplyPreview from './ReplyPreview';
+
+import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
+
+import type { Message } from '../../types';
+
+import ReplyPreview from './ReplyPreview';
 
 export interface SelectedImage {
   uri: string;

@@ -1,7 +1,8 @@
-import { colors } from '@theme/tokens';
-import { BookOpenText, LucideIcon, Megaphone, MessageCircleMore } from 'lucide-react-native';
+import { BookOpenText, type LucideIcon, Megaphone, MessageCircleMore } from 'lucide-react-native';
 import React from 'react';
 import { Text, View } from 'react-native';
+
+import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 
 type IconType = 'megaphone' | 'message' | 'book' | 'book-white';

@@ -1,4 +1,4 @@
-import { components } from '@schema';
+import { type components } from '@schema';
 
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
 type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'];

@@ -1,14 +1,15 @@
-import { colors } from '@theme/tokens';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Image,
-  ImageProps,
-  ImageStyle,
-  DimensionValue,
+  type ImageProps,
+  type ImageStyle,
+  type DimensionValue,
   Animated,
   StyleSheet,
 } from 'react-native';
+
+import { colors } from '@theme/tokens';
 
 type ImageWithSkeletonProps = {
   source?: ImageProps['source'] | ImageProps['source'][];

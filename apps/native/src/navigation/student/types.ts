@@ -1,14 +1,17 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
-import { components } from '@schema';
+
+import { type components } from '@schema';
 
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
 
 export type StudentTabParamList = {
   Home: undefined;
   Scrap: undefined;
-  Qna: {
-    initialChatRoomId?: number;
-  } | undefined;
+  Qna:
+    | {
+        initialChatRoomId?: number;
+      }
+    | undefined;
   AllMenu: undefined;
 };
 

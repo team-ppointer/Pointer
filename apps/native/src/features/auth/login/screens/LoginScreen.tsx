@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
+import type BottomSheet from '@gorhom/bottom-sheet';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MailIcon } from 'lucide-react-native';
+
 import { AnimatedPressable, Container } from '@components/common';
 import { GoogleIcon, KakaoIcon, PointerLogo, AppleIcon } from '@components/system/icons';
-import BottomSheet from '@gorhom/bottom-sheet';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@theme/tokens';
-import { MailIcon } from 'lucide-react-native';
+
 import TermsConsentSheet from '../components/TermsConsentSheet';
 import EmailAuthSheet from '../components/EmailAuthSheet';
 import { useNativeOAuth, type OAuthProvider } from '../hooks';

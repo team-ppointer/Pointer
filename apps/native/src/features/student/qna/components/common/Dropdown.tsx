@@ -5,9 +5,10 @@ import {
   Pressable,
   Modal,
   TouchableWithoutFeedback,
-  LayoutRectangle,
+  type LayoutRectangle,
 } from 'react-native';
 import { ChevronDown, Check } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 import { ChevronDownFilledIcon } from '@/components/system/icons';
 

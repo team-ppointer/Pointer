@@ -3,6 +3,7 @@ import { WebView } from 'react-native-webview';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 import { useEffect, useState } from 'react';
+
 import { serializeJSONToHTML } from '../utils/serializeJSONToHTML';
 
 async function loadFontAsBase64() {

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { client, TanstackQueryClient } from '@/apis/client';
-import { paths } from '@schema';
+import { type paths } from '@schema';
 
 type UpdateHandwritingRequest =
   paths['/api/student/scrap/{scrapId}/handwriting']['put']['requestBody']['content']['application/json'];

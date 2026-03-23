@@ -1,6 +1,8 @@
 import React from 'react';
 import { Text, View, ScrollView } from 'react-native';
+
 import type { ChatRoomSearchResult, MessageSearchResult } from '../../types';
+
 import { ChatRoomResultItem, MessageResultItem } from './SearchResultItem';
 
 interface SearchResultsProps {

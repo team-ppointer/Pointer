@@ -1,8 +1,9 @@
-import { colors } from '@/theme/tokens';
 import React from 'react';
-import { Pressable, ViewStyle } from 'react-native';
+import { Pressable, type ViewStyle } from 'react-native';
 import Popover from 'react-native-popover-view';
 import { Placement } from 'react-native-popover-view/dist/Types';
+
+import { colors } from '@/theme/tokens';
 
 export interface TooltipPopoverProps {
   from: React.ReactNode;

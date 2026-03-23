@@ -7,6 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as SplashScreen from 'expo-splash-screen';
+
 import { PointerLogo } from '@components/system/icons';
 
 type Props = {
@@ -22,11 +23,11 @@ export const CustomSplashScreen = ({ isAppReady, onAnimationFinish }: Props) => 
     if (isAppReady && !isAnimationStarted) {
       setIsAnimationStarted(true);
       SplashScreen.hideAsync().then(() => {
-          opacity.value = withTiming(0, { duration: 300 }, (finished) => {
-            if (finished) {
-              runOnJS(onAnimationFinish)();
-            }
-          });
+        opacity.value = withTiming(0, { duration: 300 }, (finished) => {
+          if (finished) {
+            runOnJS(onAnimationFinish)();
+          }
+        });
       });
     }
   }, [isAppReady, isAnimationStarted, onAnimationFinish, opacity]);

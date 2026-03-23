@@ -1,5 +1,11 @@
-import React, { ReactNode, useRef } from 'react';
-import { Animated, Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
+import React, { type ReactNode, useRef } from 'react';
+import {
+  Animated,
+  Pressable,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 
 type AnimatedPressableProps = PressableProps & {
   children?: ReactNode;

@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import messaging from '@react-native-firebase/messaging';
+
 import { postPushToken } from '@apis/controller/student/me';
 
 // 알림 수신 시 동작 설정

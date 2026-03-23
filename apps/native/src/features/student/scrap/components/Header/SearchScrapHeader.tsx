@@ -1,11 +1,12 @@
-import { CircleXFilledIcon } from '@/components/system/icons';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { colors } from '@/theme/tokens';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft, CircleX, X } from 'lucide-react-native';
 import { useEffect, useRef } from 'react';
 import { Pressable, TextInput, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { colors } from '@/theme/tokens';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+import { CircleXFilledIcon } from '@/components/system/icons';
 
 interface SearchScrapHeaderProps {
   navigateback: NativeStackNavigationProp<StudentRootStackParamList>;

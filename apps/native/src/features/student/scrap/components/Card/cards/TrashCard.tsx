@@ -1,18 +1,20 @@
 import { Pressable, View, Text } from 'react-native';
 import React, { useCallback, useState } from 'react';
 import { Check } from 'lucide-react-native';
+
 import {
   ChevronDownFilledIcon,
   ScrapDefaultIcon,
   ScrapFolderDefaultIcon,
 } from '@/components/system/icons';
+import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
+import { colors } from '@/theme/tokens';
+
 import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
 import { ConfirmationModal, PopUpModal } from '../../Dialog';
 import { showToast } from '../../Notification/Toast';
 import type { TrashListItemProps } from '../types';
 import { isItemSelected } from '../../../utils/reducer';
-import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
-import { colors } from '@/theme/tokens';
 import { useCardImageSources } from '../../../hooks';
 
 type TrashCardExtraProps = {
@@ -34,7 +36,7 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
       itemType: props.type,
     });
   }, [props.dispatch, props.id, props.type]);
-  
+
   const shouldShowHover = state.isSelecting ? isSelected : isTooltipOpen;
 
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
