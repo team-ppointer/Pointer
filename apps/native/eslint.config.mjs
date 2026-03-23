@@ -4,6 +4,7 @@ import prettierConfig from 'eslint-config-prettier';
 import unicorn from 'eslint-plugin-unicorn';
 import sonarjs from 'eslint-plugin-sonarjs';
 import tailwindcss from 'eslint-plugin-tailwindcss';
+import typographyPlugin from './eslint-plugin-typography.js';
 
 /** @type {import('eslint').FlatConfig[]} */
 export default [
@@ -70,6 +71,16 @@ export default [
       'tailwindcss/enforces-shorthand': 'warn',
       'tailwindcss/no-contradicting-classname': 'error',
       'tailwindcss/no-unnecessary-arbitrary-value': 'warn',
+    },
+  },
+  {
+    files: ['**/*.{jsx,tsx}'],
+    plugins: {
+      typography: typographyPlugin,
+    },
+    rules: {
+      'typography/no-deprecated-font-token': 'warn',
+      'typography/no-direct-typography-token': 'error',
     },
   },
 ];

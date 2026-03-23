@@ -6,8 +6,6 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
-import typographyPlugin from './apps/native/eslint-plugin-typography.js';
-
 /** @type {import("eslint").FlatConfig[]} */
 export default [
   {
@@ -45,16 +43,6 @@ export default [
       react: {
         version: 'detect', // React 버전 자동 감지
       },
-    },
-  },
-  {
-    files: ['apps/native/**/*.{jsx,tsx}'],
-    plugins: {
-      typography: typographyPlugin,
-    },
-    rules: {
-      'typography/no-deprecated-font-token': 'warn',
-      'typography/no-direct-typography-token': 'error',
     },
   },
 ];
