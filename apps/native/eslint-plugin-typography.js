@@ -56,9 +56,24 @@ const directTypographyPattern = new RegExp(
 );
 
 /**
+ * Compute the precise loc for a match within a string node.
+ * `offsetInValue` is the index of the match within the raw string content.
+ * `valueStartOffset` is the offset from the node start to where the string content begins
+ * (e.g. 1 for quotes in Literal, 0 for TemplateLiteral quasis).
+ */
+function computeLoc(node, offsetInValue, matchLength, valueStartOffset) {
+  const startLine = node.loc.start.line;
+  const startCol = node.loc.start.column + valueStartOffset + offsetInValue;
+  return {
+    start: { line: startLine, column: startCol },
+    end: { line: startLine, column: startCol + matchLength },
+  };
+}
+
+/**
  * Extract class strings from a node and report matches.
  */
-function checkStringForClasses(context, node, value, rule) {
+function checkStringForClasses(context, node, value, rule, valueStartOffset) {
   if (typeof value !== 'string') return;
 
   const pattern = rule === 'deprecated' ? deprecatedPattern : directTypographyPattern;
@@ -67,15 +82,18 @@ function checkStringForClasses(context, node, value, rule) {
   let match;
   while ((match = pattern.exec(value)) !== null) {
     const matched = match[0];
+    const loc = computeLoc(node, match.index, matched.length, valueStartOffset);
     if (rule === 'deprecated') {
       context.report({
         node,
+        loc,
         message: `"${matched}" is deprecated. Use the corresponding typo-* class instead (e.g. "typo-title-1-bold").`,
       });
     } else {
       const replacement = matched.replace(/^text-/, 'typo-');
       context.report({
         node,
+        loc,
         message: `Use "${replacement}" instead of "${matched}" to ensure responsive typography.`,
       });
     }
@@ -84,10 +102,11 @@ function checkStringForClasses(context, node, value, rule) {
 
 function checkNode(context, node, rule) {
   if (node.type === 'Literal' && typeof node.value === 'string') {
-    checkStringForClasses(context, node, node.value, rule);
+    // +1 for opening quote character
+    checkStringForClasses(context, node, node.value, rule, 1);
   } else if (node.type === 'TemplateLiteral') {
     node.quasis.forEach((quasi) => {
-      checkStringForClasses(context, node, quasi.value.raw, rule);
+      checkStringForClasses(context, quasi, quasi.value.raw, rule, 0);
     });
     node.expressions.forEach((expr) => checkNode(context, expr, rule));
   } else if (node.type === 'JSXExpressionContainer') {
