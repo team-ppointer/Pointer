@@ -181,7 +181,7 @@ const HomeScreen = () => {
                   setIsCalendarModalVisible(false);
                   // Navigate to problem set if available
                 }}
-                className='bg-primary-500 m-[20px] mt-[20px] rounded-[8px] p-[12px]'>
+                className='bg-primary-500 m-[20px] rounded-[8px] p-[12px]'>
                 <Text className='text-16m text-center text-white'>
                   {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일 문제 세트로 이동
                 </Text>
