@@ -6,7 +6,6 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
-
 /** @type {import("eslint").FlatConfig[]} */
 export default [
   {

@@ -41,38 +41,145 @@ export const fontFamily = {
 };
 
 export const fontSize = {
-  // Bold 700, Semibold 600, Medium 500, Regular 400
+  // ============================================================
+  // Deprecated — Use typo-* classes instead (e.g. className="typo-title-1-bold")
+  // ============================================================
+  /** @deprecated Use typo-* classes instead */
   '32b': ['32px', { fontWeight: '700', lineHeight: '48px' }],
-
+  /** @deprecated Use typo-* classes instead */
   '24b': ['24px', { fontWeight: '700', lineHeight: '36px' }],
-
+  /** @deprecated Use typo-* classes instead */
   '20b': ['20px', { fontWeight: '700', lineHeight: '30px' }],
+  /** @deprecated Use typo-* classes instead */
   '20r': ['20px', { fontWeight: '400', lineHeight: '30px' }],
-
+  /** @deprecated Use typo-* classes instead */
   '18b': ['18px', { fontWeight: '700', lineHeight: '27px' }],
+  /** @deprecated Use typo-* classes instead */
   '18sb': ['18px', { fontWeight: '600', lineHeight: '27px' }],
+  /** @deprecated Use typo-* classes instead */
   '18m': ['18px', { fontWeight: '500', lineHeight: '27px' }],
-
+  /** @deprecated Use typo-* classes instead */
   '16b': ['16px', { fontWeight: '700', lineHeight: '24px' }],
+  /** @deprecated Use typo-* classes instead */
   '16sb': ['16px', { fontWeight: '600', lineHeight: '24px' }],
+  /** @deprecated Use typo-* classes instead */
   '16m': ['16px', { fontWeight: '500', lineHeight: '24px' }],
+  /** @deprecated Use typo-* classes instead */
   '16r': ['16px', { fontWeight: '400', lineHeight: '24px' }],
-
+  /** @deprecated Use typo-* classes instead */
   '14b': ['14px', { fontWeight: '700', lineHeight: '21px' }],
+  /** @deprecated Use typo-* classes instead */
   '14sb': ['14px', { fontWeight: '600', lineHeight: '21px' }],
+  /** @deprecated Use typo-* classes instead */
   '14m': ['14px', { fontWeight: '500', lineHeight: '21px' }],
+  /** @deprecated Use typo-* classes instead */
   '14r': ['14px', { fontWeight: '400', lineHeight: '21px' }],
-
+  /** @deprecated Use typo-* classes instead */
   '13b': ['13px', { fontWeight: '700', lineHeight: '20px' }],
+  /** @deprecated Use typo-* classes instead */
   '13m': ['13px', { fontWeight: '500', lineHeight: '20px' }],
+  /** @deprecated Use typo-* classes instead */
   '13r': ['13px', { fontWeight: '400', lineHeight: '20px' }],
-
+  /** @deprecated Use typo-* classes instead */
   '12sb': ['12px', { fontWeight: '600', lineHeight: '18px' }],
+  /** @deprecated Use typo-* classes instead */
   '12m': ['12px', { fontWeight: '500', lineHeight: '18px' }],
+  /** @deprecated Use typo-* classes instead */
   '12r': ['12px', { fontWeight: '400', lineHeight: '18px' }],
-
+  /** @deprecated Use typo-* classes instead */
   '10m': ['10px', { fontWeight: '500', lineHeight: '15px' }],
+  /** @deprecated Use typo-* classes instead */
   '10r': ['10px', { fontWeight: '400', lineHeight: '15px' }],
+
+  // ============================================================
+  // Typography Tokens — Mobile (default)
+  // ============================================================
+
+  // Display 1
+  'display-1-bold': ['24px', { fontWeight: '700', lineHeight: '32px', letterSpacing: '-0.72px' }],
+
+  // Title 1
+  'title-1-bold': ['22px', { fontWeight: '700', lineHeight: '30px', letterSpacing: '-0.55px' }],
+  'title-1-semibold': ['22px', { fontWeight: '600', lineHeight: '30px', letterSpacing: '-0.55px' }],
+
+  // Title 2
+  'title-2-bold': ['18px', { fontWeight: '700', lineHeight: '26px', letterSpacing: '-0.36px' }],
+  'title-2-semibold': ['18px', { fontWeight: '600', lineHeight: '26px', letterSpacing: '-0.36px' }],
+
+  // Heading 1
+  'heading-1-bold': ['17px', { fontWeight: '700', lineHeight: '26px', letterSpacing: '-0.17px' }],
+  'heading-1-semibold': [
+    '17px',
+    { fontWeight: '600', lineHeight: '26px', letterSpacing: '-0.17px' },
+  ],
+
+  // Heading 2 (same size as Body 1, semantic distinction)
+  'heading-2-bold': ['15px', { fontWeight: '700', lineHeight: '24px' }],
+  'heading-2-semibold': ['15px', { fontWeight: '600', lineHeight: '24px' }],
+
+  // Body 1
+  'body-1-medium': ['15px', { fontWeight: '500', lineHeight: '24px' }],
+  'body-1-regular': ['15px', { fontWeight: '400', lineHeight: '24px' }],
+
+  // Body 2
+  'body-2-medium': ['14px', { fontWeight: '500', lineHeight: '22px', letterSpacing: '0.07px' }],
+  'body-2-regular': ['14px', { fontWeight: '400', lineHeight: '22px', letterSpacing: '0.07px' }],
+
+  // Label
+  'label-semibold': ['13px', { fontWeight: '600', lineHeight: '20px', letterSpacing: '0.13px' }],
+  'label-medium': ['13px', { fontWeight: '500', lineHeight: '20px', letterSpacing: '0.13px' }],
+
+  // Caption
+  'caption-medium': ['12px', { fontWeight: '500', lineHeight: '18px', letterSpacing: '0.18px' }],
+  'caption-regular': ['12px', { fontWeight: '400', lineHeight: '18px', letterSpacing: '0.18px' }],
+
+  // ============================================================
+  // Typography Tokens — Tablet (md breakpoint, used by typo-* CSS)
+  // ============================================================
+
+  // Display 1
+  'display-1-bold-tablet': [
+    '28px',
+    { fontWeight: '700', lineHeight: '36px', letterSpacing: '-0.84px' },
+  ],
+
+  // Title 1
+  'title-1-bold-tablet': [
+    '24px',
+    { fontWeight: '700', lineHeight: '32px', letterSpacing: '-0.6px' },
+  ],
+  'title-1-semibold-tablet': [
+    '24px',
+    { fontWeight: '600', lineHeight: '32px', letterSpacing: '-0.6px' },
+  ],
+
+  // Title 2
+  'title-2-bold-tablet': [
+    '20px',
+    { fontWeight: '700', lineHeight: '28px', letterSpacing: '-0.4px' },
+  ],
+  'title-2-semibold-tablet': [
+    '20px',
+    { fontWeight: '600', lineHeight: '28px', letterSpacing: '-0.4px' },
+  ],
+
+  // Heading 1
+  'heading-1-bold-tablet': [
+    '18px',
+    { fontWeight: '700', lineHeight: '28px', letterSpacing: '-0.18px' },
+  ],
+  'heading-1-semibold-tablet': [
+    '18px',
+    { fontWeight: '600', lineHeight: '28px', letterSpacing: '-0.18px' },
+  ],
+
+  // Heading 2 (same size as Body 1 tablet)
+  'heading-2-bold-tablet': ['16px', { fontWeight: '700', lineHeight: '26px' }],
+  'heading-2-semibold-tablet': ['16px', { fontWeight: '600', lineHeight: '26px' }],
+
+  // Body 1
+  'body-1-medium-tablet': ['16px', { fontWeight: '500', lineHeight: '26px' }],
+  'body-1-regular-tablet': ['16px', { fontWeight: '400', lineHeight: '26px' }],
 };
 
 export const screens = {
@@ -82,18 +189,55 @@ export const screens = {
 };
 
 export const shadow = {
+  // Normal
   100: {
     shadowColor: '#0C0C0D',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  200: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.5,
     elevation: 2,
   },
-  900: {
-    shadowColor: '#ff00ff',
+  300: {
+    shadowColor: '#1E1E21',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
+    shadowOpacity: 0.1,
+    shadowRadius: 4.5,
+    elevation: 4,
+  },
+  400: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
     elevation: 6,
+  },
+  500: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  600: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.2,
+    shadowRadius: 11,
+    elevation: 14,
+  },
+  // Bottom Sheet
+  bottomsheet: {
+    shadowColor: '#0C0C0D',
+    shadowOffset: { width: 0, height: -1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 8,
   },
 };
