@@ -35,4 +35,6 @@ const ScrapDefaultIcon = React.forwardRef<React.ComponentRef<typeof Svg>, Lucide
   }
 ) as LucideIcon;
 
+ScrapDefaultIcon.displayName = 'ScrapDefaultIcon';
+
 export default ScrapDefaultIcon;

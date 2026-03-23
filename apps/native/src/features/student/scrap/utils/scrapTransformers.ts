@@ -1,4 +1,4 @@
-import { components } from '@schema';
+import { type components } from '@schema';
 
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
 type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'];
@@ -82,7 +82,7 @@ export function mergeTipTapDocs(
       }
     })
     .filter(
-      (doc): doc is { type: string; content?: any[] } =>
+      (doc): doc is { type: string; content?: unknown[] } =>
         doc !== null && doc.type === 'doc' && Array.isArray(doc.content)
     );
 
@@ -90,7 +90,7 @@ export function mergeTipTapDocs(
     return JSON.stringify(EMPTY_DOC);
   }
 
-  const mergedContent: any[] = [];
+  const mergedContent: unknown[] = [];
 
   validDocs.forEach((doc, index) => {
     if (index > 0 && addSeparator) {

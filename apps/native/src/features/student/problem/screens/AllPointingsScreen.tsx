@@ -1,22 +1,24 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alert, ScrollView, Text, View } from 'react-native';
-import { AnimatedPressable, Container } from '@components/common';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { StudentRootStackParamList } from '@navigation/student/types';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { BookmarkIcon, ChevronLeftIcon } from 'lucide-react-native';
+
+import { AnimatedPressable, Container } from '@components/common';
+import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors, shadow } from '@theme/tokens';
-import { BookmarkIcon, ChevronLeftIcon, MessageCircleMoreIcon } from 'lucide-react-native';
-import { components } from '@schema';
-import ProblemViewer from '../components/ProblemViewer';
-import { formatPublishDateLabel } from '../utils/formatters';
+import { type components } from '@schema';
 import {
   useGetScrapStatusById,
   useToggleScrapFromProblem,
   useToggleScrapFromPointing,
 } from '@apis/student';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
+
+import ProblemViewer from '../components/ProblemViewer';
+import { formatPublishDateLabel } from '../utils/formatters';
 
 type AllPointingsNavigationProp = NativeStackNavigationProp<
   StudentRootStackParamList,
@@ -65,27 +67,8 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   const togglePointingScrapMutation = useToggleScrapFromPointing();
 
   const params = route?.params as AllPointingsRouteParams | undefined;
-
-  if (!params) {
-    return (
-      <View className='flex-1'>
-        <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
-          <View className='h-[66px] flex-row items-center justify-between gap-[10px] px-[20px] py-[14px]'>
-            <AnimatedPressable className='p-[8px]' onPress={() => navigation.goBack()}>
-              <ChevronLeftIcon color={colors.black} size={32} />
-            </AnimatedPressable>
-            <Text className='text-20b text-primary-600'>포인팅 전체보기</Text>
-            <View className='w-[40px]' />
-          </View>
-          <View className='flex-1 items-center justify-center px-[24px]'>
-            <Text className='text-14m text-gray-600'>포인팅 정보를 불러올 수 없어요.</Text>
-          </View>
-        </SafeAreaView>
-      </View>
-    );
-  }
-
-  const { group, publishAt, problemSetTitle } = params;
+  const group = params?.group;
+  const publishAt = params?.publishAt;
 
   const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
@@ -142,7 +125,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     setScrappedPointingIds(ids);
   }, [scrapStatusData?.scrappedPointingIds]);
 
-  const headerTitle = group.no != null ? `${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
+  const headerTitle = group?.no != null ? `${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
 
   const handleClose = useCallback(() => {
     navigation?.goBack();
@@ -196,6 +179,25 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     [scrappedPointingIds, togglePointingScrapMutation]
   );
 
+  if (!params) {
+    return (
+      <View className='flex-1'>
+        <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
+          <View className='h-[66px] flex-row items-center justify-between gap-[10px] px-[20px] py-[14px]'>
+            <AnimatedPressable className='p-[8px]' onPress={() => navigation.goBack()}>
+              <ChevronLeftIcon color={colors.black} size={32} />
+            </AnimatedPressable>
+            <Text className='text-20b text-primary-600'>포인팅 전체보기</Text>
+            <View className='w-[40px]' />
+          </View>
+          <View className='flex-1 items-center justify-center px-[24px]'>
+            <Text className='text-14m text-gray-600'>포인팅 정보를 불러올 수 없어요.</Text>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
   return (
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
@@ -237,7 +239,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
                   <TrackedAnimatedPressable
                     buttonId={isProblemScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='h-[32px] w-[32px] items-center justify-center'
+                    className='size-[32px] items-center justify-center'
                     onPress={handleToggleProblemScrap}>
                     <BookmarkIcon
                       size={20}
@@ -283,7 +285,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                                 ? 'remove_scrap'
                                 : 'add_scrap'
                             }
-                            className='h-[32px] w-[32px] items-center justify-center'
+                            className='size-[32px] items-center justify-center'
                             onPress={() => pointing.id && handleTogglePointingScrap(pointing.id)}>
                             <BookmarkIcon
                               size={20}

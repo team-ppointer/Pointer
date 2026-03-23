@@ -1,12 +1,14 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { State } from '../../utils/reducer';
-import { Container } from '@/components/common';
 import { View, Text, Pressable } from 'react-native';
-import { CircleCheckDashed } from '@/components/system/icons';
 import { ArrowRightLeft, ChevronLeft, Trash2, Undo2 } from 'lucide-react-native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { Container } from '@/components/common';
+import { CircleCheckDashed } from '@/components/system/icons';
 import { colors } from '@/theme/tokens';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import { type State } from '../../utils/reducer';
 
 export interface DeletedScrapHeaderActions {
   onEnterSelection?: () => void;
@@ -45,14 +47,14 @@ const DeletedScrapHeader = ({
               </View>
             </Pressable>
           ) : (
-            <View className='h-[48px] w-[48px] gap-[10px]' />
+            <View className='size-[48px] gap-[10px]' />
           )}
-          <View className='absolute left-0 right-0 items-center'>
-            <Text className=' text-20b text-gray-900'>휴지통</Text>
+          <View className='absolute inset-x-0 items-center'>
+            <Text className='text-20b text-gray-900'>휴지통</Text>
           </View>
           <View className='flex-row items-center gap-1'>
             <Pressable
-              className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
+              className='size-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
               onPress={actions.onEnterSelection}>
               <CircleCheckDashed />
             </Pressable>

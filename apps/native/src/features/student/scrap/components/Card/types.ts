@@ -1,4 +1,4 @@
-import { Action, State } from '../../utils/reducer';
+import { type Action, type State } from '../../utils/reducer';
 
 /**
  * 기본 UI Props - API 스키마에 맞춤

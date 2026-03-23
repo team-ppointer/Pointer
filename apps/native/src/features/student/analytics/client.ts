@@ -1,5 +1,9 @@
+import type { components } from '@schema';
 import { client } from '@/apis/client';
+
 import type { AnalyticsEvent, DeviceType } from './types';
+
+type UserEventBatchRequest = components['schemas']['UserEventBatchRequest'];
 
 interface SendEventsParams {
   events: AnalyticsEvent[];
@@ -39,7 +43,7 @@ export const analyticsClient = {
 
     try {
       const response = await client.POST('/api/analytics/events', {
-        body: requestBody as any,
+        body: requestBody as unknown as UserEventBatchRequest,
       });
 
       if (response.response.ok) {

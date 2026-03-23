@@ -1,21 +1,23 @@
 import { View } from 'react-native';
-import ScrapHeader from '../components/Header/ScrapHeader';
 import { useState, useEffect, useMemo } from 'react';
+import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
+import { Container, LoadingScreen } from '@/components/common';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import ScrapHeader from '../components/Header/ScrapHeader';
 import { mapUIKeyToAPIKey, sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { Container, LoadingScreen } from '@/components/common';
 import SortDropdown from '../components/Dropdown/SortDropdown';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import { showToast } from '../components/Notification/Toast';
-import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection } from '../hooks';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { withScrapModals } from '../hoc';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -114,8 +116,8 @@ const FolderScrapScreenContent = () => {
                 });
                 dispatch({ type: 'CLEAR_SELECTION' });
                 showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-              } catch (error: any) {
-                showToast('error', error.message);
+              } catch (error: unknown) {
+                showToast('error', error instanceof Error ? error.message : '삭제에 실패했습니다.');
               }
             },
           }}

@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { type paths } from '@schema';
 import { client } from '@/apis/client';
-import { paths } from '@schema';
 import type { ScrapSearchResponse } from '@/features/student/scrap/utils/types';
+
 import {
   createSearchQueryFilters,
   rollbackOptimisticUpdate,
@@ -36,11 +38,11 @@ export const useDeleteFolders = () => {
       const previousQueries = queryClient.getQueriesData(searchQueryFilters);
 
       // 낙관적 업데이트: 폴더 목록에서 삭제된 폴더 제거
-      queryClient.setQueryData(folderQueryKey, (old: any) => {
+      queryClient.setQueryData(folderQueryKey, (old: { data?: { id: number }[] } | undefined) => {
         if (!old?.data) return old;
         return {
           ...old,
-          data: old.data.filter((folder: any) => !deletedFolderIds.has(folder.id)),
+          data: old.data.filter((folder: { id: number }) => !deletedFolderIds.has(folder.id)),
         };
       });
 

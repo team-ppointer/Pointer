@@ -1,7 +1,9 @@
 import React, { useRef } from 'react';
-import { View, ScrollView, LayoutChangeEvent, Dimensions } from 'react-native';
+import { View, ScrollView, type LayoutChangeEvent, Dimensions } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
-import { Note } from '@/features/student/scrap/stores/scrapNoteStore';
+
+import { type Note } from '@/features/student/scrap/stores/scrapNoteStore';
+
 import { DraggableTab } from './DraggableTab';
 
 export interface TabNavigatorProps {

@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import { Container, NotificationItem } from '@components/common';
-import { ScreenLayout } from '../components';
 import { putReadNotice, useGetNotice, useInvalidateNoticeData } from '@apis';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import { ScreenLayout } from '../components';
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -26,7 +28,7 @@ const NoticeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const [page, setPage] = useState(0);
   const [allNotices, setAllNotices] = useState<
-    Array<{ id: number; title: string; startAt: string; content: string; isRead: boolean }>
+    { id: number; title: string; startAt: string; content: string; isRead: boolean }[]
   >([]);
 
   const { data: noticeData, isFetching } = useGetNotice({ page, size: PAGE_SIZE });

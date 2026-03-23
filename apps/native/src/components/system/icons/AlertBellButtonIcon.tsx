@@ -35,4 +35,6 @@ const AlertButtonIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideP
   }
 ) as LucideIcon;
 
+AlertButtonIcon.displayName = 'AlertButtonIcon';
+
 export default AlertButtonIcon;

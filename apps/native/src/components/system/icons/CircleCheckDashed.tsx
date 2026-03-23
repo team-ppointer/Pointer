@@ -28,4 +28,6 @@ const CircleCheckDashed = React.forwardRef<React.ComponentRef<typeof Svg>, Lucid
   }
 ) as LucideIcon;
 
+CircleCheckDashed.displayName = 'CircleCheckDashed';
+
 export default CircleCheckDashed;

@@ -1,5 +1,5 @@
 import { client } from '@/apis/client';
-import { paths } from '@/types/api/schema';
+import { type paths } from '@/types/api/schema';
 
 type QuitRequest =
   paths['/api/student/auth/quit']['post']['requestBody']['content']['application/json'];

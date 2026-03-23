@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { useNavigationState } from '@react-navigation/native';
-import { analytics } from './index';
+import { useNavigationState, type NavigationState } from '@react-navigation/native';
+
 import type { ScreenName } from './types';
+
+import { analytics } from './index';
 
 /**
  * Map navigation route names to analytics screen names
@@ -46,14 +48,16 @@ const ROUTE_TO_SCREEN_MAP: Record<string, ScreenName> = {
 /**
  * Get the active route name from navigation state
  */
-function getActiveRouteName(state: any): string | undefined {
-  if (!state) return undefined;
+function getActiveRouteName(
+  state: NavigationState | Partial<NavigationState> | undefined
+): string | undefined {
+  if (!state || state.index == null || !state.routes) return undefined;
 
   const route = state.routes[state.index];
 
   // Handle nested navigators
   if (route.state) {
-    return getActiveRouteName(route.state);
+    return getActiveRouteName(route.state as NavigationState | Partial<NavigationState>);
   }
 
   return route.name;

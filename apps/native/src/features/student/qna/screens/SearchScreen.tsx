@@ -2,8 +2,10 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useGetQnaSearch } from '@apis/controller/student/qna';
+
 import type { ChatRoomSearchResult, MessageSearchResult } from '../types';
 import { mapSearchResults } from '../types';
 import { SearchHeader, RecentSearches, SearchResults } from '../components/Search';
@@ -104,18 +106,20 @@ const SearchScreen = () => {
         onCancel={handleCancel}
       />
 
-      {isLoading || isFetching ? (
+      {(isLoading || isFetching) && (
         <View className='flex-1 items-center justify-center'>
           <ActivityIndicator size='large' />
         </View>
-      ) : hasSearched ? (
+      )}
+      {!(isLoading || isFetching) && hasSearched && (
         <SearchResults
           chatRooms={searchResults.chatRooms}
           messages={searchResults.messages}
           onSelectChatRoom={handleSelectChatRoom}
           onSelectMessage={handleSelectMessage}
         />
-      ) : (
+      )}
+      {!(isLoading || isFetching) && !hasSearched && (
         <RecentSearches
           searches={recentSearches}
           onSelect={handleSelectRecentSearch}

@@ -7,7 +7,7 @@ interface TeacherInfoCardProps {
 
 export const TeacherInfoCard = ({ teacherName }: TeacherInfoCardProps) => {
   return (
-    <View className='flex-col rounded-[12px] bg-[#ECF0FB] px-[16px] py-[12px]'>
+    <View className='flex-col rounded-[12px] bg-blue-100 px-[16px] py-[12px]'>
       <Text className='text-14r text-gray-700'>내 선생님</Text>
       {teacherName ? (
         <Text className='text-18m text-black'>{`${teacherName} 선생님`}</Text>

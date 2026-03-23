@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { AnimatedPressable, Container } from '@components/common';
-import { ScreenLayout } from '../components';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { AnimatedPressable, Container } from '@components/common';
 import { colors } from '@theme/tokens';
 import { usePostFeedback } from '@apis';
 import { showToast } from '@features/student/scrap/components/Notification';
+
+import { ScreenLayout } from '../components';
 
 const FeedbackScreen = () => {
   const { mutate: postFeedback, isPending } = usePostFeedback();

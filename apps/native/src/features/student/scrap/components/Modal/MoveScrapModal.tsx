@@ -1,12 +1,13 @@
-import React, { useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo, useCallback, useEffect, useReducer } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { FolderPlus } from 'lucide-react-native';
+
+import { useGetFolders, useMoveScraps } from '@/apis';
+
 import { PopUpModal } from '../Dialog';
 import { ScrapGrid } from '../Card/ScrapCardGrid';
-import { useGetFolders, useMoveScraps } from '@/apis';
 import { showToast } from '../Notification/Toast';
 import { reducer, initialSelectionState } from '../../utils/reducer';
-import { useReducer } from 'react';
 import { useScrapModal } from '../../contexts/ScrapModalsContext';
 
 export const MoveScrapModal = () => {
@@ -112,7 +113,8 @@ export const MoveScrapModal = () => {
       return;
     }
 
-      moveScraps({
+    moveScraps(
+      {
         scrapIds: scrapsToMove.map((item) => item.id),
         targetFolderId: selectedFolderId,
       },
@@ -125,8 +127,8 @@ export const MoveScrapModal = () => {
           refetchScrapDetail?.();
           closeMoveScrapModal();
         },
-        onError: (error: any) => {
-          showToast('error', error.message);
+        onError: (error: unknown) => {
+          showToast('error', error instanceof Error ? error.message : '이동에 실패했습니다.');
         },
       }
     );
@@ -152,7 +154,7 @@ export const MoveScrapModal = () => {
           <Pressable onPress={closeMoveScrapModal} className='items-start'>
             <Text className='text-14sb text-primary-600'>취소</Text>
           </Pressable>
-          <View className='absolute left-0 right-0 items-center'>
+          <View className='absolute inset-x-0 items-center'>
             <Text className='text-16sb text-gray-900'>
               {selectedItems.length}개 스크랩 이동하기
             </Text>

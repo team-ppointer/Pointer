@@ -1,10 +1,12 @@
-import { colors } from '@/theme/tokens';
 import { Check, Plus } from 'lucide-react-native';
 import { Pressable, View, Text } from 'react-native';
-import { TooltipPopover, AddItemTooltipBox } from '../../Tooltip';
 import { Placement } from 'react-native-popover-view/dist/Types';
+
 import { BookmarkFilledIcon } from '@/components/system/icons';
-import { isItemSelected, State } from '../../../utils/reducer';
+import { colors } from '@/theme/tokens';
+
+import { TooltipPopover, AddItemTooltipBox } from '../../Tooltip';
+import { isItemSelected, type State } from '../../../utils/reducer';
 import { useScrapModal } from '../../../contexts/ScrapModalsContext';
 
 interface ScrapHeadCardProps {
@@ -24,7 +26,7 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
             <Plus size={24} color={colors['gray-600']} />
           </View>
         </View>
-        <Text className='text-16sb text-[#1E1E21]'>추가하기</Text>
+        <Text className='text-16sb text-black'>추가하기</Text>
       </View>
     </View>
   );
@@ -34,9 +36,8 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
       {isSelecting ? (
         <View style={{ opacity: 0.5 }}>{addItemContent}</View>
       ) : (
-        <TooltipPopover
-          placement={Placement.BOTTOM}
-          children={(close: () => void) => (
+        <TooltipPopover placement={Placement.BOTTOM} from={addItemContent}>
+          {(close: () => void) => (
             <AddItemTooltipBox
               onClose={close}
               onOpenFolderModal={() => {
@@ -53,8 +54,7 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
               }}
             />
           )}
-          from={addItemContent}
-        />
+        </TooltipPopover>
       )}
     </>
   );
@@ -65,7 +65,7 @@ export const ScrapAllCard = (props: ScrapHeadCardProps) => {
 
   return (
     <Pressable
-      className={`${isSelected ? 'bg-gray-300 p-[10px]' : ''}  w-full items-center rounded-[10px] p-[10px]`}
+      className={`${isSelected ? 'bg-gray-300 p-[10px]' : ''} w-full items-center rounded-[10px] p-[10px]`}
       onPress={() => {
         if (props.reducerState.isSelecting) {
           props.onCheckPress?.();
@@ -81,8 +81,8 @@ export const ScrapAllCard = (props: ScrapHeadCardProps) => {
             <Pressable
               className={
                 isSelected
-                  ? 'absolute h-4 w-4 items-center justify-center rounded bg-blue-500'
-                  : 'absolute h-4 w-4 items-center justify-center rounded border border-gray-700 bg-white'
+                  ? 'absolute size-4 items-center justify-center rounded bg-blue-500'
+                  : 'absolute size-4 items-center justify-center rounded border border-gray-700 bg-white'
               }
               style={{ bottom: 10 }}>
               <Check size={16} color='#F5F5F5' />
@@ -90,7 +90,7 @@ export const ScrapAllCard = (props: ScrapHeadCardProps) => {
           )}
         </View>
         <View className='w-full flex-col px-1'>
-          <Text className='text-16sb text-[#1E1E21]'>전체 스크랩</Text>
+          <Text className='text-16sb text-black'>전체 스크랩</Text>
         </View>
       </View>
     </Pressable>

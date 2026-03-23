@@ -25,4 +25,6 @@ const MessageSquareWarningFilledIcon = React.forwardRef<
   );
 }) as LucideIcon;
 
+MessageSquareWarningFilledIcon.displayName = 'MessageSquareWarningFilledIcon';
+
 export default MessageSquareWarningFilledIcon;

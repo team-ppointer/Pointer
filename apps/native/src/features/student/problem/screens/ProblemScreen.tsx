@@ -1,15 +1,12 @@
-import { colors } from '@/theme/tokens';
-import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
-import { Container } from '@components/common';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import BottomSheet from '@gorhom/bottom-sheet';
-import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';
+import type BottomSheet from '@gorhom/bottom-sheet';
+import { BookmarkIcon } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Animated,
   Dimensions,
-  LayoutChangeEvent,
+  type LayoutChangeEvent,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,13 +15,11 @@ import {
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import BottomActionBar from '../components/BottomActionBar';
-import Header from '../components/Header';
-import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
-import ResultSheet from '../components/ResultSheet';
+import { Container } from '@components/common';
+import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
-import { components } from '@schema';
+import { type components } from '@schema';
 import {
   MAX_RETRY_ATTEMPTS,
   selectChildIndex,
@@ -36,9 +31,15 @@ import {
   selectPublishId,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
+import { colors } from '@/theme/tokens';
+
+import ResultSheet from '../components/ResultSheet';
+import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
+import Header from '../components/Header';
+import BottomActionBar from '../components/BottomActionBar';
 import { formatPublishDateLabel } from '../utils/formatters';
 import ProblemViewer from '../components/ProblemViewer';
-import { DrawingCanvas, DrawingCanvasRef } from '../../scrap/utils/skia';
+import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
 import { ConfirmationModal } from '../../scrap/components/Dialog';

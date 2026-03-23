@@ -1,4 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { useOnboardingStore } from '../store/useOnboardingStore';
+
 import type { OnboardingStackParamList } from './types';
 import EmailStep from './steps/EmailStep';
 import IdentityStep from './steps/IdentityStep';
@@ -7,7 +10,6 @@ import MathSubjectStep from './steps/MathSubjectStep';
 import SchoolStep from './steps/SchoolStep';
 import ScoreStep from './steps/ScoreStep';
 import WelcomeStep from './steps/WelcomeStep';
-import { useOnboardingStore } from '../store/useOnboardingStore';
 
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();
 

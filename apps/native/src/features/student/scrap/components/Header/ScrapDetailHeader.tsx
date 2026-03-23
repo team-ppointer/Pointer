@@ -2,8 +2,10 @@ import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, MessageCircleMore, Trash2 } from 'lucide-react-native';
 import LottieView from 'lottie-react-native';
-import { colors } from '@/theme/tokens';
+
 import { ChevronDownFilledIcon } from '@/components/system/icons';
+import { colors } from '@/theme/tokens';
+
 import { TooltipPopover } from '../Tooltip';
 import { TooltipContainer } from '../Tooltip/TooltipContainer';
 import { TooltipMenuItem } from '../Tooltip/TooltipMenuItem';
@@ -30,7 +32,7 @@ export const ScrapDetailHeader = ({
   const [lottiePlayed, setLottiePlayed] = useState(false);
   const lottieRef = useRef<LottieView>(null);
 
-  const [_localName, setLocalName] = useState<string | undefined>(undefined);
+  const [_localName, setLocalName] = useState<string | undefined>();
   const localName = _localName ?? scrapName;
   const textInputRef = useRef<TextInput>(null);
 
@@ -85,8 +87,8 @@ export const ScrapDetailHeader = ({
               </Text>
               <ChevronDownFilledIcon size={20} color={colors['gray-600']} />
             </View>
-          }
-          children={(close) => (
+          }>
+          {(close) => (
             <TooltipContainer
               height=''
               header={
@@ -139,7 +141,8 @@ export const ScrapDetailHeader = ({
                 isLastItem
               />
             </TooltipContainer>
-          )}></TooltipPopover>
+          )}
+        </TooltipPopover>
       </View>
       <Pressable onPress={onMessagePress}>
         {/* 미구현 <MessageCircleMore size={24} color={'#FFF'} />` */}

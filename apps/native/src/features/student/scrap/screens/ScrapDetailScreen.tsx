@@ -3,15 +3,15 @@ import {
   View,
   Text,
   ScrollView,
-  LayoutChangeEvent,
+  type LayoutChangeEvent,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
   Pressable,
 } from 'react-native';
-import { RouteProp, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type RouteProp, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
@@ -22,7 +22,11 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { colors } from '@/theme/tokens';
+import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
+import { LoadingScreen } from '@/components/common';
 import {
   TanstackQueryClient,
   useGetScrapDetail,
@@ -30,13 +34,10 @@ import {
   useGetEntireProblemPointing,
   useGetEntireProblem,
 } from '@/apis';
-import { LoadingScreen } from '@/components/common';
-import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
-import DrawingCanvas, { DrawingCanvasRef } from '../utils/skia/drawing';
-import { colors } from '@/theme/tokens';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 
-// Components
+import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
+import DrawingCanvas, { type DrawingCanvasRef } from '../utils/skia/drawing';
 import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
 import { TabNavigator } from '../components/scrap/TabNavigator';
 import { FilterBar } from '../components/scrap/FilterBar';
@@ -45,13 +46,9 @@ import { AnalysisSection } from '../components/scrap/AnalysisSection';
 import { PointingsList } from '../components/scrap/PointingsList';
 import { DrawingToolbar } from '../components/scrap/DrawingToolbar';
 import { ProblemExpansionModal } from '../components/scrap/ProblemExpansionModal';
-
-// Hooks
 import { useDrawingState } from '../hooks/useDrawingState';
 import { useHandwritingManager } from '../hooks/useHandwritingManager';
 import { useScrapUIState } from '../hooks/useScrapUIState';
-
-// Utils
 import { convertScrapToGroup, mergeTipTapDocs } from '../utils/scrapTransformers';
 import {
   generateFilterOptions,
@@ -65,7 +62,6 @@ import { withScrapModals } from '../hoc/withScrapModals';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { ExplanationSection } from '../components/scrap/ExplanationSection';
-import { useQueryClient } from '@tanstack/react-query';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 
@@ -99,7 +95,7 @@ const ScrapDetailScreen = () => {
   const { openNotes, activeNoteId, setActiveNote, closeNote, reorderNotes, updateNoteTitle } =
     useNoteStore();
 
-  const [_scrapName, setScrapName] = useState<string | undefined>(undefined);
+  const [_scrapName, setScrapName] = useState<string | undefined>();
   const scrapName = _scrapName ?? scrapDetail?.name ?? '';
   const queryClient = useQueryClient();
 
@@ -188,7 +184,6 @@ const ScrapDetailScreen = () => {
       });
     };
   }, [scrapId, queryClient]);
-
 
   const handwriting = useHandwritingManager({
     scrapId,
@@ -564,7 +559,7 @@ const ScrapDetailScreen = () => {
                 )}
                 {/* TODO: 포인팅 목록에서 해설 표시 (임시로 문항 표시) */}
 
-                {hasPointings && <View className='h-[1px] w-full bg-gray-400' />}
+                {hasPointings && <View className='h-px w-full bg-gray-400' />}
 
                 {/* Pointings List */}
                 {hasPointings && (
@@ -574,7 +569,7 @@ const ScrapDetailScreen = () => {
                   />
                 )}
 
-                {hasPointings && <View className='h-[1px] w-full bg-gray-400' />}
+                {hasPointings && <View className='h-px w-full bg-gray-400' />}
 
                 {/* AnalysisSection */}
                 {hasReadingTip && (

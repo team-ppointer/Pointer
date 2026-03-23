@@ -1,11 +1,12 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Undo2, Redo2, Type } from 'lucide-react-native';
-import { colors } from '@/theme/tokens';
+
+import { colors } from '@theme/tokens';
+import { PencilFilledIcon, EraserFilledIcon } from '@components/system/icons';
+import { SizeSelector } from '@features/student/scrap/components/scrap/SizeSelector';
+
 import { IconButton } from '../../../problem/components/WritingArea';
-import { PencilFilledIcon } from '@/components/system/icons';
-import EraserFilledIcon from '@/components/system/icons/EraserFilledIcon';
-import { SizeSelector } from '@/features/student/scrap/components/scrap/SizeSelector';
 
 export interface DrawingToolbarProps {
   // Undo/Redo
@@ -51,9 +52,7 @@ export const DrawingToolbar = ({
   isNarrow = false,
 }: DrawingToolbarProps) => {
   const SizeSelectorComponent = (
-    <View
-      pointerEvents={isTextMode ? 'none' : 'auto'}
-      style={{ opacity: isTextMode ? 0 : 1 }}>
+    <View pointerEvents={isTextMode ? 'none' : 'auto'} style={{ opacity: isTextMode ? 0 : 1 }}>
       {isEraserMode ? (
         <SizeSelector
           type='eraser'

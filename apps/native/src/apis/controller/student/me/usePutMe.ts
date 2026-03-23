@@ -1,6 +1,7 @@
-import { client, TanstackQueryClient } from '@/apis/client';
-import { components } from '@schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { type components } from '@schema';
+import { client, TanstackQueryClient } from '@/apis/client';
 
 type StudentUpdateRequest = components['schemas']['StudentUpdateRequest'];
 

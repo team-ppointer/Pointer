@@ -1,8 +1,11 @@
-import { colors } from '@/theme/tokens';
 import { Trash2, Undo2 } from 'lucide-react-native';
-import { showToast } from '../Notification/Toast';
+
 import { useRestoreTrash } from '@/apis';
+import { colors } from '@/theme/tokens';
+
+import { showToast } from '../Notification/Toast';
 import type { TrashListItemProps } from '../Card/types';
+
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
 
@@ -34,15 +37,15 @@ export const TrashScrapTooltip = ({ item, onClose, onDeletePress }: TrashScrapTo
           {
             id: item.id,
             type: item.type as 'FOLDER' | 'SCRAP',
-          },  
+          },
         ],
       });
       showToast('success', '선택된 파일이 복구되었습니다.');
       onClose?.();
-  } catch (error: any) {
-    showToast('error', error.message);
-  }
-  }
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : '복구에 실패했습니다.');
+    }
+  };
 
   return (
     <TooltipContainer height='h-[88px]'>

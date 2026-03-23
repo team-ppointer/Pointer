@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { analyticsClient } from './client';
 import type { AnalyticsEvent, DeviceType } from './types';
 

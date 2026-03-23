@@ -1,4 +1,4 @@
-import { components } from '@/types/api/schema';
+import { type components } from '@/types/api/schema';
 
 type ScrapExtendResp = components['schemas']['ScrapDetailResp'];
 
@@ -7,7 +7,7 @@ export interface PointingWithLabel {
   no: number;
   questionContent?: string;
   commentContent?: string;
-  concepts?: Array<{ id: number; name: string }>;
+  concepts?: { id: number; name: string }[];
   label: string;
 }
 

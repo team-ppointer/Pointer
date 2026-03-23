@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import {
   BackHandler,
   Keyboard,
@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
 
@@ -97,7 +98,7 @@ const OnboardingLayout = ({
             <ChevronLeftIcon color={colors['gray-800']} size={32} />
           </AnimatedPressable>
         ) : (
-          <View className='h-[36px] w-[36px]' />
+          <View className='size-[36px]' />
         )}
         {skipLabel && onSkip ? (
           <AnimatedPressable

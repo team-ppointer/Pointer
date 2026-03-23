@@ -15,4 +15,6 @@ const KakaoIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
   )
 ) as LucideIcon;
 
+KakaoIcon.displayName = 'KakaoIcon';
+
 export default KakaoIcon;

@@ -1,9 +1,11 @@
 import React from 'react';
 import { Text, ScrollView } from 'react-native';
-import { AnimatedPressable, Container } from '@components/common';
 import { ChevronRight } from 'lucide-react-native';
-import { ScreenLayout } from '../components';
+
+import { AnimatedPressable, Container } from '@components/common';
 import { colors } from '@theme/tokens';
+
+import { ScreenLayout } from '../components';
 
 interface TermsItem {
   id: string;
@@ -18,8 +20,7 @@ const TERMS_LIST: TermsItem[] = [
 ];
 
 const TermsScreen = () => {
-  const handleTermPress = (term: TermsItem) => {
-  };
+  const handleTermPress = (term: TermsItem) => {};
 
   return (
     <ScreenLayout title='서비스 약관'>

@@ -1,22 +1,26 @@
-import { OnboardingInput } from '@features/student/onboarding/components';
-import { EditScreenLayout } from '../../../components';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { type NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Search } from 'lucide-react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+
 import { showToast } from '@features/student/scrap/components/Notification';
 import { useGetSchool } from '@apis';
-import { MenuStackParamList } from '@navigation/student/MenuNavigator';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Search } from 'lucide-react-native';
+import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { colors, shadow } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { OnboardingInput } from '@features/student/onboarding/components';
 import { useDebounce } from '@hooks';
 import { AnimatedPressable } from '@components/common';
+
+import { EditScreenLayout } from '../../../components';
 
 const EditSchoolScreen = ({
   navigation,
   route,
 }: NativeStackScreenProps<MenuStackParamList, 'EditSchool'>) => {
-  const [schoolId, setSchoolId] = useState<number | undefined>(route.params.initialSchool?.id || undefined);
+  const [schoolId, setSchoolId] = useState<number | undefined>(
+    route.params.initialSchool?.id || undefined
+  );
 
   const [query, setQuery] = useState(route.params.initialSchool?.name || '');
   const [selectedLabel, setSelectedLabel] = useState(route.params.initialSchool?.name || '');
@@ -38,10 +42,7 @@ const EditSchoolScreen = ({
   }, [clearDropdownTimer]);
 
   const debouncedQuery = useDebounce(query.trim(), 300);
-  const { data, isLoading } = useGetSchool(
-    { query: debouncedQuery },
-    debouncedQuery.length > 0
-  );
+  const { data, isLoading } = useGetSchool({ query: debouncedQuery }, debouncedQuery.length > 0);
 
   const results = data?.data ?? [];
   const showDropdown = dropdownVisible && (results.length > 0 || isLoading);

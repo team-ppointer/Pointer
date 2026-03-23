@@ -1,12 +1,13 @@
-import { colors } from '@/theme/tokens';
 import { ArrowRightLeft, BookImage, BookOpenText, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { TextInput, View } from 'react-native';
-import { showToast } from '../Notification/Toast';
-import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
+import type * as ImagePicker from 'expo-image-picker';
+
+import { colors } from '@/theme/tokens';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 import {
   useUpdateScrapName,
   useUpdateFolderName,
@@ -17,12 +18,14 @@ import {
   useUploadFile,
 } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
+import { invalidateScrapSearchQueries } from '@/apis/controller/student/scrap/utils';
+
+import { showToast } from '../Notification/Toast';
+import { type ScrapListItemProps } from '../Card/types';
 import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
 
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
-import { invalidateScrapSearchQueries } from '@/apis/controller/student/scrap/utils';
-import { useQueryClient } from '@tanstack/react-query';
 
 export interface ScrapItemTooltipProps {
   props: ScrapListItemProps;
@@ -51,7 +54,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
 
   const { mutateAsync: uploadFile } = useUploadFile();
 
-  const handleUpdateFolderCover = async (image: any) => {
+  const handleUpdateFolderCover = async (image: ImagePicker.ImagePickerAsset) => {
     if (!image || !image.uri) {
       return;
     }
@@ -73,8 +76,8 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
       });
       showToast('success', '표지가 변경되었습니다.');
       handleClose?.();
-    } catch (error: any) {
-      showToast('error', error.message);
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : '오류가 발생했습니다.');
     }
   };
 
@@ -98,7 +101,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
       ? (scrapDetail?.name ?? props.name)
       : (foldersData?.data?.find((f) => f.id === props.id)?.name ?? props.name);
 
-  const [_text, setText] = useState<string | undefined>(undefined);
+  const [_text, setText] = useState<string | undefined>();
   const text = _text ?? sourceTitle;
 
   const handleClose = () => {
@@ -132,7 +135,7 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
         items: [{ id: props.id, type: props.type as 'FOLDER' | 'SCRAP' }],
       });
       showToast('success', '휴지통으로 이동해 한 달 후 영구 삭제됩니다.');
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast('error', '삭제 중 오류가 발생했습니다.');
     } finally {
       handleClose?.();
@@ -166,8 +169,11 @@ export const ScrapItemTooltip = ({ props, onClose, onMovePress }: ScrapItemToolt
                     });
                     showToast('success', '스크랩 이름이 변경되었습니다.');
                   }
-                } catch (error: any) {
-                  showToast('error', error.message);
+                } catch (error: unknown) {
+                  showToast(
+                    'error',
+                    error instanceof Error ? error.message : '오류가 발생했습니다.'
+                  );
                 }
                 invalidateScrapSearchQueries(queryClient);
               } else {

@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native';
 import { Alert, Text, View } from 'react-native';
-
-import { TextButton } from '@components/common';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
-import { components } from '@schema';
-import { colors, shadow } from '@theme/tokens';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { TextButton } from '@components/common';
+import { type components } from '@schema';
+import { colors, shadow } from '@theme/tokens';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {
@@ -42,7 +42,7 @@ interface ProblemListProps {
 const WEEKDAY_LABELS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
 const Divider = () => {
-  return <View className='h-[1px] bg-gray-400' />;
+  return <View className='h-px bg-gray-400' />;
 };
 
 const ProblemStatusIcon: Record<

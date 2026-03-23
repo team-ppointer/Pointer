@@ -1,24 +1,26 @@
 import { Pressable, View, Text } from 'react-native';
 import React, { useCallback, useState } from 'react';
 import { Check } from 'lucide-react-native';
+
+import { colors } from '@/theme/tokens';
+import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
 import {
   ChevronDownFilledIcon,
   ScrapDefaultIcon,
   ScrapFolderDefaultIcon,
 } from '@/components/system/icons';
+
 import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
 import { ConfirmationModal, PopUpModal } from '../../Dialog';
 import { showToast } from '../../Notification/Toast';
 import type { TrashListItemProps } from '../types';
 import { isItemSelected } from '../../../utils/reducer';
-import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
-import { colors } from '@/theme/tokens';
 import { useCardImageSources } from '../../../hooks';
 
 type TrashCardExtraProps = {
   onPermanentDelete?: (params: {
     items: { id: number; type: 'FOLDER' | 'SCRAP' }[];
-  }) => Promise<any>;
+  }) => Promise<unknown>;
 };
 
 export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
@@ -34,7 +36,7 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
       itemType: props.type,
     });
   }, [props.dispatch, props.id, props.type]);
-  
+
   const shouldShowHover = state.isSelecting ? isSelected : isTooltipOpen;
 
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;
@@ -97,8 +99,8 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
               onPress={handleCheckPress}
               className={
                 isSelected
-                  ? 'absolute h-[18px] w-[18px] items-center justify-center rounded bg-blue-500'
-                  : 'absolute h-[18px] w-[18px] items-center justify-center rounded border border-gray-700 bg-white'
+                  ? 'absolute size-[18px] items-center justify-center rounded bg-blue-500'
+                  : 'absolute size-[18px] items-center justify-center rounded border border-gray-700 bg-white'
               }
               style={{ top: 108 }}>
               {isSelected && <Check size={16} color='#F5F5F5' />}
@@ -141,10 +143,8 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
         {state.isSelecting ? (
           cardContent()
         ) : (
-          <TooltipPopover
-            from={cardContent()}
-            onOpenChange={setIsTooltipOpen}
-            children={(close) => (
+          <TooltipPopover from={cardContent()} onOpenChange={setIsTooltipOpen}>
+            {(close) => (
               <TrashItemTooltipBox
                 item={props}
                 onClose={close}
@@ -156,7 +156,7 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
                 }}
               />
             )}
-          />
+          </TooltipPopover>
         )}
       </Pressable>
       <ConfirmationModal

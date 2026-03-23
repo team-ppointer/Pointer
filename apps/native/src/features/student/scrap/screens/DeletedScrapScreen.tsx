@@ -1,17 +1,19 @@
 import React, { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import DeletedScrapHeader from '../components/Header/DeletedScrapHeader';
 import { useNavigation } from '@react-navigation/native';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
 import { Container, LoadingScreen } from '@/components/common';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import DeletedScrapHeader from '../components/Header/DeletedScrapHeader';
 import { TrashScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
 import { sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
 import { ConfirmationModal } from '../components/Dialog';
 import { showToast } from '../components/Notification/Toast';
-import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection } from '../hooks';
 import { validateOnlyScrapCanMove } from '../utils/validation';
@@ -50,8 +52,8 @@ const DeletedScrapScreenContent = () => {
       dispatch({ type: 'CLEAR_SELECTION' });
       setIsDeleteModalVisible(false);
       showToast('success', '영구 삭제되었습니다.');
-    } catch (error: any) {
-      showToast('error', error.message);
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : '오류가 발생했습니다.');
     }
   };
 
@@ -82,8 +84,8 @@ const DeletedScrapScreenContent = () => {
               });
               dispatch({ type: 'CLEAR_SELECTION' });
               showToast('success', '선택된 파일들이 복구되었습니다.');
-            } catch (error: any) {
-              showToast('error', error.message);
+            } catch (error: unknown) {
+              showToast('error', error instanceof Error ? error.message : '복구에 실패했습니다.');
             }
           },
         }}

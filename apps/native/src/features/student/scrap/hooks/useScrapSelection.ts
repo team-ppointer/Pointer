@@ -1,5 +1,6 @@
 import { useReducer } from 'react';
-import { reducer, initialSelectionState, State, Action } from '../utils/reducer';
+
+import { reducer, initialSelectionState, type State, type Action } from '../utils/reducer';
 
 /**
  * 스크랩 아이템 선택 상태를 관리하는 커스텀 훅

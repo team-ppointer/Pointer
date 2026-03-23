@@ -1,8 +1,10 @@
 import React from 'react';
-import { Text, ViewStyle } from 'react-native';
-import AnimatedPressable from './AnimatedPressable';
+import { Text, type ViewStyle } from 'react-native';
+
 import TrackedAnimatedPressable from '@/features/student/analytics/TrackedAnimatedPressable';
 import type { ButtonId, ScreenName } from '@/features/student/analytics';
+
+import AnimatedPressable from './AnimatedPressable';
 
 interface ButtonProps {
   variant?: 'blue' | 'gray' | 'outline';
@@ -60,11 +62,7 @@ const TextButton = ({
   }
 
   return (
-    <AnimatedPressable
-      onPress={onPress}
-      disabled={disabled}
-      className={className}
-      style={style}>
+    <AnimatedPressable onPress={onPress} disabled={disabled} className={className} style={style}>
       <Text className={textStyles[variant]}>{children}</Text>
     </AnimatedPressable>
   );

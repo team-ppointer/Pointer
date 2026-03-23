@@ -5,9 +5,10 @@ import {
   Pressable,
   Modal,
   TouchableWithoutFeedback,
-  LayoutRectangle,
+  type LayoutRectangle,
 } from 'react-native';
 import { ChevronDown, Check } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 import { ChevronDownFilledIcon } from '@/components/system/icons';
 
@@ -57,8 +58,8 @@ const Dropdown = <T extends string>({
         onPress={handleOpen}
         className={`flex-row items-center gap-[2px] rounded-[6px] ${
           isStatus
-            ? 'py-[2px] pl-[6px] pr-[4px] ' + (isAsking ? 'bg-blue-100' : 'bg-green-100')
-            : 'py-[4px] pl-[8px] pr-[4px]'
+            ? 'py-[2px] pr-[4px] pl-[6px] ' + (isAsking ? 'bg-blue-100' : 'bg-green-100')
+            : 'py-[4px] pr-[4px] pl-[8px]'
         }`}>
         <Text
           className={`text-14m ${
@@ -84,8 +85,6 @@ const Dropdown = <T extends string>({
                   minWidth: buttonLayout?.width,
                 }}
                 className='rounded-[8px] bg-white py-[4px] shadow-lg'
-                // Shadow for iOS
-                // eslint-disable-next-line react-native/no-inline-styles
                 pointerEvents='auto'>
                 {options.map((option, index) => {
                   const isSelected = option.value === value;

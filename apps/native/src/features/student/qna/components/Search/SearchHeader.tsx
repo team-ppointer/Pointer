@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, TextInput, Pressable, Text } from 'react-native';
 import { X } from 'lucide-react-native';
-import { colors } from '@theme/tokens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { colors } from '@theme/tokens';
 
 interface SearchHeaderProps {
   value: string;
@@ -45,7 +46,7 @@ const SearchHeader = ({
         {value.length > 0 && (
           <Pressable
             onPress={handleClear}
-            className='ml-[8px] h-[24px] w-[24px] items-center justify-center rounded-full bg-gray-400 active:bg-gray-500'>
+            className='ml-[8px] size-[24px] items-center justify-center rounded-full bg-gray-400 active:bg-gray-500'>
             <X size={14} color='white' />
           </Pressable>
         )}

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AppState, Text, View } from 'react-native';
-import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
-import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
+
+import { AnimatedPressable } from '@components/common';
 import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
+import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
+import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
+
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
-import { AnimatedPressable } from '@components/common';
 
 type FormState = {
   name: string;
@@ -196,7 +198,8 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
             disabled={timeLeft > 0}
             className='bg-primary-500 mt-[45px] h-[48px] w-[100px] items-center justify-center rounded-[8px]'>
             <Text className='text-16m text-white'>
-              {timeLeft > 0 ? formatTime(timeLeft) : isSent ? '재전송' : '인증 요청'}
+              {timeLeft > 0 && formatTime(timeLeft)}
+              {timeLeft <= 0 && (isSent ? '재전송' : '인증 요청')}
             </Text>
           </AnimatedPressable>
         )}

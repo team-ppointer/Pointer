@@ -3,13 +3,14 @@ import { WebView } from 'react-native-webview';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 import { useEffect, useState } from 'react';
+
 import { serializeJSONToHTML } from '../utils/serializeJSONToHTML';
 
 async function loadFontAsBase64() {
   const asset = Asset.fromModule(require('@assets/fonts/PretendardVariable.ttf'));
   await asset.downloadAsync();
   const fileUri = asset.localUri || asset.uri;
-  const base64 = await FileSystem.readAsStringAsync(fileUri!, {
+  const base64 = await FileSystem.readAsStringAsync(fileUri ?? '', {
     encoding: 'base64',
   });
 

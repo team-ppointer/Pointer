@@ -3,12 +3,14 @@ import {
   FlatList,
   Keyboard,
   Platform,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import ImageViewing from 'react-native-image-viewing';
+
 import type { Message } from '../../types';
+
 import MessageBubble from './MessageBubble';
 import DateDivider from './DateDivider';
 
@@ -44,7 +46,7 @@ const MessageList = ({
   const [isAtBottom, setIsAtBottom] = useState(true);
 
   // Image viewer state
-  const [viewerImages, setViewerImages] = useState<Array<{ uri: string }>>([]);
+  const [viewerImages, setViewerImages] = useState<{ uri: string }[]>([]);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [isViewerVisible, setIsViewerVisible] = useState(false);
 
@@ -52,7 +54,7 @@ const MessageList = ({
   const globalTranslateX = useSharedValue(0);
 
   // Handle image press to open full-screen viewer
-  const handlePressImages = useCallback((images: Array<{ uri: string }>, initialIndex: number) => {
+  const handlePressImages = useCallback((images: { uri: string }[], initialIndex: number) => {
     setViewerImages(images);
     setViewerIndex(initialIndex);
     setIsViewerVisible(true);

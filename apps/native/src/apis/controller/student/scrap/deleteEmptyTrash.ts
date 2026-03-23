@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { client } from '@/apis/client';
 
 export const useEmptyTrash = () => {

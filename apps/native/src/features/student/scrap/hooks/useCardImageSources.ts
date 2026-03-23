@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ImageSourcePropType } from 'react-native';
+import { type ImageSourcePropType } from 'react-native';
 
 interface CardImageSourcesResult {
   imageSources: ImageSourcePropType[] | undefined;

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import {
   usePostQnaChat,
   usePutQna,
@@ -11,10 +12,13 @@ import {
 import { useUploadFile } from '@apis/controller/common/file';
 import useSubscribeQna from '@apis/controller/common/qna/useGetSubscribeQna';
 import { getAccessToken } from '@utils/auth';
+import type { components } from '@schema';
+
 import type { ChatRoom as ChatRoomType, Message, ChatRoomStatus, QnAResp } from '../../types';
 import { mapQnARespToMessages } from '../../types';
 import { MessageList } from '../Message';
 import { MessageInput, type SelectedImage, type SelectedFile } from '../MessageInput';
+
 import ChatRoomHeader from './ChatRoomHeader';
 
 interface ChatRoomProps {
@@ -52,12 +56,7 @@ const NewChatState = ({
   </View>
 );
 
-const ChatRoom = ({
-  chatRoom,
-  qnaData,
-  onBack,
-  showBackButton = false,
-}: ChatRoomProps) => {
+const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoomProps) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
@@ -85,7 +84,7 @@ const ChatRoom = ({
     token: token ?? '',
     enabled: !!qnaId && !!token,
     onChatEvent: useCallback(
-      (event: import('@schema').components['schemas']['QnAChatEvent']) => {
+      (event: components['schemas']['QnAChatEvent']) => {
         console.log('[ChatRoom] Chat event received:', event);
         // Invalidate queries to refresh data
         if (event.qnaId) {
@@ -182,15 +181,6 @@ const ChatRoom = ({
     }
     return messages;
   }, [messages, isPublisher, selectedTab]);
-
-  if (!chatRoom) {
-    return <EmptyState />;
-  }
-
-  // Sender name: "포인터 출제진" for publisher, teacherName for others
-  const senderName = isPublisher ? '포인터 출제진' : chatRoom.teacherName;
-  // Profile image: undefined for publisher (will show default icon), thumbnailUrl for teachers
-  const profileImageUrl = isPublisher ? undefined : chatRoom.thumbnailUrl;
 
   const handleReply = useCallback((message: Message) => {
     setReplyTo(message);
@@ -317,6 +307,15 @@ const ChatRoom = ({
     },
     [qnaId, editingMessage, updateChatMutation, postChatMutation]
   );
+
+  if (!chatRoom) {
+    return <EmptyState />;
+  }
+
+  // Sender name: "포인터 출제진" for publisher, teacherName for others
+  const senderName = isPublisher ? '포인터 출제진' : chatRoom.teacherName;
+  // Profile image: undefined for publisher (will show default icon), thumbnailUrl for teachers
+  const profileImageUrl = isPublisher ? undefined : chatRoom.thumbnailUrl;
 
   const showCommentsOnly = isPublisher && selectedTab === 1;
   const isSending =

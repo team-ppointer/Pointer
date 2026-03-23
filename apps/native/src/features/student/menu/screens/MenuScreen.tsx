@@ -1,14 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
-import { TanstackQueryClient } from '@apis';
+import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
 
-import { useGetMe, useGetNoticeCount } from '@apis';
+import { TanstackQueryClient, useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
 import { Container } from '@components/common';
-import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
+import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
+
 import {
   UserProfileCard,
   MobileProfileCard,
@@ -17,7 +18,6 @@ import {
   MenuSection,
 } from '../components';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
-import { MenuStackParamList } from '@navigation/student/MenuNavigator';
 import { showToast } from '../../scrap/components/Notification';
 import useIsTablet from '../../qna/hooks/useIsTablet';
 
@@ -56,9 +56,7 @@ const MenuScreen = () => {
         <Text className='text-20b text-black'>전체 메뉴</Text>
       </Container>
       <Container className='flex-1'>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerClassName='pb-[40px]'>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName='pb-[40px]'>
           <View className='h-[20px]' />
           <View className='gap-[10px]'>
             {isTablet ? (

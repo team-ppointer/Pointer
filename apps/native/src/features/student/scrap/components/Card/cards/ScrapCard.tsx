@@ -1,20 +1,22 @@
 import { Pressable, View, Text, Image } from 'react-native';
 import React, { useCallback } from 'react';
 import { Check } from 'lucide-react-native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 import {
   ChevronDownFilledIcon,
   ScrapDefaultIcon,
   ScrapFolderDefaultIcon,
 } from '@/components/system/icons';
-import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import type { ScrapListItemProps } from '../types';
-import { isItemSelected } from '../../../utils/reducer';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common';
+
+import type { ScrapListItemProps } from '../types';
+import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
+import { isItemSelected } from '../../../utils/reducer';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 import { useCardImageSources } from '../../../hooks';
 
@@ -94,8 +96,8 @@ export const ScrapCard = (props: ScrapListItemProps & ScrapCardExtraProps) => {
           onPress={handleCheckPress}
           className={
             isSelected
-              ? 'absolute h-[18px] w-[18px] items-center justify-center rounded bg-blue-500'
-              : 'absolute h-[18px] w-[18px] items-center justify-center rounded border border-gray-700 bg-white'
+              ? 'absolute size-[18px] items-center justify-center rounded bg-blue-500'
+              : 'absolute size-[18px] items-center justify-center rounded border border-gray-700 bg-white'
           }
           style={{ top: 108 }}>
           {isSelected && <Check size={16} color='#F5F5F5' />}
@@ -112,8 +114,8 @@ export const ScrapCard = (props: ScrapListItemProps & ScrapCardExtraProps) => {
               <View className='shrink-0'>
                 <TooltipPopover
                   from={<ChevronDownFilledIcon size={22} color={colors['gray-700']} />}
-                  triggerBorderRadius={4}
-                  children={(close) => (
+                  triggerBorderRadius={4}>
+                  {(close) => (
                     <ItemTooltipBox
                       props={props}
                       onClose={close}
@@ -126,7 +128,7 @@ export const ScrapCard = (props: ScrapListItemProps & ScrapCardExtraProps) => {
                       }}
                     />
                   )}
-                />
+                </TooltipPopover>
               </View>
             )}
           </View>

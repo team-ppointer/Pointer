@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, Pressable, ScrollView, Image, Dimensions } from 'react-native';
 import { X } from 'lucide-react-native';
+
 import ProblemViewer from '../../../problem/components/ProblemViewer';
 
 export interface ProblemExpansionModalProps {
@@ -36,14 +37,19 @@ export const ProblemExpansionModal = ({
           }}
           onPress={(e) => e.stopPropagation()}>
           <View className='mb-4 flex-row items-center justify-between'>
-            <Text className='text-18b text-[#1E1E21]'>문제 내용</Text>
+            <Text className='text-18b text-black'>문제 내용</Text>
             <Pressable onPress={onClose} className='rounded-full bg-gray-200 p-2'>
               <X size={20} color='#3E3F45' />
             </Pressable>
           </View>
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true}>
             {problemContent && (
-              <ProblemViewer problemContent={problemContent} minHeight={400} padding={20} fontStyle='serif' />
+              <ProblemViewer
+                problemContent={problemContent}
+                minHeight={400}
+                padding={20}
+                fontStyle='serif'
+              />
             )}
             {!problemContent && thumbnailUrl && (
               <Image

@@ -22,4 +22,6 @@ const ProfileIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps
   }
 ) as LucideIcon;
 
+ProfileIcon.displayName = 'ProfileIcon';
+
 export default ProfileIcon;

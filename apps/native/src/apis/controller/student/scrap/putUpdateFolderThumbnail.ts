@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { type paths } from '@schema';
 import { client } from '@/apis/client';
-import { paths } from '@schema';
+
 import { invalidateScrapSearchQueries, SCRAP_QUERY_KEYS } from './utils';
 
 type UpdateFolderThumbnailRequest =

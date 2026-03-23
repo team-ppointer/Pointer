@@ -1,4 +1,5 @@
 import React from 'react';
+
 import type { ChatRoomFilterType } from '../../types';
 import { Dropdown } from '../common';
 import { FILTER_OPTIONS } from '../../constants';

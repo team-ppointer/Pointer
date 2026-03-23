@@ -1,4 +1,4 @@
-import React, { Children, cloneElement, ReactElement, ReactNode } from 'react';
+import React, { Children, cloneElement, type ReactElement, type ReactNode } from 'react';
 import { View } from 'react-native';
 
 interface MenuSectionProps {
@@ -16,8 +16,8 @@ export const MenuSection = ({ children }: MenuSectionProps) => {
         if (React.isValidElement(child)) {
           return (
             <React.Fragment key={index}>
-              {cloneElement(child as ReactElement<any>)}
-              {!isLast && <View className='mx-[16px] h-[1px] bg-gray-300' />}
+              {cloneElement(child as ReactElement<Record<string, unknown>>)}
+              {!isLast && <View className='mx-[16px] h-px bg-gray-300' />}
             </React.Fragment>
           );
         }

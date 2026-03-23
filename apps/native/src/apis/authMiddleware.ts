@@ -1,4 +1,4 @@
-import { Middleware } from 'openapi-fetch';
+import { type Middleware } from 'openapi-fetch';
 
 import {
   getAccessToken,
@@ -91,7 +91,7 @@ const authMiddleware: Middleware = {
     // 보호되지 않은 라우트 체크
     const unprotectedRoutes = isTeacher ? TEACHER_UNPROTECTED_ROUTES : UNPROTECTED_ROUTES;
     if (unprotectedRoutes.some((pathname) => schemaPath.startsWith(pathname))) {
-      return undefined;
+      return;
     }
 
     // 적절한 토큰 갱신 함수 호출

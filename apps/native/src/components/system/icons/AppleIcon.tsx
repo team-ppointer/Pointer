@@ -13,4 +13,6 @@ const AppleIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
   )
 ) as LucideIcon;
 
+AppleIcon.displayName = 'AppleIcon';
+
 export default AppleIcon;

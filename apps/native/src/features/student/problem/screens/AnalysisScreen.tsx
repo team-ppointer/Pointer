@@ -1,15 +1,13 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Alert, Animated, LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import { Container } from '@components/common';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
+import { Alert, Animated, type LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import BottomActionBar from '../components/BottomActionBar';
-import Header from '../components/Header';
-import { BookmarkIcon, MessageCircleMoreIcon, StarIcon } from 'lucide-react-native';
-import { colors, shadow } from '@theme/tokens';
-import { StudentRootStackParamList } from '@navigation/student/types';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BookmarkIcon } from 'lucide-react-native';
+import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { colors, shadow } from '@theme/tokens';
+import { type StudentRootStackParamList } from '@navigation/student/types';
+import { Container } from '@components/common';
 import {
   useGetScrapStatusById,
   useToggleScrapFromProblem,
@@ -25,6 +23,10 @@ import {
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
+
+import Header from '../components/Header';
+import BottomActionBar from '../components/BottomActionBar';
 import { formatPublishDateLabel } from '../utils/formatters';
 import ProblemViewer from '../components/ProblemViewer';
 
@@ -234,7 +236,7 @@ const AnalysisScreen = ({
           />
         </Container>
         <View className='flex-1 overflow-hidden'>
-          <Container className='flex-1 flex-col gap-[20px] pb-[32px] pt-[20px] md:flex-row'>
+          <Container className='flex-1 flex-col gap-[20px] pt-[20px] pb-[32px] md:flex-row'>
             <View className='md:flex-1'>
               <View
                 className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
@@ -243,7 +245,7 @@ const AnalysisScreen = ({
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
                   <TrackedAnimatedPressable
                     buttonId={isScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='h-[32px] w-[32px] items-center justify-center'
+                    className='size-[32px] items-center justify-center'
                     onPress={handleToggleScrap}>
                     <BookmarkIcon
                       size={20}
@@ -268,7 +270,7 @@ const AnalysisScreen = ({
                   </View>
                   <TrackedAnimatedPressable
                     buttonId={isReadingTipScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='h-[32px] w-[32px] items-center justify-center'
+                    className='size-[32px] items-center justify-center'
                     onPress={handleToggleReadingTipScrap}>
                     <BookmarkIcon
                       size={20}
@@ -286,7 +288,7 @@ const AnalysisScreen = ({
                   </View>
                   <TrackedAnimatedPressable
                     buttonId={isOneStepMoreScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='h-[32px] w-[32px] items-center justify-center'
+                    className='size-[32px] items-center justify-center'
                     onPress={handleToggleOneStepMoreScrap}>
                     <BookmarkIcon
                       size={20}

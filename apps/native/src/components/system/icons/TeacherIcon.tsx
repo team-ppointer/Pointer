@@ -63,4 +63,6 @@ const TeacherIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps
   }
 ) as LucideIcon;
 
+TeacherIcon.displayName = 'TeacherIcon';
+
 export default TeacherIcon;

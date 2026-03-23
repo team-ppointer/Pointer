@@ -1,5 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import MenuScreen from '@features/student/menu/screens/MenuScreen';
 import {
   MyInfoScreen,
@@ -15,8 +16,8 @@ import NoticeScreen from '@features/student/menu/screens/NoticeScreen';
 import FeedbackScreen from '@features/student/menu/screens/FeedbackScreen';
 import TermsScreen from '@features/student/menu/screens/TermsScreen';
 import WithdrawalScreen from '@features/student/menu/screens/WithdrawalScreen';
-import { components } from '@/types/api/schema';
-import { GradeValue, MathSubjectValue } from '@features/student/onboarding/constants';
+import { type GradeValue, type MathSubjectValue } from '@features/student/onboarding/constants';
+import { type components } from '@/types/api/schema';
 
 export type MenuStackParamList = {
   MenuMain: undefined;

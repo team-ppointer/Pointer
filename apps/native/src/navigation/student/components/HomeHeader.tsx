@@ -1,14 +1,15 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Bell } from 'lucide-react-native';
+
 import { AlertBellButtonIcon } from '@components/system/icons';
-import { StudentRootStackParamList } from '../types';
 import { AnimatedPressable, Container } from '@components/common';
 import { useGetNotificationCount } from '@/apis/controller/student/notification';
 import { useGetNoticeCount } from '@/apis/controller/student/notice';
-import { Bell } from 'lucide-react-native';
 
+import { type StudentRootStackParamList } from '../types';
 
 type RootNav = NativeStackNavigationProp<StudentRootStackParamList>;
 
@@ -25,7 +26,7 @@ const HomeHeader = () => {
       <Container className='flex-row items-center justify-end py-[4px]'>
         <AnimatedPressable
           onPress={() => navigation.navigate('Notifications')}
-          className='h-[48px] w-[48px] items-center justify-center gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
+          className='size-[48px] items-center justify-center gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
           {hasUnread ? <AlertBellButtonIcon /> : <Bell size={24} color='black' />}
         </AnimatedPressable>
       </Container>

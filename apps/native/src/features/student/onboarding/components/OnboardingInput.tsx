@@ -1,6 +1,6 @@
 import {
-  ForwardedRef,
-  ReactNode,
+  type ForwardedRef,
+  type ReactNode,
   forwardRef,
   useImperativeHandle,
   useMemo,
@@ -8,8 +8,17 @@ import {
   useState,
   useCallback,
 } from 'react';
-import { Pressable, Text, TextInput, TextInputProps, View } from 'react-native';
+import {
+  type NativeSyntheticEvent,
+  Pressable,
+  Text,
+  TextInput,
+  type TextInputProps,
+  type TargetedEvent,
+  View,
+} from 'react-native';
 import { AlertCircle, CircleCheck } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 
 type Props = TextInputProps & {
@@ -59,7 +68,7 @@ const OnboardingInput = forwardRef(
     }, [errorMessage, isFocused, successMessage]);
 
     const handleFocus = useCallback(
-      (event: any) => {
+      (event: NativeSyntheticEvent<TargetedEvent>) => {
         setIsFocused(true);
         onFocus?.(event);
       },
@@ -67,7 +76,7 @@ const OnboardingInput = forwardRef(
     );
 
     const handleBlur = useCallback(
-      (event: any) => {
+      (event: NativeSyntheticEvent<TargetedEvent>) => {
         setIsFocused(false);
         onBlur?.(event);
       },
@@ -104,12 +113,12 @@ const OnboardingInput = forwardRef(
               onPress={onPressAccessory}
               disabled={!onPressAccessory}
               hitSlop={8}
-              className='ml-[8px] h-[24px] w-[24px] items-center justify-center'>
+              className='ml-[8px] size-[24px] items-center justify-center'>
               {rightAccessory}
             </Pressable>
           ) : null}
         </Pressable>
-        {hint ? <Text className='text-12r ml-[4px] mt-[8px] text-[#808087]'>{hint}</Text> : null}
+        {hint ? <Text className='text-12r mt-[8px] ml-[4px] text-[#808087]'>{hint}</Text> : null}
         {errorMessage ? (
           <View className='mt-[8px] flex-row items-center gap-[4px]'>
             <AlertCircle size={14} color={colors['red-400']} />

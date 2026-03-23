@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CheckIcon } from 'lucide-react-native';
+
 import { AnimatedPressable, Container } from '@components/common';
 import { useAuthStore } from '@stores';
-import { ScreenLayout } from '../components';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { deleteAccount } from '@apis';
-import { CheckIcon } from 'lucide-react-native';
+
+import { ScreenLayout } from '../components';
 
 const WITHDRAWAL_REASONS = [
   '서비스 사용방법이 너무 어려워요.',
@@ -96,7 +98,7 @@ const WithdrawalScreen = () => {
                 onPress={() => toggleReason(reason)}
                 className='h-[48px] flex-row items-center gap-[10px]'>
                 <View
-                  className={`h-[16px] w-[16px] items-center justify-center rounded-[4px] border border-gray-700 ${
+                  className={`size-[16px] items-center justify-center rounded-[4px] border border-gray-700 ${
                     selectedReasons.includes(reason) ? 'bg-blue-500' : 'border border-gray-300'
                   }`}>
                   {selectedReasons.includes(reason) && (

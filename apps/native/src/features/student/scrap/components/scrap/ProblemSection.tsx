@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { Maximize2 } from 'lucide-react-native';
-import ProblemViewer from '../../../problem/components/ProblemViewer';
+
 import { colors } from '@/theme/tokens';
+
+import ProblemViewer from '../../../problem/components/ProblemViewer';
 
 export interface ProblemSectionProps {
   problemContent?: string;
@@ -25,7 +27,12 @@ export const ProblemSection = ({
         className='gap-[6px] rounded-[8px] border border-gray-500 bg-white p-[14px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]'
         onPress={onHoverStart}>
         {/* <Text className='text-16b text-gray-600'>문제 본문</Text> */}
-        <ProblemViewer problemContent={problemContent} minHeight={200} padding={14} fontStyle='serif' />
+        <ProblemViewer
+          problemContent={problemContent}
+          minHeight={200}
+          padding={14}
+          fontStyle='serif'
+        />
         {isHovering && (
           <Pressable
             onPress={onExpand}

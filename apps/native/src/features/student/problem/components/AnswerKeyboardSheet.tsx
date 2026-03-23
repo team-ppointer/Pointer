@@ -1,14 +1,15 @@
-import { AnimatedPressable, Container } from '@components/common';
-import { colors } from '@theme/tokens';
 import BottomSheet, {
   BottomSheetBackdrop,
-  BottomSheetBackdropProps,
+  type BottomSheetBackdropProps,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { DeleteIcon } from 'lucide-react-native';
 import { forwardRef, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
+
+import { colors } from '@theme/tokens';
+import { AnimatedPressable, Container } from '@components/common';
 
 type AnswerType = 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
 
@@ -63,7 +64,7 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
       return (
         <AnimatedPressable
           key={choice}
-          className={`my-[12px] h-[70px] w-[70px] items-center justify-center rounded-[16px] ${
+          className={`my-[12px] size-[70px] items-center justify-center rounded-[16px] ${
             isSelected ? 'bg-primary-500' : 'bg-white'
           }`}
           style={isSelected && styles.choiceButtonShadow}

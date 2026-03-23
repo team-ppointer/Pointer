@@ -1,5 +1,6 @@
-import { components } from '@schema';
 import { create } from 'zustand';
+
+import { type components } from '@schema';
 
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
 type ProblemWithStudyInfoResp = components['schemas']['ProblemWithStudyInfoResp'];

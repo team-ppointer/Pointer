@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { ChevronRight, LucideIcon } from 'lucide-react-native';
+import { ChevronRight, type LucideIcon } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 
@@ -29,7 +30,7 @@ export const MenuListItem = ({
       disableScale>
       <View className='h-[48px] flex-1 flex-row items-center'>
         {Icon ? (
-          <View className='mr-[4px] h-[30px] w-[30px] items-center justify-center'>
+          <View className='mr-[4px] size-[30px] items-center justify-center'>
             <Icon size={20} color={colors['gray-700']} />
           </View>
         ) : null}

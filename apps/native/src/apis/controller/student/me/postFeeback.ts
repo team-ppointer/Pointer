@@ -1,6 +1,7 @@
-import { client, TanstackQueryClient } from '@/apis/client';
-import { components } from '@/types/api/schema';
 import { useMutation } from '@tanstack/react-query';
+
+import { client, TanstackQueryClient } from '@/apis/client';
+import { type components } from '@/types/api/schema';
 
 type FeedbackCreateRequest = components['schemas']['FeedbackDTO.Request'];
 

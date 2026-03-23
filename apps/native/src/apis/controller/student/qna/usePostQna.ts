@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { type components } from '@schema';
 import { TanstackQueryClient, client } from '@/apis/client';
-import { components } from '@schema';
 
 type QnACreateRequest = components['schemas']['QnACreateRequest'];
 

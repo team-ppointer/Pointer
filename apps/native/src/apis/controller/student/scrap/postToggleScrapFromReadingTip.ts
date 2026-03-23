@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { type components } from '@schema';
 import { client } from '@/apis/client';
-import { components } from '@schema';
+
 import { invalidateScrapMutationQueries } from './utils';
 
 type ScrapFromReadingTipCreateRequest = components['schemas']['ScrapFromReadingTipCreateRequest'];

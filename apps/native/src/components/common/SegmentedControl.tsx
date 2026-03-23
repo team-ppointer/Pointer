@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, Text, View, ViewProps } from 'react-native';
+import { Animated, Pressable, Text, View, type ViewProps } from 'react-native';
 
 type SegmentedControlProps = {
   options: string[];

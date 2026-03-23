@@ -1,10 +1,12 @@
 import React from 'react';
 import { Pressable, View, Text, ImageBackground } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 import type { ScrapListItemResp } from '@/features/student/scrap/utils/types';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
+
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 
 type RecentScrapCardProps = {
@@ -37,7 +39,7 @@ export const RecentScrapCard = ({ scrap }: RecentScrapCardProps) => {
         <Text className='text-16sb text-black' numberOfLines={2}>
           {scrap.name}
         </Text>
-        <Text className='text-12r text-gray-700 ' numberOfLines={1}>
+        <Text className='text-12r text-gray-700' numberOfLines={1}>
           {formatToMinute(new Date(scrap.updatedAt))}
         </Text>
       </View>

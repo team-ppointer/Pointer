@@ -1,14 +1,16 @@
-import { Container } from '@components/common';
-import React, { ReactNode, useRef } from 'react';
+import React, { type ReactNode, useRef } from 'react';
 import {
   Animated,
-  LayoutChangeEvent,
+  type GestureResponderEvent,
+  type LayoutChangeEvent,
   Pressable,
-  PressableProps,
-  StyleProp,
+  type PressableProps,
+  type StyleProp,
   View,
-  ViewStyle,
+  type ViewStyle,
 } from 'react-native';
+
+import { Container } from '@components/common';
 import { analytics, type ButtonId, type ScreenName } from '@/features/student/analytics';
 
 type BottomActionBarProps = {
@@ -34,7 +36,7 @@ type BottomActionBarComponent = ((props: BottomActionBarProps) => React.ReactEle
   Button: (props: BottomActionBarButtonProps) => React.ReactElement;
 };
 
-const combineClassName = (...classNames: Array<string | undefined>) =>
+const combineClassName = (...classNames: (string | undefined)[]) =>
   classNames.filter(Boolean).join(' ');
 
 const BottomActionBarButton = ({
@@ -53,7 +55,7 @@ const BottomActionBarButton = ({
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
 
-  const handlePressIn = (e: any) => {
+  const handlePressIn = (e: GestureResponderEvent) => {
     Animated.parallel([
       Animated.spring(scaleAnim, {
         toValue: 0.95,
@@ -70,7 +72,7 @@ const BottomActionBarButton = ({
     onPressIn?.(e);
   };
 
-  const handlePressOut = (e: any) => {
+  const handlePressOut = (e: GestureResponderEvent) => {
     Animated.parallel([
       Animated.spring(scaleAnim, {
         toValue: 1,
@@ -87,7 +89,7 @@ const BottomActionBarButton = ({
     onPressOut?.(e);
   };
 
-  const handlePress = (e: any) => {
+  const handlePress = (e: GestureResponderEvent) => {
     // Track button click if buttonId is provided
     if (buttonId) {
       analytics.trackButtonClick(buttonId, buttonLabel, screenName);
@@ -100,7 +102,7 @@ const BottomActionBarButton = ({
     <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
       <Pressable
         className={combineClassName(
-          'items-center justify-center rounded-[8px] px-[18px] h-[42px]',
+          'h-[42px] items-center justify-center rounded-[8px] px-[18px]',
           className
         )}
         onPressIn={handlePressIn}

@@ -13,7 +13,7 @@ import {
   ChevronDownFilledIcon,
 } from '@components/system/icons';
 import { AnimatedPressable } from '@components/common';
-import { components } from '@schema';
+import { type components } from '@schema';
 
 type PublishResp = components['schemas']['PublishResp'];
 type CalendarProgress = 'completed' | 'inprogress' | 'notstarted' | 'unavailable';
@@ -85,7 +85,7 @@ const CalendarDate = ({
           {date}
         </Text>
       </View>
-      <View className='h-[36px] w-[36px] items-center justify-center rounded-full bg-white'>
+      <View className='size-[36px] items-center justify-center rounded-full bg-white'>
         <Icon />
       </View>
     </View>
@@ -96,11 +96,11 @@ const CalendarLegend = () => {
   return (
     <View className='flex flex-row items-center justify-end px-[30px]'>
       <CalendarCompletedIcon width={20} height={20} />
-      <Text className='text-14m ml-[4px] mr-[16px] text-gray-900'>풀이 완료</Text>
+      <Text className='text-14m mr-[16px] ml-[4px] text-gray-900'>풀이 완료</Text>
       <CalendarInProgressIcon width={20} height={20} />
-      <Text className='text-14m ml-[4px] mr-[16px] text-gray-900'>진행 중</Text>
+      <Text className='text-14m mr-[16px] ml-[4px] text-gray-900'>진행 중</Text>
       <CalendarNotStartedIcon width={20} height={20} />
-      <Text className='text-14m ml-[4px] mr-[16px] text-gray-900'>시작 전</Text>
+      <Text className='text-14m mr-[16px] ml-[4px] text-gray-900'>시작 전</Text>
       <CalendarUnavailableIcon width={20} height={20} />
       <Text className='text-14m ml-[4px] text-gray-900'>미출제</Text>
     </View>

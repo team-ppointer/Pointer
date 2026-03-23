@@ -1,11 +1,13 @@
-import { QueryClient, QueryFilters } from '@tanstack/react-query';
+import { type QueryClient, type QueryFilters } from '@tanstack/react-query';
+
 import type { ScrapSearchResponse } from '@/features/student/scrap/utils/types';
+
 import { isScrapSearchQuery } from './queryFilters';
 
 /**
  * 삭제할 항목 ID 세트 생성
  */
-export const createDeletedIdsSet = (items: Array<{ id: number; type: string }>): Set<string> => {
+export const createDeletedIdsSet = (items: { id: number; type: string }[]): Set<string> => {
   return new Set(items.map((item) => `${item.type}-${item.id}`));
 };
 
@@ -22,7 +24,7 @@ export const createSearchQueryFilters = (): QueryFilters => ({
  */
 export const optimisticDeleteScrap = async (
   queryClient: QueryClient,
-  items: Array<{ id: number; type: string }>
+  items: { id: number; type: string }[]
 ) => {
   const deletedIds = createDeletedIdsSet(items);
   const searchQueryFilters = createSearchQueryFilters();
@@ -66,7 +68,7 @@ export const optimisticDeleteScrap = async (
  */
 export const optimisticMoveScrap = async (
   queryClient: QueryClient,
-  items: Array<{ id: number; type: string }>,
+  items: { id: number; type: string }[],
   targetFolderId?: number
 ) => {
   const movedIds = createDeletedIdsSet(items);
@@ -199,6 +201,6 @@ export const rollbackOptimisticUpdate = (
   previousQueries: readonly [queryKey: unknown, data: unknown][]
 ): void => {
   previousQueries.forEach(([queryKey, data]) => {
-    queryClient.setQueryData(queryKey as any, data);
+    queryClient.setQueryData(queryKey as readonly unknown[], data);
   });
 };

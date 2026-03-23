@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { login as kakaoLogin, logout as kakaoLogout } from '@react-native-kakao/user';
 import * as AppleAuthentication from 'expo-apple-authentication';
+
 import { postOauthNative, type OAuthNativeUser } from '@apis';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
@@ -141,11 +142,16 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
         });
 
         setState({ isLoading: false, error: null });
-      } catch (error: any) {
-        const errorMessage = error?.message ?? 'Unknown error occurred';
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
         // Apple 로그인 취소는 에러로 처리하지 않음
-        if (error?.code === 'ERR_REQUEST_CANCELED') {
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'code' in error &&
+          (error as { code: string }).code === 'ERR_REQUEST_CANCELED'
+        ) {
           setState({ isLoading: false, error: null });
           return;
         }

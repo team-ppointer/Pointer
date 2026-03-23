@@ -21,7 +21,7 @@ import {
 import {
   Canvas,
   Path,
-  SkPath,
+  type SkPath,
   Skia,
   Text,
   useFont,
@@ -30,6 +30,7 @@ import {
 } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-handler';
 import { runOnJS, useSharedValue, useDerivedValue } from 'react-native-reanimated';
+
 import { buildSmoothPath } from '../../utils/skia/smoothing';
 
 export type Point = { x: number; y: number };
@@ -62,7 +63,7 @@ type Props = {
   eraserMode?: boolean;
   eraserSize?: number;
   textMode?: boolean;
-  textFontPath?: any; // Skia에서 사용할 폰트 파일 경로 (require로 전달)
+  textFontPath?: number; // Skia에서 사용할 폰트 파일 경로 (require로 전달)
 };
 
 const deepCopyStrokes = (strokes: Stroke[]): Stroke[] =>
@@ -110,7 +111,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const maxY = useRef<number>(0); // 그려진 내용의 최대 Y 좌표
     const keyboardHeight = useRef<number>(0); // 키보드 높이
     const isConfirmingTextRef = useRef<boolean>(false); // 텍스트 확인 중 플래그
-    const keyboardListenersRef = useRef<Array<{ remove: () => void }>>([]);
+    const keyboardListenersRef = useRef<{ remove: () => void }[]>([]);
 
     // 호버 좌표를 저장할 SharedValue (성능을 위해 스레드 분리)
     const hoverX = useSharedValue(0);
@@ -235,7 +236,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         // 캐시 확인
         const cacheKey = `${text}-${maxTextWidth}`;
         if (textLineCountCache.current.has(cacheKey)) {
-          return textLineCountCache.current.get(cacheKey)!;
+          return textLineCountCache.current.get(cacheKey) ?? 1;
         }
 
         let totalLines = 0;
@@ -294,9 +295,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
         // 최대 Y 좌표 계산
         if (newStrokes.length > 0) {
-          const maxYValue = safeMax(
-            newStrokes.flatMap((stroke) => stroke.points.map((p) => p.y))
-          );
+          const maxYValue = safeMax(newStrokes.flatMap((stroke) => stroke.points.map((p) => p.y)));
           maxY.current = maxYValue;
           canvasHeight.current = Math.max(800, maxYValue + 200);
         } else {
@@ -616,9 +615,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
         if (strokes.length > 0) {
           // 모든 stroke의 최대 Y 좌표 찾기
-          const maxStrokeY = safeMax(
-            strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
-          );
+          const maxStrokeY = safeMax(strokes.flatMap((stroke) => stroke.points.map((p) => p.y)));
           textY = maxStrokeY + minGap; // 가장 아래 필기 + 32px
         }
 
@@ -1282,6 +1279,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     );
   }
 );
+
+DrawingCanvas.displayName = 'DrawingCanvas';
 
 const styles = StyleSheet.create({
   scrollView: {

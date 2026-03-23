@@ -7,6 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as SplashScreen from 'expo-splash-screen';
+
 import { PointerLogo } from '@components/system/icons';
 
 type Props = {
@@ -22,11 +23,11 @@ export const CustomSplashScreen = ({ isAppReady, onAnimationFinish }: Props) => 
     if (isAppReady && !isAnimationStarted) {
       setIsAnimationStarted(true);
       SplashScreen.hideAsync().then(() => {
-          opacity.value = withTiming(0, { duration: 300 }, (finished) => {
-            if (finished) {
-              runOnJS(onAnimationFinish)();
-            }
-          });
+        opacity.value = withTiming(0, { duration: 300 }, (finished) => {
+          if (finished) {
+            runOnJS(onAnimationFinish)();
+          }
+        });
       });
     }
   }, [isAppReady, isAnimationStarted, onAnimationFinish, opacity]);
@@ -40,7 +41,7 @@ export const CustomSplashScreen = ({ isAppReady, onAnimationFinish }: Props) => 
   return (
     <Animated.View
       style={animatedStyle}
-      className='absolute z-50 h-full w-full items-center justify-center gap-[20px] bg-gray-100'>
+      className='absolute z-50 size-full items-center justify-center gap-[20px] bg-gray-100'>
       <Text className='text-16r text-center text-gray-700'>
         문제를 접근하고{'\n'}생각하는 방식을 바꾸는
       </Text>

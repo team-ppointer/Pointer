@@ -35,4 +35,6 @@ const EraserFilledIcon = React.forwardRef<React.ComponentRef<typeof Svg>, Lucide
   }
 ) as LucideIcon;
 
+EraserFilledIcon.displayName = 'EraserFilledIcon';
+
 export default EraserFilledIcon;

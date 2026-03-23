@@ -1,6 +1,8 @@
 import React from 'react';
 import { Text, View, ScrollView } from 'react-native';
+
 import type { ChatRoomSearchResult, MessageSearchResult } from '../../types';
+
 import { ChatRoomResultItem, MessageResultItem } from './SearchResultItem';
 
 interface SearchResultsProps {
@@ -11,7 +13,7 @@ interface SearchResultsProps {
 }
 
 const SectionHeader = ({ title }: { title: string }) => (
-  <View className='px-[24px] pb-[12px] pt-[20px]'>
+  <View className='px-[24px] pt-[20px] pb-[12px]'>
     <Text className='text-16sb text-gray-900'>{title}</Text>
   </View>
 );

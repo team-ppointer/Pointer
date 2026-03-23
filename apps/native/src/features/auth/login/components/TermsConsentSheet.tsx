@@ -2,12 +2,13 @@ import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
-  BottomSheetBackdropProps,
+  type BottomSheetBackdropProps,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import * as WebBrowser from 'expo-web-browser';
-import { colors } from '@theme/tokens';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react-native';
+
+import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
 
 const TERMS_URLS = {
@@ -29,8 +30,8 @@ type TermsConsentSheetProps = {
   onSheetChange?: (isOpen: boolean) => void;
 };
 
-const REQUIRED_KEYS: Array<keyof AgreementState> = ['age', 'service', 'privacy'];
-const ALL_KEYS: Array<keyof AgreementState> = [...REQUIRED_KEYS, 'marketing'];
+const REQUIRED_KEYS: (keyof AgreementState)[] = ['age', 'service', 'privacy'];
+const ALL_KEYS: (keyof AgreementState)[] = [...REQUIRED_KEYS, 'marketing'];
 const createDefaultState = (): AgreementState => ({
   age: false,
   service: false,
@@ -108,7 +109,7 @@ const TermsConsentSheet = forwardRef<BottomSheet, TermsConsentSheetProps>(
         onChange={handleSheetChange}
         style={{ padding: 0 }}>
         <BottomSheetView
-          className='bg-white pb-[12px] pt-[4px]'
+          className='bg-white pt-[4px] pb-[12px]'
           style={{ paddingBottom: bottomInset }}>
           <Container>
             <Text className='text-20b text-gray-800'>회원가입을 위해 약관에 동의해주세요.</Text>
@@ -193,7 +194,7 @@ const ConsentRow = ({
       disableScale>
       <View className='flex-1 flex-row gap-[10px]'>
         <View
-          className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${
+          className={`size-[24px] items-center justify-center rounded-[6px] border ${
             checked ? 'border-blue-500 bg-blue-500' : 'border-gray-600 bg-white'
           }`}>
           {checked ? <CheckIcon size={20} strokeWidth={2} color='white' /> : null}

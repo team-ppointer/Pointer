@@ -69,4 +69,6 @@ const CalendarNotStartedIcon = React.forwardRef<React.ComponentRef<typeof Svg>, 
   }
 ) as LucideIcon;
 
+CalendarNotStartedIcon.displayName = 'CalendarNotStartedIcon';
+
 export default CalendarNotStartedIcon;

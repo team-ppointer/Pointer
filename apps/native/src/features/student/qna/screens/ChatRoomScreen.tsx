@@ -5,8 +5,10 @@ import type {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
+
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useGetQnaById } from '@apis/controller/student/qna';
+
 import type { ChatRoom as ChatRoomType } from '../types';
 import { ChatRoom } from '../components/ChatRoom';
 
@@ -31,9 +33,9 @@ const ChatRoomScreen = () => {
   // Map to ChatRoom format
   const chatRoom = useMemo<ChatRoomType | null>(() => {
     if (!qnaData) return null;
-    
+
     const isAdminChat = qnaData.type === 'ADMIN_CHAT';
-    
+
     return {
       id: qnaData.id,
       type: isAdminChat ? 'publisher' : 'teacher',
@@ -70,12 +72,7 @@ const ChatRoomScreen = () => {
 
   return (
     <View className='flex-1 bg-gray-100'>
-      <ChatRoom
-        chatRoom={chatRoom}
-        qnaData={qnaData}
-        onBack={handleBack}
-        showBackButton
-      />
+      <ChatRoom chatRoom={chatRoom} qnaData={qnaData} onBack={handleBack} showBackButton />
     </View>
   );
 };

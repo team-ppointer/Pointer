@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
+
 import { colors } from '@theme/tokens';
 import type { components } from '@schema';
 import { ProfileIcon } from '@components/system/icons';
@@ -22,7 +23,7 @@ export const UserProfileCard = ({ name, school, grade, onEditPress }: UserProfil
   return (
     <View className='flex-row items-center justify-between px-[16px] py-[10px]'>
       <View className='flex-row items-center gap-[12px]'>
-        <View className='bg-primary-200 h-[48px] w-[48px] items-center justify-center rounded-full'>
+        <View className='bg-primary-200 size-[48px] items-center justify-center rounded-full'>
           <ProfileIcon fill={colors['primary-500']} color={colors['primary-500']} />
         </View>
         <View className='flex-col'>

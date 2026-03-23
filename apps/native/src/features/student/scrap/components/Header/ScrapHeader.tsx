@@ -1,12 +1,14 @@
-import { Container } from '@/components/common';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, Search, Trash2 } from 'lucide-react-native';
-import { CircleCheckDashed } from '@/components/system/icons';
-import { State } from '../../utils/reducer';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import { colors } from '@/theme/tokens';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+import { CircleCheckDashed } from '@/components/system/icons';
+import { Container } from '@/components/common';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import { type State } from '../../utils/reducer';
 
 export interface ScrapHeaderActions {
   /** 검색 화면으로 이동 */
@@ -61,7 +63,7 @@ const ScrapHeader = ({
             </Pressable>
           )}
           {navigateback ? (
-            <View className='absolute left-0 right-0 items-center'>
+            <View className='absolute inset-x-0 items-center'>
               <Text
                 className='text-18b text-center text-gray-900 md:max-w-[344px] lg:max-w-[464px]'
                 numberOfLines={1}>
@@ -73,17 +75,17 @@ const ScrapHeader = ({
           )}
           <View className='flex-row items-center gap-1'>
             <Pressable
-              className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
+              className='size-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
               onPress={actions.onSearchPress}>
               <Search size={24} strokeWidth={2} />
             </Pressable>
             <Pressable
-              className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
+              className='size-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
               onPress={actions.onEnterSelection}>
               <CircleCheckDashed />
             </Pressable>
             <Pressable
-              className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
+              className='size-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
               onPress={actions.onTrashPress}>
               <Trash2 size={24} strokeWidth={2} color='#FF3B30' />
             </Pressable>

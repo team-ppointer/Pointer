@@ -1,4 +1,4 @@
-import { Skia, SkPath } from '@shopify/react-native-skia';
+import { Skia, type SkPath } from '@shopify/react-native-skia';
 
 type Point = { x: number; y: number };
 

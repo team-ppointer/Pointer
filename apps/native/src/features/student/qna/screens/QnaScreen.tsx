@@ -1,12 +1,14 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 import type { StudentRootStackParamList, StudentTabParamList } from '@navigation/student/types';
 import { useGetQnaList, useGetQnaById, useInvalidateQnaData } from '@apis/controller/student/qna';
 import useSubscribeQnaList from '@apis/controller/common/qna/useGetSubscribeQnaList';
+import type { QnAListEvent } from '@apis/controller/common/qna/useGetSubscribeQnaList';
 import { getAccessToken } from '@utils/auth';
+
 import type { ChatRoom as ChatRoomType } from '../types';
 import { mapQnAMetaToChatRoom } from '../types';
 import { ChatRoomList } from '../components/ChatRoomList';
@@ -31,16 +33,16 @@ const QnaScreen = () => {
 
   const token = getAccessToken();
   const { invalidateQnaById, invalidateQnaList } = useInvalidateQnaData();
-  
+
   // Debounce ref for qna_list events (prevent excessive invalidations)
   const qnaListDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
+
   // Subscribe to student QnA list SSE to receive real-time updates for read status (badge)
   useSubscribeQnaList({
     token: token ?? '',
     enabled: !!token,
     onQnaListEvent: useCallback(
-      (event: import('@apis/controller/common/qna/useGetSubscribeQnaList').QnAListEvent) => {
+      (event: QnAListEvent) => {
         console.log('[QnaScreen] QnA list event received:', event);
         // qna_list 이벤트 수신 시 현재 채팅방 및 리스트 데이터를 invalidate
         // 디바운스 적용: 500ms 내 중복 이벤트는 무시
@@ -50,7 +52,7 @@ const QnaScreen = () => {
         qnaListDebounceRef.current = setTimeout(() => {
           // Invalidate the list to update badges
           void invalidateQnaList();
-          
+
           // If in tablet mode with a selected room, also invalidate that room's data
           if (isTablet && selectedRoom && selectedRoom.id > 0) {
             void invalidateQnaById(selectedRoom.id);
@@ -84,13 +86,13 @@ const QnaScreen = () => {
       qnaListData.data.groups.forEach((group) => {
         group.data?.forEach((qna) => {
           const room = mapQnAMetaToChatRoom(qna);
-          
+
           // Optimistic update: if this room is selected (tablet mode), hide the badge
           // because accessing the room marks it as read
           if (isTablet && selectedRoom && room.id === selectedRoom.id) {
             room.hasNewMessage = false;
           }
-          
+
           rooms.push(room);
         });
       });
@@ -173,7 +175,7 @@ const QnaScreen = () => {
       return (
         <View className='flex-1 flex-row'>
           {/* Left Panel - Chat Room List */}
-          <View className='w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white'>
+          <View className='w-2/5 max-w-[400px] min-w-[320px] border-r border-gray-500 bg-white'>
             <ChatRoomList
               chatRooms={chatRooms}
               selectedRoomId={selectedRoom?.id}
@@ -185,10 +187,7 @@ const QnaScreen = () => {
 
           {/* Right Panel - Chat Room */}
           <View className='flex-1'>
-            <ChatRoom
-              chatRoom={selectedRoom}
-              qnaData={selectedQnaData}
-            />
+            <ChatRoom chatRoom={selectedRoom} qnaData={selectedQnaData} />
           </View>
         </View>
       );
@@ -205,11 +204,7 @@ const QnaScreen = () => {
   };
 
   // 항상 동일한 SafeAreaView 구조 유지
-  return (
-    <View className='flex-1 bg-gray-100'>
-      {renderContent()}
-    </View>
-  );
+  return <View className='flex-1 bg-gray-100'>{renderContent()}</View>;
 };
 
 export default QnaScreen;

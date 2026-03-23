@@ -10,4 +10,6 @@ const ChevronUpFilledIcon = React.forwardRef<React.ComponentRef<typeof Svg>, Luc
   )
 ) as LucideIcon;
 
+ChevronUpFilledIcon.displayName = 'ChevronUpFilledIcon';
+
 export default ChevronUpFilledIcon;

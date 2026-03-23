@@ -20,7 +20,6 @@ import {
   File,
   FileSpreadsheet,
 } from 'lucide-react-native';
-import { colors } from '@theme/tokens';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
@@ -28,12 +27,15 @@ import Animated, {
   withTiming,
   interpolate,
   Extrapolation,
-  SharedValue,
+  type SharedValue,
   runOnJS,
   Easing,
 } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
+
+import { colors } from '@theme/tokens';
+
 import type { Message, UploadFileResp } from '../../types';
 
 interface MessageBubbleProps {
@@ -44,7 +46,7 @@ interface MessageBubbleProps {
   showProfile?: boolean;
   showTail?: boolean;
   onReply?: (message: Message) => void;
-  onPressImages?: (images: Array<{ uri: string }>, initialIndex: number) => void;
+  onPressImages?: (images: { uri: string }[], initialIndex: number) => void;
   onPressFile?: (url: string) => void;
   onEdit?: (message: Message) => void;
   onDelete?: (message: Message) => void;
@@ -59,7 +61,7 @@ const PROFILE_GAP = 8;
 
 // Bubble Tail Component - Left (for other's messages)
 const LeftBubbleTail = () => (
-  <View className='absolute -left-[8px] top-[7px]'>
+  <View className='absolute top-[7px] -left-[8px]'>
     <Svg width={11} height={12} viewBox='0 0 11 12' fill='none'>
       <Path
         d='M0.306379 1.70711L11 12V0H1.04102C0.115425 0 -0.348112 1.07714 0.306379 1.70711Z'
@@ -71,7 +73,7 @@ const LeftBubbleTail = () => (
 
 // Bubble Tail Component - Right (for my messages)
 const RightBubbleTail = () => (
-  <View className='absolute -right-[8px] top-[7px]'>
+  <View className='absolute top-[7px] -right-[8px]'>
     <Svg width={11} height={12} viewBox='0 0 11 12' fill='none'>
       <Path
         d='M10.6936 1.70711L0 12V0H9.95898C10.8846 0 11.3481 1.07714 10.6936 1.70711Z'
@@ -168,7 +170,7 @@ const FileAttachment = ({
       disabled={isDownloading}
       className='min-w-[200px] flex-row items-center gap-[10px]'>
       <View
-        className={`h-[36px] w-[36px] items-center justify-center rounded-[6px] border border-gray-400 bg-white`}>
+        className={`size-[36px] items-center justify-center rounded-[6px] border border-gray-400 bg-white`}>
         {isDownloading ? (
           <ActivityIndicator size='small' color={iconColor} />
         ) : (
@@ -231,7 +233,7 @@ const ImagesGrid = ({
   onPressImage,
 }: {
   images: NonNullable<Message['files']>;
-  onPressImage?: (images: Array<{ uri: string }>, index: number) => void;
+  onPressImage?: (images: { uri: string }[], index: number) => void;
 }) => {
   const count = images.length;
   const imageUris = images.map((img) => ({ uri: img.url }));
@@ -260,9 +262,9 @@ const ImagesGrid = ({
   }
 
   // 3+ images - 2-column grid layout
-  const rows: Array<Array<{ img: (typeof images)[0]; index: number }>> = [];
+  const rows: { img: (typeof images)[0]; index: number }[][] = [];
   for (let i = 0; i < images.length; i += 2) {
-    const row: Array<{ img: (typeof images)[0]; index: number }> = [];
+    const row: { img: (typeof images)[0]; index: number }[] = [];
     row.push({ img: images[i], index: i });
     if (i + 1 < images.length) {
       row.push({ img: images[i + 1], index: i + 1 });
@@ -300,7 +302,7 @@ const ImageMessage = ({
   image?: Message['image'];
   files?: Message['files'];
   isMe: boolean;
-  onPressImages?: (images: Array<{ uri: string }>, index: number) => void;
+  onPressImages?: (images: { uri: string }[], index: number) => void;
   onDownload?: (url: string, fileName: string) => void;
   downloadingFiles?: Set<string>;
 }) => {
@@ -574,22 +576,19 @@ const MessageBubble = ({
 
   const renderContent = () => {
     switch (type) {
-      case 'file':
+      case 'file': {
+        const fileUrl = file?.url ?? files?.[0]?.url;
+        const isFileDownloading = fileUrl ? downloadingFiles.has(fileUrl) : false;
         return (
           <FileAttachment
             file={file}
             uploadFile={files?.[0]}
             isMe={isMe}
             onDownload={handleDownload}
-            isDownloading={
-              file?.url
-                ? downloadingFiles.has(file.url)
-                : files?.[0]?.url
-                  ? downloadingFiles.has(files[0].url)
-                  : false
-            }
+            isDownloading={isFileDownloading}
           />
         );
+      }
       case 'image':
         return (
           <ImageMessage
@@ -635,8 +634,8 @@ const MessageBubble = ({
       {/* Hidden Reply Icon - positioned on the left */}
       <Animated.View
         style={[styles.replyIconContainer, animatedReplyIconStyle]}
-        className='absolute bottom-0 left-[16px] top-0 justify-center'>
-        <View className='h-[32px] w-[32px] items-center justify-center rounded-full bg-gray-300'>
+        className='absolute inset-y-0 left-[16px] justify-center'>
+        <View className='size-[32px] items-center justify-center rounded-full bg-gray-300'>
           <Reply size={18} color={colors['gray-700']} />
         </View>
       </Animated.View>
@@ -644,7 +643,7 @@ const MessageBubble = ({
       {/* Hidden Timestamp - positioned on the right */}
       <Animated.View
         style={[styles.timestampContainer, animatedTimestampStyle]}
-        className='absolute bottom-0 right-[16px] top-0 justify-center'>
+        className='absolute inset-y-0 right-[16px] justify-center'>
         <Text className='text-10r text-gray-600'>
           {isEdited ? `${timestamp}에 수정됨` : timestamp}
         </Text>

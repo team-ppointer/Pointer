@@ -1,16 +1,17 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, type ScrollView, type LayoutChangeEvent } from 'react-native';
 import { X } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  SharedValue,
+  type SharedValue,
   runOnJS,
 } from 'react-native-reanimated';
+
 import { colors } from '@/theme/tokens';
-import { useNoteStore, Note } from '@/features/student/scrap/stores/scrapNoteStore';
+import { useNoteStore, type Note } from '@/features/student/scrap/stores/scrapNoteStore';
 
 export interface DraggableTabProps {
   note: Note;
@@ -18,10 +19,10 @@ export interface DraggableTabProps {
   isActive: boolean;
   onPress: () => void;
   onClose: () => void;
-  onLayout: (event: any) => void;
+  onLayout: (event: LayoutChangeEvent) => void;
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   tabLayouts: Record<number, { x: number; width: number }>;
-  scrollViewRef: React.RefObject<ScrollView | null >;
+  scrollViewRef: React.RefObject<ScrollView | null>;
   scrollX: SharedValue<number>;
   screenWidth: number;
 }
@@ -163,7 +164,7 @@ export const DraggableTab = ({
       <Animated.View
         onLayout={onLayout}
         style={[animatedStyle, { height: 34, minWidth: 170, maxWidth: 300 }]}
-        className={`flex-row items-center gap-2 border-x-[1px] border-gray-600 px-[10px] ${
+        className={`flex-row items-center gap-2 border-x border-gray-600 px-[10px] ${
           isActive ? 'bg-gray-100' : 'bg-gray-500'
         }`}>
         <Pressable

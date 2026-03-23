@@ -1,8 +1,9 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
-import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
+import { AppState, type AppStateStatus } from 'react-native';
+import NetInfo, { type NetInfoState } from '@react-native-community/netinfo';
 import EventSource from 'react-native-sse';
-import { components } from '@schema';
+
+import { type components } from '@schema';
 import { env } from '@utils';
 
 type QnAChatEvent = components['schemas']['QnAChatEvent'];
@@ -236,7 +237,7 @@ const useSubscribeQna = ({
       try {
         if (event.data) {
           const data = JSON.parse(event.data) as QnAReadStatusEvent;
-          
+
           // Deduplicate by creating a unique key from the event data
           const eventKey = `${data.qnaId}-${data.userId}-${data.readAt}`;
           if (eventKey === lastReadStatusKey) {
@@ -244,7 +245,7 @@ const useSubscribeQna = ({
             return;
           }
           lastReadStatusKey = eventKey;
-          
+
           // Only log if there's a callback registered
           if (onReadStatusEvent) {
             console.log('[SSE] Read status event:', JSON.stringify(data, null, 2));

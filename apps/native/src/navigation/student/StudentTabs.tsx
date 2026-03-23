@@ -1,42 +1,43 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StudentTabParamList } from './types';
+import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { View } from 'react-native';
+
 import { HomeScreen } from '@features/student/home';
 import { ScrapScreen } from '@features/student/scrap';
 import { QnaScreen } from '@features/student/qna';
+
+import { type StudentTabParamList } from './types';
 import MenuNavigator from './MenuNavigator';
 import MainTabBar from './components/MainTabBar';
 import HomeHeader from './components/HomeHeader';
-
-import { View } from 'react-native';
 import { TabScreen, TabTransitionProvider } from './components/TabScreenTransition';
 
 const Tab = createBottomTabNavigator<StudentTabParamList>();
 
-const HomeWrapped = (props: any) => (
+const HomeWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Home'>) => (
   <TabScreen index={0}>
     <View className='flex-1'>
       <HomeHeader />
-      <HomeScreen {...props} />
+      <HomeScreen />
     </View>
   </TabScreen>
 );
 
-const ScrapWrapped = (props: any) => (
+const ScrapWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Scrap'>) => (
   <TabScreen index={1}>
-    <ScrapScreen {...props} />
+    <ScrapScreen />
   </TabScreen>
 );
 
-const QnaWrapped = (props: any) => (
+const QnaWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Qna'>) => (
   <TabScreen index={2}>
-    <QnaScreen {...props} />
+    <QnaScreen />
   </TabScreen>
 );
 
-const MenuWrapped = (props: any) => (
+const MenuWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'AllMenu'>) => (
   <TabScreen index={3}>
-    <MenuNavigator {...props} />
+    <MenuNavigator />
   </TabScreen>
 );
 

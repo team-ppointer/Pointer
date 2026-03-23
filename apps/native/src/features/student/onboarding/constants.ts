@@ -7,27 +7,27 @@ export type MathSubjectValue = NonNullable<StudentInitialRegisterReq['selectSubj
 export type CarrierValue = NonNullable<StudentInitialRegisterReq['mobileCarrier']>;
 export type GenderValue = NonNullable<StudentInitialRegisterReq['gender']>;
 
-export const gradeOptions: Array<{ value: GradeValue; label: string }> = [
+export const gradeOptions: { value: GradeValue; label: string }[] = [
   { value: 'ONE', label: '1학년' },
   { value: 'TWO', label: '2학년' },
   { value: 'THREE', label: '3학년' },
   { value: 'N_TIME', label: 'N수생' },
 ];
 
-export const mathSubjectOptions: Array<{ value: MathSubjectValue; label: string }> = [
+export const mathSubjectOptions: { value: MathSubjectValue; label: string }[] = [
   { value: 'MIJUKBUN', label: '미적분' },
   { value: 'HWAKTONG', label: '확률과 통계' },
   { value: 'KEEHA', label: '기하' },
 ];
 
-export const carrierOptions: Array<{ value: CarrierValue; label: string }> = [
+export const carrierOptions: { value: CarrierValue; label: string }[] = [
   { value: 'SKT', label: 'SKT' },
   { value: 'KT', label: 'KT' },
   { value: 'LG', label: 'LG U+' },
   { value: 'SKT_MVNO', label: '알뜰폰' },
 ];
 
-export const levelOptions: Array<{ value: number; label: string }> = [
+export const levelOptions: { value: number; label: string }[] = [
   { value: 1, label: '1등급' },
   { value: 2, label: '2등급' },
   { value: 3, label: '3등급' },

@@ -1,4 +1,4 @@
-import { components } from '@/types/api/schema';
+import { type components } from '@/types/api/schema';
 
 // Event types from API schema
 export type EventType = components['schemas']['UserEventRequest']['eventType'];

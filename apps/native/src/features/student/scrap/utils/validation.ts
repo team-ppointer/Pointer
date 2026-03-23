@@ -1,5 +1,6 @@
-import { SelectedItem } from './reducer';
 import { showToast } from '../components/Notification/Toast';
+
+import { type SelectedItem } from './reducer';
 
 /**
  * 선택된 아이템 중 폴더가 포함되어 있는지 확인하고, 포함되어 있으면 에러 토스트를 표시합니다.

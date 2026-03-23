@@ -1,7 +1,11 @@
 import React from 'react';
+import { type GestureResponderEvent } from 'react-native';
+
 import AnimatedPressable from '@/components/common/AnimatedPressable';
-import { analytics } from './index';
+
 import type { ButtonId, ScreenName } from './types';
+
+import { analytics } from './index';
 
 type AnimatedPressableProps = React.ComponentProps<typeof AnimatedPressable>;
 
@@ -32,7 +36,7 @@ const TrackedAnimatedPressable = ({
   onPress,
   ...rest
 }: TrackedAnimatedPressableProps) => {
-  const handlePress = (event: any) => {
+  const handlePress = (event: GestureResponderEvent) => {
     // Track button click
     analytics.trackButtonClick(buttonId, buttonLabel, screenName);
 

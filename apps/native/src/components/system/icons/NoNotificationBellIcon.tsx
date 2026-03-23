@@ -76,4 +76,6 @@ const NoNotificationBellIcon = React.forwardRef<React.ComponentRef<typeof Svg>, 
   }
 ) as LucideIcon;
 
+NoNotificationBellIcon.displayName = 'NoNotificationBellIcon';
+
 export default NoNotificationBellIcon;

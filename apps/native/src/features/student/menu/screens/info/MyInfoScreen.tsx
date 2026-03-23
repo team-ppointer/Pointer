@@ -2,22 +2,27 @@ import React, { useCallback, useEffect, useState, useRef, useMemo } from 'react'
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  type NativeStackNavigationProp,
+  type NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
+
 import { Container, AnimatedPressable } from '@components/common';
 import { BookHeartIcon, CircleStarIcon, ProfileBasicIcon } from '@components/system/icons';
 import { useGetMe, usePutMe, TanstackQueryClient } from '@apis';
-import { MenuStackParamList } from '@navigation/student/MenuNavigator';
-import { InfoSection, ScreenLayout } from '../../components';
+import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
 import {
   gradeOptions,
   levelOptions,
   mathSubjectOptions,
-  GradeValue,
-  MathSubjectValue,
+  type GradeValue,
+  type MathSubjectValue,
 } from '@features/student/onboarding/constants';
 import { showToast } from '@features/student/scrap/components/Notification';
 import { ConfirmationModal } from '@/features/student/scrap/components/Dialog/ConfirmationModal';
+
+import { InfoSection, ScreenLayout } from '../../components';
 
 // 컴포넌트 외부에 저장 (리마운트 후에도 유지됨)
 type LocalData = {
@@ -278,7 +283,7 @@ const MyInfoScreen = () => {
           navigation.goBack();
         }}>
         <ScrollView className='flex-1 bg-blue-100 pt-[10px]' contentContainerClassName='flex-grow'>
-          <Container className='-mt-[100%] gap-[28px] bg-gray-100 pb-[24px] pt-[100%]'>
+          <Container className='-mt-[100%] gap-[28px] bg-gray-100 pt-[100%] pb-[24px]'>
             <InfoSection
               icon={<ProfileBasicIcon />}
               title='기본 정보'

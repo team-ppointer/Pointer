@@ -1,7 +1,8 @@
+import { Pressable, View, Text } from 'react-native';
+import { Undo2Icon, Redo2Icon, EraserIcon, PencilIcon, type LucideIcon } from 'lucide-react-native';
+
 import { TextButton } from '@components/common';
 import { colors } from '@theme/tokens';
-import { Pressable, View, Text } from 'react-native';
-import { Undo2Icon, Redo2Icon, EraserIcon, PencilIcon, LucideIcon } from 'lucide-react-native';
 
 export const IconButton = ({
   icon: Icon,

@@ -1,15 +1,17 @@
 import { Pressable, View, Text, Image } from 'react-native';
-import { StudentRootStackParamList } from '@/navigation/student/types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 import { useGetFolderDetail } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
-import { ScrapListItemProps } from '../types';
-import { useCardImageSources } from '../../../hooks';
-import { formatToMinute } from '../../../utils/formatters/formatToMinute';
-import { HighlightedText } from '../../../utils/HighlightedText';
 import { ScrapDefaultIcon, ScrapFolderDefaultIcon } from '@/components/system/icons';
+
+import { HighlightedText } from '../../../utils/HighlightedText';
+import { formatToMinute } from '../../../utils/formatters/formatToMinute';
+import { useCardImageSources } from '../../../hooks';
+import { type ScrapListItemProps } from '../types';
 
 type SearchResultCardProps = ScrapListItemProps & {
   searchQuery?: string;
@@ -43,7 +45,7 @@ export const SearchResultCard = (props: SearchResultCardProps) => {
   };
 
   const cardContent = (
-    <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
+    <View className='size-full items-center rounded-[10px] p-[10px]'>
       <View className='w-full gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton

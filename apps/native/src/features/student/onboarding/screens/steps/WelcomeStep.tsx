@@ -1,10 +1,12 @@
 import { View, Text } from 'react-native';
-import { MailBoxGraphic, OnboardingLayout } from '../../components';
-import { useOnboardingStore } from '../../store/useOnboardingStore';
-import type { OnboardingScreenProps } from '../types';
+
 import { useAuthStore } from '@stores';
 import postRegister from '@apis/controller/student/auth/postRegister';
 import type { components } from '@schema';
+
+import { MailBoxGraphic, OnboardingLayout } from '../../components';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
+import type { OnboardingScreenProps } from '../types';
 
 type StudentInitialRegisterReq = components['schemas']['StudentInitialRegisterDTO.Req'];
 

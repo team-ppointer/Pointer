@@ -1,5 +1,5 @@
+import { type components } from '@schema';
 import { client } from '@/apis/client';
-import { components } from '@schema';
 
 type PasswordResetDTOResetPasswordRequest =
   components['schemas']['PasswordResetDTO.ResetPasswordRequest'];

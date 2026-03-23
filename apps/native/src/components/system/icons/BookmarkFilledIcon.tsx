@@ -21,4 +21,6 @@ const BookmarkFilledIcon = React.forwardRef<React.ComponentRef<typeof Svg>, Luci
   }
 ) as LucideIcon;
 
+BookmarkFilledIcon.displayName = 'BookmarkFilledIcon';
+
 export default BookmarkFilledIcon;

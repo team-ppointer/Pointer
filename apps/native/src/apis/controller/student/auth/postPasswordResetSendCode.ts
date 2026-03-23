@@ -1,5 +1,5 @@
+import { type components } from '@schema';
 import { client } from '@/apis/client';
-import { components } from '@schema';
 
 type PasswordResetDTOSendCodeRequest = components['schemas']['PasswordResetDTO.SendCodeRequest'];
 const postPasswordResetSendCode = async (data: PasswordResetDTOSendCodeRequest) => {

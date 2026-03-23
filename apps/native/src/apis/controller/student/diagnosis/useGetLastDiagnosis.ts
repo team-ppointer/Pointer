@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import { client } from '@/apis/client';
 
 const useGetLastDiagnosis = () => {

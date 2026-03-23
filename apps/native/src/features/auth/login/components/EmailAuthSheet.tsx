@@ -2,11 +2,10 @@ import { forwardRef, useCallback, useState, useMemo } from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
 import BottomSheet, {
   BottomSheetBackdrop,
-  BottomSheetBackdropProps,
+  type BottomSheetBackdropProps,
   BottomSheetView,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import { colors } from '@theme/tokens';
 import {
   ChevronLeftIcon,
   CheckIcon,
@@ -14,17 +13,20 @@ import {
   EyeIcon,
   EyeOffIcon,
 } from 'lucide-react-native';
+
+import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
-import useEmailAuth, {
-  type EmailAuthStep,
-  validateEmail,
-  validatePassword,
-} from '../hooks/useEmailAuth';
 import {
   postPasswordResetSendCode,
   postPasswordResetVerifyCode,
   postPasswordReset,
 } from '@apis/student';
+
+import useEmailAuth, {
+  type EmailAuthStep,
+  validateEmail,
+  validatePassword,
+} from '../hooks/useEmailAuth';
 
 type EmailAuthSheetProps = {
   bottomInset: number;
@@ -149,8 +151,8 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
           throw new Error('인증 코드 전송에 실패했습니다.');
         }
         setStep('forgot-code');
-      } catch (e: any) {
-        setResetError(e?.message ?? '인증 코드 전송에 실패했습니다.');
+      } catch (e: unknown) {
+        setResetError(e instanceof Error ? e.message : '인증 코드 전송에 실패했습니다.');
       } finally {
         setResetLoading(false);
       }
@@ -169,8 +171,8 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
           throw new Error('인증 코드가 올바르지 않습니다.');
         }
         setStep('forgot-reset');
-      } catch (e: any) {
-        setResetError(e?.message ?? '인증 코드 확인에 실패했습니다.');
+      } catch (e: unknown) {
+        setResetError(e instanceof Error ? e.message : '인증 코드 확인에 실패했습니다.');
       } finally {
         setResetLoading(false);
       }
@@ -200,20 +202,20 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
         setPassword('');
         setResetCode('');
         setNewPassword('');
-      } catch (e: any) {
-        setResetError(e?.message ?? '비밀번호 재설정에 실패했습니다.');
+      } catch (e: unknown) {
+        setResetError(e instanceof Error ? e.message : '비밀번호 재설정에 실패했습니다.');
       } finally {
         setResetLoading(false);
       }
     }, [email, resetCode, newPassword, setStep]);
 
     // 약관 동의 관련
-    const REQUIRED_TERMS: Array<keyof TermsAgreement> = [
+    const REQUIRED_TERMS: (keyof TermsAgreement)[] = [
       'isGteFourteen',
       'isAgreeServiceUsage',
       'isAgreePersonalInformation',
     ];
-    const ALL_TERMS: Array<keyof TermsAgreement> = [...REQUIRED_TERMS, 'isAgreeReceiveMarketing'];
+    const ALL_TERMS: (keyof TermsAgreement)[] = [...REQUIRED_TERMS, 'isAgreeReceiveMarketing'];
 
     const isAllTermsChecked = useMemo(
       () => ALL_TERMS.every((key) => termsAgreement[key]),
@@ -263,8 +265,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 {error && <Text className='text-14r text-red-500'>{error}</Text>}
               </View>
               <AnimatedPressable
-                className={`items-center justify-center rounded-[12px] py-[14px] ${isLoading || !email.trim() ? 'bg-primary-200' : 'bg-primary-500'
-                  }`}
+                className={`items-center justify-center rounded-[12px] py-[14px] ${
+                  isLoading || !email.trim() ? 'bg-primary-200' : 'bg-primary-500'
+                }`}
                 disabled={isLoading || !email.trim()}
                 onPress={handleEmailSubmit}>
                 {isLoading ? (
@@ -295,7 +298,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     editable={!isLoading}
                   />
                   <AnimatedPressable
-                    className='absolute right-[12px] top-[14px]'
+                    className='absolute top-[14px] right-[12px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOffIcon size={20} color={colors['gray-500']} />
@@ -307,8 +310,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 {error && <Text className='text-14r text-red-500'>{error}</Text>}
               </View>
               <AnimatedPressable
-                className={`items-center justify-center rounded-[12px] py-[14px] ${isLoading || !password ? 'bg-primary-200' : 'bg-primary-500'
-                  }`}
+                className={`items-center justify-center rounded-[12px] py-[14px] ${
+                  isLoading || !password ? 'bg-primary-200' : 'bg-primary-500'
+                }`}
                 disabled={isLoading || !password}
                 onPress={handleLoginSubmit}>
                 {isLoading ? (
@@ -359,8 +363,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 withChevron
               />
               <AnimatedPressable
-                className={`mt-[8px] items-center justify-center rounded-[12px] py-[14px] ${isRequiredTermsChecked ? 'bg-primary-500' : 'bg-primary-200'
-                  }`}
+                className={`mt-[8px] items-center justify-center rounded-[12px] py-[14px] ${
+                  isRequiredTermsChecked ? 'bg-primary-500' : 'bg-primary-200'
+                }`}
                 disabled={!isRequiredTermsChecked}
                 onPress={handleTermsConfirm}>
                 <Text className='text-16sb text-white'>다음</Text>
@@ -387,7 +392,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     editable={!isLoading}
                   />
                   <AnimatedPressable
-                    className='absolute right-[12px] top-[14px]'
+                    className='absolute top-[14px] right-[12px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOffIcon size={20} color={colors['gray-500']} />
@@ -397,8 +402,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                   </AnimatedPressable>
                 </View>
                 <BottomSheetTextInput
-                  className={`rounded-[12px] border bg-white px-[16px] py-[14px] text-[16px] ${passwordConfirm && !passwordsMatch ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`rounded-[12px] border bg-white px-[16px] py-[14px] text-[16px] ${
+                    passwordConfirm && !passwordsMatch ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder='비밀번호 확인'
                   placeholderTextColor={colors['gray-400']}
                   secureTextEntry={!showPassword}
@@ -412,8 +418,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 {error && <Text className='text-14r text-red-500'>{error}</Text>}
               </View>
               <AnimatedPressable
-                className={`items-center justify-center rounded-[12px] py-[14px] ${isLoading || !isSignupValid ? 'bg-primary-200' : 'bg-primary-500'
-                  }`}
+                className={`items-center justify-center rounded-[12px] py-[14px] ${
+                  isLoading || !isSignupValid ? 'bg-primary-200' : 'bg-primary-500'
+                }`}
                 disabled={isLoading || !isSignupValid}
                 onPress={handleSignupSubmit}>
                 {isLoading ? (
@@ -436,8 +443,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
               </View>
               {resetError && <Text className='text-14r text-red-500'>{resetError}</Text>}
               <AnimatedPressable
-                className={`items-center justify-center rounded-[12px] py-[14px] ${resetLoading ? 'bg-primary-200' : 'bg-primary-500'
-                  }`}
+                className={`items-center justify-center rounded-[12px] py-[14px] ${
+                  resetLoading ? 'bg-primary-200' : 'bg-primary-500'
+                }`}
                 disabled={resetLoading}
                 onPress={handleSendResetCode}>
                 {resetLoading ? (
@@ -471,8 +479,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 {resetError && <Text className='text-14r text-red-500'>{resetError}</Text>}
               </View>
               <AnimatedPressable
-                className={`items-center justify-center rounded-[12px] py-[14px] ${resetLoading || !resetCode ? 'bg-primary-200' : 'bg-primary-500'
-                  }`}
+                className={`items-center justify-center rounded-[12px] py-[14px] ${
+                  resetLoading || !resetCode ? 'bg-primary-200' : 'bg-primary-500'
+                }`}
                 disabled={resetLoading || !resetCode}
                 onPress={handleVerifyCode}>
                 {resetLoading ? (
@@ -503,7 +512,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     editable={!resetLoading}
                   />
                   <AnimatedPressable
-                    className='absolute right-[12px] top-[14px]'
+                    className='absolute top-[14px] right-[12px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOffIcon size={20} color={colors['gray-500']} />
@@ -515,8 +524,9 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                 {resetError && <Text className='text-14r text-red-500'>{resetError}</Text>}
               </View>
               <AnimatedPressable
-                className={`items-center justify-center rounded-[12px] py-[14px] ${resetLoading || !newPassword ? 'bg-primary-200' : 'bg-primary-500'
-                  }`}
+                className={`items-center justify-center rounded-[12px] py-[14px] ${
+                  resetLoading || !newPassword ? 'bg-primary-200' : 'bg-primary-500'
+                }`}
                 disabled={resetLoading || !newPassword}
                 onPress={handleResetPassword}>
                 {resetLoading ? (
@@ -547,7 +557,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
         keyboardBlurBehavior='restore'
         android_keyboardInputMode='adjustResize'>
         <BottomSheetView
-          className='bg-white pb-[12px] pt-[4px]'
+          className='bg-white pt-[4px] pb-[12px]'
           style={{ paddingBottom: bottomInset + 12 }}>
           <Container>
             {showBackButton && (
@@ -595,8 +605,9 @@ const TermsRow = ({
       disableScale>
       <View className='flex-1 flex-row gap-[10px]'>
         <View
-          className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${checked ? 'border-blue-500 bg-blue-500' : 'border-gray-600 bg-white'
-            }`}>
+          className={`size-[24px] items-center justify-center rounded-[6px] border ${
+            checked ? 'border-blue-500 bg-blue-500' : 'border-gray-600 bg-white'
+          }`}>
           {checked ? <CheckIcon size={20} strokeWidth={2} color='white' /> : null}
         </View>
         <View className='flex-1 gap-[2px]'>

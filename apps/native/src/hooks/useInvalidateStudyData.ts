@@ -1,14 +1,15 @@
-import { TanstackQueryClient } from '@apis';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
+import { TanstackQueryClient } from '@apis';
+
 const parsePublishDate = (publishAt?: string) => {
   if (!publishAt) {
-    return undefined;
+    return;
   }
   const date = new Date(publishAt);
   if (Number.isNaN(date.getTime())) {
-    return undefined;
+    return;
   }
   return {
     year: date.getFullYear(),
@@ -21,7 +22,7 @@ const useInvalidateStudyData = () => {
 
   const invalidateStudyData = useCallback(
     (publishId?: number, publishAt?: string) => {
-      const tasks: Array<Promise<unknown>> = [];
+      const tasks: Promise<unknown>[] = [];
 
       if (publishId) {
         tasks.push(

@@ -1,4 +1,4 @@
-import { Stroke, TextItem } from './skia/drawing';
+import { type Stroke, type TextItem } from './skia/drawing';
 
 export interface HandwritingData {
   strokes: Stroke[];

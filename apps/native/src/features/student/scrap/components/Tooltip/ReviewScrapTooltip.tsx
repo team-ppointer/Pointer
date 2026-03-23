@@ -1,9 +1,12 @@
 import { FolderOpen } from 'lucide-react-native';
 import { View, Text } from 'react-native';
-import { ScrapListItemProps } from '../Card/types';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StudentRootStackParamList } from '@/navigation/student/types';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import { type ScrapListItemProps } from '../Card/types';
+
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
 

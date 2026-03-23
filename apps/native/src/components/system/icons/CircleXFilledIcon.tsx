@@ -17,4 +17,6 @@ const CircleXFilledIcon = React.forwardRef<React.ComponentRef<typeof Svg>, Lucid
   }
 ) as LucideIcon;
 
+CircleXFilledIcon.displayName = 'CircleXFilledIcon';
+
 export default CircleXFilledIcon;
