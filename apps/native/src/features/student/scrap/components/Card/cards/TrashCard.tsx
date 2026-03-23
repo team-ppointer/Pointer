@@ -2,13 +2,6 @@ import { Pressable, View, Text } from 'react-native';
 import React, { useCallback, useState } from 'react';
 import { Check } from 'lucide-react-native';
 
-import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
-import { ConfirmationModal, PopUpModal } from '../../Dialog';
-import { showToast } from '../../Notification/Toast';
-import type { TrashListItemProps } from '../types';
-import { isItemSelected } from '../../../utils/reducer';
-import { useCardImageSources } from '../../../hooks';
-
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common/ImageWithSkeleton';
 import {
@@ -16,6 +9,13 @@ import {
   ScrapDefaultIcon,
   ScrapFolderDefaultIcon,
 } from '@/components/system/icons';
+
+import { TooltipPopover, TrashItemTooltipBox } from '../../Tooltip';
+import { ConfirmationModal, PopUpModal } from '../../Dialog';
+import { showToast } from '../../Notification/Toast';
+import type { TrashListItemProps } from '../types';
+import { isItemSelected } from '../../../utils/reducer';
+import { useCardImageSources } from '../../../hooks';
 
 type TrashCardExtraProps = {
   onPermanentDelete?: (params: {

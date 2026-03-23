@@ -33,6 +33,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
+
 import { colors } from '@theme/tokens';
 
 import type { Message, UploadFileResp } from '../../types';
@@ -60,7 +61,7 @@ const PROFILE_GAP = 8;
 
 // Bubble Tail Component - Left (for other's messages)
 const LeftBubbleTail = () => (
-  <View className='absolute top-[7px] -left-[8px]'>
+  <View className='absolute -left-[8px] top-[7px]'>
     <Svg width={11} height={12} viewBox='0 0 11 12' fill='none'>
       <Path
         d='M0.306379 1.70711L11 12V0H1.04102C0.115425 0 -0.348112 1.07714 0.306379 1.70711Z'
@@ -72,7 +73,7 @@ const LeftBubbleTail = () => (
 
 // Bubble Tail Component - Right (for my messages)
 const RightBubbleTail = () => (
-  <View className='absolute top-[7px] -right-[8px]'>
+  <View className='absolute -right-[8px] top-[7px]'>
     <Svg width={11} height={12} viewBox='0 0 11 12' fill='none'>
       <Path
         d='M10.6936 1.70711L0 12V0H9.95898C10.8846 0 11.3481 1.07714 10.6936 1.70711Z'
@@ -633,7 +634,7 @@ const MessageBubble = ({
       {/* Hidden Reply Icon - positioned on the left */}
       <Animated.View
         style={[styles.replyIconContainer, animatedReplyIconStyle]}
-        className='absolute top-0 bottom-0 left-[16px] justify-center'>
+        className='absolute bottom-0 left-[16px] top-0 justify-center'>
         <View className='h-[32px] w-[32px] items-center justify-center rounded-full bg-gray-300'>
           <Reply size={18} color={colors['gray-700']} />
         </View>
@@ -642,7 +643,7 @@ const MessageBubble = ({
       {/* Hidden Timestamp - positioned on the right */}
       <Animated.View
         style={[styles.timestampContainer, animatedTimestampStyle]}
-        className='absolute top-0 right-[16px] bottom-0 justify-center'>
+        className='absolute bottom-0 right-[16px] top-0 justify-center'>
         <Text className='text-10r text-gray-600'>
           {isEdited ? `${timestamp}에 수정됨` : timestamp}
         </Text>

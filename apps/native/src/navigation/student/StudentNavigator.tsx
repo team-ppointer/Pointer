@@ -1,5 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
 import {
@@ -9,11 +10,6 @@ import {
   AllPointingsScreen,
 } from '@features/student/problem';
 import { ChatRoomScreen, SearchScreen } from '@features/student/qna';
-
-import NotificationHeader from './components/NotificationHeader';
-import { type StudentRootStackParamList } from './types';
-import StudentTabs from './StudentTabs';
-
 import { DeletedScrapScreen, ScrapScreen, SearchScrapScreen } from '@/features/student/scrap';
 import FolderScrapScreen from '@/features/student/scrap/screens/FolderScrapScreen';
 import ScrapDetailScreen from '@/features/student/scrap/screens/ScrapDetailScreen';
@@ -22,6 +18,10 @@ import { useAuthStore } from '@/stores';
 import OnboardingScreen from '@/features/student/onboarding/screens/OnboardingScreen';
 import { useFcmToken } from '@/hooks';
 import { AnalyticsProvider, useScreenTracking } from '@/features/student/analytics';
+
+import StudentTabs from './StudentTabs';
+import { type StudentRootStackParamList } from './types';
+import NotificationHeader from './components/NotificationHeader';
 
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();
 

@@ -1,6 +1,7 @@
 import { BookOpenText, type LucideIcon, Megaphone, MessageCircleMore } from 'lucide-react-native';
 import React from 'react';
 import { Text, View } from 'react-native';
+
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 
@@ -107,7 +108,7 @@ const NotificationItem = ({
         <View className='flex-shrink-0'>
           <IconContainer type={icon} />
           {hasBadge && (
-            <View className='absolute top-0 right-0 h-[10px] w-[10px] rounded-full bg-[#E75043]'></View>
+            <View className='absolute right-0 top-0 h-[10px] w-[10px] rounded-full bg-[#E75043]'></View>
           )}
         </View>
         <View className='flex-1'>

@@ -4,12 +4,6 @@ import { Check } from 'lucide-react-native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
-import type { ScrapListItemProps } from '../types';
-import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
-import { isItemSelected } from '../../../utils/reducer';
-import { formatToMinute } from '../../../utils/formatters/formatToMinute';
-import { useCardImageSources } from '../../../hooks';
-
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 import {
   ChevronDownFilledIcon,
@@ -19,6 +13,12 @@ import {
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/common';
+
+import type { ScrapListItemProps } from '../types';
+import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
+import { isItemSelected } from '../../../utils/reducer';
+import { formatToMinute } from '../../../utils/formatters/formatToMinute';
+import { useCardImageSources } from '../../../hooks';
 
 type ScrapCardExtraProps = {
   onMovePress?: (params: {

@@ -58,7 +58,7 @@ const SearchScrapHeader = ({
           )}
         </View>
         {navigateback.canGoBack() ? (
-          <Pressable onPress={() => navigateback.goBack()} className='pr-2 pl-3'>
+          <Pressable onPress={() => navigateback.goBack()} className='pl-3 pr-2'>
             <Text className='text-14sb text-gray-800'>취소</Text>
           </Pressable>
         ) : (

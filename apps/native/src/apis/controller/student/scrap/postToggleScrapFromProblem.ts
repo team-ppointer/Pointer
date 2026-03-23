@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { type paths } from '@schema';
+import { client } from '@/apis/client';
 
 import { invalidateScrapMutationQueries } from './utils';
-
-import { client } from '@/apis/client';
 
 type ToggleScrapFromProblemRequest =
   paths['/api/student/scrap/toggle/from-problem']['post']['requestBody']['content']['application/json'];

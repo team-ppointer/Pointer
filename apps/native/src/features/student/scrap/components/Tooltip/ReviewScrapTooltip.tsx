@@ -3,12 +3,12 @@ import { View, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
 import { type ScrapListItemProps } from '../Card/types';
 
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
-
-import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 export interface ReviewScrapTooltipProps {
   props: ScrapListItemProps;

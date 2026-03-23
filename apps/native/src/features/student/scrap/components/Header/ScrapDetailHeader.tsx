@@ -3,12 +3,12 @@ import { View, Text, Pressable, TextInput } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, MessageCircleMore, Trash2 } from 'lucide-react-native';
 import LottieView from 'lottie-react-native';
 
+import { ChevronDownFilledIcon } from '@/components/system/icons';
+import { colors } from '@/theme/tokens';
+
 import { TooltipPopover } from '../Tooltip';
 import { TooltipContainer } from '../Tooltip/TooltipContainer';
 import { TooltipMenuItem } from '../Tooltip/TooltipMenuItem';
-
-import { ChevronDownFilledIcon } from '@/components/system/icons';
-import { colors } from '@/theme/tokens';
 
 export interface ScrapDetailHeaderProps {
   scrapName: string;

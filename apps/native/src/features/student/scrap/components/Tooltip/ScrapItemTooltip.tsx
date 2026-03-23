@@ -6,13 +6,6 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 import type * as ImagePicker from 'expo-image-picker';
 
-import { showToast } from '../Notification/Toast';
-import { type ScrapListItemProps } from '../Card/types';
-import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
-
-import { TooltipContainer } from './TooltipContainer';
-import { TooltipMenuItem } from './TooltipMenuItem';
-
 import { colors } from '@/theme/tokens';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 import {
@@ -26,6 +19,13 @@ import {
 } from '@/apis';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { invalidateScrapSearchQueries } from '@/apis/controller/student/scrap/utils';
+
+import { showToast } from '../Notification/Toast';
+import { type ScrapListItemProps } from '../Card/types';
+import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
+
+import { TooltipContainer } from './TooltipContainer';
+import { TooltipMenuItem } from './TooltipMenuItem';
 
 export interface ScrapItemTooltipProps {
   props: ScrapListItemProps;

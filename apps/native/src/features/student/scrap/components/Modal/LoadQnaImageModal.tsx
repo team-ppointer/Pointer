@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Modal, Pressable, View, StyleSheet, Text } from 'react-native';
 import { Check } from 'lucide-react-native';
 
+import { colors } from '@/theme/tokens';
+import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
+import { Container } from '@/components/common';
+
 import { SortDropdown } from '../Dropdown';
 import { type SortOrder, type UISortKey } from '../../utils/types';
 import { showToast } from '../Notification/Toast';
 import { useScrapModal } from '../../contexts/ScrapModalsContext';
 
 import { LoadQnaImageScreenModal } from './FullScreenModal';
-
-import { colors } from '@/theme/tokens';
-import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
-import { Container } from '@/components/common';
 
 export const LoadQnaImageModal = () => {
   const { isLoadQnaImageModalVisible, closeLoadQnaImageModal, refetchScraps } = useScrapModal();

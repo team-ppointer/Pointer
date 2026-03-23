@@ -4,14 +4,14 @@ import { ChevronLeft, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-import { SearchScrapGrid } from '../components/Card/ScrapCardGrid';
-import SearchScrapHeader from '../components/Header/SearchScrapHeader';
-
 import { colors } from '@/theme/tokens';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 import Container from '@/components/common/Container';
 import { useSearchHistoryStore } from '@/features/student/scrap/stores/searchHistoryStore';
 import { useSearchScraps } from '@/apis';
+
+import SearchScrapHeader from '../components/Header/SearchScrapHeader';
+import { SearchScrapGrid } from '../components/Card/ScrapCardGrid';
 
 const SearchScrapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();

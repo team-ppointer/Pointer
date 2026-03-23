@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { type paths } from '@schema';
+import { client } from '@/apis/client';
 
 import { invalidateScrapMutationQueries } from './utils';
-
-import { client } from '@/apis/client';
 
 type CreateScrapFromImageRequest =
   paths['/api/student/scrap/from-image']['post']['requestBody']['content']['application/json'];

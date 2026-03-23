@@ -2,12 +2,12 @@ import { Check, Plus } from 'lucide-react-native';
 import { Pressable, View, Text } from 'react-native';
 import { Placement } from 'react-native-popover-view/dist/Types';
 
+import { BookmarkFilledIcon } from '@/components/system/icons';
+import { colors } from '@/theme/tokens';
+
 import { TooltipPopover, AddItemTooltipBox } from '../../Tooltip';
 import { isItemSelected, type State } from '../../../utils/reducer';
 import { useScrapModal } from '../../../contexts/ScrapModalsContext';
-
-import { BookmarkFilledIcon } from '@/components/system/icons';
-import { colors } from '@/theme/tokens';
 
 interface ScrapHeadCardProps {
   reducerState: State;

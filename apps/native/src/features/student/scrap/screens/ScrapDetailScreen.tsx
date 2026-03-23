@@ -24,6 +24,18 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { colors } from '@/theme/tokens';
+import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
+import { LoadingScreen } from '@/components/common';
+import {
+  TanstackQueryClient,
+  useGetScrapDetail,
+  useUpdateScrapName,
+  useGetEntireProblemPointing,
+  useGetEntireProblem,
+} from '@/apis';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
 import DrawingCanvas, { type DrawingCanvasRef } from '../utils/skia/drawing';
 import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
@@ -50,18 +62,6 @@ import { withScrapModals } from '../hoc/withScrapModals';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useRecentScrapStore } from '../stores/recentScrapStore';
 import { ExplanationSection } from '../components/scrap/ExplanationSection';
-
-import { colors } from '@/theme/tokens';
-import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import { LoadingScreen } from '@/components/common';
-import {
-  TanstackQueryClient,
-  useGetScrapDetail,
-  useUpdateScrapName,
-  useGetEntireProblemPointing,
-  useGetEntireProblem,
-} from '@/apis';
-import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 type ScrapDetailRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContentDetail'>;
 

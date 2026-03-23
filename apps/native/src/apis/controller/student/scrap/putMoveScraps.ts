@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { type paths } from '@schema';
+import { client } from '@/apis/client';
 
 import {
   optimisticMoveScrap,
@@ -8,8 +10,6 @@ import {
   invalidateFolderScrapsQueries,
   SCRAP_QUERY_KEYS,
 } from './utils';
-
-import { client } from '@/apis/client';
 
 type MoveScrapsRequest =
   paths['/api/student/scrap/move']['put']['requestBody']['content']['application/json'];

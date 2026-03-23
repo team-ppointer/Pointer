@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Button } from 'react-native';
+
 import { useDebounce } from '@hooks';
 import { getEmailExists } from '@apis/controller/student/auth/getEmailExists';
+import { useAuthStore } from '@/stores';
 
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
-
-import { useAuthStore } from '@/stores';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

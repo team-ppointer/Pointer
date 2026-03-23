@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { AnimatedPressable, Container } from '@components/common';
 import { colors } from '@theme/tokens';
 import { usePostFeedback } from '@apis';

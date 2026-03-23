@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
+
 import { AnimatedPressable } from '@components/common';
 
 interface NotificationHeaderProps extends NativeStackHeaderProps {

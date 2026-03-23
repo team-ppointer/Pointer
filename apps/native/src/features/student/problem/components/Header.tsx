@@ -1,6 +1,7 @@
 import { type FC, type ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
+
 import { type components } from '@schema';
 import { Container } from '@components/common';
 import { colors } from '@theme/tokens';

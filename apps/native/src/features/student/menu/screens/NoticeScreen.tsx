@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import { Container, NotificationItem } from '@components/common';
 import { putReadNotice, useGetNotice, useInvalidateNoticeData } from '@apis';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 import { ScreenLayout } from '../components';
-
-import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);

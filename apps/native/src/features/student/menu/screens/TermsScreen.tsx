@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, ScrollView } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
+
 import { AnimatedPressable, Container } from '@components/common';
 import { colors } from '@theme/tokens';
 

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { type paths } from '@schema';
 
+import { type paths } from '@schema';
 import { client, TanstackQueryClient } from '@/apis/client';
 
 type UpdateHandwritingRequest =

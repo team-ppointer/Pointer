@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View, Image, Pressable } from 'react-native';
 import { MessageSquareText, ImageIcon } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 
 import type { ChatRoomSearchResult, MessageSearchResult } from '../../types';

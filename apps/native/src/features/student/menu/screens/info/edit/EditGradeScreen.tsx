@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 import { useState } from 'react';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
+
 import { OptionButton } from '@features/student/onboarding/components';
 import { showToast } from '@features/student/scrap/components/Notification';
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';

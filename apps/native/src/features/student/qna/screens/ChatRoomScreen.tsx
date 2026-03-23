@@ -5,6 +5,7 @@ import type {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
+
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useGetQnaById } from '@apis/controller/student/qna';
 

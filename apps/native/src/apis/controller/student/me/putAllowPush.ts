@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { type components } from '@schema';
 
+import { type components } from '@schema';
 import { client, TanstackQueryClient } from '@/apis/client';
 
 type UpdatePushSettingsRequest = components['schemas']['StudentPushDTO.UpdateSettingsRequest'];

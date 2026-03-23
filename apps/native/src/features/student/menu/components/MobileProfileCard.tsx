@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
+
 import { AnimatedPressable } from '@components/common';
 import type { components } from '@schema';
 import { gradeOptions } from '@features/student/onboarding/constants';
-
 import { ProfileIcon } from '@/components/system/icons';
 import { colors } from '@/theme/tokens';
 

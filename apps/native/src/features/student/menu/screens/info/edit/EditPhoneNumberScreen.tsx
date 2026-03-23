@@ -5,6 +5,7 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, CircleCheck, CircleAlert } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { AnimatedPressable, Container } from '@components/common';
 import {
   useGetMe,

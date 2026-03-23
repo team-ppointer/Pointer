@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useGetQnaSearch } from '@apis/controller/student/qna';
 

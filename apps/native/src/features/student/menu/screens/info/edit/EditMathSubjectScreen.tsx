@@ -1,13 +1,13 @@
 import { View } from 'react-native';
 import { useState } from 'react';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
+
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
-
-import { EditScreenLayout } from '../../../components';
-
 import { mathSubjectOptions, type MathSubjectValue } from '@/features/student/onboarding/constants';
 import { showToast } from '@/features/student/scrap/components/Notification';
 import { OptionButton } from '@/features/student/onboarding/components';
+
+import { EditScreenLayout } from '../../../components';
 
 const EditMathSubjectScreen = ({
   navigation,

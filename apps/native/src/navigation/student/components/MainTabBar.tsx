@@ -3,15 +3,15 @@ import { StyleSheet, View, Dimensions, Animated, Pressable, Text } from 'react-n
 import { type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Bookmark, Home, Menu, MessageCircleMore } from 'lucide-react-native';
+
 import {
   BookmarkFilledIcon,
   HomeFilledIcon,
   MessageCircleMoreFilledIcon,
 } from '@components/system/icons';
+import { colors } from '@/theme/tokens';
 
 import { useTabTransition } from './TabScreenTransition';
-
-import { colors } from '@/theme/tokens';
 
 type IconProps = {
   size: number;
@@ -130,7 +130,7 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
 
       {isTabBarVisible && (
         <View
-          className='absolute right-0 bottom-0 left-0 z-50 items-center justify-center bg-gray-100 pt-[4px]'
+          className='absolute bottom-0 left-0 right-0 z-50 items-center justify-center bg-gray-100 pt-[4px]'
           style={{ paddingBottom: 4 + insets.bottom }}
           pointerEvents='box-none'>
           {/* Tab Bar Content */}

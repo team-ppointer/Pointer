@@ -2,9 +2,9 @@ import React, { useRef } from 'react';
 import { View, ScrollView, type LayoutChangeEvent, Dimensions } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 
-import { DraggableTab } from './DraggableTab';
-
 import { type Note } from '@/features/student/scrap/stores/scrapNoteStore';
+
+import { DraggableTab } from './DraggableTab';
 
 export interface TabNavigatorProps {
   openNotes: Note[];

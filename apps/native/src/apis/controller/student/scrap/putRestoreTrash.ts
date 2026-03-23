@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { type paths } from '@schema';
+import { client } from '@/apis/client';
 
 import { invalidateTrashMutationQueries, SCRAP_QUERY_KEYS } from './utils';
-
-import { client } from '@/apis/client';
 
 type RestoreTrashRequest =
   paths['/api/student/scrap/trash/restore']['put']['requestBody']['content']['application/json'];

@@ -3,6 +3,10 @@ import { Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
+import { Container, LoadingScreen } from '@/components/common';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+
 import DeletedScrapHeader from '../components/Header/DeletedScrapHeader';
 import { TrashScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
@@ -14,10 +18,6 @@ import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection } from '../hooks';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { withScrapModals } from '../hoc';
-
-import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
-import { Container, LoadingScreen } from '@/components/common';
-import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 const DeletedScrapScreenContent = () => {
   const [reducerState, dispatch] = useScrapSelection();
@@ -103,7 +103,7 @@ const DeletedScrapScreenContent = () => {
             setSortOrder={setSortOrder}
           />
         </Container>
-        <Container className='pt-4 pb-[120px]'>
+        <Container className='pb-[120px] pt-4'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (

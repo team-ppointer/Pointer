@@ -1,4 +1,5 @@
 import { type Middleware } from 'openapi-fetch';
+
 import {
   getAccessToken,
   getGrade,

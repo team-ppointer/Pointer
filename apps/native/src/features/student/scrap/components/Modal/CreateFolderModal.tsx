@@ -3,14 +3,14 @@ import { View, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } fro
 import type * as ImagePicker from 'expo-image-picker';
 import { ImageIcon } from 'lucide-react-native';
 
+import { colors } from '@/theme/tokens';
+import { useCreateFolder, useUploadFile } from '@/apis';
+
 import { showToast } from '../Notification/Toast';
 import { openImageLibraryWithErrorHandling } from '../../utils/images/imagePicker';
 import { useScrapModal } from '../../contexts/ScrapModalsContext';
 
 import { AddFolderScreenModal } from './FullScreenModal';
-
-import { colors } from '@/theme/tokens';
-import { useCreateFolder, useUploadFile } from '@/apis';
 
 export const CreateFolderModal = () => {
   const { isCreateFolderModalVisible, closeCreateFolderModal, refetchFolders, refetchScraps } =

@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated, Text } from 'react-native';
+
 import { AnimatedPressable } from '@components/common';
 import { colors } from '@theme/tokens';
 

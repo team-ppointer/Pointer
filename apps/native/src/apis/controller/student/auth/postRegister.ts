@@ -1,5 +1,4 @@
 import { type components } from '@schema';
-
 import { client } from '@/apis/client';
 
 type StudentInitialRegisterReq = components['schemas']['StudentInitialRegisterDTO.Req'];

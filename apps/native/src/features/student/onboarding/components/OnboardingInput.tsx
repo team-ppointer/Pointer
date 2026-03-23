@@ -18,6 +18,7 @@ import {
   View,
 } from 'react-native';
 import { AlertCircle, CircleCheck } from 'lucide-react-native';
+
 import { colors } from '@theme/tokens';
 
 type Props = TextInputProps & {
@@ -117,7 +118,7 @@ const OnboardingInput = forwardRef(
             </Pressable>
           ) : null}
         </Pressable>
-        {hint ? <Text className='text-12r mt-[8px] ml-[4px] text-[#808087]'>{hint}</Text> : null}
+        {hint ? <Text className='text-12r ml-[4px] mt-[8px] text-[#808087]'>{hint}</Text> : null}
         {errorMessage ? (
           <View className='mt-[8px] flex-row items-center gap-[4px]'>
             <AlertCircle size={14} color={colors['red-400']} />

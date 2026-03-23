@@ -1,6 +1,9 @@
 import { Dimensions, FlatList, View } from 'react-native';
 import { useMemo, useState } from 'react';
 
+import { usePermanentDeleteTrash } from '@/apis';
+import { type ScrapItem, type TrashItem } from '@/features/student/scrap/utils/types';
+
 import { type Action, type State } from '../../utils/reducer';
 import { useGridLayout } from '../../utils/layout/gridLayout';
 import { useScrapModal } from '../../contexts/ScrapModalsContext';
@@ -9,9 +12,6 @@ import { ScrapCard } from './cards/ScrapCard';
 import { SearchResultCard } from './cards/SearchResultCard';
 import { TrashCard } from './cards/TrashCard';
 import { ScrapAddCard, ScrapAllCard } from './cards/ScrapHeadCard';
-
-import { usePermanentDeleteTrash } from '@/apis';
-import { type ScrapItem, type TrashItem } from '@/features/student/scrap/utils/types';
 
 /**
  * ADD, ALL item type for ScrapGrid

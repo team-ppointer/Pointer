@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { View } from 'react-native';
+
 import { MessageSquareWarningFilledIcon } from '@components/system/icons';
+import { colors } from '@/theme/tokens';
 
 import { InfoCard, OnboardingLayout, OptionButton } from '../../components';
 import { levelOptions } from '../../constants';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
-
-import { colors } from '@/theme/tokens';
 
 const ScoreStep = ({ navigation }: OnboardingScreenProps<'Score'>) => {
   const level = useOnboardingStore((state) => state.level);

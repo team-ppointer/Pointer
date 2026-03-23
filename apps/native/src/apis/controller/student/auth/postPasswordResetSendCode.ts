@@ -1,5 +1,4 @@
 import { type components } from '@schema';
-
 import { client } from '@/apis/client';
 
 type PasswordResetDTOSendCodeRequest = components['schemas']['PasswordResetDTO.SendCodeRequest'];

@@ -1,6 +1,6 @@
 import { type QueryClient } from '@tanstack/react-query';
-import { type paths } from '@schema';
 
+import { type paths } from '@schema';
 import { TanstackQueryClient } from '@/apis/client';
 
 type GetScrapsByFolderParams =

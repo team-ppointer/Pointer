@@ -4,6 +4,7 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import { BookmarkIcon, MessageCircleMoreIcon, StarIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { colors, shadow } from '@theme/tokens';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { Container } from '@components/common';
@@ -22,13 +23,12 @@ import {
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
 
 import Header from '../components/Header';
 import BottomActionBar from '../components/BottomActionBar';
 import { formatPublishDateLabel } from '../utils/formatters';
 import ProblemViewer from '../components/ProblemViewer';
-
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
 
 const AnalysisScreen = ({
   navigation,
@@ -236,7 +236,7 @@ const AnalysisScreen = ({
           />
         </Container>
         <View className='flex-1 overflow-hidden'>
-          <Container className='flex-1 flex-col gap-[20px] pt-[20px] pb-[32px] md:flex-row'>
+          <Container className='flex-1 flex-col gap-[20px] pb-[32px] pt-[20px] md:flex-row'>
             <View className='md:flex-1'>
               <View
                 className='rounded-[8px] border border-gray-500 bg-white p-[14px]'

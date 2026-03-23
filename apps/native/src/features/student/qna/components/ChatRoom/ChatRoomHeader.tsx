@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
+
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 

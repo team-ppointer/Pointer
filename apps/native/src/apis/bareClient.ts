@@ -1,4 +1,5 @@
 import createFetchClient from 'openapi-fetch';
+
 import { type paths } from '@schema';
 import { env } from '@utils';
 

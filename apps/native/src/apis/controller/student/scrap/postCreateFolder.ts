@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { type paths } from '@schema';
+import { client } from '@/apis/client';
 
 import { invalidateScrapSearchQueries, SCRAP_QUERY_KEYS } from './utils';
-
-import { client } from '@/apis/client';
 
 type CreateFolderRequest =
   paths['/api/student/scrap/folder']['post']['requestBody']['content']['application/json'];

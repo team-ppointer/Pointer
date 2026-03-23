@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
-import type { UISortKey, SortOrder } from '../../utils/types';
-
 import { colors } from '@/theme/tokens';
 import { ChevronDownFilledIcon, ChevronUpFilledIcon } from '@/components/system/icons';
+
+import type { UISortKey, SortOrder } from '../../utils/types';
 
 /**
  * 정렬 옵션 아이템

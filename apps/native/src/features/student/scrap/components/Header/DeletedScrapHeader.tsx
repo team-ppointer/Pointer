@@ -3,12 +3,12 @@ import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, Trash2, Undo2 } from 'lucide-react-native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { type State } from '../../utils/reducer';
-
 import { Container } from '@/components/common';
 import { CircleCheckDashed } from '@/components/system/icons';
 import { colors } from '@/theme/tokens';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
+
+import { type State } from '../../utils/reducer';
 
 export interface DeletedScrapHeaderActions {
   onEnterSelection?: () => void;
@@ -49,7 +49,7 @@ const DeletedScrapHeader = ({
           ) : (
             <View className='h-[48px] w-[48px] gap-[10px]' />
           )}
-          <View className='absolute right-0 left-0 items-center'>
+          <View className='absolute left-0 right-0 items-center'>
             <Text className='text-20b text-gray-900'>휴지통</Text>
           </View>
           <View className='flex-row items-center gap-1'>
