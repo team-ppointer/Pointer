@@ -55,7 +55,7 @@ export default [
       'sonarjs/cognitive-complexity': ['warn', 15],
 
       // Tailwind CSS
-      'tailwindcss/classnames-order': 'off', // prettier-plugin-tailwindcss handles this
+      'tailwindcss/classnames-order': 'warn',
       'tailwindcss/enforces-shorthand': 'warn',
       'tailwindcss/no-contradicting-classname': 'error',
       'tailwindcss/no-unnecessary-arbitrary-value': 'warn',
