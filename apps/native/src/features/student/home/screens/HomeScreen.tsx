@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Text, Pressable, Modal, RefreshControl } from 'react-native';
+import { ScrollView, View, Text, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon, XIcon } from 'lucide-react-native';
-import { BlurView } from 'expo-blur';
+import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon } from 'lucide-react-native';
 
 import { useAuthStore, useHomeStore } from '@stores';
 import { useGetLastDiagnosis, useGetMonthlyPublish, useGetPublishDetail } from '@apis';
@@ -13,11 +12,11 @@ import { colors } from '@theme/tokens';
 import { PointerSymbol } from '@components/system/icons';
 import { AnimatedPressable, Container } from '@components/common';
 import { useInvalidateAll } from '@hooks';
-import { formatDateKey } from '@/utils/date';
+import { formatDateKey } from '@utils/date';
 
 import ProblemViewer from '../../problem/components/ProblemViewer';
 import ProblemSet from '../components/ProblemSet';
-import ProblemCalendar from '../components/ProblemCalendar';
+import CalendarModal from '../components/CalendarModal';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
@@ -128,50 +127,18 @@ const HomeScreen = () => {
         </View>
       </Container>
 
-      {/* Calendar Modal */}
-      <Modal
-        transparent
-        animationType='fade'
+      <CalendarModal
         visible={isCalendarModalVisible}
-        onRequestClose={() => setIsCalendarModalVisible(false)}>
-        <BlurView intensity={20} tint='light' style={{ flex: 1, backgroundColor: '#C6CAD480' }}>
-          <View className='flex-1 items-center justify-center'>
-            <Pressable
-              className='absolute inset-0'
-              onPress={() => setIsCalendarModalVisible(false)}
-            />
-            <View className='mx-5 w-full max-w-[540px] rounded-[14px] bg-white'>
-              {/* Modal Header */}
-              <AnimatedPressable
-                onPress={() => setIsCalendarModalVisible(false)}
-                className='absolute top-0 -right-[60px] size-[48px] items-center justify-center rounded-[12px] bg-white'>
-                <XIcon size={24} color='black' />
-              </AnimatedPressable>
-
-              {/* Calendar Content */}
-              <ProblemCalendar
-                selectedMonth={selectedMonth}
-                selectedDate={selectedDate}
-                onChangeMonth={setSelectedMonth}
-                onDateSelect={handleDateChange}
-                studyData={studyData?.data ?? []}
-              />
-
-              {/* Navigate Button */}
-              <AnimatedPressable
-                onPress={() => {
-                  setIsCalendarModalVisible(false);
-                  // Navigate to problem set if available
-                }}
-                className='bg-primary-500 m-5 h-[50px] items-center justify-center rounded-lg px-5'>
-                <Text className='typo-body-1-medium text-center text-white'>
-                  {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일 문제 세트로 이동
-                </Text>
-              </AnimatedPressable>
-            </View>
-          </View>
-        </BlurView>
-      </Modal>
+        selectedMonth={selectedMonth}
+        selectedDate={selectedDate}
+        studyData={studyData?.data ?? []}
+        onChangeMonth={setSelectedMonth}
+        onDateSelect={handleDateChange}
+        onNavigate={() => {
+          setIsCalendarModalVisible(false);
+        }}
+        onClose={() => setIsCalendarModalVisible(false)}
+      />
     </ScrollView>
   );
 };
