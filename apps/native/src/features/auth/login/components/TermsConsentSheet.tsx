@@ -7,7 +7,6 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import * as WebBrowser from 'expo-web-browser';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react-native';
-
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
 
@@ -109,7 +108,7 @@ const TermsConsentSheet = forwardRef<BottomSheet, TermsConsentSheetProps>(
         onChange={handleSheetChange}
         style={{ padding: 0 }}>
         <BottomSheetView
-          className='bg-white pb-[12px] pt-[4px]'
+          className='bg-white pt-[4px] pb-[12px]'
           style={{ paddingBottom: bottomInset }}>
           <Container>
             <Text className='text-20b text-gray-800'>회원가입을 위해 약관에 동의해주세요.</Text>

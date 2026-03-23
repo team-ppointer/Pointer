@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, ScrollView, Linking, AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
-
 import { Container } from '@components/common';
 import { usePutAllowPush, useGetPushSetting } from '@apis';
 import { showToast } from '@features/student/scrap/components/Notification';

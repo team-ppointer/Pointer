@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { client } from '@/apis/client';
 import { type paths } from '@schema';
 
 import { invalidateScrapMutationQueries } from './utils';
+
+import { client } from '@/apis/client';
 
 type CreateScrapFromPointingRequest =
   paths['/api/student/scrap/from-pointing']['post']['requestBody']['content']['application/json'];

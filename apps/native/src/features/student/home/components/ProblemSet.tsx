@@ -3,13 +3,13 @@ import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native'
 import { Alert, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
 import { TextButton } from '@components/common';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
 import { type components } from '@schema';
 import { colors, shadow } from '@theme/tokens';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
+
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {

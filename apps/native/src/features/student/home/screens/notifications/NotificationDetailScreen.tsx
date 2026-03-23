@@ -1,6 +1,5 @@
 import { View, Text, ScrollView } from 'react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-
 import ProblemViewer from '@features/student/problem/components/ProblemViewer';
 import { Container } from '@components/common';
 import { type StudentRootStackParamList } from '@navigation/student/types';

@@ -3,7 +3,6 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react-native';
-
 import { AnimatedPressable, Container, NotificationItem } from '@components/common';
 import { NoNotificationBellIcon } from '@components/system/icons';
 import { type StudentRootStackParamList } from '@navigation/student/types';
@@ -14,9 +13,10 @@ import {
   usePostReadNotification,
 } from '@apis/controller/student/notification';
 import { useGetNotice, putReadNotice, useInvalidateNoticeData, getPublishDetailById } from '@apis';
-import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
 import { parseDeepLinkUrl, isValidDeepLink } from '@utils/deepLink';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
+
+import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
 import { useIsTablet } from '@/features/student/qna/hooks/useIsTablet';
 
 const formatDate = (dateString: string) => {
@@ -224,7 +224,7 @@ const NotificationScreen = () => {
           )}
         </Container>
       </View>
-      <Container className='flex-1 items-center justify-center gap-[10px] pb-[100px] pt-[20px]'>
+      <Container className='flex-1 items-center justify-center gap-[10px] pt-[20px] pb-[100px]'>
         <Text className='text-14m text-gray-600'>7일 전 알림까지 확인할 수 있어요.</Text>
       </Container>
     </ScrollView>

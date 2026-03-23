@@ -5,7 +5,6 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, CircleCheck, CircleAlert } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { AnimatedPressable, Container } from '@components/common';
 import {
   useGetMe,
@@ -191,14 +190,14 @@ const EditPhoneNumberScreen = () => {
           <View className='gap-[32px]'>
             <View className='gap-1'>
               <Text className='text-20b text-gray-800'>변경할 휴대폰 번호를 입력해 주세요.</Text>
-              <Text className='text-16r  text-gray-700'>
+              <Text className='text-16r text-gray-700'>
                 인증이 완료되면 새로운 번호가 바로 적용돼요.
               </Text>
             </View>
 
             <View className='gap-[20px]'>
               <View className='gap-[6px]'>
-                <Text className='text-14m  text-gray-900'>휴대폰 번호</Text>
+                <Text className='text-14m text-gray-900'>휴대폰 번호</Text>
                 <View className='flex-row items-center gap-[10px]'>
                   <TextInput
                     value={phoneNumber}
@@ -237,7 +236,7 @@ const EditPhoneNumberScreen = () => {
 
             {isCodeSent && (
               <View className='gap-[6px]'>
-                <Text className='text-14m  text-gray-900'>인증번호</Text>
+                <Text className='text-14m text-gray-900'>인증번호</Text>
                 <View className='w-full' style={{ position: 'relative' }}>
                   <TextInput
                     value={verificationCode}

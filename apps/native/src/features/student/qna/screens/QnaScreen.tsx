@@ -3,7 +3,6 @@ import { View, ActivityIndicator, Text } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import type { StudentRootStackParamList, StudentTabParamList } from '@navigation/student/types';
 import { useGetQnaList, useGetQnaById, useInvalidateQnaData } from '@apis/controller/student/qna';
 import useSubscribeQnaList from '@apis/controller/common/qna/useGetSubscribeQnaList';
@@ -176,7 +175,7 @@ const QnaScreen = () => {
       return (
         <View className='flex-1 flex-row'>
           {/* Left Panel - Chat Room List */}
-          <View className='w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white'>
+          <View className='w-[40%] max-w-[400px] min-w-[320px] border-r border-gray-500 bg-white'>
             <ChatRoomList
               chatRooms={chatRooms}
               selectedRoomId={selectedRoom?.id}

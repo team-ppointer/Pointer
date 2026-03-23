@@ -1,11 +1,11 @@
 import React from 'react';
 import { type GestureResponderEvent } from 'react-native';
 
-import AnimatedPressable from '@/components/common/AnimatedPressable';
-
 import type { ButtonId, ScreenName } from './types';
 
 import { analytics } from './index';
+
+import AnimatedPressable from '@/components/common/AnimatedPressable';
 
 type AnimatedPressableProps = React.ComponentProps<typeof AnimatedPressable>;
 

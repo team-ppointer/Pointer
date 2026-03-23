@@ -1,6 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { client } from '@/apis/client';
 import { type paths } from '@schema';
 
 import {
@@ -8,6 +6,8 @@ import {
   invalidateScrapMutationQueries,
   SCRAP_QUERY_KEYS,
 } from './utils';
+
+import { client } from '@/apis/client';
 
 type UpdateScrapNameRequest =
   paths['/api/student/scrap/{scrapId}/name']['put']['requestBody']['content']['application/json'];

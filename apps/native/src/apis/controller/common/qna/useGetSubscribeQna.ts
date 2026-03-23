@@ -2,7 +2,6 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import NetInfo, { type NetInfoState } from '@react-native-community/netinfo';
 import EventSource from 'react-native-sse';
-
 import { type components } from '@schema';
 import { env } from '@utils';
 

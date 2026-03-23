@@ -3,12 +3,12 @@ import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, Search, Trash2 } from 'lucide-react-native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { type State } from '../../utils/reducer';
+
 import { colors } from '@/theme/tokens';
 import { CircleCheckDashed } from '@/components/system/icons';
 import { Container } from '@/components/common';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
-
-import { type State } from '../../utils/reducer';
 
 export interface ScrapHeaderActions {
   /** 검색 화면으로 이동 */
@@ -63,7 +63,7 @@ const ScrapHeader = ({
             </Pressable>
           )}
           {navigateback ? (
-            <View className='absolute left-0 right-0 items-center'>
+            <View className='absolute right-0 left-0 items-center'>
               <Text
                 className='text-18b text-center text-gray-900 md:max-w-[344px] lg:max-w-[464px]'
                 numberOfLines={1}>

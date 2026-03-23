@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { client } from '@/apis/client';
 import { type components } from '@schema';
 
 import { invalidateScrapMutationQueries } from './utils';
+
+import { client } from '@/apis/client';
 
 type ScrapFromOneStepMoreCreateRequest = components['schemas']['ScrapFromOneStepMoreCreateRequest'];
 type ScrapToggleResp = components['schemas']['ScrapToggleResp'];

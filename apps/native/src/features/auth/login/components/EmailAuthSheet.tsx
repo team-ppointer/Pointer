@@ -13,7 +13,6 @@ import {
   EyeIcon,
   EyeOffIcon,
 } from 'lucide-react-native';
-
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
 import {
@@ -298,7 +297,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     editable={!isLoading}
                   />
                   <AnimatedPressable
-                    className='absolute right-[12px] top-[14px]'
+                    className='absolute top-[14px] right-[12px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOffIcon size={20} color={colors['gray-500']} />
@@ -392,7 +391,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     editable={!isLoading}
                   />
                   <AnimatedPressable
-                    className='absolute right-[12px] top-[14px]'
+                    className='absolute top-[14px] right-[12px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOffIcon size={20} color={colors['gray-500']} />
@@ -512,7 +511,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
                     editable={!resetLoading}
                   />
                   <AnimatedPressable
-                    className='absolute right-[12px] top-[14px]'
+                    className='absolute top-[14px] right-[12px]'
                     onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOffIcon size={20} color={colors['gray-500']} />
@@ -557,7 +556,7 @@ const EmailAuthSheet = forwardRef<BottomSheet, EmailAuthSheetProps>(
         keyboardBlurBehavior='restore'
         android_keyboardInputMode='adjustResize'>
         <BottomSheetView
-          className='bg-white pb-[12px] pt-[4px]'
+          className='bg-white pt-[4px] pb-[12px]'
           style={{ paddingBottom: bottomInset + 12 }}>
           <Container>
             {showBackButton && (

@@ -5,9 +5,7 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BookmarkIcon, ChevronLeftIcon, MessageCircleMoreIcon } from 'lucide-react-native';
-
 import { AnimatedPressable, Container } from '@components/common';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors, shadow } from '@theme/tokens';
 import { type components } from '@schema';
@@ -19,6 +17,8 @@ import {
 
 import ProblemViewer from '../components/ProblemViewer';
 import { formatPublishDateLabel } from '../utils/formatters';
+
+import { TrackedAnimatedPressable } from '@/features/student/analytics';
 
 type AllPointingsNavigationProp = NativeStackNavigationProp<
   StudentRootStackParamList,

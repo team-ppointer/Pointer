@@ -2,7 +2,6 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
-
 import StudentNavigator from '@navigation/student/StudentNavigator';
 import AuthNavigator from '@navigation/auth/AuthNavigator';
 import { useAuthStore } from '@stores';

@@ -14,10 +14,8 @@ import {
 } from 'react-native';
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import { Container } from '@components/common';
 import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
-import { colors } from '@/theme/tokens';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
 import { type components } from '@schema';
@@ -43,6 +41,8 @@ import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
+
+import { colors } from '@/theme/tokens';
 
 type ProblemScreenProps = Partial<NativeStackScreenProps<StudentRootStackParamList, 'Problem'>>;
 

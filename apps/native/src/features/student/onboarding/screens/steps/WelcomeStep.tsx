@@ -1,5 +1,4 @@
 import { View, Text } from 'react-native';
-
 import { useAuthStore } from '@stores';
 import postRegister from '@apis/controller/student/auth/postRegister';
 import type { components } from '@schema';

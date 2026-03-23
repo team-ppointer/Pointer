@@ -4,10 +4,6 @@ import { type RouteProp, useNavigation, useRoute } from '@react-navigation/nativ
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { type StudentRootStackParamList } from '@/navigation/student/types';
-import { Container, LoadingScreen } from '@/components/common';
-import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
-
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { mapUIKeyToAPIKey, sortScrapData } from '../utils/formatters/sortScrap';
 import type { UISortKey, SortOrder } from '../utils/types';
@@ -18,6 +14,10 @@ import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection } from '../hooks';
 import { validateOnlyScrapCanMove } from '../utils/validation';
 import { withScrapModals } from '../hoc';
+
+import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
+import { Container, LoadingScreen } from '@/components/common';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
@@ -133,7 +133,7 @@ const FolderScrapScreenContent = () => {
             setSortOrder={setSortOrder}
           />
         </Container>
-        <Container className='pb-[120px] pt-4'>
+        <Container className='pt-4 pb-[120px]'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (

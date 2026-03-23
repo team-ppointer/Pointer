@@ -1,10 +1,10 @@
 import React from 'react';
 import { Text, type ViewStyle } from 'react-native';
 
+import AnimatedPressable from './AnimatedPressable';
+
 import TrackedAnimatedPressable from '@/features/student/analytics/TrackedAnimatedPressable';
 import type { ButtonId, ScreenName } from '@/features/student/analytics';
-
-import AnimatedPressable from './AnimatedPressable';
 
 interface ButtonProps {
   variant?: 'blue' | 'gray' | 'outline';

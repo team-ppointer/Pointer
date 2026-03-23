@@ -4,12 +4,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Container, LoadingScreen } from '@/components/common';
-import { type StudentRootStackParamList } from '@/navigation/student/types';
-import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
-import { useSearchScraps, useDeleteScrap } from '@/apis';
-import { colors } from '@/theme/tokens';
-
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
 import SortDropdown from '../components/Dropdown/SortDropdown';
@@ -21,6 +15,12 @@ import { RecentScrapCard } from '../components/Card/cards/RecentScrapCard';
 import { useScrapModal } from '../contexts/ScrapModalsContext';
 import { useScrapSelection, useScrapStoreSync } from '../hooks';
 import { withScrapModals } from '../hoc';
+
+import { colors } from '@/theme/tokens';
+import { useSearchScraps, useDeleteScrap } from '@/apis';
+import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
+import { type StudentRootStackParamList } from '@/navigation/student/types';
+import { Container, LoadingScreen } from '@/components/common';
 
 const ScrapScreenContent = () => {
   const [reducerState, dispatch] = useScrapSelection();
@@ -163,7 +163,7 @@ const ScrapScreenContent = () => {
       />
       <ScrollView className='bg-gray-100' showsVerticalScrollIndicator={true}>
         {recentScrapsData.length > 0 && !reducerState.isSelecting && (
-          <Container className='flex-col items-start  gap-[10px] pb-[40px] pt-[8px]'>
+          <Container className='flex-col items-start gap-[10px] pt-[8px] pb-[40px]'>
             <Text className='text-16m text-gray-900'>최근 본</Text>
             <ScrollView horizontal={true} contentContainerStyle={{ gap: 10 }}>
               {recentScrapsData.map((scrap) => (
@@ -182,7 +182,7 @@ const ScrapScreenContent = () => {
             setSortOrder={setSortOrder}
           />
         </Container>
-        <Container className='pb-[120px] pt-[16px]'>
+        <Container className='pt-[16px] pb-[120px]'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (

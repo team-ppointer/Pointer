@@ -1,10 +1,10 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { Alert, AppState, type AppStateStatus } from 'react-native';
 
-import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
-
 import { type DrawingCanvasRef } from '../utils/skia/drawing';
 import { encodeHandwritingData, decodeHandwritingData } from '../utils/handwritingEncoder';
+
+import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
 
 export interface UseHandwritingManagerProps {
   scrapId: number;

@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { BookmarkIcon } from 'lucide-react-native';
 
-import { colors } from '@/theme/tokens';
-
 import ProblemViewer from '../../../problem/components/ProblemViewer';
+
+import { colors } from '@/theme/tokens';
 
 interface AnalysisSectionProps {
   label: string;

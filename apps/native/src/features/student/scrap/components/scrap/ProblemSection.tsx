@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { Maximize2 } from 'lucide-react-native';
 
-import { colors } from '@/theme/tokens';
-
 import ProblemViewer from '../../../problem/components/ProblemViewer';
+
+import { colors } from '@/theme/tokens';
 
 export interface ProblemSectionProps {
   problemContent?: string;
@@ -36,7 +36,7 @@ export const ProblemSection = ({
         {isHovering && (
           <Pressable
             onPress={onExpand}
-            className='absolute right-2 top-2 z-10 rounded-full bg-black/50 p-2'>
+            className='absolute top-2 right-2 z-10 rounded-full bg-black/50 p-2'>
             <Maximize2 size={20} color='#FFF' />
           </Pressable>
         )}
@@ -56,7 +56,7 @@ export const ProblemSection = ({
       {isHovering && (
         <Pressable
           onPress={onExpand}
-          className='absolute right-2 top-2 z-10 rounded-full bg-black/50 p-2'>
+          className='absolute top-2 right-2 z-10 rounded-full bg-black/50 p-2'>
           <Maximize2 size={20} color='#FFF' />
         </Pressable>
       )}

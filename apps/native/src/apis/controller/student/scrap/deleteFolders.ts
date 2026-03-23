@@ -1,8 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { client } from '@/apis/client';
 import { type paths } from '@schema';
-import type { ScrapSearchResponse } from '@/features/student/scrap/utils/types';
 
 import {
   createSearchQueryFilters,
@@ -10,6 +7,9 @@ import {
   invalidateScrapSearchQueries,
   SCRAP_QUERY_KEYS,
 } from './utils';
+
+import { client } from '@/apis/client';
+import type { ScrapSearchResponse } from '@/features/student/scrap/utils/types';
 
 type DeleteFoldersRequest =
   paths['/api/student/scrap/folder']['delete']['requestBody']['content']['application/json'];

@@ -4,14 +4,14 @@ import { Camera, ImageIcon, Paperclip, ArrowUp, X, Pencil } from 'lucide-react-n
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
-
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
-import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
 
 import type { Message } from '../../types';
 
 import ReplyPreview from './ReplyPreview';
+
+import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
 
 export interface SelectedImage {
   uri: string;
@@ -238,7 +238,7 @@ const MessageInput = ({
 
       {/* Input Area */}
       <View
-        className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pl-[12px] pr-[6px]' : 'pl-[8px] pr-[8px]'}`}>
+        className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pr-[6px] pl-[12px]' : 'pr-[8px] pl-[8px]'}`}>
         {/* Camera Button - hidden in typing mode or editing mode */}
         {!isTypingMode && !isEditing && (
           <TrackedAnimatedPressable

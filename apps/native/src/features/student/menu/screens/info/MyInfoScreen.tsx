@@ -7,7 +7,6 @@ import {
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
-
 import { Container, AnimatedPressable } from '@components/common';
 import { BookHeartIcon, CircleStarIcon, ProfileBasicIcon } from '@components/system/icons';
 import { useGetMe, usePutMe, TanstackQueryClient } from '@apis';
@@ -20,9 +19,10 @@ import {
   type MathSubjectValue,
 } from '@features/student/onboarding/constants';
 import { showToast } from '@features/student/scrap/components/Notification';
-import { ConfirmationModal } from '@/features/student/scrap/components/Dialog/ConfirmationModal';
 
 import { InfoSection, ScreenLayout } from '../../components';
+
+import { ConfirmationModal } from '@/features/student/scrap/components/Dialog/ConfirmationModal';
 
 // 컴포넌트 외부에 저장 (리마운트 후에도 유지됨)
 type LocalData = {
@@ -283,7 +283,7 @@ const MyInfoScreen = () => {
           navigation.goBack();
         }}>
         <ScrollView className='flex-1 bg-blue-100 pt-[10px]' contentContainerClassName='flex-grow'>
-          <Container className='-mt-[100%] gap-[28px] bg-gray-100 pb-[24px] pt-[100%]'>
+          <Container className='-mt-[100%] gap-[28px] bg-gray-100 pt-[100%] pb-[24px]'>
             <InfoSection
               icon={<ProfileBasicIcon />}
               title='기본 정보'

@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { client } from '@/apis/client';
 import { type paths } from '@schema';
 
 import { SCRAP_QUERY_KEYS } from './utils';
+
+import { client } from '@/apis/client';
 
 type PermanentDeleteRequest =
   paths['/api/student/scrap/trash']['delete']['requestBody']['content']['application/json'];

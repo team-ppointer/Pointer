@@ -3,7 +3,6 @@ import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeft } from 'lucide-react-native';
-
 import { AnimatedPressable } from '@components/common';
 
 type Props = {

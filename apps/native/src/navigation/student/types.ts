@@ -1,5 +1,4 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
-
 import { type components } from '@schema';
 
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];

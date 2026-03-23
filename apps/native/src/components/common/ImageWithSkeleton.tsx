@@ -8,7 +8,6 @@ import {
   Animated,
   StyleSheet,
 } from 'react-native';
-
 import { colors } from '@theme/tokens';
 
 type ImageWithSkeletonProps = {
@@ -176,7 +175,7 @@ const ImageWithSkeletonComponent = ({
         {hasSecondImage ? (
           // 2개일 때: 왼쪽 위에 첫 번째 이미지
           <View
-            className='absolute left-0 top-0'
+            className='absolute top-0 left-0'
             style={{
               width: '80%',
               height: '80%',
@@ -200,7 +199,7 @@ const ImageWithSkeletonComponent = ({
         ) : (
           // 1개일 때: 왼쪽 위에 회색 배경
           <View
-            className='absolute left-0 top-0'
+            className='absolute top-0 left-0'
             style={{
               width: '80%',
               height: '80%',
@@ -216,7 +215,7 @@ const ImageWithSkeletonComponent = ({
         {/* 오른쪽 아래: 이미지 표시 (2개면 두 번째, 1개면 첫 번째) */}
         {imageToShow && (
           <View
-            className='absolute bottom-0 right-0'
+            className='absolute right-0 bottom-0'
             style={{
               width: '80%',
               height: '80%',

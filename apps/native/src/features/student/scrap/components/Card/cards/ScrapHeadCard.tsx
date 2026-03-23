@@ -2,12 +2,12 @@ import { Check, Plus } from 'lucide-react-native';
 import { Pressable, View, Text } from 'react-native';
 import { Placement } from 'react-native-popover-view/dist/Types';
 
-import { colors } from '@/theme/tokens';
-import { BookmarkFilledIcon } from '@/components/system/icons';
-
 import { TooltipPopover, AddItemTooltipBox } from '../../Tooltip';
 import { isItemSelected, type State } from '../../../utils/reducer';
 import { useScrapModal } from '../../../contexts/ScrapModalsContext';
+
+import { BookmarkFilledIcon } from '@/components/system/icons';
+import { colors } from '@/theme/tokens';
 
 interface ScrapHeadCardProps {
   reducerState: State;
@@ -65,7 +65,7 @@ export const ScrapAllCard = (props: ScrapHeadCardProps) => {
 
   return (
     <Pressable
-      className={`${isSelected ? 'bg-gray-300 p-[10px]' : ''}  w-full items-center rounded-[10px] p-[10px]`}
+      className={`${isSelected ? 'bg-gray-300 p-[10px]' : ''} w-full items-center rounded-[10px] p-[10px]`}
       onPress={() => {
         if (props.reducerState.isSelecting) {
           props.onCheckPress?.();

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 
+import ProblemViewer from '../../../problem/components/ProblemViewer';
+
 import { ChevronDownFilledIcon, ChevronUpFilledIcon } from '@/components/system/icons';
 import { colors } from '@/theme/tokens';
 import { AnimatedPressable } from '@/components/common';
-
-import ProblemViewer from '../../../problem/components/ProblemViewer';
 
 export interface ExplanationSectionProps {
   explanation: string;

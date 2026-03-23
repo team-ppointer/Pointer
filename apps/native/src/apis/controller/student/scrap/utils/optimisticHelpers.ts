@@ -1,8 +1,8 @@
 import { type QueryClient, type QueryFilters } from '@tanstack/react-query';
 
-import type { ScrapSearchResponse } from '@/features/student/scrap/utils/types';
-
 import { isScrapSearchQuery } from './queryFilters';
+
+import type { ScrapSearchResponse } from '@/features/student/scrap/utils/types';
 
 /**
  * 삭제할 항목 ID 세트 생성

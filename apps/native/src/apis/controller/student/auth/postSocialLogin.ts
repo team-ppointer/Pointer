@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
-
 import { env } from '@utils';
+
 import { client } from '@/apis/client';
 
 const getRedirectUri = () => {

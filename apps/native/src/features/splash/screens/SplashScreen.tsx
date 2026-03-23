@@ -7,7 +7,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as SplashScreen from 'expo-splash-screen';
-
 import { PointerLogo } from '@components/system/icons';
 
 type Props = {

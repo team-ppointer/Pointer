@@ -3,7 +3,6 @@ import { Text, View, ActivityIndicator } from 'react-native';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MailIcon } from 'lucide-react-native';
-
 import { AnimatedPressable, Container } from '@components/common';
 import { GoogleIcon, KakaoIcon, PointerLogo, AppleIcon } from '@components/system/icons';
 import { colors } from '@theme/tokens';
@@ -56,7 +55,7 @@ const LoginScreen = () => {
             </View>
           )}
         </View>
-        <View className='gap-[10px] pb-[38px] pt-[10px]'>
+        <View className='gap-[10px] pt-[10px] pb-[38px]'>
           <AnimatedPressable
             className='h-[42px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-black px-[12px]'
             onPress={() => handleSocialButtonPress('APPLE')}

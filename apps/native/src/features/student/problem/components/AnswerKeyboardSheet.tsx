@@ -7,7 +7,6 @@ import { DeleteIcon } from 'lucide-react-native';
 import { forwardRef, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
-
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
 

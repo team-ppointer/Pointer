@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CheckIcon } from 'lucide-react-native';
-
 import { AnimatedPressable, Container } from '@components/common';
 import { useAuthStore } from '@stores';
 import { deleteAccount } from '@apis';

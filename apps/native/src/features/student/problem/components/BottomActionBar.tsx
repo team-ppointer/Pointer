@@ -9,8 +9,8 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-
 import { Container } from '@components/common';
+
 import { analytics, type ButtonId, type ScreenName } from '@/features/student/analytics';
 
 type BottomActionBarProps = {

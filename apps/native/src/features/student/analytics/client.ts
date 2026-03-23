@@ -1,7 +1,8 @@
-import { client } from '@/apis/client';
 import type { components } from '@schema';
 
 import type { AnalyticsEvent, DeviceType } from './types';
+
+import { client } from '@/apis/client';
 
 type UserEventBatchRequest = components['schemas']['UserEventBatchRequest'];
 

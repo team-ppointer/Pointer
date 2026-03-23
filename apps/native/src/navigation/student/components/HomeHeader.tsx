@@ -3,13 +3,13 @@ import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Bell } from 'lucide-react-native';
-
 import { AlertBellButtonIcon } from '@components/system/icons';
 import { AnimatedPressable, Container } from '@components/common';
-import { useGetNotificationCount } from '@/apis/controller/student/notification';
-import { useGetNoticeCount } from '@/apis/controller/student/notice';
 
 import { type StudentRootStackParamList } from '../types';
+
+import { useGetNotificationCount } from '@/apis/controller/student/notification';
+import { useGetNoticeCount } from '@/apis/controller/student/notice';
 
 type RootNav = NativeStackNavigationProp<StudentRootStackParamList>;
 

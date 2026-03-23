@@ -1,7 +1,6 @@
 import React from 'react';
 import { Text, View, Image } from 'react-native';
 import { X, ImageIcon } from 'lucide-react-native';
-
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
-
 import { showToast } from '@features/student/scrap/components/Notification';
 import { useGetSchool } from '@apis';
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';

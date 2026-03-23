@@ -2,13 +2,13 @@ import React, { useMemo, useCallback, useEffect, useReducer } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { FolderPlus } from 'lucide-react-native';
 
-import { useGetFolders, useMoveScraps } from '@/apis';
-
 import { PopUpModal } from '../Dialog';
 import { ScrapGrid } from '../Card/ScrapCardGrid';
 import { showToast } from '../Notification/Toast';
 import { reducer, initialSelectionState } from '../../utils/reducer';
 import { useScrapModal } from '../../contexts/ScrapModalsContext';
+
+import { useGetFolders, useMoveScraps } from '@/apis';
 
 export const MoveScrapModal = () => {
   const {
@@ -154,7 +154,7 @@ export const MoveScrapModal = () => {
           <Pressable onPress={closeMoveScrapModal} className='items-start'>
             <Text className='text-14sb text-primary-600'>취소</Text>
           </Pressable>
-          <View className='absolute left-0 right-0 items-center'>
+          <View className='absolute right-0 left-0 items-center'>
             <Text className='text-16sb text-gray-900'>
               {selectedItems.length}개 스크랩 이동하기
             </Text>

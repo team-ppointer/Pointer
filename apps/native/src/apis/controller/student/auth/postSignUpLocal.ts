@@ -1,5 +1,6 @@
-import { client } from '@/apis/client';
 import { type components } from '@schema';
+
+import { client } from '@/apis/client';
 
 type StudentSignupReq = components['schemas']['StudentSignupReq'];
 const postSignUpLocal = async (data: StudentSignupReq) => {

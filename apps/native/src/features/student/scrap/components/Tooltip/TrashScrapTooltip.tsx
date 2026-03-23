@@ -1,13 +1,13 @@
 import { Trash2, Undo2 } from 'lucide-react-native';
 
-import { colors } from '@/theme/tokens';
-import { useRestoreTrash } from '@/apis';
-
 import { showToast } from '../Notification/Toast';
 import type { TrashListItemProps } from '../Card/types';
 
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
+
+import { useRestoreTrash } from '@/apis';
+import { colors } from '@/theme/tokens';
 
 export interface TrashScrapTooltipProps {
   item: TrashListItemProps;

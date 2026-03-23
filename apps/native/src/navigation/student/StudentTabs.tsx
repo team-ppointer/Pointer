@@ -1,7 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { View } from 'react-native';
-
 import { HomeScreen } from '@features/student/home';
 import { ScrapScreen } from '@features/student/scrap';
 import { QnaScreen } from '@features/student/qna';

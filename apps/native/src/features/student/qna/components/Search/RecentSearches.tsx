@@ -1,7 +1,6 @@
 import React from 'react';
 import { Text, View, ScrollView, Pressable } from 'react-native';
 import { X } from 'lucide-react-native';
-
 import { colors } from '@theme/tokens';
 
 interface RecentSearchesProps {

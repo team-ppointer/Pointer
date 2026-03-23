@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AppState, Text, View } from 'react-native';
-
-import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
-import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
-import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
 import { AnimatedPressable } from '@components/common';
 
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import type { OnboardingScreenProps } from '../types';
+
+import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
+import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
+import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
 
 type FormState = {
   name: string;

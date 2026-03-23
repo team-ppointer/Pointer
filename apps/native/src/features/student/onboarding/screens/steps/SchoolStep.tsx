@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Search } from 'lucide-react-native';
-
 import { colors, shadow } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
 import { useDebounce } from '@hooks';

@@ -11,7 +11,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon } from 'lucide-react-native';
-
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, Container } from '@components/common';
 

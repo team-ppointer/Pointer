@@ -3,8 +3,6 @@ import { Alert } from 'react-native';
 import { useState } from 'react';
 import type * as ImagePicker from 'expo-image-picker';
 
-import { useCreateScrapFromImage, useUploadFile } from '@/apis';
-
 import {
   openCameraWithErrorHandling,
   openImageLibraryWithErrorHandling,
@@ -14,6 +12,8 @@ import { useScrapModal } from '../../contexts/ScrapModalsContext';
 
 import { TooltipContainer } from './TooltipContainer';
 import { TooltipMenuItem } from './TooltipMenuItem';
+
+import { useCreateScrapFromImage, useUploadFile } from '@/apis';
 
 export interface AddScrapTooltipProps {
   onClose?: () => void;

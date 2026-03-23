@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon, XIcon } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
-
 import { useAuthStore, useHomeStore } from '@stores';
 import { useGetLastDiagnosis, useGetMonthlyPublish, useGetPublishDetail } from '@apis';
 import { type StudentRootStackParamList } from '@navigation/student/types';
@@ -159,11 +158,11 @@ const HomeScreen = () => {
             />
             <View className='mx-[20px] w-full max-w-[600px] rounded-[20px] bg-white'>
               {/* Modal Header */}
-              <AnimatedPressable
+              <
                 onPress={() => setIsCalendarModalVisible(false)}
-                className='absolute -right-[60px] top-0 h-[48px] w-[48px] items-center justify-center rounded-[12px] bg-white'>
+                className='absolute top-0 -right-[60px] h-[48px] w-[48px] items-center justify-center rounded-[12px] bg-white'>
                 <XIcon size={24} color='black' />
-              </AnimatedPressable>
+              </>
 
               {/* Calendar Content */}
               <ProblemCalendar
