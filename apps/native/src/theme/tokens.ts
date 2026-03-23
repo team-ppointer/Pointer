@@ -189,18 +189,55 @@ export const screens = {
 };
 
 export const shadow = {
+  // Normal
   100: {
-    shadowColor: '#0C0C0D',
+    shadowColor: '#1E1E21',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  200: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.5,
     elevation: 2,
   },
-  900: {
-    shadowColor: '#ff00ff',
+  300: {
+    shadowColor: '#1E1E21',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
+    shadowOpacity: 0.1,
+    shadowRadius: 4.5,
+    elevation: 4,
+  },
+  400: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
     elevation: 6,
+  },
+  500: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  600: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.2,
+    shadowRadius: 11,
+    elevation: 14,
+  },
+  // Bottom Sheet
+  bottomsheet: {
+    shadowColor: '#1E1E21',
+    shadowOffset: { width: 0, height: -1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 8,
   },
 };
