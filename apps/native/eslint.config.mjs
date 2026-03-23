@@ -33,6 +33,17 @@ export default [
         },
       ],
       'import/no-duplicates': 'error',
+      'no-restricted-imports': [
+        'warn',
+        {
+          patterns: [
+            {
+              group: ['@/*'],
+              message: 'Use specific aliases (@components, @theme, @apis, etc.) instead of @/ catch-all.',
+            },
+          ],
+        },
+      ],
 
       // TypeScript strict
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],

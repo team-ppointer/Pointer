@@ -2,10 +2,9 @@ import React from 'react';
 import { View } from 'react-native';
 import { Undo2, Redo2, Type } from 'lucide-react-native';
 
-import { colors } from '@/theme/tokens';
-import { PencilFilledIcon } from '@/components/system/icons';
-import EraserFilledIcon from '@/components/system/icons/EraserFilledIcon';
-import { SizeSelector } from '@/features/student/scrap/components/scrap/SizeSelector';
+import { colors } from '@theme/tokens';
+import { PencilFilledIcon, EraserFilledIcon } from '@components/system/icons';
+import { SizeSelector } from '@features/student/scrap/components/scrap/SizeSelector';
 
 import { IconButton } from '../../../problem/components/WritingArea';
 
