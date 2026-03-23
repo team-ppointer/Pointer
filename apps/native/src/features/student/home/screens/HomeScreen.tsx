@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, Pressable, Modal, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -9,10 +9,11 @@ import { BlurView } from 'expo-blur';
 import { useAuthStore, useHomeStore } from '@stores';
 import { useGetLastDiagnosis, useGetMonthlyPublish, useGetPublishDetail } from '@apis';
 import { type StudentRootStackParamList } from '@navigation/student/types';
-import { colors, shadow } from '@theme/tokens';
+import { colors } from '@theme/tokens';
 import { PointerSymbol } from '@components/system/icons';
 import { AnimatedPressable, Container } from '@components/common';
 import { useInvalidateAll } from '@hooks';
+import { formatDateKey } from '@/utils/date';
 
 import ProblemViewer from '../../problem/components/ProblemViewer';
 import ProblemSet from '../components/ProblemSet';
@@ -20,14 +21,7 @@ import ProblemCalendar from '../components/ProblemCalendar';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-  const {
-    selectedMonth,
-    selectedDate,
-    selectedPublishId,
-    setSelectedMonth,
-    setSelectedDate,
-    setSelectedPublishId,
-  } = useHomeStore();
+  const { selectedMonth, selectedDate, setSelectedMonth, setSelectedDate } = useHomeStore();
   const [isCalendarModalVisible, setIsCalendarModalVisible] = useState(false);
   const studentName = useAuthStore((state) => state.studentProfile?.name);
 
@@ -37,18 +31,12 @@ const HomeScreen = () => {
     month: selectedMonth.getMonth() + 1,
   });
 
-  useEffect(() => {
-    if (studyData?.data) {
-      const selectedDateString = `${selectedDate.getFullYear()}-${String(
-        selectedDate.getMonth() + 1
-      ).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
-      setSelectedPublishId(
-        studyData.data.find((item) => item.publishAt === selectedDateString)?.id ?? -1
-      );
-    } else {
-      setSelectedPublishId(-1);
-    }
+  const selectedPublishId = useMemo(() => {
+    if (!studyData?.data) return -1;
+    const dateKey = formatDateKey(selectedDate);
+    return studyData.data.find((item) => item.publishAt === dateKey)?.id ?? -1;
   }, [studyData, selectedDate]);
+
   const { data: publishDetailData } = useGetPublishDetail(selectedPublishId);
 
   const handleDateChange = (date: Date) => {
@@ -108,11 +96,6 @@ const HomeScreen = () => {
                 {diagnosisData?.content && <ProblemViewer problemContent={diagnosisData.content} />}
               </View>
             </LinearGradient>
-            {/* <View className='flex-col rounded-[10px] bg-white p-[16px]'>
-              <Text className='text-16sb text-primary-500 mb-[8px]'>이번 주 개념</Text>
-              <ProblemViewer problemContent={diagnosisData?.content ?? ''} minHeight={200} />
-              <Text>미구현</Text>
-            </View> */}
           </View>
         </View>
         <View className='flex-1 flex-col'>
@@ -172,7 +155,6 @@ const HomeScreen = () => {
                 onChangeMonth={setSelectedMonth}
                 onDateSelect={handleDateChange}
                 studyData={studyData?.data ?? []}
-                isModal
               />
 
               {/* Navigate Button */}
