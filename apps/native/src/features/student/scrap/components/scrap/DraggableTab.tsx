@@ -164,7 +164,7 @@ export const DraggableTab = ({
       <Animated.View
         onLayout={onLayout}
         style={[animatedStyle, { height: 34, minWidth: 170, maxWidth: 300 }]}
-        className={`flex-row items-center gap-2 border-x-[1px] border-gray-600 px-[10px] ${
+        className={`flex-row items-center gap-2 border-x border-gray-600 px-[10px] ${
           isActive ? 'bg-gray-100' : 'bg-gray-500'
         }`}>
         <Pressable

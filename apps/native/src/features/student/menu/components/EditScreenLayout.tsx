@@ -70,7 +70,7 @@ export const EditScreenLayout = ({
             <ChevronLeftIcon color={colors['gray-800']} size={32} />
           </AnimatedPressable>
         ) : (
-          <View className='h-[36px] w-[36px]' />
+          <View className='size-[36px]' />
         )}
         {cancelLabel && onCancel ? (
           <AnimatedPressable

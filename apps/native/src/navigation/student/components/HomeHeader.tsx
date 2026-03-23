@@ -26,7 +26,7 @@ const HomeHeader = () => {
       <Container className='flex-row items-center justify-end py-[4px]'>
         <AnimatedPressable
           onPress={() => navigation.navigate('Notifications')}
-          className='h-[48px] w-[48px] items-center justify-center gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
+          className='size-[48px] items-center justify-center gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
           {hasUnread ? <AlertBellButtonIcon /> : <Bell size={24} color='black' />}
         </AnimatedPressable>
       </Container>

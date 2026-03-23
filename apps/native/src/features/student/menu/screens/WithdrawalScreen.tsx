@@ -98,7 +98,7 @@ const WithdrawalScreen = () => {
                 onPress={() => toggleReason(reason)}
                 className='h-[48px] flex-row items-center gap-[10px]'>
                 <View
-                  className={`h-[16px] w-[16px] items-center justify-center rounded-[4px] border border-gray-700 ${
+                  className={`size-[16px] items-center justify-center rounded-[4px] border border-gray-700 ${
                     selectedReasons.includes(reason) ? 'bg-blue-500' : 'border border-gray-300'
                   }`}>
                   {selectedReasons.includes(reason) && (

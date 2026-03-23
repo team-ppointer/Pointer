@@ -170,7 +170,7 @@ const FileAttachment = ({
       disabled={isDownloading}
       className='min-w-[200px] flex-row items-center gap-[10px]'>
       <View
-        className={`h-[36px] w-[36px] items-center justify-center rounded-[6px] border border-gray-400 bg-white`}>
+        className={`size-[36px] items-center justify-center rounded-[6px] border border-gray-400 bg-white`}>
         {isDownloading ? (
           <ActivityIndicator size='small' color={iconColor} />
         ) : (
@@ -634,8 +634,8 @@ const MessageBubble = ({
       {/* Hidden Reply Icon - positioned on the left */}
       <Animated.View
         style={[styles.replyIconContainer, animatedReplyIconStyle]}
-        className='absolute bottom-0 left-[16px] top-0 justify-center'>
-        <View className='h-[32px] w-[32px] items-center justify-center rounded-full bg-gray-300'>
+        className='absolute inset-y-0 left-[16px] justify-center'>
+        <View className='size-[32px] items-center justify-center rounded-full bg-gray-300'>
           <Reply size={18} color={colors['gray-700']} />
         </View>
       </Animated.View>
@@ -643,7 +643,7 @@ const MessageBubble = ({
       {/* Hidden Timestamp - positioned on the right */}
       <Animated.View
         style={[styles.timestampContainer, animatedTimestampStyle]}
-        className='absolute bottom-0 right-[16px] top-0 justify-center'>
+        className='absolute inset-y-0 right-[16px] justify-center'>
         <Text className='text-10r text-gray-600'>
           {isEdited ? `${timestamp}에 수정됨` : timestamp}
         </Text>

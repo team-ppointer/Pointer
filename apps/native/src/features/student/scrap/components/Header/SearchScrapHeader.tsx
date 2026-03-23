@@ -35,7 +35,7 @@ const SearchScrapHeader = ({
   return (
     <SafeAreaView edges={['top']} className='bg-gray-100'>
       <View className='flex-row items-center justify-between px-5 py-[14px]'>
-        <View className='h-[40px] flex-1 flex-row justify-center rounded-[8px] border-[1px] border-gray-500 bg-white px-3.5 py-2'>
+        <View className='h-[40px] flex-1 flex-row justify-center rounded-[8px] border border-gray-500 bg-white px-3.5 py-2'>
           <TextInput
             ref={inputRef}
             className='text-16r flex-1 text-black'
@@ -62,7 +62,7 @@ const SearchScrapHeader = ({
             <Text className='text-14sb text-gray-800'>취소</Text>
           </Pressable>
         ) : (
-          <View className='h-[48px] w-[48px] gap-[10px]' />
+          <View className='size-[48px] gap-[10px]' />
         )}
       </View>
     </SafeAreaView>

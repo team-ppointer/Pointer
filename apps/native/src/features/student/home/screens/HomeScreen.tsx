@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BookOpenTextIcon, CalendarIcon, ChevronRightIcon, XIcon } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
+
 import { useAuthStore, useHomeStore } from '@stores';
 import { useGetLastDiagnosis, useGetMonthlyPublish, useGetPublishDetail } from '@apis';
 import { type StudentRootStackParamList } from '@navigation/student/types';
@@ -76,7 +77,7 @@ const HomeScreen = () => {
       <Container className='flex-col gap-[12px] pt-[20px] md:flex-row'>
         <View className='flex-1 flex-col'>
           <View className='mb-[10px] w-full flex-row items-center gap-[8px] p-[8px]'>
-            <View className='bg-primary-500 h-[42px] w-[42px] items-center justify-center rounded-full'>
+            <View className='bg-primary-500 size-[42px] items-center justify-center rounded-full'>
               <PointerSymbol />
             </View>
             <View className='flex-1 flex-col gap-[2px]'>
@@ -116,7 +117,7 @@ const HomeScreen = () => {
         </View>
         <View className='flex-1 flex-col'>
           <View className='mb-[10px] w-full flex-row items-center gap-[8px] p-[8px]'>
-            <View className='h-[42px] w-[42px] items-center justify-center rounded-full bg-blue-200'>
+            <View className='size-[42px] items-center justify-center rounded-full bg-blue-200'>
               <BookOpenTextIcon size={20} color={colors['blue-500']} />
             </View>
             <View className='flex-1 flex-col gap-[2px]'>
@@ -158,11 +159,11 @@ const HomeScreen = () => {
             />
             <View className='mx-[20px] w-full max-w-[600px] rounded-[20px] bg-white'>
               {/* Modal Header */}
-              <
+              <AnimatedPressable
                 onPress={() => setIsCalendarModalVisible(false)}
-                className='absolute top-0 -right-[60px] h-[48px] w-[48px] items-center justify-center rounded-[12px] bg-white'>
+                className='absolute -right-[60px] top-0 size-[48px] items-center justify-center rounded-[12px] bg-white'>
                 <XIcon size={24} color='black' />
-              </>
+              </AnimatedPressable>
 
               {/* Calendar Content */}
               <ProblemCalendar

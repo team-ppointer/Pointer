@@ -35,7 +35,7 @@ export const MobileProfileCard = ({
     <View className='flex-1 gap-4 rounded-[20px] bg-blue-100 p-4'>
       <View className='flex-row items-center gap-1'>
         <View className='flex-row items-center gap-3'>
-          <View className='bg-primary-200 h-[48px] w-[48px] items-center justify-center rounded-full'>
+          <View className='bg-primary-200 size-[48px] items-center justify-center rounded-full'>
             <ProfileIcon fill={colors['primary-500']} color={colors['primary-500']} />
           </View>
           <Text className='text-20b text-right text-black'>{name}</Text>

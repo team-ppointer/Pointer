@@ -113,7 +113,7 @@ const OnboardingInput = forwardRef(
               onPress={onPressAccessory}
               disabled={!onPressAccessory}
               hitSlop={8}
-              className='ml-[8px] h-[24px] w-[24px] items-center justify-center'>
+              className='ml-[8px] size-[24px] items-center justify-center'>
               {rightAccessory}
             </Pressable>
           ) : null}

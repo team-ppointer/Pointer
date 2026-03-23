@@ -71,7 +71,7 @@ const SearchScrapScreen = () => {
       <View className='flex-col justify-between px-[20px] py-[10px]'>
         {query.length === 0 && (
           <View className='w-full flex-row items-center justify-between'>
-            <Text className='text-16m rounded-1 gap-0.5 p-1 text-gray-900'>최근 검색어</Text>
+            <Text className='rounded-1 text-16m gap-0.5 p-1 text-gray-900'>최근 검색어</Text>
             <Pressable className='gap-[10px] px-2' onPress={() => clear()}>
               <Text className='text-12sb text-blue-500'>전체 지우기</Text>
             </Pressable>
@@ -87,7 +87,7 @@ const SearchScrapScreen = () => {
                 key={i}
                 className='w-fit flex-row items-center gap-2.5 rounded-[50px] bg-gray-300 px-[14px] py-2'>
                 <Pressable onPress={() => setQuery(item)}>
-                  <Text className='text-16m text-[#1E1E21]'>{item}</Text>
+                  <Text className='text-16m text-black'>{item}</Text>
                 </Pressable>
                 <Pressable onPress={() => removeKeyword(item)}>
                   <X size={20} color='#9FA4AE' />

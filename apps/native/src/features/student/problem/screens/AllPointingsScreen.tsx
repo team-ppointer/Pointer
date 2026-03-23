@@ -239,7 +239,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
                   <TrackedAnimatedPressable
                     buttonId={isProblemScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='h-[32px] w-[32px] items-center justify-center'
+                    className='size-[32px] items-center justify-center'
                     onPress={handleToggleProblemScrap}>
                     <BookmarkIcon
                       size={20}
@@ -285,7 +285,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                                 ? 'remove_scrap'
                                 : 'add_scrap'
                             }
-                            className='h-[32px] w-[32px] items-center justify-center'
+                            className='size-[32px] items-center justify-center'
                             onPress={() => pointing.id && handleTogglePointingScrap(pointing.id)}>
                             <BookmarkIcon
                               size={20}

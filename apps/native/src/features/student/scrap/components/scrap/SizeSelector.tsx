@@ -17,7 +17,7 @@ export const SizeSelector = ({ type, sizes, selectedSize, onSizeChange }: SizeSe
         <Pressable
           key={size}
           onPress={() => onSizeChange(size)}
-          className={`h-[36px] w-[36px] items-center justify-center rounded-[8px] p-[5.6px] ${
+          className={`size-[36px] items-center justify-center rounded-[8px] p-[5.6px] ${
             selectedSize === size ? 'bg-gray-400' : 'bg-gray-100'
           }`}>
           {type === 'stroke' && <View className='w-[22px] bg-black' style={{ height: size }} />}

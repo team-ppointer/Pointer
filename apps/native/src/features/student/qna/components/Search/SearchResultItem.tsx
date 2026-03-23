@@ -53,7 +53,7 @@ export const ChatRoomResultItem = ({ result, onPress }: ChatRoomResultItemProps)
       {/* Thumbnail */}
       <View className='mb-[10px] h-[100px] items-center justify-center overflow-hidden rounded-[8px] bg-gray-200'>
         {thumbnailUrl ? (
-          <Image source={{ uri: thumbnailUrl }} className='h-full w-full' resizeMode='cover' />
+          <Image source={{ uri: thumbnailUrl }} className='size-full' resizeMode='cover' />
         ) : (
           <ImageIcon size={32} color={colors['gray-400']} />
         )}
@@ -92,7 +92,7 @@ export const MessageResultItem = ({ result, onPress }: MessageResultItemProps) =
       {/* Thumbnail */}
       <View className='mb-[10px] h-[80px] items-center justify-center overflow-hidden rounded-[8px] bg-gray-200'>
         {thumbnailUrl ? (
-          <Image source={{ uri: thumbnailUrl }} className='h-full w-full' resizeMode='cover' />
+          <Image source={{ uri: thumbnailUrl }} className='size-full' resizeMode='cover' />
         ) : (
           <MessageSquareText size={32} color={colors['gray-400']} />
         )}

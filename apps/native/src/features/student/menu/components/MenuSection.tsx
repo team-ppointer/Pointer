@@ -17,7 +17,7 @@ export const MenuSection = ({ children }: MenuSectionProps) => {
           return (
             <React.Fragment key={index}>
               {cloneElement(child as ReactElement<Record<string, unknown>>)}
-              {!isLast && <View className='mx-[16px] h-[1px] bg-gray-300' />}
+              {!isLast && <View className='mx-[16px] h-px bg-gray-300' />}
             </React.Fragment>
           );
         }

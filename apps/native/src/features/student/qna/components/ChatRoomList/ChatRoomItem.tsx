@@ -16,13 +16,13 @@ interface ChatRoomItemProps {
 }
 
 const PublisherIcon = () => (
-  <View className='bg-primary-600 h-[34px] w-[34px] items-center justify-center rounded-full'>
+  <View className='bg-primary-600 size-[34px] items-center justify-center rounded-full'>
     <PointerSymbol size={30} />
   </View>
 );
 
 const DefaultIcon = () => (
-  <View className='h-[34px] w-[34px] items-center justify-center rounded-[6px] bg-blue-200'>
+  <View className='size-[34px] items-center justify-center rounded-[6px] bg-blue-200'>
     <MessagesSquare size={18} color={colors['primary-500']} />
   </View>
 );
@@ -30,7 +30,7 @@ const DefaultIcon = () => (
 const ThumbnailImage = ({ url }: { url: string }) => (
   <Image
     source={{ uri: url }}
-    className='h-[34px] w-[34px] rounded-[6px] bg-gray-200'
+    className='size-[34px] rounded-[6px] bg-gray-200'
     resizeMode='cover'
   />
 );
@@ -78,9 +78,7 @@ const ChatRoomItem = ({ chatRoom, isSelected, onPress }: ChatRoomItemProps) => {
           <Text className='text-12r flex-1 leading-[130%] text-gray-700' numberOfLines={2}>
             {lastMessage}
           </Text>
-          {hasNewMessage && (
-            <View className='h-[8px] w-[8px] flex-shrink-0 rounded-full bg-red-500' />
-          )}
+          {hasNewMessage && <View className='size-[8px] flex-shrink-0 rounded-full bg-red-500' />}
         </View>
       </View>
     </AnimatedPressable>

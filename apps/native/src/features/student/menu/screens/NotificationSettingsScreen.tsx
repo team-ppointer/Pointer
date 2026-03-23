@@ -218,7 +218,7 @@ const NotificationSettingsScreen = () => {
             onValueChange={handlePushEnabledChange}
           />
 
-          <View className='h-[1px] w-full bg-gray-400' />
+          <View className='h-px w-full bg-gray-400' />
 
           <SettingsToggleItem
             title='서비스 알림'

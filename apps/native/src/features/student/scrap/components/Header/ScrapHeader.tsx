@@ -63,7 +63,7 @@ const ScrapHeader = ({
             </Pressable>
           )}
           {navigateback ? (
-            <View className='absolute left-0 right-0 items-center'>
+            <View className='absolute inset-x-0 items-center'>
               <Text
                 className='text-18b text-center text-gray-900 md:max-w-[344px] lg:max-w-[464px]'
                 numberOfLines={1}>
@@ -75,17 +75,17 @@ const ScrapHeader = ({
           )}
           <View className='flex-row items-center gap-1'>
             <Pressable
-              className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
+              className='size-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
               onPress={actions.onSearchPress}>
               <Search size={24} strokeWidth={2} />
             </Pressable>
             <Pressable
-              className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
+              className='size-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
               onPress={actions.onEnterSelection}>
               <CircleCheckDashed />
             </Pressable>
             <Pressable
-              className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
+              className='size-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
               onPress={actions.onTrashPress}>
               <Trash2 size={24} strokeWidth={2} color='#FF3B30' />
             </Pressable>

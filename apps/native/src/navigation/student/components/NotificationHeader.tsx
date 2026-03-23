@@ -17,14 +17,14 @@ const NotificationHeader = ({ back, title, navigation }: NotificationHeaderProps
         {back ? (
           <AnimatedPressable
             onPress={() => navigation.goBack()}
-            className='h-[48px] w-[48px] items-center justify-center'>
+            className='size-[48px] items-center justify-center'>
             <ChevronLeft className='text-black' size={32} />
           </AnimatedPressable>
         ) : (
-          <View className='h-[48px] w-[48px]' />
+          <View className='size-[48px]' />
         )}
         <Text className='text-20b text-gray-900'>{title}</Text>
-        <View className='h-[48px] w-[48px] gap-[10px]' />
+        <View className='size-[48px] gap-[10px]' />
       </View>
     </SafeAreaView>
   );

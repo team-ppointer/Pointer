@@ -46,7 +46,7 @@ const SearchHeader = ({
         {value.length > 0 && (
           <Pressable
             onPress={handleClear}
-            className='ml-[8px] h-[24px] w-[24px] items-center justify-center rounded-full bg-gray-400 active:bg-gray-500'>
+            className='ml-[8px] size-[24px] items-center justify-center rounded-full bg-gray-400 active:bg-gray-500'>
             <X size={14} color='white' />
           </Pressable>
         )}

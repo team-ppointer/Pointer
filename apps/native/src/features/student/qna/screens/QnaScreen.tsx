@@ -176,7 +176,7 @@ const QnaScreen = () => {
       return (
         <View className='flex-1 flex-row'>
           {/* Left Panel - Chat Room List */}
-          <View className='w-[40%] min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white'>
+          <View className='w-2/5 min-w-[320px] max-w-[400px] border-r border-gray-500 bg-white'>
             <ChatRoomList
               chatRooms={chatRooms}
               selectedRoomId={selectedRoom?.id}

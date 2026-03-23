@@ -30,7 +30,7 @@ export const AnalysisSection = ({
           <Text className='text-16b text-primary-500'>{label}</Text>
         </View>
         {showBookmark && (
-          <View className='h-[32px] w-[32px] items-center justify-center'>
+          <View className='size-[32px] items-center justify-center'>
             <BookmarkIcon
               size={20}
               color={isScraped ? colors['gray-800'] : colors['gray-600']}

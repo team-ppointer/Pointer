@@ -99,8 +99,8 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
               onPress={handleCheckPress}
               className={
                 isSelected
-                  ? 'absolute h-[18px] w-[18px] items-center justify-center rounded bg-blue-500'
-                  : 'absolute h-[18px] w-[18px] items-center justify-center rounded border border-gray-700 bg-white'
+                  ? 'absolute size-[18px] items-center justify-center rounded bg-blue-500'
+                  : 'absolute size-[18px] items-center justify-center rounded border border-gray-700 bg-white'
               }
               style={{ top: 108 }}>
               {isSelected && <Check size={16} color='#F5F5F5' />}

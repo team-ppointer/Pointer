@@ -61,7 +61,7 @@ const HeaderRoot = ({
           <Pressable
             accessibilityRole='button'
             hitSlop={8}
-            className='absolute right-0 h-[48px] w-[48px] items-center justify-center'
+            className='absolute right-0 size-[48px] items-center justify-center'
             onPress={onClose}>
             <XIcon color={colors.black} />
           </Pressable>

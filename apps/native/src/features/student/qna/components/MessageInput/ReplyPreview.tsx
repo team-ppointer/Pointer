@@ -27,14 +27,14 @@ const ReplyPreview = ({ message, senderName, onClose }: ReplyPreviewProps) => {
     <View className='mx-[12px] flex-row items-center gap-[12px] border-b border-gray-300 py-[8px]'>
       {/* Image Thumbnail - shown for image replies */}
       {isImageReply && imageUrl && (
-        <View className='h-[42px] w-[42px] overflow-hidden rounded-[8px] bg-gray-200'>
-          <Image source={{ uri: imageUrl }} className='h-full w-full' resizeMode='cover' />
+        <View className='size-[42px] overflow-hidden rounded-[8px] bg-gray-200'>
+          <Image source={{ uri: imageUrl }} className='size-full' resizeMode='cover' />
         </View>
       )}
 
       {/* Image Placeholder - shown when no image URL */}
       {isImageReply && !imageUrl && (
-        <View className='h-[48px] w-[48px] items-center justify-center rounded-[8px] bg-gray-200'>
+        <View className='size-[48px] items-center justify-center rounded-[8px] bg-gray-200'>
           <ImageIcon size={24} color={colors['gray-500']} />
         </View>
       )}
@@ -54,7 +54,7 @@ const ReplyPreview = ({ message, senderName, onClose }: ReplyPreviewProps) => {
       {/* Close Button */}
       <AnimatedPressable
         onPress={onClose}
-        className='h-[28px] w-[28px] items-center justify-center rounded-full'>
+        className='size-[28px] items-center justify-center rounded-full'>
         <X size={18} color={colors['gray-600']} />
       </AnimatedPressable>
     </View>

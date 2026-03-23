@@ -40,7 +40,7 @@ const IconContainer = ({ type }: { type: IconType }) => {
   const { Icon, bgClass, iconColor } = iconConfigs[type];
 
   return (
-    <View className={`h-[40px] w-[40px] items-center justify-center rounded-full ${bgClass}`}>
+    <View className={`size-[40px] items-center justify-center rounded-full ${bgClass}`}>
       <Icon strokeWidth={2} size={24} color={iconColor} />
     </View>
   );
@@ -108,7 +108,7 @@ const NotificationItem = ({
         <View className='flex-shrink-0'>
           <IconContainer type={icon} />
           {hasBadge && (
-            <View className='absolute right-0 top-0 h-[10px] w-[10px] rounded-full bg-[#E75043]'></View>
+            <View className='bg-new absolute right-0 top-0 size-[10px] rounded-full'></View>
           )}
         </View>
         <View className='flex-1'>

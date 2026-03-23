@@ -154,7 +154,7 @@ export const MoveScrapModal = () => {
           <Pressable onPress={closeMoveScrapModal} className='items-start'>
             <Text className='text-14sb text-primary-600'>취소</Text>
           </Pressable>
-          <View className='absolute left-0 right-0 items-center'>
+          <View className='absolute inset-x-0 items-center'>
             <Text className='text-16sb text-gray-900'>
               {selectedItems.length}개 스크랩 이동하기
             </Text>

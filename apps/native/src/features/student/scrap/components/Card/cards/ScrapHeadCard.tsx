@@ -26,7 +26,7 @@ export const ScrapAddCard = (props: ScrapHeadCardProps) => {
             <Plus size={24} color={colors['gray-600']} />
           </View>
         </View>
-        <Text className='text-16sb text-[#1E1E21]'>추가하기</Text>
+        <Text className='text-16sb text-black'>추가하기</Text>
       </View>
     </View>
   );
@@ -81,8 +81,8 @@ export const ScrapAllCard = (props: ScrapHeadCardProps) => {
             <Pressable
               className={
                 isSelected
-                  ? 'absolute h-4 w-4 items-center justify-center rounded bg-blue-500'
-                  : 'absolute h-4 w-4 items-center justify-center rounded border border-gray-700 bg-white'
+                  ? 'absolute size-4 items-center justify-center rounded bg-blue-500'
+                  : 'absolute size-4 items-center justify-center rounded border border-gray-700 bg-white'
               }
               style={{ bottom: 10 }}>
               <Check size={16} color='#F5F5F5' />
@@ -90,7 +90,7 @@ export const ScrapAllCard = (props: ScrapHeadCardProps) => {
           )}
         </View>
         <View className='w-full flex-col px-1'>
-          <Text className='text-16sb text-[#1E1E21]'>전체 스크랩</Text>
+          <Text className='text-16sb text-black'>전체 스크랩</Text>
         </View>
       </View>
     </Pressable>

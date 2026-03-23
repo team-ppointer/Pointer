@@ -605,7 +605,7 @@ const TermsRow = ({
       disableScale>
       <View className='flex-1 flex-row gap-[10px]'>
         <View
-          className={`h-[24px] w-[24px] items-center justify-center rounded-[6px] border ${
+          className={`size-[24px] items-center justify-center rounded-[6px] border ${
             checked ? 'border-blue-500 bg-blue-500' : 'border-gray-600 bg-white'
           }`}>
           {checked ? <CheckIcon size={20} strokeWidth={2} color='white' /> : null}

@@ -60,7 +60,7 @@ const IconButton = ({
         buttonId={buttonId}
         onPress={onPress}
         disabled={disabled}
-        className={`h-[36px] w-[36px] items-center justify-center rounded-full ${
+        className={`size-[36px] items-center justify-center rounded-full ${
           disabled ? 'opacity-50' : ''
         }`}>
         <Icon size={22} color={colors['gray-600']} />
@@ -71,7 +71,7 @@ const IconButton = ({
     <AnimatedPressable
       onPress={onPress}
       disabled={disabled}
-      className={`h-[36px] w-[36px] items-center justify-center rounded-full ${
+      className={`size-[36px] items-center justify-center rounded-full ${
         disabled ? 'opacity-50' : ''
       }`}>
       <Icon size={22} color={colors['gray-600']} />
@@ -238,14 +238,14 @@ const MessageInput = ({
 
       {/* Input Area */}
       <View
-        className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pl-[12px] pr-[6px]' : 'pl-[8px] pr-[8px]'}`}>
+        className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pl-[12px] pr-[6px]' : 'px-[8px]'}`}>
         {/* Camera Button - hidden in typing mode or editing mode */}
         {!isTypingMode && !isEditing && (
           <TrackedAnimatedPressable
             buttonId='upload_image'
             onPress={handleCamera}
             disabled={disabled}
-            className={`bg-primary-500 h-[30px] w-[30px] items-center justify-center rounded-full ${
+            className={`bg-primary-500 size-[30px] items-center justify-center rounded-full ${
               disabled ? 'opacity-50' : ''
             }`}>
             <Camera size={20} color='white' />
@@ -295,7 +295,7 @@ const MessageInput = ({
             buttonId='send_message'
             onPress={handleSend}
             disabled={!canSend}
-            className={`h-[36px] w-[36px] items-center justify-center rounded-[10px] ${
+            className={`size-[36px] items-center justify-center rounded-[10px] ${
               canSend ? 'bg-primary-500' : 'bg-gray-300'
             }`}>
             <ArrowUp size={22} color='white' />

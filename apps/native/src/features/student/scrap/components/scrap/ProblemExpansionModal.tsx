@@ -37,7 +37,7 @@ export const ProblemExpansionModal = ({
           }}
           onPress={(e) => e.stopPropagation()}>
           <View className='mb-4 flex-row items-center justify-between'>
-            <Text className='text-18b text-[#1E1E21]'>문제 내용</Text>
+            <Text className='text-18b text-black'>문제 내용</Text>
             <Pressable onPress={onClose} className='rounded-full bg-gray-200 p-2'>
               <X size={20} color='#3E3F45' />
             </Pressable>

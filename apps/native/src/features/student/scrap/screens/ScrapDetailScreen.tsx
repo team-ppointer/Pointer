@@ -559,7 +559,7 @@ const ScrapDetailScreen = () => {
                 )}
                 {/* TODO: 포인팅 목록에서 해설 표시 (임시로 문항 표시) */}
 
-                {hasPointings && <View className='h-[1px] w-full bg-gray-400' />}
+                {hasPointings && <View className='h-px w-full bg-gray-400' />}
 
                 {/* Pointings List */}
                 {hasPointings && (
@@ -569,7 +569,7 @@ const ScrapDetailScreen = () => {
                   />
                 )}
 
-                {hasPointings && <View className='h-[1px] w-full bg-gray-400' />}
+                {hasPointings && <View className='h-px w-full bg-gray-400' />}
 
                 {/* AnalysisSection */}
                 {hasReadingTip && (

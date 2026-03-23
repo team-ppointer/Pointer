@@ -245,7 +245,7 @@ const AnalysisScreen = ({
                   <Text className='text-16sb text-gray-600'>문제 본문</Text>
                   <TrackedAnimatedPressable
                     buttonId={isScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='h-[32px] w-[32px] items-center justify-center'
+                    className='size-[32px] items-center justify-center'
                     onPress={handleToggleScrap}>
                     <BookmarkIcon
                       size={20}
@@ -270,7 +270,7 @@ const AnalysisScreen = ({
                   </View>
                   <TrackedAnimatedPressable
                     buttonId={isReadingTipScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='h-[32px] w-[32px] items-center justify-center'
+                    className='size-[32px] items-center justify-center'
                     onPress={handleToggleReadingTipScrap}>
                     <BookmarkIcon
                       size={20}
@@ -288,7 +288,7 @@ const AnalysisScreen = ({
                   </View>
                   <TrackedAnimatedPressable
                     buttonId={isOneStepMoreScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='h-[32px] w-[32px] items-center justify-center'
+                    className='size-[32px] items-center justify-center'
                     onPress={handleToggleOneStepMoreScrap}>
                     <BookmarkIcon
                       size={20}

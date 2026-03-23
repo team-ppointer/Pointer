@@ -36,7 +36,7 @@ export const ExplanationSection = ({
           <Text className='text-16sb text-gray-800' numberOfLines={1}>
             {title}
           </Text>
-          <View className='h-6 w-6 items-center justify-center'>
+          <View className='size-6 items-center justify-center'>
             {isOpen ? (
               <ChevronUpFilledIcon size={20} color={colors['gray-800']} />
             ) : (
@@ -48,7 +48,7 @@ export const ExplanationSection = ({
 
       {/* Content */}
       {isOpen && (
-        <View className='bg-gray-100 px-3.5 py-3.5'>
+        <View className='bg-gray-100 p-3.5'>
           <ProblemViewer
             problemContent={explanation}
             minHeight={0}

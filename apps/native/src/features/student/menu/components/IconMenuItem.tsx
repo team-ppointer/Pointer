@@ -28,7 +28,7 @@ export const IconMenuItem = ({
         <Text className='text-16r text-black'>{title}</Text>
       </View>
       {showChevron && (
-        <View className='h-[24px] w-[24px] items-center justify-center'>
+        <View className='size-[24px] items-center justify-center'>
           <ChevronRight size={20} color={colors['gray-600']} />
         </View>
       )}

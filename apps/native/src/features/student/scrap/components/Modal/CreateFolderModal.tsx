@@ -122,7 +122,7 @@ export const CreateFolderModal = () => {
               {selectedImage && (
                 <Image
                   source={{ uri: selectedImage.uri }}
-                  className='h-[136px] w-[136px] rounded-[8px]'
+                  className='size-[136px] rounded-[8px]'
                   resizeMode='cover'
                 />
               )}

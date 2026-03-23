@@ -64,7 +64,7 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
       return (
         <AnimatedPressable
           key={choice}
-          className={`my-[12px] h-[70px] w-[70px] items-center justify-center rounded-[16px] ${
+          className={`my-[12px] size-[70px] items-center justify-center rounded-[16px] ${
             isSelected ? 'bg-primary-500' : 'bg-white'
           }`}
           style={isSelected && styles.choiceButtonShadow}

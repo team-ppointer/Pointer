@@ -65,7 +65,7 @@ const AnimatedTabItem = ({
       className='w-[56px] items-center justify-center'>
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }} className='items-center'>
         {IconComponent && (
-          <View className='h-[32px] w-[32px] items-center justify-center'>
+          <View className='size-[32px] items-center justify-center'>
             <IconComponent
               size={22}
               color={isFocused ? colors['primary-500'] : colors['gray-600']}
@@ -130,7 +130,7 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
 
       {isTabBarVisible && (
         <View
-          className='absolute bottom-0 left-0 right-0 z-50 items-center justify-center bg-gray-100 pt-[4px]'
+          className='absolute inset-x-0 bottom-0 z-50 items-center justify-center bg-gray-100 pt-[4px]'
           style={{ paddingBottom: 4 + insets.bottom }}
           pointerEvents='box-none'>
           {/* Tab Bar Content */}

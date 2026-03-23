@@ -45,7 +45,7 @@ export const SearchResultCard = (props: SearchResultCardProps) => {
   };
 
   const cardContent = (
-    <View className='h-full w-full items-center rounded-[10px] p-[10px]'>
+    <View className='size-full items-center rounded-[10px] p-[10px]'>
       <View className='w-full gap-3'>
         <View className='items-center'>
           <ImageWithSkeleton

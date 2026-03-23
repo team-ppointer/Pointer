@@ -85,7 +85,7 @@ const CalendarDate = ({
           {date}
         </Text>
       </View>
-      <View className='h-[36px] w-[36px] items-center justify-center rounded-full bg-white'>
+      <View className='size-[36px] items-center justify-center rounded-full bg-white'>
         <Icon />
       </View>
     </View>

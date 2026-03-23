@@ -42,7 +42,7 @@ interface ProblemListProps {
 const WEEKDAY_LABELS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
 const Divider = () => {
-  return <View className='h-[1px] bg-gray-400' />;
+  return <View className='h-px bg-gray-400' />;
 };
 
 const ProblemStatusIcon: Record<

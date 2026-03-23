@@ -42,7 +42,7 @@ const LearningStatus = ({ studentName, date, content }: LearningStatusProps) => 
       <View className='flex-row items-start gap-[18px] px-[10px]'>
         {/* Learning Status Icon */}
         <View className='items-center justify-center gap-[4px]'>
-          <View className='h-[46px] w-[46px] items-center justify-center rounded-[16px] bg-[#C5CEFF]/80'>
+          <View className='size-[46px] items-center justify-center rounded-[16px] bg-[#C5CEFF]/80'>
             <TeacherIcon />
           </View>
           <Text className='text-12m text-gray-900'>출제진</Text>

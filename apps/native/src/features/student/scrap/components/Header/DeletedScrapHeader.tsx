@@ -47,14 +47,14 @@ const DeletedScrapHeader = ({
               </View>
             </Pressable>
           ) : (
-            <View className='h-[48px] w-[48px] gap-[10px]' />
+            <View className='size-[48px] gap-[10px]' />
           )}
-          <View className='absolute left-0 right-0 items-center'>
+          <View className='absolute inset-x-0 items-center'>
             <Text className='text-20b text-gray-900'>휴지통</Text>
           </View>
           <View className='flex-row items-center gap-1'>
             <Pressable
-              className='h-[48px] w-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
+              className='size-[48px] gap-[10px] rounded-[8px] px-[3px] py-[9px]'
               onPress={actions.onEnterSelection}>
               <CircleCheckDashed />
             </Pressable>

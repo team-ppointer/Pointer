@@ -34,7 +34,7 @@ export const ProblemDrawingToolbar = ({
         <AnimatedPressable
           onPress={onUndo}
           disabled={!canUndo}
-          className={`h-[36px] w-[36px] items-center justify-center rounded-lg ${
+          className={`size-[36px] items-center justify-center rounded-lg ${
             canUndo ? 'bg-black' : 'bg-gray-100'
           }`}>
           <Undo2 size={16} color={canUndo ? '#fff' : colors['gray-500']} strokeWidth={1.33} />
@@ -44,7 +44,7 @@ export const ProblemDrawingToolbar = ({
         <AnimatedPressable
           onPress={onRedo}
           disabled={!canRedo}
-          className={`h-[36px] w-[36px] items-center justify-center rounded-lg ${
+          className={`size-[36px] items-center justify-center rounded-lg ${
             canRedo ? 'bg-black' : 'bg-gray-100'
           }`}>
           <Redo2 size={16} color={canRedo ? '#fff' : colors['gray-500']} strokeWidth={1.33} />
@@ -59,7 +59,7 @@ export const ProblemDrawingToolbar = ({
         {/* Eraser 버튼 */}
         <AnimatedPressable
           onPress={onEraserModePress}
-          className='h-[36px] w-[36px] items-center justify-center rounded-lg border border-gray-500 bg-white'>
+          className='size-[36px] items-center justify-center rounded-lg border border-gray-500 bg-white'>
           <EraserFilledIcon
             size={16}
             color={isEraserMode ? colors['primary-500'] : colors['gray-700']}
@@ -69,7 +69,7 @@ export const ProblemDrawingToolbar = ({
         {/* Pencil 버튼 */}
         <AnimatedPressable
           onPress={onPenModePress}
-          className='h-[36px] w-[36px] items-center justify-center rounded-lg border border-gray-500 bg-white'>
+          className='size-[36px] items-center justify-center rounded-lg border border-gray-500 bg-white'>
           <PencilFilledIcon
             size={16}
             color={!isEraserMode ? colors['primary-500'] : colors['gray-700']}

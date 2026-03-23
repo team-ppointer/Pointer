@@ -30,7 +30,7 @@ export const MenuListItem = ({
       disableScale>
       <View className='h-[48px] flex-1 flex-row items-center'>
         {Icon ? (
-          <View className='mr-[4px] h-[30px] w-[30px] items-center justify-center'>
+          <View className='mr-[4px] size-[30px] items-center justify-center'>
             <Icon size={20} color={colors['gray-700']} />
           </View>
         ) : null}
