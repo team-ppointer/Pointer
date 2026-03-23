@@ -161,7 +161,7 @@ const HomeScreen = () => {
               {/* Modal Header */}
               <AnimatedPressable
                 onPress={() => setIsCalendarModalVisible(false)}
-                className='absolute -right-[60px] top-0 size-[48px] items-center justify-center rounded-[12px] bg-white'>
+                className='absolute top-0 -right-[60px] size-[48px] items-center justify-center rounded-[12px] bg-white'>
                 <XIcon size={24} color='black' />
               </AnimatedPressable>
 

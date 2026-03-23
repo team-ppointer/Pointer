@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, Image } from 'react-native';
-import { MessageSquare, MessageSquareText, MessagesSquare } from 'lucide-react-native';
+import { MessagesSquare } from 'lucide-react-native';
 
 import { colors } from '@theme/tokens';
 import { PointerSymbol } from '@components/system/icons';

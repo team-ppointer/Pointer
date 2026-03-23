@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type BottomSheet from '@gorhom/bottom-sheet';
-import { BookmarkIcon, MessageCircleMoreIcon } from 'lucide-react-native';
+import { BookmarkIcon } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,

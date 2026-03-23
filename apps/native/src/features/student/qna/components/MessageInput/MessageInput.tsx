@@ -238,7 +238,7 @@ const MessageInput = ({
 
       {/* Input Area */}
       <View
-        className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pl-[12px] pr-[6px]' : 'px-[8px]'}`}>
+        className={`flex-row items-center gap-[10px] py-[6px] ${isTypingMode ? 'pr-[6px] pl-[12px]' : 'px-[8px]'}`}>
         {/* Camera Button - hidden in typing mode or editing mode */}
         {!isTypingMode && !isEditing && (
           <TrackedAnimatedPressable

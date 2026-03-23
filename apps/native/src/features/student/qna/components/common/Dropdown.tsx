@@ -58,8 +58,8 @@ const Dropdown = <T extends string>({
         onPress={handleOpen}
         className={`flex-row items-center gap-[2px] rounded-[6px] ${
           isStatus
-            ? 'py-[2px] pl-[6px] pr-[4px] ' + (isAsking ? 'bg-blue-100' : 'bg-green-100')
-            : 'py-[4px] pl-[8px] pr-[4px]'
+            ? 'py-[2px] pr-[4px] pl-[6px] ' + (isAsking ? 'bg-blue-100' : 'bg-green-100')
+            : 'py-[4px] pr-[4px] pl-[8px]'
         }`}>
         <Text
           className={`text-14m ${

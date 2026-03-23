@@ -1,7 +1,7 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, type LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { BookmarkIcon, MessageCircleMoreIcon, StarIcon } from 'lucide-react-native';
+import { BookmarkIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -236,7 +236,7 @@ const AnalysisScreen = ({
           />
         </Container>
         <View className='flex-1 overflow-hidden'>
-          <Container className='flex-1 flex-col gap-[20px] pb-[32px] pt-[20px] md:flex-row'>
+          <Container className='flex-1 flex-col gap-[20px] pt-[20px] pb-[32px] md:flex-row'>
             <View className='md:flex-1'>
               <View
                 className='rounded-[8px] border border-gray-500 bg-white p-[14px]'

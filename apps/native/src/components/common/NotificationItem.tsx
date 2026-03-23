@@ -108,7 +108,7 @@ const NotificationItem = ({
         <View className='flex-shrink-0'>
           <IconContainer type={icon} />
           {hasBadge && (
-            <View className='bg-new absolute right-0 top-0 size-[10px] rounded-full'></View>
+            <View className='bg-new absolute top-0 right-0 size-[10px] rounded-full'></View>
           )}
         </View>
         <View className='flex-1'>

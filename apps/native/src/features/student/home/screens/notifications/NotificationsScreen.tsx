@@ -224,7 +224,7 @@ const NotificationScreen = () => {
           )}
         </Container>
       </View>
-      <Container className='flex-1 items-center justify-center gap-[10px] pb-[100px] pt-[20px]'>
+      <Container className='flex-1 items-center justify-center gap-[10px] pt-[20px] pb-[100px]'>
         <Text className='text-14m text-gray-600'>7일 전 알림까지 확인할 수 있어요.</Text>
       </Container>
     </ScrollView>
