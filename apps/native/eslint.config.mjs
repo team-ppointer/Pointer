@@ -3,6 +3,7 @@ import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
 import unicorn from 'eslint-plugin-unicorn';
 import sonarjs from 'eslint-plugin-sonarjs';
+import tailwindcss from 'eslint-plugin-tailwindcss';
 
 /** @type {import('eslint').FlatConfig[]} */
 export default [
@@ -16,6 +17,7 @@ export default [
       prettier,
       unicorn,
       sonarjs,
+      tailwindcss,
     },
     rules: {
       // Prettier
@@ -51,6 +53,12 @@ export default [
 
       // SonarJS
       'sonarjs/cognitive-complexity': ['warn', 15],
+
+      // Tailwind CSS
+      'tailwindcss/classnames-order': 'off', // prettier-plugin-tailwindcss handles this
+      'tailwindcss/enforces-shorthand': 'warn',
+      'tailwindcss/no-contradicting-classname': 'error',
+      'tailwindcss/no-unnecessary-arbitrary-value': 'warn',
     },
   },
 ];
