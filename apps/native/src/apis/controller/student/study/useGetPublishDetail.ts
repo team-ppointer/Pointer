@@ -12,6 +12,7 @@ const useGetPublishDetail = (id: number) => {
       },
     },
     {
+      enabled: id > 0,
       staleTime: Infinity,
       gcTime: Infinity,
     }
