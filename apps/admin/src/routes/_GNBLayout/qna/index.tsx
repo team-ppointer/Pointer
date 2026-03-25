@@ -759,7 +759,7 @@ const ChatList = ({
               onClick={() => onSelect(item)}
               className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
                 selectedQnaId === item.id
-                  ? 'bg-main/10 border-r-2 border-r-main'
+                  ? 'bg-main/10 border-r-main border-r-2'
                   : 'hover:bg-gray-50'
               }`}>
               {/* Avatar */}
@@ -1132,7 +1132,7 @@ function RouteComponent() {
         <></>
       </Header>
 
-      <div className='w-full flex-1 overflow-hidden px-8 py-8'>
+      <div className='mx-auto w-full max-w-7xl flex-1 overflow-hidden px-8 py-8'>
         <div className='flex h-[calc(100dvh-12rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white'>
           {/* Chat List Sidebar */}
           <div className='w-80 min-w-64 flex-shrink-0 lg:w-[30%] lg:max-w-96'>
@@ -1149,30 +1149,13 @@ function RouteComponent() {
           {/* Chat Area */}
           <div className='flex flex-1 flex-col overflow-hidden'>
             {/* Chat Header */}
-            <div className='flex items-center justify-between border-b border-gray-200 px-6 py-4'>
-              <div className='flex items-center gap-3'>
-                {selectedQnaId && currentStudentName ? (
-                  <>
-                    <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
-                      <MessageCircle className='h-5 w-5 text-white' />
-                    </div>
-                    <div>
-                      <h3 className='text-lg font-bold text-gray-900'>{currentStudentName}</h3>
-                      <p className='text-sm text-gray-500'>
-                        {messages.length > 0
-                          ? `${messages.length}개의 메시지`
-                          : '아직 메시지가 없습니다'}
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <div>
-                    <h3 className='text-lg font-bold text-gray-900'>Q&A</h3>
-                    <p className='text-sm text-gray-500'>대화를 선택해주세요</p>
-                  </div>
-                )}
+            {selectedQnaId && currentStudentName && (
+              <div className='flex items-center justify-between border-b border-gray-200 px-4 py-4'>
+                <div className='flex items-center gap-3'>
+                  <h3 className='text-lg font-bold text-gray-900'>{currentStudentName}</h3>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Messages Area */}
             <div className='flex-1 overflow-y-auto bg-gray-100 py-4'>
