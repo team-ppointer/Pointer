@@ -891,13 +891,12 @@ function RouteComponent() {
     enabled: !!selectedQnaId && !!accessToken,
     onChatEvent: useCallback(() => {
       console.log('[QnA] Chat event received');
-      // Invalidate queries to refresh data
       invalidateQna(selectedQnaId ?? undefined);
-    }, [invalidateQna]),
+    }, [invalidateQna, selectedQnaId]),
     onReadStatusEvent: useCallback(() => {
       console.log('[QnA] Read status event received');
       invalidateQna(selectedQnaId ?? undefined);
-    }, [invalidateQna]),
+    }, [invalidateQna, selectedQnaId]),
     onError: useCallback((error: Error) => {
       console.error('[QnA] SSE error:', error);
     }, []),
