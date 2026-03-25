@@ -17,7 +17,6 @@ import { tokenStorage } from '@utils';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import {
   MessageCircle,
-  AlertCircle,
   Send,
   Reply,
   Image as ImageIcon,
@@ -31,6 +30,8 @@ import {
   Pencil,
   Trash2,
   User,
+  Search,
+  ChevronLeft,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/_GNBLayout/qna/')({
@@ -40,6 +41,7 @@ export const Route = createFileRoute('/_GNBLayout/qna/')({
 type ChatResp = components['schemas']['ChatResp'];
 type UploadFileResp = components['schemas']['UploadFileResp'];
 type QnAResp = components['schemas']['QnAResp'];
+type QnAMetaResp = components['schemas']['QnAMetaResp'];
 
 // Types
 interface Message {
@@ -692,29 +694,187 @@ const MessageInput = ({
   );
 };
 
+// Format relative time for chat list
+const formatRelativeTime = (dateTime?: string): string => {
+  if (!dateTime) return '';
+  const date = new Date(dateTime);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return '방금 전';
+  if (diffMins < 60) return `${diffMins}분 전`;
+  if (diffHours < 24) return `${diffHours}시간 전`;
+  if (diffDays < 7) return `${diffDays}일 전`;
+  return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+};
+
+// Chat List Sidebar Component
+const ChatList = ({
+  qnaItems,
+  selectedQnaId,
+  onSelect,
+  isLoading,
+}: {
+  qnaItems: QnAMetaResp[];
+  selectedQnaId: number | null;
+  onSelect: (qna: QnAMetaResp) => void;
+  isLoading: boolean;
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return qnaItems;
+    const query = searchQuery.toLowerCase();
+    return qnaItems.filter(
+      (item) =>
+        item.studentName?.toLowerCase().includes(query) ||
+        item.latestMessageContent?.toLowerCase().includes(query)
+    );
+  }, [qnaItems, searchQuery]);
+
+  return (
+    <div className='flex h-full flex-col border-r border-gray-200 bg-white'>
+      {/* Search */}
+      <div className='border-b border-gray-200 p-3'>
+        <div className='flex items-center gap-2 rounded-xl bg-gray-100 px-3 py-2'>
+          <Search className='h-4 w-4 text-gray-400' />
+          <input
+            type='text'
+            placeholder='학생 이름 검색...'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className='flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none'
+          />
+          {searchQuery && (
+            <button type='button' onClick={() => setSearchQuery('')}>
+              <X className='h-3.5 w-3.5 text-gray-400 hover:text-gray-600' />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Chat List */}
+      <div className='flex-1 overflow-y-auto'>
+        {isLoading ? (
+          <div className='flex h-32 items-center justify-center'>
+            <div className='text-sm text-gray-400'>로딩 중...</div>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className='flex h-32 flex-col items-center justify-center'>
+            <MessageCircle className='mb-2 h-8 w-8 text-gray-300' />
+            <p className='text-sm text-gray-400'>
+              {searchQuery ? '검색 결과가 없습니다' : '대화가 없습니다'}
+            </p>
+          </div>
+        ) : (
+          filteredItems.map((item) => (
+            <button
+              key={item.id}
+              type='button'
+              onClick={() => onSelect(item)}
+              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
+                selectedQnaId === item.id
+                  ? 'bg-main/10 border-r-2 border-r-main'
+                  : 'hover:bg-gray-50'
+              }`}>
+              {/* Avatar */}
+              <div
+                className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
+                  selectedQnaId === item.id ? 'bg-main' : 'bg-gray-200'
+                }`}>
+                <User
+                  className={`h-5 w-5 ${
+                    selectedQnaId === item.id ? 'text-white' : 'text-gray-500'
+                  }`}
+                />
+              </div>
+
+              {/* Content */}
+              <div className='min-w-0 flex-1'>
+                <div className='flex items-center justify-between'>
+                  <span className='truncate text-sm font-semibold text-gray-900'>
+                    {item.studentName ?? '알 수 없음'}
+                  </span>
+                  <span className='ml-2 flex-shrink-0 text-xs text-gray-400'>
+                    {formatRelativeTime(item.latestMessageTime)}
+                  </span>
+                </div>
+                <div className='mt-0.5 flex items-center justify-between'>
+                  <p className='truncate text-xs text-gray-500'>
+                    {item.latestMessageContent || '메시지 없음'}
+                  </p>
+                  {(item.unreadCount ?? 0) > 0 && (
+                    <span className='bg-main ml-2 flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium text-white'>
+                      {item.unreadCount}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Main Component
 function RouteComponent() {
   const { selectedStudent } = useSelectedStudent();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [localSelectedQnaId, setLocalSelectedQnaId] = useState<number | null>(null);
+  const [localSelectedStudentName, setLocalSelectedStudentName] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [initializedFromGlobal, setInitializedFromGlobal] = useState(false);
   const { invalidateAll } = useInvalidate();
 
-  // Fetch QnA rooms for selected student
-  const { data: qnaListData, isLoading: isLoadingList } = getQna({
-    query: selectedStudent?.name ?? '',
-  });
+  // Fetch ALL QnA rooms (unfiltered) for the sidebar list
+  const { data: qnaListData, isLoading: isLoadingList } = getQna();
 
-  // Get the first QnA room for the selected student (admin chat)
-  const selectedQnaId = useMemo(() => {
-    if (!qnaListData?.data?.groups || !selectedStudent) return null;
-
+  // Flatten all QnA items from groups, sorted by latest message time
+  const allQnaItems = useMemo(() => {
+    if (!qnaListData?.data?.groups) return [];
+    const items: QnAMetaResp[] = [];
     for (const group of qnaListData.data.groups) {
-      const qna = group.data?.find((q) => q.studentName === selectedStudent.name);
-      if (qna) return qna.id;
+      if (group.data) {
+        items.push(...group.data);
+      }
     }
-    return null;
-  }, [qnaListData, selectedStudent]);
+    // Sort by latest message time (most recent first)
+    return items.sort((a, b) => {
+      const timeA = a.latestMessageTime ? new Date(a.latestMessageTime).getTime() : 0;
+      const timeB = b.latestMessageTime ? new Date(b.latestMessageTime).getTime() : 0;
+      return timeB - timeA;
+    });
+  }, [qnaListData]);
+
+  // Initialize local selection from global selectedStudent (once)
+  useEffect(() => {
+    if (initializedFromGlobal || allQnaItems.length === 0) return;
+
+    if (selectedStudent) {
+      const matchingQna = allQnaItems.find((q) => q.studentName === selectedStudent.name);
+      if (matchingQna) {
+        setLocalSelectedQnaId(matchingQna.id);
+        setLocalSelectedStudentName(matchingQna.studentName ?? null);
+      }
+    }
+    setInitializedFromGlobal(true);
+  }, [allQnaItems, selectedStudent, initializedFromGlobal]);
+
+  const handleSelectQna = useCallback((qna: QnAMetaResp) => {
+    setLocalSelectedQnaId(qna.id);
+    setLocalSelectedStudentName(qna.studentName ?? null);
+    setReplyTo(null);
+    setEditingMessage(null);
+  }, []);
+
+  const selectedQnaId = localSelectedQnaId;
 
   // Fetch selected QnA data
   const { data: qnaData, isLoading: isLoadingQna } = getQnaById({
@@ -964,6 +1124,8 @@ function RouteComponent() {
   const isPending = isSending || isUpdating || isDeleting;
   const isLoading = isLoadingList || isLoadingQna;
 
+  const currentStudentName = localSelectedStudentName ?? selectedStudent?.name;
+
   return (
     <div className='flex h-screen flex-col bg-gray-50'>
       <ToastContainer
@@ -987,47 +1149,73 @@ function RouteComponent() {
         <></>
       </Header>
 
-      <div className='mx-auto w-full max-w-7xl px-8 py-8'>
-        {!selectedStudent ? (
-          <div className='mb-6 flex items-start gap-4 rounded-xl border border-amber-200 bg-amber-50 p-6'>
-            <AlertCircle className='mt-0.5 h-6 w-6 flex-shrink-0 text-amber-600' />
-            <div>
-              <h3 className='mb-1 text-lg font-bold text-amber-900'>학생을 선택해주세요</h3>
-              <p className='text-sm text-amber-700'>
-                사이드바에서 학생을 선택하시면 해당 학생과의 Q&A 채팅을 확인할 수 있습니다.
-              </p>
-            </div>
+      <div className='w-full flex-1 overflow-hidden px-8 py-8'>
+        <div className='flex h-[calc(100dvh-12rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white'>
+          {/* Chat List Sidebar */}
+          <div
+            className={`flex-shrink-0 transition-all duration-300 ${
+              isSidebarOpen ? 'w-80 min-w-64 lg:w-[30%] lg:max-w-96' : 'w-0'
+            } overflow-hidden`}>
+            <ChatList
+              qnaItems={allQnaItems}
+              selectedQnaId={selectedQnaId}
+              onSelect={handleSelectQna}
+              isLoading={isLoadingList}
+            />
           </div>
-        ) : (
-          <div className='flex h-[calc(100dvh-12rem)] flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white'>
+
+          {/* Chat Area */}
+          <div className='flex flex-1 flex-col overflow-hidden'>
             {/* Chat Header */}
             <div className='flex items-center justify-between border-b border-gray-200 px-6 py-4'>
               <div className='flex items-center gap-3'>
-                <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
-                  <MessageCircle className='h-5 w-5 text-white' />
-                </div>
-                <div>
-                  <h3 className='text-lg font-bold text-gray-900'>{selectedStudent.name}</h3>
-                  <p className='text-sm text-gray-500'>
-                    {messages.length > 0
-                      ? `${messages.length}개의 메시지`
-                      : '아직 메시지가 없습니다'}
-                  </p>
-                </div>
+                {/* Toggle sidebar button (visible on small screens or when sidebar is hidden) */}
+                <button
+                  type='button'
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className='flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100'>
+                  {isSidebarOpen ? (
+                    <ChevronLeft className='h-5 w-5' />
+                  ) : (
+                    <MessageCircle className='h-5 w-5' />
+                  )}
+                </button>
+                {selectedQnaId && currentStudentName ? (
+                  <>
+                    <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
+                      <MessageCircle className='h-5 w-5 text-white' />
+                    </div>
+                    <div>
+                      <h3 className='text-lg font-bold text-gray-900'>{currentStudentName}</h3>
+                      <p className='text-sm text-gray-500'>
+                        {messages.length > 0
+                          ? `${messages.length}개의 메시지`
+                          : '아직 메시지가 없습니다'}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    <h3 className='text-lg font-bold text-gray-900'>Q&A</h3>
+                    <p className='text-sm text-gray-500'>대화를 선택해주세요</p>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Messages Area */}
             <div className='flex-1 overflow-y-auto bg-gray-100 py-4'>
-              {isLoading ? (
-                <div className='flex h-full items-center justify-center'>
-                  <div className='text-sm text-gray-500'>로딩 중...</div>
-                </div>
-              ) : !selectedQnaId ? (
+              {!selectedQnaId ? (
                 <div className='flex h-full flex-col items-center justify-center'>
                   <MessageCircle className='mb-4 h-12 w-12 text-gray-300' />
-                  <p className='text-sm font-medium text-gray-400'>아직 대화가 없습니다</p>
-                  <p className='text-sm text-gray-400'>메시지를 보내 대화를 시작해보세요</p>
+                  <p className='text-sm font-medium text-gray-400'>대화를 선택해주세요</p>
+                  <p className='text-sm text-gray-400'>
+                    좌측 목록에서 학생을 선택하면 대화가 표시됩니다
+                  </p>
+                </div>
+              ) : isLoading ? (
+                <div className='flex h-full items-center justify-center'>
+                  <div className='text-sm text-gray-500'>로딩 중...</div>
                 </div>
               ) : messages.length === 0 ? (
                 <div className='flex h-full flex-col items-center justify-center'>
@@ -1037,33 +1225,11 @@ function RouteComponent() {
                 </div>
               ) : (
                 <>
-                  {/* TODO: API에서 개별 메시지 타임스탬프가 추가되면 아래 주석 해제 */}
-                  {/* {groupedMessages.map((item, index) => {
-                    if (item.type === 'date' && item.date) {
-                      return <DateDivider key={`date-${item.date}-${index}`} date={item.date} />;
-                    }
-                    if (item.type === 'message' && item.message) {
-                      return (
-                        <MessageBubble
-                          key={`msg-${item.message.id}`}
-                          message={item.message}
-                          senderName={selectedStudent.name}
-                          showProfile={item.showProfile}
-                          showTail={item.showTail}
-                          onReply={handleReply}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                          onPressImage={handlePressImage}
-                        />
-                      );
-                    }
-                    return null;
-                  })} */}
                   {groupedMessages.map((item) => (
                     <MessageBubble
                       key={`msg-${item.message.id}`}
                       message={item.message}
-                      senderName={selectedStudent.name}
+                      senderName={currentStudentName}
                       showProfile={item.showProfile}
                       showTail={item.showTail}
                       onReply={handleReply}
@@ -1078,19 +1244,21 @@ function RouteComponent() {
             </div>
 
             {/* Message Input */}
-            <MessageInput
-              replyTo={replyTo}
-              editingMessage={editingMessage}
-              senderName={selectedStudent.name}
-              onClearReply={handleClearReply}
-              onCancelEdit={handleCancelEdit}
-              onSend={handleSend}
-              onImageSelected={handleFileUpload}
-              onFileSelected={handleFileUpload}
-              disabled={isPending}
-            />
+            {selectedQnaId && (
+              <MessageInput
+                replyTo={replyTo}
+                editingMessage={editingMessage}
+                senderName={currentStudentName}
+                onClearReply={handleClearReply}
+                onCancelEdit={handleCancelEdit}
+                onSend={handleSend}
+                onImageSelected={handleFileUpload}
+                onFileSelected={handleFileUpload}
+                disabled={isPending}
+              />
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
