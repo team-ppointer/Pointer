@@ -677,8 +677,12 @@ const MessageInput = ({
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          onCompositionStart={() => { isComposingRef.current = true; }}
-          onCompositionEnd={() => { isComposingRef.current = false; }}
+          onCompositionStart={() => {
+            isComposingRef.current = true;
+          }}
+          onCompositionEnd={() => {
+            isComposingRef.current = false;
+          }}
           placeholder='메시지를 입력하세요...'
           disabled={disabled}
           rows={1}
@@ -904,8 +908,8 @@ function RouteComponent() {
   // Debounced invalidation for SSE events
   // Merges chat (list+detail) and read_status (list only) within debounce window,
   // keeping the broadest scope to avoid dropping detail invalidation.
-  const invalidateTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const pendingQnaIdRef = useRef<number | undefined>();
+  const invalidateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingQnaIdRef = useRef<number | undefined>(undefined);
   const debouncedInvalidateQna = useCallback(
     (qnaId?: number) => {
       // chat 이벤트가 qnaId를 설정하면, 같은 윈도우 내 read_status가 이를 덮어쓰지 않음
