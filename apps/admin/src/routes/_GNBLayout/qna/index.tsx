@@ -717,24 +717,16 @@ const ChatList = ({
   selectedQnaId,
   onSelect,
   isLoading,
+  searchQuery,
+  onSearchChange,
 }: {
   qnaItems: QnAMetaResp[];
   selectedQnaId: number | null;
   onSelect: (qna: QnAMetaResp) => void;
   isLoading: boolean;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return qnaItems;
-    const query = searchQuery.toLowerCase();
-    return qnaItems.filter(
-      (item) =>
-        item.studentName?.toLowerCase().includes(query) ||
-        item.latestMessageContent?.toLowerCase().includes(query)
-    );
-  }, [qnaItems, searchQuery]);
-
   return (
     <div className='flex h-full flex-col border-r border-gray-200 bg-white'>
       {/* Search */}
@@ -745,11 +737,11 @@ const ChatList = ({
             type='text'
             placeholder='학생 이름 검색...'
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             className='flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none'
           />
           {searchQuery && (
-            <button type='button' onClick={() => setSearchQuery('')}>
+            <button type='button' onClick={() => onSearchChange('')}>
               <X className='h-3.5 w-3.5 text-gray-400 hover:text-gray-600' />
             </button>
           )}
@@ -762,7 +754,7 @@ const ChatList = ({
           <div className='flex h-32 items-center justify-center'>
             <div className='text-sm text-gray-400'>로딩 중...</div>
           </div>
-        ) : filteredItems.length === 0 ? (
+        ) : qnaItems.length === 0 ? (
           <div className='flex h-32 flex-col items-center justify-center'>
             <MessageCircle className='mb-2 h-8 w-8 text-gray-300' />
             <p className='text-sm text-gray-400'>
@@ -770,7 +762,7 @@ const ChatList = ({
             </p>
           </div>
         ) : (
-          filteredItems.map((item) => (
+          qnaItems.map((item) => (
             <button
               key={item.id}
               type='button'
@@ -831,10 +823,22 @@ function RouteComponent() {
   const [localSelectedStudentName, setLocalSelectedStudentName] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [initializedFromGlobal, setInitializedFromGlobal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const { invalidateAll } = useInvalidate();
 
-  // Fetch ALL QnA rooms (unfiltered) for the sidebar list
-  const { data: qnaListData, isLoading: isLoadingList } = getQna();
+  // Debounce search query (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch QnA rooms with debounced search query
+  const { data: qnaListData, isLoading: isLoadingList } = getQna({
+    query: debouncedQuery || undefined,
+  });
 
   // Flatten all QnA items from groups, sorted by latest message time
   const allQnaItems = useMemo(() => {
@@ -1161,6 +1165,8 @@ function RouteComponent() {
               selectedQnaId={selectedQnaId}
               onSelect={handleSelectQna}
               isLoading={isLoadingList}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
             />
           </div>
 
