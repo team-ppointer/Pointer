@@ -554,6 +554,8 @@ const MessageInput = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isComposingRef = useRef(false);
 
+  const wasSendingRef = useRef(false);
+
   useEffect(() => {
     if (editingMessage) {
       setText(editingMessage.content);
@@ -561,16 +563,22 @@ const MessageInput = ({
     }
   }, [editingMessage]);
 
+  // disabled가 풀리면 포커스 복원 (전송 완료 후)
+  useEffect(() => {
+    if (disabled) {
+      wasSendingRef.current = true;
+    } else if (wasSendingRef.current) {
+      wasSendingRef.current = false;
+      textareaRef.current?.focus();
+    }
+  }, [disabled]);
+
   const handleSend = () => {
     if (!text.trim()) return;
     onSend(text.trim(), replyTo ?? undefined);
     setText('');
     onClearReply?.();
     onCancelEdit?.();
-    // 전송 후 포커스 유지
-    requestAnimationFrame(() => {
-      textareaRef.current?.focus();
-    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -734,7 +742,7 @@ const ChatList = ({
           <Search className='h-4 w-4 text-gray-400' />
           <input
             type='text'
-            placeholder='학생 이름 검색...'
+            placeholder='검색...'
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className='flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none'
