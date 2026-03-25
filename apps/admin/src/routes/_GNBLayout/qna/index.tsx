@@ -552,6 +552,7 @@ const MessageInput = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isComposingRef = useRef(false);
 
   useEffect(() => {
     if (editingMessage) {
@@ -566,9 +567,15 @@ const MessageInput = ({
     setText('');
     onClearReply?.();
     onCancelEdit?.();
+    // 전송 후 포커스 유지
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // IME 조합 중에는 Enter 무시 (한국어/일본어/중국어 이중 입력 방지)
+    if (e.nativeEvent.isComposing || isComposingRef.current) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -662,6 +669,8 @@ const MessageInput = ({
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
+          onCompositionStart={() => { isComposingRef.current = true; }}
+          onCompositionEnd={() => { isComposingRef.current = false; }}
           placeholder='메시지를 입력하세요...'
           disabled={disabled}
           rows={1}
