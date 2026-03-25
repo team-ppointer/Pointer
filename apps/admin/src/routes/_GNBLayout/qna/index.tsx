@@ -31,7 +31,6 @@ import {
   Trash2,
   User,
   Search,
-  ChevronLeft,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/_GNBLayout/qna/')({
@@ -821,7 +820,6 @@ function RouteComponent() {
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [localSelectedQnaId, setLocalSelectedQnaId] = useState<number | null>(null);
   const [localSelectedStudentName, setLocalSelectedStudentName] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [initializedFromGlobal, setInitializedFromGlobal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -1156,10 +1154,7 @@ function RouteComponent() {
       <div className='w-full flex-1 overflow-hidden px-8 py-8'>
         <div className='flex h-[calc(100dvh-12rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white'>
           {/* Chat List Sidebar */}
-          <div
-            className={`flex-shrink-0 transition-all duration-300 ${
-              isSidebarOpen ? 'w-80 min-w-64 lg:w-[30%] lg:max-w-96' : 'w-0'
-            } overflow-hidden`}>
+          <div className='w-80 min-w-64 flex-shrink-0 lg:w-[30%] lg:max-w-96'>
             <ChatList
               qnaItems={allQnaItems}
               selectedQnaId={selectedQnaId}
@@ -1175,17 +1170,6 @@ function RouteComponent() {
             {/* Chat Header */}
             <div className='flex items-center justify-between border-b border-gray-200 px-6 py-4'>
               <div className='flex items-center gap-3'>
-                {/* Toggle sidebar button (visible on small screens or when sidebar is hidden) */}
-                <button
-                  type='button'
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className='flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100'>
-                  {isSidebarOpen ? (
-                    <ChevronLeft className='h-5 w-5' />
-                  ) : (
-                    <MessageCircle className='h-5 w-5' />
-                  )}
-                </button>
                 {selectedQnaId && currentStudentName ? (
                   <>
                     <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
