@@ -814,7 +814,7 @@ function RouteComponent() {
   const [initializedFromGlobal, setInitializedFromGlobal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const { invalidateAll } = useInvalidate();
+  const { invalidateQna } = useInvalidate();
 
   // Debounce search query (300ms)
   useEffect(() => {
@@ -892,12 +892,12 @@ function RouteComponent() {
     onChatEvent: useCallback(() => {
       console.log('[QnA] Chat event received');
       // Invalidate queries to refresh data
-      invalidateAll();
-    }, [invalidateAll]),
+      invalidateQna(selectedQnaId ?? undefined);
+    }, [invalidateQna]),
     onReadStatusEvent: useCallback(() => {
       console.log('[QnA] Read status event received');
-      invalidateAll();
-    }, [invalidateAll]),
+      invalidateQna(selectedQnaId ?? undefined);
+    }, [invalidateQna]),
     onError: useCallback((error: Error) => {
       console.error('[QnA] SSE error:', error);
     }, []),
@@ -978,7 +978,7 @@ function RouteComponent() {
           {
             onSuccess: () => {
               toast.success('메시지가 삭제되었습니다.');
-              invalidateAll();
+              invalidateQna(selectedQnaId ?? undefined);
             },
             onError: () => {
               toast.error('메시지 삭제에 실패했습니다.');
@@ -987,7 +987,7 @@ function RouteComponent() {
         );
       }
     },
-    [removeChat, invalidateAll]
+    [removeChat, invalidateQna]
   );
 
   const handleSend = useCallback(
@@ -1006,7 +1006,7 @@ function RouteComponent() {
             onSuccess: () => {
               toast.success('메시지가 수정되었습니다.');
               setEditingMessage(null);
-              invalidateAll();
+              invalidateQna(selectedQnaId ?? undefined);
             },
             onError: () => {
               toast.error('메시지 수정에 실패했습니다.');
@@ -1024,7 +1024,7 @@ function RouteComponent() {
           },
           {
             onSuccess: () => {
-              invalidateAll();
+              invalidateQna(selectedQnaId ?? undefined);
             },
             onError: () => {
               toast.error('메시지 전송에 실패했습니다.');
@@ -1033,7 +1033,7 @@ function RouteComponent() {
         );
       }
     },
-    [selectedQnaId, editingMessage, sendChat, updateChat, invalidateAll]
+    [selectedQnaId, editingMessage, sendChat, updateChat, invalidateQna]
   );
 
   const handleFileUpload = useCallback(
@@ -1080,7 +1080,7 @@ function RouteComponent() {
                 {
                   onSuccess: () => {
                     setReplyTo(null);
-                    invalidateAll();
+                    invalidateQna(selectedQnaId ?? undefined);
                   },
                   onError: () => {
                     toast.error('메시지 전송에 실패했습니다.');
@@ -1097,7 +1097,7 @@ function RouteComponent() {
         }
       );
     },
-    [selectedQnaId, replyTo, uploadFile, sendChat, invalidateAll]
+    [selectedQnaId, replyTo, uploadFile, sendChat, invalidateQna]
   );
 
   const handlePressImage = useCallback((url: string) => {

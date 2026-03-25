@@ -44,7 +44,25 @@ const useInvalidate = () => {
     });
   };
 
-  return { invalidateAll, invalidateProblemSet, invalidatePublish, invalidateNotice };
+  const invalidateQna = (qnaId?: number) => {
+    const promises: Promise<void>[] = [
+      queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/admin/qna').queryKey,
+      }),
+    ];
+    if (qnaId) {
+      promises.push(
+        queryClient.invalidateQueries({
+          queryKey: $api.queryOptions('get', '/api/admin/qna/{qnaId}', {
+            params: { path: { qnaId } },
+          }, { enabled: true }).queryKey,
+        })
+      );
+    }
+    return Promise.all(promises);
+  };
+
+  return { invalidateAll, invalidateProblemSet, invalidatePublish, invalidateNotice, invalidateQna };
 };
 
 export default useInvalidate;
