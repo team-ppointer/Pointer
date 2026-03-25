@@ -160,33 +160,24 @@ const mapChatRespToMessage = (chat: ChatResp, allChats: ChatResp[], dateTime?: s
 };
 
 // Map QnAResp to Messages
-// TODO: API에서 개별 메시지 타임스탬프가 추가되면 주석 해제
 const mapQnARespToMessages = (qna: QnAResp): Message[] => {
   if (!qna.chats || qna.chats.length === 0) return [];
 
   // 메시지를 ID 기준으로 정렬 (오래된 순 -> 최신 순)
   const sortedChats = [...qna.chats].sort((a, b) => a.id - b.id);
 
-  // TODO: API에서 개별 메시지 타임스탬프가 추가되면 아래 주석 해제
-  // return sortedChats.map((chat) => {
-  //   // chat.createdAt 등의 필드를 사용
-  //   return mapChatRespToMessage(chat, sortedChats, chat.createdAt);
-  // });
-
-  // 현재는 타임스탬프 없이 반환
   return sortedChats.map((chat) => {
-    return mapChatRespToMessage(chat, sortedChats, undefined);
+    return mapChatRespToMessage(chat, sortedChats, chat.createdAt);
   });
 };
 
-// TODO: API에서 개별 메시지 타임스탬프가 추가되면 주석 해제
-// const DateDivider = ({ date }: { date: string }) => (
-//   <div className='flex items-center py-4'>
-//     <div className='h-px flex-1 bg-gray-300' />
-//     <span className='px-4 text-xs text-gray-500'>{date}</span>
-//     <div className='h-px flex-1 bg-gray-300' />
-//   </div>
-// );
+const DateDivider = ({ date }: { date: string }) => (
+  <div className='flex items-center py-4'>
+    <div className='h-px flex-1 bg-gray-300' />
+    <span className='px-4 text-xs text-gray-500'>{date}</span>
+    <div className='h-px flex-1 bg-gray-300' />
+  </div>
+);
 
 // File Attachment Component
 const FileAttachment = ({
@@ -918,37 +909,27 @@ function RouteComponent() {
     return mapQnARespToMessages(qnaData);
   }, [qnaData]);
 
-  // Group messages
-  // TODO: API에서 개별 메시지 타임스탬프가 추가되면 날짜 구분선 로직 주석 해제
+  // Group messages with date dividers
   const groupedMessages = useMemo(() => {
-    // TODO: 타임스탬프 추가 시 타입 변경
-    // const groups: Array<{
-    //   type: 'date' | 'message';
-    //   date?: string;
-    //   message?: Message;
-    //   showProfile?: boolean;
-    //   showTail?: boolean;
-    // }> = [];
-    // let currentDate = '';
     const groups: Array<{
-      type: 'message';
-      message: Message;
+      type: 'date' | 'message';
+      date?: string;
+      message?: Message;
       showProfile?: boolean;
       showTail?: boolean;
     }> = [];
+    let currentDate = '';
 
     messages.forEach((message, index) => {
-      // TODO: API에서 개별 메시지 타임스탬프가 추가되면 날짜 구분선 추가
-      // if (message.date !== currentDate) {
-      //   currentDate = message.date;
-      //   groups.push({ type: 'date', date: currentDate });
-      // }
+      if (message.date && message.date !== currentDate) {
+        currentDate = message.date;
+        groups.push({ type: 'date', date: currentDate });
+      }
 
       const previousMessage = index > 0 ? messages[index - 1] : null;
-      // const dateChanged = previousMessage && previousMessage.date !== message.date;
+      const dateChanged = previousMessage && previousMessage.date !== message.date;
       const senderChanged = previousMessage && previousMessage.sender !== message.sender;
-      // TODO: 날짜 변경 시에도 showTail 활성화: const showTail = index === 0 || senderChanged || dateChanged || !previousMessage;
-      const showTail = index === 0 || senderChanged || !previousMessage;
+      const showTail = index === 0 || senderChanged || dateChanged || !previousMessage;
       const isOther = message.sender === 'other';
       const showProfile = isOther && showTail;
 
@@ -1215,19 +1196,27 @@ function RouteComponent() {
                 </div>
               ) : (
                 <>
-                  {groupedMessages.map((item) => (
-                    <MessageBubble
-                      key={`msg-${item.message.id}`}
-                      message={item.message}
-                      senderName={currentStudentName}
-                      showProfile={item.showProfile}
-                      showTail={item.showTail}
-                      onReply={handleReply}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      onPressImage={handlePressImage}
-                    />
-                  ))}
+                  {groupedMessages.map((item, index) => {
+                    if (item.type === 'date' && item.date) {
+                      return <DateDivider key={`date-${item.date}-${index}`} date={item.date} />;
+                    }
+                    if (item.type === 'message' && item.message) {
+                      return (
+                        <MessageBubble
+                          key={`msg-${item.message.id}`}
+                          message={item.message}
+                          senderName={currentStudentName}
+                          showProfile={item.showProfile}
+                          showTail={item.showTail}
+                          onReply={handleReply}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          onPressImage={handlePressImage}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
                   <div ref={messagesEndRef} />
                 </>
               )}
