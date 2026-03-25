@@ -935,6 +935,10 @@ function RouteComponent() {
       // list만 invalidate (qnaId 미전달) — detail refetch가 read_status를 다시 유발하는 무한 루프 방지
       debouncedInvalidateQna();
     }, [debouncedInvalidateQna]),
+    onOpen: useCallback(() => {
+      // 재연결 시 백그라운드 동안 놓친 메시지 catch-up
+      invalidateQna(selectedQnaId ?? undefined);
+    }, [invalidateQna, selectedQnaId]),
     onError: useCallback((error: Error) => {
       console.error('[QnA] SSE error:', error);
     }, []),
