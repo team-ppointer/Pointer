@@ -901,15 +901,21 @@ function RouteComponent() {
   // Get access token for SSE connection
   const accessToken = tokenStorage.getToken();
 
-  // Debounced invalidation for SSE events — collapses rapid chat + read_status events into one
+  // Debounced invalidation for SSE events
+  // Merges chat (list+detail) and read_status (list only) within debounce window,
+  // keeping the broadest scope to avoid dropping detail invalidation.
   const invalidateTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const pendingQnaIdRef = useRef<number | undefined>();
   const debouncedInvalidateQna = useCallback(
     (qnaId?: number) => {
+      // chat 이벤트가 qnaId를 설정하면, 같은 윈도우 내 read_status가 이를 덮어쓰지 않음
+      if (qnaId) pendingQnaIdRef.current = qnaId;
       if (invalidateTimeoutRef.current) {
         clearTimeout(invalidateTimeoutRef.current);
       }
       invalidateTimeoutRef.current = setTimeout(() => {
-        invalidateQna(qnaId);
+        invalidateQna(pendingQnaIdRef.current);
+        pendingQnaIdRef.current = undefined;
       }, 300);
     },
     [invalidateQna]
@@ -926,8 +932,9 @@ function RouteComponent() {
     }, [debouncedInvalidateQna, selectedQnaId]),
     onReadStatusEvent: useCallback(() => {
       console.log('[QnA] Read status event received');
-      debouncedInvalidateQna(selectedQnaId ?? undefined);
-    }, [debouncedInvalidateQna, selectedQnaId]),
+      // list만 invalidate (qnaId 미전달) — detail refetch가 read_status를 다시 유발하는 무한 루프 방지
+      debouncedInvalidateQna();
+    }, [debouncedInvalidateQna]),
     onError: useCallback((error: Error) => {
       console.error('[QnA] SSE error:', error);
     }, []),
