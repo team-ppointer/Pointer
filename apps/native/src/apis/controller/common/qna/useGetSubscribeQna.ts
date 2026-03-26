@@ -196,6 +196,9 @@ const useSubscribeQna = ({
       },
     });
 
+    // ref를 리스너 등록 전에 할당 — error가 즉시 발생해도 stale 가드가 정상 작동
+    eventSourceRef.current = es;
+
     // 연결 성공
     es.addEventListener('open', () => {
       console.log('[SSE] Connection opened for QnA:', qnaId);
@@ -260,11 +263,11 @@ const useSubscribeQna = ({
 
       if (!isManualDisconnectRef.current) {
         onErrorRef.current?.(new Error('SSE connection error'));
+        es.close();
+        eventSourceRef.current = null;
         scheduleReconnectRef.current();
       }
     });
-
-    eventSourceRef.current = es;
   }, [enabled, qnaId, token, clearTimers, updateConnectionStatus, resetHeartbeatTimeout]);
 
   connectRef.current = connect;
