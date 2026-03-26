@@ -63,7 +63,7 @@ const useInvalidate = () => {
           queryClient.invalidateQueries({
             queryKey: $api.queryOptions('get', '/api/admin/qna/{qnaId}', {
               params: { path: { qnaId } },
-            }, { enabled: true }).queryKey,
+            }).queryKey,
           })
         );
       }
