@@ -10,7 +10,7 @@ import {
   putS3Upload,
   useSubscribeQna,
 } from '@apis';
-import { useInvalidate, useSelectedStudent } from '@hooks';
+import { useInvalidate } from '@hooks';
 import { Header } from '@components';
 import { components } from '@schema';
 import { tokenStorage } from '@utils';
@@ -826,13 +826,11 @@ const ChatList = ({
 
 // Main Component
 function RouteComponent() {
-  const { selectedStudent } = useSelectedStudent();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [localSelectedQnaId, setLocalSelectedQnaId] = useState<number | null>(null);
   const [localSelectedStudentName, setLocalSelectedStudentName] = useState<string | null>(null);
-  const [initializedFromGlobal, setInitializedFromGlobal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const { invalidateQna } = useInvalidate();
@@ -866,20 +864,6 @@ function RouteComponent() {
       return timeB - timeA;
     });
   }, [qnaListData]);
-
-  // Initialize local selection from global selectedStudent (once)
-  useEffect(() => {
-    if (initializedFromGlobal || allQnaItems.length === 0) return;
-
-    if (selectedStudent) {
-      const matchingQna = allQnaItems.find((q) => q.studentName === selectedStudent.name);
-      if (matchingQna) {
-        setLocalSelectedQnaId(matchingQna.id);
-        setLocalSelectedStudentName(matchingQna.studentName ?? null);
-      }
-    }
-    setInitializedFromGlobal(true);
-  }, [allQnaItems, selectedStudent, initializedFromGlobal]);
 
   const handleSelectQna = useCallback((qna: QnAMetaResp) => {
     setLocalSelectedQnaId(qna.id);
@@ -1162,7 +1146,7 @@ function RouteComponent() {
   const isPending = isSending || isUpdating || isDeleting;
   const isLoading = isLoadingList || isLoadingQna;
 
-  const currentStudentName = localSelectedStudentName ?? selectedStudent?.name;
+  const currentStudentName = localSelectedStudentName ?? '알 수 없음';
 
   return (
     <div className='flex h-screen flex-col bg-gray-50'>
