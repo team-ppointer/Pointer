@@ -920,13 +920,23 @@ function RouteComponent() {
       invalidateTimeoutRef.current = setTimeout(() => {
         invalidateQna(pendingQnaIdRef.current);
         pendingQnaIdRef.current = undefined;
+        invalidateTimeoutRef.current = null;
       }, 300);
     },
     [invalidateQna]
   );
 
+  // 언마운트 시 debounce 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (invalidateTimeoutRef.current) {
+        clearTimeout(invalidateTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Subscribe to SSE for real-time updates
-  const { connectionStatus } = useSubscribeQna({
+  useSubscribeQna({
     qnaId: selectedQnaId ?? 0,
     token: accessToken ?? '',
     enabled: !!selectedQnaId && !!accessToken,
@@ -1023,6 +1033,7 @@ function RouteComponent() {
           {
             onSuccess: () => {
               toast.success('메시지가 삭제되었습니다.');
+              invalidateQna(selectedQnaId ?? undefined);
             },
             onError: () => {
               toast.error('메시지 삭제에 실패했습니다.');
@@ -1031,7 +1042,7 @@ function RouteComponent() {
         );
       }
     },
-    [removeChat]
+    [removeChat, invalidateQna, selectedQnaId]
   );
 
   const handleSend = useCallback(
@@ -1050,6 +1061,7 @@ function RouteComponent() {
             onSuccess: () => {
               toast.success('메시지가 수정되었습니다.');
               setEditingMessage(null);
+              invalidateQna(selectedQnaId ?? undefined);
             },
             onError: () => {
               toast.error('메시지 수정에 실패했습니다.');
@@ -1066,6 +1078,9 @@ function RouteComponent() {
             },
           },
           {
+            onSuccess: () => {
+              invalidateQna(selectedQnaId ?? undefined);
+            },
             onError: () => {
               toast.error('메시지 전송에 실패했습니다.');
             },
@@ -1073,7 +1088,7 @@ function RouteComponent() {
         );
       }
     },
-    [selectedQnaId, editingMessage, sendChat, updateChat]
+    [selectedQnaId, editingMessage, sendChat, updateChat, invalidateQna]
   );
 
   const handleFileUpload = useCallback(
@@ -1120,6 +1135,7 @@ function RouteComponent() {
                 {
                   onSuccess: () => {
                     setReplyTo(null);
+                    invalidateQna(selectedQnaId ?? undefined);
                   },
                   onError: () => {
                     toast.error('메시지 전송에 실패했습니다.');
@@ -1136,7 +1152,7 @@ function RouteComponent() {
         }
       );
     },
-    [selectedQnaId, replyTo, uploadFile, sendChat]
+    [selectedQnaId, replyTo, uploadFile, sendChat, invalidateQna]
   );
 
   const handlePressImage = useCallback((url: string) => {
