@@ -226,7 +226,10 @@ const GNB = () => {
                 label='학생 진단'
                 isCollapsed={isCollapsed}
               />
+            </div>
 
+            <div className='space-y-1'>
+              <SectionTitle isCollapsed={isCollapsed}>Q&A</SectionTitle>
               <NavItem
                 to='/qna'
                 icon={<MessageCircle className='h-5 w-5' />}
