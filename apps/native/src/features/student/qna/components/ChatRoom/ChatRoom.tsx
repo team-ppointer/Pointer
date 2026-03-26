@@ -86,13 +86,18 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
     onChatEvent: useCallback(
       (event: components['schemas']['QnAChatEvent']) => {
         console.log('[ChatRoom] Chat event received:', event);
-        // Invalidate queries to refresh data
         if (event.qnaId) {
           void invalidateQnaById(event.qnaId);
         }
       },
       [invalidateQnaById]
     ),
+    onOpen: useCallback(() => {
+      // 재연결 시 놓친 메시지 catch-up
+      if (qnaId) {
+        void invalidateQnaById(Number(qnaId));
+      }
+    }, [qnaId, invalidateQnaById]),
     onError: useCallback((error: Error) => {
       console.error('[ChatRoom] SSE error:', error);
     }, []),
