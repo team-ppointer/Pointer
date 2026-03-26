@@ -779,9 +779,7 @@ const ChatList = ({
               type='button'
               onClick={() => onSelect(item)}
               className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
-                selectedQnaId === item.id
-                  ? 'bg-main/10 border-r-main border-r-2'
-                  : 'hover:bg-gray-50'
+                selectedQnaId === item.id ? 'bg-main/10' : 'hover:bg-gray-50'
               }`}>
               {/* Avatar */}
               <div
