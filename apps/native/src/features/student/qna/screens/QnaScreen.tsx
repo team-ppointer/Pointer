@@ -50,8 +50,10 @@ const QnaScreen = () => {
           clearTimeout(qnaListDebounceRef.current);
         }
         qnaListDebounceRef.current = setTimeout(() => {
+          // Invalidate the list to update badges
           void invalidateQnaList();
 
+          // If in tablet mode with a selected room, also invalidate that room's data
           if (isTablet && selectedRoom && selectedRoom.id > 0) {
             void invalidateQnaById(selectedRoom.id);
           }
@@ -60,13 +62,6 @@ const QnaScreen = () => {
       },
       [isTablet, selectedRoom, invalidateQnaById, invalidateQnaList]
     ),
-    onOpen: useCallback(() => {
-      // 재연결 시 놓친 데이터 catch-up
-      void invalidateQnaList();
-      if (isTablet && selectedRoom && selectedRoom.id > 0) {
-        void invalidateQnaById(selectedRoom.id);
-      }
-    }, [isTablet, selectedRoom, invalidateQnaById, invalidateQnaList]),
     onError: useCallback((error: Error) => {
       console.error('[QnaScreen] SSE QnaList error:', error);
     }, []),

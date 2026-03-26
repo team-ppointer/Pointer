@@ -63,27 +63,12 @@ const useSubscribeQna = ({
   const config = { ...DEFAULT_RECONNECT_CONFIG, ...reconnectConfig };
 
   const eventSourceRef = useRef<EventSource<CustomSSEEvents> | null>(null);
-  const retryCountRef = useRef<number>(0);
+  const retryCountRef = useRef(0);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heartbeatTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isManualDisconnectRef = useRef<boolean>(false);
+  const isManualDisconnectRef = useRef(false);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
-  const isConnectedToNetworkRef = useRef<boolean>(true);
-
-  // Callback refs — 연결 생명주기와 콜백 변경을 완전히 분리
-  const onChatEventRef = useRef(onChatEvent);
-  const onReadStatusEventRef = useRef(onReadStatusEvent);
-  const onHeartbeatRef = useRef(onHeartbeat);
-  const onErrorRef = useRef(onError);
-  const onOpenRef = useRef(onOpen);
-  const onConnectionStatusChangeRef = useRef(onConnectionStatusChange);
-
-  useEffect(() => { onChatEventRef.current = onChatEvent; }, [onChatEvent]);
-  useEffect(() => { onReadStatusEventRef.current = onReadStatusEvent; }, [onReadStatusEvent]);
-  useEffect(() => { onHeartbeatRef.current = onHeartbeat; }, [onHeartbeat]);
-  useEffect(() => { onErrorRef.current = onError; }, [onError]);
-  useEffect(() => { onOpenRef.current = onOpen; }, [onOpen]);
-  useEffect(() => { onConnectionStatusChangeRef.current = onConnectionStatusChange; }, [onConnectionStatusChange]);
+  const isConnectedToNetworkRef = useRef(true);
 
   // Refs for stable function references (to avoid circular dependencies)
   const connectRef = useRef<() => void>(() => {});
@@ -91,11 +76,14 @@ const useSubscribeQna = ({
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
 
-  // 연결 상태 변경 핸들러 — ref를 통해 콜백 호출
-  const updateConnectionStatus = useCallback((status: ConnectionStatus) => {
-    setConnectionStatus(status);
-    onConnectionStatusChangeRef.current?.(status);
-  }, []);
+  // 연결 상태 변경 핸들러
+  const updateConnectionStatus = useCallback(
+    (status: ConnectionStatus) => {
+      setConnectionStatus(status);
+      onConnectionStatusChange?.(status);
+    },
+    [onConnectionStatusChange]
+  );
 
   // 재시도 지연 시간 계산 (지수 백오프)
   const getRetryDelay = useCallback(() => {
@@ -103,6 +91,7 @@ const useSubscribeQna = ({
       config.initialDelay * Math.pow(2, retryCountRef.current),
       config.maxDelay
     );
+    // 약간의 랜덤 지터 추가 (0.5 ~ 1.5 배)
     return delay * (0.5 + Math.random());
   }, [config.initialDelay, config.maxDelay]);
 
@@ -129,7 +118,7 @@ const useSubscribeQna = ({
     }, config.heartbeatTimeout);
   }, [config.heartbeatTimeout]);
 
-  // 재연결 예약 — ref를 통해 콜백 호출
+  // 재연결 예약
   const scheduleReconnect = useCallback(() => {
     if (isManualDisconnectRef.current) {
       console.log('[SSE] Manual disconnect - skipping reconnect');
@@ -145,7 +134,7 @@ const useSubscribeQna = ({
     if (retryCountRef.current >= config.maxRetries) {
       console.error('[SSE] Max retry attempts reached');
       updateConnectionStatus('disconnected');
-      onErrorRef.current?.(new Error('Max reconnection attempts reached'));
+      onError?.(new Error('Max reconnection attempts reached'));
       return;
     }
 
@@ -159,11 +148,12 @@ const useSubscribeQna = ({
       retryCountRef.current += 1;
       connectRef.current();
     }, delay);
-  }, [config.maxRetries, getRetryDelay, updateConnectionStatus]);
+  }, [config.maxRetries, getRetryDelay, updateConnectionStatus, onError]);
 
+  // Update ref
   scheduleReconnectRef.current = scheduleReconnect;
 
-  // 연결 — 콜백을 모두 ref로 참조하여 의존성에서 제거
+  // 연결
   const connect = useCallback(() => {
     if (!enabled || !qnaId || !token) {
       console.log('[SSE] Connection skipped - not enabled or missing params');
@@ -197,28 +187,46 @@ const useSubscribeQna = ({
     });
 
     // 연결 성공
-    es.addEventListener('open', () => {
-      console.log('[SSE] Connection opened for QnA:', qnaId);
-      retryCountRef.current = 0;
+    es.addEventListener('open', (event) => {
+      console.log('[SSE] ========== CONNECTION OPENED ==========');
+      console.log('[SSE] QnA ID:', qnaId);
+      console.log('[SSE] Open event:', JSON.stringify(event, null, 2));
+
+      retryCountRef.current = 0; // 재시도 카운트 리셋
       updateConnectionStatus('connected');
       resetHeartbeatTimeout();
-      onOpenRef.current?.();
+      onOpen?.();
     });
 
     // 메시지 이벤트 (디버깅용)
-    es.addEventListener('message', () => {
+    es.addEventListener('message', (event) => {
+      console.log('[SSE] ========== MESSAGE EVENT ==========');
+      console.log('[SSE] Event type:', event.type);
+      console.log('[SSE] Event data (raw):', event.data);
+      try {
+        if (event.data) {
+          const parsed = JSON.parse(event.data);
+          console.log('[SSE] Event data (parsed):', JSON.stringify(parsed, null, 2));
+        }
+      } catch {
+        console.log('[SSE] Event data is not JSON');
+      }
       resetHeartbeatTimeout();
     });
 
     // Chat 이벤트 (생성/수정/삭제)
     es.addEventListener('chat', (event) => {
+      console.log('[SSE] ========== CHAT EVENT ==========');
+      console.log('[SSE] Raw event:', JSON.stringify(event, null, 2));
       try {
         if (event.data) {
           const data = JSON.parse(event.data) as QnAChatEvent;
-          onChatEventRef.current?.(data);
+          console.log('[SSE] Parsed chat data:', JSON.stringify(data, null, 2));
+          onChatEvent?.(data);
         }
       } catch (error) {
         console.error('[SSE] Failed to parse chat event:', error);
+        console.error('[SSE] Raw data was:', event.data);
       }
       resetHeartbeatTimeout();
     });
@@ -230,13 +238,19 @@ const useSubscribeQna = ({
         if (event.data) {
           const data = JSON.parse(event.data) as QnAReadStatusEvent;
 
+          // Deduplicate by creating a unique key from the event data
           const eventKey = `${data.qnaId}-${data.userId}-${data.readAt}`;
           if (eventKey === lastReadStatusKey) {
+            // Skip duplicate event (only log once per unique event)
             return;
           }
           lastReadStatusKey = eventKey;
 
-          onReadStatusEventRef.current?.(data);
+          // Only log if there's a callback registered
+          if (onReadStatusEvent) {
+            console.log('[SSE] Read status event:', JSON.stringify(data, null, 2));
+            onReadStatusEvent(data);
+          }
         }
       } catch (error) {
         console.error('[SSE] Failed to parse read_status event:', error);
@@ -245,28 +259,40 @@ const useSubscribeQna = ({
     });
 
     // 하트비트 이벤트
-    es.addEventListener('heartbeat', () => {
+    es.addEventListener('heartbeat', (event) => {
+      console.log('[SSE] ========== HEARTBEAT ==========');
+      console.log('[SSE] Heartbeat event:', JSON.stringify(event, null, 2));
       resetHeartbeatTimeout();
-      onHeartbeatRef.current?.();
+      onHeartbeat?.();
     });
 
-    // 에러 핸들링 — es 인스턴스를 검증하여 stale 핸들러 방지
-    es.addEventListener('error', () => {
-      // 이미 다른 연결로 교체되었으면 무시 (race condition 방지)
-      if (eventSourceRef.current !== es) {
-        es.close();
-        return;
-      }
+    // 에러 핸들링
+    es.addEventListener('error', (event) => {
+      console.error('[SSE] ========== ERROR ==========');
+      console.error('[SSE] Error event:', JSON.stringify(event, null, 2));
 
       if (!isManualDisconnectRef.current) {
-        onErrorRef.current?.(new Error('SSE connection error'));
+        onError?.(new Error('SSE connection error'));
         scheduleReconnectRef.current();
       }
     });
 
     eventSourceRef.current = es;
-  }, [enabled, qnaId, token, clearTimers, updateConnectionStatus, resetHeartbeatTimeout]);
+  }, [
+    enabled,
+    qnaId,
+    token,
+    clearTimers,
+    updateConnectionStatus,
+    resetHeartbeatTimeout,
+    onChatEvent,
+    onReadStatusEvent,
+    onHeartbeat,
+    onError,
+    onOpen,
+  ]);
 
+  // Update ref
   connectRef.current = connect;
 
   // 연결 해제
@@ -320,6 +346,11 @@ const useSubscribeQna = ({
       const wasDisconnected = !isConnectedToNetworkRef.current;
       isConnectedToNetworkRef.current = state.isConnected ?? false;
 
+      console.log('[SSE] Network state changed:', {
+        isConnected: state.isConnected,
+        type: state.type,
+      });
+
       // 네트워크 복구 시 재연결
       if (wasDisconnected && state.isConnected && enabled && !isManualDisconnectRef.current) {
         console.log('[SSE] Network restored - reconnecting');
@@ -342,25 +373,23 @@ const useSubscribeQna = ({
     };
   }, [enabled, clearTimers, updateConnectionStatus]);
 
-  // 단일 연결 effect — 마운트/파라미터 변경/언마운트를 하나로 통합
+  // 마운트 시 연결, 언마운트 시 해제
+  useEffect(() => {
+    connectRef.current();
+
+    return () => {
+      disconnect();
+    };
+  }, [disconnect]);
+
+  // enabled 또는 핵심 파라미터 변경 시 재연결
   useEffect(() => {
     if (enabled && qnaId && token) {
       connectRef.current();
+    } else {
+      disconnect();
     }
-
-    return () => {
-      isManualDisconnectRef.current = true;
-      clearTimers();
-
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
-
-      retryCountRef.current = 0;
-      updateConnectionStatus('disconnected');
-    };
-  }, [enabled, qnaId, token, clearTimers, updateConnectionStatus]);
+  }, [enabled, qnaId, token, disconnect]);
 
   return {
     /** 수동 재연결 (재시도 카운트 리셋) */
