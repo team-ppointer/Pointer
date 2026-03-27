@@ -36,6 +36,17 @@ const QnaScreen = () => {
 
   // Debounce ref for qna_list events (prevent excessive invalidations)
   const qnaListDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 최초 연결 시 onOpen 스킵 가드 (재연결 시에만 catch-up)
+  const hasQnaListOpenedRef = useRef(false);
+
+  // 언마운트 시 debounce 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (qnaListDebounceRef.current) {
+        clearTimeout(qnaListDebounceRef.current);
+      }
+    };
+  }, []);
 
   // Subscribe to student QnA list SSE to receive real-time updates for read status (badge)
   useSubscribeQnaList({
@@ -50,10 +61,8 @@ const QnaScreen = () => {
           clearTimeout(qnaListDebounceRef.current);
         }
         qnaListDebounceRef.current = setTimeout(() => {
-          // Invalidate the list to update badges
           void invalidateQnaList();
 
-          // If in tablet mode with a selected room, also invalidate that room's data
           if (isTablet && selectedRoom && selectedRoom.id > 0) {
             void invalidateQnaById(selectedRoom.id);
           }
@@ -62,6 +71,18 @@ const QnaScreen = () => {
       },
       [isTablet, selectedRoom, invalidateQnaById, invalidateQnaList]
     ),
+    onOpen: useCallback(() => {
+      // 최초 연결 시 스킵 — React Query의 initial fetch로 충분
+      if (!hasQnaListOpenedRef.current) {
+        hasQnaListOpenedRef.current = true;
+        return;
+      }
+      // 재연결 시 놓친 데이터 catch-up
+      void invalidateQnaList();
+      if (isTablet && selectedRoom && selectedRoom.id > 0) {
+        void invalidateQnaById(selectedRoom.id);
+      }
+    }, [isTablet, selectedRoom, invalidateQnaById, invalidateQnaList]),
     onError: useCallback((error: Error) => {
       console.error('[QnaScreen] SSE QnaList error:', error);
     }, []),

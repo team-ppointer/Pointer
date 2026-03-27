@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { View, Text, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -69,6 +69,14 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
   const qnaId = chatRoom?.id;
   const token = getAccessToken();
 
+  // 최초 연결 시 onOpen 스킵 가드 (재연결 시에만 catch-up)
+  const hasSseOpenedRef = useRef(false);
+
+  // 방 변경 시 가드 리셋 — 새 방에 대해 최초 연결은 다시 스킵해야 함
+  useEffect(() => {
+    hasSseOpenedRef.current = false;
+  }, [qnaId]);
+
   // Refetch data when selected room changes
   useEffect(() => {
     if (qnaId) {
@@ -86,13 +94,23 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
     onChatEvent: useCallback(
       (event: components['schemas']['QnAChatEvent']) => {
         console.log('[ChatRoom] Chat event received:', event);
-        // Invalidate queries to refresh data
         if (event.qnaId) {
           void invalidateQnaById(event.qnaId);
         }
       },
       [invalidateQnaById]
     ),
+    onOpen: useCallback(() => {
+      // 최초 연결 시 스킵 — React Query의 initial fetch + room change effect로 충분
+      if (!hasSseOpenedRef.current) {
+        hasSseOpenedRef.current = true;
+        return;
+      }
+      // 재연결 시 놓친 메시지 catch-up
+      if (qnaId) {
+        void invalidateQnaById(Number(qnaId));
+      }
+    }, [qnaId, invalidateQnaById]),
     onError: useCallback((error: Error) => {
       console.error('[ChatRoom] SSE error:', error);
     }, []),
