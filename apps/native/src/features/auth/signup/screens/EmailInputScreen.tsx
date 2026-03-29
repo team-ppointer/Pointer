@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { ActivityIndicator, Text, TextInput, View } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { AnimatedPressable, Container } from '@components/common';
 import { colors } from '@theme/tokens';
 import { client } from '@apis';
 
