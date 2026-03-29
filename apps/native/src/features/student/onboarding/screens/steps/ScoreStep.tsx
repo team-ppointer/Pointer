@@ -12,9 +12,11 @@ import type { OnboardingScreenProps } from '../types';
 const ScoreStep = ({ navigation }: OnboardingScreenProps<'Score'>) => {
   const level = useOnboardingStore((state) => state.level);
   const setLevel = useOnboardingStore((state) => state.setLevel);
+  const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
 
   const handleSkip = () => {
     setLevel(null);
+    setCurrentStep('Welcome');
     navigation.navigate('Welcome');
   };
 
@@ -30,7 +32,10 @@ const ScoreStep = ({ navigation }: OnboardingScreenProps<'Score'>) => {
     <OnboardingLayout
       title='최근 공식 수학 성적을 선택해 주세요.'
       description='가장 최근에 응시한 수능/모의고사 성적을 입력하면 실력을 더 정확히 파악할 수 있어요.'
-      onPressCTA={() => navigation.navigate('Welcome')}
+      onPressCTA={() => {
+        setCurrentStep('Welcome');
+        navigation.navigate('Welcome');
+      }}
       ctaDisabled={!level}
       skipLabel='건너뛰기'
       onSkip={handleSkip}>

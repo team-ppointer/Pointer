@@ -14,6 +14,7 @@ import { OnboardingLayout, OnboardingInput } from '../../components';
 const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   const schoolId = useOnboardingStore((state) => state.schoolId);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
+  const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
 
   const [query, setQuery] = useState('');
   const [selectedLabel, setSelectedLabel] = useState('');
@@ -38,6 +39,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
 
   const handleNext = () => {
     if (!schoolId) return;
+    setCurrentStep('Score');
     navigation.navigate('Score');
   };
 
@@ -45,6 +47,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
     setSchoolId(null);
     setQuery('');
     setSelectedLabel('');
+    setCurrentStep('Score');
     navigation.navigate('Score');
   };
 

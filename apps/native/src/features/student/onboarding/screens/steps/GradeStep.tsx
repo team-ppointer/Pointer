@@ -10,14 +10,17 @@ const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
   const grade = useOnboardingStore((state) => state.grade);
   const setGrade = useOnboardingStore((state) => state.setGrade);
   const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
+  const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
 
   const handleNext = useCallback(() => {
     if (!grade) return;
 
     if (grade === 'ONE' || grade === 'TWO') {
       setSelectSubject(null);
+      setCurrentStep('School');
       navigation.navigate('School');
     } else {
+      setCurrentStep('MathSubject');
       navigation.navigate('MathSubject');
     }
   }, [grade, navigation, setSelectSubject]);
