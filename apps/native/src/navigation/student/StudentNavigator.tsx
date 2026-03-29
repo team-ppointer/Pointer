@@ -74,6 +74,7 @@ const StudentNavigator = () => {
   // FCM 토큰 등록 (학생 화면 진입 시 자동으로 등록/갱신)
   useFcmToken();
 
+  // STEP 2 표시 조건: onboarding이 in-progress이거나, 프로필 데이터(grade)가 없고 completed가 아닌 경우
   const shouldShowOnboarding =
     onboardingStatus === 'in-progress' || (!studentGrade && onboardingStatus !== 'completed');
 
