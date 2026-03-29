@@ -1,32 +1,29 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { GradeValue, MathSubjectValue } from '../constants';
 
-type IdentityInfo = {
-  name: string;
-  phoneNumber: string;
-};
+type OnboardingStep = 'Grade' | 'MathSubject' | 'School' | 'Score' | 'Welcome';
 
 type OnboardingStatus = 'idle' | 'in-progress' | 'completed';
 
 type OnboardingState = {
   status: OnboardingStatus;
-  email: string;
-  identity: IdentityInfo;
+  currentStep: OnboardingStep;
   grade: GradeValue | null;
   selectSubject: MathSubjectValue | null;
   schoolId: number | null;
   level: number | null;
 };
 
-export type OnboardingPayload = Omit<OnboardingState, 'status'>;
+export type OnboardingPayload = Omit<OnboardingState, 'status' | 'currentStep'>;
 
 type OnboardingActions = {
-  start: (email?: string) => void;
+  start: () => void;
   complete: () => void;
   reset: () => void;
-  setEmail: (email: string) => void;
-  setIdentity: (payload: Partial<IdentityInfo>) => void;
+  setCurrentStep: (step: OnboardingStep) => void;
   setGrade: (grade: GradeValue) => void;
   setSelectSubject: (subject: MathSubjectValue | null) => void;
   setSchoolId: (schoolId: number | null) => void;
@@ -34,49 +31,49 @@ type OnboardingActions = {
   getPayload: () => OnboardingPayload;
 };
 
-const emptyIdentity: IdentityInfo = {
-  name: '',
-  phoneNumber: '',
-};
-
 const initialState: OnboardingState = {
   status: 'idle',
-  email: '',
-  identity: emptyIdentity,
+  currentStep: 'Grade',
   grade: null,
   selectSubject: null,
   schoolId: null,
   level: null,
 };
 
-export const useOnboardingStore = create<OnboardingState & OnboardingActions>((set, get) => ({
-  ...initialState,
-  start: (email?: string) =>
-    set(() => ({
+export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
+  persist(
+    (set, get) => ({
       ...initialState,
-      status: 'in-progress',
-      email: email ?? '',
-    })),
-  complete: () =>
-    set((state) => ({
-      ...state,
-      status: 'completed',
-    })),
-  reset: () => set(initialState),
-  setEmail: (email) => set({ email }),
-  setIdentity: (payload) =>
-    set((state) => ({
-      identity: {
-        ...state.identity,
-        ...payload,
+
+      start: () =>
+        set({
+          ...initialState,
+          status: 'in-progress',
+        }),
+
+      complete: () =>
+        set((state) => ({
+          ...state,
+          status: 'completed',
+        })),
+
+      reset: () => set(initialState),
+
+      setCurrentStep: (step) => set({ currentStep: step }),
+
+      setGrade: (grade) => set({ grade }),
+      setSelectSubject: (selectSubject) => set({ selectSubject }),
+      setSchoolId: (schoolId) => set({ schoolId }),
+      setLevel: (level) => set({ level }),
+
+      getPayload: () => {
+        const { grade, selectSubject, schoolId, level } = get();
+        return { grade, selectSubject, schoolId, level };
       },
-    })),
-  setGrade: (grade) => set({ grade }),
-  setSelectSubject: (selectSubject) => set({ selectSubject }),
-  setSchoolId: (schoolId) => set({ schoolId }),
-  setLevel: (level) => set({ level }),
-  getPayload: () => {
-    const { status: _status, ...payload } = get();
-    return payload;
-  },
-}));
+    }),
+    {
+      name: 'onboarding-store',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);
