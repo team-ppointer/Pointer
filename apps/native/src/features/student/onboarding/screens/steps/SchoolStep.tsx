@@ -106,7 +106,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
                         schoolId === item.id ? 'bg-gray-200' : 'bg-transparent'
                       }`}
                       onPress={() => handleSelect(item.id, item.name ?? '', item.sido ?? '')}>
-                      <Text className='text-16m text-gray-800'>{label}</Text>
+                      <Text className='typo-body-1-regular text-gray-800'>{label}</Text>
                     </Pressable>
                   );
                 })}

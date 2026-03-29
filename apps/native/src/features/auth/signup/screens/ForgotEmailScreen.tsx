@@ -3,7 +3,6 @@ import { Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { postPasswordResetSendCode } from '@apis/student';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingLayout } from '@features/student/onboarding/components';
 
@@ -41,7 +40,7 @@ const ForgotEmailScreen = ({ navigation, route }: Props) => {
       onPressBack={() => navigation.goBack()}>
       {error && (
         <View>
-          <Text className='text-14r text-red-500'>{error}</Text>
+          <Text className='typo-caption-regular text-red-500'>{error}</Text>
         </View>
       )}
     </OnboardingLayout>

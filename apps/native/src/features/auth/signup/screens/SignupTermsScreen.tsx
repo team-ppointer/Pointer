@@ -7,7 +7,6 @@ import { CheckIcon, ChevronRightIcon } from 'lucide-react-native';
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingLayout } from '@features/student/onboarding/components';
 
@@ -155,8 +154,13 @@ const ConsentRow = ({
           {checked ? <CheckIcon size={20} strokeWidth={2} color='white' /> : null}
         </View>
         <View className='flex-1 gap-[2px]'>
-          <Text className={`${isBold ? 'text-16sb' : 'text-16m'} text-gray-900`}>{label}</Text>
-          {description ? <Text className='text-14r text-gray-600'>{description}</Text> : null}
+          <Text
+            className={`${isBold ? 'typo-heading-2-semibold' : 'typo-body-2-medium'} text-gray-900`}>
+            {label}
+          </Text>
+          {description ? (
+            <Text className='typo-label-medium text-gray-600'>{description}</Text>
+          ) : null}
         </View>
       </View>
       {withChevron ? (

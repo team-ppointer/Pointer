@@ -5,7 +5,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 import { postPasswordResetVerifyCode, postPasswordResetSendCode } from '@apis/student';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingLayout } from '@features/student/onboarding/components';
 
@@ -56,7 +55,7 @@ const ForgotCodeScreen = ({ navigation, route }: Props) => {
       onPressBack={() => navigation.goBack()}>
       <View className='gap-[8px]'>
         <TextInput
-          className='rounded-[12px] border border-gray-300 bg-white px-[16px] py-[14px] text-[16px]'
+          className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] text-[16px]'
           placeholder='인증 코드'
           placeholderTextColor={colors['gray-400']}
           keyboardType='number-pad'
@@ -67,10 +66,10 @@ const ForgotCodeScreen = ({ navigation, route }: Props) => {
           }}
           editable={!isLoading}
         />
-        {error && <Text className='text-14r text-red-500'>{error}</Text>}
+        {error && <Text className='typo-caption-regular text-red-500'>{error}</Text>}
       </View>
       <AnimatedPressable className='mt-[8px] items-center py-[8px]' onPress={handleResend}>
-        <Text className='text-14m text-gray-600'>인증 코드 다시 받기</Text>
+        <Text className='typo-body-1-regular text-gray-600'>인증 코드 다시 받기</Text>
       </AnimatedPressable>
     </OnboardingLayout>
   );

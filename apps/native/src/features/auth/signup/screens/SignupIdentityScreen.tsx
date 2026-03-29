@@ -3,12 +3,11 @@ import { Alert, AppState, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { AnimatedPressable } from '@components/common';
-import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
-import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
-import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
+import postPhoneVerify from '@apis/controller/common/auth/postPhoneVerify';
+import postPhoneSend from '@apis/controller/common/auth/postPhoneSend';
+import postPhoneResend from '@apis/controller/common/auth/postPhoneResend';
 import { useAuthStore } from '@stores';
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingLayout, OnboardingInput } from '@features/student/onboarding/components';
 
@@ -198,7 +197,7 @@ const SignupIdentityScreen = ({ navigation }: Props) => {
             onPress={timeLeft > 0 ? undefined : handleResend}
             disabled={timeLeft > 0}
             className='bg-primary-500 mt-[45px] h-[48px] w-[100px] items-center justify-center rounded-[8px]'>
-            <Text className='text-16m text-white'>
+            <Text className='typo-body-2-medium text-white'>
               {timeLeft > 0 && formatTime(timeLeft)}
               {timeLeft <= 0 && (isSent ? '재전송' : '인증 요청')}
             </Text>

@@ -7,7 +7,6 @@ import { getEmailExists } from '@apis/controller/student/auth/getEmailExists';
 import { useDebounce } from '@hooks';
 import { useAuthStore } from '@stores';
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingLayout } from '@features/student/onboarding/components';
 
@@ -60,7 +59,7 @@ const SignupEmailScreen = ({ navigation }: Props) => {
       }}>
       <View className='gap-[8px]'>
         <TextInput
-          className='rounded-[12px] border border-gray-300 bg-white px-[16px] py-[14px] text-[16px]'
+          className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] text-[16px]'
           placeholder='pointer111@example.com'
           placeholderTextColor={colors['gray-400']}
           keyboardType='email-address'
@@ -72,7 +71,7 @@ const SignupEmailScreen = ({ navigation }: Props) => {
           }}
           editable={!isLoading}
         />
-        {error && <Text className='text-14r text-red-500'>{error}</Text>}
+        {error && <Text className='typo-caption-regular text-red-500'>{error}</Text>}
       </View>
     </OnboardingLayout>
   );

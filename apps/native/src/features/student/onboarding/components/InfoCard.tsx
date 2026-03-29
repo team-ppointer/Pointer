@@ -12,9 +12,9 @@ const InfoCard = ({ icon, title, description }: Props) => {
     <View className='gap-[10px] rounded-[8px] bg-blue-100 p-[20px]'>
       <View className='flex-row items-center gap-[6px]'>
         {icon}
-        {title ? <Text className='text-13b text-gray-900'>{title}</Text> : null}
+        {title ? <Text className='typo-heading-2-bold text-gray-900'>{title}</Text> : null}
       </View>
-      <Text className='text-13r ml-[22px] text-gray-700'>{description}</Text>
+      <Text className='typo-body-2-regular ml-[22px] text-gray-700'>{description}</Text>
     </View>
   );
 };

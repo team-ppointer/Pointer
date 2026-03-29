@@ -4,7 +4,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { colors } from '@theme/tokens';
 import { client } from '@apis';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingLayout } from '@features/student/onboarding/components';
 
@@ -64,7 +63,7 @@ const EmailInputScreen = ({ navigation }: Props) => {
       onPressBack={() => navigation.goBack()}>
       <View className='gap-[8px]'>
         <TextInput
-          className='rounded-[12px] border border-gray-300 bg-white px-[16px] py-[14px] text-[16px]'
+          className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] text-[16px]'
           placeholder='example@email.com'
           placeholderTextColor={colors['gray-400']}
           keyboardType='email-address'
@@ -77,7 +76,7 @@ const EmailInputScreen = ({ navigation }: Props) => {
           }}
           editable={!isLoading}
         />
-        {error && <Text className='text-14r text-red-500'>{error}</Text>}
+        {error && <Text className='typo-caption-regular text-red-400'>{error}</Text>}
       </View>
     </OnboardingLayout>
   );

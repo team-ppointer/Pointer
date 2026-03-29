@@ -91,7 +91,7 @@ const OnboardingInput = forwardRef(
 
     return (
       <View className={`w-full ${containerClassName}`}>
-        {label ? <Text className='text-14m mb-[6px] text-gray-900'>{label}</Text> : null}
+        {label ? <Text className='typo-label-medium mb-[6px] text-gray-900'>{label}</Text> : null}
         <Pressable
           onPress={() => innerRef.current?.focus()}
           className={`h-[48px] flex-row items-center rounded-[10px] bg-white px-[16px] ${
@@ -118,17 +118,19 @@ const OnboardingInput = forwardRef(
             </Pressable>
           ) : null}
         </Pressable>
-        {hint ? <Text className='text-12r mt-[8px] ml-[4px] text-[#808087]'>{hint}</Text> : null}
+        {hint ? (
+          <Text className='typo-caption-regular mt-[8px] ml-[4px] text-[#808087]'>{hint}</Text>
+        ) : null}
         {errorMessage ? (
           <View className='mt-[8px] flex-row items-center gap-[4px]'>
             <AlertCircle size={14} color={colors['red-400']} />
-            <Text className='text-12r text-red-400'>{errorMessage}</Text>
+            <Text className='typo-caption-regular text-red-400'>{errorMessage}</Text>
           </View>
         ) : null}
         {successMessage ? (
           <View className='mt-[8px] flex-row items-center gap-[4px]'>
             <CircleCheck size={14} color={colors['blue-500']} />
-            <Text className='text-12r text-blue-500'>{successMessage}</Text>
+            <Text className='typo-caption-regular text-blue-500'>{successMessage}</Text>
           </View>
         ) : null}
       </View>

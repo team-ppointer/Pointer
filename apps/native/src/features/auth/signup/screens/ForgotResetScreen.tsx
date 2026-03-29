@@ -6,7 +6,6 @@ import { EyeIcon, EyeOffIcon } from 'lucide-react-native';
 import { AnimatedPressable } from '@components/common';
 import { colors } from '@theme/tokens';
 import { postPasswordReset } from '@apis/student';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingLayout } from '@features/student/onboarding/components';
 
@@ -56,7 +55,7 @@ const ForgotResetScreen = ({ navigation, route }: Props) => {
       <View className='gap-[8px]'>
         <View className='relative'>
           <TextInput
-            className='rounded-[12px] border border-gray-300 bg-white px-[16px] py-[14px] pr-[48px] text-[16px]'
+            className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] pr-[48px] text-[16px]'
             placeholder='새 비밀번호 (8자 이상)'
             placeholderTextColor={colors['gray-400']}
             secureTextEntry={!showPassword}
@@ -77,7 +76,7 @@ const ForgotResetScreen = ({ navigation, route }: Props) => {
             )}
           </AnimatedPressable>
         </View>
-        {error && <Text className='text-14r text-red-500'>{error}</Text>}
+        {error && <Text className='typo-caption-regular text-red-500'>{error}</Text>}
       </View>
     </OnboardingLayout>
   );

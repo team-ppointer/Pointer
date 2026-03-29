@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { MessageSquareWarningFilledIcon } from '@components/system/icons';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 
 import { InfoCard, OnboardingLayout, OptionButton } from '../../components';
 import { levelOptions } from '../../constants';

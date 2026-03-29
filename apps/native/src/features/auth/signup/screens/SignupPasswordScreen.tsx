@@ -93,7 +93,7 @@ const SignupPasswordScreen = ({ navigation, route }: Props) => {
       <View className='gap-[8px]'>
         <View className='relative'>
           <TextInput
-            className='rounded-[12px] border border-gray-300 bg-white px-[16px] py-[14px] pr-[48px] text-[16px]'
+            className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] pr-[48px] text-[16px]'
             placeholder='비밀번호 (8자 이상)'
             placeholderTextColor={colors['gray-400']}
             secureTextEntry={!showPassword}
@@ -115,7 +115,7 @@ const SignupPasswordScreen = ({ navigation, route }: Props) => {
           </AnimatedPressable>
         </View>
         <TextInput
-          className={`rounded-[12px] border bg-white px-[16px] py-[14px] text-[16px] ${
+          className={`rounded-[10px] border bg-white px-[16px] py-[14px] text-[16px] ${
             passwordConfirm && !passwordsMatch ? 'border-red-500' : 'border-gray-300'
           }`}
           placeholder='비밀번호 확인'
@@ -126,9 +126,9 @@ const SignupPasswordScreen = ({ navigation, route }: Props) => {
           editable={!isLoading}
         />
         {passwordConfirm && !passwordsMatch && (
-          <Text className='text-14r text-red-500'>비밀번호가 일치하지 않습니다.</Text>
+          <Text className='typo-caption-regular text-red-500'>비밀번호가 일치하지 않습니다.</Text>
         )}
-        {error && <Text className='text-14r text-red-500'>{error}</Text>}
+        {error && <Text className='typo-caption-regular text-red-500'>{error}</Text>}
       </View>
     </OnboardingLayout>
   );

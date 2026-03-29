@@ -10,7 +10,6 @@ import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingLayout } from '@features/student/onboarding/components';
 
@@ -98,7 +97,7 @@ const EmailLoginScreen = ({ navigation, route }: Props) => {
       <View className='gap-[8px]'>
         <View className='relative'>
           <TextInput
-            className='rounded-[12px] border border-gray-300 bg-white px-[16px] py-[14px] pr-[48px] text-[16px]'
+            className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] pr-[48px] text-[16px]'
             placeholder='비밀번호'
             placeholderTextColor={colors['gray-400']}
             secureTextEntry={!showPassword}
@@ -119,12 +118,12 @@ const EmailLoginScreen = ({ navigation, route }: Props) => {
             )}
           </AnimatedPressable>
         </View>
-        {error && <Text className='text-14r text-red-500'>{error}</Text>}
+        {error && <Text className='typo-caption-regular text-red-500'>{error}</Text>}
       </View>
       <AnimatedPressable
         className='mt-[16px] items-center py-[8px]'
         onPress={() => navigation.navigate('ForgotEmail', { email })}>
-        <Text className='text-14m text-gray-600'>비밀번호를 잊으셨나요?</Text>
+        <Text className='typo-body-1-regular text-gray-600'>비밀번호를 잊으셨나요?</Text>
       </AnimatedPressable>
     </OnboardingLayout>
   );
