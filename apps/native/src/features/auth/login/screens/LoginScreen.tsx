@@ -1,47 +1,28 @@
-import { useRef, useState } from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
-import type BottomSheet from '@gorhom/bottom-sheet';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MailIcon } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { AnimatedPressable, Container } from '@components/common';
 import { GoogleIcon, KakaoIcon, PointerLogo, AppleIcon } from '@components/system/icons';
 import { colors } from '@theme/tokens';
 
-import TermsConsentSheet from '../components/TermsConsentSheet';
-import EmailAuthSheet from '../components/EmailAuthSheet';
 import { useNativeOAuth, type OAuthProvider } from '../hooks';
+import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
+
+type NavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
 const LoginScreen = () => {
-  const [pendingSocial, setPendingSocial] = useState<OAuthProvider | null>(null);
-  const termsSheetRef = useRef<BottomSheet>(null);
-  const emailAuthSheetRef = useRef<BottomSheet>(null);
-  const { bottom: bottomInset } = useSafeAreaInsets();
-
+  const navigation = useNavigation<NavigationProp>();
   const { isLoading, error, signInWithProvider } = useNativeOAuth();
 
-  const handleSocialButtonPress = (provider: OAuthProvider) => {
-    setPendingSocial(provider);
-    termsSheetRef.current?.expand();
-  };
-
-  const handleEmailButtonPress = () => {
-    emailAuthSheetRef.current?.expand();
-  };
-
-  const handleTermsConfirm = async () => {
-    if (!pendingSocial) return;
-
-    const provider = pendingSocial;
-    termsSheetRef.current?.close();
-
+  const handleSocialButtonPress = async (provider: OAuthProvider) => {
     await signInWithProvider(provider);
   };
 
-  const handleTermsSheetChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      setPendingSocial(null);
-    }
+  const handleEmailButtonPress = () => {
+    navigation.navigate('EmailInput');
   };
 
   return (
@@ -61,7 +42,7 @@ const LoginScreen = () => {
             className='h-[42px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-black px-[12px]'
             onPress={() => handleSocialButtonPress('APPLE')}
             disabled={isLoading}>
-            {isLoading && pendingSocial === 'APPLE' ? (
+            {isLoading ? (
               <ActivityIndicator size='small' color='white' />
             ) : (
               <>
@@ -74,7 +55,7 @@ const LoginScreen = () => {
             className='h-[42px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-[#FFDE00] px-[12px]'
             onPress={() => handleSocialButtonPress('KAKAO')}
             disabled={isLoading}>
-            {isLoading && pendingSocial === 'KAKAO' ? (
+            {isLoading ? (
               <ActivityIndicator size='small' color='black' />
             ) : (
               <>
@@ -87,7 +68,7 @@ const LoginScreen = () => {
             className='h-[42px] flex-row items-center justify-center gap-[8px] rounded-[8px] border border-gray-500 bg-white px-[12px]'
             onPress={() => handleSocialButtonPress('GOOGLE')}
             disabled={isLoading}>
-            {isLoading && pendingSocial === 'GOOGLE' ? (
+            {isLoading ? (
               <ActivityIndicator size='small' color='black' />
             ) : (
               <>
@@ -105,13 +86,6 @@ const LoginScreen = () => {
           </AnimatedPressable>
         </View>
       </Container>
-      <TermsConsentSheet
-        ref={termsSheetRef}
-        bottomInset={bottomInset}
-        onConfirm={handleTermsConfirm}
-        onSheetChange={handleTermsSheetChange}
-      />
-      <EmailAuthSheet ref={emailAuthSheetRef} bottomInset={bottomInset} />
     </SafeAreaView>
   );
 };

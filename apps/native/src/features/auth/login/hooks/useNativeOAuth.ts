@@ -2,11 +2,15 @@ import { useState, useCallback, useEffect } from 'react';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { login as kakaoLogin, logout as kakaoLogout } from '@react-native-kakao/user';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { postOauthNative, type OAuthNativeUser } from '@apis';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
+import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
+import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 
 export type OAuthProvider = 'KAKAO' | 'GOOGLE' | 'APPLE';
 
@@ -26,9 +30,11 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
     error: null,
   });
 
+  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
   const { setSessionStatus, setRole, updateStudentProfile } = useAuthStore();
   const startOnboarding = useOnboardingStore((state) => state.start);
   const completeOnboarding = useOnboardingStore((state) => state.complete);
+  const signupStore = useSignupStore();
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -86,7 +92,10 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
   };
 
   const handleAuthSuccess = useCallback(
-    async (response: { accessToken?: string; refreshToken?: string; user?: OAuthNativeUser }) => {
+    async (
+      response: { accessToken?: string; refreshToken?: string; user?: OAuthNativeUser },
+      provider: OAuthProvider
+    ) => {
       const { accessToken, refreshToken, user } = response;
 
       if (!accessToken) {
@@ -105,18 +114,33 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
         });
       }
 
-      // isFirstLogin인 경우에만 온보딩, 아니면 바로 메인 홈으로
       const isFirstLogin = user?.isFirstLogin ?? false;
-      if (isFirstLogin) {
-        startOnboarding();
-      } else {
-        completeOnboarding();
-      }
 
-      setRole('student');
-      setSessionStatus('authenticated');
+      if (isFirstLogin) {
+        // 신규 회원: 토큰 저장 후 signup flow(이메일 수집 → 약관 → 본인인증)으로 이동
+        signupStore.setProvider(provider);
+        startOnboarding();
+        setRole('student');
+        setSessionStatus('authenticated');
+
+        // Auth 스택 내에서 SignupEmail로 이동
+        navigation.navigate('SignupEmail');
+      } else {
+        // 기존 회원: 바로 메인으로
+        completeOnboarding();
+        setRole('student');
+        setSessionStatus('authenticated');
+      }
     },
-    [setRole, setSessionStatus, updateStudentProfile, startOnboarding, completeOnboarding]
+    [
+      setRole,
+      setSessionStatus,
+      updateStudentProfile,
+      startOnboarding,
+      completeOnboarding,
+      signupStore,
+      navigation,
+    ]
   );
 
   const signInWithProvider = useCallback(
@@ -135,11 +159,14 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
           throw new Error(response.message ?? 'Login failed');
         }
 
-        await handleAuthSuccess({
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
-          user: response.user,
-        });
+        await handleAuthSuccess(
+          {
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+            user: response.user,
+          },
+          provider
+        );
 
         setState({ isLoading: false, error: null });
       } catch (error: unknown) {
