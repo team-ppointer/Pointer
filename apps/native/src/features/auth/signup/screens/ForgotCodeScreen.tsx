@@ -22,11 +22,7 @@ const ForgotCodeScreen = ({ navigation, route }: Props) => {
     setIsLoading(true);
     setError(null);
     try {
-      const { error: apiError } = await postPasswordResetVerifyCode({
-        email,
-        code,
-        newPassword: '',
-      });
+      const { error: apiError } = await postPasswordResetVerifyCode({ email, code });
       if (apiError) {
         throw new Error('인증 코드가 올바르지 않습니다.');
       }

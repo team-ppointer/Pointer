@@ -1,9 +1,9 @@
 import { type components } from '@schema';
 import { client } from '@/apis/client';
 
-type PasswordResetDTOResetPasswordRequest =
-  components['schemas']['PasswordResetDTO.ResetPasswordRequest'];
-const postPasswordResetVerifyCode = async (data: PasswordResetDTOResetPasswordRequest) => {
+type PasswordResetDTOVerifyCodeRequest =
+  components['schemas']['PasswordResetDTO.VerifyCodeRequest'];
+const postPasswordResetVerifyCode = async (data: PasswordResetDTOVerifyCodeRequest) => {
   return await client.POST('/api/student/auth/password/reset/verify-code', {
     body: data,
   });
