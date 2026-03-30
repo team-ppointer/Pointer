@@ -8,7 +8,7 @@ import {
 } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Container, AnimatedPressable } from '@components/common';
+import { ContentInset, AnimatedPressable } from '@components/common';
 import { BookHeartIcon, CircleStarIcon, ProfileBasicIcon } from '@components/system/icons';
 import { useGetMe, usePutMe, TanstackQueryClient } from '@apis';
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
@@ -283,7 +283,7 @@ const MyInfoScreen = () => {
           navigation.goBack();
         }}>
         <ScrollView className='flex-1 bg-blue-100 pt-[10px]' contentContainerClassName='flex-grow'>
-          <Container className='-mt-[100%] gap-[28px] bg-gray-100 pt-[100%] pb-[24px]'>
+          <ContentInset className='-mt-[100%] gap-[28px] bg-gray-100 pt-[100%] pb-[24px]'>
             <InfoSection
               icon={<ProfileBasicIcon />}
               title='기본 정보'
@@ -344,9 +344,9 @@ const MyInfoScreen = () => {
                 },
               ]}
             />
-          </Container>
+          </ContentInset>
 
-          <Container
+          <ContentInset
             className='flex-1 bg-blue-100 pt-[24px]'
             style={{ paddingBottom: 24 + bottom }}>
             <InfoSection
@@ -358,7 +358,7 @@ const MyInfoScreen = () => {
                 { label: '이메일', value: data?.email || '' },
               ]}
             />
-          </Container>
+          </ContentInset>
         </ScrollView>
       </ScreenLayout>
       <ConfirmationModal

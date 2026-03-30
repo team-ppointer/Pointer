@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, CircleCheck, CircleAlert } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import {
   useGetMe,
   usePutMe,
@@ -186,7 +186,7 @@ const EditPhoneNumberScreen = () => {
           <ChevronLeft size={32} color='#000' />
         </AnimatedPressable>
       </SafeAreaView>
-      <Container className='flex-1'>
+      <ContentInset className='flex-1'>
         <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
           <View className='gap-[32px]'>
             <View className='gap-1'>
@@ -279,7 +279,7 @@ const EditPhoneNumberScreen = () => {
             </AnimatedPressable>
           )}
         </SafeAreaView>
-      </Container>
+      </ContentInset>
     </KeyboardAvoidingView>
   );
 };

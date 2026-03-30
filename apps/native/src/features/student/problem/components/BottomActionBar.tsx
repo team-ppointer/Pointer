@@ -10,7 +10,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { Container } from '@components/common';
+import { ContentInset } from '@components/common';
 import { analytics, type ButtonId, type ScreenName } from '@/features/student/analytics';
 
 type BottomActionBarProps = {
@@ -131,7 +131,7 @@ const BottomActionBar = (({ bottomInset = 0, onLayout, children }: BottomActionB
     className='border-t border-gray-300 bg-white pt-[10px]'
     style={{ paddingBottom: 10 + bottomInset }}
     onLayout={onLayout}>
-    <Container className='flex-row items-center gap-[10px]'>{children}</Container>
+    <ContentInset className='flex-row items-center gap-[10px]'>{children}</ContentInset>
   </View>
 )) as BottomActionBarComponent;
 

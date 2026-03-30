@@ -8,7 +8,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
 import { colors } from '@theme/tokens';
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 
 import CorrectIcon from './icons/CorrectIcon';
 import IncorrectIcon from './icons/IncorrectIcon';
@@ -73,7 +73,7 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
             </View>
           </View>
           <View className='py-[10px]'>
-            <Container className='flex-col items-center gap-[10px]'>
+            <ContentInset className='flex-col items-center gap-[10px]'>
               {secondaryButtonLabel && onPressSecondary ? (
                 <AnimatedPressable
                   className='h-[48px] w-full items-center justify-center rounded-[8px] border border-gray-500 bg-gray-100 px-[12px]'
@@ -88,7 +88,7 @@ const ResultSheet = forwardRef<BottomSheet, ResultSheetProps>(
                 onPress={onPressPrimary}>
                 <Text className='text-16m text-white'>{primaryButtonLabel}</Text>
               </AnimatedPressable>
-            </Container>
+            </ContentInset>
           </View>
         </BottomSheetView>
       </BottomSheet>

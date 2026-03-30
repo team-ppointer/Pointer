@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BookmarkIcon, ChevronLeftIcon } from 'lucide-react-native';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors, shadow } from '@theme/tokens';
 import { type components } from '@schema';
@@ -217,7 +217,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
           <View className='w-[40px]' />
         </View>
         {tabItems.length > 0 ? (
-          <Container className='mb-[20px] py-[4px]'>
+          <ContentInset className='mb-[20px] py-[4px]'>
             <SegmentedControl
               values={tabItems.map((item) => item.label)}
               selectedIndex={selectedTab}
@@ -227,10 +227,10 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
               fontStyle={{ fontSize: 14, fontWeight: '500' }}
               activeFontStyle={{ fontSize: 14, fontWeight: '600' }}
             />
-          </Container>
+          </ContentInset>
         ) : null}
         <View className='flex-1 overflow-hidden'>
-          <Container className='flex-1 flex-col gap-[20px] pb-[32px] md:flex-row'>
+          <ContentInset className='flex-1 flex-col gap-[20px] pb-[32px] md:flex-row'>
             <View className='md:flex-1'>
               <View
                 className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
@@ -310,7 +310,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
                 })
               )}
             </ScrollView>
-          </Container>
+          </ContentInset>
         </View>
       </SafeAreaView>
     </View>

@@ -5,7 +5,7 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Bell } from 'lucide-react-native';
 
 import { AlertBellButtonIcon } from '@components/system/icons';
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import { useGetNotificationCount } from '@/apis/controller/student/notification';
 import { useGetNoticeCount } from '@/apis/controller/student/notice';
 
@@ -23,13 +23,13 @@ const HomeHeader = () => {
 
   return (
     <View>
-      <Container className='flex-row items-center justify-end py-[4px]'>
+      <ContentInset className='flex-row items-center justify-end py-[4px]'>
         <AnimatedPressable
           onPress={() => navigation.navigate('Notifications')}
           className='size-[48px] items-center justify-center gap-[10px] rounded-[8px] px-[3px] py-[9px]'>
           {hasUnread ? <AlertBellButtonIcon /> : <Bell size={24} color='black' />}
         </AnimatedPressable>
-      </Container>
+      </ContentInset>
     </View>
   );
 };

@@ -1,5 +1,5 @@
 import AnimatedPressable from './AnimatedPressable';
-import Container from './Container';
+import ContentInset from './ContentInset';
 import LoadingScreen from './LoadingScreen';
 import NotificationItem from './NotificationItem';
 import TextButton from './TextButton';
@@ -8,7 +8,7 @@ import { ImageWithSkeleton } from './ImageWithSkeleton';
 
 export {
   AnimatedPressable,
-  Container,
+  ContentInset,
   LoadingScreen,
   NotificationItem,
   TextButton,

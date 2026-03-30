@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { colors, shadow } from '@theme/tokens';
 import { type StudentRootStackParamList } from '@navigation/student/types';
-import { Container } from '@components/common';
+import { ContentInset } from '@components/common';
 import {
   postPointing,
   useGetScrapStatusById,
@@ -318,7 +318,7 @@ const PointingScreen = ({
           </Header.TitleGroup>
         </Header>
         <View className='flex-1'>
-          <Container className='flex-1 flex-col gap-[20px] pb-[32px] md:flex-row'>
+          <ContentInset className='flex-1 flex-col gap-[20px] pb-[32px] md:flex-row'>
             <View className='md:flex-1'>
               <View
                 className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
@@ -373,7 +373,7 @@ const PointingScreen = ({
                 )}
               </View>
             </ScrollView>
-          </Container>
+          </ContentInset>
         </View>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
           {feedbackStep === 'done' ? (

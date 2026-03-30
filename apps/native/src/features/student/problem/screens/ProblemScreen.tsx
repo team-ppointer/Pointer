@@ -15,7 +15,7 @@ import {
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Container } from '@components/common';
+import { ContentInset } from '@components/common';
 import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
@@ -477,7 +477,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
         </View>
 
         <ScrollView>
-          <Container className='flex-1'>
+          <ContentInset className='flex-1'>
             {/* Problem */}
             <View
               className='my-[10px] overflow-hidden rounded-[8px]'
@@ -506,7 +506,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                 </View>
               </View>
             </View>
-          </Container>
+          </ContentInset>
         </ScrollView>
         <AnswerKeyboardSheet
           ref={bottomSheetRef}
