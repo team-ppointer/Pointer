@@ -169,17 +169,28 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
   valueRef.current = value;
   const onPreviewRef = React.useRef(onPreview);
   onPreviewRef.current = onPreview;
+  const onOpenChangeRef = React.useRef(onOpenChange);
+  onOpenChangeRef.current = onOpenChange;
 
   React.useEffect(() => {
     if (!open) return;
     let destroyed = false;
     let ro: ResizeObserver | null = null;
+    let previewRafId: number | null = null;
+    let lastPreviewLatex: string | null = null;
 
     const onInput = () => {
       try {
         const mf = mathfieldRef.current;
         if (!mf || typeof mf.getValue !== 'function') return;
-        onPreviewRef.current?.(mf.getValue('latex'));
+        const nextLatex = mf.getValue('latex');
+        if (nextLatex === lastPreviewLatex) return;
+        lastPreviewLatex = nextLatex;
+        if (previewRafId !== null) cancelAnimationFrame(previewRafId);
+        previewRafId = requestAnimationFrame(() => {
+          previewRafId = null;
+          onPreviewRef.current?.(nextLatex);
+        });
       } catch {
         // ignore
       }
@@ -197,6 +208,12 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
         } catch {
           handleSaveRef.current();
         }
+      }
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        ev.stopPropagation();
+        onOpenChangeRef.current(false);
+        return;
       }
       if (ev.key === 'k' && (ev.metaKey || ev.ctrlKey) && !ev.shiftKey && !ev.altKey) {
         ev.preventDefault();
@@ -251,6 +268,10 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     mount();
     return () => {
       destroyed = true;
+      if (previewRafId !== null) {
+        cancelAnimationFrame(previewRafId);
+        previewRafId = null;
+      }
       try {
         if (ro) {
           ro.disconnect();
@@ -396,13 +417,15 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
   }
 
   if (!open) return null;
+  const portalTarget = container || (typeof document !== 'undefined' ? document.body : null);
+  if (!portalTarget) return null;
   return createPortal(
     <div ref={setFloatingRef} className='math-inline-floating' style={floatingStyle}>
       <Card>
         <CardBody>{renderContent()}</CardBody>
       </Card>
     </div>,
-    container || document.body
+    portalTarget
   );
 };
 

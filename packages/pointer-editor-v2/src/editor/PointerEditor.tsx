@@ -10,7 +10,8 @@ import { TaskItem, TaskList } from '@tiptap/extension-list';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { Typography } from '@tiptap/extension-typography';
 import { Highlight } from '@tiptap/extension-highlight';
-import { InlineMath, createMathMigrateTransaction } from '@tiptap/extension-mathematics';
+import { InlineMath } from '@tiptap/extension-mathematics';
+import { MathAutoMigrate } from './extensions/math-auto-migrate';
 import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
 import { Selection } from '@tiptap/extensions';
@@ -224,6 +225,7 @@ export function PointerEditor({
         Superscript,
         Subscript,
         Selection,
+        MathAutoMigrate,
         ImageUploadNode.configure({
           accept: 'image/*',
           maxSize: MAX_FILE_SIZE,
@@ -305,11 +307,6 @@ export function PointerEditor({
     },
     [ocrApiCall]
   );
-
-  if (editor) {
-    const tr = createMathMigrateTransaction(editor, editor.state.tr);
-    editor.view.dispatch(tr);
-  }
 
   const rect = useCursorVisibility({
     editor,
@@ -557,8 +554,6 @@ export function PointerEditor({
               }
 
               if (editor) {
-                editor.chain().focus();
-
                 const { state } = editor;
                 const nodeAtPos = typeof pos === 'number' ? state.doc.nodeAt(pos) : null;
 
