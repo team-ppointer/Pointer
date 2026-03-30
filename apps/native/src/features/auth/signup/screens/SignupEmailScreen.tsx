@@ -51,9 +51,9 @@ const SignupEmailScreen = ({ navigation }: Props) => {
       title='이메일 주소를 입력해 주세요.'
       onPressCTA={handleNext}
       ctaDisabled={!email || !isValidEmail || isLoading}
-      onPressBack={() => {
-        useAuthStore.getState().signOut();
-        navigation.goBack();
+      onPressBack={async () => {
+        await useAuthStore.getState().signOut();
+        navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
       }}>
       <OnboardingInput
         placeholder='pointer111@example.com'

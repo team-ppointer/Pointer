@@ -27,28 +27,27 @@ const RootNavigator = () => {
 
   useSocialLoginCallback();
 
-  // Auth 스택을 두 가지 이유로 표시: unauthenticated / signup 진행 중
-  // sessionStatus가 바뀔 때 key를 변경하여 AuthNavigator를 재마운트 (스택 리셋)
   const getActiveScreen = () => {
     if (
       sessionStatus === 'unknown' ||
       sessionStatus === 'hydrating' ||
       sessionStatus === 'checking'
     ) {
-      return { name: 'Splash' as const, component: LoadingScreen, key: 'splash' };
+      return { name: 'Splash' as const, component: LoadingScreen };
     }
 
     if (sessionStatus === 'unauthenticated') {
-      return { name: 'Auth' as const, component: AuthNavigator, key: 'auth-login' };
+      return { name: 'Auth' as const, component: AuthNavigator };
     }
 
     // authenticated + STEP 1 미완료 (신규 회원 signup flow 진행 중) → Auth 스택 유지
+    // AuthNavigator 내부에서 store 상태 기반으로 initialRoute 결정
     if (onboardingStatus === 'in-progress' && !step1Completed) {
-      return { name: 'Auth' as const, component: AuthNavigator, key: 'auth-signup' };
+      return { name: 'Auth' as const, component: AuthNavigator };
     }
 
     // authenticated + STEP 1 완료 or 기존 회원 → StudentNavigator (onboarding 체크 포함)
-    return { name: 'StudentApp' as const, component: StudentNavigator, key: 'student' };
+    return { name: 'StudentApp' as const, component: StudentNavigator };
   };
 
   const activeScreen = getActiveScreen();
@@ -57,7 +56,7 @@ const RootNavigator = () => {
   const Stack = isWeb ? WebStack : NativeStack;
 
   return (
-    <Stack.Navigator key={activeScreen.key} screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name={activeScreen.name} component={activeScreen.component} />
     </Stack.Navigator>
   );

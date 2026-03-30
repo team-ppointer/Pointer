@@ -15,18 +15,19 @@ import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 export type OAuthProvider = 'KAKAO' | 'GOOGLE' | 'APPLE';
 
 type OAuthState = {
-  isLoading: boolean;
+  loadingProvider: OAuthProvider | null;
   error: string | null;
 };
 
 type UseNativeOAuthReturn = OAuthState & {
+  isLoading: boolean;
   signInWithProvider: (provider: OAuthProvider) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
 const useNativeOAuth = (): UseNativeOAuthReturn => {
   const [state, setState] = useState<OAuthState>({
-    isLoading: false,
+    loadingProvider: null,
     error: null,
   });
 
@@ -117,16 +118,13 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
       const isFirstLogin = user?.isFirstLogin ?? false;
 
       if (isFirstLogin) {
-        // 신규 회원: 토큰 저장 후 signup flow(이메일 수집 → 약관 → 본인인증)으로 이동
+        // 신규 회원: 토큰 저장 후 signup flow로 명시적 이동
         signupStore.setProvider(provider);
         startOnboarding();
         setRole('student');
         setSessionStatus('authenticated');
-
-        // Auth 스택 내에서 SignupEmail로 이동
-        navigation.navigate('SignupEmail');
+        navigation.reset({ index: 0, routes: [{ name: 'SignupEmail' }] });
       } else {
-        // 기존 회원: 바로 메인으로
         completeOnboarding();
         setRole('student');
         setSessionStatus('authenticated');
@@ -145,7 +143,7 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
 
   const signInWithProvider = useCallback(
     async (provider: OAuthProvider) => {
-      setState({ isLoading: true, error: null });
+      setState({ loadingProvider: provider, error: null });
 
       try {
         const token = await getProviderToken(provider);
@@ -168,7 +166,7 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
           provider
         );
 
-        setState({ isLoading: false, error: null });
+        setState({ loadingProvider: null, error: null });
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
@@ -179,12 +177,12 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
           'code' in error &&
           (error as { code: string }).code === 'ERR_REQUEST_CANCELED'
         ) {
-          setState({ isLoading: false, error: null });
+          setState({ loadingProvider: null, error: null });
           return;
         }
 
         console.error(`[OAuth ${provider}] Error:`, error);
-        setState({ isLoading: false, error: errorMessage });
+        setState({ loadingProvider: null, error: errorMessage });
         setSessionStatus('unauthenticated');
       }
     },
@@ -215,6 +213,7 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
 
   return {
     ...state,
+    isLoading: state.loadingProvider !== null,
     signInWithProvider,
     signOut,
   };

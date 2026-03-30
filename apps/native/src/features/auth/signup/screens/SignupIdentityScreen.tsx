@@ -141,7 +141,7 @@ const SignupIdentityScreen = ({ navigation }: Props) => {
     signupStore.completeStep1();
 
     // authenticated 상태 확인 후 onboarding(STEP 2)으로 자동 이동됨
-    // RootNavigator/StudentNavigator가 step1Completed + isFirstLogin으로 분기
+    // RootNavigator가 step1Completed + onboardingStatus로 분기
   };
 
   const handleBack = () => {
@@ -153,8 +153,9 @@ const SignupIdentityScreen = ({ navigation }: Props) => {
       {
         text: '네',
         style: 'destructive',
-        onPress: () => {
-          useAuthStore.getState().signOut();
+        onPress: async () => {
+          await useAuthStore.getState().signOut();
+          navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
         },
       },
     ]);

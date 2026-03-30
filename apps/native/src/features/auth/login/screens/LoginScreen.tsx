@@ -15,7 +15,7 @@ type NavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { isLoading, error, signInWithProvider } = useNativeOAuth();
+  const { isLoading, loadingProvider, error, signInWithProvider } = useNativeOAuth();
 
   const handleSocialButtonPress = async (provider: OAuthProvider) => {
     await signInWithProvider(provider);
@@ -44,7 +44,7 @@ const LoginScreen = () => {
             className='h-[48px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-black px-[20px]'
             onPress={() => handleSocialButtonPress('APPLE')}
             disabled={isLoading}>
-            {isLoading ? (
+            {loadingProvider === 'APPLE' ? (
               <ActivityIndicator size='small' color='white' />
             ) : (
               <>
@@ -57,7 +57,7 @@ const LoginScreen = () => {
             className='h-[48px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-[#FFDE00] px-[20px]'
             onPress={() => handleSocialButtonPress('KAKAO')}
             disabled={isLoading}>
-            {isLoading ? (
+            {loadingProvider === 'KAKAO' ? (
               <ActivityIndicator size='small' color='black' />
             ) : (
               <>
@@ -70,7 +70,7 @@ const LoginScreen = () => {
             className='h-[48px] flex-row items-center justify-center gap-[8px] rounded-[8px] border border-gray-500 bg-white px-[20px]'
             onPress={() => handleSocialButtonPress('GOOGLE')}
             disabled={isLoading}>
-            {isLoading ? (
+            {loadingProvider === 'GOOGLE' ? (
               <ActivityIndicator size='small' color='black' />
             ) : (
               <>

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { mathSubjectOptions } from '../../constants';
 import { OnboardingLayout, OptionButton } from '../../components';
@@ -12,6 +13,8 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
   const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+
+  useFocusEffect(useCallback(() => { setCurrentStep('MathSubject'); }, [setCurrentStep]));
 
   const handleNext = useCallback(() => {
     if (!selectSubject) return;

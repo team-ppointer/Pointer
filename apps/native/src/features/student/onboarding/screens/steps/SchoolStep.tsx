@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Search } from 'lucide-react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { colors, shadow } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
@@ -15,6 +16,8 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   const schoolId = useOnboardingStore((state) => state.schoolId);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+
+  useFocusEffect(useCallback(() => { setCurrentStep('School'); }, [setCurrentStep]));
 
   const [query, setQuery] = useState('');
   const [selectedLabel, setSelectedLabel] = useState('');

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { gradeOptions } from '../../constants';
 import { OnboardingLayout, OptionButton } from '../../components';
@@ -11,6 +12,8 @@ const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
   const setGrade = useOnboardingStore((state) => state.setGrade);
   const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+
+  useFocusEffect(useCallback(() => { setCurrentStep('Grade'); }, [setCurrentStep]));
 
   const handleNext = useCallback(() => {
     if (!grade) return;

@@ -12,6 +12,9 @@ import {
   ForgotCodeScreen,
   ForgotResetScreen,
 } from '@features/auth/signup';
+import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
+import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
+import { useAuthStore } from '@stores';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -34,9 +37,31 @@ export type AuthStackParamList = {
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
+/** authenticated + signup 진행 중일 때 store 상태로 초기 화면 결정 */
+const getSignupInitialRoute = (): keyof AuthStackParamList => {
+  const { step1Data } = useSignupStore.getState();
+
+  if (!step1Data.terms.isAgreeServiceUsage) {
+    return step1Data.email ? 'SignupTerms' : 'SignupEmail';
+  }
+
+  return 'SignupIdentity';
+};
+
 const AuthNavigator = () => {
+  const sessionStatus = useAuthStore((s) => s.sessionStatus);
+  const onboardingStatus = useOnboardingStore((s) => s.status);
+  const step1Completed = useSignupStore((s) => s.step1Completed);
+
+  const isSignupInProgress =
+    sessionStatus === 'authenticated' && onboardingStatus === 'in-progress' && !step1Completed;
+
+  const initialRouteName = isSignupInProgress ? getSignupInitialRoute() : 'Login';
+
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+    <Stack.Navigator
+      initialRouteName={initialRouteName}
+      screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <Stack.Screen name='Login' component={LoginScreen} />
 
       {/* 이메일 로그인 */}

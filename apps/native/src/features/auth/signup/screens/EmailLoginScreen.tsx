@@ -61,15 +61,17 @@ const EmailLoginScreen = ({ navigation, route }: Props) => {
       }
 
       if (data.isFirstLogin) {
-        // 기존 회원이지만 STEP 1 미완료 → signup flow로
+        // 기존 회원이지만 STEP 1 미완료 → signup flow로 명시적 이동
         signupStore.setEmail(email);
         startOnboarding();
+        setRole('student');
+        setSessionStatus('authenticated');
+        navigation.reset({ index: 0, routes: [{ name: 'SignupTerms' }] });
       } else {
         completeOnboarding();
+        setRole('student');
+        setSessionStatus('authenticated');
       }
-
-      setRole('student');
-      setSessionStatus('authenticated');
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : '로그인에 실패했습니다.');
     } finally {
