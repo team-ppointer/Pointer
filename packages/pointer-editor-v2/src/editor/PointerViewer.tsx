@@ -10,7 +10,8 @@ import { TaskItem, TaskList } from '@tiptap/extension-list';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { Typography } from '@tiptap/extension-typography';
 import { Highlight } from '@tiptap/extension-highlight';
-import { InlineMath, createMathMigrateTransaction } from '@tiptap/extension-mathematics';
+import { InlineMath } from '@tiptap/extension-mathematics';
+import { MathAutoMigrate } from './extensions/math-auto-migrate';
 import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
 import { Selection } from '@tiptap/extensions';
@@ -85,6 +86,7 @@ export function PointerViewer({
       Superscript,
       Subscript,
       Selection,
+      MathAutoMigrate,
       // ImageUploadNode.configure({
       //   accept: 'image/*',
       //   maxSize: MAX_FILE_SIZE,
@@ -123,25 +125,15 @@ export function PointerViewer({
       if (typeof content !== 'string') {
         const current = editor.getJSON();
         const same = JSON.stringify(current) === JSON.stringify(content);
-        if (same) {
-          // Even if content is same, ensure math migration is applied once.
-          const trSame = createMathMigrateTransaction(editor, editor.state.tr);
-          if (trSame && trSame.steps.length > 0) editor.view.dispatch(trSame);
-          return;
-        }
+        if (same) return;
       }
     } catch {
       // ignore comparison errors and proceed to set content
     }
 
     // Set new content (supports both ProseMirror JSON and HTML string)
+    // MathAutoMigrate plugin will automatically convert $...$ patterns via appendTransaction
     editor.commands.setContent(content, { errorOnInvalidContent: false });
-
-    // Run math migration after setting content
-    const tr = createMathMigrateTransaction(editor, editor.state.tr);
-    if (tr && tr.steps.length > 0) {
-      editor.view.dispatch(tr);
-    }
   }, [content, editor]);
 
   const viewerPaddingValue =

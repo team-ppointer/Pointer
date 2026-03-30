@@ -46,6 +46,10 @@ math-field:focus-within {
   flex-shrink: 0;
 }
 
+.math-inline-floating {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 @media (max-width: 480px) {
   .math-inline-bar {
     top: auto;

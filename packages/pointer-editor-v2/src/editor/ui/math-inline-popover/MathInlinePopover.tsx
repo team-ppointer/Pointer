@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import type { Editor } from '@tiptap/react';
 import { posToDOMRect } from '@tiptap/core';
 import { computePosition, offset, flip, shift } from '@floating-ui/dom';
 
-import { Button, ButtonGroup, Card, CardBody, Popover, PopoverContent } from '../base';
+import { Button, ButtonGroup, Card, CardBody } from '../base';
 import { CloseIcon, CornerDownLeftIcon } from '../../assets';
 
 import './mathfield.scss';
@@ -33,6 +34,8 @@ export interface MathInlinePopoverProps {
   onOpenChange: (open: boolean) => void;
   /** Called with saved latex */
   onSave: (latex: string) => void;
+  /** Called on every input with the current latex for live preview */
+  onPreview?: (latex: string) => void;
 }
 
 /**
@@ -50,6 +53,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
   variant = 'floating',
   onOpenChange,
   onSave,
+  onPreview,
 }) => {
   const [value, setValue] = React.useState(latex);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -70,7 +74,6 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     setValue(latex);
   }, [latex, open]);
 
-  // Normalize minWidth prop into a CSS length (default: 200px)
   const minWidthCss = React.useMemo(() => {
     if (typeof minWidth === 'number') return `${minWidth}px`;
     if (typeof minWidth === 'string' && minWidth.trim()) return minWidth;
@@ -158,22 +161,67 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     onOpenChange(false);
   }, [onSave, onOpenChange, value]);
 
+  const handleSaveRef = React.useRef(handleSave);
+  handleSaveRef.current = handleSave;
+  const positionNowRef = React.useRef(positionNow);
+  positionNowRef.current = positionNow;
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+  const onPreviewRef = React.useRef(onPreview);
+  onPreviewRef.current = onPreview;
+  const onOpenChangeRef = React.useRef(onOpenChange);
+  onOpenChangeRef.current = onOpenChange;
+
   React.useEffect(() => {
     if (!open) return;
     let destroyed = false;
     let ro: ResizeObserver | null = null;
+    let previewRafId: number | null = null;
+    let lastPreviewLatex: string | null = null;
+
+    const onInput = () => {
+      try {
+        const mf = mathfieldRef.current;
+        if (!mf || typeof mf.getValue !== 'function') return;
+        const nextLatex = mf.getValue('latex');
+        if (nextLatex === lastPreviewLatex) return;
+        lastPreviewLatex = nextLatex;
+        if (previewRafId !== null) cancelAnimationFrame(previewRafId);
+        previewRafId = requestAnimationFrame(() => {
+          previewRafId = null;
+          onPreviewRef.current?.(nextLatex);
+        });
+      } catch {
+        // ignore
+      }
+    };
 
     const onKeyDown = (ev: KeyboardEvent) => {
       if (ev.key === 'Enter' && !ev.shiftKey && !ev.altKey && !ev.ctrlKey && !ev.metaKey) {
+        if (ev.defaultPrevented) return;
         ev.preventDefault();
         ev.stopPropagation();
         try {
-          // Let React flush before closing
           requestAnimationFrame(() => {
-            handleSave();
+            handleSaveRef.current();
           });
         } catch {
-          handleSave();
+          handleSaveRef.current();
+        }
+      }
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        ev.stopPropagation();
+        onOpenChangeRef.current(false);
+        return;
+      }
+      if (ev.key === 'k' && (ev.metaKey || ev.ctrlKey) && !ev.shiftKey && !ev.altKey) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const vk = window.mathVirtualKeyboard;
+        if (vk) {
+          if (vk.visible) vk.hide({ animate: true });
+          else vk.show({ animate: true });
         }
       }
     };
@@ -184,36 +232,32 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
       if (!containerRef.current) return;
 
       const mf = new MathfieldElement({});
-      // Apply min width to the mathfield element
       try {
         (mf as HTMLElement).style.minWidth = minWidthCss;
       } catch {
         // ignore
       }
-      mf.value = value;
+      mf.value = valueRef.current;
       mathfieldRef.current = mf;
       containerRef.current.innerHTML = '';
       containerRef.current.appendChild(mf);
       mf.focus();
 
-      // Close & save on Enter (without modifiers)
+      mf.addEventListener('input', onInput);
       mf.addEventListener('keydown', onKeyDown);
 
-      // Ensure initial position is computed AFTER mathfield is in the DOM and laid out.
-      // Double rAF lets the browser flush style/layout for the inserted element.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          if (!destroyed) positionNow();
+          if (!destroyed) positionNowRef.current();
         });
       });
 
-      // Recompute position when the mathfield/content size changes (e.g., font load, edits).
       if (typeof ResizeObserver !== 'undefined') {
         const target = floatingRef.current ?? containerRef.current;
         if (target) {
           ro = new ResizeObserver(() => {
             if (!destroyed && open) {
-              requestAnimationFrame(() => positionNow());
+              requestAnimationFrame(() => positionNowRef.current());
             }
           });
           ro.observe(target);
@@ -224,6 +268,10 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     mount();
     return () => {
       destroyed = true;
+      if (previewRafId !== null) {
+        cancelAnimationFrame(previewRafId);
+        previewRafId = null;
+      }
       try {
         if (ro) {
           ro.disconnect();
@@ -232,6 +280,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
         const mf = mathfieldRef.current;
         try {
           if (mf && typeof mf.removeEventListener === 'function') {
+            mf.removeEventListener('input', onInput);
             mf.removeEventListener('keydown', onKeyDown);
           }
         } catch {
@@ -243,35 +292,23 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
       }
       mathfieldRef.current = null;
     };
-  }, [open, value, positionNow, minWidthCss, handleSave]);
+  }, [open, minWidthCss]);
 
   const handleCancel = React.useCallback(() => {
     onOpenChange(false);
   }, [onOpenChange]);
 
-  // Treat MathLive virtual keyboard as "inside" the popover
-  const isInMathliveVK = React.useCallback((target: EventTarget | null): boolean => {
+  const isInMathliveUI = React.useCallback((target: EventTarget | null): boolean => {
     const el = target as HTMLElement | null;
     if (!el) return false;
-    return !!el.closest(
-      '.ML__keyboard, .ML__VK, [data-ml-keyboard], [data-mathlive-virtual-keyboard], [aria-label="MathLive Virtual Keyboard"]'
-    );
+    if (
+      el.closest(
+        '.ML__keyboard, .ML__VK, [data-ml-keyboard], [data-mathlive-virtual-keyboard], [aria-label="MathLive Virtual Keyboard"], #mathlive-suggestion-popover'
+      )
+    )
+      return true;
+    return false;
   }, []);
-
-  // Radix Popover: prevent outside-interact dismissal when using the virtual keyboard
-  const handleInteractOutside = React.useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (e: any) => {
-      try {
-        if (isInMathliveVK(e?.target)) {
-          e.preventDefault?.();
-        }
-      } catch {
-        // ignore
-      }
-    },
-    [isInMathliveVK]
-  );
 
   const setFloatingRef = React.useCallback(
     (el: HTMLDivElement | null) => {
@@ -288,14 +325,13 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
   );
 
   React.useEffect(() => {
-    if (!open || isFloating) return;
+    if (!open) return;
 
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
-      if (toolbarRef.current?.contains(target)) return;
-      if (isInMathliveVK(target)) {
-        return;
-      }
+      const popoverEl = isFloating ? floatingRef.current : toolbarRef.current;
+      if (popoverEl?.contains(target)) return;
+      if (isInMathliveUI(target)) return;
       onOpenChange(false);
     };
 
@@ -303,7 +339,7 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, true);
     };
-  }, [open, isFloating, isInMathliveVK, onOpenChange]);
+  }, [open, isFloating, isInMathliveUI, onOpenChange]);
 
   React.useLayoutEffect(() => {
     if (!isFloating) return;
@@ -380,23 +416,16 @@ export const MathInlinePopover: React.FC<MathInlinePopoverProps> = ({
     );
   }
 
-  return (
-    <Popover open={open} onOpenChange={onOpenChange}>
-      {/* We don't use Trigger; this is fully controlled and positioned via style */}
-      <PopoverContent
-        align='center'
-        sideOffset={8}
-        container={container}
-        onInteractOutside={handleInteractOutside}>
-        <div ref={setFloatingRef} style={floatingStyle}>
-          <Card>
-            <CardBody>
-              {renderContent()}
-            </CardBody>
-          </Card>
-        </div>
-      </PopoverContent>
-    </Popover>
+  if (!open) return null;
+  const portalTarget = container || (typeof document !== 'undefined' ? document.body : null);
+  if (!portalTarget) return null;
+  return createPortal(
+    <div ref={setFloatingRef} className='math-inline-floating' style={floatingStyle}>
+      <Card>
+        <CardBody>{renderContent()}</CardBody>
+      </Card>
+    </div>,
+    portalTarget
   );
 };
 

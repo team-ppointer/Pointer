@@ -5,12 +5,14 @@ import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from '@tiptap/starter-kit';
-import { Image } from '@tiptap/extension-image';
+import { ImageWithOCR } from './extensions/image-with-ocr';
+import { ImagePasteUpload } from './extensions/image-paste-upload';
 import { TaskItem, TaskList } from '@tiptap/extension-list';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { Typography } from '@tiptap/extension-typography';
 import { Highlight } from '@tiptap/extension-highlight';
-import { InlineMath, createMathMigrateTransaction } from '@tiptap/extension-mathematics';
+import { InlineMath } from '@tiptap/extension-mathematics';
+import { MathAutoMigrate } from './extensions/math-auto-migrate';
 import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
 import { Selection } from '@tiptap/extensions';
@@ -176,6 +178,9 @@ export function PointerEditor({
     pos: null,
     anchorRect: null,
   });
+  const previewInsertedRef = React.useRef(false);
+  const previewPosRef = React.useRef<number | null>(null);
+  const originalLatexRef = React.useRef('');
 
   const editor = useEditor(
     {
@@ -210,14 +215,19 @@ export function PointerEditor({
           },
           onClick: (node: ProseMirrorNode, pos: number) => {
             const latex = (node.attrs as { latex?: string }).latex ?? '';
+            originalLatexRef.current = latex;
+            previewInsertedRef.current = false;
+            previewPosRef.current = null;
             setMathState({ mode: 'edit', open: true, latex, pos, anchorRect: null });
           },
         }),
-        Image,
+        ImageWithOCR.configure({ ocrApiCall }),
+        ImagePasteUpload.configure({ upload: handleImageUpload }),
         Typography,
         Superscript,
         Subscript,
         Selection,
+        MathAutoMigrate,
         ImageUploadNode.configure({
           accept: 'image/*',
           maxSize: MAX_FILE_SIZE,
@@ -300,11 +310,6 @@ export function PointerEditor({
     [ocrApiCall]
   );
 
-  if (editor) {
-    const tr = createMathMigrateTransaction(editor, editor.state.tr);
-    editor.view.dispatch(tr);
-  }
-
   const rect = useCursorVisibility({
     editor,
     overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
@@ -338,6 +343,9 @@ export function PointerEditor({
       if (!editor) return;
       if (detail?.editorId && detail.editorId !== mathInstanceId) return;
       const from = typeof detail?.pos === 'number' ? detail.pos : editor.state.selection.from;
+      originalLatexRef.current = '';
+      previewInsertedRef.current = false;
+      previewPosRef.current = null;
       setMathState({
         mode: 'create',
         open: true,
@@ -383,11 +391,84 @@ export function PointerEditor({
             open={mathState.open}
             latex={mathState.latex}
             pos={mathState.pos}
-            variant='toolbar'
-            minWidth='100%'
+            variant='floating'
+            minWidth='16rem'
             container={useContainerPortal ? editorWrapperRef.current : null}
+            onPreview={(nextLatex) => {
+              if (!editor) return;
+              const trimmed = (nextLatex ?? '').trim();
+
+              if (mathState.mode === 'create') {
+                if (!previewInsertedRef.current) {
+                  if (!trimmed) return;
+                  const insertAt =
+                    typeof mathState.pos === 'number' ? mathState.pos : editor.state.selection.from;
+                  editor
+                    .chain()
+                    .setTextSelection(Math.max(0, insertAt))
+                    .insertInlineMath({ latex: trimmed })
+                    .run();
+                  previewInsertedRef.current = true;
+                  previewPosRef.current = insertAt;
+                } else {
+                  const pos = previewPosRef.current;
+                  if (typeof pos !== 'number') return;
+                  const nodeAtPos = editor.state.doc.nodeAt(pos);
+                  if (!nodeAtPos || nodeAtPos.type.name !== 'inlineMath') return;
+
+                  if (!trimmed) {
+                    editor
+                      .chain()
+                      .deleteRange({ from: pos, to: pos + nodeAtPos.nodeSize })
+                      .run();
+                    previewInsertedRef.current = false;
+                    previewPosRef.current = null;
+                  } else {
+                    editor
+                      .chain()
+                      .setNodeSelection(pos)
+                      .updateAttributes('inlineMath', { latex: trimmed })
+                      .run();
+                  }
+                }
+              } else {
+                const pos = mathState.pos;
+                if (typeof pos !== 'number') return;
+                const nodeAtPos = editor.state.doc.nodeAt(pos);
+                if (!nodeAtPos || nodeAtPos.type.name !== 'inlineMath') return;
+                editor
+                  .chain()
+                  .setNodeSelection(pos)
+                  .updateAttributes('inlineMath', { latex: trimmed || originalLatexRef.current })
+                  .run();
+              }
+            }}
             onOpenChange={(open) => {
               if (!open) {
+                if (editor) {
+                  if (previewInsertedRef.current && previewPosRef.current !== null) {
+                    const pos = previewPosRef.current;
+                    const nodeAtPos = editor.state.doc.nodeAt(pos);
+                    if (nodeAtPos && nodeAtPos.type.name === 'inlineMath') {
+                      editor
+                        .chain()
+                        .deleteRange({ from: pos, to: pos + nodeAtPos.nodeSize })
+                        .focus()
+                        .run();
+                    }
+                  } else if (mathState.mode === 'edit' && typeof mathState.pos === 'number') {
+                    const nodeAtPos = editor.state.doc.nodeAt(mathState.pos);
+                    if (nodeAtPos && nodeAtPos.type.name === 'inlineMath') {
+                      editor
+                        .chain()
+                        .setNodeSelection(mathState.pos)
+                        .updateAttributes('inlineMath', { latex: originalLatexRef.current })
+                        .run();
+                    }
+                  }
+                }
+                previewInsertedRef.current = false;
+                previewPosRef.current = null;
                 setMathState((s) => ({ ...s, open: false }));
               }
             }}
@@ -396,48 +477,61 @@ export function PointerEditor({
               const pos = mathState.pos;
 
               if (mathState.mode === 'create') {
-                // Creating a new inline math from current caret/pos
                 if (!trimmed) {
-                  // Nothing to insert
-                  setMathState({
-                    mode: 'create',
-                    open: false,
-                    latex: '',
-                    pos: null,
-                    anchorRect: null,
-                  });
+                  if (previewInsertedRef.current && previewPosRef.current !== null && editor) {
+                    const pPos = previewPosRef.current;
+                    const nodeAtPos = editor.state.doc.nodeAt(pPos);
+                    if (nodeAtPos && nodeAtPos.type.name === 'inlineMath') {
+                      editor.chain().deleteRange({ from: pPos, to: pPos + nodeAtPos.nodeSize }).focus().run();
+                    }
+                  }
+                  previewInsertedRef.current = false;
+                  previewPosRef.current = null;
+                  setMathState({ mode: 'create', open: false, latex: '', pos: null, anchorRect: null });
                   return;
                 }
-                if (editor) {
-                  const insertAt = typeof pos === 'number' ? pos : editor.state.selection.from;
-                  editor
-                    .chain()
-                    .setTextSelection(Math.max(0, insertAt))
-                    .focus()
-                    .insertInlineMath({ latex: trimmed })
-                    .run();
 
-                  // Move cursor to just after the inserted node
-                  try {
-                    const nodeAt = editor.state.doc.nodeAt(insertAt);
-                    if (nodeAt) {
+                if (editor) {
+                  if (previewInsertedRef.current && previewPosRef.current !== null) {
+                    const pPos = previewPosRef.current;
+                    const nodeAtPos = editor.state.doc.nodeAt(pPos);
+                    if (nodeAtPos && nodeAtPos.type.name === 'inlineMath') {
                       editor
                         .chain()
-                        .setTextSelection(insertAt + nodeAt.nodeSize)
+                        .setNodeSelection(pPos)
+                        .updateAttributes('inlineMath', { latex: trimmed })
+                        .run();
+                      editor
+                        .chain()
+                        .setTextSelection(pPos + nodeAtPos.nodeSize)
                         .focus()
                         .run();
                     }
-                  } catch {
-                    // best-effort
+                  } else {
+                    const insertAt = typeof pos === 'number' ? pos : editor.state.selection.from;
+                    editor
+                      .chain()
+                      .setTextSelection(Math.max(0, insertAt))
+                      .focus()
+                      .insertInlineMath({ latex: trimmed })
+                      .run();
+                    try {
+                      const nodeAt = editor.state.doc.nodeAt(insertAt);
+                      if (nodeAt) {
+                        editor
+                          .chain()
+                          .setTextSelection(insertAt + nodeAt.nodeSize)
+                          .focus()
+                          .run();
+                      }
+                    } catch {
+                      // best-effort
+                    }
                   }
                 }
-                setMathState({
-                  mode: 'create',
-                  open: false,
-                  latex: '',
-                  pos: null,
-                  anchorRect: null,
-                });
+                previewInsertedRef.current = false;
+                previewPosRef.current = null;
+                setMathState({ mode: 'create', open: false, latex: '', pos: null, anchorRect: null });
                 return;
               }
 
@@ -462,8 +556,6 @@ export function PointerEditor({
               }
 
               if (editor) {
-                editor.chain().focus();
-
                 const { state } = editor;
                 const nodeAtPos = typeof pos === 'number' ? state.doc.nodeAt(pos) : null;
 
@@ -496,6 +588,8 @@ export function PointerEditor({
                   editor.chain().updateAttributes('inlineMath', { latex: trimmed }).run();
                 }
               }
+              previewInsertedRef.current = false;
+              previewPosRef.current = null;
               setMathState({ mode: 'edit', open: false, latex: '', pos: null, anchorRect: null });
             }}
           />
