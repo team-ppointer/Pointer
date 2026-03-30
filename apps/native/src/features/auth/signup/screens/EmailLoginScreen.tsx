@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Text } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { EyeIcon, EyeOffIcon } from 'lucide-react-native';
 
@@ -11,7 +11,7 @@ import { useAuthStore } from '@stores';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
-import { OnboardingLayout } from '@features/student/onboarding/components';
+import { OnboardingInput, OnboardingLayout } from '@features/student/onboarding/components';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'EmailLogin'>;
 
@@ -94,32 +94,25 @@ const EmailLoginScreen = ({ navigation, route }: Props) => {
       ctaDisabled={isLoading || !password}
       ctaLabel={isLoading ? '로그인 중...' : '로그인'}
       onPressBack={() => navigation.goBack()}>
-      <View className='gap-[8px]'>
-        <View className='relative'>
-          <TextInput
-            className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] pr-[48px] text-[16px]'
-            placeholder='비밀번호'
-            placeholderTextColor={colors['gray-400']}
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              if (error) setError(null);
-            }}
-            editable={!isLoading}
-          />
-          <AnimatedPressable
-            className='absolute top-[14px] right-[12px]'
-            onPress={() => setShowPassword(!showPassword)}>
-            {showPassword ? (
-              <EyeOffIcon size={20} color={colors['gray-500']} />
-            ) : (
-              <EyeIcon size={20} color={colors['gray-500']} />
-            )}
-          </AnimatedPressable>
-        </View>
-        {error && <Text className='typo-caption-regular text-red-500'>{error}</Text>}
-      </View>
+      <OnboardingInput
+        placeholder='비밀번호'
+        secureTextEntry={!showPassword}
+        value={password}
+        onChangeText={(text) => {
+          setPassword(text);
+          if (error) setError(null);
+        }}
+        editable={!isLoading}
+        errorMessage={error ?? undefined}
+        rightAccessory={
+          showPassword ? (
+            <EyeOffIcon size={20} color={colors['gray-500']} />
+          ) : (
+            <EyeIcon size={20} color={colors['gray-500']} />
+          )
+        }
+        onPressAccessory={() => setShowPassword(!showPassword)}
+      />
       <AnimatedPressable
         className='mt-[16px] items-center py-[8px]'
         onPress={() => navigation.navigate('ForgotEmail', { email })}>

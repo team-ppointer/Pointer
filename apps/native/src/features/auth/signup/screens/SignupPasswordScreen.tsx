@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { EyeIcon, EyeOffIcon } from 'lucide-react-native';
 
-import { AnimatedPressable } from '@components/common';
 import { colors } from '@theme/tokens';
 import { postEmailSignup } from '@apis/student';
 import { setAccessToken, setRefreshToken } from '@utils';
@@ -12,7 +11,7 @@ import { useOnboardingStore } from '@features/student/onboarding/store/useOnboar
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
 
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
-import { OnboardingLayout } from '@features/student/onboarding/components';
+import { OnboardingInput, OnboardingLayout } from '@features/student/onboarding/components';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignupPassword'>;
 
@@ -91,44 +90,35 @@ const SignupPasswordScreen = ({ navigation, route }: Props) => {
       ctaLabel={isLoading ? '가입 중...' : '다음'}
       onPressBack={() => navigation.goBack()}>
       <View className='gap-[8px]'>
-        <View className='relative'>
-          <TextInput
-            className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] pr-[48px] text-[16px]'
-            placeholder='비밀번호 (8자 이상)'
-            placeholderTextColor={colors['gray-400']}
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              if (error) setError(null);
-            }}
-            editable={!isLoading}
-          />
-          <AnimatedPressable
-            className='absolute top-[14px] right-[12px]'
-            onPress={() => setShowPassword(!showPassword)}>
-            {showPassword ? (
+        <OnboardingInput
+          placeholder='비밀번호 (8자 이상)'
+          secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            if (error) setError(null);
+          }}
+          editable={!isLoading}
+          errorMessage={error ?? undefined}
+          rightAccessory={
+            showPassword ? (
               <EyeOffIcon size={20} color={colors['gray-500']} />
             ) : (
               <EyeIcon size={20} color={colors['gray-500']} />
-            )}
-          </AnimatedPressable>
-        </View>
-        <TextInput
-          className={`rounded-[10px] border bg-white px-[16px] py-[14px] text-[16px] ${
-            passwordConfirm && !passwordsMatch ? 'border-red-500' : 'border-gray-300'
-          }`}
+            )
+          }
+          onPressAccessory={() => setShowPassword(!showPassword)}
+        />
+        <OnboardingInput
           placeholder='비밀번호 확인'
-          placeholderTextColor={colors['gray-400']}
           secureTextEntry={!showPassword}
           value={passwordConfirm}
           onChangeText={setPasswordConfirm}
           editable={!isLoading}
+          errorMessage={
+            passwordConfirm && !passwordsMatch ? '비밀번호가 일치하지 않습니다.' : undefined
+          }
         />
-        {passwordConfirm && !passwordsMatch && (
-          <Text className='typo-caption-regular text-red-500'>비밀번호가 일치하지 않습니다.</Text>
-        )}
-        {error && <Text className='typo-caption-regular text-red-500'>{error}</Text>}
       </View>
     </OnboardingLayout>
   );

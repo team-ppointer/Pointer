@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { Text, TextInput, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { colors } from '@theme/tokens';
 import { client } from '@apis';
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
-import { OnboardingLayout } from '@features/student/onboarding/components';
+import { OnboardingInput, OnboardingLayout } from '@features/student/onboarding/components';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -61,23 +59,19 @@ const EmailInputScreen = ({ navigation }: Props) => {
       ctaDisabled={isLoading || !email.trim()}
       ctaLabel={isLoading ? '확인 중...' : '다음'}
       onPressBack={() => navigation.goBack()}>
-      <View className='gap-[8px]'>
-        <TextInput
-          className='rounded-[10px] border border-gray-300 bg-white px-[16px] py-[14px] text-[16px]'
-          placeholder='example@email.com'
-          placeholderTextColor={colors['gray-400']}
-          keyboardType='email-address'
-          autoCapitalize='none'
-          autoComplete='email'
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            if (error) setError(null);
-          }}
-          editable={!isLoading}
-        />
-        {error && <Text className='typo-caption-regular text-red-400'>{error}</Text>}
-      </View>
+      <OnboardingInput
+        placeholder='example@email.com'
+        keyboardType='email-address'
+        autoCapitalize='none'
+        autoComplete='email'
+        value={email}
+        onChangeText={(text) => {
+          setEmail(text);
+          if (error) setError(null);
+        }}
+        editable={!isLoading}
+        errorMessage={error ?? undefined}
+      />
     </OnboardingLayout>
   );
 };
