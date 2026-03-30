@@ -14,6 +14,8 @@ import {
 } from '@utils/auth';
 import { bareClient } from '@apis/bareClient';
 import refreshAndPersistTokens from '@apis/refreshAndPersistTokens';
+import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
+import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 
 export type UserRole = 'student' | 'teacher' | null;
 export type SessionStatus =
@@ -201,6 +203,8 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
 
   signOut: async () => {
     await clearAuthState();
+    useSignupStore.getState().reset();
+    useOnboardingStore.getState().reset();
     set({ ...initialState, sessionStatus: 'unauthenticated' });
   },
 }));

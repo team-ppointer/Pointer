@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AppState, Text, View } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { AnimatedPressable } from '@components/common';
-import postPhoneVerify from '@/apis/controller/common/auth/postPhoneVerify';
-import postPhoneSend from '@/apis/controller/common/auth/postPhoneSend';
-import postPhoneResend from '@/apis/controller/common/auth/postPhoneResend';
-
-import { OnboardingLayout, OnboardingInput } from '../../components';
-import { useOnboardingStore } from '../../store/useOnboardingStore';
-import type { OnboardingScreenProps } from '../types';
+import postPhoneVerify from '@apis/controller/common/auth/postPhoneVerify';
+import postPhoneSend from '@apis/controller/common/auth/postPhoneSend';
+import postPhoneResend from '@apis/controller/common/auth/postPhoneResend';
+import { useAuthStore } from '@stores';
+import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
+import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
+import { OnboardingLayout, OnboardingInput } from '@features/student/onboarding/components';
 
 type FormState = {
   name: string;
@@ -17,17 +18,14 @@ type FormState = {
 
 const phoneRegex = /^010\d{8}$/;
 
-const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
-  const email = useOnboardingStore((state) => state.email);
-  const identity = useOnboardingStore((state) => state.identity);
-  const setIdentity = useOnboardingStore((state) => state.setIdentity);
+type Props = NativeStackScreenProps<AuthStackParamList, 'SignupIdentity'>;
 
-  // 이메일이 이미 설정되어 있으면 (이메일 로그인) 뒤로가기 숨김
-  const isEmailLogin = Boolean(email);
+const SignupIdentityScreen = ({ navigation }: Props) => {
+  const signupStore = useSignupStore();
 
   const [form, setForm] = useState<FormState>({
-    name: identity.name,
-    phone: identity.phoneNumber,
+    name: signupStore.step1Data.name,
+    phone: signupStore.step1Data.phoneNumber,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -138,16 +136,16 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
       return;
     }
 
-    // Success
-    setIdentity({
-      name: form.name,
-      phoneNumber: form.phone,
-    });
-    navigation.navigate('Grade');
+    // STEP 1 완료
+    signupStore.setIdentity(form.name, form.phone);
+    signupStore.completeStep1();
+
+    // authenticated 상태 확인 후 onboarding(STEP 2)으로 자동 이동됨
+    // RootNavigator가 step1Completed + onboardingStatus로 분기
   };
 
   const handleBack = () => {
-    Alert.alert('번호 인증을 종료할까요?', '이 페이지를 나가면 자동 로그아웃 돼요.', [
+    Alert.alert('본인 인증을 종료할까요?', '이 페이지를 나가면 자동 로그아웃 돼요.', [
       {
         text: '아니요',
         style: 'cancel',
@@ -155,7 +153,10 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
       {
         text: '네',
         style: 'destructive',
-        onPress: () => navigation.goBack(),
+        onPress: async () => {
+          await useAuthStore.getState().signOut();
+          navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+        },
       },
     ]);
   };
@@ -171,7 +172,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
       onPressCTA={isSent ? handleVerify : handleSend}
       ctaLabel={isSent ? '인증 완료하기' : '인증번호 발송'}
       ctaDisabled={!isFormComplete}
-      showBackButton={!isEmailLogin}
+      showBackButton
       onPressBack={handleBack}>
       <OnboardingInput
         label='이름'
@@ -197,7 +198,7 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
             onPress={timeLeft > 0 ? undefined : handleResend}
             disabled={timeLeft > 0}
             className='bg-primary-500 mt-[45px] h-[48px] w-[100px] items-center justify-center rounded-[8px]'>
-            <Text className='text-16m text-white'>
+            <Text className='typo-body-2-medium text-white'>
               {timeLeft > 0 && formatTime(timeLeft)}
               {timeLeft <= 0 && (isSent ? '재전송' : '인증 요청')}
             </Text>
@@ -219,4 +220,4 @@ const IdentityStep = ({ navigation }: OnboardingScreenProps<'Identity'>) => {
   );
 };
 
-export default IdentityStep;
+export default SignupIdentityScreen;

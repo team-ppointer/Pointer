@@ -54,7 +54,7 @@ const OptionButton = ({
         borderWidth: 1,
         borderRadius: 8,
       }}>
-      <Text className={`text-14m text-black`}>{label}</Text>
+      <Text className={`typo-body-1-medium text-black`}>{label}</Text>
       {description && <Text className='text-14r text-gray-600'>{description}</Text>}
       {!description && rightSlot}
     </AnimatedPressable>

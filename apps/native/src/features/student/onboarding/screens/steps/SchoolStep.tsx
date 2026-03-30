@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Search } from 'lucide-react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { colors, shadow } from '@theme/tokens';
 import { CircleXFilledIcon } from '@components/system/icons';
@@ -14,6 +15,13 @@ import { OnboardingLayout, OnboardingInput } from '../../components';
 const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   const schoolId = useOnboardingStore((state) => state.schoolId);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
+  const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+
+  useFocusEffect(
+    useCallback(() => {
+      setCurrentStep('School');
+    }, [setCurrentStep])
+  );
 
   const [query, setQuery] = useState('');
   const [selectedLabel, setSelectedLabel] = useState('');
@@ -38,6 +46,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
 
   const handleNext = () => {
     if (!schoolId) return;
+    setCurrentStep('Score');
     navigation.navigate('Score');
   };
 
@@ -45,6 +54,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
     setSchoolId(null);
     setQuery('');
     setSelectedLabel('');
+    setCurrentStep('Score');
     navigation.navigate('Score');
   };
 
@@ -103,7 +113,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
                         schoolId === item.id ? 'bg-gray-200' : 'bg-transparent'
                       }`}
                       onPress={() => handleSelect(item.id, item.name ?? '', item.sido ?? '')}>
-                      <Text className='text-16m text-gray-800'>{label}</Text>
+                      <Text className='typo-body-1-regular text-gray-800'>{label}</Text>
                     </Pressable>
                   );
                 })}

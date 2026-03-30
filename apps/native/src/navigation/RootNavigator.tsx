@@ -8,6 +8,8 @@ import AuthNavigator from '@navigation/auth/AuthNavigator';
 import { useAuthStore } from '@stores';
 import { LoadingScreen } from '@components/common';
 import { useSocialLoginCallback } from '@hooks';
+import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
+import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -19,7 +21,9 @@ const NativeStack = createNativeStackNavigator<RootStackParamList>();
 const WebStack = createStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
-  const { sessionStatus, role } = useAuthStore();
+  const sessionStatus = useAuthStore((s) => s.sessionStatus);
+  const step1Completed = useSignupStore((s) => s.step1Completed);
+  const onboardingStatus = useOnboardingStore((s) => s.status);
 
   useSocialLoginCallback();
 
@@ -36,10 +40,13 @@ const RootNavigator = () => {
       return { name: 'Auth' as const, component: AuthNavigator };
     }
 
-    // if (role === 'teacher') {
-    //   return { name: 'TeacherApp' as const, component: TeacherNavigator };
-    // }
+    // authenticated + STEP 1 미완료 (신규 회원 signup flow 진행 중) → Auth 스택 유지
+    // AuthNavigator 내부에서 store 상태 기반으로 initialRoute 결정
+    if (onboardingStatus === 'in-progress' && !step1Completed) {
+      return { name: 'Auth' as const, component: AuthNavigator };
+    }
 
+    // authenticated + STEP 1 완료 or 기존 회원 → StudentNavigator (onboarding 체크 포함)
     return { name: 'StudentApp' as const, component: StudentNavigator };
   };
 

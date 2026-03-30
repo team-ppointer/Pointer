@@ -104,7 +104,7 @@ const OnboardingLayout = ({
           <AnimatedPressable
             onPress={onSkip}
             className='h-[48px] items-center justify-center px-[10px]'>
-            <Text className='text-14sb text-primary-600'>{skipLabel}</Text>
+            <Text className='typo-heading-2-semibold text-primary-600'>{skipLabel}</Text>
           </AnimatedPressable>
         ) : (
           <View className='h-[20px]' />
@@ -117,9 +117,9 @@ const OnboardingLayout = ({
             contentContainerStyle={{ paddingBottom: 32 }}
             keyboardShouldPersistTaps='handled'>
             <View className={description ? 'mb-[32px]' : 'mb-[20px]'}>
-              <Text className='text-20b text-gray-800'>{title}</Text>
+              <Text className='typo-title-2-bold text-gray-800'>{title}</Text>
               {description ? (
-                <Text className='text-16r mt-[4px] text-gray-700'>{description}</Text>
+                <Text className='typo-body-1-regular mt-[4px] text-gray-700'>{description}</Text>
               ) : null}
             </View>
             <View className={contentClassName}>{children}</View>
@@ -134,11 +134,11 @@ const OnboardingLayout = ({
           accessibilityRole='button'
           onPress={onPressCTA}
           disabled={ctaDisabled}
-          className={`mt-[10px] rounded-[14px] py-[10px] ${
-            ctaDisabled ? 'bg-primary-200' : 'bg-primary-500'
+          className={`mt-[10px] h-[48px] items-center justify-center rounded-[8px] px-[20px] ${
+            ctaDisabled ? 'bg-primary-200' : 'bg-primary-600'
           }`}
           containerStyle={{ marginBottom: isKeyboardVisible ? 18 : inset.bottom + 18 }}>
-          <Text className='text-18sb text-center text-white'>{ctaLabel}</Text>
+          <Text className='typo-body-1-medium text-center text-white'>{ctaLabel}</Text>
         </AnimatedPressable>
       </Container>
     </KeyboardAvoidingView>

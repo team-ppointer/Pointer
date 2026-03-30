@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { mathSubjectOptions } from '../../constants';
 import { OnboardingLayout, OptionButton } from '../../components';
@@ -11,17 +12,26 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
   const selectSubject = useOnboardingStore((state) => state.selectSubject);
   const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
+  const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+
+  useFocusEffect(
+    useCallback(() => {
+      setCurrentStep('MathSubject');
+    }, [setCurrentStep])
+  );
 
   const handleNext = useCallback(() => {
     if (!selectSubject) return;
 
     if (grade === 'N_TIME') {
       setSchoolId(null);
+      setCurrentStep('Score');
       navigation.navigate('Score');
     } else {
+      setCurrentStep('School');
       navigation.navigate('School');
     }
-  }, [grade, selectSubject, navigation, setSchoolId]);
+  }, [grade, selectSubject, navigation, setSchoolId, setCurrentStep]);
 
   return (
     <OnboardingLayout
