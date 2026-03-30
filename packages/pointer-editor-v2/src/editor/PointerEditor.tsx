@@ -5,7 +5,8 @@ import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from '@tiptap/starter-kit';
-import { Image } from '@tiptap/extension-image';
+import { ImageWithOCR } from './extensions/image-with-ocr';
+import { ImagePasteUpload } from './extensions/image-paste-upload';
 import { TaskItem, TaskList } from '@tiptap/extension-list';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { Typography } from '@tiptap/extension-typography';
@@ -220,7 +221,8 @@ export function PointerEditor({
             setMathState({ mode: 'edit', open: true, latex, pos, anchorRect: null });
           },
         }),
-        Image,
+        ImageWithOCR.configure({ ocrApiCall }),
+        ImagePasteUpload.configure({ upload: handleImageUpload }),
         Typography,
         Superscript,
         Subscript,

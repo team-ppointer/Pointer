@@ -1,0 +1,83 @@
+.image-ocr-wrapper {
+  position: relative;
+  display: block;
+  margin: 32px 0;
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--tt-radius-xs, 4px);
+    outline: 2px solid transparent;
+    transition: outline-color 0.15s ease;
+  }
+
+  &.ProseMirror-selectednode img,
+  &:has(.ProseMirror-selectednode) img {
+    outline-color: var(--tt-brand-color-500);
+  }
+}
+
+.image-ocr-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  .image-ocr-wrapper:hover &,
+  .image-ocr-wrapper.ProseMirror-selectednode & {
+    opacity: 1;
+  }
+}
+
+.image-ocr-overlay-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 1px solid #617af91a;
+  border-radius: 12px;
+  background: #617af91a;
+  color: #617af9;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: #617af933;
+  }
+
+  &:active {
+    background: #617af933;
+  }
+}
+
+.image-ocr-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: var(--tt-radius-xs, 4px);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 11;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.image-ocr-spinner {
+  animation: spin 0.8s linear infinite;
+}
