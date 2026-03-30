@@ -181,6 +181,7 @@ export function PointerEditor({
   const previewInsertedRef = React.useRef(false);
   const previewPosRef = React.useRef<number | null>(null);
   const originalLatexRef = React.useRef('');
+  const savedRef = React.useRef(false);
 
   const editor = useEditor(
     {
@@ -445,7 +446,10 @@ export function PointerEditor({
             }}
             onOpenChange={(open) => {
               if (!open) {
-                if (editor) {
+                const wasSaved = savedRef.current;
+                savedRef.current = false;
+
+                if (!wasSaved && editor) {
                   if (previewInsertedRef.current && previewPosRef.current !== null) {
                     const pos = previewPosRef.current;
                     const nodeAtPos = editor.state.doc.nodeAt(pos);
@@ -473,6 +477,7 @@ export function PointerEditor({
               }
             }}
             onSave={(nextLatex) => {
+              savedRef.current = true;
               const trimmed = (nextLatex ?? '').trim();
               const pos = mathState.pos;
 
