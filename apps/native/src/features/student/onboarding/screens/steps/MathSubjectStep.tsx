@@ -14,7 +14,11 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
 
-  useFocusEffect(useCallback(() => { setCurrentStep('MathSubject'); }, [setCurrentStep]));
+  useFocusEffect(
+    useCallback(() => {
+      setCurrentStep('MathSubject');
+    }, [setCurrentStep])
+  );
 
   const handleNext = useCallback(() => {
     if (!selectSubject) return;
@@ -27,7 +31,7 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
       setCurrentStep('School');
       navigation.navigate('School');
     }
-  }, [grade, selectSubject, navigation, setSchoolId]);
+  }, [grade, selectSubject, navigation, setSchoolId, setCurrentStep]);
 
   return (
     <OnboardingLayout

@@ -15,7 +15,11 @@ const ScoreStep = ({ navigation }: OnboardingScreenProps<'Score'>) => {
   const setLevel = useOnboardingStore((state) => state.setLevel);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
 
-  useFocusEffect(useCallback(() => { setCurrentStep('Score'); }, [setCurrentStep]));
+  useFocusEffect(
+    useCallback(() => {
+      setCurrentStep('Score');
+    }, [setCurrentStep])
+  );
 
   const handleSkip = () => {
     setLevel(null);

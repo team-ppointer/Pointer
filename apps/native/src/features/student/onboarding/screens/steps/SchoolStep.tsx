@@ -17,7 +17,11 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
 
-  useFocusEffect(useCallback(() => { setCurrentStep('School'); }, [setCurrentStep]));
+  useFocusEffect(
+    useCallback(() => {
+      setCurrentStep('School');
+    }, [setCurrentStep])
+  );
 
   const [query, setQuery] = useState('');
   const [selectedLabel, setSelectedLabel] = useState('');
