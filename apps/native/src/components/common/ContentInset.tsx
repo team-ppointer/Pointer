@@ -1,6 +1,6 @@
 import { View, type ViewProps, useWindowDimensions } from 'react-native';
 
-interface ContainerProps extends ViewProps {
+interface ContentInsetProps extends ViewProps {
   className?: string;
   children: React.ReactNode;
 }
@@ -10,7 +10,7 @@ const getResponsiveHorizontalPadding = (width: number) => {
   return Math.min(128, Math.max(16, rawPadding));
 };
 
-const ContentInset = ({ className, children, style, ...props }: ContainerProps) => {
+const ContentInset = ({ className, children, style, ...props }: ContentInsetProps) => {
   const { width } = useWindowDimensions();
   const paddingHorizontal = getResponsiveHorizontalPadding(width);
 
