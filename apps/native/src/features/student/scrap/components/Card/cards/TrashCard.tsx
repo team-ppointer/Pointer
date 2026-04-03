@@ -36,7 +36,6 @@ export const TrashCard = (props: TrashListItemProps & TrashCardExtraProps) => {
       itemType: props.type,
     });
   }, [props.dispatch, props.id, props.type]);
-
   const shouldShowHover = state.isSelecting ? isSelected : isTooltipOpen;
 
   const folderTop2Thumbnail = props.type === 'FOLDER' ? props.top2ScrapThumbnail : undefined;

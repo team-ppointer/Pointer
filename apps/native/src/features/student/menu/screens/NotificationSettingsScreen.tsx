@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, ScrollView, Linking, AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
-
 import { Container } from '@components/common';
 import { usePutAllowPush, useGetPushSetting } from '@apis';
+import { TanstackQueryClient } from '@/apis/client';
 import { showToast } from '@features/student/scrap/components/Notification';
 
 import { ScreenLayout, SettingsToggleItem } from '../components';
@@ -30,6 +30,7 @@ const hasSameSettings = (a: PushSettingsPayload, b: PushSettingsPayload): boolea
   a.isAllowMarketingPush === b.isAllowMarketingPush;
 
 const NotificationSettingsScreen = () => {
+  const queryClient = useQueryClient();
   const { data: pushSettingData } = useGetPushSetting({ enabled: true });
   const { mutate: updatePushSettings } = usePutAllowPush();
 
