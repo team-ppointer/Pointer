@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Undo2, Redo2, Type } from 'lucide-react-native';
+import { Type } from 'lucide-react-native';
 
 import { colors } from '@theme/tokens';
 import { PencilFilledIcon, EraserFilledIcon } from '@components/system/icons';
@@ -9,12 +9,6 @@ import { SizeSelector } from '@features/student/scrap/components/scrap/SizeSelec
 import { IconButton } from '../../../problem/components/WritingArea';
 
 export interface DrawingToolbarProps {
-  // Undo/Redo
-  canUndo: boolean;
-  canRedo: boolean;
-  onUndo: () => void;
-  onRedo: () => void;
-
   // Mode selection
   isEraserMode: boolean;
   isTextMode: boolean;
@@ -36,10 +30,6 @@ const STROKE_SIZES = [2, 1.2, 0.7];
 const ERASER_SIZES = [22, 14, 8];
 
 export const DrawingToolbar = ({
-  canUndo,
-  canRedo,
-  onUndo,
-  onRedo,
   isEraserMode,
   isTextMode,
   onPenModePress,
@@ -77,34 +67,6 @@ export const DrawingToolbar = ({
       <View
         className='flex-row items-center gap-[10px] px-[14px] py-[6px]'
         style={{ borderBottomWidth: isNarrow ? 1 : 0, borderColor: '#DFE2E7' }}>
-        {/* Undo/Redo */}
-        <View className='flex-row items-center gap-[10px]'>
-          <IconButton
-            icon={Undo2}
-            backgroundColor='bg-gray-700'
-            disabledBackgroundColor='bg-gray-100'
-            iconColor='white'
-            onPress={onUndo}
-            disabled={!canUndo}
-            disabledColor={colors['gray-500']}
-            radius={8}
-            size={36}
-          />
-          <IconButton
-            icon={Redo2}
-            backgroundColor='bg-gray-700'
-            disabledBackgroundColor='bg-gray-100'
-            iconColor='white'
-            onPress={onRedo}
-            disabled={!canRedo}
-            disabledColor={colors['gray-500']}
-            size={36}
-            radius={8}
-          />
-        </View>
-
-        <View className='h-[22px] w-[2px] bg-gray-500' />
-
         {/* Mode Selection */}
         <View className='flex-row items-center gap-[10px]'>
           <IconButton

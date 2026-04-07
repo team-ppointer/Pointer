@@ -3,7 +3,7 @@ import { Alert, AppState, type AppStateStatus } from 'react-native';
 
 import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
 
-import { type DrawingCanvasRef } from '../utils/skia/drawing';
+import { type DrawingCanvasRef } from '../utils/skia';
 import { encodeHandwritingData, decodeHandwritingData } from '../utils/handwritingEncoder';
 
 export interface UseHandwritingManagerProps {

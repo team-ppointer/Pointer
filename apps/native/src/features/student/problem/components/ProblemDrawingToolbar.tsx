@@ -1,58 +1,23 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Undo2, Redo2 } from 'lucide-react-native';
 
 import { PencilFilledIcon, EraserFilledIcon } from '@components/system/icons';
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 
 interface ProblemDrawingToolbarProps {
-  canUndo: boolean;
-  canRedo: boolean;
-  onUndo: () => void;
-  onRedo: () => void;
   isEraserMode: boolean;
   onPenModePress: () => void;
   onEraserModePress: () => void;
 }
 
 export const ProblemDrawingToolbar = ({
-  canUndo,
-  canRedo,
-  onUndo,
-  onRedo,
   isEraserMode,
   onPenModePress,
   onEraserModePress,
 }: ProblemDrawingToolbarProps) => {
   return (
     <View className='gap-[10px] rounded-[10px] bg-gray-300 p-[8px]'>
-      {/* Undo/Redo 그룹 */}
-      <View className='gap-[10px]'>
-        {/* Undo 버튼 */}
-        <AnimatedPressable
-          onPress={onUndo}
-          disabled={!canUndo}
-          className={`size-[36px] items-center justify-center rounded-lg ${
-            canUndo ? 'bg-black' : 'bg-gray-100'
-          }`}>
-          <Undo2 size={16} color={canUndo ? '#fff' : colors['gray-500']} strokeWidth={1.33} />
-        </AnimatedPressable>
-
-        {/* Redo 버튼 */}
-        <AnimatedPressable
-          onPress={onRedo}
-          disabled={!canRedo}
-          className={`size-[36px] items-center justify-center rounded-lg ${
-            canRedo ? 'bg-black' : 'bg-gray-100'
-          }`}>
-          <Redo2 size={16} color={canRedo ? '#fff' : colors['gray-500']} strokeWidth={1.33} />
-        </AnimatedPressable>
-      </View>
-
-      {/* 구분선 */}
-      <View className='h-[2px] w-[22px] self-center bg-gray-500' />
-
       {/* Pencil/Eraser 그룹 */}
       <View className='gap-[10px]'>
         {/* Eraser 버튼 */}

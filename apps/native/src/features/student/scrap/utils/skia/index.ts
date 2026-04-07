@@ -1,3 +1,9 @@
-export * from './smoothing';
-export { default as DrawingCanvas } from './drawing';
-export type { Point, Stroke, TextItem, DrawingCanvasRef } from './drawing';
+export { DrawingCanvas, buildSmoothPath } from '@repo/pointer-native-drawing';
+export type {
+  DrawingCanvasRef,
+  DrawingCanvasProps,
+  DrawingViewportTransform,
+  Point,
+  Stroke,
+  TextItem,
+} from '@repo/pointer-native-drawing';

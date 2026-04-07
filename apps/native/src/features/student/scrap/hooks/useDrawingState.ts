@@ -6,8 +6,6 @@ export interface DrawingState {
   mode: DrawingMode;
   strokeWidth: number;
   eraserSize: number;
-  canUndo: boolean;
-  canRedo: boolean;
   hasUnsavedChanges: boolean;
 }
 
@@ -15,7 +13,6 @@ type DrawingAction =
   | { type: 'SET_MODE'; mode: DrawingMode }
   | { type: 'SET_STROKE_WIDTH'; width: number }
   | { type: 'SET_ERASER_SIZE'; size: number }
-  | { type: 'SET_HISTORY_STATE'; canUndo: boolean; canRedo: boolean }
   | { type: 'SET_UNSAVED_CHANGES'; hasChanges: boolean }
   | { type: 'MARK_AS_SAVED' }
   | { type: 'RESET' };
@@ -24,8 +21,6 @@ const initialState: DrawingState = {
   mode: 'pen',
   strokeWidth: 2,
   eraserSize: 22,
-  canUndo: false,
-  canRedo: false,
   hasUnsavedChanges: false,
 };
 
@@ -37,13 +32,6 @@ function drawingReducer(state: DrawingState, action: DrawingAction): DrawingStat
       return { ...state, strokeWidth: action.width };
     case 'SET_ERASER_SIZE':
       return { ...state, eraserSize: action.size };
-    case 'SET_HISTORY_STATE':
-      return {
-        ...state,
-        canUndo: action.canUndo,
-        canRedo: action.canRedo,
-        hasUnsavedChanges: true,
-      };
     case 'SET_UNSAVED_CHANGES':
       return { ...state, hasUnsavedChanges: action.hasChanges };
     case 'MARK_AS_SAVED':
@@ -78,10 +66,6 @@ export function useDrawingState() {
     dispatch({ type: 'SET_ERASER_SIZE', size });
   }, []);
 
-  const setHistoryState = useCallback((canUndo: boolean, canRedo: boolean) => {
-    dispatch({ type: 'SET_HISTORY_STATE', canUndo, canRedo });
-  }, []);
-
   const markAsSaved = useCallback(() => {
     dispatch({ type: 'MARK_AS_SAVED' });
   }, []);
@@ -98,8 +82,6 @@ export function useDrawingState() {
     isTextMode: state.mode === 'text',
     strokeWidth: state.strokeWidth,
     eraserSize: state.eraserSize,
-    canUndo: state.canUndo,
-    canRedo: state.canRedo,
     hasUnsavedChanges: state.hasUnsavedChanges,
 
     // Actions
@@ -108,7 +90,6 @@ export function useDrawingState() {
     setTextMode,
     setStrokeWidth,
     setEraserSize,
-    setHistoryState,
     markAsSaved,
     reset,
   };

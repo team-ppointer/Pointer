@@ -24,20 +24,20 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { colors } from '@/theme/tokens';
-import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
-import { LoadingScreen } from '@/components/common';
+import { colors } from '@theme/tokens';
+import { useNoteStore } from '@features/student/scrap/stores/scrapNoteStore';
+import { LoadingScreen } from '@components/common';
 import {
   TanstackQueryClient,
   useGetScrapDetail,
   useUpdateScrapName,
   useGetEntireProblemPointing,
   useGetEntireProblem,
-} from '@/apis';
-import { type StudentRootStackParamList } from '@/navigation/student/types';
+} from '@apis';
+import { type StudentRootStackParamList } from '@navigation/student/types';
 
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
-import DrawingCanvas, { type DrawingCanvasRef } from '../utils/skia/drawing';
+import { DrawingCanvas, type DrawingCanvasRef } from '../utils/skia';
 import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
 import { TabNavigator } from '../components/scrap/TabNavigator';
 import { FilterBar } from '../components/scrap/FilterBar';
@@ -612,10 +612,6 @@ const ScrapDetailScreen = () => {
               keyboardVerticalOffset={0}>
               <View style={{ flex: 1 }}>
                 <DrawingToolbar
-                  canUndo={drawingState.canUndo}
-                  canRedo={drawingState.canRedo}
-                  onUndo={() => canvasRef.current?.undo()}
-                  onRedo={() => canvasRef.current?.redo()}
                   isEraserMode={drawingState.isEraserMode}
                   isTextMode={drawingState.isTextMode}
                   onPenModePress={drawingState.setPenMode}
@@ -638,10 +634,8 @@ const ScrapDetailScreen = () => {
                   ref={canvasRef}
                   strokeColor='#1E1E21'
                   strokeWidth={drawingState.strokeWidth}
-                  textMode={drawingState.isTextMode}
                   eraserMode={drawingState.isEraserMode}
                   eraserSize={drawingState.eraserSize}
-                  onHistoryChange={drawingState.setHistoryState}
                 />
               </View>
             </KeyboardAvoidingView>

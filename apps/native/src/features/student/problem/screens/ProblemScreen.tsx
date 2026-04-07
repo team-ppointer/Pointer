@@ -459,10 +459,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           pointerEvents='box-none'>
           <View pointerEvents='auto'>
             <ProblemDrawingToolbar
-              canUndo={drawingState.canUndo}
-              canRedo={drawingState.canRedo}
-              onUndo={() => canvasRef.current?.undo()}
-              onRedo={() => canvasRef.current?.redo()}
               isEraserMode={drawingState.isEraserMode}
               onPenModePress={drawingState.setPenMode}
               onEraserModePress={() => {
@@ -501,7 +497,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                     strokeWidth={2}
                     eraserMode={drawingState.isEraserMode}
                     eraserSize={12}
-                    onHistoryChange={drawingState.setHistoryState}
                   />
                 </View>
               </View>
