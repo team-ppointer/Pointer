@@ -16,14 +16,14 @@ import { ImageWithSkeleton } from '@/components/common';
 
 import type { ScrapListItemProps } from '../types';
 import { TooltipPopover, ItemTooltipBox } from '../../Tooltip';
-import { isItemSelected } from '../../../utils/reducer';
+import { isItemSelected, type SelectedItem } from '../../../utils/reducer';
 import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 import { useCardImageSources } from '../../../hooks';
 
 type ScrapCardExtraProps = {
   onMovePress?: (params: {
     currentFolderId?: number;
-    selectedItems: { id: number; type: string }[];
+    selectedItems: SelectedItem[];
   }) => void;
 };
 
