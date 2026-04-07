@@ -1,0 +1,15 @@
+node_modules
+.pnp
+.pnp.js
+.turbo
+.next
+out
+build
+dist
+coverage
+
+apps/native/ios/Pods
+apps/native/ios/build
+apps/native/android/.gradle
+apps/native/android/build
+apps/native/android/app/.cxx
