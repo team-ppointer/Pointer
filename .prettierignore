@@ -1,4 +1,5 @@
 node_modules
+.github
 .pnp
 .pnp.js
 .turbo
