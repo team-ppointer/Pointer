@@ -24,7 +24,12 @@ config.resolver.blockList = [
   /apps\/native\/dist\/.*/,  // 프로젝트 자체의 dist만 차단
 ];
 
-// react-native-css-interop의 jsx-runtime을 직접 resolve
+// pnpm 모노레포에서 네이티브 싱글턴 모듈이 중복 번들링되지 않도록 단일 경로로 고정
+const singletonPkgs = ['react-native-reanimated', 'react-native-gesture-handler', 'react', 'react-native'];
+const singletonMap = Object.fromEntries(
+  singletonPkgs.map((pkg) => [pkg, path.dirname(require.resolve(`${pkg}/package.json`))])
+);
+
 const originalResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (moduleName === 'react-native-css-interop/jsx-runtime') {
@@ -39,7 +44,13 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       filePath: require.resolve('react-native-css-interop/dist/runtime/jsx-dev-runtime.js'),
     };
   }
-  
+
+  // 싱글턴 패키지는 항상 apps/native 기준 경로로 resolve
+  const base = moduleName.split('/')[0];
+  if (singletonMap[base]) {
+    return { type: 'sourceFile', filePath: require.resolve(moduleName) };
+  }
+
   if (originalResolveRequest) {
     return originalResolveRequest(context, moduleName, platform);
   }
