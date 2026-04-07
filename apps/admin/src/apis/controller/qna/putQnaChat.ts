@@ -5,4 +5,3 @@ const putQnaChat = () => {
 };
 
 export default putQnaChat;
-

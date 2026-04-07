@@ -72,11 +72,21 @@ const useSubscribeQnaList = ({
   const onOpenRef = useRef(onOpen);
   const onConnectionStatusChangeRef = useRef(onConnectionStatusChange);
 
-  useEffect(() => { onQnaListEventRef.current = onQnaListEvent; }, [onQnaListEvent]);
-  useEffect(() => { onHeartbeatRef.current = onHeartbeat; }, [onHeartbeat]);
-  useEffect(() => { onErrorRef.current = onError; }, [onError]);
-  useEffect(() => { onOpenRef.current = onOpen; }, [onOpen]);
-  useEffect(() => { onConnectionStatusChangeRef.current = onConnectionStatusChange; }, [onConnectionStatusChange]);
+  useEffect(() => {
+    onQnaListEventRef.current = onQnaListEvent;
+  }, [onQnaListEvent]);
+  useEffect(() => {
+    onHeartbeatRef.current = onHeartbeat;
+  }, [onHeartbeat]);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+  useEffect(() => {
+    onOpenRef.current = onOpen;
+  }, [onOpen]);
+  useEffect(() => {
+    onConnectionStatusChangeRef.current = onConnectionStatusChange;
+  }, [onConnectionStatusChange]);
 
   // Refs for stable function references (to avoid circular dependencies)
   const connectRef = useRef<() => void>(() => {});

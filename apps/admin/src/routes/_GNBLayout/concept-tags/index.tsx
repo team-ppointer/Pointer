@@ -17,11 +17,9 @@ import {
   Trash2,
   X,
   PackageOpen,
-  FolderOpen,
   CheckCircle2,
   Pencil,
   Filter,
-  Box,
   RotateCcw,
   Tags,
 } from 'lucide-react';

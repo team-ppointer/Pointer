@@ -26,13 +26,15 @@ export const ProblemEditorModal = ({
       <div
         onClick={onClose}
         onAnimationEnd={onAnimationEnd}
-        className={`fixed inset-0 flex h-full w-full items-center justify-center bg-black/30 backdrop-blur-[5px] pointer-editor-root pointer-editor-modal-container ${isOpen ? 'modal-open' : 'modal-close'}`}>
+        className={`pointer-editor-root pointer-editor-modal-container fixed inset-0 flex h-full w-full items-center justify-center bg-black/30 backdrop-blur-[5px] ${isOpen ? 'modal-open' : 'modal-close'}`}>
         <div
           onClick={(e) => e.stopPropagation()}
-          className={`max-h-[672px] flex h-full w-full max-w-[672px] flex-col rounded-[16px] bg-white shadow-2xl pointer-editor-modal-content ${isOpen ? 'modal-open' : 'modal-close'}`}>
+          className={`pointer-editor-modal-content flex h-full max-h-[672px] w-full max-w-[672px] flex-col rounded-[16px] bg-white shadow-2xl ${isOpen ? 'modal-open' : 'modal-close'}`}>
           <div className='flex items-center justify-between p-[32px]'>
             <div className='text-[20px] font-semibold text-gray-900'>에디터</div>
-            <button onClick={onClose} className='cursor-pointer rounded-full bg-white px-[8px] py-[8px] text-gray-500 transition-all! duration-200 hover:bg-gray-100'>
+            <button
+              onClick={onClose}
+              className='cursor-pointer rounded-full bg-white px-[8px] py-[8px] text-gray-500 transition-all! duration-200 hover:bg-gray-100'>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 width='24'
@@ -57,10 +59,14 @@ export const ProblemEditorModal = ({
             />
           </div>
           <div className='flex justify-end gap-[12px] border-t border-gray-200 p-[32px]'>
-            <button onClick={onClose} className='cursor-pointer rounded-full border border-gray-200 bg-white px-[16px] py-[8px] text-gray-900 transition-all! duration-200 hover:bg-gray-100'>
+            <button
+              onClick={onClose}
+              className='cursor-pointer rounded-full border border-gray-200 bg-white px-[16px] py-[8px] text-gray-900 transition-all! duration-200 hover:bg-gray-100'>
               취소
             </button>
-            <button onClick={onSave} className='cursor-pointer rounded-full bg-blue-600 px-[16px] py-[8px] text-white transition-all! duration-200 hover:bg-blue-700'>
+            <button
+              onClick={onSave}
+              className='cursor-pointer rounded-full bg-blue-600 px-[16px] py-[8px] text-white transition-all! duration-200 hover:bg-blue-700'>
               저장
             </button>
           </div>

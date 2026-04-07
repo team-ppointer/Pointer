@@ -37,9 +37,7 @@ const EditCategoryModal = ({ onClose, onSubmit, defaultName }: Props) => {
             {...register('name', { required: true })}
             autoFocus
           />
-          <p className='text-xs text-gray-500'>
-            이 카테고리에 속한 모든 개념 태그에 적용됩니다.
-          </p>
+          <p className='text-xs text-gray-500'>이 카테고리에 속한 모든 개념 태그에 적용됩니다.</p>
         </div>
 
         {/* Action Buttons */}

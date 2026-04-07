@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { InlineProblemViewer, ProblemViewer } from '@repo/pointer-editor-v2';
 import { components } from '@schema';
 import { parseEditorContent } from '@utils';
-import { Calendar, CheckCircle2, Clock, FileText, Package, X } from 'lucide-react';
+import { FileText, Package, X } from 'lucide-react';
 
 import 'dayjs/locale/ko';
 

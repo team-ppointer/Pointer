@@ -77,7 +77,7 @@ export const FilterBar = ({
         ))}
       </ScrollView>
       {showViewAll && (
-        <View className='pl-[6px] pr-[8px]'>
+        <View className='pr-[8px] pl-[6px]'>
           <Pressable className='flex-row items-center gap-0.5' onPress={onViewAll}>
             <View className={`flex-row items-center gap-0.5 ${isScrollEnd ? 'opacity-30' : ''}`}>
               <Text className='text-16m text-gray-800'>전체보기</Text>

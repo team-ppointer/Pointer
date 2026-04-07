@@ -82,7 +82,7 @@ export const ImageOCRNode = Node.create<ImageOCROptions>({
       upload: undefined,
       onError: undefined,
       onSuccess: undefined,
-      ocrApiCall: async () => ({}) as unknown as ((data: any) => Promise<any>), // eslint-disable-line @typescript-eslint/no-explicit-any
+      ocrApiCall: async () => ({}) as unknown as (data: any) => Promise<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
       HTMLAttributes: {},
     };
   },

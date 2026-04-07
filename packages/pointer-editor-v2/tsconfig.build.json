@@ -7,7 +7,7 @@
     "declarationMap": true,
     "declarationDir": "dist",
     "outDir": "dist",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts", "**/*.test.tsx", "dist", "node_modules"]

@@ -36,7 +36,7 @@ export const ProblemSection = ({
         {isHovering && (
           <Pressable
             onPress={onExpand}
-            className='absolute right-2 top-2 z-10 rounded-full bg-black/50 p-2'>
+            className='absolute top-2 right-2 z-10 rounded-full bg-black/50 p-2'>
             <Maximize2 size={20} color='#FFF' />
           </Pressable>
         )}
@@ -56,7 +56,7 @@ export const ProblemSection = ({
       {isHovering && (
         <Pressable
           onPress={onExpand}
-          className='absolute right-2 top-2 z-10 rounded-full bg-black/50 p-2'>
+          className='absolute top-2 right-2 z-10 rounded-full bg-black/50 p-2'>
           <Maximize2 size={20} color='#FFF' />
         </Pressable>
       )}
