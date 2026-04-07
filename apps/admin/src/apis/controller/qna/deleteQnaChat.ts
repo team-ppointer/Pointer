@@ -5,4 +5,3 @@ const deleteQnaChat = () => {
 };
 
 export default deleteQnaChat;
-

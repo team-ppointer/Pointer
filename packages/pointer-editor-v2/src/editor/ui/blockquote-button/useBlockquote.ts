@@ -11,12 +11,7 @@ import { useTiptapEditor } from '../../hooks';
 import { BlockquoteIcon } from '../../assets';
 
 // --- UI Utils ---
-import {
-  findNodePosition,
-  isNodeInSchema,
-  isNodeTypeSelected,
-  isValidPosition,
-} from '../../utils';
+import { findNodePosition, isNodeInSchema, isNodeTypeSelected, isValidPosition } from '../../utils';
 
 export const BLOCKQUOTE_SHORTCUT_KEY = 'mod+shift+b';
 

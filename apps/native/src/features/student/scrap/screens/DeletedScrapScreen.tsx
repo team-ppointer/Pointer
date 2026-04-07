@@ -103,7 +103,7 @@ const DeletedScrapScreenContent = () => {
             setSortOrder={setSortOrder}
           />
         </Container>
-        <Container className='pb-[120px] pt-4'>
+        <Container className='pt-4 pb-[120px]'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (

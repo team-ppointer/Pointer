@@ -21,10 +21,7 @@ import { formatToMinute } from '../../../utils/formatters/formatToMinute';
 import { useCardImageSources } from '../../../hooks';
 
 type ScrapCardExtraProps = {
-  onMovePress?: (params: {
-    currentFolderId?: number;
-    selectedItems: SelectedItem[];
-  }) => void;
+  onMovePress?: (params: { currentFolderId?: number; selectedItems: SelectedItem[] }) => void;
 };
 
 export const ScrapCard = (props: ScrapListItemProps & ScrapCardExtraProps) => {

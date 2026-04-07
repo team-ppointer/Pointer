@@ -8,12 +8,7 @@ import { NodeSelection, TextSelection } from '@tiptap/pm/state';
 import { useTiptapEditor } from '../../hooks';
 
 // --- Lib ---
-import {
-  findNodePosition,
-  isNodeInSchema,
-  isNodeTypeSelected,
-  isValidPosition,
-} from '../../utils';
+import { findNodePosition, isNodeInSchema, isNodeTypeSelected, isValidPosition } from '../../utils';
 
 // --- Icons ---
 import { AnswerBoxOneColIcon, AnswerBoxThreeColsIcon, AnswerBoxFiveColsIcon } from '../../assets';

@@ -13,4 +13,3 @@ const getQna = (params?: GetQnaParams) => {
 };
 
 export default getQna;
-

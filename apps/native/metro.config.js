@@ -21,7 +21,7 @@ config.resolver.nodeModulesPaths = [
 config.resolver.blockList = [
   /ios\/build\/.*/,
   /android\/build\/.*/,
-  /apps\/native\/dist\/.*/,  // 프로젝트 자체의 dist만 차단
+  /apps\/native\/dist\/.*/, // 프로젝트 자체의 dist만 차단
 ];
 
 // react-native-css-interop의 jsx-runtime을 직접 resolve
@@ -39,7 +39,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       filePath: require.resolve('react-native-css-interop/dist/runtime/jsx-dev-runtime.js'),
     };
   }
-  
+
   if (originalResolveRequest) {
     return originalResolveRequest(context, moduleName, platform);
   }

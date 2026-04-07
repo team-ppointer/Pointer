@@ -40,7 +40,8 @@ export default [
           patterns: [
             {
               group: ['@/*'],
-              message: 'Use specific aliases (@components, @theme, @apis, etc.) instead of @/ catch-all.',
+              message:
+                'Use specific aliases (@components, @theme, @apis, etc.) instead of @/ catch-all.',
             },
           ],
         },
