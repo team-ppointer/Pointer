@@ -25,10 +25,12 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
   if (!isOpen) return null;
 
   return createPortal(
-    <div className='fixed inset-0 z-50 flex items-center justify-center' onClick={onClose}>
-      <div className='h-full w-full bg-black opacity-50' />
+    <div
+      className='animate-in fade-in fixed inset-0 z-50 flex items-center justify-center duration-200'
+      onClick={onClose}>
+      <div className='absolute inset-0 bg-black/50 backdrop-blur-sm' />
       <div
-        className='absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] transform overflow-auto rounded-[16px] bg-white shadow-lg'
+        className='animate-in fade-in slide-in-from-bottom-4 relative max-h-[90vh] overflow-auto rounded-2xl border border-gray-200 bg-white shadow-xl duration-300'
         onClick={(e) => e.stopPropagation()}>
         {children}
       </div>

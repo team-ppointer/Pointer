@@ -1,16 +1,18 @@
-import { deleteProblemSet, getProblemSetById, putConfirmProblemSet, putProblemSet } from '@apis';
+import {
+  deleteProblemSet,
+  getProblemSetById,
+  putProblemSetToggleStatus,
+  putProblemSet,
+} from '@apis';
 import {
   Button,
-  ComponentWithLabel,
   ErrorModalTemplate,
   Header,
-  IconButton,
   Input,
   Modal,
-  PlusButton,
   ProblemCard,
   ProblemSearchModal,
-  Tag,
+  SegmentedControl,
   TwoButtonModalTemplate,
 } from '@components';
 import { useInvalidate, useModal } from '@hooks';
@@ -29,28 +31,27 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core';
 import { SortableContext, arrayMove, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-
-import { StatusToggle } from '@/components/problemSet';
+import { Save, Trash2, Plus, CheckCircle2, Circle, Package, Files } from 'lucide-react';
 
 export const Route = createFileRoute('/_GNBLayout/problem-set/$problemSetId/')({
   component: RouteComponent,
 });
 
 type ProblemSetUpdateRequest = components['schemas']['ProblemSetUpdateRequest'];
-type ProblemSummaryResponse = components['schemas']['ProblemSummaryResponse'];
-type ProblemSearchGetResponse = components['schemas']['ProblemSearchGetResponse'];
-type ErrorResponse = components['schemas']['ErrorResponse'];
+type ProblemMetaResp = components['schemas']['ProblemMetaResp'];
+type ProblemSetItemResp = components['schemas']['ProblemSetItemResp'];
 
 function RouteComponent() {
   const { problemSetId } = Route.useParams();
   const { navigate } = useRouter();
   const { invalidateProblemSet } = useInvalidate();
 
-  const [problemSummaries, setProblemSummaries] = useState<ProblemSummaryResponse[]>([]);
+  const [problemSummaries, setProblemSummaries] = useState<ProblemSetItemResp[]>([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState<number>(0);
   const [deleteProblemIndex, setDeleteProblemIndex] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isSaved, setIsSaved] = useState<boolean>(true);
+  const [confirmStatus, setConfirmStatus] = useState<'CONFIRMED' | 'DOING'>('DOING');
 
   const {
     isOpen: isSetDeleteModalOpen,
@@ -79,17 +80,19 @@ function RouteComponent() {
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
   // api
-  const { data: problemSetData } = getProblemSetById(Number(problemSetId));
+  const { data: problemSetData } = getProblemSetById({ id: Number(problemSetId) });
   const { mutate: mutatePutProblemSet } = putProblemSet();
-  const { mutate: mutateConfirmProblemSet } = putConfirmProblemSet();
+  const { mutate: mutateConfirmProblemSet } = putProblemSetToggleStatus();
   const { mutate: mutateDeleteProblemSet } = deleteProblemSet();
-  const confirmStatus = problemSetData?.data.confirmStatus;
 
   // RHF
-  const { register, handleSubmit, setValue } = useForm<ProblemSetUpdateRequest>({
+  const { register, handleSubmit, setValue } = useForm<{
+    title: string;
+    status: 'CONFIRMED' | 'DOING';
+  }>({
     defaultValues: {
-      problemSetTitle: '',
-      problemIds: [],
+      title: '',
+      status: 'DOING',
     },
   });
 
@@ -104,21 +107,22 @@ function RouteComponent() {
       {
         params: {
           path: {
-            problemSetId: Number(problemSetId),
+            id: Number(problemSetId),
           },
         },
       },
       {
-        onSuccess: (data) => {
-          invalidateProblemSet(Number(problemSetId));
-          if (data.data === 'CONFIRMED') {
+        onSuccess: async (data) => {
+          await invalidateProblemSet(Number(problemSetId));
+          setConfirmStatus(data.status);
+          if (data.status === 'CONFIRMED') {
             toast.success('컨펌이 완료되었습니다');
           } else {
-            toast.info('컨펌이 취소되었습니다');
+            toast.success('컨펌이 취소되었습니다');
           }
         },
-        onError: (error: ErrorResponse) => {
-          setErrorMessage(error.message);
+        onError: (error: Error) => {
+          setErrorMessage(error.message || '오류가 발생했습니다.');
           openErrorModal();
         },
       }
@@ -130,13 +134,13 @@ function RouteComponent() {
       {
         params: {
           path: {
-            problemSetId: Number(problemSetId),
+            id: Number(problemSetId),
           },
         },
       },
       {
-        onSuccess: () => {
-          invalidateProblemSet(Number(problemSetId));
+        onSuccess: async () => {
+          await invalidateProblemSet(Number(problemSetId));
           navigate({ to: '/problem-set' });
         },
       }
@@ -145,16 +149,17 @@ function RouteComponent() {
 
   // functions
   const handleClickSetDelete = () => {
-    if (problemSetData?.data.publishedDates && problemSetData?.data.publishedDates.length > 0) {
-      setErrorMessage('발행된 세트는 삭제할 수 없어요');
-      openErrorModal();
-      return;
-    }
+    // publishedDates 속성이 스키마에 없으므로 주석 처리
+    // if (problemSetData?.publishedDates && problemSetData?.publishedDates.length > 0) {
+    //   setErrorMessage('발행된 세트는 삭제할 수 없어요');
+    //   openErrorModal();
+    //   return;
+    // }
     openSetDeleteModal();
   };
 
   const createModifyError = () => {
-    setErrorMessage('컨펌된 세트는 문항을 수정할 수 없어요');
+    setErrorMessage('컨펌된 세트는 문제을 수정할 수 없어요');
     openErrorModal();
   };
 
@@ -164,18 +169,41 @@ function RouteComponent() {
       return;
     }
 
+    const emptySlotIndex = problemSummaries.findIndex((item) => item.problem.id === 0);
+    if (emptySlotIndex !== -1) {
+      setCurrentProblemIndex(emptySlotIndex);
+      openSearchModal();
+      return;
+    }
+
+    const nextIndex = problemSummaries.length;
     setProblemSummaries((prev) => {
       return [
         ...prev,
         {
-          problemId: 0,
-          problemCustomId: '',
-          memo: '',
-          mainProblemImageUrl: undefined,
-          tagNames: [],
+          id: 0,
+          no: prev.length + 1,
+          problem: {
+            id: 0,
+            customId: '',
+            problemType: 'MAIN_PROBLEM' as const,
+            createType: 'CREATION_PROBLEM' as const,
+            practiceTest: { id: 0, year: 0, month: 0, grade: 0, name: '', displayName: '' },
+            practiceTestNo: 0,
+            problemContent: '',
+            title: '',
+            answerType: 'MULTIPLE_CHOICE' as const,
+            answer: 0,
+            difficulty: 0,
+            recommendedTimeSec: 0,
+            memo: '',
+            concepts: [],
+          },
         },
       ];
     });
+    setCurrentProblemIndex(nextIndex);
+    openSearchModal();
   };
 
   const handleAddProblem = (index: number) => {
@@ -212,79 +240,95 @@ function RouteComponent() {
   const resetProblemSummaries = () => {
     setProblemSummaries([
       {
-        problemId: 0,
-        problemCustomId: '',
-        memo: '',
-        mainProblemImageUrl: undefined,
-        tagNames: [],
+        id: 0,
+        no: 1,
+        problem: {
+          id: 0,
+          customId: '',
+          problemType: 'MAIN_PROBLEM' as const,
+          createType: 'CREATION_PROBLEM' as const,
+          practiceTest: { id: 0, year: 0, month: 0, grade: 0, name: '', displayName: '' },
+          practiceTestNo: 0,
+          problemContent: '',
+          title: '',
+          answerType: 'MULTIPLE_CHOICE' as const,
+          answer: 0,
+          difficulty: 0,
+          recommendedTimeSec: 0,
+          memo: '',
+          concepts: [],
+        },
       },
     ]);
   };
 
-  const handleAddProblemSummary = (index: number, problemSummary: ProblemSearchGetResponse) => {
-    if (
-      problemSummaries
-        .map((problemSummary) => problemSummary.problemId)
-        .includes(problemSummary.problemId)
-    ) {
-      setErrorMessage('이미 추가된 문항이에요');
+  const handleAddProblemSummary = (index: number, problemMeta: ProblemMetaResp) => {
+    if (problemSummaries.map((item) => item.problem.id).includes(problemMeta.id)) {
+      setErrorMessage('이미 추가된 문제이에요');
       openErrorModal();
       return;
     }
 
     const newProblemSummaries = [...problemSummaries];
-    newProblemSummaries[index] = problemSummary;
+    newProblemSummaries[index] = {
+      id: problemMeta.id,
+      no: index + 1,
+      problem: problemMeta,
+    };
     setProblemSummaries(newProblemSummaries);
 
     closeSearchModal();
     if (isSaved) setIsSaved(false);
   };
 
-  const handleClickSave = (data: ProblemSetUpdateRequest) => {
-    const filteredProblemSummaries = problemSummaries.filter(
-      (problemSummary) => problemSummary.problemId !== 0
-    );
-    if (filteredProblemSummaries.length === 0) {
-      setErrorMessage('적어도 1개의 문항을 등록해주세요');
+  const handleClickSave = async (data: ProblemSetUpdateRequest) => {
+    if (problemSummaries.length === 0) {
+      setErrorMessage('적어도 1개의 문제을 등록해주세요');
       openErrorModal();
       return;
     }
 
-    const filteredData = {
-      ...data,
-      problemIds: filteredProblemSummaries.map((problemSummary) => problemSummary.problemId),
-    };
-
-    mutatePutProblemSet(
-      {
-        body: {
-          ...filteredData,
-        },
-        params: {
-          path: {
-            problemSetId: Number(problemSetId),
+    try {
+      // 선택된 문제들 업데이트
+      await new Promise<void>((resolve, reject) => {
+        mutatePutProblemSet(
+          {
+            body: {
+              title: data.title,
+              status: data.status,
+              problems: problemSummaries.map((item, index) => ({
+                no: index + 1,
+                problemId: item.problem.id,
+              })),
+            },
+            params: {
+              path: {
+                id: Number(problemSetId),
+              },
+            },
           },
-        },
-      },
-      {
-        onSuccess: () => {
-          invalidateProblemSet(Number(problemSetId));
-          toast.success('저장이 완료되었습니다');
-          setIsSaved(true);
-        },
-      }
-    );
+          {
+            onSuccess: () => resolve(),
+            onError: (error) => reject(error),
+          }
+        );
+      });
+
+      // 성공 처리
+      await invalidateProblemSet(Number(problemSetId));
+      toast.success('저장이 완료되었습니다');
+      setIsSaved(true);
+    } catch {
+      setErrorMessage('저장 중 오류가 발생했습니다.');
+      openErrorModal();
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const currentSequence = problemSummaries.findIndex(
-        (problemSummary) => problemSummary.problemId === active.id
-      );
-      const newSequence = problemSummaries.findIndex(
-        (problemSummary) => problemSummary.problemId === over.id
-      );
+      const currentSequence = problemSummaries.findIndex((item) => item.problem.id === active.id);
+      const newSequence = problemSummaries.findIndex((item) => item.problem.id === over.id);
 
       setProblemSummaries((prevList) => arrayMove(prevList, currentSequence, newSequence));
       if (isSaved) setIsSaved(false);
@@ -294,22 +338,19 @@ function RouteComponent() {
   // useEffect
   useEffect(() => {
     if (problemSetData) {
-      setValue('problemSetTitle', problemSetData.data.title ?? '');
-      if (problemSetData.data.problemSummaries.length === 0) {
-        setValue('problemIds', [0]);
+      setValue('title', problemSetData.title ?? '');
+      setValue('status', problemSetData.status ?? 'DOING');
+      setConfirmStatus(problemSetData.status ?? 'DOING');
+      if (problemSetData.problems.length === 0) {
         resetProblemSummaries();
       } else {
-        setValue(
-          'problemIds',
-          problemSetData.data.problemSummaries.map((problem) => problem.problemId)
-        );
-        setProblemSummaries(problemSetData.data.problemSummaries);
+        setProblemSummaries(problemSetData.problems);
       }
     }
   }, [problemSetData]);
 
   return (
-    <>
+    <div className='min-h-screen bg-gray-50'>
       <ToastContainer
         position='top-center'
         autoClose={1000}
@@ -319,115 +360,130 @@ function RouteComponent() {
         rtl={false}
         draggable
         pauseOnHover
-        theme='dark'
+        theme='light'
         transition={Slide}
-        style={{
-          fontSize: '1.6rem',
-        }}
       />
-      <Header
-        title='세트 수정하기'
-        description={`문항을 잡고 드래그해서 순서를 바꿀 수 있어요\n컨펌된 세트도 타이틀 수정이 가능해요`}
-        deleteButton='세트 삭제'
-        onClickDelete={handleClickSetDelete}
-      />
-      <div className='mt-[6.4rem] flex justify-between'>
-        <div className='w-[81.5rem]'>
-          <ComponentWithLabel label='세트 제목'>
-            <Input
-              placeholder='입력해주세요'
-              {...register('problemSetTitle', {
-                onChange: () => isSaved && setIsSaved(false),
-              })}
-            />
-          </ComponentWithLabel>
+
+      {/* Header */}
+      <Header title='세트 수정'>
+        <div className='flex items-center gap-3'>
+          <Header.Button Icon={Trash2} color='destructive' onClick={handleClickSetDelete}>
+            세트 삭제
+          </Header.Button>
+          <Header.Button Icon={Save} color='main' onClick={handleSubmit(handleClickSave)}>
+            세트 저장
+          </Header.Button>
+        </div>
+      </Header>
+
+      <div className='mx-auto max-w-7xl px-8 py-8'>
+        <div className='mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white'>
+          <div className='px-6 pt-6'>
+            <h2 className='flex items-center gap-3 text-xl font-bold text-gray-900'>
+              <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
+                <Package className='h-5 w-5 text-white' />
+              </div>
+              세트 정보
+            </h2>
+          </div>
+          <div className='space-y-6 p-8'>
+            <div className='flex items-end justify-between gap-4'>
+              <div className='flex-1'>
+                <label className='mb-2 block text-sm font-semibold text-gray-700'>세트 제목</label>
+                <Input
+                  placeholder='입력해주세요'
+                  {...register('title', {
+                    onChange: () => isSaved && setIsSaved(false),
+                  })}
+                />
+              </div>
+
+              <SegmentedControl
+                value={confirmStatus}
+                onChange={(nextStatus) => {
+                  if (nextStatus === confirmStatus) {
+                    return;
+                  }
+                  handleClickConfirm();
+                }}
+                items={[
+                  {
+                    label: '작업 중',
+                    value: 'DOING',
+                    icon: Circle,
+                  },
+                  {
+                    label: '컨펌 완료',
+                    value: 'CONFIRMED',
+                    icon: CheckCircle2,
+                  },
+                ]}
+              />
+            </div>
+          </div>
         </div>
 
-        <div className='flex items-center gap-[2.4rem]'>
-          <StatusToggle
-            selectedStatus={confirmStatus ?? 'NOT_CONFIRMED'}
-            onSelect={() => {
-              handleSubmit(handleClickSave);
-              handleClickConfirm();
-            }}
-          />
-          <div className='flex items-center gap-[0.8rem]'>
-            <Button variant='light'>미리보기</Button>
-            <Button variant='dark' onClick={handleSubmit(handleClickSave)}>
-              저장하기
+        {/* Problems Section */}
+        <div className='overflow-hidden rounded-2xl border border-gray-200 bg-white'>
+          <div className='flex items-center justify-between px-6 pt-6'>
+            <h2 className='flex items-center gap-3 text-xl font-bold text-gray-900'>
+              <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
+                <Files className='h-5 w-5 text-white' />
+              </div>
+              문제 목록
+            </h2>
+            <Button variant='primary' sizeType='md' onClick={handleClickAdd}>
+              <Plus className='h-4 w-4' />
+              문제 추가
             </Button>
+          </div>
+
+          <div className='overflow-x-auto p-8'>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={problemSummaries.map((item) => item.problem.id)}
+                strategy={horizontalListSortingStrategy}>
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                  {problemSummaries.map((item: ProblemSetItemResp, index: number) => {
+                    const problem = item.problem;
+
+                    return problem.id === 0 ? (
+                      <div key={`empty-${index}`}>
+                        <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
+                      </div>
+                    ) : (
+                      <div key={`${problem.id}-${index}`}>
+                        <ProblemCard
+                          customId={problem.customId}
+                          title={problem.title}
+                          memo={problem.memo}
+                          problemText={problem.problemContent || ''}
+                          answer={String(problem.answer)}
+                          onDelete={(e) => {
+                            e.stopPropagation();
+                            handleClickDeleteProblem(index);
+                          }}
+                          onClick={() =>
+                            navigate({
+                              to: `/problem/$problemId`,
+                              params: { problemId: problem.id.toString() },
+                            })
+                          }
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
           </div>
         </div>
       </div>
-      <div className='mt-[4.8rem] grid w-full auto-cols-[48rem] grid-flow-col gap-[3.2rem] overflow-auto'>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext
-            items={problemSummaries.map((problemSummary) => problemSummary.problemId)}
-            strategy={horizontalListSortingStrategy}>
-            {problemSummaries.map((problemSummary: ProblemSummaryResponse, index: number) => {
-              const handlePointerDown = (event: React.PointerEvent) => {
-                event.stopPropagation(); // 이벤트가 상위로 전파되지 않도록 차단
-              };
-              return (
-                <ProblemCard
-                  key={`${problemSummary.problemId}-${index}`}
-                  problemId={problemSummary.problemId}>
-                  {problemSummary.problemId === 0 ? (
-                    <ProblemCard.EmptyView onClick={() => handleAddProblem(index)} />
-                  ) : (
-                    <>
-                      <ProblemCard.TextSection>
-                        <ProblemCard.Title title={`문항 ${index + 1}`} />
-                        <ProblemCard.Info
-                          label='문항 ID'
-                          content={problemSummaries[index]?.problemCustomId.toString()}
-                        />
-                        <ProblemCard.Info
-                          label='문항 타이틀'
-                          content={problemSummaries[index]?.problemTitle}
-                        />
-                        <ProblemCard.Info
-                          label='문항 메모'
-                          content={problemSummaries[index]?.memo}
-                        />
-                        <ProblemCard.TagSection>
-                          {problemSummaries[index]?.tagNames.map((tag, tagIndex) => {
-                            return <Tag key={`${tag}-${tagIndex}`} label={tag} />;
-                          })}
-                        </ProblemCard.TagSection>
-                      </ProblemCard.TextSection>
-                      <ProblemCard.ButtonSection>
-                        <IconButton
-                          variant='modify'
-                          onClick={() =>
-                            navigate({
-                              to: '/problem/$problemId',
-                              params: { problemId: problemSummary.problemId.toString() },
-                            })
-                          }
-                          onPointerDown={handlePointerDown}
-                        />
-                        <IconButton
-                          variant='delete'
-                          onClick={() => handleClickDeleteProblem(index)}
-                          onPointerDown={handlePointerDown}
-                        />
-                      </ProblemCard.ButtonSection>
-                      <ProblemCard.CardImage
-                        src={problemSummaries[index]?.mainProblemImageUrl}
-                        height={'34.4rem'}
-                      />
-                    </>
-                  )}
-                </ProblemCard>
-              );
-            })}
-          </SortableContext>
-        </DndContext>
-        <div className='flex items-center'>
-          <PlusButton onClick={handleClickAdd} />
-        </div>
-      </div>
+
+      {/* Modals */}
       <Modal isOpen={isSetDeleteModalOpen} onClose={closeSetDeleteModal}>
         <TwoButtonModalTemplate
           text='세트를 삭제할까요?'
@@ -439,7 +495,7 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isProblemDeleteModalOpen} onClose={closeProblemDeleteModal}>
         <TwoButtonModalTemplate
-          text='문항을 세트에서 제외할까요??'
+          text='문제를 세트에서 제외할까요?'
           leftButtonText='아니오'
           rightButtonText='예'
           handleClickLeftButton={closeProblemDeleteModal}
@@ -448,7 +504,7 @@ function RouteComponent() {
       </Modal>
       <Modal isOpen={isSearchModalOpen} onClose={closeSearchModal}>
         <ProblemSearchModal
-          onClickCard={(problem: ProblemSearchGetResponse) => {
+          onClickCard={(problem: ProblemMetaResp) => {
             handleAddProblemSummary(currentProblemIndex, problem);
           }}
         />
@@ -460,6 +516,6 @@ function RouteComponent() {
           handleClickButton={closeErrorModal}
         />
       </Modal>
-    </>
+    </div>
   );
 }

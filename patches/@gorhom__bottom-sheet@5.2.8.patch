@@ -1,0 +1,51 @@
+diff --git a/src/components/bottomSheet/BottomSheet.tsx b/src/components/bottomSheet/BottomSheet.tsx
+index 6748c93cac1a29c745480fe2282b8d8f6b36226f..536880a31648ee7d18a2c3338193c641e3606520 100644
+--- a/src/components/bottomSheet/BottomSheet.tsx
++++ b/src/components/bottomSheet/BottomSheet.tsx
+@@ -895,8 +895,11 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
+ 
+         /**
+          * return the current index position.
++         * If index is -1 (closed), return closedDetentPosition instead of detents[-1]
+          */
+-        return detents[currentIndex];
++        return currentIndex === -1
++          ? closedDetentPosition
++          : detents[currentIndex];
+       },
+       [
+         animatedContentGestureState,
+@@ -1746,6 +1749,33 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
+       [_providedAnimatedPosition, topInset]
+     );
+ 
++    /**
++     * Reset position of bottom sheet when container height changes
++     * while sheet is closed, to prevent transient animatedIndex jumps
++     * during orientation/layout changes.
++     *
++     * @see https://github.com/gorhom/react-native-bottom-sheet/issues/2585
++     */
++    useAnimatedReaction(
++      () => animatedLayoutState.get().containerHeight,
++      (newHeight, previousHeight) => {
++        if (newHeight === previousHeight) {
++          return;
++        }
++        if (
++          !previousHeight ||
++          previousHeight === INITIAL_LAYOUT_VALUE ||
++          animatedPosition.value < previousHeight
++        ) {
++          // Do not reset position while bottom sheet is open
++          return;
++        }
++
++        animatedPosition.value = newHeight;
++      },
++      [animatedLayoutState, animatedPosition]
++    );
++
+     /**
+      * sets provided animated index
+      */

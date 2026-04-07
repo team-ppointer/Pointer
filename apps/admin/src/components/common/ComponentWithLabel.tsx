@@ -15,16 +15,17 @@ const ComponentWithLabel = ({
 }: ComponentWithLabelProps) => {
   const directionStyle = {
     row: 'flex items-center',
-    column: 'flex-col items-start',
+    column: 'flex flex-col items-start',
   };
+
   return (
-    <div className={`flex w-full gap-[2.4rem] ${directionStyle[direction]}`}>
-      <h6
-        className='font-medium-18 whitespace-nowrap'
+    <div className={`w-full gap-4 ${directionStyle[direction]}`}>
+      <label
+        className='text-sm font-semibold text-gray-700'
         style={{ width: labelWidth, minWidth: labelWidth }}>
         {label}
-      </h6>
-      {children}
+      </label>
+      <div className={`flex-1 ${direction === 'column' ? 'w-full' : ''}`}>{children}</div>
     </div>
   );
 };

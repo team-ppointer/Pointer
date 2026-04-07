@@ -1,8 +1,8 @@
 import { $api } from '@apis';
-import { getProblemsSearchParamsType } from '@types';
+import { GetProblemsSearchParams } from '@types';
 
-const getProblemsSearch = (searchQuery: getProblemsSearchParamsType) => {
-  return $api.useQuery('get', '/api/v1/problems/search', {
+const getProblemsSearch = (searchQuery: GetProblemsSearchParams) => {
+  return $api.useQuery('get', '/api/admin/problem', {
     params: {
       query: searchQuery,
     },

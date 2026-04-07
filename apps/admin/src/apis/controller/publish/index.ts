@@ -1,6 +1,6 @@
-import getConfirmProblemSet from './getConfirmProblemSet';
-import postPublish from './postPublish';
-import getPublish from './getPublish';
 import deletePublish from './deletePublish';
+import getPublish from './getPublish';
+import getPublishById from './getPublishById';
+import postPublish from './postPublish';
 
-export { getConfirmProblemSet, postPublish, getPublish, deletePublish };
+export { deletePublish, getPublish, getPublishById, postPublish };

@@ -1,11 +1,72 @@
-@import '@repo/pointer-design-system/global-styles';
+@import 'tailwindcss';
 
+/* ========================= */
+/*        FONT STYLES        */
+/* ========================= */
+@font-face {
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
+}
+
+/* ========================= */
+/*        THEME STYLES       */
+/* ========================= */
+@theme {
+  /* fonts */
+  --font-pretendard: Pretendard, sans-serif;
+
+  --color-background: #f7f7f7;
+
+  /* Colors */
+  --color-main: #617af9;
+  --color-sub1: #c5ceff;
+  --color-sub2: #e9ebf8;
+}
+
+/* ========================= */
+/*        BASE STYLES        */
+/* ========================= */
 @layer base {
   html {
-    min-width: 144rem;
+    font-family: var(--font-pretendard);
+    overscroll-behavior: none;
+    background-color: var(--color-background);
+    font-size: 100% !important;
   }
 
   body {
+    width: 100%;
+    min-height: 100dvh;
+    font-family: var(--font-pretendard);
+    scroll-behavior: smooth;
     overflow-x: auto;
+  }
+
+  p {
+    word-break: keep-all;
+    white-space: pre-line;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  select {
+    background: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
   }
 }

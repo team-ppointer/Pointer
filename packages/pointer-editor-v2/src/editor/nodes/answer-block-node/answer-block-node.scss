@@ -1,0 +1,98 @@
+/****
+ * Auto-insert circled numbers ①~⑤ starting from the first cell,
+ * filling left-to-right (row-major), for tables that have exactly
+ * 1, 3, or 5 columns. No class/data-attr required.
+ *
+ * We detect the column count via :has() by checking the first row's
+ * last cell index.
+ */
+.pointer-editor-root {
+  .tiptap.ProseMirror {
+    table {
+      border: 1px dashed #ddd;
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: 100%;
+      margin: 16px 0;
+      td {
+        border: 1px dashed #ddd;
+        width: 1%;
+        padding: 5px;
+      }
+    }
+  }
+}
+
+.pointer-viewer-root {
+  .tiptap.ProseMirror {
+    table {
+      table-layout: fixed;
+      width: 100%;
+      margin: 16px 0;
+      td {
+        width: 1%;
+        padding: 3px;
+      }
+    }
+  }
+}
+
+@mixin circled-1-5-for($cols) {
+  .tiptap.ProseMirror {
+    // Guard: only tables whose FIRST row has exactly $cols cells
+    // Support both with and without <tbody>
+    table:has(> tbody > tr:first-child > td:nth-child(#{$cols}):last-child),
+    table:has(> tr:first-child > td:nth-child(#{$cols}):last-child) {
+      td {
+        position: relative;
+        padding-left: 28px;
+      }
+
+      // Place ①~⑤
+      @for $p from 1 through 5 {
+        $row: if($p % $cols == 0, $p / $cols, floor($p / $cols) + 1); // ceil($p / $cols)
+        $col: (($p - 1) % $cols) + 1;
+
+        // With <tbody>
+        > tbody > tr:nth-child(#{$row}) > td:nth-child(#{$col})::before,
+        // Without <tbody>
+        > tr:nth-child(#{$row}) > td:nth-child(#{$col})::before {
+          content: "#{nth(('①','②','③','④','⑤'), $p)} ";
+          position: absolute;
+          left: 0.5em;
+          user-select: none;
+          pointer-events: none;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+      }
+
+      // For 3-column tables, make the 6th cell (row 2, col 3) read-only / non-interactive
+      @if $cols == 3 {
+        // With <tbody>
+        > tbody > tr:nth-child(2) > td:nth-child(3),
+        // Without <tbody>
+        > tr:nth-child(2) > td:nth-child(3) {
+          position: relative;
+          // Block mouse interactions
+          pointer-events: none;
+          // Block text selection and caret
+          user-select: none;
+          color: transparent;
+        }
+        // Hide caret inside typical paragraph content and make inner content inert
+        > tbody > tr:nth-child(2) > td:nth-child(3) *,
+        > tr:nth-child(2) > td:nth-child(3) * {
+          caret-color: transparent;
+          pointer-events: none;
+          user-select: none;
+        }
+      }
+    }
+  }
+}
+
+// Generate rules for allowed column counts
+@each $cols in (1, 3, 5) {
+  @include circled-1-5-for($cols);
+}

@@ -1,11 +1,10 @@
 import { $api } from '@apis';
+import { GetProblemByIdParams } from '@types';
 
-const getProblemById = (problemId: number) => {
-  return $api.useQuery('get', '/api/v1/problems/{id}', {
+const getProblemById = (params: GetProblemByIdParams) => {
+  return $api.useQuery('get', '/api/admin/problem/{id}', {
     params: {
-      path: {
-        id: problemId,
-      },
+      path: params,
     },
   });
 };

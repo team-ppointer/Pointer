@@ -1,0 +1,29 @@
+import React from 'react';
+import { Path, Svg } from 'react-native-svg';
+import type { LucideIcon, LucideProps } from 'lucide-react-native';
+
+const HomeFilledIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
+  ({ color = '#1E1E21', size = 24, strokeWidth = 2, ...rest }, ref) => {
+    const resolvedStrokeWidth = Number(strokeWidth);
+
+    return (
+      <Svg ref={ref} width={size} height={size} viewBox='0 0 24 24' fill='none' {...rest}>
+        <Path
+          d='M12 0.999023C12.6202 0.999023 13.2229 1.19234 13.7266 1.54688L13.9365 1.70898L13.9414 1.71289L20.9365 7.70898L21.0586 7.81738C21.3355 8.07864 21.561 8.39104 21.7217 8.7373C21.9051 9.1328 22 9.56405 22 10V19C21.9999 19.7955 21.6836 20.5596 21.1211 21.1221C20.5585 21.6844 19.7954 22 19 22H15V13.2227C15 12.8986 14.8945 12.5876 14.707 12.3584C14.5195 12.1292 14.2652 12 14 12H10C9.73478 12 9.4805 12.1292 9.29297 12.3584C9.10554 12.5876 9 12.8986 9 13.2227V22H5C4.20458 22 3.44147 21.6844 2.87891 21.1221C2.31641 20.5596 2.00013 19.7955 2 19V10C2 9.56405 2.09491 9.1328 2.27832 8.7373C2.46193 8.3416 2.73035 7.99062 3.06348 7.70898L10.0586 1.71289L10.0635 1.70898C10.605 1.25135 11.291 0.999023 12 0.999023Z'
+          fill={color}
+        />
+        <Path
+          d='M3 9.99999C2.99993 9.70906 3.06333 9.42161 3.18579 9.15771C3.30824 8.8938 3.4868 8.65979 3.709 8.47199L10.709 2.47199C11.07 2.1669 11.5274 1.99951 12 1.99951C12.4726 1.99951 12.93 2.1669 13.291 2.47199L20.291 8.47199C20.5132 8.65979 20.6918 8.8938 20.8142 9.15771C20.9367 9.42161 21.0001 9.70906 21 9.99999V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V9.99999Z'
+          stroke={color}
+          strokeWidth={resolvedStrokeWidth}
+          strokeLinecap='round'
+          strokeLinejoin='round'
+        />
+      </Svg>
+    );
+  }
+) as LucideIcon;
+
+HomeFilledIcon.displayName = 'HomeFilledIcon';
+
+export default HomeFilledIcon;

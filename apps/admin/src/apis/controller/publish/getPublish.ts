@@ -1,12 +1,10 @@
 import { $api } from '@apis';
+import { GetPublishParams } from '@types';
 
-const getPublish = (year: number, month: number) => {
-  return $api.useQuery('get', '/api/v1/publish/{year}/{month}', {
+const getPublish = (params: GetPublishParams) => {
+  return $api.useQuery('get', '/api/admin/publish', {
     params: {
-      path: {
-        year,
-        month,
-      },
+      query: params,
     },
   });
 };

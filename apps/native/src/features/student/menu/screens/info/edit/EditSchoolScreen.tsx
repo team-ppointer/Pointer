@@ -1,0 +1,164 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { type NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Search } from 'lucide-react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+
+import { showToast } from '@features/student/scrap/components/Notification';
+import { useGetSchool } from '@apis';
+import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
+import { colors, shadow } from '@theme/tokens';
+import { CircleXFilledIcon } from '@components/system/icons';
+import { OnboardingInput } from '@features/student/onboarding/components';
+import { useDebounce } from '@hooks';
+import { AnimatedPressable } from '@components/common';
+
+import { EditScreenLayout } from '../../../components';
+
+const EditSchoolScreen = ({
+  navigation,
+  route,
+}: NativeStackScreenProps<MenuStackParamList, 'EditSchool'>) => {
+  const [schoolId, setSchoolId] = useState<number | undefined>(
+    route.params.initialSchool?.id || undefined
+  );
+
+  const [query, setQuery] = useState(route.params.initialSchool?.name || '');
+  const [selectedLabel, setSelectedLabel] = useState(route.params.initialSchool?.name || '');
+  const [selectedSido, setSelectedSido] = useState(route.params.initialSchool?.sido || '');
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const dropdownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearDropdownTimer = useCallback(() => {
+    if (dropdownTimerRef.current !== null) {
+      clearTimeout(dropdownTimerRef.current);
+      dropdownTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearDropdownTimer();
+    };
+  }, [clearDropdownTimer]);
+
+  const debouncedQuery = useDebounce(query.trim(), 300);
+  const { data, isLoading } = useGetSchool({ query: debouncedQuery }, debouncedQuery.length > 0);
+
+  const results = data?.data ?? [];
+  const showDropdown = dropdownVisible && (results.length > 0 || isLoading);
+
+  const handleSelect = (id: number, name: string, sido: string) => {
+    clearDropdownTimer();
+    const label = `${name}(${sido})`;
+    setSchoolId(id);
+    setQuery(label);
+    setSelectedLabel(name);
+    setSelectedSido(sido);
+    setDropdownVisible(false);
+  };
+
+  const handleClear = () => {
+    setSchoolId(undefined);
+    setQuery('');
+    setSelectedLabel('');
+    setSelectedSido('');
+  };
+
+  const handleSave = async () => {
+    navigation.reset({
+      index: 1,
+      routes: [
+        { name: 'MenuMain' },
+        {
+          name: 'MyInfo',
+          params: {
+            updatedData: {
+              schoolId: schoolId,
+              schoolName: selectedLabel,
+              sido: selectedSido,
+              grade: route.params.initialGrade,
+            },
+          },
+        },
+      ],
+    });
+    showToast('success', '학교가 변경되었습니다.');
+  };
+
+  return (
+    <EditScreenLayout
+      title='현재 재학중인 학교명을 입력해 주세요.'
+      description='학교를 입력해 맞춤형 문제를 제공받아요.'
+      onPressCTA={handleSave}>
+      <View>
+        <OnboardingInput
+          label='학교'
+          placeholder='학교명을 입력해 주세요.'
+          value={query}
+          onFocus={() => {
+            clearDropdownTimer();
+            setDropdownVisible(true);
+          }}
+          onBlur={() => {
+            clearDropdownTimer();
+            dropdownTimerRef.current = setTimeout(() => setDropdownVisible(false), 150);
+          }}
+          onChangeText={(text) => {
+            setQuery(text);
+            if (selectedLabel && text !== selectedLabel) {
+              setSchoolId(undefined);
+              setSelectedLabel('');
+              setSelectedSido('');
+            }
+            if (!dropdownVisible) setDropdownVisible(true);
+          }}
+          rightAccessory={
+            schoolId ? (
+              <CircleXFilledIcon size={20} color={colors['gray-700']} />
+            ) : (
+              <Search size={20} color={colors['gray-900']} />
+            )
+          }
+          onPressAccessory={() => {
+            if (schoolId) {
+              handleClear();
+            }
+          }}
+        />
+        {showDropdown ? (
+          <View
+            className='mt-[6px] rounded-[10px] border border-gray-200 bg-white p-[6px]'
+            style={shadow[100]}>
+            {isLoading ? (
+              <View className='items-center justify-center py-[20px]'>
+                <ActivityIndicator size='small' color={colors['gray-500']} />
+              </View>
+            ) : (
+              <ScrollView
+                keyboardShouldPersistTaps='handled'
+                className='max-h-[280px]'
+                contentContainerClassName='gap-[8px]'>
+                {results.map((item) => {
+                  const label = `${item.name ?? ''}(${item.sido ?? ''})`;
+                  return (
+                    <AnimatedPressable
+                      disableScale
+                      key={item.id}
+                      className={`rounded-[6px] px-[10px] py-[6px] hover:bg-gray-100 active:bg-gray-200 ${
+                        schoolId === item.id ? 'bg-gray-200' : 'bg-transparent'
+                      }`}
+                      onPress={() => handleSelect(item.id, item.name ?? '', item.sido ?? '')}>
+                      <Text className='text-16m text-gray-800'>{label}</Text>
+                    </AnimatedPressable>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </View>
+        ) : null}
+      </View>
+    </EditScreenLayout>
+  );
+};
+
+export default EditSchoolScreen;

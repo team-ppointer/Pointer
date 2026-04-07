@@ -2,7 +2,8 @@ export type TagType = { id: number; name: string };
 
 export type ExamType = { id: number; name: string };
 
-export type ProblemType = 'CREATION_PROBLEM' | 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM';
+export type ProblemType = 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
+export type CreateType = 'CREATION_PROBLEM' | 'GICHUL_PROBLEM' | 'VARIANT_PROBLEM';
 
 export type ProblemAnswerType = 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
 

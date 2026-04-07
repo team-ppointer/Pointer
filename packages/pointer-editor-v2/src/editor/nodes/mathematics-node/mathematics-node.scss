@@ -1,0 +1,55 @@
+.tiptap-mathematics-render {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0px;
+  border-radius: var(--tt-radius-md, 12px);
+  transition-property: background, color, opacity;
+  transition-duration: var(--tt-transition-duration-default);
+  transition-timing-function: var(--tt-transition-easing-default);
+  vertical-align: baseline;
+  background: transparent;
+
+  &.tiptap-mathematics-render--editable {
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(59, 130, 246, 0.6);
+      outline-offset: 1px;
+    }
+  }
+
+  &[data-type='inline-math'] {
+  }
+
+  math {
+    display: inline-block !important;
+  }
+  .katex-display > .katex {
+    display: inline-block !important;
+  }
+  .katex-display > .katex > .katex-html {
+    display: inline-block !important;
+  }
+  .katex-display {
+    display: inline-block !important;
+  }
+}
+
+.tiptap-mathematics-render .katex-error {
+  color: #b91c1c;
+}
+
+.tiptap-mathematics-render .katex {
+  // line-height: 1.2;
+  font-size: 1em;
+  font-family: KaTeX_Main, 'Pretendard', serif;
+}
+
+.tiptap-mathematics-render .katex-display {
+  margin: 0;
+}

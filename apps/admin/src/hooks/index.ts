@@ -4,4 +4,13 @@ import useProblemEssentialInput from './useProblemEssentialInput';
 import useInvalidate from './useInvalidate';
 import useEditor from './useEditor';
 
-export { useModal, useNavigation, useProblemEssentialInput, useInvalidate, useEditor };
+import { useSelectedStudent } from '@/contexts/SelectedStudentContext';
+
+export {
+  useModal,
+  useNavigation,
+  useProblemEssentialInput,
+  useInvalidate,
+  useEditor,
+  useSelectedStudent,
+};

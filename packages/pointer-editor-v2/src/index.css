@@ -1,0 +1,14 @@
+@import './styles/_variables.scss';
+@import './styles/_keyframe-animations.scss';
+
+.pointer-editor-root {
+  font-size: 16px;
+}
+
+.pointer-editor-modal-root {
+  font-size: 16px;
+}
+
+.pointer-viewer-root {
+  font-size: 16px;
+}

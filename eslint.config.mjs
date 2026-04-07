@@ -6,11 +6,10 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
-
 /** @type {import("eslint").FlatConfig[]} */
 export default [
   {
-    ignores: ['node_modules', 'dist', 'build'],
+    ignores: ['node_modules', 'dist', 'build', 'apps/native/**'],
   },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
