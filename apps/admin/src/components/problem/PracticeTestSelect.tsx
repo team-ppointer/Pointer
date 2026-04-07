@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { getPracticeTest } from '@apis';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
-import { ChevronDown, X, Search, Plus, FileText, Calendar } from 'lucide-react';
+import { ChevronDown, Search, Plus } from 'lucide-react';
 
 interface PracticeTestSelectProps {
   practiceTest: number | undefined;
@@ -61,11 +61,11 @@ const PracticeTestSelect = ({
     setIsOpen(false);
   };
 
-  const handleClear = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    handlePracticeTest(undefined);
-    setValue('search', '');
-  };
+  // const handleClear = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   e.stopPropagation();
+  //   handlePracticeTest(undefined);
+  //   setValue('search', '');
+  // };
 
   return (
     <div className='relative w-full' ref={containerRef}>

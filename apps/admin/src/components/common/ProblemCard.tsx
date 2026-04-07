@@ -16,7 +16,7 @@ const ProblemCard = ({
   title,
   memo,
   problemText,
-  answer,
+  answer: _answer,
   onDelete,
   onClick,
 }: ProblemCardProps) => {

@@ -9,7 +9,6 @@ import {
   Search,
   Plus,
   Trash2,
-  ChevronRight,
   RotateCcw,
   Package,
   FileText,

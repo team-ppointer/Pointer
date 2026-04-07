@@ -24,7 +24,6 @@ import {
   SaveIcon,
   Sparkles,
   Hash,
-  BookOpen,
   Plus,
   ChevronRight,
   Clipboard,
