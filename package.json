@@ -14,7 +14,9 @@
     "dev": "turbo dev",
     "dev:admin": "turbo dev --filter=admin",
     "lint": "turbo lint",
+    "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{js,ts,tsx,jsx,mjs,hbs,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,jsx,mjs,hbs,json,css,md}\"",
     "svgr:admin": "pnpm dlx @svgr/cli apps/admin/public/svg --out-dir apps/admin/src/assets/svg --no-prettier && prettier --write \"apps/admin/src/assets/svg/**/*.{ts,tsx}\""
   },
   "devDependencies": {
