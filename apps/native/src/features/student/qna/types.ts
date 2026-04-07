@@ -294,13 +294,13 @@ export const mapSearchResults = (searchResp: QnASearchResp): SearchResult => {
   if (searchResp.chatResults?.data) {
     searchResp.chatResults.data.forEach((chat) => {
       messages.push({
-        id: chat.chatId,
-        chatRoomId: chat.qnaId,
-        content: chat.chatContent,
-        senderName: chat.isMine ? '나' : '상대방',
+        id: chat.matchedChatId ?? 0,
+        chatRoomId: chat.qnaId ?? 0,
+        content: chat.matchedChatPreview ?? '',
+        senderName: '상대방',
         senderType: chat.qnaType === 'ADMIN_CHAT' ? 'publisher' : 'teacher',
-        status: 'asking',
-        date: formatDateTime(chat.latestMessageTime),
+        status: chat.qnaStatus === 'RESOLVED' ? 'resolved' : 'asking',
+        date: formatDateTime(chat.publishDate),
         matchedKeyword: '',
       });
     });
