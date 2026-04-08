@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { Container } from '@components/common';
+import { ContentInset } from '@components/common';
 import { TeacherIcon } from '@components/system/icons';
 
 interface TextBubbleProps {
@@ -37,7 +37,7 @@ interface LearningStatusProps {
 
 const LearningStatus = ({ studentName, date, content }: LearningStatusProps) => {
   return (
-    <Container className='gap-[16px] pt-[26px] pb-[32px]'>
+    <ContentInset className='gap-[16px] pt-[26px] pb-[32px]'>
       <Text className='text-20b text-gray-900'>{`${studentName}님의 학습 상태`}</Text>
       <View className='flex-row items-start gap-[18px] px-[10px]'>
         {/* Learning Status Icon */}
@@ -50,7 +50,7 @@ const LearningStatus = ({ studentName, date, content }: LearningStatusProps) => 
 
         <TextBubble date={date} content={content} />
       </View>
-    </Container>
+    </ContentInset>
   );
 };
 

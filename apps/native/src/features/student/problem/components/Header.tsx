@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 
 import { type components } from '@schema';
-import { Container } from '@components/common';
+import { ContentInset } from '@components/common';
 import { colors } from '@theme/tokens';
 
 type ProblemProgress = NonNullable<components['schemas']['ProblemWithStudyInfoResp']['progress']>;
@@ -54,7 +54,7 @@ const HeaderRoot = ({
   const paddingClass = onClose ? 'pr-[56px]' : '';
 
   return (
-    <Container className={className}>
+    <ContentInset className={className}>
       <View className={`relative justify-center py-[14px] ${contentClassName}`}>
         <View className={`gap-[4px] ${paddingClass}`}>{children}</View>
         {onClose && (
@@ -67,7 +67,7 @@ const HeaderRoot = ({
           </Pressable>
         )}
       </View>
-    </Container>
+    </ContentInset>
   );
 };
 

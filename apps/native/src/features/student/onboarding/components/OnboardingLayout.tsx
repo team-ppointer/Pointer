@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon } from 'lucide-react-native';
 
 import { colors } from '@theme/tokens';
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 
 type Props = {
   title?: string;
@@ -110,7 +110,7 @@ const OnboardingLayout = ({
           <View className='h-[20px]' />
         )}
       </View>
-      <Container className='flex-1 pt-[6px]'>
+      <ContentInset className='flex-1 pt-[6px]'>
         {isScrollable ? (
           <ScrollView
             className='flex-1 overflow-visible'
@@ -140,7 +140,7 @@ const OnboardingLayout = ({
           containerStyle={{ marginBottom: isKeyboardVisible ? 18 : inset.bottom + 18 }}>
           <Text className='typo-body-1-medium text-center text-white'>{ctaLabel}</Text>
         </AnimatedPressable>
-      </Container>
+      </ContentInset>
     </KeyboardAvoidingView>
   );
 };

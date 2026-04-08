@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, ScrollView } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import { colors } from '@theme/tokens';
 
 import { ScreenLayout } from '../components';
@@ -25,7 +25,7 @@ const TermsScreen = () => {
   return (
     <ScreenLayout title='서비스 약관'>
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
-        <Container className='gap-3'>
+        <ContentInset className='gap-3'>
           {TERMS_LIST.map((term) => (
             <AnimatedPressable
               disableScale
@@ -36,7 +36,7 @@ const TermsScreen = () => {
               <ChevronRight size={20} color={colors['gray-600']} />
             </AnimatedPressable>
           ))}
-        </Container>
+        </ContentInset>
       </ScrollView>
     </ScreenLayout>
   );

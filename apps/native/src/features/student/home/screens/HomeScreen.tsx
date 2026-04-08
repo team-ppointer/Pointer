@@ -10,7 +10,7 @@ import { useGetLastDiagnosis, useGetMonthlyPublish, useGetPublishDetail } from '
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors } from '@theme/tokens';
 import { PointerSymbol } from '@components/system/icons';
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import { useInvalidateAll } from '@hooks';
 import { formatDateKey } from '@utils/date';
 
@@ -61,7 +61,7 @@ const HomeScreen = () => {
     <ScrollView
       contentContainerStyle={{ paddingBottom: 80 }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-      <Container className='flex-col gap-[12px] pt-[20px] md:flex-row'>
+      <ContentInset className='flex-col gap-[12px] pt-[20px] md:flex-row'>
         <View className='flex-1 flex-col'>
           <View className='mb-[10px] w-full flex-row items-center gap-[8px] p-[8px]'>
             <View className='bg-primary-500 size-[42px] items-center justify-center rounded-full'>
@@ -125,7 +125,7 @@ const HomeScreen = () => {
             onDateChange={handleDateChange}
           />
         </View>
-      </Container>
+      </ContentInset>
 
       <CalendarModal
         visible={isCalendarModalVisible}

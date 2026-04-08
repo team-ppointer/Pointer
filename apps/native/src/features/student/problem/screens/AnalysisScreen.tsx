@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { colors, shadow } from '@theme/tokens';
 import { type StudentRootStackParamList } from '@navigation/student/types';
-import { Container } from '@components/common';
+import { ContentInset } from '@components/common';
 import {
   useGetScrapStatusById,
   useToggleScrapFromProblem,
@@ -224,7 +224,7 @@ const AnalysisScreen = ({
             <Header.Title variant='accent'>{mainProblemLabel}</Header.Title>
           </Header.TitleGroup>
         </Header>
-        <Container>
+        <ContentInset>
           <SegmentedControl
             values={['분석', '해설']}
             selectedIndex={selectedTab}
@@ -234,9 +234,9 @@ const AnalysisScreen = ({
             fontStyle={{ fontSize: 14, fontWeight: '500' }}
             activeFontStyle={{ fontSize: 14, fontWeight: '600' }}
           />
-        </Container>
+        </ContentInset>
         <View className='flex-1 overflow-hidden'>
-          <Container className='flex-1 flex-col gap-[20px] pt-[20px] pb-[32px] md:flex-row'>
+          <ContentInset className='flex-1 flex-col gap-[20px] pt-[20px] pb-[32px] md:flex-row'>
             <View className='md:flex-1'>
               <View
                 className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
@@ -300,7 +300,7 @@ const AnalysisScreen = ({
                 <ProblemViewer problemContent={oneStepMoreText} />
               </View>
             </ScrollView>
-          </Container>
+          </ContentInset>
         </View>
         <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
           {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>

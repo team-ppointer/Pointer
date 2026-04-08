@@ -3,7 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, Trash2, Undo2 } from 'lucide-react-native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Container } from '@/components/common';
+import { ContentInset } from '@/components/common';
 import { CircleCheckDashed } from '@/components/system/icons';
 import { colors } from '@/theme/tokens';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
@@ -37,7 +37,7 @@ const DeletedScrapHeader = ({
       edges={['top']}
       className={`bg-${!reducerState.isSelecting ? 'background' : 'gray-200'}`}>
       {!reducerState.isSelecting && (
-        <Container className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
+        <ContentInset className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
           {navigateback.canGoBack() ? (
             <Pressable
               onPress={() => navigateback.goBack()}
@@ -59,7 +59,7 @@ const DeletedScrapHeader = ({
               <CircleCheckDashed />
             </Pressable>
           </View>
-        </Container>
+        </ContentInset>
       )}
 
       {reducerState.isSelecting && (

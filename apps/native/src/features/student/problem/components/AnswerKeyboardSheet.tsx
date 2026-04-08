@@ -9,7 +9,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
 import { colors } from '@theme/tokens';
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 
 type AnswerType = 'MULTIPLE_CHOICE' | 'SHORT_ANSWER';
 
@@ -126,11 +126,11 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
         backgroundStyle={styles.sheetBackground}
         animatedIndex={animatedIndex}>
         <BottomSheetView className='bg-gray-300 px-[4px] pb-[20px]'>
-          <Container>
+          <ContentInset>
             {answerType === 'MULTIPLE_CHOICE'
               ? renderMultipleChoiceInput()
               : renderShortAnswerInput()}
-          </Container>
+          </ContentInset>
         </BottomSheetView>
       </BottomSheet>
     );
