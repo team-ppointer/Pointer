@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { View, type LayoutChangeEvent, type ViewProps, useWindowDimensions } from 'react-native';
 
 interface ContentInsetProps extends ViewProps {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const MIN_HORIZONTAL_PADDING = 16;
