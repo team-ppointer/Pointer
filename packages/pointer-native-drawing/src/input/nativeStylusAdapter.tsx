@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { Platform, StyleSheet } from "react-native";
 import type { InputEvent } from "../model/drawingTypes";
 import type { DrawingInputCallbacks } from "./inputTypes";
@@ -34,51 +34,22 @@ function uptimeMsToEpochMs(uptimeMs: number): number {
   return uptimeMs + BOOT_TIME_OFFSET_MS;
 }
 
-/**
- * Convert Apple Pencil altitude/azimuth to W3C Pointer Events tiltX/tiltY.
- * Reference: W3C Pointer Events Level 3, section 4.1.5
- *
- * altitude: 0 = parallel to surface, π/2 = perpendicular
- * azimuth: 0 = pointing right (positive x), increases clockwise (UIKit)
- * tiltX/tiltY: degrees from perpendicular, range [-90, 90]
- */
-function altitudeAzimuthToTilt(
-  altitude: number,
-  azimuth: number,
-): { tiltX: number; tiltY: number } {
-  if (altitude >= Math.PI / 2) {
-    // Perfectly perpendicular — no tilt
-    return { tiltX: 0, tiltY: 0 };
-  }
-
-  if (altitude <= 0) {
-    // Fully parallel — clamp to ±90
-    const tiltX = Math.round(Math.atan2(Math.cos(azimuth), 0) * RAD_TO_DEG);
-    const tiltY = Math.round(Math.atan2(Math.sin(azimuth), 0) * RAD_TO_DEG);
-    return { tiltX, tiltY };
-  }
-
-  const tanAlt = Math.tan(altitude);
-  const tiltX = Math.round(Math.atan2(Math.cos(azimuth), tanAlt) * RAD_TO_DEG);
-  const tiltY = Math.round(Math.atan2(Math.sin(azimuth), tanAlt) * RAD_TO_DEG);
-  return { tiltX, tiltY };
-}
-
 function unpackInputEvents(payload: StylusTouchPayload): InputEvent[] {
-  const { xs, ys, timestamps, forces, altitudes, azimuths } = payload;
+  const { xs, ys, timestamps, forces } = payload;
   const count = xs.length;
   const events: InputEvent[] = new Array(count);
 
   for (let i = 0; i < count; i++) {
-    const { tiltX, tiltY } = altitudeAzimuthToTilt(altitudes[i], azimuths[i]);
     events[i] = {
       x: xs[i],
       y: ys[i],
       timestamp: uptimeMsToEpochMs(timestamps[i]),
       pressure: forces[i],
       pointerType: "pen",
-      tiltX,
-      tiltY,
+      // tilt computation skipped — tiltSensitivity=0 in fixed-width mode.
+      // Re-enable when variable-width or tilt-based rendering is needed:
+      // tiltX: computeTiltX(altitudes[i], azimuths[i]),
+      // tiltY: computeTiltY(altitudes[i], azimuths[i]),
     };
   }
 
@@ -178,16 +149,20 @@ export function useNativeStylusAdapter(
     [],
   );
 
+  const overlay = useMemo(
+    () =>
+      Platform.OS === "ios" ? (
+        <StylusInputView
+          style={StyleSheet.absoluteFill}
+          onStylusTouch={handleStylusTouch}
+        />
+      ) : null,
+    [handleStylusTouch],
+  );
+
   if (Platform.OS !== "ios") {
     return null;
   }
-
-  const overlay = (
-    <StylusInputView
-      style={StyleSheet.absoluteFill}
-      onStylusTouch={handleStylusTouch}
-    />
-  );
 
   return { overlay, state: { phase: phaseRef.current } };
 }

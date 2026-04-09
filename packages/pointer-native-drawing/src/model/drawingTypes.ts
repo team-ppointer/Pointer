@@ -7,14 +7,20 @@ export type StrokeSample = {
   tiltX?: number;
   tiltY?: number;
   velocity?: number;
+  smoothedVelocity?: number;
   timestamp: number;
 };
 
 export type WritingFeelConfig = {
   minWidth: number;
   maxWidth: number;
-  pressureSensitivity: number;
-  velocitySensitivity: number;
+  pressureGamma: number;
+  pressureWeight: number;
+  velocityWeight: number;
+  velocitySmoothing: number;
+  velocityThinningK: number;
+  widthSmoothing: number;
+  tiltSensitivity: number;
 };
 
 export type Stroke = {

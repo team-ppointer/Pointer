@@ -7,7 +7,7 @@ import {
   StrokeJoin,
 } from "@shopify/react-native-skia";
 import type { ReadonlyPoint, ReadonlyStroke } from "../../model/drawingTypes";
-import { centripetalControlPoints } from "../../smoothing";
+import { centripetalControlPointsMut } from "../../smoothing";
 
 export const PICTURE_CACHE_STROKE_THRESHOLD = 120;
 export const LIVE_FULL_REBUILD_POINT_THRESHOLD = 240;
@@ -15,6 +15,7 @@ export const LIVE_FULL_REBUILD_POINT_THRESHOLD = 240;
 export const createCommittedPicture = (
   paths: SkPath[],
   strokes: ReadonlyArray<ReadonlyStroke>,
+  fixedWidthMode = false,
 ): SkPicture | null => {
   if (paths.length === 0) {
     return null;
@@ -33,7 +34,7 @@ export const createCommittedPicture = (
       continue;
     }
 
-    const hasVariableWidth = stroke.samples && stroke.samples.length > 0;
+    const hasVariableWidth = !fixedWidthMode && stroke.samples && stroke.samples.length > 0;
     paint.setStyle(hasVariableWidth ? PaintStyle.Fill : PaintStyle.Stroke);
     paint.setColor(Skia.Color(stroke.color));
     if (!hasVariableWidth) {
@@ -80,8 +81,8 @@ export const appendLiveSmoothSegment = (
     return false;
   }
 
-  const { cp1x, cp1y, cp2x, cp2y } = centripetalControlPoints(previous, current, next, nextNext);
+  const cp = centripetalControlPointsMut(previous, current, next, nextNext);
 
-  path.cubicTo(cp1x, cp1y, cp2x, cp2y, next.x, next.y);
+  path.cubicTo(cp.cp1x, cp.cp1y, cp.cp2x, cp.cp2y, next.x, next.y);
   return true;
 };

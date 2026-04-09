@@ -1,5 +1,5 @@
 import React, { RefObject, useMemo } from "react";
-import { Canvas, CanvasRef, Path, Picture, SkPath } from "@shopify/react-native-skia";
+import { Canvas, CanvasRef, Circle, Path, Picture, SkPath } from "@shopify/react-native-skia";
 import type { ReadonlyStroke, ReadonlyStrokeBounds } from "../../model/drawingTypes";
 import {
   createCommittedPicture,
@@ -7,6 +7,7 @@ import {
 } from "./skiaDrawingUtils";
 
 const VIEWPORT_CULLING_MARGIN = 280;
+const CANVAS_STYLE = { flex: 1 } as const;
 
 type SkiaDrawingCanvasSurfaceProps = {
   paths: SkPath[];
@@ -17,6 +18,9 @@ type SkiaDrawingCanvasSurfaceProps = {
   livePath: SkPath;
   isLiveStrokeActive: boolean;
   isLivePathVariableWidth: boolean;
+  fixedWidthMode: boolean;
+  eraserCursor?: { x: number; y: number } | null;
+  eraserSize?: number;
   canvasRef: RefObject<CanvasRef | null>;
   scrollOffsetY: number;
   viewportHeight: number;
@@ -33,7 +37,7 @@ const isStrokeVisible = (
   return bounds.maxY >= top && bounds.minY <= bottom;
 };
 
-export function SkiaDrawingCanvasSurface({
+export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSurface({
   paths,
   strokes,
   strokeBounds,
@@ -42,6 +46,9 @@ export function SkiaDrawingCanvasSurface({
   livePath,
   isLiveStrokeActive,
   isLivePathVariableWidth,
+  fixedWidthMode,
+  eraserCursor,
+  eraserSize,
   canvasRef,
   scrollOffsetY,
   viewportHeight,
@@ -58,7 +65,7 @@ export function SkiaDrawingCanvasSurface({
       }
 
       const stroke = strokes[index];
-      const hasVariableWidth = stroke?.samples && stroke.samples.length > 0;
+      const hasVariableWidth = !fixedWidthMode && stroke?.samples && stroke.samples.length > 0;
       return (
         <Path
           key={`path-${index}`}
@@ -73,7 +80,7 @@ export function SkiaDrawingCanvasSurface({
         />
       );
     });
-  }, [normalizedPenStrokeWidth, paths, scrollOffsetY, strokeBounds, strokeColor, strokes, viewportHeight]);
+  }, [fixedWidthMode, normalizedPenStrokeWidth, paths, scrollOffsetY, strokeBounds, strokeColor, strokes, viewportHeight]);
 
   const committedPicture = useMemo(
     () => {
@@ -89,13 +96,13 @@ export function SkiaDrawingCanvasSurface({
         visiblePaths.push(paths[i]);
         visibleStrokes.push(strokes[i]);
       }
-      return createCommittedPicture(visiblePaths, visibleStrokes);
+      return createCommittedPicture(visiblePaths, visibleStrokes, fixedWidthMode);
     },
-    [paths, scrollOffsetY, strokeBounds, strokes, viewportHeight],
+    [fixedWidthMode, paths, scrollOffsetY, strokeBounds, strokes, viewportHeight],
   );
 
   return (
-    <Canvas style={{ flex: 1 }} ref={canvasRef}>
+    <Canvas style={CANVAS_STYLE} ref={canvasRef}>
       {committedPicture ? <Picture picture={committedPicture} /> : renderedPaths}
       {isLiveStrokeActive && (
         <Path
@@ -108,6 +115,17 @@ export function SkiaDrawingCanvasSurface({
           antiAlias
         />
       )}
+      {eraserCursor != null && eraserSize != null && (
+        <Circle
+          cx={eraserCursor.x}
+          cy={eraserCursor.y}
+          r={eraserSize}
+          style="stroke"
+          strokeWidth={1}
+          color="#AAAAAA"
+          antiAlias
+        />
+      )}
     </Canvas>
   );
-}
+});

@@ -32,6 +32,7 @@ export type {
 export { useNativeStylusAdapter } from "./input/nativeStylusAdapter";
 export type { NativeStylusAdapterConfig } from "./input/nativeStylusAdapter";
 export { buildSmoothPath, buildVariableWidthPath } from "./smoothing";
+export type { PathBuildState } from "./smoothing";
 export type {
   RendererViewport,
   CommittedStrokeDiff,

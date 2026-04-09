@@ -49,6 +49,7 @@ export type DrawingCanvasProps = {
   minCanvasHeight?: number;
   writingFeelConfig?: WritingFeelConfig;
   stylusInput?: "auto" | "native" | "rngh";
+  pencilOnly?: boolean;
   children?: React.ReactNode;
 };
 
@@ -68,11 +69,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       minCanvasHeight = 800,
       writingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
       stylusInput = "auto",
+      pencilOnly = false,
       children,
     },
     ref,
   ) => {
     const [isScrollEnabled, setIsScrollEnabled] = useState(true);
+    const [eraserCursor, setEraserCursor] = useState<{ x: number; y: number } | null>(null);
 
     const scrollViewRef = useRef<ScrollView>(null);
     const minimumCanvasHeightRef = useRef<number>(
@@ -96,7 +99,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
     const engineRef = useRef<DrawingEngine>(new DrawingEngine());
     const [rendererState, rendererActions] = useSkiaDrawingRenderer(writingFeelConfig);
-    const { paths, strokes, livePath, isLiveStrokeActive, isLivePathVariableWidth, viewport, canvasRef } = rendererState;
+    const { paths, strokes, livePath, isLiveStrokeActive, isLivePathVariableWidth, fixedWidthMode, viewport, canvasRef } = rendererState;
     const {
       startLivePath,
       scheduleLivePathRender,
@@ -109,8 +112,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     } = rendererActions;
 
     const normalizedPenStrokeWidth = useMemo(
-      () => normalizeStrokeWidth(strokeWidth),
-      [strokeWidth],
+      () => fixedWidthMode ? writingFeelConfig.minWidth : normalizeStrokeWidth(strokeWidth),
+      [strokeWidth, fixedWidthMode, writingFeelConfig.minWidth],
     );
 
     const setCanvasHeightValue = useCallback(
@@ -162,6 +165,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       (input: InputEvent) => {
         const result = engineRef.current.addPoint(input, {
           strokeWidth: normalizedPenStrokeWidth,
+          fixedWidth: fixedWidthMode,
         });
         scheduleLivePathRender(engineRef.current.getSessionSamples());
 
@@ -170,7 +174,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
           setCanvasHeightValue(result.maxY + 200);
         }
       },
-      [normalizedPenStrokeWidth, scheduleLivePathRender, setCanvasHeightValue],
+      [fixedWidthMode, normalizedPenStrokeWidth, scheduleLivePathRender, setCanvasHeightValue],
     );
 
     const finalizeStroke = useCallback(() => {
@@ -209,6 +213,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
     const eraseAtPoint = useCallback(
       (input: InputEvent) => {
+        setEraserCursor({ x: input.x, y: input.y });
         const result = engineRef.current.eraseAtPoint(input, {
           eraserSize: eraserSizeRef.current,
         });
@@ -331,7 +336,10 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     const inputCallbacks = useMemo(
       () => ({
         onInteractionBegin: () => setIsScrollEnabled(false),
-        onInteractionFinalize: () => setIsScrollEnabled(true),
+        onInteractionFinalize: () => {
+          setIsScrollEnabled(true);
+          setEraserCursor(null);
+        },
         onDrawStart: startStroke,
         onDrawMove: addPoint,
         onDrawEnd: finalizeStroke,
@@ -361,6 +369,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
     const { gesture: pan } = useRnghPanAdapter({
       eraserMode,
+      pencilOnly: pencilOnly || useNativeStylus,
       minDistance: PAN_MIN_DISTANCE,
       callbacks: inputCallbacks,
     });
@@ -422,6 +431,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
                   livePath={livePath}
                   isLiveStrokeActive={isLiveStrokeActive}
                   isLivePathVariableWidth={isLivePathVariableWidth}
+                  fixedWidthMode={fixedWidthMode}
+                  eraserCursor={eraserCursor}
+                  eraserSize={eraserSize}
                   canvasRef={canvasRef}
                   scrollOffsetY={viewport.scrollOffsetY}
                   viewportHeight={viewport.viewportHeight}

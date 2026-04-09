@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { Gesture } from "react-native-gesture-handler";
 import { runOnJS, useSharedValue } from "react-native-reanimated";
 import type { InputEvent, PointerType } from "../model/drawingTypes";
@@ -28,21 +28,21 @@ const createInputEventFromRngh = (
   event: RnghEventLike,
   timestamp: number,
 ): InputEvent => {
+  "worklet";
   const pointerType = RNGH_POINTER_TYPE_MAP[(event as any).pointerType as number] ?? "unknown";
   const stylus = event.stylusData;
-  return {
-    x: event.x,
-    y: event.y,
-    timestamp,
-    pointerType,
-    ...(stylus?.pressure !== undefined ? { pressure: stylus.pressure } : {}),
-    ...(stylus?.tiltX !== undefined ? { tiltX: stylus.tiltX } : {}),
-    ...(stylus?.tiltY !== undefined ? { tiltY: stylus.tiltY } : {}),
-  };
+  const input: InputEvent = { x: event.x, y: event.y, timestamp, pointerType };
+  if (stylus) {
+    if (stylus.pressure !== undefined) input.pressure = stylus.pressure;
+    if (stylus.tiltX !== undefined) input.tiltX = stylus.tiltX;
+    if (stylus.tiltY !== undefined) input.tiltY = stylus.tiltY;
+  }
+  return input;
 };
 
 export const useRnghPanAdapter = ({
   eraserMode,
+  pencilOnly,
   minDistance,
   callbacks,
 }: InputAdapterConfig): InputAdapter<ReturnType<typeof Gesture.Pan>> => {
@@ -50,10 +50,15 @@ export const useRnghPanAdapter = ({
   callbacksRef.current = callbacks;
 
   const phaseShared = useSharedValue<InputPhase>("idle");
-  const [phase, setPhase] = useState<InputPhase>("idle");
+  const phaseRef = useRef<InputPhase>("idle");
+
+  const eraserModeShared = useSharedValue(eraserMode);
+  eraserModeShared.value = eraserMode;
+  const pencilOnlyShared = useSharedValue(pencilOnly);
+  pencilOnlyShared.value = pencilOnly;
 
   const transitionPhase = useCallback((next: InputPhase) => {
-    setPhase(next);
+    phaseRef.current = next;
   }, []);
 
   const handleDrawStart = useCallback(
@@ -111,18 +116,24 @@ export const useRnghPanAdapter = ({
         .maxPointers(1)
         .averageTouches(true)
         .minDistance(minDistance)
-        .onBegin(() => {
+        .onBegin((event) => {
           "worklet";
+          if (pencilOnlyShared.value && (event as any).pointerType === 0) {
+            return;
+          }
           runOnJS(handleInteractionBegin)();
         })
         .onStart((event) => {
           "worklet";
+          if (pencilOnlyShared.value && (event as any).pointerType === 0) {
+            return;
+          }
           // RNGH does not expose native event timestamps on the JS thread;
           // Date.now() is the best available approximation. Velocity calculations
           // derived from these timestamps will have ~1-4 ms jitter on the JS thread.
           const input = createInputEventFromRngh(event as unknown as RnghEventLike, Date.now());
 
-          if (eraserMode) {
+          if (eraserModeShared.value) {
             runOnJS(handleEraseStart)(input);
             return;
           }
@@ -132,9 +143,12 @@ export const useRnghPanAdapter = ({
         })
         .onUpdate((event) => {
           "worklet";
+          if (pencilOnlyShared.value && (event as any).pointerType === 0) {
+            return;
+          }
           const input = createInputEventFromRngh(event as unknown as RnghEventLike, Date.now());
 
-          if (eraserMode) {
+          if (eraserModeShared.value) {
             runOnJS(handleEraseMove)(input);
             return;
           }
@@ -145,15 +159,18 @@ export const useRnghPanAdapter = ({
         .onEnd(() => {
           "worklet";
 
-          if (eraserMode) {
+          if (eraserModeShared.value) {
             return;
           }
 
           phaseShared.value = "ended";
           runOnJS(handleDrawEnd)();
         })
-        .onFinalize(() => {
+        .onFinalize((event) => {
           "worklet";
+          if (pencilOnlyShared.value && (event as any).pointerType === 0) {
+            return;
+          }
 
           if (phaseShared.value === "began" || phaseShared.value === "active") {
             phaseShared.value = "cancelled";
@@ -165,7 +182,8 @@ export const useRnghPanAdapter = ({
         }),
     [
       phaseShared,
-      eraserMode,
+      eraserModeShared,
+      pencilOnlyShared,
       minDistance,
       handleInteractionBegin,
       handleDrawStart,
@@ -178,5 +196,5 @@ export const useRnghPanAdapter = ({
     ],
   );
 
-  return { gesture, state: { phase } };
+  return { gesture, state: { phase: phaseRef.current } };
 };
