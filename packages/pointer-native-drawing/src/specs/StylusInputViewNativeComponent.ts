@@ -11,18 +11,16 @@ type StylusTouchEvent = Readonly<{
   // Parallel arrays — one entry per coalesced touch sample.
   // Using parallel arrays to work around react-native#47113
   // (codegen nested-object-in-array bug).
-  xs: ReadonlyArray<Double>;
-  ys: ReadonlyArray<Double>;
-  timestamps: ReadonlyArray<Double>; // ms since system boot (UITouch.timestamp * 1000)
-  forces: ReadonlyArray<Double>; // 0..1 normalized
-  altitudes: ReadonlyArray<Double>; // radians, 0=parallel π/2=perpendicular
-  azimuths: ReadonlyArray<Double>; // radians, UIKit convention (0=right, increases CW)
+  xs: Double[];
+  ys: Double[];
+  timestamps: Double[]; // ms since system boot (UITouch.timestamp * 1000)
+  forces: Double[]; // 0..1 normalized
+  altitudes: Double[]; // radians, 0=parallel π/2=perpendicular
+  azimuths: Double[]; // radians, UIKit convention (0=right, increases CW)
 }>;
 
 export interface NativeProps extends ViewProps {
   onStylusTouch: DirectEventHandler<StylusTouchEvent>;
 }
 
-export default codegenNativeComponent<NativeProps>("StylusInputView", {
-  interfaceOnly: true,
-});
+export default codegenNativeComponent<NativeProps>("StylusInputView");

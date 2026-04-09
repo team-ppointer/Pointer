@@ -99,15 +99,15 @@ using namespace facebook::react;
   event.forces = {forces.begin(), forces.end()};
   event.altitudes = {altitudes.begin(), altitudes.end()};
   event.azimuths = {azimuths.begin(), azimuths.end()};
-  eventEmitter->onOnStylusTouch(event);
+  eventEmitter->onStylusTouch(event);
 }
 
 - (const StylusInputViewEventEmitter *)_stylusTouchEmitter
 {
-  if (!self.eventEmitter) {
+  if (!_eventEmitter) {
     return nullptr;
   }
-  return static_cast<const StylusInputViewEventEmitter *>(self.eventEmitter.get());
+  return static_cast<const StylusInputViewEventEmitter *>(_eventEmitter.get());
 }
 
 @end

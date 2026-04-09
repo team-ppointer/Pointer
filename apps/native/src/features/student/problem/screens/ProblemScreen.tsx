@@ -7,7 +7,6 @@ import {
   Animated,
   Dimensions,
   type LayoutChangeEvent,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -15,7 +14,6 @@ import {
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Container } from '@components/common';
 import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
@@ -472,37 +470,24 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           </View>
         </View>
 
-        <ScrollView>
-          <Container className='flex-1'>
-            {/* Problem */}
-            <View
-              className='my-[10px] overflow-hidden rounded-[8px]'
-              style={{ position: 'relative', height: screenHeight - 200 }}>
-              {/* 아래층: ProblemViewer */}
-              <ProblemViewer
-                problemContent={currentProblem?.problemContent ?? ''}
-                minHeight={200}
-                padding={20}
-                fontStyle='serif'
-              />
-
-              {/* 위층: DrawingCanvas - ProblemViewer 위에 겹쳐짐 */}
-              <View
-                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-                pointerEvents='box-none'>
-                <View style={{ flex: 1 }} pointerEvents='auto'>
-                  <DrawingCanvas
-                    ref={canvasRef}
-                    strokeColor='#1E1E21'
-                    strokeWidth={2}
-                    eraserMode={drawingState.isEraserMode}
-                    eraserSize={12}
-                  />
-                </View>
-              </View>
-            </View>
-          </Container>
-        </ScrollView>
+        <View style={{ flex: 1, margin: 10, borderRadius: 8, overflow: 'hidden' }}>
+          <DrawingCanvas
+            ref={canvasRef}
+            strokeColor='#1E1E21'
+            strokeWidth={2}
+            eraserMode={drawingState.isEraserMode}
+            eraserSize={12}
+            backgroundColor='transparent'
+            minCanvasHeight={screenHeight - 200}
+          >
+            <ProblemViewer
+              problemContent={currentProblem?.problemContent ?? ''}
+              minHeight={200}
+              padding={20}
+              fontStyle='serif'
+            />
+          </DrawingCanvas>
+        </View>
         <AnswerKeyboardSheet
           ref={bottomSheetRef}
           bottomInset={bottomBarHeight}

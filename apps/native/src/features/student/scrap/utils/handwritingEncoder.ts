@@ -1,4 +1,7 @@
-import { type Stroke, type TextItem } from './skia';
+import { type Stroke } from './skia';
+
+// 기존 저장 데이터 호환용 로컬 타입
+type TextItem = { id: string; text: string; x: number; y: number; fontSize: number; color: string };
 
 export interface HandwritingData {
   strokes: Stroke[];

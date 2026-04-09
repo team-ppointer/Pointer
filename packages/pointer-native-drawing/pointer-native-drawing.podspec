@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/b0nsu/pointer-native-drawing"
   s.license      = package["license"]
   s.author       = "b0nsu"
-  s.platforms    = { :ios => "16.0" }
+  s.platforms    = { :ios => "15.1" }
   s.source       = { :git => "https://github.com/b0nsu/pointer-native-drawing.git", :tag => s.version.to_s }
   s.source_files = "ios/**/*.{h,m,mm,cpp}"
 

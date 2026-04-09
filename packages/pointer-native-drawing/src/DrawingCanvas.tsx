@@ -40,6 +40,7 @@ export type DrawingCanvasRef = {
 export type DrawingCanvasProps = {
   strokeColor?: string;
   strokeWidth?: number;
+  backgroundColor?: string;
   onChange?: (strokes: Stroke[]) => void;
   onScrollOffsetChange?: (offsetY: number) => void;
   onCanvasHeightChange?: (height: number) => void;
@@ -48,6 +49,7 @@ export type DrawingCanvasProps = {
   minCanvasHeight?: number;
   writingFeelConfig?: WritingFeelConfig;
   stylusInput?: "auto" | "native" | "rngh";
+  children?: React.ReactNode;
 };
 
 const PAN_MIN_DISTANCE = 0.12;
@@ -57,6 +59,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     {
       strokeColor = "#1E1E21",
       strokeWidth = 3,
+      backgroundColor = "#fff",
       onChange,
       onScrollOffsetChange,
       onCanvasHeightChange,
@@ -65,6 +68,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       minCanvasHeight = 800,
       writingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
       stylusInput = "auto",
+      children,
     },
     ref,
   ) => {
@@ -394,7 +398,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     ]);
 
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor }]}>
         <ScrollView
           ref={scrollViewRef}
           style={styles.scrollView}
@@ -407,19 +411,22 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         >
           <GestureDetector gesture={pan}>
             <View style={[styles.canvasWrapper, { height: canvasHeight }]}>
-              <SkiaDrawingCanvasSurface
-                paths={paths}
-                strokes={strokes}
-                strokeBounds={rendererState.strokeBounds}
-                strokeColor={strokeColor}
-                normalizedPenStrokeWidth={normalizedPenStrokeWidth}
-                livePath={livePath}
-                isLiveStrokeActive={isLiveStrokeActive}
-                isLivePathVariableWidth={isLivePathVariableWidth}
-                canvasRef={canvasRef}
-                scrollOffsetY={viewport.scrollOffsetY}
-                viewportHeight={viewport.viewportHeight}
-              />
+              {children}
+              <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                <SkiaDrawingCanvasSurface
+                  paths={paths}
+                  strokes={strokes}
+                  strokeBounds={rendererState.strokeBounds}
+                  strokeColor={strokeColor}
+                  normalizedPenStrokeWidth={normalizedPenStrokeWidth}
+                  livePath={livePath}
+                  isLiveStrokeActive={isLiveStrokeActive}
+                  isLivePathVariableWidth={isLivePathVariableWidth}
+                  canvasRef={canvasRef}
+                  scrollOffsetY={viewport.scrollOffsetY}
+                  viewportHeight={viewport.viewportHeight}
+                />
+              </View>
               {useNativeStylus && nativeStylusAdapter?.overlay}
             </View>
           </GestureDetector>
@@ -432,7 +439,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   scrollView: {
     flex: 1,

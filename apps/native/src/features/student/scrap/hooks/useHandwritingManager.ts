@@ -50,7 +50,6 @@ export function useHandwritingManager({
           try {
             const decodedData = decodeHandwritingData(handwritingData.data);
             canvasRef.current.setStrokes(decodedData.strokes);
-            canvasRef.current.setTexts(decodedData.texts);
             lastSavedDataRef.current = handwritingData.data;
           } catch (error) {
             console.error('필기 데이터 로드 실패:', error);
@@ -73,10 +72,9 @@ export function useHandwritingManager({
       }
 
       const strokes = canvasRef.current.getStrokes();
-      const texts = canvasRef.current.getTexts();
 
       try {
-        const base64Data = encodeHandwritingData(strokes || [], texts || []);
+        const base64Data = encodeHandwritingData(strokes || [], []);
 
         // 변경사항 없으면 저장 안 함
         if (base64Data === lastSavedDataRef.current) {

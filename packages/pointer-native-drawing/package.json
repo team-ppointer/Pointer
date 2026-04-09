@@ -1,7 +1,7 @@
 {
-  "name": "pointer-native-drawing",
+  "name": "@repo/pointer-native-drawing",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "description": "Draw/erase-only React Native Skia canvas module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -17,7 +17,8 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -30,7 +31,12 @@
   "codegenConfig": {
     "name": "PointerNativeDrawingSpec",
     "type": "components",
-    "jsSrcsDir": "src/specs"
+    "jsSrcsDir": "src/specs",
+    "ios": {
+      "componentProvider": {
+        "StylusInputView": "StylusInputView"
+      }
+    }
   },
   "license": "MIT",
   "scripts": {
