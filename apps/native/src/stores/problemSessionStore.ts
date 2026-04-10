@@ -22,6 +22,7 @@ type ProblemSessionState = {
   group?: PublishProblemGroupResp;
   publishId?: number;
   publishAt?: string;
+  problemSetTitle?: string;
 
   phase: SessionPhase;
 
@@ -31,7 +32,7 @@ type ProblemSessionState = {
   mainCorrect?: boolean;
 };
 
-type SessionMeta = { publishId?: number; publishAt?: string };
+type SessionMeta = { publishId?: number; publishAt?: string; problemSetTitle?: string };
 
 type ProblemSessionActions = {
   init: (group: PublishProblemGroupResp, meta?: SessionMeta) => void;
@@ -55,6 +56,7 @@ const initialState: ProblemSessionState = {
   group: undefined,
   publishId: undefined,
   publishAt: undefined,
+  problemSetTitle: undefined,
   phase: 'MAIN_PROBLEM',
   childIndex: INITIAL_INDEX,
   pointingIndex: INITIAL_INDEX,
@@ -293,6 +295,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         group,
         publishId: meta?.publishId,
         publishAt: meta?.publishAt,
+        problemSetTitle: meta?.problemSetTitle,
         phase: 'MAIN_PROBLEM',
       }),
     initWithResume: (group, meta) => {
@@ -303,6 +306,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
           group,
           publishId: meta?.publishId,
           publishAt: meta?.publishAt,
+          problemSetTitle: meta?.problemSetTitle,
           phase: 'MAIN_PROBLEM',
         });
         return;
@@ -315,6 +319,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         group,
         publishId: meta?.publishId,
         publishAt: meta?.publishAt,
+        problemSetTitle: meta?.problemSetTitle,
         ...resumeState,
       });
     },
@@ -553,6 +558,7 @@ export const selectInitialized = (state: ProblemSessionState) => state.initializ
 export const selectGroup = (state: ProblemSessionState) => state.group;
 export const selectPublishId = (state: ProblemSessionState) => state.publishId;
 export const selectPublishAt = (state: ProblemSessionState) => state.publishAt;
+export const selectProblemSetTitle = (state: ProblemSessionState) => state.problemSetTitle;
 export const selectPhase = (state: ProblemSessionState) => state.phase;
 export const selectChildIndex = (state: ProblemSessionState) => state.childIndex;
 
