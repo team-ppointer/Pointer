@@ -37,12 +37,17 @@ const HeaderTextButton = ({
   children,
   onPress,
   color = colors['gray-700'],
+  disabled,
 }: {
   children: ReactNode;
   onPress?: () => void;
   color?: string;
+  disabled?: boolean;
 }) => (
-  <AnimatedPressable className='h-[48px] items-center justify-center px-[12px]' onPress={onPress}>
+  <AnimatedPressable
+    className={`h-[48px] items-center justify-center px-[12px] ${disabled ? 'opacity-50' : ''}`}
+    onPress={onPress}
+    disabled={disabled}>
     <Text className='typo-heading-2-semibold' style={{ color }}>
       {children}
     </Text>
