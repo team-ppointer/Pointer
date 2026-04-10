@@ -1,6 +1,8 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Header } from '@components/common';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
 import {
@@ -21,7 +23,6 @@ import { AnalyticsProvider, useScreenTracking } from '@/features/student/analyti
 
 import StudentTabs from './StudentTabs';
 import { type StudentRootStackParamList } from './types';
-import NotificationHeader from './components/NotificationHeader';
 
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();
 
@@ -41,7 +42,11 @@ const StudentNavigatorContent = () => {
         component={NotificationScreen}
         options={{
           headerShown: true,
-          header: (props) => <NotificationHeader title='알림' {...props} />,
+          header: () => (
+            <SafeAreaView edges={['top']}>
+              <Header title='알림' showBackButton />
+            </SafeAreaView>
+          ),
         }}
       />
       <StudentRootStack.Screen
@@ -49,7 +54,11 @@ const StudentNavigatorContent = () => {
         component={NotificationDetailScreen}
         options={{
           headerShown: true,
-          header: (props) => <NotificationHeader title='공지' {...props} />,
+          header: () => (
+            <SafeAreaView edges={['top']}>
+              <Header title='공지' showBackButton />
+            </SafeAreaView>
+          ),
         }}
       />
       <StudentRootStack.Screen name='Problem' component={ProblemScreen} />
