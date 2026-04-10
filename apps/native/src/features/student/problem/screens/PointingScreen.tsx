@@ -1,6 +1,6 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, type LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import { BookmarkIcon } from 'lucide-react-native';
+import { BookmarkIcon, XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -22,12 +22,12 @@ import {
   selectPhase,
   selectPublishAt,
   selectPublishId,
+  selectProblemSetTitle,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import { useInvalidateStudyData } from '@hooks';
 import { TrackedAnimatedPressable, type ButtonId } from '@/features/student/analytics';
-
-import Header from '../components/Header';
+import { Header } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
 import ProblemViewer from '../components/ProblemViewer';
 
@@ -52,6 +52,7 @@ const PointingScreen = ({
   const childIndex = useProblemSessionStore(selectChildIndex);
   const publishId = useProblemSessionStore(selectPublishId);
   const publishAt = useProblemSessionStore(selectPublishAt);
+  const problemSetTitle = useProblemSessionStore(selectProblemSetTitle);
   const pointingIndex = useProblemSessionStore((state) => state.pointingIndex);
   const pointingTarget = useProblemSessionStore((state) => state.pointingTarget);
   const nextPointing = useProblemSessionStore((state) => state.nextPointing);
@@ -80,16 +81,16 @@ const PointingScreen = ({
 
   const index = pointingIndex;
 
-  const problemTitle = useMemo(() => {
+  const problemSubtitle = useMemo(() => {
     if (!group) {
       return '';
     }
     if (phase === 'MAIN_POINTINGS') {
-      return `실전 문제 ${group.no}번`;
+      return `문제 ${group.no}번`;
     }
     if (phase === 'CHILD_POINTINGS') {
       const order = childIndex >= 0 ? childIndex + 1 : 0;
-      return order > 0 ? `연습 문제 ${order}번` : '연습 문제';
+      return order > 0 ? `문제 ${group.no}-${order}번` : `문제 ${group.no}번`;
     }
     return '';
   }, [childIndex, group, phase]);
@@ -311,12 +312,11 @@ const PointingScreen = ({
   return (
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
-        <Header onClose={handleClose}>
-          <Header.TitleGroup>
-            <Header.Title variant='accent'>포인팅 {pointingIndexLabel}</Header.Title>
-            <Header.Title variant='secondary'>{problemTitle}</Header.Title>
-          </Header.TitleGroup>
-        </Header>
+        <Header
+          title={problemSetTitle}
+          subtitle={problemSubtitle}
+          right={<Header.IconButton icon={XIcon} onPress={handleClose} />}
+        />
         <View className='flex-1'>
           <ContentInset className='flex-1 flex-col gap-[20px] pb-[32px] md:flex-row'>
             <View className='md:flex-1'>
