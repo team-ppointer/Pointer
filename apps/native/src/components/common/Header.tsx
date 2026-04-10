@@ -103,8 +103,8 @@ const HeaderRoot = ({
           {showBackButton && <HeaderIconButton icon={ChevronLeft} onPress={handleBack} />}
           {title && (
             <View className='flex-row items-center gap-[12px]'>
-              <Text className='typo-title-1-bold color-gray-900'>{title}</Text>
-              {subtitle && <Text className='typo-title-1-semibold color-gray-700'>{subtitle}</Text>}
+              <Text className='typo-title-1-bold text-gray-900'>{title}</Text>
+              {subtitle && <Text className='typo-title-1-semibold text-gray-700'>{subtitle}</Text>}
               {badge && <Badge variant={badge} />}
             </View>
           )}
