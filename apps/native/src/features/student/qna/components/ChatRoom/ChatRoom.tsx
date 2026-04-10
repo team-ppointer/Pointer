@@ -191,8 +191,6 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
     return [];
   }, [qnaData]);
 
-  const filteredMessages = messages;
-
   const handleReply = useCallback((message: Message) => {
     setReplyTo(message);
   }, []);
@@ -352,35 +350,32 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
           showBackButton={showBackButton}
         />
 
-        {filteredMessages.length === 0 ? (
+        {messages.length === 0 ? (
           <NewChatState teacherName={chatRoom.teacherName} isPublisher={isPublisher} />
         ) : (
           <MessageList
-            messages={filteredMessages}
+            messages={messages}
             senderName={senderName}
             profileImageUrl={profileImageUrl}
-            onReply={false ? undefined : handleReply}
+            onReply={handleReply}
             onPressFile={(url) => console.log('Open file:', url)}
             onEdit={handleEditMessage}
             onDelete={handleDeleteMessage}
           />
         )}
 
-        {/* Hide input in "코멘트 모아보기" tab */}
-        {!false && (
-          <MessageInput
-            replyTo={replyTo}
-            editingMessage={editingMessage}
-            senderName={senderName}
-            onClearReply={handleClearReply}
-            onCancelEdit={handleCancelEdit}
-            onSend={handleSendOrUpdate}
-            onImageSelected={handleImageSelected}
-            onFileSelected={handleFileSelected}
-            disabled={status === 'resolved' || isSending}
-            useSafeAreaBottom={showBackButton}
-          />
-        )}
+        <MessageInput
+          replyTo={replyTo}
+          editingMessage={editingMessage}
+          senderName={senderName}
+          onClearReply={handleClearReply}
+          onCancelEdit={handleCancelEdit}
+          onSend={handleSendOrUpdate}
+          onImageSelected={handleImageSelected}
+          onFileSelected={handleFileSelected}
+          disabled={status === 'resolved' || isSending}
+          useSafeAreaBottom={showBackButton}
+        />
       </View>
     </KeyboardAvoidingView>
   );
