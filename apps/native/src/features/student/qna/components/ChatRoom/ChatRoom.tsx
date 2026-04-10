@@ -57,7 +57,6 @@ const NewChatState = ({
 );
 
 const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoomProps) => {
-  const [selectedTab, setSelectedTab] = useState(0);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [status, setStatus] = useState<ChatRoomStatus>(chatRoom?.status ?? 'asking');
@@ -192,13 +191,7 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
     return [];
   }, [qnaData]);
 
-  // Filter messages: show only 'other' messages for "코멘트 모아보기" tab
-  const filteredMessages = useMemo(() => {
-    if (isPublisher && selectedTab === 1) {
-      return messages.filter((msg) => msg.sender === 'other');
-    }
-    return messages;
-  }, [messages, isPublisher, selectedTab]);
+  const filteredMessages = messages;
 
   const handleReply = useCallback((message: Message) => {
     setReplyTo(message);
@@ -335,7 +328,6 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
   // Profile image: undefined for publisher (will show default icon), thumbnailUrl for teachers
   const profileImageUrl = isPublisher ? undefined : chatRoom.thumbnailUrl;
 
-  const showCommentsOnly = isPublisher && selectedTab === 1;
   const isSending =
     postChatMutation.isPending ||
     uploadFileMutation.isPending ||
@@ -355,8 +347,6 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
       <View className='flex-1 bg-gray-200'>
         <ChatRoomHeader
           chatRoom={{ ...chatRoom, status }}
-          selectedTab={selectedTab}
-          onTabChange={setSelectedTab}
           onStatusChange={!isPublisher ? handleStatusChange : undefined}
           onBack={onBack}
           showBackButton={showBackButton}
@@ -369,7 +359,7 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
             messages={filteredMessages}
             senderName={senderName}
             profileImageUrl={profileImageUrl}
-            onReply={showCommentsOnly ? undefined : handleReply}
+            onReply={false ? undefined : handleReply}
             onPressFile={(url) => console.log('Open file:', url)}
             onEdit={handleEditMessage}
             onDelete={handleDeleteMessage}
@@ -377,7 +367,7 @@ const ChatRoom = ({ chatRoom, qnaData, onBack, showBackButton = false }: ChatRoo
         )}
 
         {/* Hide input in "코멘트 모아보기" tab */}
-        {!showCommentsOnly && (
+        {!false && (
           <MessageInput
             replyTo={replyTo}
             editingMessage={editingMessage}
