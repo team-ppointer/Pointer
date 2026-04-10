@@ -1,7 +1,7 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert, Animated, type LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { BookmarkIcon } from 'lucide-react-native';
+import { BookmarkIcon, XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -20,12 +20,12 @@ import {
   selectInitialized,
   selectPublishAt,
   selectPublishId,
+  selectProblemSetTitle,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
 import { TrackedAnimatedPressable } from '@/features/student/analytics';
-
-import Header from '../components/Header';
+import { Header } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
 import { formatPublishDateLabel } from '../utils/formatters';
 import ProblemViewer from '../components/ProblemViewer';
@@ -46,6 +46,7 @@ const AnalysisScreen = ({
   const initialized = useProblemSessionStore(selectInitialized);
   const publishId = useProblemSessionStore(selectPublishId);
   const publishAt = useProblemSessionStore(selectPublishAt);
+  const problemSetTitle = useProblemSessionStore(selectProblemSetTitle);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
   const toggleScrapMutation = useToggleScrapFromProblem();
@@ -61,14 +62,12 @@ const AnalysisScreen = ({
 
   const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
-  const mainProblemLabel = useMemo(() => {
+  const problemSubtitle = useMemo(() => {
     if (!group) {
       return '';
     }
-    return `실전문제 ${group.no}번`;
+    return `문제 ${group.no}번`;
   }, [group]);
-
-  const subtitle = publishDateLabel ?? '';
 
   const redirectToHome = useCallback(() => {
     resetSession();
@@ -219,11 +218,11 @@ const AnalysisScreen = ({
   return (
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
-        <Header onClose={handleClose}>
-          <Header.TitleGroup>
-            <Header.Title variant='accent'>{mainProblemLabel}</Header.Title>
-          </Header.TitleGroup>
-        </Header>
+        <Header
+          title={problemSetTitle}
+          subtitle={problemSubtitle}
+          right={<Header.IconButton icon={XIcon} onPress={handleClose} />}
+        />
         <ContentInset>
           <SegmentedControl
             values={['분석', '해설']}

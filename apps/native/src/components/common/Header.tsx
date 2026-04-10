@@ -37,12 +37,17 @@ const HeaderTextButton = ({
   children,
   onPress,
   color = colors['gray-700'],
+  disabled,
 }: {
   children: ReactNode;
   onPress?: () => void;
   color?: string;
+  disabled?: boolean;
 }) => (
-  <AnimatedPressable className='h-[48px] items-center justify-center px-[12px]' onPress={onPress}>
+  <AnimatedPressable
+    className={`h-[48px] items-center justify-center px-[12px] ${disabled ? 'opacity-50' : ''}`}
+    onPress={onPress}
+    disabled={disabled}>
     <Text className='typo-heading-2-semibold' style={{ color }}>
       {children}
     </Text>
@@ -101,9 +106,9 @@ const HeaderRoot = ({
       <ContentInset className='h-full flex-row items-center justify-between'>
         <View className='flex-row items-center gap-[4px]'>
           {showBackButton && <HeaderIconButton icon={ChevronLeft} onPress={handleBack} />}
-          {title && (
+          {(title || subtitle || badge) && (
             <View className='flex-row items-center gap-[12px]'>
-              <Text className='typo-title-1-bold text-gray-900'>{title}</Text>
+              {title && <Text className='typo-title-1-bold text-gray-900'>{title}</Text>}
               {subtitle && <Text className='typo-title-1-semibold text-gray-700'>{subtitle}</Text>}
               {badge && <Badge variant={badge} />}
             </View>

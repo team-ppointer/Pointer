@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type BottomSheet from '@gorhom/bottom-sheet';
-import { BookmarkIcon } from 'lucide-react-native';
+import { BookmarkIcon, XIcon } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -29,13 +29,14 @@ import {
   selectPhase,
   selectPublishAt,
   selectPublishId,
+  selectProblemSetTitle,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import { colors } from '@/theme/tokens';
 
 import ResultSheet from '../components/ResultSheet';
 import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
-import Header from '../components/Header';
+import { Header } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
 import { formatPublishDateLabel } from '../utils/formatters';
 import ProblemViewer from '../components/ProblemViewer';
@@ -74,6 +75,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const childIndex = useProblemSessionStore(selectChildIndex);
   const publishId = useProblemSessionStore(selectPublishId);
   const publishAt = useProblemSessionStore(selectPublishAt);
+  const problemSetTitle = useProblemSessionStore(selectProblemSetTitle);
   const finishMain = useProblemSessionStore((state) => state.finishMain);
   const finishMainRetry = useProblemSessionStore((state) => state.finishMainRetry);
   const finishChildProblem = useProblemSessionStore((state) => state.finishChildProblem);
@@ -97,7 +99,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     outputRange: [colors['gray-700'], colors['primary-500']],
   });
 
-  const problemTitle = useMemo(() => {
+  const problemSubtitle = useMemo(() => {
     if (!group) {
       return '';
     }
@@ -107,11 +109,11 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       phase === 'MAIN_POINTINGS' ||
       phase === 'ANALYSIS'
     ) {
-      return `실전문제 ${group.no}번`;
+      return `문제 ${group.no}번`;
     }
     if (phase === 'CHILD_PROBLEM' || phase === 'CHILD_POINTINGS') {
       const order = childIndex >= 0 ? childIndex + 1 : 0;
-      return order > 0 ? `연습문제 ${order}번` : '연습문제';
+      return order > 0 ? `문제 ${group.no}-${order}번` : `문제 ${group.no}번`;
     }
     return '';
   }, [childIndex, group, phase]);
@@ -429,7 +431,12 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     );
   }, [currentProblem?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
 
-  const subtitle = publishDateLabel ?? '';
+  const badgeStatus = useMemo(() => {
+    const progress = problemProgress ?? currentProblem?.progress;
+    if (progress === 'CORRECT') return 'correct' as const;
+    if (progress === 'INCORRECT') return 'incorrect' as const;
+    return undefined;
+  }, [problemProgress, currentProblem?.progress]);
 
   const canvasRef = useRef<DrawingCanvasRef>(null);
   const drawingState = useDrawingState();
@@ -439,13 +446,12 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   return (
     <View className='flex-1 bg-white'>
       <SafeAreaView className='flex-1' edges={['top']}>
-        <Header onClose={() => setIsCloseVisible(true)}>
-          <Header.TitleGroup>
-            <Header.Title>{problemTitle}</Header.Title>
-            {subtitle ? <Header.Subtitle>{subtitle}</Header.Subtitle> : null}
-            <Header.Status status={problemProgress ?? currentProblem?.progress} />
-          </Header.TitleGroup>
-        </Header>
+        <Header
+          title={problemSetTitle}
+          subtitle={problemSubtitle}
+          badge={badgeStatus}
+          right={<Header.IconButton icon={XIcon} onPress={() => setIsCloseVisible(true)} />}
+        />
 
         <View
           style={{

@@ -4,9 +4,9 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookmarkIcon, ChevronLeftIcon } from 'lucide-react-native';
+import { BookmarkIcon, XIcon } from 'lucide-react-native';
 
-import { AnimatedPressable, ContentInset } from '@components/common';
+import { ContentInset, Header } from '@components/common';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors, shadow } from '@theme/tokens';
 import { type components } from '@schema';
@@ -125,7 +125,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     setScrappedPointingIds(ids);
   }, [scrapStatusData?.scrappedPointingIds]);
 
-  const headerTitle = group?.no != null ? `${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
+  const headerTitle = group?.no != null ? `문제 ${group.no}번 포인팅 전체보기` : '포인팅 전체보기';
 
   const handleClose = useCallback(() => {
     navigation?.goBack();
@@ -183,13 +183,10 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     return (
       <View className='flex-1'>
         <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
-          <View className='h-[66px] flex-row items-center justify-between gap-[10px] px-[20px] py-[14px]'>
-            <AnimatedPressable className='p-[8px]' onPress={() => navigation.goBack()}>
-              <ChevronLeftIcon color={colors.black} size={32} />
-            </AnimatedPressable>
-            <Text className='text-20b text-primary-600'>포인팅 전체보기</Text>
-            <View className='w-[40px]' />
-          </View>
+          <Header
+            title='포인팅 전체보기'
+            right={<Header.IconButton icon={XIcon} onPress={() => navigation.goBack()} />}
+          />
           <View className='flex-1 items-center justify-center px-[24px]'>
             <Text className='text-14m text-gray-600'>포인팅 정보를 불러올 수 없어요.</Text>
           </View>
@@ -201,21 +198,11 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   return (
     <View className='flex-1'>
       <SafeAreaView className='flex-1' edges={['top']}>
-        <View className='h-[56px] flex-row items-center justify-between gap-[10px] px-[20px] py-[4px]'>
-          <AnimatedPressable className='p-[8px]' onPress={handleClose}>
-            <ChevronLeftIcon color={colors.black} size={32} />
-          </AnimatedPressable>
-          <View className='flex-row items-center gap-[8px]'>
-            <Text className='text-20b text-primary-600'>{headerTitle}</Text>
-            {publishDateLabel ? (
-              <Text className='text-20r text-gray-700'>{publishDateLabel}</Text>
-            ) : null}
-          </View>
-          {/* <Pressable className='p-[8px]' onPress={() => {}}>
-            <MessageCircleMoreIcon color={colors.black} size={24} />
-          </Pressable> */}
-          <View className='w-[40px]' />
-        </View>
+        <Header
+          title={headerTitle}
+          subtitle={publishDateLabel ?? undefined}
+          right={<Header.IconButton icon={XIcon} onPress={handleClose} />}
+        />
         {tabItems.length > 0 ? (
           <ContentInset className='mb-[20px] py-[4px]'>
             <SegmentedControl

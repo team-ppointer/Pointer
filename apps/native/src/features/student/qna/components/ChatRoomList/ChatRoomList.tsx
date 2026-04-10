@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Text, View, ScrollView } from 'react-native';
 
+import { Header } from '@components/common';
+
 import type { ChatRoom, ChatRoomFilterType } from '../../types';
 
 import ChatRoomItem from './ChatRoomItem';
@@ -33,15 +35,7 @@ const ChatRoomList = ({
 
   return (
     <View className='flex-1 bg-gray-100'>
-      {/* Header */}
-      <View className='h-[50px] flex-row items-center px-[20px]'>
-        <Text className='text-18b text-gray-900'>QnA</Text>
-        {/* <Pressable
-          onPress={onSearch}
-          className="h-[38px] w-[38px] items-center justify-center rounded-full active:bg-gray-200">
-          <Search size={20} color={colors['gray-800']} />
-        </Pressable> */}
-      </View>
+      <Header title='QnA' />
 
       {/* New Question Button */}
       {/* <View className="px-[20px] pb-[10px]">
