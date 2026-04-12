@@ -331,6 +331,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           scrollEnabled={isScrollEnabled}
+          showsVerticalScrollIndicator
+          indicatorStyle="black"
           onScroll={vc.handleScroll}
           onLayout={vc.handleLayout}
           scrollEventThrottle={16}

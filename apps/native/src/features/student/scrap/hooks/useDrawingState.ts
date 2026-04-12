@@ -1,6 +1,7 @@
 import { useReducer, useCallback } from 'react';
+import type { ActiveTool } from '@repo/pointer-native-drawing';
 
-export type DrawingMode = 'pen' | 'eraser' | 'text';
+export type DrawingMode = ActiveTool;
 
 export interface DrawingState {
   mode: DrawingMode;
@@ -54,8 +55,8 @@ export function useDrawingState() {
     dispatch({ type: 'SET_MODE', mode: 'eraser' });
   }, []);
 
-  const setTextMode = useCallback(() => {
-    dispatch({ type: 'SET_MODE', mode: 'text' });
+  const setTextBoxMode = useCallback(() => {
+    dispatch({ type: 'SET_MODE', mode: 'textbox' });
   }, []);
 
   const setStrokeWidth = useCallback((width: number) => {
@@ -79,7 +80,7 @@ export function useDrawingState() {
     mode: state.mode,
     isPenMode: state.mode === 'pen',
     isEraserMode: state.mode === 'eraser',
-    isTextMode: state.mode === 'text',
+    isTextBoxMode: state.mode === 'textbox',
     strokeWidth: state.strokeWidth,
     eraserSize: state.eraserSize,
     hasUnsavedChanges: state.hasUnsavedChanges,
@@ -87,7 +88,7 @@ export function useDrawingState() {
     // Actions
     setPenMode,
     setEraserMode,
-    setTextMode,
+    setTextBoxMode,
     setStrokeWidth,
     setEraserSize,
     markAsSaved,

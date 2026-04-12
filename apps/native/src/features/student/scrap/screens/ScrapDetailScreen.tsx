@@ -613,7 +613,7 @@ const ScrapDetailScreen = () => {
               <View style={{ flex: 1 }}>
                 <DrawingToolbar
                   isEraserMode={drawingState.isEraserMode}
-                  isTextMode={drawingState.isTextMode}
+                  isTextBoxMode={drawingState.isTextBoxMode}
                   onPenModePress={drawingState.setPenMode}
                   onEraserModePress={() => {
                     if (drawingState.isEraserMode) {
@@ -622,7 +622,7 @@ const ScrapDetailScreen = () => {
                       drawingState.setEraserMode();
                     }
                   }}
-                  onTextModePress={drawingState.setTextMode}
+                  onTextBoxModePress={drawingState.setTextBoxMode}
                   strokeWidth={drawingState.strokeWidth}
                   eraserSize={drawingState.eraserSize}
                   onStrokeWidthChange={drawingState.setStrokeWidth}
@@ -634,8 +634,10 @@ const ScrapDetailScreen = () => {
                   ref={canvasRef}
                   strokeColor='#1E1E21'
                   strokeWidth={drawingState.strokeWidth}
-                  eraserMode={drawingState.isEraserMode}
+                  activeTool={drawingState.mode}
                   eraserSize={drawingState.eraserSize}
+                  pencilOnly
+                  enableZoomPan
                 />
               </View>
             </KeyboardAvoidingView>

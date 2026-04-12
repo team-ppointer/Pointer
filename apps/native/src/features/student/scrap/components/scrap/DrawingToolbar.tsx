@@ -11,10 +11,10 @@ import { IconButton } from '../../../problem/components/WritingArea';
 export interface DrawingToolbarProps {
   // Mode selection
   isEraserMode: boolean;
-  isTextMode: boolean;
+  isTextBoxMode: boolean;
   onPenModePress: () => void;
   onEraserModePress: () => void;
-  onTextModePress: () => void;
+  onTextBoxModePress: () => void;
 
   // Size selection
   strokeWidth: number;
@@ -31,10 +31,10 @@ const ERASER_SIZES = [22, 14, 8];
 
 export const DrawingToolbar = ({
   isEraserMode,
-  isTextMode,
+  isTextBoxMode,
   onPenModePress,
   onEraserModePress,
-  onTextModePress,
+  onTextBoxModePress,
   strokeWidth,
   eraserSize,
   onStrokeWidthChange,
@@ -42,7 +42,7 @@ export const DrawingToolbar = ({
   isNarrow = false,
 }: DrawingToolbarProps) => {
   const SizeSelectorComponent = (
-    <View pointerEvents={isTextMode ? 'none' : 'auto'} style={{ opacity: isTextMode ? 0 : 1 }}>
+    <View pointerEvents={isTextBoxMode ? 'none' : 'auto'} style={{ opacity: isTextBoxMode ? 0 : 1 }}>
       {isEraserMode ? (
         <SizeSelector
           type='eraser'
@@ -71,7 +71,7 @@ export const DrawingToolbar = ({
         <View className='flex-row items-center gap-[10px]'>
           <IconButton
             icon={PencilFilledIcon}
-            disabled={isTextMode || isEraserMode}
+            disabled={isTextBoxMode || isEraserMode}
             backgroundColor='bg-blue-200'
             disabledBackgroundColor='bg-gray-100'
             iconColor={colors['primary-500']}
@@ -93,12 +93,12 @@ export const DrawingToolbar = ({
           />
           <IconButton
             icon={Type}
-            disabled={!isTextMode}
+            disabled={!isTextBoxMode}
             backgroundColor='bg-blue-200'
             disabledBackgroundColor='bg-gray-100'
             iconColor={colors['primary-500']}
             disabledColor={colors['gray-700']}
-            onPress={onTextModePress}
+            onPress={onTextBoxModePress}
             size={36}
             radius={8}
           />

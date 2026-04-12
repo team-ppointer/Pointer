@@ -475,10 +475,12 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
             ref={canvasRef}
             strokeColor='#1E1E21'
             strokeWidth={2}
-            eraserMode={drawingState.isEraserMode}
+            activeTool={drawingState.mode}
             eraserSize={12}
+            pencilOnly
+            enableZoomPan
             backgroundColor='transparent'
-            minCanvasHeight={screenHeight - 200}
+            minCanvasHeight={screenHeight * 2}
           >
             <ProblemViewer
               problemContent={currentProblem?.problemContent ?? ''}
