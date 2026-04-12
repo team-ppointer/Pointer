@@ -49,6 +49,8 @@ async function showWithTypingIndicator(
 
   replaceWithBubble(indicator, bubble);
   await renderMath(bubble);
+  // Re-scroll after KaTeX rendering may have changed bubble height
+  scrollToBottom();
 }
 
 async function showFixedMessage(container: HTMLElement, text: string): Promise<void> {

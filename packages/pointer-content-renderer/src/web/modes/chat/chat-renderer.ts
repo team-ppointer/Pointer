@@ -48,6 +48,7 @@ export async function renderBubble(
 
   container.appendChild(bubble);
   await renderMath(bubble);
+  // Re-scroll after KaTeX rendering may have changed bubble height
   scrollToBottom();
   return bubble;
 }
