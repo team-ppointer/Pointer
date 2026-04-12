@@ -112,7 +112,7 @@ export async function renderAllBubbles(
     const pointing = scenario.pointings[i];
     const answer = userAnswers?.[i];
 
-    // Divider (skip first)
+    // Divider (skip first — overview provides its own divider section)
     if (i > 0) {
       renderDivider(container, pointing.label);
     }

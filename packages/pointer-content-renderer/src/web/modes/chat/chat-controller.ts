@@ -81,10 +81,8 @@ export async function runChatScenario(
   for (let i = 0; i < scenario.pointings.length; i++) {
     const pointing = scenario.pointings[i];
 
-    // 1. Divider (skip first)
-    if (i > 0) {
-      renderDivider(container, pointing.label);
-    }
+    // 1. Divider
+    renderDivider(container, pointing.label);
 
     // 2. Question nodes sequentially with typing indicator
     for (const node of pointing.questionNodes) {

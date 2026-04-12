@@ -1881,11 +1881,23 @@ export const mockOverviewSections: OverviewSection[] = [
     display: { type: 'divider', text: '1번째 포인팅' },
   },
   {
-    id: 'pointing-chat',
+    id: 'pointing-chat-1',
     display: {
       type: 'chat',
-      scenario: mockChatScenario,
-      userAnswers: completedAnswers,
+      scenario: { pointings: [mockChatScenario.pointings[0]] },
+      userAnswers: [completedAnswers[0]],
+    },
+  },
+  {
+    id: 'div2',
+    display: { type: 'divider', text: '2번째 포인팅' },
+  },
+  {
+    id: 'pointing-chat-2',
+    display: {
+      type: 'chat',
+      scenario: { pointings: [mockChatScenario.pointings[1]] },
+      userAnswers: [completedAnswers[1]],
     },
   },
   {

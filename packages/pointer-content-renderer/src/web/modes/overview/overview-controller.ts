@@ -13,7 +13,6 @@ export function initOverviewController(
   container: HTMLElement,
   sections: OverviewSection[],
 ): void {
-  // Build tab bar
   tabItems = buildTabItems(sections);
   if (tabItems.length === 0) return;
 
@@ -21,38 +20,63 @@ export function initOverviewController(
   container.insertBefore(tabBar, container.firstChild);
 
   // Activate first tab
-  if (tabItems.length > 0) {
-    setActiveTab(tabItems[0].sectionId);
-  }
+  setActiveTab(tabItems[0].sectionId);
 
-  // IntersectionObserver for scroll → tab sync
+  // Scroll-based active tab tracking (more reliable than IntersectionObserver)
   const tabSectionIds = new Set(tabItems.map((t) => t.sectionId));
-  const observer = new IntersectionObserver(
-    (entries) => {
-      // Find the topmost visible tab-target section
-      let topMost: { id: string; top: number } | null = null;
-      for (const entry of entries) {
-        const sectionId = (entry.target as HTMLElement).dataset.sectionId;
-        if (!sectionId || !tabSectionIds.has(sectionId)) continue;
-        if (!entry.isIntersecting) continue;
+  let ticking = false;
 
-        const top = entry.boundingClientRect.top;
-        if (!topMost || top < topMost.top) {
-          topMost = { id: sectionId, top };
+  const updateActiveTab = () => {
+    const tabBarHeight = getTabBarHeight();
+    const threshold = tabBarHeight + 8;
+    let closest: { id: string; distance: number } | null = null;
+
+    for (const id of tabSectionIds) {
+      const el = document.getElementById(`section-${id}`);
+      if (!el) continue;
+
+      const rect = el.getBoundingClientRect();
+      // Section is at or above the tab bar bottom edge → candidate
+      if (rect.top <= threshold) {
+        // Pick the one closest to (but not past) the bottom of view
+        const distance = threshold - rect.top;
+        if (!closest || distance < closest.distance) {
+          closest = { id, distance };
         }
       }
-      if (topMost) {
-        setActiveTab(topMost.id);
-      }
-    },
-    {
-      rootMargin: `-${getTabBarHeight()}px 0px 0px 0px`,
-      threshold: [0, 0.1],
-    },
-  );
+    }
 
-  const sectionEls = container.querySelectorAll<HTMLElement>('.overview-section');
-  sectionEls.forEach((el) => observer.observe(el));
+    // If nothing is at/above threshold, pick the first section closest below it
+    if (!closest) {
+      for (const id of tabSectionIds) {
+        const el = document.getElementById(`section-${id}`);
+        if (!el) continue;
+
+        const rect = el.getBoundingClientRect();
+        const distance = rect.top - threshold;
+        if (distance >= 0 && (!closest || distance < closest.distance)) {
+          closest = { id, distance };
+        }
+      }
+    }
+
+    if (closest) {
+      setActiveTab(closest.id);
+    }
+  };
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        updateActiveTab();
+        ticking = false;
+      });
+    },
+    { passive: true },
+  );
 }
 
 function buildTabItems(sections: OverviewSection[]): TabItem[] {
@@ -99,7 +123,6 @@ function setActiveTab(sectionId: string): void {
     item.tabEl.classList.toggle('tab-item--active', isActive);
   }
 
-  // Scroll active tab into view in the tab bar
   const activeItem = tabItems.find((t) => t.sectionId === sectionId);
   activeItem?.tabEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
