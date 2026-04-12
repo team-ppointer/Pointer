@@ -14,7 +14,7 @@ import { scrollToBottom } from './scroll';
 async function showWithTypingIndicator(
   container: HTMLElement,
   node: PointingNode,
-): Promise<void> {
+): Promise<HTMLElement> {
   const timing = getTypingTiming(node.contentNode);
 
   await delay(timing.preDelay);
@@ -49,11 +49,11 @@ async function showWithTypingIndicator(
 
   replaceWithBubble(indicator, bubble);
   await renderMath(bubble);
-  // Re-scroll after KaTeX rendering may have changed bubble height
   scrollToBottom();
+  return bubble;
 }
 
-async function showFixedMessage(container: HTMLElement, text: string): Promise<void> {
+async function showFixedMessage(container: HTMLElement, text: string): Promise<HTMLElement> {
   const timing = getFixedTextTiming(text);
   await delay(timing.preDelay);
   const indicator = showTypingIndicator(container);
@@ -63,11 +63,12 @@ async function showFixedMessage(container: HTMLElement, text: string): Promise<v
   bubble.style.animation = 'bubbleIn 300ms ease-out';
   bubble.innerHTML = `<p>${text}</p>`;
   replaceWithBubble(indicator, bubble);
+  return bubble;
 }
 
-function waitForYesNo(container: HTMLElement): Promise<'yes' | 'no'> {
+function waitForYesNo(bubble: HTMLElement): Promise<'yes' | 'no'> {
   return new Promise((resolve) => {
-    createYesNoButtons(container, resolve);
+    createYesNoButtons(bubble, resolve);
     scrollToBottom();
   });
 }
@@ -85,12 +86,13 @@ export async function runChatScenario(
     renderDivider(container, pointing.label);
 
     // 2. Question nodes sequentially with typing indicator
+    let lastQuestionBubble: HTMLElement | null = null;
     for (const node of pointing.questionNodes) {
-      await showWithTypingIndicator(container, node);
+      lastQuestionBubble = await showWithTypingIndicator(container, node);
     }
 
-    // 3. Yes/No selection
-    const questionResponse = await waitForYesNo(container);
+    // 3. Yes/No inside last question bubble
+    const questionResponse = await waitForYesNo(lastQuestionBubble!);
     renderTextBubble(container, questionResponse === 'yes' ? '네' : '아니오', 'user', true);
 
     // 4. Fixed message: "조금 더 자세히 살펴봅시다!"
@@ -101,9 +103,12 @@ export async function runChatScenario(
       await showWithTypingIndicator(container, node);
     }
 
-    // 6. Fixed confirm message + Yes/No
-    await showFixedMessage(container, '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?');
-    const confirmResponse = await waitForYesNo(container);
+    // 6. Fixed confirm message with Yes/No inside
+    const confirmBubble = await showFixedMessage(
+      container,
+      '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?',
+    );
+    const confirmResponse = await waitForYesNo(confirmBubble);
     renderTextBubble(container, confirmResponse === 'yes' ? '네' : '아니오', 'user', true);
 
     answers.push({

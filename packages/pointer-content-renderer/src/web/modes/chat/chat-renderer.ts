@@ -48,7 +48,6 @@ export async function renderBubble(
 
   container.appendChild(bubble);
   await renderMath(bubble);
-  // Re-scroll after KaTeX rendering may have changed bubble height
   scrollToBottom();
   return bubble;
 }
@@ -72,8 +71,11 @@ export function renderDivider(container: HTMLElement, label: string): void {
   container.appendChild(el);
 }
 
+/**
+ * Append yes/no buttons inside a bubble element.
+ */
 export function createYesNoButtons(
-  container: HTMLElement,
+  bubble: HTMLElement,
   onSelect: (answer: 'yes' | 'no') => void,
 ): HTMLElement {
   const wrapper = document.createElement('div');
@@ -98,9 +100,37 @@ export function createYesNoButtons(
 
   wrapper.appendChild(yesBtn);
   wrapper.appendChild(noBtn);
-  container.appendChild(wrapper);
+  bubble.appendChild(wrapper);
   scrollToBottom();
   return wrapper;
+}
+
+/**
+ * Render static disabled yes/no buttons inside a bubble (for overview).
+ */
+function renderStaticYesNo(bubble: HTMLElement, answer: 'yes' | 'no'): void {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'chat-choices';
+
+  const yesBtn = document.createElement('button');
+  yesBtn.className = 'chat-choice-btn';
+  yesBtn.textContent = '네';
+  yesBtn.disabled = true;
+
+  const noBtn = document.createElement('button');
+  noBtn.className = 'chat-choice-btn';
+  noBtn.textContent = '아니오';
+  noBtn.disabled = true;
+
+  if (answer === 'yes') {
+    yesBtn.classList.add('chat-choice-btn--selected');
+  } else {
+    noBtn.classList.add('chat-choice-btn--selected');
+  }
+
+  wrapper.appendChild(yesBtn);
+  wrapper.appendChild(noBtn);
+  bubble.appendChild(wrapper);
 }
 
 export async function renderAllBubbles(
@@ -118,6 +148,7 @@ export async function renderAllBubbles(
     }
 
     // Question nodes
+    let lastQuestionBubble: HTMLElement | null = null;
     for (const node of pointing.questionNodes) {
       const html = serializeNodeToHTML(node.contentNode);
       const bubble = createBubbleElement(html, 'system', false);
@@ -129,11 +160,18 @@ export async function renderAllBubbles(
       }
       container.appendChild(bubble);
       await renderMath(bubble);
+      lastQuestionBubble = bubble;
     }
 
-    // User response to question
-    if (answer) {
-      renderTextBubble(container, answer.questionResponse === 'yes' ? '네' : '아니오', 'user', false);
+    // Yes/No inside last question bubble + user response
+    if (answer && lastQuestionBubble) {
+      renderStaticYesNo(lastQuestionBubble, answer.questionResponse);
+      renderTextBubble(
+        container,
+        answer.questionResponse === 'yes' ? '네' : '아니오',
+        'user',
+        false,
+      );
     }
 
     // Fixed message
@@ -153,11 +191,16 @@ export async function renderAllBubbles(
       await renderMath(bubble);
     }
 
-    // Fixed confirm message
-    renderTextBubble(container, '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?', 'system', false);
+    // Fixed confirm message with Yes/No inside
+    const confirmBubble = renderTextBubble(
+      container,
+      '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?',
+      'system',
+      false,
+    );
 
-    // User confirm response
     if (answer) {
+      renderStaticYesNo(confirmBubble, answer.confirmResponse);
       renderTextBubble(
         container,
         answer.confirmResponse === 'yes' ? '네' : '아니오',
