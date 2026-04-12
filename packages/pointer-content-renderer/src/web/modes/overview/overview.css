@@ -1,0 +1,113 @@
+.overview-mode {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 16px;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+}
+
+.overview-section {
+  margin-bottom: 16px;
+}
+
+/* Card sections */
+.section-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.section-card--default {
+  padding: 20px;
+}
+
+.section-card--pointing {
+  padding: 16px;
+}
+
+.section-card-content {
+  /* inherits base.css typography */
+}
+
+/* Plain sections */
+.section-plain {
+  background: none;
+  padding: 0;
+}
+
+.section-plain--collapsible {
+  cursor: pointer;
+}
+
+.section-collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.section-collapsible-content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 300ms ease;
+}
+
+.section-collapsible-content--open {
+  max-height: 2000px;
+}
+
+.section-collapsible-toggle {
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform 300ms ease;
+}
+
+.section-collapsible-toggle--open {
+  transform: rotate(180deg);
+}
+
+/* Chat sections */
+.section-chat {
+  padding: 0;
+}
+
+/* Divider sections */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  color: #999;
+  font-size: 13px;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+/* Bookmark button */
+.bookmark-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+}
+
+.bookmark-btn--active {
+  color: gold;
+}
+
+.bookmark-btn--inactive {
+  color: #ccc;
+}

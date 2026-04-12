@@ -1,0 +1,171 @@
+.chat-mode {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+/* Bubble base */
+.chat-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  word-break: break-word;
+  animation: bubbleIn 300ms ease-out;
+}
+
+.chat-bubble--system {
+  background-color: #ffffff;
+  border-top-left-radius: 2px;
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.chat-bubble--user {
+  background-color: #4a7cfe;
+  color: #ffffff;
+  border-top-right-radius: 2px;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+/* Content inside bubbles inherits base.css typography */
+.chat-bubble p:not(:first-child) {
+  margin-top: 12px;
+}
+
+/* Divider */
+.chat-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 24px 0;
+  color: #999;
+  font-size: 13px;
+}
+
+.chat-divider::before,
+.chat-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.chat-divider::before {
+  margin-right: 8px;
+}
+
+.chat-divider::after {
+  margin-left: 8px;
+}
+
+/* Yes/No buttons */
+.chat-choices {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.chat-choice-btn {
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 8px 24px;
+  background-color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 150ms ease;
+}
+
+.chat-choice-btn:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
+
+.chat-choice-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Expand button */
+.chat-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 4px;
+  background-color: transparent;
+  vertical-align: middle;
+}
+
+.chat-expand-content {
+  display: none;
+  margin-top: 8px;
+}
+
+.chat-expand-content--visible {
+  display: block;
+  animation: fadeIn 300ms ease;
+}
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #999;
+  animation: dotBounce 0.6s infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Animations */
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dotBounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6px);
+  }
+}

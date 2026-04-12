@@ -1,0 +1,8 @@
+.document-mode {
+  overflow: hidden !important;
+}
+
+.document-mode html,
+.document-mode body {
+  overflow: hidden !important;
+}

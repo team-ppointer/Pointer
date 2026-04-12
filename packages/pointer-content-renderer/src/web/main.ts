@@ -1,2 +1,58 @@
-// Entry point — will be populated after core modules are ready
-console.log('content-renderer loaded');
+import './core/styles/base.css';
+import './modes/document/document.css';
+import './modes/chat/chat.css';
+import './modes/overview/overview.css';
+
+import { onMessage, sendToRN } from './bridge';
+import { renderDocument } from './modes/document/document-renderer';
+import { runChatScenario } from './modes/chat/chat-controller';
+import { renderOverview } from './modes/overview/overview-renderer';
+import {
+  initOverviewController,
+  handleScrollToSection,
+  handleBookmarkResult,
+} from './modes/overview/overview-controller';
+import type { RNToWebViewMessage } from '../types';
+
+const container = document.getElementById('content')!;
+
+function handleNonInitMessage(msg: RNToWebViewMessage): void {
+  if (msg.type === 'scrollToSection') {
+    handleScrollToSection(msg.sectionId);
+  } else if (msg.type === 'bookmarkResult') {
+    handleBookmarkResult(msg.sectionId, msg.success);
+  }
+}
+
+onMessage(async (msg) => {
+  if (msg.type !== 'init') {
+    handleNonInitMessage(msg);
+    return;
+  }
+
+  document.body.className = `${msg.mode}-mode`;
+
+  switch (msg.mode) {
+    case 'document':
+      await renderDocument(container, msg);
+      sendToRN({ type: 'ready', mode: 'document' });
+      break;
+
+    case 'chat': {
+      sendToRN({ type: 'ready', mode: 'chat' });
+      const answers = await runChatScenario(container, msg.scenario);
+      sendToRN({ type: 'complete', answers });
+      break;
+    }
+
+    case 'overview':
+      await renderOverview(container, msg.sections);
+      initOverviewController(container);
+      sendToRN({ type: 'ready', mode: 'overview' });
+      break;
+  }
+});
+
+if (import.meta.env.DEV) {
+  import('../../dev/dev-panel');
+}
