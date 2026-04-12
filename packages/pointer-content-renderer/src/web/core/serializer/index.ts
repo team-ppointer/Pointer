@@ -34,6 +34,8 @@ function serializeNode(node: JSONNode): string {
       return serializeHorizontalRule();
     case 'image':
       return serializeImage(node);
+    case 'hardBreak':
+      return '<br>';
     case 'text':
     case 'inlineMath':
       return serializeInlineList([node]);

@@ -30,6 +30,9 @@ function getInlineNodeContent(node: JSONNode): string {
     const latex = String(node.attrs?.latex ?? '');
     return `<span data-latex="${escapeAttr(latex)}" data-type="inline-math"></span>`;
   }
+  if (node.type === 'hardBreak') {
+    return '<br>';
+  }
   if (node.type === 'image') {
     return serializeImage(node);
   }
