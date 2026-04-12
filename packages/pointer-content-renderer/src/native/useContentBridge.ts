@@ -12,7 +12,6 @@ interface ContentBridgeOptions {
   onReady?: (mode: ContentMode) => void;
   onHeight?: (height: number) => void;
   onComplete?: (answers: UserAnswer[]) => void;
-  onVisibleSection?: (sectionId: string) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean) => void;
 }
 
@@ -44,9 +43,6 @@ export function useContentBridge(options: ContentBridgeOptions) {
           case 'complete':
             options.onComplete?.(msg.answers);
             break;
-          case 'visibleSection':
-            options.onVisibleSection?.(msg.sectionId);
-            break;
           case 'bookmark':
             options.onBookmark?.(msg.sectionId, msg.bookmarked);
             break;
@@ -55,7 +51,7 @@ export function useContentBridge(options: ContentBridgeOptions) {
         // ignore non-JSON messages
       }
     },
-    [options.initMessage, options.onReady, options.onHeight, options.onComplete, options.onVisibleSection, options.onBookmark, injectMessage],
+    [options.initMessage, options.onReady, options.onHeight, options.onComplete, options.onBookmark, injectMessage],
   );
 
   const sendToWebView = useCallback(

@@ -9,7 +9,6 @@ import { runChatScenario } from './modes/chat/chat-controller';
 import { renderOverview } from './modes/overview/overview-renderer';
 import {
   initOverviewController,
-  handleScrollToSection,
   handleBookmarkResult,
 } from './modes/overview/overview-controller';
 import type { RNToWebViewMessage } from '../types';
@@ -17,9 +16,7 @@ import type { RNToWebViewMessage } from '../types';
 const container = document.getElementById('content')!;
 
 function handleNonInitMessage(msg: RNToWebViewMessage): void {
-  if (msg.type === 'scrollToSection') {
-    handleScrollToSection(msg.sectionId);
-  } else if (msg.type === 'bookmarkResult') {
+  if (msg.type === 'bookmarkResult') {
     handleBookmarkResult(msg.sectionId, msg.success);
   }
 }
@@ -47,7 +44,7 @@ onMessage(async (msg) => {
 
     case 'overview':
       await renderOverview(container, msg.sections);
-      initOverviewController(container);
+      initOverviewController(container, msg.sections);
       sendToRN({ type: 'ready', mode: 'overview' });
       break;
   }

@@ -6,7 +6,23 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: var(--content-font-family, 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif);
+  font-family: var(
+    --content-font-family,
+    'Pretendard Variable',
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    Roboto,
+    'Helvetica Neue',
+    'Segoe UI',
+    'Apple SD Gothic Neo',
+    'Noto Sans KR',
+    'Malgun Gothic',
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    sans-serif
+  );
   font-size: 15px;
   line-height: 1.6;
 
@@ -89,50 +105,95 @@ td {
 }
 
 /* Table numbering: ①②③④⑤ for 1-col, 3-col, 5-col tables */
-table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(1)>td:nth-child(1)::before,
-table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(1)>td:nth-child(1)::before,
-table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(1)::before {
-  content: "\2460 ";
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(1)::before {
+  content: '\2460 ';
   position: absolute;
   left: 0.5em;
   user-select: none;
   pointer-events: none;
 }
 
-table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(1)>td:nth-child(2)::before,
-table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(2)>td:nth-child(1)::before,
-table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(2)::before {
-  content: "\2461 ";
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(2)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(2)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(2)::before {
+  content: '\2461 ';
   position: absolute;
   left: 0.5em;
   user-select: none;
   pointer-events: none;
 }
 
-table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(1)>td:nth-child(3)::before,
-table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(3)>td:nth-child(1)::before,
-table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(3)::before {
-  content: "\2462 ";
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(3)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(3)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(3)::before {
+  content: '\2462 ';
   position: absolute;
   left: 0.5em;
   user-select: none;
   pointer-events: none;
 }
 
-table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(2)>td:nth-child(1)::before,
-table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(4)>td:nth-child(1)::before,
-table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(4)::before {
-  content: "\2463 ";
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(2)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(4)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(4)::before {
+  content: '\2463 ';
   position: absolute;
   left: 0.5em;
   user-select: none;
   pointer-events: none;
 }
 
-table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(2)>td:nth-child(2)::before,
-table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(5)>td:nth-child(1)::before,
-table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(5)::before {
-  content: "\2464 ";
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(2)
+  > td:nth-child(2)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(5)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(5)::before {
+  content: '\2464 ';
   position: absolute;
   left: 0.5em;
   user-select: none;
@@ -140,15 +201,82 @@ table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-ch
 }
 
 /* Hide empty 6th cell in 3-column layout */
-table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(2)>td:nth-child(3) {
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(2)
+  > td:nth-child(3) {
   position: relative;
   pointer-events: none;
   user-select: none;
   color: transparent;
 }
 
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(2)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(2)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(2)::before,
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(3)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(3)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(3)::before,
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(2)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(4)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(4)::before,
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)
+  > tbody
+  > tr:nth-child(2)
+  > td:nth-child(2)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)
+  > tbody
+  > tr:nth-child(5)
+  > td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
+  > tbody
+  > tr:nth-child(1)
+  > td:nth-child(5)::before {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 /* Inline math */
-span[data-type="inline-math"] {
+span[data-type='inline-math'] {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -166,7 +294,7 @@ span[data-type="inline-math"] {
 }
 
 /* Horizontal rule */
-div[data-type=horizontalRule] {
+div[data-type='horizontalRule'] {
   margin-top: 2.25em;
   margin-bottom: 2.25em;
   padding-top: 0.75em;

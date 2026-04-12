@@ -26,8 +26,7 @@ export type RNToWebViewMessage =
     }
   | { type: 'init'; mode: 'chat'; scenario: ChatScenario }
   | { type: 'init'; mode: 'overview'; sections: OverviewSection[] }
-  | { type: 'bookmarkResult'; sectionId: string; success: boolean }
-  | { type: 'scrollToSection'; sectionId: string };
+  | { type: 'bookmarkResult'; sectionId: string; success: boolean };
 
 // ── Bridge messages: WebView → RN ──
 
@@ -35,7 +34,6 @@ export type WebViewToRNMessage =
   | { type: 'ready'; mode: ContentMode }
   | { type: 'height'; value: number }
   | { type: 'complete'; answers: UserAnswer[] }
-  | { type: 'visibleSection'; sectionId: string }
   | { type: 'bookmark'; sectionId: string; bookmarked: boolean };
 
 // ── Chat: Pointing structures ──

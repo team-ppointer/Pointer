@@ -12,7 +12,6 @@ interface ContentWebViewProps {
   initMessage: RNToWebViewMessage & { type: 'init' };
   onReady?: (mode: ContentMode) => void;
   onComplete?: (answers: UserAnswer[]) => void;
-  onVisibleSection?: (sectionId: string) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean) => void;
   style?: StyleProp<ViewStyle>;
 }
@@ -21,7 +20,6 @@ export function ContentWebView({
   initMessage,
   onReady,
   onComplete,
-  onVisibleSection,
   onBookmark,
   style,
 }: ContentWebViewProps) {
@@ -38,7 +36,6 @@ export function ContentWebView({
     },
     onHeight: isDocument ? setHeight : undefined,
     onComplete,
-    onVisibleSection,
     onBookmark,
   });
 

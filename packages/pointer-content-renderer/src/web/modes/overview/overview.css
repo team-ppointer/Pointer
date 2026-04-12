@@ -7,6 +7,45 @@
   overflow-y: auto;
 }
 
+/* Tab bar */
+.tab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  gap: 4px;
+  padding: 0 0 0 0;
+  margin: 0 -16px 16px;
+  padding: 0 16px;
+  background-color: #f5f5f5;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-item {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: #999;
+  font-size: 14px;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 200ms ease, border-bottom-color 200ms ease;
+}
+
+.tab-item--active {
+  color: #4A7CFE;
+  border-bottom-color: #4A7CFE;
+}
+
 .overview-section {
   margin-bottom: 16px;
 }
