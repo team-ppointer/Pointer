@@ -3,6 +3,7 @@ import type { DrawingInputCallbacks, InputPhase } from "./inputTypes";
 
 export type InputAdapterConfig = {
   eraserMode: boolean;
+  pencilOnly: boolean;
   minDistance: number;
   callbacks: DrawingInputCallbacks;
 };

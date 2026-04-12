@@ -18,4 +18,6 @@ export type DrawingInputCallbacks = {
   onDrawCancel: (reason?: CancelReason) => void;
   onEraseStart: (input: InputEvent) => void;
   onEraseMove: (input: InputEvent) => void;
+  /** iOS predicted touches for lower-latency rendering. Not committed to stroke model. */
+  onPredictedSamples?: (inputs: InputEvent[]) => void;
 };

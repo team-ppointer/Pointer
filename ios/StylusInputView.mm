@@ -66,8 +66,10 @@ using namespace facebook::react;
     return;
   }
 
-  NSArray<UITouch *> *touches = data.coalescedTouches;
   UIView *refView = data.referenceView;
+
+  // --- Coalesced touches ---
+  NSArray<UITouch *> *touches = data.coalescedTouches;
   NSUInteger count = touches.count;
 
   if (count == 0) {
@@ -91,6 +93,25 @@ using namespace facebook::react;
     azimuths[i] = [t azimuthAngleInView:refView];
   }
 
+  // --- Predicted touches ---
+  NSArray<UITouch *> *predicted = data.predictedTouches;
+  NSUInteger pCount = predicted.count;
+
+  std::vector<double> pxs(pCount), pys(pCount), pts(pCount), pforces(pCount), palts(pCount), pazs(pCount);
+
+  for (NSUInteger i = 0; i < pCount; i++) {
+    UITouch *t = predicted[i];
+    CGPoint loc = [t preciseLocationInView:refView];
+    pxs[i] = loc.x;
+    pys[i] = loc.y;
+    pts[i] = t.timestamp * 1000.0;
+    pforces[i] = t.maximumPossibleForce > 0
+      ? t.force / t.maximumPossibleForce
+      : 0.0;
+    palts[i] = t.altitudeAngle;
+    pazs[i] = [t azimuthAngleInView:refView];
+  }
+
   StylusInputViewEventEmitter::OnStylusTouch event;
   event.phase = phase;
   event.xs = {xs.begin(), xs.end()};
@@ -99,15 +120,21 @@ using namespace facebook::react;
   event.forces = {forces.begin(), forces.end()};
   event.altitudes = {altitudes.begin(), altitudes.end()};
   event.azimuths = {azimuths.begin(), azimuths.end()};
-  eventEmitter->onOnStylusTouch(event);
+  event.predictedXs = {pxs.begin(), pxs.end()};
+  event.predictedYs = {pys.begin(), pys.end()};
+  event.predictedTimestamps = {pts.begin(), pts.end()};
+  event.predictedForces = {pforces.begin(), pforces.end()};
+  event.predictedAltitudes = {palts.begin(), palts.end()};
+  event.predictedAzimuths = {pazs.begin(), pazs.end()};
+  eventEmitter->onStylusTouch(event);
 }
 
 - (const StylusInputViewEventEmitter *)_stylusTouchEmitter
 {
-  if (!self.eventEmitter) {
+  if (!_eventEmitter) {
     return nullptr;
   }
-  return static_cast<const StylusInputViewEventEmitter *>(self.eventEmitter.get());
+  return static_cast<const StylusInputViewEventEmitter *>(_eventEmitter.get());
 }
 
 @end

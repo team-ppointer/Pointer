@@ -32,6 +32,8 @@ type FinalizeStrokeOptions = {
 
 type AddPointOptions = {
   strokeWidth: number;
+  /** Skip velocity computation in fixed-width mode (velocityWeight=0) */
+  fixedWidth?: boolean;
 };
 
 type ErasePointOptions = {
@@ -150,8 +152,11 @@ export class DrawingEngine {
       tiltY: input.tiltY,
       timestamp: input.timestamp,
     };
-    if (prevSample) {
-      sample.velocity = computeVelocity(prevSample, sample);
+    // [fixed-width skip] velocity computation only needed for variable-width rendering
+    if (!options.fixedWidth && prevSample) {
+      const vel = computeVelocity(prevSample, sample);
+      sample.velocity = vel.raw;
+      sample.smoothedVelocity = vel.smoothed;
     }
     this.session.samples.push(sample);
 

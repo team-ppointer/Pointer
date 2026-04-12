@@ -10,7 +10,9 @@ export const deepCopyStrokes = (strokes: Stroke[]): Stroke[] =>
     width: stroke.width,
     ...(stroke.opacity !== undefined ? { opacity: stroke.opacity } : {}),
     ...(stroke.strokeCap !== undefined ? { strokeCap: stroke.strokeCap } : {}),
-    ...(stroke.samples !== undefined ? { samples: stroke.samples.map((s) => ({ ...s })) } : {}),
+    ...(stroke.samples !== undefined
+      ? { samples: stroke.samples.map((s) => ({ ...s })) }
+      : {}),
   }));
 
 export const getMaxYFromStrokes = (strokes: Stroke[]): number => {
@@ -102,7 +104,10 @@ export const pointToSegmentDistanceSquared = (
   }
 
   // Project point onto the segment, clamped to [0, 1]
-  const t = Math.max(0, Math.min(1, ((px - ax) * abx + (py - ay) * aby) / lengthSquared));
+  const t = Math.max(
+    0,
+    Math.min(1, ((px - ax) * abx + (py - ay) * aby) / lengthSquared),
+  );
   const projX = ax + t * abx;
   const projY = ay + t * aby;
   const dx = px - projX;
