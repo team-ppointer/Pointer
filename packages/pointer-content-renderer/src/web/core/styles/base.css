@@ -1,0 +1,180 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+:root {
+  overflow-wrap: break-word;
+  text-size-adjust: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--content-font-family, 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif);
+  font-size: 15px;
+  line-height: 1.6;
+
+  --tt-color-highlight-yellow: #fef9c3;
+  --tt-color-highlight-green: #dcfce7;
+  --tt-color-highlight-blue: #e0f2fe;
+  --tt-color-highlight-purple: #f3e8ff;
+  --tt-color-highlight-red: #ffe4e6;
+
+  --horizontal-rule-color: rgba(37, 39, 45, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 0 solid;
+}
+
+#content {
+  padding: var(--content-padding, 0);
+  display: flow-root;
+}
+
+p:not(:first-child) {
+  font-weight: normal;
+  margin-top: 20px;
+}
+
+img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 280px;
+  margin: 32px auto;
+  outline: 2px solid transparent;
+  border-radius: 4px;
+}
+
+ul,
+ol {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  padding-left: 1.5em;
+}
+
+ul:first-child,
+ol:first-child {
+  margin-top: 0;
+}
+
+li p {
+  margin-top: 0;
+  line-height: 1.6;
+}
+
+blockquote {
+  position: relative;
+  padding: 1em 1.125em;
+  margin: 1.5em 0;
+  border: 1px solid #333;
+  border-radius: 1px;
+}
+
+blockquote p:not(:first-child) {
+  margin-top: 0.75em;
+}
+
+table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1.5em 0;
+}
+
+td {
+  position: relative;
+  padding: 0.3125em;
+  padding-left: 1.75em;
+}
+
+/* Table numbering: ①②③④⑤ for 1-col, 3-col, 5-col tables */
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(1)>td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(1)>td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(1)::before {
+  content: "\2460 ";
+  position: absolute;
+  left: 0.5em;
+  user-select: none;
+  pointer-events: none;
+}
+
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(1)>td:nth-child(2)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(2)>td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(2)::before {
+  content: "\2461 ";
+  position: absolute;
+  left: 0.5em;
+  user-select: none;
+  pointer-events: none;
+}
+
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(1)>td:nth-child(3)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(3)>td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(3)::before {
+  content: "\2462 ";
+  position: absolute;
+  left: 0.5em;
+  user-select: none;
+  pointer-events: none;
+}
+
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(2)>td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(4)>td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(4)::before {
+  content: "\2463 ";
+  position: absolute;
+  left: 0.5em;
+  user-select: none;
+  pointer-events: none;
+}
+
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(2)>td:nth-child(2)::before,
+table:has(> tbody > tr:first-child > td:nth-child(1):last-child)>tbody>tr:nth-child(5)>td:nth-child(1)::before,
+table:has(> tbody > tr:first-child > td:nth-child(5):last-child)>tbody>tr:nth-child(1)>td:nth-child(5)::before {
+  content: "\2464 ";
+  position: absolute;
+  left: 0.5em;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Hide empty 6th cell in 3-column layout */
+table:has(> tbody > tr:first-child > td:nth-child(3):last-child)>tbody>tr:nth-child(2)>td:nth-child(3) {
+  position: relative;
+  pointer-events: none;
+  user-select: none;
+  color: transparent;
+}
+
+/* Inline math */
+span[data-type="inline-math"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0px;
+  vertical-align: baseline;
+}
+
+.katex {
+  /* font-size: 1em; */
+  transform: translateY(0.05em);
+}
+
+.katex-display {
+  margin: 0;
+}
+
+/* Horizontal rule */
+div[data-type=horizontalRule] {
+  margin-top: 2.25em;
+  margin-bottom: 2.25em;
+  padding-top: 0.75em;
+  padding-bottom: 0.75em;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background-color: var(--horizontal-rule-color);
+}
