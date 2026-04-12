@@ -430,6 +430,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const subtitle = publishDateLabel ?? '';
 
   const canvasRef = useRef<DrawingCanvasRef>(null);
+  const [undoState, setUndoState] = useState({ canUndo: false, canRedo: false });
   const drawingState = useDrawingState();
 
   const screenHeight = Dimensions.get('window').height;
@@ -466,6 +467,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                   drawingState.setEraserMode();
                 }
               }}
+              canUndo={undoState.canUndo}
+              canRedo={undoState.canRedo}
+              onUndo={() => canvasRef.current?.undo()}
+              onRedo={() => canvasRef.current?.redo()}
             />
           </View>
         </View>
@@ -479,6 +484,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
             eraserSize={12}
             pencilOnly
             enableZoomPan
+            onUndoStateChange={setUndoState}
             backgroundColor='transparent'
             minCanvasHeight={screenHeight * 2}
           >
