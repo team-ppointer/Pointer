@@ -17,6 +17,14 @@ type StylusTouchEvent = Readonly<{
   forces: Double[]; // 0..1 normalized
   altitudes: Double[]; // radians, 0=parallel π/2=perpendicular
   azimuths: Double[]; // radians, UIKit convention (0=right, increases CW)
+  // Predicted touches — iOS-estimated future positions (1-2 samples ahead).
+  // Used for rendering only, NOT committed to stroke model.
+  predictedXs: Double[];
+  predictedYs: Double[];
+  predictedTimestamps: Double[];
+  predictedForces: Double[];
+  predictedAltitudes: Double[];
+  predictedAzimuths: Double[];
 }>;
 
 export interface NativeProps extends ViewProps {

@@ -3,7 +3,20 @@ import { CanvasRef, SkPath, Skia, useCanvasRef } from "@shopify/react-native-ski
 import type { ReadonlyStroke, ReadonlyStrokeBounds, ReadonlyStrokeSample, WritingFeelConfig } from "../../model/drawingTypes";
 import type { RefObject } from "react";
 import type { RendererActions, RendererState, RendererViewport } from "../rendererTypes";
-import { buildSmoothPath, buildVariableWidthPath } from "../../smoothing";
+import { buildSmoothPath, buildCenterlinePath } from "../../smoothing";
+import { DEFAULT_WRITING_FEEL_CONFIG } from "../../model/writingFeel";
+import { PixelRatio } from "react-native";
+
+const EMPTY_PATH_SENTINEL = Skia.Path.Make();
+
+/** How often (in frames) to freeze the prefix */
+const FREEZE_INTERVAL = 10;
+/** Max samples in the live tail (including overlap) */
+const TAIL_SIZE = 30;
+/** Overlap samples between frozen prefix and live tail for Catmull-Rom ghost points.
+ *  Fixed-width rendering uses stroke style, so minimal overlap (1 sample) is
+ *  sufficient for spline continuity without causing AA fringe doubling. */
+const TAIL_OVERLAP = 1;
 
 type CommittedRenderingState = {
   paths: SkPath[];
@@ -14,7 +27,6 @@ type CommittedRenderingState = {
 export type SkiaRendererState = RendererState & {
   paths: SkPath[];
   livePath: SkPath;
-  isLivePathVariableWidth: boolean;
   canvasRef: RefObject<CanvasRef | null>;
 };
 
@@ -31,17 +43,43 @@ export function useSkiaDrawingRenderer(writingFeelConfig?: WritingFeelConfig): [
     EMPTY_COMMITTED_RENDERING_STATE,
   );
   const [isLiveStrokeActive, setIsLiveStrokeActive] = useState(false);
-  const [isLivePathVariableWidth, setIsLivePathVariableWidth] = useState(false);
   const [viewport, setViewport] = useState<RendererViewport>({ scrollOffsetY: 0, viewportHeight: 0 });
+
+  const resolvedConfig = writingFeelConfig ?? DEFAULT_WRITING_FEEL_CONFIG;
+
+  // DPI-aware resample spacing: tighter on higher-density displays
+  const targetSpacing = useMemo(() => 3.0 / PixelRatio.get(), []);
 
   const canvasRef = useCanvasRef();
   const committedPathsRef = useRef<SkPath[]>([]);
   const liveSamplesRef = useRef<ReadonlyArray<ReadonlyStrokeSample>>([]);
-  const livePath = useRef<SkPath>(Skia.Path.Make());
+  const [livePath, setLivePath] = useState<SkPath>(EMPTY_PATH_SENTINEL);
+  const prevLivePathRef = useRef<SkPath | null>(null);
   const livePathFrameRequest = useRef<number | null>(null);
+  const renderGenRef = useRef(0);
+
+  // Deferred dispose: wait until React has rendered the new path before
+  // disposing the old one, preventing use-after-dispose in the Skia Canvas.
+  useEffect(() => {
+    const prev = prevLivePathRef.current;
+    prevLivePathRef.current = livePath;
+    if (prev && prev !== EMPTY_PATH_SENTINEL && prev !== livePath) {
+      prev.dispose();
+    }
+  }, [livePath]);
+
+  // --- Frozen prefix + live tail state ---
+  const frozenPrefixPathRef = useRef<SkPath | null>(null);
+  const freezeCursorRef = useRef(0);
+  const frameCounterRef = useRef(0);
 
   const syncCommittedRenderingState = useCallback(
     (nextStrokes: ReadonlyArray<ReadonlyStroke>, nextBounds: ReadonlyArray<ReadonlyStrokeBounds>, nextPaths: SkPath[]) => {
+      const oldPaths = committedPathsRef.current;
+      const retained = new Set(nextPaths);
+      for (const p of oldPaths) {
+        if (!retained.has(p)) p.dispose();
+      }
       committedPathsRef.current = nextPaths;
       setCommittedState({
         paths: nextPaths,
@@ -54,41 +92,59 @@ export function useSkiaDrawingRenderer(writingFeelConfig?: WritingFeelConfig): [
 
   const buildPathsFromStrokes = useCallback(
     (nextStrokes: ReadonlyArray<ReadonlyStroke>) =>
-      nextStrokes.map((stroke) =>
-        stroke.samples && stroke.samples.length > 0
-          ? buildVariableWidthPath(stroke.samples, writingFeelConfig)
-          : buildSmoothPath(stroke.points),
-      ),
-    [writingFeelConfig],
+      nextStrokes.map((stroke) => {
+        if (!stroke.samples || stroke.samples.length === 0) {
+          return buildSmoothPath(stroke.points);
+        }
+        return buildCenterlinePath(stroke.samples, resolvedConfig, targetSpacing);
+      }),
+    [resolvedConfig, targetSpacing],
   );
 
   const renderLivePathNow = useCallback((samples: ReadonlyArray<ReadonlyStrokeSample>) => {
     if (samples.length <= 1) {
-      canvasRef.current?.redraw();
       return;
     }
 
-    const hasVariableWidth = samples.some((s) => s.pressure !== undefined);
-    if (hasVariableWidth) {
-      const rebuilt = buildVariableWidthPath(samples, writingFeelConfig);
-      livePath.current.reset();
-      livePath.current.addPath(rebuilt);
-      setIsLivePathVariableWidth(true);
-    } else {
-      const rebuilt = buildSmoothPath(samples);
-      livePath.current.reset();
-      livePath.current.addPath(rebuilt);
-      setIsLivePathVariableWidth(false);
+    frameCounterRef.current++;
+
+    const totalSamples = samples.length;
+    const cursor = freezeCursorRef.current;
+
+    const shouldFreeze =
+      frameCounterRef.current % FREEZE_INTERVAL === 0 &&
+      totalSamples > TAIL_SIZE + TAIL_OVERLAP;
+
+    if (shouldFreeze) {
+      const newCursor = Math.max(cursor, totalSamples - TAIL_SIZE);
+      if (newCursor > cursor) {
+        if (frozenPrefixPathRef.current) {
+          frozenPrefixPathRef.current.dispose();
+        }
+        frozenPrefixPathRef.current = buildCenterlinePath(samples.slice(0, newCursor), resolvedConfig, targetSpacing);
+        freezeCursorRef.current = newCursor;
+      }
     }
 
-    canvasRef.current?.redraw();
-  }, [canvasRef, writingFeelConfig]);
+    const frozenPath = frozenPrefixPathRef.current;
+    const activeCursor = freezeCursorRef.current;
+
+    if (frozenPath && activeCursor > 0) {
+      const tailStart = Math.max(0, activeCursor - TAIL_OVERLAP);
+      const tailPath = buildCenterlinePath(samples.slice(tailStart), resolvedConfig, targetSpacing);
+      const combined = Skia.Path.Make();
+      combined.setIsVolatile(true);
+      combined.addPath(frozenPath);
+      combined.addPath(tailPath);
+      tailPath.dispose();
+      setLivePath(combined);
+    } else {
+      setLivePath(buildCenterlinePath(samples, resolvedConfig, targetSpacing));
+    }
+  }, [resolvedConfig, targetSpacing]);
 
   const cancelScheduledLivePathRender = useCallback(() => {
-    if (livePathFrameRequest.current === null) {
-      return;
-    }
-    cancelAnimationFrame(livePathFrameRequest.current);
+    renderGenRef.current++;
     livePathFrameRequest.current = null;
   }, []);
 
@@ -100,7 +156,12 @@ export function useSkiaDrawingRenderer(writingFeelConfig?: WritingFeelConfig): [
         return;
       }
 
-      livePathFrameRequest.current = requestAnimationFrame(() => {
+      // Use microtask instead of rAF: Apple Pencil coalesced touches already
+      // arrive once per vsync, so rAF throttling only adds 1 frame of latency.
+      const gen = ++renderGenRef.current;
+      livePathFrameRequest.current = gen;
+      queueMicrotask(() => {
+        if (renderGenRef.current !== gen) return;
         livePathFrameRequest.current = null;
         renderLivePathNow(liveSamplesRef.current);
       });
@@ -109,19 +170,33 @@ export function useSkiaDrawingRenderer(writingFeelConfig?: WritingFeelConfig): [
   );
 
   const resetLivePath = useCallback(() => {
-    livePath.current.reset();
+    setLivePath(EMPTY_PATH_SENTINEL);
     liveSamplesRef.current = [];
     setIsLiveStrokeActive(false);
-    setIsLivePathVariableWidth(false);
+    // Reset frozen prefix state
+    if (frozenPrefixPathRef.current) {
+      frozenPrefixPathRef.current.dispose();
+    }
+    frozenPrefixPathRef.current = null;
+    freezeCursorRef.current = 0;
+    frameCounterRef.current = 0;
   }, []);
 
   const startLivePath = useCallback(
     (x: number, y: number) => {
-      livePath.current.reset();
-      livePath.current.moveTo(x, y);
+      const initial = Skia.Path.Make();
+      initial.moveTo(x, y);
+      setLivePath(initial);
       liveSamplesRef.current = [];
       cancelScheduledLivePathRender();
       setIsLiveStrokeActive(true);
+      // Reset frozen prefix state for new stroke
+      if (frozenPrefixPathRef.current) {
+        frozenPrefixPathRef.current.dispose();
+      }
+      frozenPrefixPathRef.current = null;
+      freezeCursorRef.current = 0;
+      frameCounterRef.current = 0;
     },
     [cancelScheduledLivePathRender],
   );
@@ -143,15 +218,18 @@ export function useSkiaDrawingRenderer(writingFeelConfig?: WritingFeelConfig): [
       nextBounds: ReadonlyArray<ReadonlyStrokeBounds>,
       appendedStroke: ReadonlyStroke,
     ) => {
-      const appendedPath = appendedStroke.samples && appendedStroke.samples.length > 0
-        ? buildVariableWidthPath(appendedStroke.samples, writingFeelConfig)
-        : buildSmoothPath(appendedStroke.points);
+      let appendedPath: SkPath;
+      if (!appendedStroke.samples || appendedStroke.samples.length === 0) {
+        appendedPath = buildSmoothPath(appendedStroke.points);
+      } else {
+        appendedPath = buildCenterlinePath(appendedStroke.samples, resolvedConfig, targetSpacing);
+      }
       syncCommittedRenderingState(nextStrokes, nextBounds, [
         ...committedPathsRef.current,
         appendedPath,
       ]);
     },
-    [syncCommittedRenderingState, writingFeelConfig],
+    [syncCommittedRenderingState, resolvedConfig, targetSpacing],
   );
 
   const retainOrRebuildCommittedStrokes = useCallback(
@@ -171,9 +249,6 @@ export function useSkiaDrawingRenderer(writingFeelConfig?: WritingFeelConfig): [
     [buildPathsFromStrokes, syncCommittedRenderingState],
   );
 
-  // Viewport updates trigger a React re-render via useState to recalculate
-  // visible stroke culling. A ref-based approach would skip the render cycle
-  // needed for useMemo culling in SkiaDrawingCanvasSurface.
   const updateViewport = useCallback((next: RendererViewport) => {
     setViewport((prev) => {
       if (prev.scrollOffsetY === next.scrollOffsetY && prev.viewportHeight === next.viewportHeight) {
@@ -186,6 +261,12 @@ export function useSkiaDrawingRenderer(writingFeelConfig?: WritingFeelConfig): [
   useEffect(() => {
     return () => {
       cancelScheduledLivePathRender();
+      if (prevLivePathRef.current && prevLivePathRef.current !== EMPTY_PATH_SENTINEL) {
+        prevLivePathRef.current.dispose();
+      }
+      if (frozenPrefixPathRef.current) {
+        frozenPrefixPathRef.current.dispose();
+      }
     };
   }, [cancelScheduledLivePathRender]);
 
@@ -193,9 +274,8 @@ export function useSkiaDrawingRenderer(writingFeelConfig?: WritingFeelConfig): [
     paths: committedState.paths,
     strokes: committedState.strokes,
     strokeBounds: committedState.strokeBounds,
-    livePath: livePath.current,
+    livePath,
     isLiveStrokeActive,
-    isLivePathVariableWidth,
     viewport,
     canvasRef,
   };

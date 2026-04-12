@@ -1,16 +1,11 @@
 import React, {
   forwardRef,
-  useCallback,
   useEffect,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import {
-  LayoutChangeEvent,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
   Platform,
   ScrollView,
   StyleSheet,
@@ -18,41 +13,65 @@ import {
 } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";
 import type {
-  InputEvent,
   Stroke,
   WritingFeelConfig,
 } from "./model/drawingTypes";
-import { normalizeStrokeWidth } from "./model/strokeUtils";
 import { DEFAULT_WRITING_FEEL_CONFIG } from "./model/writingFeel";
-import { DrawingEngine } from "./engine/DrawingEngine";
 import { useRnghPanAdapter } from "./input/rnghPanAdapter";
 import { useNativeStylusAdapter } from "./input/nativeStylusAdapter";
+import type { TextBoxData } from "./textbox/textBoxTypes";
+import { useTextBoxManager } from "./textbox/useTextBoxManager";
 import { SkiaDrawingCanvasSurface } from "./render/skia/SkiaDrawingCanvasSurface";
+import { CanvasEditingOverlay, CanvasSelectionOverlay } from "./canvas/CanvasOverlayLayer";
 import { useSkiaDrawingRenderer } from "./render/skia/useSkiaDrawingRenderer";
+import type { ViewTransform } from "./transform";
+import { IDENTITY_TRANSFORM } from "./transform";
+import { useDrawingDocumentController } from "./canvas/useDrawingDocumentController";
+import type { DocumentTextBoxActions } from "./canvas/useDrawingDocumentController";
+import { useCanvasViewportController } from "./canvas/useCanvasViewportController";
+import { useCanvasGestureComposer } from "./canvas/useCanvasGestureComposer";
+import { useDrawingInteractionController } from "./canvas/useDrawingInteractionController";
 
 export type DrawingCanvasRef = {
   clear: () => void;
   scrollTo: (y: number, animated?: boolean) => void;
   getStrokes: () => Stroke[];
   setStrokes: (strokes: Stroke[]) => void;
+  getTextBoxes: () => TextBoxData[];
+  setTextBoxes: (textBoxes: TextBoxData[]) => void;
+  getTransform: () => ViewTransform;
+  setTransform: (t: ViewTransform) => void;
+  resetZoom: () => void;
+  undo: () => void;
+  redo: () => void;
 };
+
+export type ActiveTool = "pen" | "eraser" | "textbox";
 
 export type DrawingCanvasProps = {
   strokeColor?: string;
   strokeWidth?: number;
   backgroundColor?: string;
   onChange?: (strokes: Stroke[]) => void;
+  onUndoStateChange?: (state: { canUndo: boolean; canRedo: boolean }) => void;
   onScrollOffsetChange?: (offsetY: number) => void;
   onCanvasHeightChange?: (height: number) => void;
+  /** @deprecated Use `activeTool="eraser"` instead. */
   eraserMode?: boolean;
+  activeTool?: ActiveTool;
   eraserSize?: number;
   minCanvasHeight?: number;
   writingFeelConfig?: WritingFeelConfig;
   stylusInput?: "auto" | "native" | "rngh";
+  pencilOnly?: boolean;
   children?: React.ReactNode;
+  enableZoomPan?: boolean;
+  maxZoomScale?: number;
+  onTransformChange?: (t: ViewTransform) => void;
 };
 
 const PAN_MIN_DISTANCE = 0.12;
+const DEFAULT_MAX_ZOOM_SCALE = 2.0;
 
 const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
   (
@@ -61,292 +80,132 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       strokeWidth = 3,
       backgroundColor = "#fff",
       onChange,
+      onUndoStateChange,
       onScrollOffsetChange,
       onCanvasHeightChange,
-      eraserMode = false,
+      eraserMode: eraserModeProp = false,
+      activeTool: activeToolProp,
       eraserSize = 20,
       minCanvasHeight = 800,
       writingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
       stylusInput = "auto",
+      pencilOnly = false,
       children,
+      enableZoomPan = false,
+      maxZoomScale = DEFAULT_MAX_ZOOM_SCALE,
+      onTransformChange,
     },
     ref,
   ) => {
+    // Derive activeTool: explicit prop wins, then legacy eraserMode mapping
+    const activeTool: ActiveTool = activeToolProp ?? (eraserModeProp ? "eraser" : "pen");
+    const eraserMode = activeTool === "eraser";
+
     const [isScrollEnabled, setIsScrollEnabled] = useState(true);
 
-    const scrollViewRef = useRef<ScrollView>(null);
-    const minimumCanvasHeightRef = useRef<number>(
-      Math.max(400, minCanvasHeight),
-    );
-    const [canvasHeight, setCanvasHeight] = useState<number>(
-      minimumCanvasHeightRef.current,
-    );
-    const maxY = useRef<number>(0);
+    // Shared maxY ref between document and viewport controllers
+    const maxYRef = useRef<number>(0);
 
-    const onChangeRef = useRef(onChange);
-    const onCanvasHeightChangeRef = useRef(onCanvasHeightChange);
-    const onScrollOffsetChangeRef = useRef(onScrollOffsetChange);
-    const strokeColorRef = useRef(strokeColor);
-    const eraserSizeRef = useRef(eraserSize);
-    onChangeRef.current = onChange;
-    onCanvasHeightChangeRef.current = onCanvasHeightChange;
-    onScrollOffsetChangeRef.current = onScrollOffsetChange;
-    strokeColorRef.current = strokeColor;
-    eraserSizeRef.current = eraserSize;
-
-    const engineRef = useRef<DrawingEngine>(new DrawingEngine());
+    // --- Renderer ---
     const [rendererState, rendererActions] = useSkiaDrawingRenderer(writingFeelConfig);
-    const { paths, strokes, livePath, isLiveStrokeActive, isLivePathVariableWidth, viewport, canvasRef } = rendererState;
-    const {
-      startLivePath,
-      scheduleLivePathRender,
-      cancelScheduledLivePathRender,
-      resetLivePath,
-      replaceCommittedStrokes,
-      appendCommittedStroke,
-      retainOrRebuildCommittedStrokes,
+    const { paths, strokes, livePath, isLiveStrokeActive, viewport, canvasRef } = rendererState;
+    const { updateViewport } = rendererActions;
+
+    // --- Viewport Controller ---
+    const vc = useCanvasViewportController({
+      minCanvasHeight,
+      enableZoomPan,
+      maxZoomScale,
+      maxYRef,
+      onCanvasHeightChange,
+      onScrollOffsetChange,
+      onTransformChange,
       updateViewport,
-    } = rendererActions;
+    });
 
-    const normalizedPenStrokeWidth = useMemo(
-      () => normalizeStrokeWidth(strokeWidth),
-      [strokeWidth],
-    );
+    // --- Document Controller ---
+    const textBoxActionsRef = useRef<DocumentTextBoxActions | null>(null);
 
-    const setCanvasHeightValue = useCallback(
-      (nextHeight: number) => {
-        const normalized = Math.max(minimumCanvasHeightRef.current, nextHeight);
-        setCanvasHeight((prev) => {
-          if (prev === normalized) {
-            return prev;
-          }
-          onCanvasHeightChangeRef.current?.(normalized);
-          return normalized;
-        });
-      },
-      [],
-    );
+    const docController = useDrawingDocumentController({
+      strokeWidth,
+      strokeColor,
+      eraserSize,
+      onChange,
+      onUndoStateChange,
+      rendererActions,
+      textBoxActionsRef,
+      maxYRef,
+      maybeGrowCanvasHeight: vc.maybeGrowCanvasHeight,
+      syncCanvasHeightFromMaxY: vc.syncCanvasHeightFromMaxY,
+    });
 
-    const resetCanvasHeight = useCallback(() => {
-      setCanvasHeightValue(minimumCanvasHeightRef.current);
-    }, [setCanvasHeightValue]);
+    // --- TextBox Manager ---
+    const [textBoxState, textBoxActions] = useTextBoxManager(docController.historyRef, { width: vc.viewportSize.width, height: vc.effectiveCanvasHeight });
+    textBoxActionsRef.current = textBoxActions;
 
-    const syncCanvasHeightFromMaxY = useCallback(
-      (nextMaxY: number) => {
-        if (nextMaxY <= 0) {
-          maxY.current = 0;
-          resetCanvasHeight();
-          return;
-        }
-
-        maxY.current = nextMaxY;
-        setCanvasHeightValue(nextMaxY + 200);
-      },
-      [resetCanvasHeight, setCanvasHeightValue],
-    );
-
-    const startStroke = useCallback(
-      (input: InputEvent) => {
-        const result = engineRef.current.startStroke(input);
-        startLivePath(input.x, input.y);
-
-        if (result.maxY > maxY.current) {
-          maxY.current = result.maxY;
-          setCanvasHeightValue(result.maxY + 200);
-        }
-      },
-      [setCanvasHeightValue, startLivePath],
-    );
-
-    const addPoint = useCallback(
-      (input: InputEvent) => {
-        const result = engineRef.current.addPoint(input, {
-          strokeWidth: normalizedPenStrokeWidth,
-        });
-        scheduleLivePathRender(engineRef.current.getSessionSamples());
-
-        if (result.maxY > maxY.current) {
-          maxY.current = result.maxY;
-          setCanvasHeightValue(result.maxY + 200);
-        }
-      },
-      [normalizedPenStrokeWidth, scheduleLivePathRender, setCanvasHeightValue],
-    );
-
-    const finalizeStroke = useCallback(() => {
-      cancelScheduledLivePathRender();
-
-      if (engineRef.current.getSessionPoints().length === 0) {
-        resetLivePath();
-        return;
+    // End textbox session when switching away from textbox tool
+    const prevToolRef = useRef(activeTool);
+    useEffect(() => {
+      if (prevToolRef.current === "textbox" && activeTool !== "textbox") {
+        textBoxActions.endSession();
       }
+      prevToolRef.current = activeTool;
+    }, [activeTool, textBoxActions]);
 
-      const result = engineRef.current.finalizeStroke({
-        strokeColor: strokeColorRef.current,
-        strokeWidth: normalizedPenStrokeWidth,
-      });
-      if (!result.changed || !result.appendedStroke) {
-        resetLivePath();
-        return;
-      }
-
-      appendCommittedStroke(
-        result.document.strokes,
-        result.strokeBounds,
-        result.appendedStroke,
-      );
-      onChangeRef.current?.(engineRef.current.getStrokes());
-      syncCanvasHeightFromMaxY(result.maxY);
-
-      resetLivePath();
-    }, [
-      appendCommittedStroke,
-      cancelScheduledLivePathRender,
-      normalizedPenStrokeWidth,
-      resetLivePath,
-      syncCanvasHeightFromMaxY,
-    ]);
-
-    const eraseAtPoint = useCallback(
-      (input: InputEvent) => {
-        const result = engineRef.current.eraseAtPoint(input, {
-          eraserSize: eraserSizeRef.current,
-        });
-        if (!result.changed) {
-          return;
-        }
-
-        retainOrRebuildCommittedStrokes(
-          result.document.strokes,
-          result.strokeBounds,
-          result.retainedStrokeIndices,
-        );
-        syncCanvasHeightFromMaxY(result.maxY);
-        onChangeRef.current?.(engineRef.current.getStrokes());
-      },
-      [
-        retainOrRebuildCommittedStrokes,
-        syncCanvasHeightFromMaxY,
-      ],
-    );
-
-    const forceCommitActiveSession = useCallback(() => {
-      if (!engineRef.current.hasActiveSession()) {
-        return;
-      }
-
-      cancelScheduledLivePathRender();
-      resetLivePath();
-
-      const result = engineRef.current.finalizeStroke({
-        strokeColor: strokeColorRef.current,
-        strokeWidth: normalizedPenStrokeWidth,
-      });
-      if (result.changed && result.appendedStroke) {
-        appendCommittedStroke(
-          result.document.strokes,
-          result.strokeBounds,
-          result.appendedStroke,
-        );
-        syncCanvasHeightFromMaxY(result.maxY);
-      }
-    }, [
-      appendCommittedStroke,
-      cancelScheduledLivePathRender,
-      normalizedPenStrokeWidth,
-      resetLivePath,
-      syncCanvasHeightFromMaxY,
-    ]);
-
-    const cancelDraw = useCallback(() => {
-      const sessionPoints = engineRef.current.getSessionPoints();
-
-      if (sessionPoints.length <= 1) {
-        cancelScheduledLivePathRender();
-        resetLivePath();
-        engineRef.current.discardSession();
-        return;
-      }
-
-      forceCommitActiveSession();
-      onChangeRef.current?.(engineRef.current.getStrokes());
-    }, [cancelScheduledLivePathRender, forceCommitActiveSession, resetLivePath]);
-
-    const setStrokesFromOutside = useCallback(
-      (nextStrokes: Stroke[]) => {
-        forceCommitActiveSession();
-
-        const result = engineRef.current.applyStrokes(nextStrokes);
-        replaceCommittedStrokes(result.document.strokes, result.strokeBounds);
-        syncCanvasHeightFromMaxY(result.maxY);
-        onChangeRef.current?.(engineRef.current.getStrokes());
-      },
-      [
-        forceCommitActiveSession,
-        replaceCommittedStrokes,
-        syncCanvasHeightFromMaxY,
-      ],
-    );
-
-    const clear = useCallback(() => {
-      cancelScheduledLivePathRender();
-      resetLivePath();
-
-      if (engineRef.current.hasActiveSession()) {
-        engineRef.current.finalizeStroke({
-          strokeColor: strokeColorRef.current,
-          strokeWidth: normalizedPenStrokeWidth,
-        });
-      }
-
-      const result = engineRef.current.clear();
-      replaceCommittedStrokes(result.document.strokes, result.strokeBounds);
-      syncCanvasHeightFromMaxY(result.maxY);
-      onChangeRef.current?.(engineRef.current.getStrokes());
-    }, [
-      cancelScheduledLivePathRender,
-      normalizedPenStrokeWidth,
-      replaceCommittedStrokes,
-      resetLivePath,
-      syncCanvasHeightFromMaxY,
-    ]);
-
-    const getStrokes = useCallback(() => {
-      return engineRef.current.getStrokes();
-    }, []);
-
+    // --- Imperative Ref ---
     useImperativeHandle(
       ref,
       () => ({
-        clear,
+        clear: docController.clear,
         scrollTo: (y: number, animated = true) => {
-          scrollViewRef.current?.scrollTo({ y: Math.max(0, y), animated });
+          if (enableZoomPan) {
+            vc.applyTransform({
+              ...vc.viewTransformRef.current,
+              translateY: -y * vc.viewTransformRef.current.scale,
+            });
+            return;
+          }
+          vc.scrollViewRef.current?.scrollTo({ y: Math.max(0, y), animated });
         },
-        getStrokes,
-        setStrokes: setStrokesFromOutside,
-      }),
-      [clear, getStrokes, setStrokesFromOutside],
-    );
-
-    const inputCallbacks = useMemo(
-      () => ({
-        onInteractionBegin: () => setIsScrollEnabled(false),
-        onInteractionFinalize: () => setIsScrollEnabled(true),
-        onDrawStart: startStroke,
-        onDrawMove: addPoint,
-        onDrawEnd: finalizeStroke,
-        onDrawCancel: () => cancelDraw(),
-        onEraseStart: eraseAtPoint,
-        onEraseMove: eraseAtPoint,
+        getStrokes: docController.getStrokes,
+        setStrokes: docController.setStrokes,
+        getTextBoxes: () => [...textBoxState.textBoxes],
+        setTextBoxes: (tbs: TextBoxData[]) => {
+          textBoxActions.setTextBoxes(tbs);
+          docController.historyRef.current.clear();
+        },
+        getTransform: () => vc.viewTransformRef.current,
+        setTransform: (t: ViewTransform) => vc.applyTransform(t),
+        resetZoom: () => vc.applyTransform(IDENTITY_TRANSFORM),
+        undo: docController.undo,
+        redo: docController.redo,
       }),
       [
-        addPoint,
-        cancelDraw,
-        eraseAtPoint,
-        finalizeStroke,
-        startStroke,
+        docController.clear,
+        docController.getStrokes,
+        docController.setStrokes,
+        docController.undo,
+        docController.redo,
+        docController.historyRef,
+        vc.applyTransform,
+        vc.viewTransformRef,
+        vc.scrollViewRef,
+        enableZoomPan,
+        textBoxState.textBoxes,
+        textBoxActions,
       ],
     );
+
+    // --- Interaction Controller ---
+    const { transformedCallbacks } = useDrawingInteractionController({
+      eraserMode,
+      enableZoomPan,
+      canvasWidth: vc.viewportSize.width,
+      historyRef: docController.historyRef,
+      viewTransformRef: vc.viewTransformRef,
+      drawingActions: docController,
+      setIsScrollEnabled,
+    });
 
     const isFabric = !!(globalThis as any).nativeFabricUIManager;
     const useNativeStylus =
@@ -355,62 +214,130 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         (stylusInput === "auto" && Platform.OS === "ios"));
 
     const nativeStylusAdapter = useNativeStylusAdapter({
-      callbacks: inputCallbacks,
+      callbacks: transformedCallbacks,
       eraserMode,
     });
 
-    const { gesture: pan } = useRnghPanAdapter({
+    const { gesture: drawPan } = useRnghPanAdapter({
       eraserMode,
+      pencilOnly,
       minDistance: PAN_MIN_DISTANCE,
-      callbacks: inputCallbacks,
+      callbacks: transformedCallbacks,
     });
 
-    const viewportRef = useRef(viewport);
-    viewportRef.current = viewport;
-
-    const handleScroll = useCallback(
-      (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const offsetY = event.nativeEvent.contentOffset.y;
-        updateViewport({ scrollOffsetY: offsetY, viewportHeight: viewportRef.current.viewportHeight });
-        onScrollOffsetChangeRef.current?.(offsetY);
-      },
-      [updateViewport],
-    );
-
-    const handleLayout = useCallback((event: LayoutChangeEvent) => {
-      updateViewport({ scrollOffsetY: viewportRef.current.scrollOffsetY, viewportHeight: event.nativeEvent.layout.height });
-    }, [updateViewport]);
+    // --- Gesture Composer ---
+    const { composedGesture } = useCanvasGestureComposer({
+      enableZoomPan,
+      maxZoomScale,
+      isTextBoxTool: activeTool === "textbox",
+      viewTransformRef: vc.viewTransformRef,
+      applyTransform: vc.applyTransform,
+      drawPanGesture: drawPan,
+      onTextBoxTap: textBoxActions.handleTap,
+    });
 
     useEffect(() => {
       const normalizedMinHeight = Math.max(400, minCanvasHeight);
-      minimumCanvasHeightRef.current = normalizedMinHeight;
+      vc.minimumCanvasHeightRef.current = normalizedMinHeight;
 
-      if (canvasHeight < normalizedMinHeight) {
-        setCanvasHeightValue(normalizedMinHeight);
+      if (vc.canvasHeight < normalizedMinHeight) {
+        vc.setCanvasHeightValue(normalizedMinHeight);
         return;
       }
 
-      onCanvasHeightChangeRef.current?.(canvasHeight);
+      vc.onCanvasHeightChangeRef.current?.(vc.canvasHeight);
     }, [
-      canvasHeight,
+      vc.canvasHeight,
       minCanvasHeight,
-      setCanvasHeightValue,
+      vc,
     ]);
 
+    // --- Render: Zoom/Pan mode ---
+    if (enableZoomPan) {
+      const childTransformStyle = {
+        transform: [
+          { translateX: vc.viewTransform.translateX },
+          { translateY: vc.viewTransform.translateY },
+          { scale: vc.viewTransform.scale },
+        ],
+      } as const;
+
+      return (
+        <View style={[styles.container, { backgroundColor }]} onLayout={vc.handleZoomLayout}>
+          <GestureDetector gesture={composedGesture}>
+            <View style={styles.zoomWrapper}>
+              <View
+                style={[
+                  styles.childrenWrapper,
+                  vc.zoomContentSizeStyle,
+                  childTransformStyle,
+                ]}
+              >
+                {children}
+              </View>
+              <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                <SkiaDrawingCanvasSurface
+                  paths={paths}
+                  strokes={strokes}
+                  strokeBounds={rendererState.strokeBounds}
+                  strokeColor={strokeColor}
+                  normalizedPenStrokeWidth={docController.normalizedPenStrokeWidth}
+                  livePath={livePath}
+                  isLiveStrokeActive={isLiveStrokeActive}
+                  eraserCursor={docController.eraserCursor}
+                  eraserSize={eraserSize}
+                  canvasRef={canvasRef}
+                  scrollOffsetY={0}
+                  viewportHeight={vc.viewportSize.height}
+                  viewportWidth={vc.viewportSize.width}
+                  viewTransform={vc.viewTransform}
+                  textBoxes={textBoxState.textBoxes}
+                  editingTextBoxId={textBoxState.editingId}
+                />
+              </View>
+              <CanvasEditingOverlay
+                editingTextBox={textBoxState.editingTextBox}
+                onChangeText={textBoxActions.updateEditingText}
+                onHeightChange={textBoxActions.updateEditingHeight}
+                onBlur={textBoxActions.commitEditing}
+                style={[StyleSheet.absoluteFill, styles.childrenWrapper, vc.zoomContentSizeStyle, childTransformStyle]}
+                nativeStylusOverlay={useNativeStylus ? nativeStylusAdapter?.overlay : undefined}
+              />
+            </View>
+          </GestureDetector>
+          <CanvasSelectionOverlay
+            selectedTextBox={textBoxState.selectedTextBox}
+            viewTransform={vc.viewTransform}
+            onDelete={textBoxActions.deleteSelected}
+            onEdit={textBoxActions.editSelected}
+            onDismiss={textBoxActions.deselect}
+            onMoveStart={textBoxActions.beginMove}
+            onMoveUpdate={textBoxActions.updateMove}
+            onMoveEnd={textBoxActions.endMove}
+            onResizeStart={textBoxActions.beginResize}
+            onResizeUpdate={textBoxActions.updateResize}
+            onResizeEnd={textBoxActions.endResize}
+            setIsScrollEnabled={setIsScrollEnabled}
+          />
+        </View>
+      );
+    }
+
+    // --- Render: Scroll mode (default) ---
     return (
       <View style={[styles.container, { backgroundColor }]}>
         <ScrollView
-          ref={scrollViewRef}
+          ref={vc.scrollViewRef}
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           scrollEnabled={isScrollEnabled}
-          onScroll={handleScroll}
-          onLayout={handleLayout}
+          onScroll={vc.handleScroll}
+          onLayout={vc.handleLayout}
           scrollEventThrottle={16}
           nestedScrollEnabled
         >
-          <GestureDetector gesture={pan}>
-            <View style={[styles.canvasWrapper, { height: canvasHeight }]}>
+          <GestureDetector gesture={composedGesture}>
+            <View style={[styles.canvasWrapper, { height: vc.canvasHeight }]}>
               {children}
               <View style={StyleSheet.absoluteFill} pointerEvents="none">
                 <SkiaDrawingCanvasSurface
@@ -418,19 +345,42 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
                   strokes={strokes}
                   strokeBounds={rendererState.strokeBounds}
                   strokeColor={strokeColor}
-                  normalizedPenStrokeWidth={normalizedPenStrokeWidth}
+                  normalizedPenStrokeWidth={docController.normalizedPenStrokeWidth}
                   livePath={livePath}
                   isLiveStrokeActive={isLiveStrokeActive}
-                  isLivePathVariableWidth={isLivePathVariableWidth}
+                  eraserCursor={docController.eraserCursor}
+                  eraserSize={eraserSize}
                   canvasRef={canvasRef}
                   scrollOffsetY={viewport.scrollOffsetY}
                   viewportHeight={viewport.viewportHeight}
+                  viewportWidth={vc.viewportSize.width}
+                  textBoxes={textBoxState.textBoxes}
+                  editingTextBoxId={textBoxState.editingId}
                 />
               </View>
-              {useNativeStylus && nativeStylusAdapter?.overlay}
+              <CanvasEditingOverlay
+                editingTextBox={textBoxState.editingTextBox}
+                onChangeText={textBoxActions.updateEditingText}
+                onHeightChange={textBoxActions.updateEditingHeight}
+                onBlur={textBoxActions.commitEditing}
+                nativeStylusOverlay={useNativeStylus ? nativeStylusAdapter?.overlay : undefined}
+              />
             </View>
           </GestureDetector>
         </ScrollView>
+        <CanvasSelectionOverlay
+          selectedTextBox={textBoxState.selectedTextBox}
+          onDelete={textBoxActions.deleteSelected}
+          onEdit={textBoxActions.editSelected}
+          onDismiss={textBoxActions.deselect}
+          onMoveStart={textBoxActions.beginMove}
+          onMoveUpdate={textBoxActions.updateMove}
+          onMoveEnd={textBoxActions.endMove}
+          onResizeStart={textBoxActions.beginResize}
+          onResizeUpdate={textBoxActions.updateResize}
+          onResizeEnd={textBoxActions.endResize}
+          setIsScrollEnabled={setIsScrollEnabled}
+        />
       </View>
     );
   },
@@ -448,6 +398,13 @@ const styles = StyleSheet.create({
   },
   canvasWrapper: {
     width: "100%",
+  },
+  zoomWrapper: {
+    flex: 1,
+    overflow: "hidden",
+  },
+  childrenWrapper: {
+    transformOrigin: "left top",
   },
 });
 
