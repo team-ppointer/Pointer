@@ -1,12 +1,13 @@
 import type { ChatScenario, PointingNode, UserAnswer, JSONNode } from '../../../types';
 import { serializeNodeToHTML } from '../../core/serializer/index';
 import { renderMath } from '../../core/math-renderer';
+
 import { scrollToBottom } from './scroll';
 
 function createBubbleElement(
   html: string,
   side: 'system' | 'user',
-  animated: boolean,
+  animated: boolean
 ): HTMLElement {
   const el = document.createElement('div');
   el.className = `chat-bubble chat-bubble--${side}`;
@@ -15,7 +16,10 @@ function createBubbleElement(
   return el;
 }
 
-function createExpandButton(expandNode: JSONNode): { btn: HTMLButtonElement; content: HTMLElement } {
+function createExpandButton(expandNode: JSONNode): {
+  btn: HTMLButtonElement;
+  content: HTMLElement;
+} {
   const btn = document.createElement('button');
   btn.className = 'chat-expand-btn';
   btn.textContent = '?';
@@ -34,7 +38,7 @@ function createExpandButton(expandNode: JSONNode): { btn: HTMLButtonElement; con
 export async function renderBubble(
   container: HTMLElement,
   node: PointingNode,
-  side: 'system' | 'user',
+  side: 'system' | 'user'
 ): Promise<HTMLElement> {
   const html = serializeNodeToHTML(node.contentNode);
   const bubble = createBubbleElement(html, side, true);
@@ -56,7 +60,7 @@ export function renderTextBubble(
   container: HTMLElement,
   text: string,
   side: 'system' | 'user',
-  animated: boolean,
+  animated: boolean
 ): HTMLElement {
   const bubble = createBubbleElement(`<p>${text}</p>`, side, animated);
   container.appendChild(bubble);
@@ -76,22 +80,27 @@ export function renderDivider(container: HTMLElement, label: string): void {
  */
 export function createYesNoButtons(
   bubble: HTMLElement,
-  onSelect: (answer: 'yes' | 'no') => void,
+  onSelect: (answer: 'yes' | 'no') => void
 ): HTMLElement {
   const wrapper = document.createElement('div');
   wrapper.className = 'chat-choices';
 
   const yesBtn = document.createElement('button');
   yesBtn.className = 'chat-choice-btn';
-  yesBtn.textContent = '네';
+  yesBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 4.5L6.75 12.75L3 9" stroke="#4A5EF2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>네';
 
   const noBtn = document.createElement('button');
   noBtn.className = 'chat-choice-btn';
-  noBtn.textContent = '아니오';
+  noBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 4.5L4.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 4.5L13.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>아니오';
 
   const handleClick = (answer: 'yes' | 'no') => {
     yesBtn.disabled = true;
     noBtn.disabled = true;
+    if (answer === 'yes') {
+      yesBtn.classList.add('chat-choice-btn--selected-yes');
+    } else {
+      noBtn.classList.add('chat-choice-btn--selected-no');
+    }
     onSelect(answer);
   };
 
@@ -114,18 +123,18 @@ function renderStaticYesNo(bubble: HTMLElement, answer: 'yes' | 'no'): void {
 
   const yesBtn = document.createElement('button');
   yesBtn.className = 'chat-choice-btn';
-  yesBtn.textContent = '네';
+  yesBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 4.5L6.75 12.75L3 9" stroke="#4A5EF2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>네';
   yesBtn.disabled = true;
 
   const noBtn = document.createElement('button');
   noBtn.className = 'chat-choice-btn';
-  noBtn.textContent = '아니오';
+  noBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 4.5L4.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 4.5L13.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>아니오';
   noBtn.disabled = true;
 
   if (answer === 'yes') {
-    yesBtn.classList.add('chat-choice-btn--selected');
+    yesBtn.classList.add('chat-choice-btn--selected-yes');
   } else {
-    noBtn.classList.add('chat-choice-btn--selected');
+    noBtn.classList.add('chat-choice-btn--selected-no');
   }
 
   wrapper.appendChild(yesBtn);
@@ -136,7 +145,7 @@ function renderStaticYesNo(bubble: HTMLElement, answer: 'yes' | 'no'): void {
 export async function renderAllBubbles(
   container: HTMLElement,
   scenario: ChatScenario,
-  userAnswers?: UserAnswer[],
+  userAnswers?: UserAnswer[]
 ): Promise<void> {
   for (let i = 0; i < scenario.pointings.length; i++) {
     const pointing = scenario.pointings[i];
@@ -170,7 +179,7 @@ export async function renderAllBubbles(
         container,
         answer.questionResponse === 'yes' ? '네' : '아니오',
         'user',
-        false,
+        false
       );
     }
 
@@ -196,7 +205,7 @@ export async function renderAllBubbles(
       container,
       '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?',
       'system',
-      false,
+      false
     );
 
     if (answer) {
@@ -205,7 +214,7 @@ export async function renderAllBubbles(
         container,
         answer.confirmResponse === 'yes' ? '네' : '아니오',
         'user',
-        false,
+        false
       );
     }
   }

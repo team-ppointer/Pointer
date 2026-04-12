@@ -23,9 +23,45 @@
     'Segoe UI Symbol',
     sans-serif
   );
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
+  letter-spacing: -0.02em;
 
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  /* Color tokens (from tokens.ts) */
+  --color-black: #1e1e21;
+  --color-white: #ffffff;
+
+  --color-gray-100: #f8f9fc;
+  --color-gray-200: #f3f5fb;
+  --color-gray-300: #edeef2;
+  --color-gray-400: #dfe2e7;
+  --color-gray-500: #c6cad4;
+  --color-gray-600: #9fa4ae;
+  --color-gray-700: #6b6f77;
+  --color-gray-800: #3e3f45;
+  --color-gray-900: #222224;
+
+  --color-primary-100: #e9ebf8;
+  --color-primary-200: #c5ceff;
+  --color-primary-300: #a9b8ff;
+  --color-primary-400: #859cfb;
+  --color-primary-500: #617af9;
+  --color-primary-600: #526bea;
+  --color-primary-700: #3f57d6;
+  --color-primary-800: #3346c2;
+  --color-primary-900: #2838a8;
+
+  --color-secondary-500: #e59c00;
+
+  --color-red-100: #fce4e4;
+  --color-red-400: #ff3b30;
+
+  /* TipTap highlight colors (referenced in JSON mark attrs) */
   --tt-color-highlight-yellow: #fef9c3;
   --tt-color-highlight-green: #dcfce7;
   --tt-color-highlight-blue: #e0f2fe;
@@ -40,6 +76,7 @@
   padding: 0;
   box-sizing: border-box;
   border: 0 solid;
+  word-break: keep-all;
 }
 
 #content {
@@ -49,7 +86,6 @@
 
 p:not(:first-child) {
   font-weight: normal;
-  margin-top: 20px;
 }
 
 img {
@@ -83,7 +119,7 @@ blockquote {
   position: relative;
   padding: 1em 1.125em;
   margin: 1.5em 0;
-  border: 1px solid #333;
+  border: 1px solid var(--color-gray-800);
   border-radius: 1px;
 }
 
@@ -285,8 +321,9 @@ span[data-type='inline-math'] {
 }
 
 .katex {
-  /* font-size: 1em; */
-  transform: translateY(0.05em);
+  font-size: 1.05em;
+  padding-inline: 0.1em;
+  /*transform: translateY(0.05em);*/
 }
 
 .katex-display {

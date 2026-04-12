@@ -27,6 +27,9 @@ onMessage(async (msg) => {
     return;
   }
 
+  // Reset inline styles from previous mode
+  document.documentElement.style.removeProperty('--content-font-family');
+  document.body.style.backgroundColor = '';
   document.body.className = `${msg.mode}-mode`;
 
   switch (msg.mode) {
@@ -43,6 +46,9 @@ onMessage(async (msg) => {
     }
 
     case 'overview':
+      if (msg.variant) {
+        document.body.classList.add(`overview-mode--${msg.variant}`);
+      }
       await renderOverview(container, msg.sections);
       initOverviewController(container, msg.sections);
       sendToRN({ type: 'ready', mode: 'overview' });

@@ -25,7 +25,7 @@ export type RNToWebViewMessage =
       backgroundColor?: string;
     }
   | { type: 'init'; mode: 'chat'; scenario: ChatScenario }
-  | { type: 'init'; mode: 'overview'; sections: OverviewSection[] }
+  | { type: 'init'; mode: 'overview'; variant?: 'summary' | 'pointing'; sections: OverviewSection[] }
   | { type: 'bookmarkResult'; sectionId: string; success: boolean };
 
 // ── Bridge messages: WebView → RN ──
@@ -64,16 +64,31 @@ export interface UserAnswer {
 
 export interface OverviewSection {
   id: string;
-  label?: string;
+  tabLabel?: string;
   display:
     | {
         type: 'card';
-        variant: 'default' | 'pointing';
+        variant: 'default';
         content: JSONNode;
+        displayLabel?: string;
+      }
+    | {
+        type: 'card';
+        variant: 'pointing';
+        title: string;
+        subtitle: string;
+        question: JSONNode;
+        answer: JSONNode;
         bookmarkable?: boolean;
         bookmarked?: boolean;
       }
-    | { type: 'plain'; content: JSONNode; collapsible?: boolean }
+    | {
+        type: 'card';
+        variant: 'collapsible';
+        title: string;
+        content: JSONNode;
+      }
+    | { type: 'plain'; content: JSONNode }
     | { type: 'chat'; scenario: ChatScenario; userAnswers?: UserAnswer[] }
-    | { type: 'divider'; text: string };
+    | { type: 'divider'; text?: string };
 }

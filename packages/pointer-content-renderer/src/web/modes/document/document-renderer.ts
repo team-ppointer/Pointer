@@ -11,12 +11,13 @@ export async function renderDocument(
     backgroundColor?: string;
   },
 ): Promise<void> {
-  // Set font style
-  if (options.fontStyle === 'serif') {
-    document.documentElement.style.setProperty(
-      '--content-font-family',
-      '"KoPub Batang", serif',
-    );
+  // Document mode defaults to KoPub Batang (serif)
+  const fontFamily =
+    options.fontStyle === 'sans-serif'
+      ? undefined  // falls back to CSS default (Pretendard)
+      : '"KoPub Batang", serif';
+  if (fontFamily) {
+    document.documentElement.style.setProperty('--content-font-family', fontFamily);
   }
 
   // Set background color

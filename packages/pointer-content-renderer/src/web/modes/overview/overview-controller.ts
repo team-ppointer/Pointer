@@ -83,9 +83,9 @@ function buildTabItems(sections: OverviewSection[]): TabItem[] {
   const items: TabItem[] = [];
   for (const section of sections) {
     let label: string | null = null;
-    if (section.label) {
-      label = section.label;
-    } else if (section.display.type === 'divider') {
+    if (section.tabLabel) {
+      label = section.tabLabel;
+    } else if (section.display.type === 'divider' && section.display.text) {
       label = section.display.text;
     }
     if (label) {
@@ -101,17 +101,26 @@ function buildTabItems(sections: OverviewSection[]): TabItem[] {
 }
 
 function createTabBar(items: TabItem[]): HTMLElement {
+  const clip = document.createElement('div');
+  clip.className = 'tab-bar-clip';
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'tab-bar-wrapper';
+
   const bar = document.createElement('nav');
   bar.className = 'tab-bar';
   for (const item of items) {
     bar.appendChild(item.tabEl);
   }
-  return bar;
+
+  wrapper.appendChild(bar);
+  clip.appendChild(wrapper);
+  return clip;
 }
 
 function getTabBarHeight(): number {
-  const bar = document.querySelector<HTMLElement>('.tab-bar');
-  return bar?.offsetHeight ?? 0;
+  const clip = document.querySelector<HTMLElement>('.tab-bar-clip');
+  return clip?.offsetHeight ?? 0;
 }
 
 function setActiveTab(sectionId: string): void {

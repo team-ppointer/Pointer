@@ -1,32 +1,35 @@
 .chat-mode {
-  background-color: #f5f5f5;
+  background-color: var(--color-primary-100);
   min-height: 100vh;
-  padding: 16px;
+  padding: 0 20px 12px 20px;
 }
 
 /* Bubble base */
 .chat-bubble {
+  width: fit-content;
   max-width: 85%;
-  padding: 12px 16px;
+  padding: 12px;
   border-radius: 12px;
   margin-bottom: 8px;
-  word-break: break-word;
+  word-break: break-all;
+  overflow: hidden;
   animation: bubbleIn 300ms ease-out;
+  
 }
 
 .chat-bubble--system {
-  background-color: #ffffff;
-  border-top-left-radius: 2px;
+  background-color: var(--color-white);
   align-self: flex-start;
   margin-right: auto;
 }
 
 .chat-bubble--user {
-  background-color: #4a7cfe;
-  color: #ffffff;
-  border-top-right-radius: 2px;
+  background-color: var(--color-primary-600);
+  color: var(--color-white);
   align-self: flex-end;
   margin-left: auto;
+  border-radius: 20px;
+  padding: 8px 16px;
 }
 
 /* Content inside bubbles inherits base.css typography */
@@ -39,16 +42,19 @@
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 24px 0;
-  color: #999;
-  font-size: 13px;
+  margin: 10px 0 18px 0;
+  color: var(--color-primary-600);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0.18px;
 }
 
 .chat-divider::before,
 .chat-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-primary-300);
 }
 
 .chat-divider::before {
@@ -59,32 +65,58 @@
   margin-left: 8px;
 }
 
-/* Yes/No buttons */
+/* Yes/No buttons (inside bubble) */
 .chat-choices {
   display: flex;
   flex-direction: row;
   gap: 8px;
-  justify-content: center;
-  margin-bottom: 8px;
+  margin-top: 16px;
 }
 
 .chat-choice-btn {
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  padding: 8px 24px;
-  background-color: #ffffff;
+  height: 42px;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid var(--color-gray-400);
+  border-radius: 8px;
+  background-color: var(--color-gray-100);
+  color: var(--color-black);
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  letter-spacing: 0.07px;
   transition: background-color 150ms ease;
 }
 
 .chat-choice-btn:hover:not(:disabled) {
-  background-color: #f0f0f0;
+  background-color: var(--color-gray-300);
 }
 
 .chat-choice-btn:disabled {
-  opacity: 0.5;
   cursor: default;
+}
+
+.chat-choice-btn:disabled:not([class*="--selected"]) {
+  color: var(--color-gray-600);
+}
+
+.chat-choice-btn:disabled:not([class*="--selected"]) svg {
+  opacity: 0.4;
+}
+
+.chat-choice-btn--selected-yes {
+  background-color: var(--color-primary-100);
+  border-color: var(--color-primary-400);
+}
+
+.chat-choice-btn--selected-no {
+  opacity: 1;
+  background-color: var(--color-red-100);
+  border-color: var(--color-red-400);
 }
 
 /* Expand button */
@@ -94,7 +126,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-gray-500);
   border-radius: 50%;
   font-size: 12px;
   cursor: pointer;
@@ -117,17 +149,18 @@
 .typing-indicator {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 12px 16px;
+  gap: 5px;
+  padding: 16px 16px;
+  border-radius: 20px;
 }
 
 .typing-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background-color: #999;
-  animation: dotBounce 0.6s infinite;
+  background-color: var(--color-gray-600);
+  animation: dotBounce 1s infinite;
 }
 
 .typing-dot:nth-child(2) {
