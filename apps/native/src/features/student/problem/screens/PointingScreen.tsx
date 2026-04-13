@@ -30,7 +30,6 @@ import {
   toChatScenario,
   toUserAnswers,
 } from '../transforms/contentRendererTransforms';
-import { usePointingQueueSnapshot } from '../hooks/usePointingQueueSnapshot';
 
 const PointingScreen = ({
   navigation,
@@ -60,16 +59,18 @@ const PointingScreen = ({
 
   if (pointings.length === 0) console.warn('[PointingScreen] empty pointings array');
 
-  const queueSnapshot = usePointingQueueSnapshot();
-
+  // Chat WebView 는 init 후 내부 상태로 자체 진행한다. userAnswers 는 resume 용으로
+  // mount 시점의 큐 + 서버 상태 한 번만 읽어 보내고, 이후 큐 변화에는 구독하지 않는다.
+  // 구독 시 매 응답마다 initMessage reference 가 갱신되어 WebView 가 init 부터
+  // 재시작되는 회귀 발생 (chat-controller 가 static phase 부터 다시 재생).
   const chatInitMessage = useMemo(
     () => ({
       type: 'init' as const,
       mode: 'chat' as const,
       scenario: toChatScenario(pointings),
-      userAnswers: toUserAnswers(pointings, queueSnapshot),
+      userAnswers: toUserAnswers(pointings, pointingFeedbackQueue.snapshot()),
     }),
-    [pointings, queueSnapshot]
+    [pointings]
   );
 
   const documentInitMessage = useMemo(
