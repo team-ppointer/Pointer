@@ -4,7 +4,7 @@ import WebView from 'react-native-webview';
 import type { WebViewSource } from 'react-native-webview/lib/WebViewTypes';
 import type { ViewStyle, StyleProp, ImageRequireSource } from 'react-native';
 import type { RNToWebViewMessage, UserAnswer, ContentMode } from '../types';
-import { useContentBridge } from './useContentBridge';
+import { useContentBridge, type AnswerEventPayload } from './useContentBridge';
 
 /**
  * Accepts:
@@ -23,6 +23,7 @@ interface ContentWebViewProps {
   initMessage: RNToWebViewMessage & { type: 'init' };
   onReady?: (mode: ContentMode) => void;
   onComplete?: (answers: UserAnswer[]) => void;
+  onAnswer?: (event: AnswerEventPayload) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
   style?: StyleProp<ViewStyle>;
 }
@@ -32,6 +33,7 @@ export function ContentWebView({
   initMessage,
   onReady,
   onComplete,
+  onAnswer,
   onBookmark,
   style,
 }: ContentWebViewProps) {
@@ -48,6 +50,7 @@ export function ContentWebView({
     },
     onHeight: isDocument ? setHeight : undefined,
     onComplete,
+    onAnswer,
     onBookmark,
   });
 

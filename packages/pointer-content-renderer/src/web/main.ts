@@ -26,6 +26,7 @@ function disposeCurrentRender(): void {
   }
   container.replaceChildren();
   document.documentElement.style.removeProperty('--content-font-family');
+  document.documentElement.style.removeProperty('--content-padding');
   document.body.style.backgroundColor = '';
   document.body.className = '';
 }
@@ -61,7 +62,21 @@ onMessage(async (msg) => {
       activeDispose = () => abortController.abort();
       sendToRN({ type: 'ready', mode: 'chat' });
       try {
-        const answers = await runChatScenario(container, msg.scenario, abortController.signal);
+        const answers = await runChatScenario(
+          container,
+          msg.scenario,
+          msg.userAnswers,
+          abortController.signal,
+          (ev) => {
+            if (!isCurrent()) return;
+            sendToRN({
+              type: 'answer',
+              pointingId: ev.pointingId,
+              step: ev.step,
+              response: ev.response,
+            });
+          },
+        );
         if (!isCurrent()) return;
         sendToRN({ type: 'complete', answers });
       } catch (e) {

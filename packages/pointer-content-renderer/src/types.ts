@@ -23,8 +23,16 @@ export type RNToWebViewMessage =
       content: JSONNode;
       fontStyle?: 'sans-serif' | 'serif';
       backgroundColor?: string;
+      /** Inner content padding in px */
+      padding?: number;
     }
-  | { type: 'init'; mode: 'chat'; scenario: ChatScenario }
+  | {
+      type: 'init';
+      mode: 'chat';
+      scenario: ChatScenario;
+      /** Previously saved answers for resume. Fields may be partial. */
+      userAnswers?: UserAnswer[];
+    }
   | { type: 'init'; mode: 'overview'; variant?: 'summary' | 'pointing'; sections: OverviewSection[] }
   | {
       type: 'bookmarkResult';
@@ -43,6 +51,13 @@ export type WebViewToRNMessage =
   | { type: 'ready'; mode: ContentMode }
   | { type: 'height'; value: number }
   | { type: 'complete'; answers: UserAnswer[] }
+  | {
+      /** Fire-and-forget per-step answer event emitted as soon as the user selects. */
+      type: 'answer';
+      pointingId: string;
+      step: 'question' | 'confirm';
+      response: 'yes' | 'no';
+    }
   | {
       type: 'bookmark';
       sectionId: string;
@@ -71,8 +86,10 @@ export interface PointingNode {
 
 export interface UserAnswer {
   pointingId: string;
-  questionResponse: 'yes' | 'no';
-  confirmResponse: 'yes' | 'no';
+  /** Optional to support partial resume (only question answered, confirm pending) */
+  questionResponse?: 'yes' | 'no';
+  /** Optional to support partial resume. Populated when the pointing is fully complete. */
+  confirmResponse?: 'yes' | 'no';
 }
 
 // ── Overview sections ──

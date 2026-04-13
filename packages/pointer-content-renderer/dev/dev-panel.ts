@@ -7,6 +7,10 @@ import {
   mockOverviewSections,
   mockAllLeftSections,
   mockAllRightSections,
+  mockChatResumeAfterQuestion,
+  mockChatResumeAfterFirstPointing,
+  mockChatResumeMidSecond,
+  mockChatResumeAllComplete,
 } from './mock-data';
 
 function sendMockMessage(msg: RNToWebViewMessage): void {
@@ -37,6 +41,46 @@ function createDevPanel(): void {
           type: 'init',
           mode: 'chat',
           scenario: mockChatScenario,
+        }),
+    },
+    {
+      label: 'chat resume: Q1 answered',
+      action: () =>
+        sendMockMessage({
+          type: 'init',
+          mode: 'chat',
+          scenario: mockChatScenario,
+          userAnswers: mockChatResumeAfterQuestion,
+        }),
+    },
+    {
+      label: 'chat resume: P1 done',
+      action: () =>
+        sendMockMessage({
+          type: 'init',
+          mode: 'chat',
+          scenario: mockChatScenario,
+          userAnswers: mockChatResumeAfterFirstPointing,
+        }),
+    },
+    {
+      label: 'chat resume: mid P2',
+      action: () =>
+        sendMockMessage({
+          type: 'init',
+          mode: 'chat',
+          scenario: mockChatScenario,
+          userAnswers: mockChatResumeMidSecond,
+        }),
+    },
+    {
+      label: 'chat resume: all done',
+      action: () =>
+        sendMockMessage({
+          type: 'init',
+          mode: 'chat',
+          scenario: mockChatScenario,
+          userAnswers: mockChatResumeAllComplete,
         }),
     },
     {

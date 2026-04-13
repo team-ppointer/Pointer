@@ -9,6 +9,7 @@ export async function renderDocument(
     content: JSONNode;
     fontStyle?: 'sans-serif' | 'serif';
     backgroundColor?: string;
+    padding?: number;
   },
   isCurrent: () => boolean,
 ): Promise<(() => void) | null> {
@@ -22,6 +23,10 @@ export async function renderDocument(
 
   if (options.backgroundColor) {
     document.body.style.backgroundColor = options.backgroundColor;
+  }
+
+  if (options.padding !== undefined) {
+    document.documentElement.style.setProperty('--content-padding', `${options.padding}px`);
   }
 
   const docNode: JSONNode =

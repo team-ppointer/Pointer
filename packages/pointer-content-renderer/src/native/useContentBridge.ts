@@ -7,11 +7,18 @@ import type {
   ContentMode,
 } from '../types';
 
+export interface AnswerEventPayload {
+  pointingId: string;
+  step: 'question' | 'confirm';
+  response: 'yes' | 'no';
+}
+
 interface ContentBridgeOptions {
   initMessage: RNToWebViewMessage & { type: 'init' };
   onReady?: (mode: ContentMode) => void;
   onHeight?: (height: number) => void;
   onComplete?: (answers: UserAnswer[]) => void;
+  onAnswer?: (event: AnswerEventPayload) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
 }
 
@@ -52,6 +59,13 @@ export function useContentBridge(options: ContentBridgeOptions) {
           case 'complete':
             options.onComplete?.(msg.answers);
             break;
+          case 'answer':
+            options.onAnswer?.({
+              pointingId: msg.pointingId,
+              step: msg.step,
+              response: msg.response,
+            });
+            break;
           case 'bookmark':
             options.onBookmark?.(msg.sectionId, msg.bookmarked, msg.requestId);
             break;
@@ -60,7 +74,7 @@ export function useContentBridge(options: ContentBridgeOptions) {
         // ignore non-JSON messages
       }
     },
-    [options.onReady, options.onHeight, options.onComplete, options.onBookmark, injectMessage],
+    [options.onReady, options.onHeight, options.onComplete, options.onAnswer, options.onBookmark, injectMessage],
   );
 
   const sendToWebView = useCallback(

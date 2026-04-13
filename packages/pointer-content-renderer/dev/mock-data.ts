@@ -1713,6 +1713,27 @@ const completedAnswers: UserAnswer[] = [
   { pointingId: 'p2', questionResponse: 'no', confirmResponse: 'yes' },
 ];
 
+// ── Chat resume scenarios ──
+
+/** Resume with only the first pointing's question answered (partial). */
+export const mockChatResumeAfterQuestion: UserAnswer[] = [
+  { pointingId: 'p1', questionResponse: 'yes' },
+];
+
+/** Resume with the first pointing fully complete, second pending. */
+export const mockChatResumeAfterFirstPointing: UserAnswer[] = [
+  { pointingId: 'p1', questionResponse: 'yes', confirmResponse: 'no' },
+];
+
+/** Resume with first pointing done and second pointing's question answered. */
+export const mockChatResumeMidSecond: UserAnswer[] = [
+  { pointingId: 'p1', questionResponse: 'yes', confirmResponse: 'yes' },
+  { pointingId: 'p2', questionResponse: 'no' },
+];
+
+/** All pointings fully answered — edge case. */
+export const mockChatResumeAllComplete: UserAnswer[] = completedAnswers;
+
 export const mockOverviewSections: OverviewSection[] = [
   {
     id: 'reading',

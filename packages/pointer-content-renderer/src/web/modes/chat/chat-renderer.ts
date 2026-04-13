@@ -1,8 +1,17 @@
-import type { ChatScenario, PointingNode, UserAnswer, JSONNode } from '../../../types';
+import type {
+  ChatScenario,
+  PointingData,
+  PointingNode,
+  UserAnswer,
+  JSONNode,
+} from '../../../types';
 import { serializeNodeToHTML } from '../../core/serializer/index';
 import { renderMath } from '../../core/math-renderer';
 
 import { scrollToBottom } from './scroll';
+
+const CONFIRM_PROMPT = '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?';
+const DEEPER_LOOK_MESSAGE = '조금 더 자세히 살펴봅시다!';
 
 function createBubbleElement(
   html: string,
@@ -33,6 +42,24 @@ function createExpandButton(expandNode: JSONNode): {
   });
 
   return { btn, content };
+}
+
+/** Render a single pointing node as a static (non-animated) system bubble. */
+async function appendStaticPointingNodeBubble(
+  container: HTMLElement,
+  node: PointingNode
+): Promise<HTMLElement> {
+  const html = serializeNodeToHTML(node.contentNode);
+  const bubble = createBubbleElement(html, 'system', false);
+  if (node.expandContent) {
+    const { btn, content } = createExpandButton(node.expandContent);
+    bubble.appendChild(btn);
+    bubble.appendChild(content);
+    await renderMath(content);
+  }
+  container.appendChild(bubble);
+  await renderMath(bubble);
+  return bubble;
 }
 
 export async function renderBubble(
@@ -87,11 +114,13 @@ export function createYesNoButtons(
 
   const yesBtn = document.createElement('button');
   yesBtn.className = 'chat-choice-btn';
-  yesBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 4.5L6.75 12.75L3 9" stroke="#4A5EF2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>네';
+  yesBtn.innerHTML =
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 4.5L6.75 12.75L3 9" stroke="#4A5EF2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>네';
 
   const noBtn = document.createElement('button');
   noBtn.className = 'chat-choice-btn';
-  noBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 4.5L4.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 4.5L13.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>아니오';
+  noBtn.innerHTML =
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 4.5L4.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 4.5L13.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>아니오';
 
   const handleClick = (answer: 'yes' | 'no') => {
     yesBtn.disabled = true;
@@ -115,20 +144,22 @@ export function createYesNoButtons(
 }
 
 /**
- * Render static disabled yes/no buttons inside a bubble (for overview).
+ * Render static disabled yes/no buttons inside a bubble with the given answer highlighted.
  */
-function renderStaticYesNo(bubble: HTMLElement, answer: 'yes' | 'no'): void {
+export function renderStaticYesNo(bubble: HTMLElement, answer: 'yes' | 'no'): void {
   const wrapper = document.createElement('div');
   wrapper.className = 'chat-choices';
 
   const yesBtn = document.createElement('button');
   yesBtn.className = 'chat-choice-btn';
-  yesBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 4.5L6.75 12.75L3 9" stroke="#4A5EF2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>네';
+  yesBtn.innerHTML =
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 4.5L6.75 12.75L3 9" stroke="#4A5EF2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>네';
   yesBtn.disabled = true;
 
   const noBtn = document.createElement('button');
   noBtn.className = 'chat-choice-btn';
-  noBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 4.5L4.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 4.5L13.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>아니오';
+  noBtn.innerHTML =
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 4.5L4.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 4.5L13.5 13.5" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>아니오';
   noBtn.disabled = true;
 
   if (answer === 'yes') {
@@ -142,13 +173,50 @@ function renderStaticYesNo(bubble: HTMLElement, answer: 'yes' | 'no'): void {
   bubble.appendChild(wrapper);
 }
 
+/**
+ * Render a completed question phase statically:
+ * questionNodes + static yes/no (selected) + user response bubble.
+ */
+export async function renderStaticQuestionPhase(
+  container: HTMLElement,
+  pointing: PointingData,
+  response: 'yes' | 'no'
+): Promise<void> {
+  let lastQuestionBubble: HTMLElement | null = null;
+  for (const node of pointing.questionNodes) {
+    lastQuestionBubble = await appendStaticPointingNodeBubble(container, node);
+  }
+  if (lastQuestionBubble) {
+    renderStaticYesNo(lastQuestionBubble, response);
+    renderTextBubble(container, response === 'yes' ? '네' : '아니오', 'user', false);
+  }
+}
+
+/**
+ * Render a completed confirm phase statically:
+ * "조금 더..." + answerNodes + "방금..." + static yes/no + user response.
+ */
+export async function renderStaticConfirmPhase(
+  container: HTMLElement,
+  pointing: PointingData,
+  response: 'yes' | 'no'
+): Promise<void> {
+  renderTextBubble(container, DEEPER_LOOK_MESSAGE, 'system', false);
+
+  for (const node of pointing.answerNodes) {
+    await appendStaticPointingNodeBubble(container, node);
+  }
+
+  const confirmBubble = renderTextBubble(container, CONFIRM_PROMPT, 'system', false);
+  renderStaticYesNo(confirmBubble, response);
+  renderTextBubble(container, response === 'yes' ? '네' : '아니오', 'user', false);
+}
+
 export async function renderAllBubbles(
   container: HTMLElement,
   scenario: ChatScenario,
   userAnswers?: UserAnswer[]
 ): Promise<void> {
-  // Key answers by pointingId so reordering/filtering/missing entries
-  // don't cause cross-pointing answer misalignment.
   const answerMap = new Map<string, UserAnswer>();
   for (const a of userAnswers ?? []) {
     answerMap.set(a.pointingId, a);
@@ -166,21 +234,11 @@ export async function renderAllBubbles(
     // Question nodes
     let lastQuestionBubble: HTMLElement | null = null;
     for (const node of pointing.questionNodes) {
-      const html = serializeNodeToHTML(node.contentNode);
-      const bubble = createBubbleElement(html, 'system', false);
-      if (node.expandContent) {
-        const { btn, content } = createExpandButton(node.expandContent);
-        bubble.appendChild(btn);
-        bubble.appendChild(content);
-        await renderMath(content);
-      }
-      container.appendChild(bubble);
-      await renderMath(bubble);
-      lastQuestionBubble = bubble;
+      lastQuestionBubble = await appendStaticPointingNodeBubble(container, node);
     }
 
     // Yes/No inside last question bubble + user response
-    if (answer && lastQuestionBubble) {
+    if (answer?.questionResponse && lastQuestionBubble) {
       renderStaticYesNo(lastQuestionBubble, answer.questionResponse);
       renderTextBubble(
         container,
@@ -191,31 +249,17 @@ export async function renderAllBubbles(
     }
 
     // Fixed message
-    renderTextBubble(container, '조금 더 자세히 살펴봅시다!', 'system', false);
+    renderTextBubble(container, DEEPER_LOOK_MESSAGE, 'system', false);
 
     // Answer nodes
     for (const node of pointing.answerNodes) {
-      const html = serializeNodeToHTML(node.contentNode);
-      const bubble = createBubbleElement(html, 'system', false);
-      if (node.expandContent) {
-        const { btn, content } = createExpandButton(node.expandContent);
-        bubble.appendChild(btn);
-        bubble.appendChild(content);
-        await renderMath(content);
-      }
-      container.appendChild(bubble);
-      await renderMath(bubble);
+      await appendStaticPointingNodeBubble(container, node);
     }
 
-    // Fixed confirm message with Yes/No inside
-    const confirmBubble = renderTextBubble(
-      container,
-      '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?',
-      'system',
-      false
-    );
+    // Confirm prompt
+    const confirmBubble = renderTextBubble(container, CONFIRM_PROMPT, 'system', false);
 
-    if (answer) {
+    if (answer?.confirmResponse) {
       renderStaticYesNo(confirmBubble, answer.confirmResponse);
       renderTextBubble(
         container,
