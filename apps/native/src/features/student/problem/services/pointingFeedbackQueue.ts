@@ -144,12 +144,12 @@ export class PointingFeedbackQueue {
 
     // 큐 처리 중 동일 key 로 새 값이 enqueue 된 경우: 이번 outcome 은 stale →
     // 스킵하고 다음 flush 가 최신 entry 처리하도록 한다 (attempt/value 비교로 판별).
+    // entries 맵이 그대로이므로 notify 도 호출하지 않는다 (snapshot 결과 동일 → 불필요한 리렌더 방지).
     if (
       !current ||
       current.attempt !== originalEntry.attempt ||
       current.value !== originalEntry.value
     ) {
-      this.notify();
       return;
     }
 

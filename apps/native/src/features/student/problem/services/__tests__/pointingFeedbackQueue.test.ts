@@ -243,20 +243,26 @@ describe('PointingFeedbackQueue', () => {
     });
     const poster = jest.fn<Promise<FlushOutcome>, [PointingQueueEntry]>(() => posterPromise);
     const q = new PointingFeedbackQueue(poster);
+    const listener = jest.fn();
+    q.subscribe(listener);
 
-    q.enqueue(basePayload); // V1: value=true, attempt=0
+    q.enqueue(basePayload); // V1: value=true, attempt=0 → notify #1
     jest.advanceTimersByTime(0); // timer fires, V1 poster pending
     expect(poster).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledTimes(1);
 
-    // Overwrite with V2 (value=false) while V1 poster is in-flight.
+    // Overwrite with V2 (value=false) while V1 poster is in-flight. → notify #2
     q.enqueue({ ...basePayload, value: false });
     expect(q.snapshot()[0].value).toBe(false);
     expect(q.snapshot()[0].attempt).toBe(0);
+    expect(listener).toHaveBeenCalledTimes(2);
 
     // Resolve the in-flight promise with 'retry'.
     // - V1's outcome: SKIPPED (current entry value=false differs from V1's value=true)
+    //   Critically, the stale path must NOT call notify — entries map is unchanged so
+    //   triggering a snapshot rerender would be wasted work.
     // - After V1's flush finishes, scheduleNext picks up V2 and runs a fresh flush.
-    //   V2 poster call also resolves to 'retry' (shared promise), applied freshly.
+    //   V2 poster call also resolves to 'retry' (shared promise), applied freshly → notify #3.
     resolvePoster('retry');
     await jest.advanceTimersByTimeAsync(0);
 
@@ -265,5 +271,8 @@ describe('PointingFeedbackQueue', () => {
     // attempt=1 from V2's fresh retry only, NOT 2 (which would mean V1's outcome leaked).
     expect(q.snapshot()[0].attempt).toBe(1);
     expect(q.snapshot()[0].value).toBe(false);
+    // Exactly 3 notifications total: 2 enqueues + 1 fresh retry. The stale outcome
+    // is silent — guards against unnecessary rerenders in useSyncExternalStore consumers.
+    expect(listener).toHaveBeenCalledTimes(3);
   });
 });
