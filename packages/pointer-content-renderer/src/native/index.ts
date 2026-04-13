@@ -1,4 +1,5 @@
 export { ContentWebView } from './ContentWebView';
+export type { ContentWebViewHtmlSource } from './ContentWebView';
 export { useContentBridge } from './useContentBridge';
 export type {
   ContentMode,

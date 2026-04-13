@@ -1,14 +1,25 @@
 import { useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import WebView from 'react-native-webview';
-import type { ViewStyle, StyleProp } from 'react-native';
+import type { WebViewSource } from 'react-native-webview/lib/WebViewTypes';
+import type { ViewStyle, StyleProp, ImageRequireSource } from 'react-native';
 import type { RNToWebViewMessage, UserAnswer, ContentMode } from '../types';
 import { useContentBridge } from './useContentBridge';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const contentHtml = require('../../assets/webview/content.html');
+/**
+ * Accepts:
+ * - `number` (Metro asset id from `require('...')`) — runtime WebView resolves via resolveAssetSource
+ * - `{ uri: string }` / `{ html: string }` — standard WebView sources
+ */
+export type ContentWebViewHtmlSource = WebViewSource | ImageRequireSource;
 
 interface ContentWebViewProps {
+  /**
+   * WebView HTML source. Pass the asset imported from the consumer app:
+   *   const contentHtml = require('@assets/webview/content.html');
+   *   <ContentWebView htmlSource={contentHtml} ... />
+   */
+  htmlSource: ContentWebViewHtmlSource;
   initMessage: RNToWebViewMessage & { type: 'init' };
   onReady?: (mode: ContentMode) => void;
   onComplete?: (answers: UserAnswer[]) => void;
@@ -17,6 +28,7 @@ interface ContentWebViewProps {
 }
 
 export function ContentWebView({
+  htmlSource,
   initMessage,
   onReady,
   onComplete,
@@ -53,7 +65,7 @@ export function ContentWebView({
     >
       <WebView
         ref={webViewRef}
-        source={contentHtml}
+        source={htmlSource as unknown as WebViewSource}
         onMessage={handleMessage}
         scrollEnabled={!isDocument}
         style={[

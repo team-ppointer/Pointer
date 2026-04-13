@@ -16,6 +16,9 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
+// WebView 용 HTML을 asset으로 다루기 위해 등록
+config.resolver.assetExts = [...config.resolver.assetExts, 'html'];
+
 // blockList에서 /dist\/.*/ 제거!
 // node_modules 안의 dist 폴더는 필요하므로, 프로젝트의 dist만 차단
 config.resolver.blockList = [
