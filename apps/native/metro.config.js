@@ -62,7 +62,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return context.resolveRequest(
       { ...context, originModulePath: path.join(projectRoot, 'package.json') },
       moduleName,
-      platform,
+      platform
     );
   }
   // Handle sub-path imports like 'react/jsx-runtime' by redirecting the base.
@@ -71,7 +71,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       return context.resolveRequest(
         { ...context, originModulePath: path.join(projectRoot, 'package.json') },
         moduleName,
-        platform,
+        platform
       );
     }
   }
