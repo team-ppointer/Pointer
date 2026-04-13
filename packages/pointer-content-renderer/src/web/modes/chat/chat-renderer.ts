@@ -147,9 +147,16 @@ export async function renderAllBubbles(
   scenario: ChatScenario,
   userAnswers?: UserAnswer[]
 ): Promise<void> {
+  // Key answers by pointingId so reordering/filtering/missing entries
+  // don't cause cross-pointing answer misalignment.
+  const answerMap = new Map<string, UserAnswer>();
+  for (const a of userAnswers ?? []) {
+    answerMap.set(a.pointingId, a);
+  }
+
   for (let i = 0; i < scenario.pointings.length; i++) {
     const pointing = scenario.pointings[i];
-    const answer = userAnswers?.[i];
+    const answer = answerMap.get(pointing.id);
 
     // Divider (skip first — overview provides its own divider section)
     if (i > 0) {
