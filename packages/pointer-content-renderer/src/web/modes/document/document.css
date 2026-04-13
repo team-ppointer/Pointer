@@ -1,8 +1,5 @@
-.document-mode {
-  overflow: hidden !important;
-}
-
-.document-mode html,
-.document-mode body {
+/* `.document-mode` is applied to <body>, so target html via :has() */
+html:has(body.document-mode),
+body.document-mode {
   overflow: hidden !important;
 }
