@@ -56,6 +56,9 @@ onMessage(async (msg) => {
   }
 });
 
+// Notify RN that the message listener is ready to receive init
+sendToRN({ type: 'bridgeReady' });
+
 if (import.meta.env.DEV) {
   import('../../dev/dev-panel');
 }

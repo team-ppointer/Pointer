@@ -30,11 +30,13 @@ export function useContentBridge(options: ContentBridgeOptions) {
         const msg: WebViewToRNMessage = JSON.parse(event.nativeEvent.data);
 
         switch (msg.type) {
-          case 'ready':
+          case 'bridgeReady':
             if (!initSentRef.current) {
               initSentRef.current = true;
               injectMessage(options.initMessage);
             }
+            break;
+          case 'ready':
             options.onReady?.(msg.mode);
             break;
           case 'height':

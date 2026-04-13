@@ -31,6 +31,7 @@ export type RNToWebViewMessage =
 // ── Bridge messages: WebView → RN ──
 
 export type WebViewToRNMessage =
+  | { type: 'bridgeReady' }
   | { type: 'ready'; mode: ContentMode }
   | { type: 'height'; value: number }
   | { type: 'complete'; answers: UserAnswer[] }
