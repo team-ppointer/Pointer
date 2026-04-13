@@ -1,5 +1,9 @@
 export { ContentWebView } from './ContentWebView';
-export type { ContentWebViewHtmlSource } from './ContentWebView';
+export type {
+  ContentWebViewHtmlSource,
+  ContentWebViewHandle,
+  BookmarkResultArgs,
+} from './ContentWebView';
 export { useContentBridge } from './useContentBridge';
 export type { AnswerEventPayload } from './useContentBridge';
 export type {
