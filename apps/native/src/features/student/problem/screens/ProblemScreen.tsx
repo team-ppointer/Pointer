@@ -437,7 +437,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       buildDocumentInit({
         content: currentProblem?.problemContent ?? '',
         fontStyle: 'serif',
-        padding: 20,
       }),
     [currentProblem?.problemContent]
   );
@@ -503,6 +502,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
               <PointerContentView
                 initMessage={problemInitMessage}
                 minHeight={200}
+                style={{ maxWidth: 720 }}
               />
 
               {/* 위층: DrawingCanvas - ProblemViewer 위에 겹쳐짐 */}
