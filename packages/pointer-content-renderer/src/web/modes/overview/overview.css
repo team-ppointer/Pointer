@@ -31,7 +31,6 @@
   top: 0;
   z-index: 100;
   overflow: hidden;
-  margin-bottom: var(--overview-gap);
   margin: 0 -20px;
   padding: 0 20px 20px 20px;
   background-color: var(--overview-bg);
