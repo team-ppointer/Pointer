@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import WebView from 'react-native-webview';
 import type { WebViewSource } from 'react-native-webview/lib/WebViewTypes';
@@ -15,6 +15,27 @@ import { useContentBridge, type AnswerEventPayload } from './useContentBridge';
  */
 export type ContentWebViewHtmlSource = WebViewSource | ImageRequireSource;
 
+/**
+ * Arguments for {@link ContentWebViewHandle.sendBookmarkResult}.
+ * Mirrors the `bookmarkResult` RN→WebView message payload minus the discriminator.
+ */
+export type BookmarkResultArgs = Omit<
+  Extract<RNToWebViewMessage, { type: 'bookmarkResult' }>,
+  'type'
+>;
+
+/**
+ * Imperative API exposed via `ref` for sending bridge messages to the WebView.
+ */
+export interface ContentWebViewHandle {
+  /**
+   * Reply to a `bookmark` event from the WebView. Echo `sectionId`, `bookmarked`,
+   * and `requestId` from the originating event; set `success` based on the server
+   * mutation result. WebView deduplicates stale replies via `requestId`.
+   */
+  sendBookmarkResult: (args: BookmarkResultArgs) => void;
+}
+
 interface ContentWebViewProps {
   /**
    * WebView HTML source. Pass the asset imported from the consumer app:
@@ -30,67 +51,74 @@ interface ContentWebViewProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function ContentWebView({
-  htmlSource,
-  initMessage,
-  onReady,
-  onComplete,
-  onAnswer,
-  onBookmark,
-  style,
-}: ContentWebViewProps) {
-  const mode = initMessage.mode;
-  const isDocument = mode === 'document';
-  const [height, setHeight] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+export const ContentWebView = forwardRef<ContentWebViewHandle, ContentWebViewProps>(
+  function ContentWebView(
+    { htmlSource, initMessage, onReady, onComplete, onAnswer, onBookmark, style },
+    ref
+  ) {
+    const mode = initMessage.mode;
+    const isDocument = mode === 'document';
+    const [height, setHeight] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
-  const { webViewRef, handleMessage } = useContentBridge({
-    initMessage,
-    onReady: (m) => {
-      setIsLoading(false);
-      onReady?.(m);
-    },
-    onHeight: isDocument ? setHeight : undefined,
-    onComplete,
-    onAnswer,
-    onBookmark,
-  });
+    const { webViewRef, handleMessage, sendToWebView } = useContentBridge({
+      initMessage,
+      onReady: (m) => {
+        setIsLoading(false);
+        onReady?.(m);
+      },
+      onHeight: isDocument ? setHeight : undefined,
+      onComplete,
+      onAnswer,
+      onBookmark,
+    });
 
-  const backgroundColor =
-    isDocument && initMessage.mode === 'document'
-      ? (initMessage.backgroundColor ?? '#ffffff')
-      : '#f5f5f5';
+    useImperativeHandle(
+      ref,
+      () => ({
+        sendBookmarkResult: (args) => {
+          sendToWebView({ type: 'bookmarkResult', ...args });
+        },
+      }),
+      [sendToWebView]
+    );
 
-  return (
-    <View style={[isDocument ? { height, width: '100%' } : { flex: 1 }, style]}>
-      <WebView
-        ref={webViewRef}
-        source={htmlSource as unknown as WebViewSource}
-        onMessage={handleMessage}
-        scrollEnabled={!isDocument}
-        style={[
-          isDocument ? { height, width: '100%' } : { flex: 1 },
-          { backgroundColor },
-          isLoading ? { opacity: 0 } : { opacity: 1 },
-        ]}
-        originWhitelist={['*']}
-      />
-      {isLoading && (
-        <View
-          pointerEvents='none'
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'transparent',
-          }}>
-          <ActivityIndicator />
-        </View>
-      )}
-    </View>
-  );
-}
+    const backgroundColor =
+      isDocument && initMessage.mode === 'document'
+        ? (initMessage.backgroundColor ?? '#ffffff')
+        : '#f5f5f5';
+
+    return (
+      <View style={[isDocument ? { height, width: '100%' } : { flex: 1 }, style]}>
+        <WebView
+          ref={webViewRef}
+          source={htmlSource as unknown as WebViewSource}
+          onMessage={handleMessage}
+          scrollEnabled={!isDocument}
+          style={[
+            isDocument ? { height, width: '100%' } : { flex: 1 },
+            { backgroundColor },
+            isLoading ? { opacity: 0 } : { opacity: 1 },
+          ]}
+          originWhitelist={['*']}
+        />
+        {isLoading && (
+          <View
+            pointerEvents='none'
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'transparent',
+            }}>
+            <ActivityIndicator />
+          </View>
+        )}
+      </View>
+    );
+  }
+);
