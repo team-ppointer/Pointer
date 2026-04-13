@@ -97,6 +97,14 @@ export async function runChatScenario(
   for (let i = 0; i < scenario.pointings.length; i++) {
     const pointing = scenario.pointings[i];
 
+    // Validate required inputs — skip malformed pointings instead of crashing
+    if (pointing.questionNodes.length === 0) {
+      console.warn(
+        `[content-renderer] pointing "${pointing.id}" has no questionNodes; skipping`,
+      );
+      continue;
+    }
+
     // 1. Divider
     renderDivider(container, pointing.label);
 
@@ -105,9 +113,10 @@ export async function runChatScenario(
     for (const node of pointing.questionNodes) {
       lastQuestionBubble = await showWithTypingIndicator(container, node, signal);
     }
+    if (!lastQuestionBubble) continue; // defensive — should never happen after the length check
 
     // 3. Yes/No inside last question bubble
-    const questionResponse = await waitForYesNo(lastQuestionBubble!, signal);
+    const questionResponse = await waitForYesNo(lastQuestionBubble, signal);
     renderTextBubble(container, questionResponse === 'yes' ? '네' : '아니오', 'user', true);
 
     // 4. Fixed message: "조금 더 자세히 살펴봅시다!"
