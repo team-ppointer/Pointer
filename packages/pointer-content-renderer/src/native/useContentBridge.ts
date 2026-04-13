@@ -1,11 +1,7 @@
 import { useRef, useCallback, useEffect } from 'react';
 import type WebView from 'react-native-webview';
-import type {
-  RNToWebViewMessage,
-  WebViewToRNMessage,
-  UserAnswer,
-  ContentMode,
-} from '../types';
+
+import type { RNToWebViewMessage, WebViewToRNMessage, UserAnswer, ContentMode } from '../types';
 
 export interface AnswerEventPayload {
   pointingId: string;
@@ -74,14 +70,21 @@ export function useContentBridge(options: ContentBridgeOptions) {
         // ignore non-JSON messages
       }
     },
-    [options.onReady, options.onHeight, options.onComplete, options.onAnswer, options.onBookmark, injectMessage],
+    [
+      options.onReady,
+      options.onHeight,
+      options.onComplete,
+      options.onAnswer,
+      options.onBookmark,
+      injectMessage,
+    ]
   );
 
   const sendToWebView = useCallback(
     (msg: RNToWebViewMessage) => {
       injectMessage(msg);
     },
-    [injectMessage],
+    [injectMessage]
   );
 
   return { webViewRef, handleMessage, sendToWebView };

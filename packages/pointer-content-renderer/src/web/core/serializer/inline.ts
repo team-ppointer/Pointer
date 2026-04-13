@@ -1,4 +1,5 @@
 import type { JSONMark, JSONNode } from '../../../types';
+
 import { escapeHtml, escapeAttr, areMarksEqual } from './utils';
 import { renderMarks } from './marks';
 
@@ -18,7 +19,7 @@ function serializeImage(node: JSONNode): string {
   const heightAttr = heightRaw ? ` height="${escapeAttr(heightRaw)}"` : '';
 
   return `<img src="${escapeAttr(src)}" alt="${escapeAttr(
-    alt,
+    alt
   )}" title="${escapeAttr(title)}"${widthAttr}${heightAttr}>`;
 }
 

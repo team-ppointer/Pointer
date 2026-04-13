@@ -47,7 +47,7 @@ export function applyBookmarkResult(
   sectionId: string,
   requestId: number,
   bookmarked: boolean,
-  success: boolean,
+  success: boolean
 ): BookmarkResultAction {
   const s = states.get(sectionId);
   if (!s) return { kind: 'noop' };

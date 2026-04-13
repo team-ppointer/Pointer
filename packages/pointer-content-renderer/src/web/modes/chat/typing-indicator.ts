@@ -1,5 +1,6 @@
 import type { JSONNode } from '../../../types';
 import { getTextLength, hasImageNode } from '../../core/text-length';
+
 import { scrollToBottom } from './scroll';
 
 export function getTypingTiming(node: JSONNode): { preDelay: number; duration: number } {
@@ -46,9 +47,13 @@ export function delay(ms: number, signal?: AbortSignal): Promise<void> {
       return;
     }
     const timer = setTimeout(resolve, ms);
-    signal?.addEventListener('abort', () => {
-      clearTimeout(timer);
-      reject(signal.reason);
-    }, { once: true });
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        reject(signal.reason);
+      },
+      { once: true }
+    );
   });
 }

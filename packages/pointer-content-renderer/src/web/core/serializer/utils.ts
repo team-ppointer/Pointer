@@ -7,7 +7,7 @@ import type { JSONMark } from '../../../types';
 export function safePositiveInt(
   value: unknown,
   fallback: number,
-  { min = 1, max = 1000 }: { min?: number; max?: number } = {},
+  { min = 1, max = 1000 }: { min?: number; max?: number } = {}
 ): number {
   const n = Number(value);
   if (!Number.isFinite(n)) return fallback;
@@ -24,10 +24,7 @@ export function escapeAttr(text: string): string {
   return escapeHtml(text).replace(/"/g, '&quot;');
 }
 
-export function areAttrsEqual(
-  a?: Record<string, unknown>,
-  b?: Record<string, unknown>,
-): boolean {
+export function areAttrsEqual(a?: Record<string, unknown>, b?: Record<string, unknown>): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
   const keysA = Object.keys(a).sort();

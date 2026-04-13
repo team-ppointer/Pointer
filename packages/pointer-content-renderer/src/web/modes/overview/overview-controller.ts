@@ -1,4 +1,5 @@
 import type { OverviewSection } from '../../../types';
+
 import { setBookmarkButtonState } from './bookmark-icons';
 import { applyBookmarkResult, clearBookmarkStates } from './bookmark-state';
 
@@ -13,7 +14,7 @@ let activeTabId: string | null = null;
 
 export function initOverviewController(
   container: HTMLElement,
-  sections: OverviewSection[],
+  sections: OverviewSection[]
 ): () => void {
   tabItems = buildTabItems(sections);
   if (tabItems.length === 0) return () => {};
@@ -151,7 +152,7 @@ export function handleBookmarkResult(
   sectionId: string,
   attemptedBookmarked: boolean,
   requestId: number,
-  success: boolean,
+  success: boolean
 ): void {
   const action = applyBookmarkResult(sectionId, requestId, attemptedBookmarked, success);
   if (action.kind === 'noop') return;

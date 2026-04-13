@@ -4,7 +4,7 @@ declare global {
       render(
         latex: string,
         element: HTMLElement,
-        options?: { throwOnError?: boolean; displayMode?: boolean },
+        options?: { throwOnError?: boolean; displayMode?: boolean }
       ): void;
     };
     /** Set by index.html <script onload> when KaTeX finishes loading. */
@@ -44,11 +44,7 @@ function waitForKaTeX(): Promise<KaTeX | null> {
       return;
     }
 
-    script.addEventListener(
-      'load',
-      () => settle(window.katex ?? null),
-      { once: true },
-    );
+    script.addEventListener('load', () => settle(window.katex ?? null), { once: true });
     script.addEventListener('error', () => settle(null), { once: true });
 
     // Timeout fallback for slow/offline CDN

@@ -1,4 +1,5 @@
 import type { JSONNode } from '../../../types';
+
 import { safePositiveInt } from './utils';
 import { serializeInlineList, serializeImage } from './inline';
 

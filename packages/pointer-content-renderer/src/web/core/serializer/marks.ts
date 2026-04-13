@@ -1,4 +1,5 @@
 import type { JSONMark } from '../../../types';
+
 import { escapeAttr } from './utils';
 
 export function renderMarks(text: string, marks?: JSONMark[]): string {

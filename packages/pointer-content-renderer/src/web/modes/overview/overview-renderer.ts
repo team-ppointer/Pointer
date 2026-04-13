@@ -3,13 +3,14 @@ import { serializeJSONToHTML } from '../../core/serializer/index';
 import { renderMath } from '../../core/math-renderer';
 import { renderAllBubbles } from '../chat/chat-renderer';
 import { sendToRN } from '../../bridge';
+
 import { setBookmarkButtonState } from './bookmark-icons';
 import { initBookmarkState, startBookmarkRequest } from './bookmark-state';
 
 export async function renderOverview(
   container: HTMLElement,
   sections: OverviewSection[],
-  isCurrent: () => boolean,
+  isCurrent: () => boolean
 ): Promise<void> {
   for (const section of sections) {
     if (!isCurrent()) return;
@@ -53,7 +54,7 @@ export async function renderOverview(
 
 async function renderCardDefault(
   el: HTMLElement,
-  display: Extract<OverviewSection['display'], { type: 'card'; variant: 'default' }>,
+  display: Extract<OverviewSection['display'], { type: 'card'; variant: 'default' }>
 ): Promise<void> {
   el.classList.add('section-card', 'section-card--default');
 
@@ -76,7 +77,7 @@ async function renderCardDefault(
 async function renderCardPointing(
   el: HTMLElement,
   display: Extract<OverviewSection['display'], { type: 'card'; variant: 'pointing' }>,
-  sectionId: string,
+  sectionId: string
 ): Promise<void> {
   el.classList.add('section-card', 'section-card--pointing');
 
@@ -140,7 +141,7 @@ async function renderCardPointing(
 
 async function renderCardCollapsible(
   el: HTMLElement,
-  display: Extract<OverviewSection['display'], { type: 'card'; variant: 'collapsible' }>,
+  display: Extract<OverviewSection['display'], { type: 'card'; variant: 'collapsible' }>
 ): Promise<void> {
   el.classList.add('section-card', 'section-card--collapsible');
 
@@ -154,7 +155,8 @@ async function renderCardCollapsible(
 
   const chevron = document.createElement('span');
   chevron.className = 'section-card-collapsible-chevron';
-  chevron.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="#6B6F77" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  chevron.innerHTML =
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="#6B6F77" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   header.appendChild(titleSpan);
   header.appendChild(chevron);
@@ -206,7 +208,7 @@ async function renderCardCollapsible(
 
 async function renderPlain(
   el: HTMLElement,
-  display: Extract<OverviewSection['display'], { type: 'plain' }>,
+  display: Extract<OverviewSection['display'], { type: 'plain' }>
 ): Promise<void> {
   el.classList.add('section-plain');
   el.innerHTML = renderNodeToHTML(display.content);
@@ -217,7 +219,7 @@ async function renderPlain(
 
 async function renderChatSection(
   el: HTMLElement,
-  display: Extract<OverviewSection['display'], { type: 'chat' }>,
+  display: Extract<OverviewSection['display'], { type: 'chat' }>
 ): Promise<void> {
   el.classList.add('section-chat');
   await renderAllBubbles(el, display.scenario, display.userAnswers);
@@ -227,7 +229,7 @@ async function renderChatSection(
 
 function renderDividerSection(
   el: HTMLElement,
-  display: Extract<OverviewSection['display'], { type: 'divider' }>,
+  display: Extract<OverviewSection['display'], { type: 'divider' }>
 ): void {
   el.classList.add('section-divider');
   if (display.text) {

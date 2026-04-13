@@ -1,6 +1,7 @@
 import type { ChatScenario, PointingNode, UserAnswer } from '../../../types';
 import { serializeNodeToHTML } from '../../core/serializer/index';
 import { renderMath } from '../../core/math-renderer';
+
 import {
   renderTextBubble,
   renderDivider,
@@ -127,9 +128,7 @@ export async function runChatScenario(
 
   for (const pointing of scenario.pointings) {
     if (pointing.questionNodes.length === 0) {
-      console.warn(
-        `[content-renderer] pointing "${pointing.id}" has no questionNodes; skipping`,
-      );
+      console.warn(`[content-renderer] pointing "${pointing.id}" has no questionNodes; skipping`);
       continue;
     }
 
@@ -154,12 +153,7 @@ export async function runChatScenario(
       if (!lastBubble) continue; // defensive
 
       questionResponse = await waitForYesNo(lastBubble, signal);
-      renderTextBubble(
-        container,
-        questionResponse === 'yes' ? '네' : '아니오',
-        'user',
-        true,
-      );
+      renderTextBubble(container, questionResponse === 'yes' ? '네' : '아니오', 'user', true);
       onAnswer({ pointingId: pointing.id, step: 'question', response: questionResponse });
     }
 
@@ -179,12 +173,7 @@ export async function runChatScenario(
 
       const confirmBubble = await showFixedMessage(container, CONFIRM_PROMPT, signal);
       confirmResponse = await waitForYesNo(confirmBubble, signal);
-      renderTextBubble(
-        container,
-        confirmResponse === 'yes' ? '네' : '아니오',
-        'user',
-        true,
-      );
+      renderTextBubble(container, confirmResponse === 'yes' ? '네' : '아니오', 'user', true);
       onAnswer({ pointingId: pointing.id, step: 'confirm', response: confirmResponse });
     }
 

@@ -17,8 +17,7 @@ export function onMessage(handler: MessageHandler): void {
 
   window.addEventListener('message', (event: MessageEvent) => {
     try {
-      const data =
-        typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+      const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
       handler(data as RNToWebViewMessage);
     } catch {
       // ignore non-JSON messages

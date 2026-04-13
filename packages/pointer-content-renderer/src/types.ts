@@ -33,7 +33,12 @@ export type RNToWebViewMessage =
       /** Previously saved answers for resume. Fields may be partial. */
       userAnswers?: UserAnswer[];
     }
-  | { type: 'init'; mode: 'overview'; variant?: 'summary' | 'pointing'; sections: OverviewSection[] }
+  | {
+      type: 'init';
+      mode: 'overview';
+      variant?: 'summary' | 'pointing';
+      sections: OverviewSection[];
+    }
   | {
       type: 'bookmarkResult';
       sectionId: string;

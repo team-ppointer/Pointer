@@ -3,7 +3,9 @@ import { View, ActivityIndicator } from 'react-native';
 import WebView from 'react-native-webview';
 import type { WebViewSource } from 'react-native-webview/lib/WebViewTypes';
 import type { ViewStyle, StyleProp, ImageRequireSource } from 'react-native';
+
 import type { RNToWebViewMessage, UserAnswer, ContentMode } from '../types';
+
 import { useContentBridge, type AnswerEventPayload } from './useContentBridge';
 
 /**
@@ -56,16 +58,11 @@ export function ContentWebView({
 
   const backgroundColor =
     isDocument && initMessage.mode === 'document'
-      ? initMessage.backgroundColor ?? '#ffffff'
+      ? (initMessage.backgroundColor ?? '#ffffff')
       : '#f5f5f5';
 
   return (
-    <View
-      style={[
-        isDocument ? { height, width: '100%' } : { flex: 1 },
-        style,
-      ]}
-    >
+    <View style={[isDocument ? { height, width: '100%' } : { flex: 1 }, style]}>
       <WebView
         ref={webViewRef}
         source={htmlSource as unknown as WebViewSource}
@@ -80,7 +77,7 @@ export function ContentWebView({
       />
       {isLoading && (
         <View
-          pointerEvents="none"
+          pointerEvents='none'
           style={{
             position: 'absolute',
             top: 0,
@@ -90,8 +87,7 @@ export function ContentWebView({
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: 'transparent',
-          }}
-        >
+          }}>
           <ActivityIndicator />
         </View>
       )}

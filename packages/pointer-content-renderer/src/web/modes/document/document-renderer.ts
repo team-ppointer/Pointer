@@ -11,12 +11,9 @@ export async function renderDocument(
     backgroundColor?: string;
     padding?: number;
   },
-  isCurrent: () => boolean,
+  isCurrent: () => boolean
 ): Promise<(() => void) | null> {
-  const fontFamily =
-    options.fontStyle === 'sans-serif'
-      ? undefined
-      : '"KoPub Batang", serif';
+  const fontFamily = options.fontStyle === 'sans-serif' ? undefined : '"KoPub Batang", serif';
   if (fontFamily) {
     document.documentElement.style.setProperty('--content-font-family', fontFamily);
   }
@@ -30,9 +27,7 @@ export async function renderDocument(
   }
 
   const docNode: JSONNode =
-    options.content.type === 'doc'
-      ? options.content
-      : { type: 'doc', content: [options.content] };
+    options.content.type === 'doc' ? options.content : { type: 'doc', content: [options.content] };
 
   // Render into detached fragment to avoid stale mutation of live DOM
   const fragment = document.createElement('div');

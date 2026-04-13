@@ -7,18 +7,18 @@ let _programmaticTimer: number | undefined;
 let _initialized = false;
 
 function isNearBottom(): boolean {
-  return (
-    window.innerHeight + window.scrollY >=
-    document.body.scrollHeight - NEAR_BOTTOM_THRESHOLD
-  );
+  return window.innerHeight + window.scrollY >= document.body.scrollHeight - NEAR_BOTTOM_THRESHOLD;
 }
 
 function markProgrammatic(smooth: boolean): void {
   _programmaticScroll = true;
   clearTimeout(_programmaticTimer);
-  _programmaticTimer = window.setTimeout(() => {
-    _programmaticScroll = false;
-  }, smooth ? SCROLL_ANIMATION_MS : 50);
+  _programmaticTimer = window.setTimeout(
+    () => {
+      _programmaticScroll = false;
+    },
+    smooth ? SCROLL_ANIMATION_MS : 50
+  );
 }
 
 function initScrollTracking(): void {
@@ -32,7 +32,7 @@ function initScrollTracking(): void {
       // User-initiated scroll: update sticky intent
       _stickyToBottom = isNearBottom();
     },
-    { passive: true },
+    { passive: true }
   );
 }
 

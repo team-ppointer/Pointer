@@ -1,4 +1,5 @@
 import type { JSONNode } from '../../../types';
+
 import { serializeInlineList } from './inline';
 import {
   serializeParagraph,

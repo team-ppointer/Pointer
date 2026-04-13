@@ -3,15 +3,13 @@ import './modes/document/document.css';
 import './modes/chat/chat.css';
 import './modes/overview/overview.css';
 
+import type { RNToWebViewMessage } from '../types';
+
 import { onMessage, sendToRN } from './bridge';
 import { renderDocument } from './modes/document/document-renderer';
 import { runChatScenario } from './modes/chat/chat-controller';
 import { renderOverview } from './modes/overview/overview-renderer';
-import {
-  initOverviewController,
-  handleBookmarkResult,
-} from './modes/overview/overview-controller';
-import type { RNToWebViewMessage } from '../types';
+import { initOverviewController, handleBookmarkResult } from './modes/overview/overview-controller';
 
 const container = document.getElementById('content')!;
 
@@ -75,7 +73,7 @@ onMessage(async (msg) => {
               step: ev.step,
               response: ev.response,
             });
-          },
+          }
         );
         if (!isCurrent()) return;
         sendToRN({ type: 'complete', answers });
