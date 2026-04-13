@@ -40,7 +40,7 @@ function doScroll(smooth: boolean): void {
   markProgrammatic(smooth);
   window.scrollTo({
     top: document.body.scrollHeight,
-    behavior: smooth ? 'smooth' : 'instant',
+    behavior: smooth ? 'smooth' : 'auto',
   });
 }
 
