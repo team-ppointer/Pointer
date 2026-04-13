@@ -17,7 +17,6 @@ interface ContentBridgeOptions {
 
 export function useContentBridge(options: ContentBridgeOptions) {
   const webViewRef = useRef<WebView>(null);
-  const initSentRef = useRef(false);
 
   const injectMessage = useCallback((msg: RNToWebViewMessage) => {
     const js = `window.dispatchEvent(new MessageEvent('message',{data:${JSON.stringify(JSON.stringify(msg))}}));true;`;
@@ -31,10 +30,7 @@ export function useContentBridge(options: ContentBridgeOptions) {
 
         switch (msg.type) {
           case 'bridgeReady':
-            if (!initSentRef.current) {
-              initSentRef.current = true;
-              injectMessage(options.initMessage);
-            }
+            injectMessage(options.initMessage);
             break;
           case 'ready':
             options.onReady?.(msg.mode);

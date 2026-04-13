@@ -10,33 +10,35 @@ export async function renderDocument(
     fontStyle?: 'sans-serif' | 'serif';
     backgroundColor?: string;
   },
-): Promise<void> {
-  // Document mode defaults to KoPub Batang (serif)
+  isCurrent: () => boolean,
+): Promise<(() => void) | null> {
   const fontFamily =
     options.fontStyle === 'sans-serif'
-      ? undefined  // falls back to CSS default (Pretendard)
+      ? undefined
       : '"KoPub Batang", serif';
   if (fontFamily) {
     document.documentElement.style.setProperty('--content-font-family', fontFamily);
   }
 
-  // Set background color
   if (options.backgroundColor) {
     document.body.style.backgroundColor = options.backgroundColor;
   }
 
-  // Render HTML — normalize to a doc node if needed
   const docNode: JSONNode =
     options.content.type === 'doc'
       ? options.content
       : { type: 'doc', content: options.content.content ?? [] };
 
-  container.innerHTML = serializeJSONToHTML(docNode);
+  // Render into detached fragment to avoid stale mutation of live DOM
+  const fragment = document.createElement('div');
+  fragment.innerHTML = serializeJSONToHTML(docNode);
+  await renderMath(fragment);
+  if (!isCurrent()) return null;
 
-  // Render math
-  await renderMath(container);
+  // Commit to live DOM
+  container.append(...fragment.childNodes);
 
-  // Height reporting with ResizeObserver + debounce
+  // Height reporting — safe to set up, we verified isCurrent
   let debounceTimer: number | undefined;
   const observer = new ResizeObserver(() => {
     clearTimeout(debounceTimer);
@@ -46,6 +48,10 @@ export async function renderDocument(
   });
   observer.observe(container);
 
-  // Send initial height
   sendToRN({ type: 'height', value: container.offsetHeight });
+
+  return () => {
+    clearTimeout(debounceTimer);
+    observer.disconnect();
+  };
 }

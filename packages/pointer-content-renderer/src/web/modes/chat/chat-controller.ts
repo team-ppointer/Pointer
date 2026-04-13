@@ -14,14 +14,15 @@ import { scrollToBottom } from './scroll';
 async function showWithTypingIndicator(
   container: HTMLElement,
   node: PointingNode,
+  signal: AbortSignal,
 ): Promise<HTMLElement> {
   const timing = getTypingTiming(node.contentNode);
 
-  await delay(timing.preDelay);
+  await delay(timing.preDelay, signal);
 
   const indicator = showTypingIndicator(container);
 
-  await delay(timing.duration);
+  await delay(timing.duration, signal);
 
   const html = serializeNodeToHTML(node.contentNode);
   const bubble = document.createElement('div');
@@ -53,11 +54,15 @@ async function showWithTypingIndicator(
   return bubble;
 }
 
-async function showFixedMessage(container: HTMLElement, text: string): Promise<HTMLElement> {
+async function showFixedMessage(
+  container: HTMLElement,
+  text: string,
+  signal: AbortSignal,
+): Promise<HTMLElement> {
   const timing = getFixedTextTiming(text);
-  await delay(timing.preDelay);
+  await delay(timing.preDelay, signal);
   const indicator = showTypingIndicator(container);
-  await delay(timing.duration);
+  await delay(timing.duration, signal);
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
@@ -66,9 +71,18 @@ async function showFixedMessage(container: HTMLElement, text: string): Promise<H
   return bubble;
 }
 
-function waitForYesNo(bubble: HTMLElement): Promise<'yes' | 'no'> {
-  return new Promise((resolve) => {
-    createYesNoButtons(bubble, resolve);
+function waitForYesNo(bubble: HTMLElement, signal: AbortSignal): Promise<'yes' | 'no'> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(signal.reason);
+      return;
+    }
+    const onAbort = () => reject(signal.reason);
+    signal.addEventListener('abort', onAbort, { once: true });
+    createYesNoButtons(bubble, (answer) => {
+      signal.removeEventListener('abort', onAbort);
+      resolve(answer);
+    });
     scrollToBottom();
   });
 }
@@ -76,6 +90,7 @@ function waitForYesNo(bubble: HTMLElement): Promise<'yes' | 'no'> {
 export async function runChatScenario(
   container: HTMLElement,
   scenario: ChatScenario,
+  signal: AbortSignal,
 ): Promise<UserAnswer[]> {
   const answers: UserAnswer[] = [];
 
@@ -88,27 +103,28 @@ export async function runChatScenario(
     // 2. Question nodes sequentially with typing indicator
     let lastQuestionBubble: HTMLElement | null = null;
     for (const node of pointing.questionNodes) {
-      lastQuestionBubble = await showWithTypingIndicator(container, node);
+      lastQuestionBubble = await showWithTypingIndicator(container, node, signal);
     }
 
     // 3. Yes/No inside last question bubble
-    const questionResponse = await waitForYesNo(lastQuestionBubble!);
+    const questionResponse = await waitForYesNo(lastQuestionBubble!, signal);
     renderTextBubble(container, questionResponse === 'yes' ? '네' : '아니오', 'user', true);
 
     // 4. Fixed message: "조금 더 자세히 살펴봅시다!"
-    await showFixedMessage(container, '조금 더 자세히 살펴봅시다!');
+    await showFixedMessage(container, '조금 더 자세히 살펴봅시다!', signal);
 
     // 5. Answer nodes sequentially
     for (const node of pointing.answerNodes) {
-      await showWithTypingIndicator(container, node);
+      await showWithTypingIndicator(container, node, signal);
     }
 
     // 6. Fixed confirm message with Yes/No inside
     const confirmBubble = await showFixedMessage(
       container,
       '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?',
+      signal,
     );
-    const confirmResponse = await waitForYesNo(confirmBubble);
+    const confirmResponse = await waitForYesNo(confirmBubble, signal);
     renderTextBubble(container, confirmResponse === 'yes' ? '네' : '아니오', 'user', true);
 
     answers.push({

@@ -12,17 +12,15 @@ let activeTabId: string | null = null;
 export function initOverviewController(
   container: HTMLElement,
   sections: OverviewSection[],
-): void {
+): () => void {
   tabItems = buildTabItems(sections);
-  if (tabItems.length === 0) return;
+  if (tabItems.length === 0) return () => {};
 
   const tabBar = createTabBar(tabItems);
   container.insertBefore(tabBar, container.firstChild);
 
-  // Activate first tab
   setActiveTab(tabItems[0].sectionId);
 
-  // Scroll-based active tab tracking (more reliable than IntersectionObserver)
   const tabSectionIds = new Set(tabItems.map((t) => t.sectionId));
   let ticking = false;
 
@@ -36,9 +34,7 @@ export function initOverviewController(
       if (!el) continue;
 
       const rect = el.getBoundingClientRect();
-      // Section is at or above the tab bar bottom edge → candidate
       if (rect.top <= threshold) {
-        // Pick the one closest to (but not past) the bottom of view
         const distance = threshold - rect.top;
         if (!closest || distance < closest.distance) {
           closest = { id, distance };
@@ -46,7 +42,6 @@ export function initOverviewController(
       }
     }
 
-    // If nothing is at/above threshold, pick the first section closest below it
     if (!closest) {
       for (const id of tabSectionIds) {
         const el = document.getElementById(`section-${id}`);
@@ -65,18 +60,22 @@ export function initOverviewController(
     }
   };
 
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        updateActiveTab();
-        ticking = false;
-      });
-    },
-    { passive: true },
-  );
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      updateActiveTab();
+      ticking = false;
+    });
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  return () => {
+    window.removeEventListener('scroll', onScroll);
+    tabItems = [];
+    activeTabId = null;
+  };
 }
 
 function buildTabItems(sections: OverviewSection[]): TabItem[] {

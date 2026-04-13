@@ -11,8 +11,11 @@ const BOOKMARK_ICON_ACTIVE = '<svg width="20" height="20" viewBox="0 0 20 20" fi
 export async function renderOverview(
   container: HTMLElement,
   sections: OverviewSection[],
+  isCurrent: () => boolean,
 ): Promise<void> {
   for (const section of sections) {
+    if (!isCurrent()) return;
+
     const sectionEl = document.createElement('div');
     sectionEl.className = 'overview-section';
     sectionEl.id = `section-${section.id}`;
@@ -43,6 +46,7 @@ export async function renderOverview(
         break;
     }
 
+    if (!isCurrent()) return;
     container.appendChild(sectionEl);
   }
 }
