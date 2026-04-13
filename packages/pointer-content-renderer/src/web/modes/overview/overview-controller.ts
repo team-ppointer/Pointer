@@ -145,7 +145,11 @@ function scrollToSection(sectionId: string): void {
   window.scrollTo({ top: elTop, behavior: 'smooth' });
 }
 
-export function handleBookmarkResult(sectionId: string, success: boolean): void {
+export function handleBookmarkResult(
+  sectionId: string,
+  attemptedBookmarked: boolean,
+  success: boolean,
+): void {
   if (success) return;
 
   const sectionEl = document.getElementById(`section-${sectionId}`);
@@ -154,7 +158,11 @@ export function handleBookmarkResult(sectionId: string, success: boolean): void 
   const btn = sectionEl.querySelector<HTMLButtonElement>('.bookmark-btn');
   if (!btn) return;
 
-  // Rollback optimistic update by flipping current state
-  const isActive = btn.classList.contains('bookmark-btn--active');
-  setBookmarkButtonState(btn, !isActive);
+  // Only rollback if current state still matches the failed attempt.
+  // If a newer click already changed the state, that newer request will
+  // produce its own result — leave it alone.
+  const currentBookmarked = btn.classList.contains('bookmark-btn--active');
+  if (currentBookmarked !== attemptedBookmarked) return;
+
+  setBookmarkButtonState(btn, !attemptedBookmarked);
 }

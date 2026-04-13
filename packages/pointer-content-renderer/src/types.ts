@@ -26,7 +26,13 @@ export type RNToWebViewMessage =
     }
   | { type: 'init'; mode: 'chat'; scenario: ChatScenario }
   | { type: 'init'; mode: 'overview'; variant?: 'summary' | 'pointing'; sections: OverviewSection[] }
-  | { type: 'bookmarkResult'; sectionId: string; success: boolean };
+  | {
+      type: 'bookmarkResult';
+      sectionId: string;
+      /** Echo of the target state from the originating bookmark request */
+      bookmarked: boolean;
+      success: boolean;
+    };
 
 // ── Bridge messages: WebView → RN ──
 
