@@ -1,5 +1,21 @@
 import type { JSONMark } from '../../../types';
 
+/**
+ * Parse an unknown attr value as a positive integer within a safe range.
+ * Returns `fallback` for invalid or out-of-range inputs.
+ */
+export function safePositiveInt(
+  value: unknown,
+  fallback: number,
+  { min = 1, max = 1000 }: { min?: number; max?: number } = {},
+): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  const int = Math.floor(n);
+  if (int < min || int > max) return fallback;
+  return int;
+}
+
 export function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

@@ -1,6 +1,8 @@
 import type { JSONNode } from '../../../types';
-import { escapeAttr } from './utils';
+import { safePositiveInt } from './utils';
 import { serializeInlineList, serializeImage } from './inline';
+
+const ORDERED_LIST_TYPES = new Set(['1', 'a', 'A', 'i', 'I']);
 
 // Forward declaration — will be set by index.ts to break circular dependency
 let _serializeNode: (node: JSONNode) => string;
@@ -25,10 +27,11 @@ export function serializeBulletList(node: JSONNode): string {
 
 export function serializeOrderedList(node: JSONNode): string {
   const attrs = node.attrs ?? {};
-  const start = attrs.start ?? 1;
-  const type = attrs.type ?? null;
+  const start = safePositiveInt(attrs.start, 1, { min: 1, max: 9999 });
+  const typeRaw = attrs.type != null ? String(attrs.type) : '';
+  const type = ORDERED_LIST_TYPES.has(typeRaw) ? typeRaw : '';
 
-  const typeAttr = type ? ` type="${escapeAttr(String(type))}"` : '';
+  const typeAttr = type ? ` type="${type}"` : '';
   const startAttr = start !== 1 ? ` start="${start}"` : '';
 
   const items = (node.content ?? []).map(serializeListItem).join('');
@@ -38,8 +41,7 @@ export function serializeOrderedList(node: JSONNode): string {
 
 function countTableColumns(row: JSONNode): number {
   return (row.content ?? []).reduce((sum, cell) => {
-    const colspan = Number(cell.attrs?.colspan ?? 1);
-    return sum + colspan;
+    return sum + safePositiveInt(cell.attrs?.colspan, 1, { min: 1, max: 1000 });
   }, 0);
 }
 
@@ -57,8 +59,8 @@ export function serializeTable(node: JSONNode): string {
     .map((row) => {
       const cells = (row.content ?? [])
         .map((cell) => {
-          const colspan = cell.attrs?.colspan ?? 1;
-          const rowspan = cell.attrs?.rowspan ?? 1;
+          const colspan = safePositiveInt(cell.attrs?.colspan, 1, { min: 1, max: 1000 });
+          const rowspan = safePositiveInt(cell.attrs?.rowspan, 1, { min: 1, max: 1000 });
           const colSpanAttr = ` colspan="${colspan}"`;
           const rowSpanAttr = ` rowspan="${rowspan}"`;
 
