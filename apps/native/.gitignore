@@ -48,3 +48,6 @@ app-example
 # Firebase Google Services
 google-services.json
 GoogleService-Info.plist
+
+# Generated WebView bundle (see sync-webview-html)
+assets/webview/content.html
