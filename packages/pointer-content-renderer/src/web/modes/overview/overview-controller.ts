@@ -1,4 +1,5 @@
 import type { OverviewSection } from '../../../types';
+import { setBookmarkButtonState } from './bookmark-icons';
 
 interface TabItem {
   sectionId: string;
@@ -153,8 +154,7 @@ export function handleBookmarkResult(sectionId: string, success: boolean): void 
   const btn = sectionEl.querySelector<HTMLButtonElement>('.bookmark-btn');
   if (!btn) return;
 
+  // Rollback optimistic update by flipping current state
   const isActive = btn.classList.contains('bookmark-btn--active');
-  btn.classList.toggle('bookmark-btn--active', !isActive);
-  btn.classList.toggle('bookmark-btn--inactive', isActive);
-  btn.textContent = !isActive ? '★' : '☆';
+  setBookmarkButtonState(btn, !isActive);
 }
