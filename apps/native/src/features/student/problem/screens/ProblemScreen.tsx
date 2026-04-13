@@ -39,7 +39,8 @@ import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
 import { Header } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
 import { formatPublishDateLabel } from '../utils/formatters';
-import ProblemViewer from '../components/ProblemViewer';
+import { PointerContentView } from '../components/PointerContentView';
+import { buildDocumentInit } from '../transforms/contentRendererTransforms';
 import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
@@ -431,6 +432,16 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     );
   }, [currentProblem?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
 
+  const problemInitMessage = useMemo(
+    () =>
+      buildDocumentInit({
+        content: currentProblem?.problemContent ?? '',
+        fontStyle: 'serif',
+        padding: 20,
+      }),
+    [currentProblem?.problemContent]
+  );
+
   const badgeStatus = useMemo(() => {
     const progress = problemProgress ?? currentProblem?.progress;
     if (progress === 'CORRECT') return 'correct' as const;
@@ -488,12 +499,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
             <View
               className='my-[10px] overflow-hidden rounded-[8px]'
               style={{ position: 'relative', height: screenHeight - 200 }}>
-              {/* 아래층: ProblemViewer */}
-              <ProblemViewer
-                problemContent={currentProblem?.problemContent ?? ''}
+              {/* 아래층: PointerContentView (document mode) */}
+              <PointerContentView
+                initMessage={problemInitMessage}
                 minHeight={200}
-                padding={20}
-                fontStyle='serif'
               />
 
               {/* 위층: DrawingCanvas - ProblemViewer 위에 겹쳐짐 */}
