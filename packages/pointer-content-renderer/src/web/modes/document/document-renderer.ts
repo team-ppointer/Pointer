@@ -27,7 +27,7 @@ export async function renderDocument(
   const docNode: JSONNode =
     options.content.type === 'doc'
       ? options.content
-      : { type: 'doc', content: options.content.content ?? [] };
+      : { type: 'doc', content: [options.content] };
 
   // Render into detached fragment to avoid stale mutation of live DOM
   const fragment = document.createElement('div');
