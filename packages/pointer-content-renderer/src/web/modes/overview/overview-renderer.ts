@@ -4,6 +4,7 @@ import { renderMath } from '../../core/math-renderer';
 import { renderAllBubbles } from '../chat/chat-renderer';
 import { sendToRN } from '../../bridge';
 import { setBookmarkButtonState } from './bookmark-icons';
+import { initBookmarkState, startBookmarkRequest } from './bookmark-state';
 
 export async function renderOverview(
   container: HTMLElement,
@@ -105,10 +106,14 @@ async function renderCardPointing(
     const btn = document.createElement('button');
     btn.className = 'bookmark-btn';
     setBookmarkButtonState(btn, !!display.bookmarked);
+    initBookmarkState(sectionId, !!display.bookmarked);
     btn.addEventListener('click', () => {
       const newState = !btn.classList.contains('bookmark-btn--active');
+      const requestId = startBookmarkRequest(sectionId);
+      if (requestId == null) return; // already pending — ignore click
+      btn.disabled = true;
       setBookmarkButtonState(btn, newState);
-      sendToRN({ type: 'bookmark', sectionId, bookmarked: newState });
+      sendToRN({ type: 'bookmark', sectionId, bookmarked: newState, requestId });
     });
     header.appendChild(btn);
   }

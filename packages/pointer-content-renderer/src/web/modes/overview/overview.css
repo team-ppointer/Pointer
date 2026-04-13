@@ -287,3 +287,8 @@
   border: none;
   cursor: pointer;
 }
+
+.bookmark-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}

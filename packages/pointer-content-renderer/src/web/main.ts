@@ -32,7 +32,7 @@ function disposeCurrentRender(): void {
 
 function handleNonInitMessage(msg: RNToWebViewMessage): void {
   if (msg.type === 'bookmarkResult') {
-    handleBookmarkResult(msg.sectionId, msg.bookmarked, msg.success);
+    handleBookmarkResult(msg.sectionId, msg.bookmarked, msg.requestId, msg.success);
   }
 }
 

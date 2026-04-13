@@ -12,7 +12,7 @@ interface ContentBridgeOptions {
   onReady?: (mode: ContentMode) => void;
   onHeight?: (height: number) => void;
   onComplete?: (answers: UserAnswer[]) => void;
-  onBookmark?: (sectionId: string, bookmarked: boolean) => void;
+  onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
 }
 
 export function useContentBridge(options: ContentBridgeOptions) {
@@ -53,7 +53,7 @@ export function useContentBridge(options: ContentBridgeOptions) {
             options.onComplete?.(msg.answers);
             break;
           case 'bookmark':
-            options.onBookmark?.(msg.sectionId, msg.bookmarked);
+            options.onBookmark?.(msg.sectionId, msg.bookmarked, msg.requestId);
             break;
         }
       } catch {

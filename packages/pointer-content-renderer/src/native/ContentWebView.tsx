@@ -23,7 +23,7 @@ interface ContentWebViewProps {
   initMessage: RNToWebViewMessage & { type: 'init' };
   onReady?: (mode: ContentMode) => void;
   onComplete?: (answers: UserAnswer[]) => void;
-  onBookmark?: (sectionId: string, bookmarked: boolean) => void;
+  onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
   style?: StyleProp<ViewStyle>;
 }
 

@@ -31,6 +31,8 @@ export type RNToWebViewMessage =
       sectionId: string;
       /** Echo of the target state from the originating bookmark request */
       bookmarked: boolean;
+      /** Echo of the requestId from the originating bookmark request */
+      requestId: number;
       success: boolean;
     };
 
@@ -41,7 +43,13 @@ export type WebViewToRNMessage =
   | { type: 'ready'; mode: ContentMode }
   | { type: 'height'; value: number }
   | { type: 'complete'; answers: UserAnswer[] }
-  | { type: 'bookmark'; sectionId: string; bookmarked: boolean };
+  | {
+      type: 'bookmark';
+      sectionId: string;
+      bookmarked: boolean;
+      /** Monotonically increasing per-session id used to deduplicate stale results */
+      requestId: number;
+    };
 
 // ── Chat: Pointing structures ──
 

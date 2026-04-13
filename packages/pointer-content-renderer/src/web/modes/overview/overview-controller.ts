@@ -1,5 +1,6 @@
 import type { OverviewSection } from '../../../types';
 import { setBookmarkButtonState } from './bookmark-icons';
+import { applyBookmarkResult, clearBookmarkStates } from './bookmark-state';
 
 interface TabItem {
   sectionId: string;
@@ -76,6 +77,7 @@ export function initOverviewController(
     window.removeEventListener('scroll', onScroll);
     tabItems = [];
     activeTabId = null;
+    clearBookmarkStates();
   };
 }
 
@@ -148,9 +150,11 @@ function scrollToSection(sectionId: string): void {
 export function handleBookmarkResult(
   sectionId: string,
   attemptedBookmarked: boolean,
+  requestId: number,
   success: boolean,
 ): void {
-  if (success) return;
+  const action = applyBookmarkResult(sectionId, requestId, attemptedBookmarked, success);
+  if (action.kind === 'noop') return;
 
   const sectionEl = document.getElementById(`section-${sectionId}`);
   if (!sectionEl) return;
@@ -158,11 +162,9 @@ export function handleBookmarkResult(
   const btn = sectionEl.querySelector<HTMLButtonElement>('.bookmark-btn');
   if (!btn) return;
 
-  // Only rollback if current state still matches the failed attempt.
-  // If a newer click already changed the state, that newer request will
-  // produce its own result — leave it alone.
-  const currentBookmarked = btn.classList.contains('bookmark-btn--active');
-  if (currentBookmarked !== attemptedBookmarked) return;
-
-  setBookmarkButtonState(btn, !attemptedBookmarked);
+  if (action.kind === 'revert') {
+    setBookmarkButtonState(btn, action.revertTo);
+  }
+  // Re-enable for both commit and revert (button was disabled while pending)
+  btn.disabled = false;
 }
