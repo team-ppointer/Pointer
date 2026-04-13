@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import type WebView from 'react-native-webview';
 import type {
   RNToWebViewMessage,
@@ -17,11 +17,21 @@ interface ContentBridgeOptions {
 
 export function useContentBridge(options: ContentBridgeOptions) {
   const webViewRef = useRef<WebView>(null);
+  const bridgeReadyRef = useRef(false);
+  const initMessageRef = useRef(options.initMessage);
 
   const injectMessage = useCallback((msg: RNToWebViewMessage) => {
     const js = `window.dispatchEvent(new MessageEvent('message',{data:${JSON.stringify(JSON.stringify(msg))}}));true;`;
     webViewRef.current?.injectJavaScript(js);
   }, []);
+
+  // Re-inject init whenever initMessage changes, as long as the bridge is ready.
+  useEffect(() => {
+    initMessageRef.current = options.initMessage;
+    if (bridgeReadyRef.current) {
+      injectMessage(options.initMessage);
+    }
+  }, [options.initMessage, injectMessage]);
 
   const handleMessage = useCallback(
     (event: { nativeEvent: { data: string } }) => {
@@ -30,7 +40,8 @@ export function useContentBridge(options: ContentBridgeOptions) {
 
         switch (msg.type) {
           case 'bridgeReady':
-            injectMessage(options.initMessage);
+            bridgeReadyRef.current = true;
+            injectMessage(initMessageRef.current);
             break;
           case 'ready':
             options.onReady?.(msg.mode);
@@ -49,7 +60,7 @@ export function useContentBridge(options: ContentBridgeOptions) {
         // ignore non-JSON messages
       }
     },
-    [options.initMessage, options.onReady, options.onHeight, options.onComplete, options.onBookmark, injectMessage],
+    [options.onReady, options.onHeight, options.onComplete, options.onBookmark, injectMessage],
   );
 
   const sendToWebView = useCallback(
