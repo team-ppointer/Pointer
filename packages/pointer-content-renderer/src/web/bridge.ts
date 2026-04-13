@@ -11,18 +11,30 @@ declare global {
 type MessageHandler = (msg: RNToWebViewMessage) => void;
 
 let _handler: MessageHandler | null = null;
+let _listenerInstalled = false;
 
-export function onMessage(handler: MessageHandler): void {
-  _handler = handler;
+function ensureListenerInstalled(): void {
+  if (_listenerInstalled || typeof window === 'undefined') return;
+  _listenerInstalled = true;
 
   window.addEventListener('message', (event: MessageEvent) => {
+    if (!_handler) return;
     try {
       const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-      handler(data as RNToWebViewMessage);
+      _handler(data as RNToWebViewMessage);
     } catch {
       // ignore non-JSON messages
     }
   });
+}
+
+/**
+ * Register the active message handler. Subsequent calls replace the handler
+ * without installing a second listener (safe under Vite HMR).
+ */
+export function onMessage(handler: MessageHandler): void {
+  _handler = handler;
+  ensureListenerInstalled();
 }
 
 export function getHandler(): MessageHandler | null {
