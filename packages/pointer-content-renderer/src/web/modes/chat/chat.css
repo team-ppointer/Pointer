@@ -14,7 +14,6 @@
   word-break: break-all;
   overflow: hidden;
   animation: bubbleIn 300ms ease-out;
-  
 }
 
 .chat-bubble--system {
@@ -100,11 +99,11 @@
   cursor: default;
 }
 
-.chat-choice-btn:disabled:not([class*="--selected"]) {
+.chat-choice-btn:disabled:not([class*='--selected']) {
   color: var(--color-gray-600);
 }
 
-.chat-choice-btn:disabled:not([class*="--selected"]) svg {
+.chat-choice-btn:disabled:not([class*='--selected']) svg {
   opacity: 0.4;
 }
 
