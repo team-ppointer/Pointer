@@ -15,7 +15,7 @@ import {
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ContentInset } from '@components/common';
+import { ContentInset, Header } from '@components/common';
 import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
@@ -32,13 +32,11 @@ import {
   selectProblemSetTitle,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 
 import ResultSheet from '../components/ResultSheet';
 import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
-import { Header } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
-import { formatPublishDateLabel } from '../utils/formatters';
 import { PointerContentView } from '../components/PointerContentView';
 import { buildDocumentInit } from '../transforms/contentRendererTransforms';
 import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
@@ -87,8 +85,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     currentProblem?.id ?? 0,
     !!currentProblem?.id
   );
-
-  const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
   // Scrap animation interpolations
   const scrapBgColor = scrapAnimValue.interpolate({
