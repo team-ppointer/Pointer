@@ -571,9 +571,9 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                 <Text className='typo-body-1-medium text-black'>잘 모르겠어요</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className={`bg-primary-600 ${isSubmitting ? 'opacity-60' : ''}`}
+                className={!answer || isSubmitting ? 'bg-primary-300' : 'bg-primary-600'}
                 containerStyle={{ flex: 2 }}
-                disabled={isSubmitting}
+                disabled={!answer || isSubmitting}
                 onPress={handleSubmitAnswer}>
                 <Text className='typo-body-1-medium text-white'>
                   {isSubmitting ? '제출 중...' : '제출하기'}
