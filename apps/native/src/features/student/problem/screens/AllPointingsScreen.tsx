@@ -72,11 +72,21 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   );
 
   const leftInit = useMemo(
-    () => ({ type: 'init' as const, mode: 'overview' as const, sections: leftSections }),
+    () => ({
+      type: 'init' as const,
+      mode: 'overview' as const,
+      variant: 'pointing' as const,
+      sections: leftSections,
+    }),
     [leftSections]
   );
   const rightInit = useMemo(
-    () => ({ type: 'init' as const, mode: 'overview' as const, sections: rightSections }),
+    () => ({
+      type: 'init' as const,
+      mode: 'overview' as const,
+      variant: 'pointing' as const,
+      sections: rightSections,
+    }),
     [rightSections]
   );
 
@@ -123,7 +133,9 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
             right={<Header.IconButton icon={XIcon} onPress={() => navigation.goBack()} />}
           />
           <View className='flex-1 items-center justify-center px-[24px]'>
-            <Text className='text-14m text-gray-600'>포인팅 정보를 불러올 수 없어요.</Text>
+            <Text className='typo-body-1-medium text-gray-600'>
+              포인팅 정보를 불러올 수 없어요.
+            </Text>
           </View>
         </SafeAreaView>
       </View>
@@ -131,19 +143,20 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   }
 
   return (
-    <View className='flex-1'>
+    <View className='flex-1 bg-white'>
       <SafeAreaView className='flex-1' edges={['top']}>
         <Header
           title={headerTitle}
           subtitle={publishDateLabel ?? undefined}
           right={<Header.IconButton icon={XIcon} onPress={handleClose} />}
         />
-        <View className='flex-1 overflow-hidden'>
-          <ContentInset className='flex-1 flex-row pb-[32px]'>
-            <View className='flex-1'>
+        <View className='flex-1 overflow-hidden pt-[20px]'>
+          <ContentInset className='flex-1 flex-row'>
+            <View className='-ml-[20px] flex-1'>
               <PointerContentView initMessage={leftInit} />
             </View>
-            <View className='flex-1'>
+            <View className='w-px bg-gray-500' />
+            <View className='-mr-[20px] flex-1'>
               <PointerContentView
                 ref={rightRef}
                 initMessage={rightInit}
