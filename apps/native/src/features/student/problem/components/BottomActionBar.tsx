@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 
 import { ContentInset } from '@components/common';
-import { analytics, type ButtonId, type ScreenName } from '@/features/student/analytics';
+import { analytics, type ButtonId, type ScreenName } from '@features/student/analytics';
+import { shadow } from '@theme/tokens';
 
 type BottomActionBarProps = {
   bottomInset?: number;
@@ -102,7 +103,7 @@ const BottomActionBarButton = ({
     <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
       <Pressable
         className={combineClassName(
-          'h-[42px] items-center justify-center rounded-[8px] px-[18px]',
+          'h-[48px] items-center justify-center rounded-[8px] px-[18px]',
           className
         )}
         onPressIn={handlePressIn}
@@ -129,7 +130,7 @@ const BottomActionBarButton = ({
 const BottomActionBar = (({ bottomInset = 0, onLayout, children }: BottomActionBarProps) => (
   <View
     className='border-t border-gray-300 bg-white pt-[10px]'
-    style={{ paddingBottom: 10 + bottomInset }}
+    style={{ paddingBottom: 3 + bottomInset, ...shadow.bottomsheet }}
     onLayout={onLayout}>
     <ContentInset className='flex-row items-center gap-[10px]'>{children}</ContentInset>
   </View>

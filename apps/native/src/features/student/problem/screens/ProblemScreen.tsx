@@ -15,7 +15,7 @@ import {
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ContentInset } from '@components/common';
+import { ContentInset, Header } from '@components/common';
 import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
@@ -32,14 +32,13 @@ import {
   selectProblemSetTitle,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 
 import ResultSheet from '../components/ResultSheet';
 import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
-import { Header } from '@components/common';
 import BottomActionBar from '../components/BottomActionBar';
-import { formatPublishDateLabel } from '../utils/formatters';
-import ProblemViewer from '../components/ProblemViewer';
+import { PointerContentView } from '../components/PointerContentView';
+import { buildDocumentInit } from '../transforms/contentRendererTransforms';
 import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
@@ -86,8 +85,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     currentProblem?.id ?? 0,
     !!currentProblem?.id
   );
-
-  const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
   // Scrap animation interpolations
   const scrapBgColor = scrapAnimValue.interpolate({
@@ -431,11 +428,20 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     );
   }, [currentProblem?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
 
+  const problemInitMessage = useMemo(
+    () =>
+      buildDocumentInit({
+        content: currentProblem?.problemContent ?? '',
+        fontStyle: 'serif',
+      }),
+    [currentProblem?.problemContent]
+  );
+
   const badgeStatus = useMemo(() => {
     const progress = problemProgress ?? currentProblem?.progress;
     if (progress === 'CORRECT') return 'correct' as const;
     if (progress === 'INCORRECT') return 'incorrect' as const;
-    return undefined;
+    return;
   }, [problemProgress, currentProblem?.progress]);
 
   const canvasRef = useRef<DrawingCanvasRef>(null);
@@ -486,14 +492,12 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           <ContentInset className='flex-1'>
             {/* Problem */}
             <View
-              className='my-[10px] overflow-hidden rounded-[8px]'
+              className='my-[12px] overflow-hidden rounded-[8px]'
               style={{ position: 'relative', height: screenHeight - 200 }}>
-              {/* 아래층: ProblemViewer */}
-              <ProblemViewer
-                problemContent={currentProblem?.problemContent ?? ''}
+              <PointerContentView
+                initMessage={problemInitMessage}
                 minHeight={200}
-                padding={20}
-                fontStyle='serif'
+                style={{ maxWidth: 720 }}
               />
 
               {/* 위층: DrawingCanvas - ProblemViewer 위에 겹쳐짐 */}
@@ -547,27 +551,27 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                 />
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className='bg-primary-500 h-[42px]'
+                className='bg-primary-600'
                 containerStyle={{ flex: 1 }}
                 onPress={toggleKeyboard}>
-                <Text className='text-16m text-white'>답 입력하기</Text>
+                <Text className='typo-body-1-medium text-white'>답 입력하기</Text>
               </BottomActionBar.Button>
             </Animated.View>
             <Animated.View
               style={[actionBarStyles.layer, actionBarStyles.overlay, { opacity: actionBarFade }]}
               pointerEvents={isKeyboardVisible ? 'auto' : 'none'}>
               <BottomActionBar.Button
-                className='bg-primary-200 h-[42px]'
+                className='border border-gray-500 bg-gray-100'
                 containerStyle={{ flex: 1 }}
                 onPress={handleIDontKnow}>
-                <Text className='text-14m text-black'>잘 모르겠어요</Text>
+                <Text className='typo-body-1-medium text-black'>잘 모르겠어요</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className={`bg-primary-500 h-[42px] ${isSubmitting ? 'opacity-60' : ''}`}
-                containerStyle={{ flex: 1 }}
-                disabled={isSubmitting}
+                className={!answer || isSubmitting ? 'bg-primary-300' : 'bg-primary-600'}
+                containerStyle={{ flex: 2 }}
+                disabled={!answer || isSubmitting}
                 onPress={handleSubmitAnswer}>
-                <Text className='text-16m text-white'>
+                <Text className='typo-body-1-medium text-white'>
                   {isSubmitting ? '제출 중...' : '제출하기'}
                 </Text>
               </BottomActionBar.Button>
