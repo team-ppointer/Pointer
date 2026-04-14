@@ -445,7 +445,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     const progress = problemProgress ?? currentProblem?.progress;
     if (progress === 'CORRECT') return 'correct' as const;
     if (progress === 'INCORRECT') return 'incorrect' as const;
-    return undefined;
+    return;
   }, [problemProgress, currentProblem?.progress]);
 
   const canvasRef = useRef<DrawingCanvasRef>(null);
@@ -498,7 +498,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
             <View
               className='my-[10px] overflow-hidden rounded-[8px]'
               style={{ position: 'relative', height: screenHeight - 200 }}>
-              {/* 아래층: PointerContentView (document mode) */}
               <PointerContentView
                 initMessage={problemInitMessage}
                 minHeight={200}
