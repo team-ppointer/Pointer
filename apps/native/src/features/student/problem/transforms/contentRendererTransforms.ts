@@ -272,12 +272,14 @@ export function buildAllPointingsLeftSections(group: PublishProblemGroupResp): O
     },
   });
 
-  sections.push({
-    id: `divider-${main.id}`,
-    display: {
-      type: 'divider',
-    },
-  });
+  if (children.length > 0) {
+    sections.push({
+      id: `divider-${main.id}`,
+      display: {
+        type: 'divider',
+      },
+    });
+  }
 
   children.forEach((child, idx) => {
     sections.push({
