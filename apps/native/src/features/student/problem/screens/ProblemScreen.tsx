@@ -555,27 +555,27 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                 />
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className='bg-primary-500 h-[42px]'
+                className='bg-primary-600'
                 containerStyle={{ flex: 1 }}
                 onPress={toggleKeyboard}>
-                <Text className='text-16m text-white'>답 입력하기</Text>
+                <Text className='typo-body-1-medium text-white'>답 입력하기</Text>
               </BottomActionBar.Button>
             </Animated.View>
             <Animated.View
               style={[actionBarStyles.layer, actionBarStyles.overlay, { opacity: actionBarFade }]}
               pointerEvents={isKeyboardVisible ? 'auto' : 'none'}>
               <BottomActionBar.Button
-                className='bg-primary-200 h-[42px]'
+                className='border border-gray-500 bg-gray-100'
                 containerStyle={{ flex: 1 }}
                 onPress={handleIDontKnow}>
-                <Text className='text-14m text-black'>잘 모르겠어요</Text>
+                <Text className='typo-body-1-medium text-black'>잘 모르겠어요</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className={`bg-primary-500 h-[42px] ${isSubmitting ? 'opacity-60' : ''}`}
-                containerStyle={{ flex: 1 }}
+                className={`bg-primary-600 ${isSubmitting ? 'opacity-60' : ''}`}
+                containerStyle={{ flex: 2 }}
                 disabled={isSubmitting}
                 onPress={handleSubmitAnswer}>
-                <Text className='text-16m text-white'>
+                <Text className='typo-body-1-medium text-white'>
                   {isSubmitting ? '제출 중...' : '제출하기'}
                 </Text>
               </BottomActionBar.Button>
