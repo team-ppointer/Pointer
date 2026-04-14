@@ -17,6 +17,7 @@ type HeaderProps = {
   showBackButton?: boolean;
   onPressBack?: () => void;
   right?: ReactNode;
+  paddingHorizontal?: number | { left: number; right: number };
 };
 
 const badgeConfig = {
@@ -81,6 +82,17 @@ const getRightGap = (children: ReactNode): number => {
   return hasTextButton ? 8 : 4;
 };
 
+const resolveOverrideStyle = (paddingHorizontal: HeaderProps['paddingHorizontal']) => {
+  if (paddingHorizontal === undefined) return null;
+  if (typeof paddingHorizontal === 'number') {
+    return { paddingHorizontal };
+  }
+  return {
+    paddingLeft: paddingHorizontal.left,
+    paddingRight: paddingHorizontal.right,
+  };
+};
+
 const HeaderRoot = ({
   title,
   subtitle,
@@ -88,6 +100,7 @@ const HeaderRoot = ({
   showBackButton,
   onPressBack,
   right,
+  paddingHorizontal,
 }: HeaderProps) => {
   const navigation = useNavigation();
 
@@ -101,25 +114,39 @@ const HeaderRoot = ({
     }
   };
 
-  return (
-    <View className='h-[56px] w-full'>
-      <ContentInset className='h-full flex-row items-center justify-between'>
-        <View className='flex-row items-center gap-[4px]'>
-          {showBackButton && <HeaderIconButton icon={ChevronLeft} onPress={handleBack} />}
-          {(title || subtitle || badge) && (
-            <View className='flex-row items-center gap-[12px]'>
-              {title && <Text className='typo-title-1-bold text-gray-900'>{title}</Text>}
-              {subtitle && <Text className='typo-title-1-semibold text-gray-700'>{subtitle}</Text>}
-              {badge && <Badge variant={badge} />}
-            </View>
-          )}
-        </View>
-        {right && (
-          <View className='flex-row items-center' style={{ gap: getRightGap(right) }}>
-            {right}
+  const inner = (
+    <>
+      <View className='flex-row items-center gap-[4px]'>
+        {showBackButton && <HeaderIconButton icon={ChevronLeft} onPress={handleBack} />}
+        {(title || subtitle || badge) && (
+          <View className='flex-row items-center gap-[12px]'>
+            {title && <Text className='typo-title-1-bold text-gray-900'>{title}</Text>}
+            {subtitle && <Text className='typo-title-1-semibold text-gray-700'>{subtitle}</Text>}
+            {badge && <Badge variant={badge} />}
           </View>
         )}
-      </ContentInset>
+      </View>
+      {right && (
+        <View className='flex-row items-center' style={{ gap: getRightGap(right) }}>
+          {right}
+        </View>
+      )}
+    </>
+  );
+
+  const overrideStyle = resolveOverrideStyle(paddingHorizontal);
+
+  return (
+    <View className='h-[56px] w-full'>
+      {overrideStyle ? (
+        <View className='size-full flex-row items-center justify-between' style={overrideStyle}>
+          {inner}
+        </View>
+      ) : (
+        <ContentInset className='h-full flex-row items-center justify-between'>
+          {inner}
+        </ContentInset>
+      )}
     </View>
   );
 };
