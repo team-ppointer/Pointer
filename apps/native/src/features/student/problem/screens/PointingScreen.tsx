@@ -1,15 +1,14 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Alert, Animated, Text, View } from 'react-native';
-import { BookmarkIcon, XIcon } from 'lucide-react-native';
+import { Alert, Text, View } from 'react-native';
+import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AnswerEventPayload } from '@repo/pointer-content-renderer';
 
-import { colors, shadow } from '@theme/tokens';
+import { shadow } from '@theme/tokens';
 import { type StudentRootStackParamList } from '@navigation/student/types';
-import { ContentInset, Header } from '@components/common';
-import { useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
+import { Header } from '@components/common';
 import {
+  getInitialScreenForPhase,
   selectCurrentProblem,
   selectChildIndex,
   selectGroup,
@@ -21,9 +20,10 @@ import {
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import { useInvalidateStudyData } from '@hooks';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
 
+import BottomActionBar from '../components/BottomActionBar';
 import { PointerContentView } from '../components/PointerContentView';
+import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
 import { pointingFeedbackQueue } from '../services';
 import {
   buildDocumentInit,
@@ -34,9 +34,6 @@ import {
 const PointingScreen = ({
   navigation,
 }: Partial<NativeStackScreenProps<StudentRootStackParamList, 'Pointing'>>) => {
-  const [isProblemScraped, setIsProblemScraped] = useState(false);
-  const problemScrapAnimValue = useRef(new Animated.Value(0)).current;
-
   const phase = useProblemSessionStore(selectPhase);
   const currentProblem = useProblemSessionStore(selectCurrentProblem);
   const initialized = useProblemSessionStore(selectInitialized);
@@ -49,20 +46,11 @@ const PointingScreen = ({
   const goToAnalysis = useProblemSessionStore((state) => state.goToAnalysis);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
-  const toggleProblemScrapMutation = useToggleScrapFromProblem();
-  const { data: scrapStatusData } = useGetScrapStatusById(
-    currentProblem?.id ?? 0,
-    !!currentProblem?.id
-  );
 
   const pointings = useMemo(() => currentProblem?.pointings ?? [], [currentProblem?.pointings]);
 
   if (pointings.length === 0) console.warn('[PointingScreen] empty pointings array');
 
-  // Chat WebView 는 init 후 내부 상태로 자체 진행한다. userAnswers 는 resume 용으로
-  // mount 시점의 큐 + 서버 상태 한 번만 읽어 보내고, 이후 큐 변화에는 구독하지 않는다.
-  // 구독 시 매 응답마다 initMessage reference 가 갱신되어 WebView 가 init 부터
-  // 재시작되는 회귀 발생 (chat-controller 가 static phase 부터 다시 재생).
   const chatInitMessage = useMemo(
     () => ({
       type: 'init' as const,
@@ -95,13 +83,25 @@ const PointingScreen = ({
     [publishId]
   );
 
+  const [isPointingDone, setIsPointingDone] = useState(false);
+
   const handleComplete = useCallback(() => {
+    setIsPointingDone(true);
+  }, []);
+
+  useEffect(() => {
+    setIsPointingDone(false);
+  }, [currentProblem?.id]);
+
+  const handleAdvance = useCallback(() => {
     if (phase === 'CHILD_POINTINGS') {
       finishChildProblem();
     } else if (phase === 'MAIN_POINTINGS') {
       goToAnalysis();
     }
   }, [phase, finishChildProblem, goToAnalysis]);
+
+  const ctaLabel = phase === 'MAIN_POINTINGS' ? '학습 마무리' : '다음 문제';
 
   const problemSubtitle = useMemo(() => {
     if (!group) {
@@ -116,6 +116,15 @@ const PointingScreen = ({
     }
     return '';
   }, [childIndex, group, phase]);
+
+  const badgeStatus = useMemo(() => {
+    const progress = currentProblem?.progress;
+    if (progress === 'CORRECT') return 'correct' as const;
+    if (progress === 'INCORRECT') return 'incorrect' as const;
+    return;
+  }, [currentProblem?.progress]);
+
+  const { leftWidth, rightWidth } = useSplitPanelLayout();
 
   const redirectToHome = useCallback(() => {
     resetSession();
@@ -140,97 +149,72 @@ const PointingScreen = ({
     if (!initialized) {
       return;
     }
-    if (!group || !currentProblem || (phase !== 'CHILD_POINTINGS' && phase !== 'MAIN_POINTINGS')) {
+    if (!group || !currentProblem) {
       redirectToHome();
+      return;
     }
-  }, [currentProblem, group, initialized, phase, redirectToHome]);
-
-  const handleClose = useCallback(() => {
-    goHome();
-  }, [goHome]);
-
-  // Sync problem scrap state with fetched data
-  useEffect(() => {
-    const isProblemScrapped = scrapStatusData?.isProblemScrapped ?? false;
-    setIsProblemScraped(isProblemScrapped);
-    problemScrapAnimValue.setValue(isProblemScrapped ? 1 : 0);
-  }, [scrapStatusData?.isProblemScrapped, problemScrapAnimValue]);
-
-  const handleToggleProblemScrap = useCallback(() => {
-    if (!currentProblem?.id || toggleProblemScrapMutation.isPending) {
+    if (phase === 'CHILD_POINTINGS' || phase === 'MAIN_POINTINGS') {
       return;
     }
 
-    // Optimistic update with animation
-    const previousState = isProblemScraped;
-    const newScrapState = !previousState;
-    setIsProblemScraped(newScrapState);
-    Animated.spring(problemScrapAnimValue, {
-      toValue: newScrapState ? 1 : 0,
-      useNativeDriver: false,
-      tension: 200,
-      friction: 20,
-    }).start();
-
-    toggleProblemScrapMutation.mutate(
-      { problemId: currentProblem.id },
-      {
-        onError: () => {
-          // Revert to previous state on error
-          setIsProblemScraped(previousState);
-          Animated.spring(problemScrapAnimValue, {
-            toValue: previousState ? 1 : 0,
-            useNativeDriver: false,
-            tension: 200,
-            friction: 20,
-          }).start();
-          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
-        },
-      }
-    );
-  }, [currentProblem?.id, isProblemScraped, problemScrapAnimValue, toggleProblemScrapMutation]);
+    const target = getInitialScreenForPhase(phase);
+    if (target === 'Pointing') {
+      return;
+    }
+    navigation?.navigate(target);
+  }, [currentProblem, group, initialized, phase, navigation, redirectToHome]);
 
   return (
-    <View className='flex-1'>
-      <SafeAreaView className='flex-1' edges={['top']}>
-        <Header
-          title={problemSetTitle}
-          subtitle={problemSubtitle}
-          right={<Header.IconButton icon={XIcon} onPress={handleClose} />}
-        />
-        <View className='flex-1'>
-          <ContentInset className='flex-1 flex-col gap-[20px] pb-[32px] md:flex-row'>
-            <View className='md:flex-1'>
-              <View
-                className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
-                style={shadow[100]}>
-                <View className='mb-[6px] flex-row justify-between gap-[10px]'>
-                  <Text className='text-16sb text-gray-600'>문제 본문</Text>
-                  <TrackedAnimatedPressable
-                    buttonId={isProblemScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='size-[32px] items-center justify-center'
-                    onPress={handleToggleProblemScrap}>
-                    <BookmarkIcon
-                      size={20}
-                      color={isProblemScraped ? colors['gray-800'] : colors['gray-600']}
-                      fill={isProblemScraped ? colors['gray-800'] : 'transparent'}
-                    />
-                  </TrackedAnimatedPressable>
-                </View>
-                <PointerContentView initMessage={documentInitMessage} minHeight={200} />
-              </View>
-            </View>
-
-            <View className='flex-1 md:flex-1' style={shadow[100]}>
-              <PointerContentView
-                initMessage={chatInitMessage}
-                onAnswer={handleAnswer}
-                onComplete={handleComplete}
-              />
-            </View>
-          </ContentInset>
+    <View className='flex-1 bg-white'>
+      <View className='flex-1 flex-row'>
+        <View
+          className='bg-primary-100 border-primary-200 m-[10px] rounded-[24px] border pt-[22px]'
+          style={[shadow[400], { width: leftWidth }]}>
+          <View className='flex-1 overflow-hidden rounded-[24px]'>
+            <Header
+              title='포인팅'
+              paddingHorizontal={{ left: 28, right: 16 }}
+              right={
+                <Header.IconButton
+                  icon={XIcon}
+                  onPress={() =>
+                    Alert.alert('여기까지 보고 나갈까요?', '이어서 학습할 수 있어요', [
+                      { text: '나가기', onPress: goHome, style: 'destructive' },
+                      { text: '계속 풀기', style: 'cancel' },
+                    ])
+                  }
+                />
+              }
+            />
+            <PointerContentView
+              initMessage={chatInitMessage}
+              onAnswer={handleAnswer}
+              onComplete={handleComplete}
+            />
+          </View>
         </View>
-      </SafeAreaView>
+
+        <View className='pt-[32px]' style={{ width: rightWidth, paddingLeft: 28 }}>
+          <Header
+            title={problemSetTitle}
+            subtitle={problemSubtitle}
+            badge={badgeStatus}
+            paddingHorizontal={0}
+          />
+          <PointerContentView
+            initMessage={documentInitMessage}
+            minHeight={200}
+            style={{ marginTop: 20, maxWidth: 720 }}
+          />
+          {isPointingDone && (
+            <View className='pt-[16px]'>
+              <BottomActionBar.Button className='bg-primary-500 self-start' onPress={handleAdvance}>
+                <Text className='typo-title-1-bold text-white'>{ctaLabel}</Text>
+              </BottomActionBar.Button>
+            </View>
+          )}
+        </View>
+      </View>
     </View>
   );
 };
