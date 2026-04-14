@@ -4,7 +4,9 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useMemo, useRef } from 'react';
 import { XIcon } from 'lucide-react-native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { client } from '@apis/client';
 import { ContentInset, Header } from '@components/common';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { type components } from '@schema';
@@ -59,13 +61,46 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   const leftSections = useMemo(() => (group ? buildAllPointingsLeftSections(group) : []), [group]);
   const joined = useMemo(() => (group ? joinPointingsForAnalysis(group) : []), [group]);
 
+  // 모든 문제(main + children)의 pointing scrap 상태를 한 번에 fetch.
+  // route params 의 pointing.isScrapped 는 진입 시점 snapshot 이라 toggle 후
+  // 재진입하면 stale → 이 query 가 mount 시 fresh 데이터를 제공한다.
+  const allProblemIds = useMemo(() => {
+    if (!group) return [];
+    return [group.problem.id, ...(group.childProblems ?? []).map((c) => c.id)];
+  }, [group]);
+
+  const queryClient = useQueryClient();
+  const { data: freshScrapIds } = useQuery({
+    queryKey: ['allPointingsScrapStatus', ...allProblemIds],
+    queryFn: async () => {
+      const results = await Promise.all(
+        allProblemIds.map((id) =>
+          client.GET('/api/student/scrap/by-problem/{problemId}', {
+            params: { path: { problemId: id } },
+          })
+        )
+      );
+      const ids = new Set<number>();
+      for (const res of results) {
+        for (const id of (res.data as { scrappedPointingIds?: number[] })?.scrappedPointingIds ??
+          []) {
+          ids.add(id);
+        }
+      }
+      return ids;
+    },
+    enabled: allProblemIds.length > 0,
+  });
+
+  // query 결과 있으면 우선, 로딩 중에는 route params fallback
   const scrappedPointingIds = useMemo(() => {
+    if (freshScrapIds) return freshScrapIds;
     const ids = new Set<number>();
     for (const { pointing } of joined) {
       if (pointing.isScrapped) ids.add(pointing.id);
     }
     return ids;
-  }, [joined]);
+  }, [freshScrapIds, joined]);
   const rightSections = useMemo(
     () => buildAllPointingsRightSections({ joined, scrappedPointingIds }),
     [joined, scrappedPointingIds]
@@ -104,13 +139,18 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
       toggleScrap.mutate(
         { pointingId },
         {
-          onSuccess: () =>
+          onSuccess: () => {
             rightRef.current?.sendBookmarkResult({
               sectionId,
               bookmarked,
               requestId,
               success: true,
-            }),
+            });
+            // 재진입 시 fresh 데이터 보장
+            void queryClient.invalidateQueries({
+              queryKey: ['allPointingsScrapStatus'],
+            });
+          },
           onError: () =>
             rightRef.current?.sendBookmarkResult({
               sectionId,
@@ -121,7 +161,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
         }
       );
     },
-    [toggleScrap]
+    [toggleScrap, queryClient]
   );
 
   if (!params) {
