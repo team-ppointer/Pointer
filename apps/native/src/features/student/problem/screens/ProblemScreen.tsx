@@ -492,7 +492,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           <ContentInset className='flex-1'>
             {/* Problem */}
             <View
-              className='my-[10px] overflow-hidden rounded-[8px]'
+              className='my-[12px] overflow-hidden rounded-[8px]'
               style={{ position: 'relative', height: screenHeight - 200 }}>
               <PointerContentView
                 initMessage={problemInitMessage}
