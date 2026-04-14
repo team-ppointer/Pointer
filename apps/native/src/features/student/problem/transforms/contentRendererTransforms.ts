@@ -272,6 +272,13 @@ export function buildAllPointingsLeftSections(group: PublishProblemGroupResp): O
     },
   });
 
+  sections.push({
+    id: `divider-${main.id}`,
+    display: {
+      type: 'divider',
+    },
+  });
+
   children.forEach((child, idx) => {
     sections.push({
       id: `problem-${child.id}`,
@@ -281,6 +288,15 @@ export function buildAllPointingsLeftSections(group: PublishProblemGroupResp): O
         content: parseTipTapDoc(child.problemContent),
       },
     });
+
+    if (idx < children.length - 1) {
+      sections.push({
+        id: `divider-${child.id}`,
+        display: {
+          type: 'divider',
+        },
+      });
+    }
   });
 
   return sections;
@@ -302,7 +318,7 @@ export function buildAllPointingsRightSections(opts: {
         type: 'card',
         variant: 'pointing',
         title: `${index}번째 포인팅`,
-        subtitle: `${parentProblemDisplayNo}-${pointing.no}번`,
+        subtitle: `${parentProblemDisplayNo}번`,
         question: parseTipTapDoc(pointing.questionContent),
         answer: parseTipTapDoc(pointing.commentContent),
         bookmarkable: true,
