@@ -42,8 +42,7 @@ const PointingScreen = ({
   const publishId = useProblemSessionStore(selectPublishId);
   const publishAt = useProblemSessionStore(selectPublishAt);
   const problemSetTitle = useProblemSessionStore(selectProblemSetTitle);
-  const finishChildProblem = useProblemSessionStore((state) => state.finishChildProblem);
-  const goToAnalysis = useProblemSessionStore((state) => state.goToAnalysis);
+  const completeAllPointings = useProblemSessionStore((state) => state.completeAllPointings);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
 
@@ -94,12 +93,8 @@ const PointingScreen = ({
   }, [currentProblem?.id]);
 
   const handleAdvance = useCallback(() => {
-    if (phase === 'CHILD_POINTINGS') {
-      finishChildProblem();
-    } else if (phase === 'MAIN_POINTINGS') {
-      goToAnalysis();
-    }
-  }, [phase, finishChildProblem, goToAnalysis]);
+    completeAllPointings();
+  }, [completeAllPointings]);
 
   const ctaLabel = phase === 'MAIN_POINTINGS' ? '학습 마무리' : '다음 문제';
 
