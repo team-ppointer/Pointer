@@ -82,7 +82,12 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
       );
       const ids = new Set<number>();
       for (const res of results) {
-        for (const id of (res.data as { scrappedPointingIds?: number[] })?.scrappedPointingIds ??
+        if (res.error || !res.data) {
+          // 하나라도 실패하면 불완전한 Set 을 반환하지 않고 throw →
+          // useQuery error 상태 → freshScrapIds undefined → pointing.isScrapped fallback
+          throw new Error('Failed to fetch scrap status for one or more problems');
+        }
+        for (const id of (res.data as { scrappedPointingIds?: number[] }).scrappedPointingIds ??
           []) {
           ids.add(id);
         }
@@ -139,14 +144,24 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
       toggleScrap.mutate(
         { pointingId },
         {
-          onSuccess: () => {
+          onSuccess: (data) => {
+            // mutationFn 이 client.POST 의 data 만 destructure 하므로,
+            // 서버 에러 시 data 가 undefined 로 resolve 될 수 있음 (throw 안 함).
+            if (!data) {
+              rightRef.current?.sendBookmarkResult({
+                sectionId,
+                bookmarked,
+                requestId,
+                success: false,
+              });
+              return;
+            }
             rightRef.current?.sendBookmarkResult({
               sectionId,
               bookmarked,
               requestId,
               success: true,
             });
-            // 재진입 시 fresh 데이터 보장
             void queryClient.invalidateQueries({
               queryKey: ['allPointingsScrapStatus'],
             });
