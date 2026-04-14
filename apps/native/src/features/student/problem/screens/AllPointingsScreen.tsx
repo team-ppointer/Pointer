@@ -8,7 +8,7 @@ import { XIcon } from 'lucide-react-native';
 import { ContentInset, Header } from '@components/common';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { type components } from '@schema';
-import { useGetScrapStatusById, useToggleScrapFromPointing } from '@apis/student';
+import { useToggleScrapFromPointing } from '@apis/student';
 
 import {
   PointerContentView,
@@ -56,16 +56,16 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
     navigation?.goBack();
   }, [navigation]);
 
-  const groupProblemId = group?.problem?.id ?? 0;
-  const { data: scrapStatus } = useGetScrapStatusById(groupProblemId, !!groupProblemId);
-
-  const scrappedPointingIds = useMemo(
-    () => new Set(scrapStatus?.scrappedPointingIds ?? []),
-    [scrapStatus]
-  );
-
   const leftSections = useMemo(() => (group ? buildAllPointingsLeftSections(group) : []), [group]);
   const joined = useMemo(() => (group ? joinPointingsForAnalysis(group) : []), [group]);
+
+  const scrappedPointingIds = useMemo(() => {
+    const ids = new Set<number>();
+    for (const { pointing } of joined) {
+      if (pointing.isScrapped) ids.add(pointing.id);
+    }
+    return ids;
+  }, [joined]);
   const rightSections = useMemo(
     () => buildAllPointingsRightSections({ joined, scrappedPointingIds }),
     [joined, scrappedPointingIds]
