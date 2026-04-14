@@ -43,7 +43,6 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
           appearsOnIndex={0}
           disappearsOnIndex={-1}
           pressBehavior='close'
-          enableTouchThrough={false}
           style={{ backgroundColor: 'transparent' }}
         />
       ),
@@ -127,7 +126,6 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
         enablePanDownToClose
         handleComponent={() => null}
         style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, ...shadow.bottomsheet }}
-        backgroundStyle={styles.sheetBackground}
         animatedIndex={animatedIndex}>
         <BottomSheetView
           style={{
@@ -150,11 +148,6 @@ const AnswerKeyboardSheet = forwardRef<BottomSheet, AnswerKeyboardSheetProps>(
 AnswerKeyboardSheet.displayName = 'AnswerKeyboardSheet';
 
 const styles = StyleSheet.create({
-  sheetBackground: {
-    backgroundColor: colors['gray-300'],
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
   choiceButtonShadow: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
