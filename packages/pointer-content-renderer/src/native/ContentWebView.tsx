@@ -34,6 +34,7 @@ export interface ContentWebViewHandle {
    * mutation result. WebView deduplicates stale replies via `requestId`.
    */
   sendBookmarkResult: (args: BookmarkResultArgs) => void;
+  scrollToSection: (sectionId: string) => void;
 }
 
 interface ContentWebViewProps {
@@ -78,6 +79,9 @@ export const ContentWebView = forwardRef<ContentWebViewHandle, ContentWebViewPro
       () => ({
         sendBookmarkResult: (args) => {
           sendToWebView({ type: 'bookmarkResult', ...args });
+        },
+        scrollToSection: (sectionId) => {
+          sendToWebView({ type: 'scrollToSection', sectionId });
         },
       }),
       [sendToWebView]
