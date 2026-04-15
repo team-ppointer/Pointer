@@ -37,7 +37,6 @@ import { colors } from '@theme/tokens';
 import ResultSheet from '../components/ResultSheet';
 import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
 import BottomActionBar from '../components/BottomActionBar';
-import ProblemViewer from '../components/ProblemViewer';
 import { PointerContentView } from '../components/PointerContentView';
 import { buildDocumentInit } from '../transforms/contentRendererTransforms';
 import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
