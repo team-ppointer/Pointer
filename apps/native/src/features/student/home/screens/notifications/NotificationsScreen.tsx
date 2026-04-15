@@ -4,7 +4,7 @@ import { View, Text, ScrollView, Alert } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react-native';
 
-import { AnimatedPressable, Container, NotificationItem } from '@components/common';
+import { AnimatedPressable, ContentInset, NotificationItem } from '@components/common';
 import { NoNotificationBellIcon } from '@components/system/icons';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import {
@@ -131,6 +131,7 @@ const NotificationScreen = () => {
         initWithResume(targetGroup, {
           publishId: parsed.id,
           publishAt: publishDetail.publishAt,
+          problemSetTitle: publishDetail.problemSet?.title,
         });
 
         const phase = useProblemSessionStore.getState().phase;
@@ -146,7 +147,7 @@ const NotificationScreen = () => {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
       <View className='mx-auto w-full'>
-        <Container className='gap-[10px] pt-[16px]'>
+        <ContentInset className='gap-[10px] pt-[16px]'>
           <Text className='text-20b text-gray-900'>공지</Text>
           {notices.map((notice) => (
             <NotificationItem
@@ -179,8 +180,8 @@ const NotificationScreen = () => {
               <Text className='text-14m text-gray-600'>공지사항이 없어요.</Text>
             </View>
           )}
-        </Container>
-        <Container className='gap-[10px] pt-[26px]'>
+        </ContentInset>
+        <ContentInset className='gap-[10px] pt-[26px]'>
           <View className='flex-row items-center justify-between'>
             <Text className='text-20b text-gray-900'>알림</Text>
             <AnimatedPressable
@@ -222,11 +223,11 @@ const NotificationScreen = () => {
               <Text className='text-20b text-gray-800'>받은 알림이 없어요.</Text>
             </View>
           )}
-        </Container>
+        </ContentInset>
       </View>
-      <Container className='flex-1 items-center justify-center gap-[10px] pt-[20px] pb-[100px]'>
+      <ContentInset className='flex-1 items-center justify-center gap-[10px] pt-[20px] pb-[100px]'>
         <Text className='text-14m text-gray-600'>7일 전 알림까지 확인할 수 있어요.</Text>
-      </Container>
+      </ContentInset>
     </ScrollView>
   );
 };

@@ -25,8 +25,7 @@ import {
 } from '../base';
 
 export interface AnswerBoxDropdownMenuProps
-  extends Omit<ButtonProps, 'type'>,
-    UseAnswerBoxDropdownMenuConfig {
+  extends Omit<ButtonProps, 'type'>, UseAnswerBoxDropdownMenuConfig {
   /**
    * Whether to render the dropdown menu in a portal
    * @default false

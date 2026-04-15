@@ -43,6 +43,7 @@ export const ImageUploadButton = React.forwardRef<HTMLButtonElement, ImageUpload
   (
     {
       editor: providedEditor,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       text,
       hideWhenUnavailable = false,
       onInserted,

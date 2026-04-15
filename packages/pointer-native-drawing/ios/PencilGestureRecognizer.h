@@ -9,9 +9,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface PencilTouchData : NSObject
 
 @property (nonatomic, readonly) NSArray<UITouch *> *coalescedTouches;
+@property (nonatomic, readonly) NSArray<UITouch *> *predictedTouches;
 @property (nonatomic, readonly) UIView *referenceView;
 
 - (instancetype)initWithCoalescedTouches:(NSArray<UITouch *> *)coalesced
+                       predictedTouches:(NSArray<UITouch *> *)predicted
                            referenceView:(UIView *)view;
 
 @end

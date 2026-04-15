@@ -5,7 +5,7 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
-import { Container, LoadingScreen } from '@/components/common';
+import { ContentInset, LoadingScreen } from '@/components/common';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 import ScrapHeader from '../components/Header/ScrapHeader';
@@ -124,7 +124,7 @@ const FolderScrapScreenContent = () => {
         />
       </SafeAreaView>
       <View className='bg-gray-100'>
-        <Container className='items-end gap-[10px] py-[10px]'>
+        <ContentInset className='items-end gap-[10px] py-[10px]'>
           <SortDropdown
             ordertype={'CONTENT'}
             orderValue={sortKey}
@@ -132,14 +132,14 @@ const FolderScrapScreenContent = () => {
             sortOrder={sortOrder}
             setSortOrder={setSortOrder}
           />
-        </Container>
-        <Container className='pb-[120px] pt-4'>
+        </ContentInset>
+        <ContentInset className='pt-4 pb-[120px]'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <ScrapGrid data={sortedData} reducerState={reducerState} dispatch={dispatch} />
           )}
-        </Container>
+        </ContentInset>
       </View>
     </View>
   );

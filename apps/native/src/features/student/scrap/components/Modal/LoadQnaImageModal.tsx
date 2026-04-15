@@ -4,7 +4,7 @@ import { Check } from 'lucide-react-native';
 
 import { colors } from '@/theme/tokens';
 import { useGetQnaFiles, useCreateScrapFromImage } from '@/apis';
-import { Container } from '@/components/common';
+import { ContentInset } from '@/components/common';
 
 import { SortDropdown } from '../Dropdown';
 import { type SortOrder, type UISortKey } from '../../utils/types';
@@ -90,7 +90,7 @@ export const LoadQnaImageModal = () => {
             handleComplete();
           }
         }}>
-        <Container className='items-end py-[10px]'>
+        <ContentInset className='items-end py-[10px]'>
           <SortDropdown
             ordertype='IMAGE'
             orderValue={sortKey}
@@ -106,8 +106,8 @@ export const LoadQnaImageModal = () => {
               checkIcon: '#FFF',
             }}
           />
-        </Container>
-        <Container className='flex-1 py-[10px]'>
+        </ContentInset>
+        <ContentInset className='flex-1 py-[10px]'>
           {isLoading && (
             <View className='items-center justify-center'>
               <Text className='text-white'>로딩 중...</Text>
@@ -170,7 +170,7 @@ export const LoadQnaImageModal = () => {
               }}
             />
           )}
-        </Container>
+        </ContentInset>
         <Modal visible={!!previewImage} transparent>
           <Pressable style={styles.previewBackdrop} onPress={() => setPreviewImage(null)}>
             {previewImage && (

@@ -1,11 +1,9 @@
-import { type Stroke } from './skia';
-
-// 기존 저장 데이터 호환용 로컬 타입
-type TextItem = { id: string; text: string; x: number; y: number; fontSize: number; color: string };
+import { type Stroke, type TextBoxData } from './skia';
 
 export interface HandwritingData {
   strokes: Stroke[];
-  texts: TextItem[];
+  texts: TextBoxData[];
+  lastColor?: string;
 }
 
 /**
@@ -14,10 +12,11 @@ export interface HandwritingData {
  * @param texts - 텍스트 아이템 배열
  * @returns Base64로 인코딩된 문자열
  */
-export function encodeHandwritingData(strokes: Stroke[], texts: TextItem[]): string {
+export function encodeHandwritingData(strokes: Stroke[], texts: TextBoxData[], lastColor?: string): string {
   const data: HandwritingData = {
     strokes: strokes || [],
     texts: texts || [],
+    ...(lastColor ? { lastColor } : {}),
   };
   const jsonString = JSON.stringify(data);
   const base64Data = btoa(unescape(encodeURIComponent(jsonString)));

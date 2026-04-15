@@ -1,6 +1,5 @@
 import React from 'react';
 import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { View } from 'react-native';
 
 import { HomeScreen } from '@features/student/home';
 import { ScrapScreen } from '@features/student/scrap';
@@ -9,17 +8,13 @@ import { QnaScreen } from '@features/student/qna';
 import { type StudentTabParamList } from './types';
 import MenuNavigator from './MenuNavigator';
 import MainTabBar from './components/MainTabBar';
-import HomeHeader from './components/HomeHeader';
 import { TabScreen, TabTransitionProvider } from './components/TabScreenTransition';
 
 const Tab = createBottomTabNavigator<StudentTabParamList>();
 
 const HomeWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Home'>) => (
   <TabScreen index={0}>
-    <View className='flex-1'>
-      <HomeHeader />
-      <HomeScreen />
-    </View>
+    <HomeScreen />
   </TabScreen>
 );
 

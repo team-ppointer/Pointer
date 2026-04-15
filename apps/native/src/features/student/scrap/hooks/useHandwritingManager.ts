@@ -10,16 +10,20 @@ export interface UseHandwritingManagerProps {
   scrapId: number;
   canvasRef: React.RefObject<DrawingCanvasRef | null>;
   hasUnsavedChanges: boolean;
+  strokeColor: string;
   onSaveSuccess?: () => void;
   onSaveError?: () => void;
+  onColorRestore?: (color: string) => void;
 }
 
 export function useHandwritingManager({
   scrapId,
   canvasRef,
   hasUnsavedChanges,
+  strokeColor,
   onSaveSuccess,
   onSaveError,
+  onColorRestore,
 }: UseHandwritingManagerProps) {
   const { data: handwritingData, isLoading } = useGetHandwriting(scrapId, !!scrapId);
   const { mutate: updateHandwriting, isPending: isSaving } = useUpdateHandwriting();
@@ -50,6 +54,12 @@ export function useHandwritingManager({
           try {
             const decodedData = decodeHandwritingData(handwritingData.data);
             canvasRef.current.setStrokes(decodedData.strokes);
+            if (decodedData.texts?.length > 0) {
+              canvasRef.current.setTextBoxes(decodedData.texts);
+            }
+            if (decodedData.lastColor) {
+              onColorRestore?.(decodedData.lastColor);
+            }
             lastSavedDataRef.current = handwritingData.data;
           } catch (error) {
             console.error('필기 데이터 로드 실패:', error);
@@ -72,9 +82,10 @@ export function useHandwritingManager({
       }
 
       const strokes = canvasRef.current.getStrokes();
+      const textBoxes = canvasRef.current.getTextBoxes();
 
       try {
-        const base64Data = encodeHandwritingData(strokes || [], []);
+        const base64Data = encodeHandwritingData(strokes || [], textBoxes || [], strokeColor);
 
         // 변경사항 없으면 저장 안 함
         if (base64Data === lastSavedDataRef.current) {

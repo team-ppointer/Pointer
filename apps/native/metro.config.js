@@ -16,19 +16,33 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
+// Force a single copy of React/RN so workspace packages (e.g. @repo/pointer-content-renderer)
+// resolve the same instance as the app. Prevents "Invalid hook call" in monorepo.
+const DEDUPE_MODULES = {
+  react: path.resolve(projectRoot, 'node_modules/react'),
+  'react-native': path.resolve(projectRoot, 'node_modules/react-native'),
+  'react-native-webview': path.resolve(projectRoot, 'node_modules/react-native-webview'),
+  'react-native-reanimated': path.resolve(projectRoot, 'node_modules/react-native-reanimated'),
+  'react-native-gesture-handler': path.resolve(
+    projectRoot,
+    'node_modules/react-native-gesture-handler'
+  ),
+};
+config.resolver.extraNodeModules = {
+  ...(config.resolver.extraNodeModules ?? {}),
+  ...DEDUPE_MODULES,
+};
+
+// WebView 용 HTML을 asset으로 다루기 위해 등록
+config.resolver.assetExts = [...config.resolver.assetExts, 'html'];
+
 // blockList에서 /dist\/.*/ 제거!
 // node_modules 안의 dist 폴더는 필요하므로, 프로젝트의 dist만 차단
 config.resolver.blockList = [
   /ios\/build\/.*/,
   /android\/build\/.*/,
-  /apps\/native\/dist\/.*/,  // 프로젝트 자체의 dist만 차단
+  /apps\/native\/dist\/.*/, // 프로젝트 자체의 dist만 차단
 ];
-
-// pnpm 모노레포에서 네이티브 싱글턴 모듈이 중복 번들링되지 않도록 단일 경로로 고정
-const singletonPkgs = ['react-native-reanimated', 'react-native-gesture-handler', 'react', 'react-native'];
-const singletonMap = Object.fromEntries(
-  singletonPkgs.map((pkg) => [pkg, path.dirname(require.resolve(`${pkg}/package.json`))])
-);
 
 const originalResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
@@ -45,10 +59,25 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     };
   }
 
-  // 싱글턴 패키지는 항상 apps/native 기준 경로로 resolve
-  const base = moduleName.split('/')[0];
-  if (singletonMap[base]) {
-    return { type: 'sourceFile', filePath: require.resolve(moduleName) };
+  // Force-dedupe React/RN regardless of which workspace package requests them.
+  // Prevents multiple React instances when packages resolve from different
+  // node_modules roots (monorepo + pnpm symlinks).
+  if (DEDUPE_MODULES[moduleName]) {
+    return context.resolveRequest(
+      { ...context, originModulePath: path.join(projectRoot, 'package.json') },
+      moduleName,
+      platform
+    );
+  }
+  // Handle sub-path imports like 'react/jsx-runtime' by redirecting the base.
+  for (const baseName of Object.keys(DEDUPE_MODULES)) {
+    if (moduleName.startsWith(`${baseName}/`)) {
+      return context.resolveRequest(
+        { ...context, originModulePath: path.join(projectRoot, 'package.json') },
+        moduleName,
+        platform
+      );
+    }
   }
 
   if (originalResolveRequest) {

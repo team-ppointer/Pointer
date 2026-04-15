@@ -4,6 +4,7 @@ import { runOnJS, useSharedValue } from "react-native-reanimated";
 import type { InputEvent, PointerType } from "../model/drawingTypes";
 import type { CancelReason, InputPhase } from "./inputTypes";
 import type { InputAdapter, InputAdapterConfig } from "./inputAdapterTypes";
+import { OneEuroFilter2D } from "../model/oneEuroFilter";
 
 const RNGH_POINTER_TYPE_MAP: Record<number, PointerType> = {
   0: "touch",
@@ -52,6 +53,9 @@ export const useRnghPanAdapter = ({
   const phaseShared = useSharedValue<InputPhase>("idle");
   const phaseRef = useRef<InputPhase>("idle");
 
+  // 1€ filter for 60Hz finger/RNGH input (noisier than 240Hz Apple Pencil)
+  const filterRef = useRef(new OneEuroFilter2D({ minCutoff: 3.0, beta: 0.01, dCutoff: 1.0 }));
+
   const eraserModeShared = useSharedValue(eraserMode);
   eraserModeShared.value = eraserMode;
   const pencilOnlyShared = useSharedValue(pencilOnly);
@@ -63,16 +67,19 @@ export const useRnghPanAdapter = ({
 
   const handleDrawStart = useCallback(
     (input: InputEvent) => {
+      filterRef.current.reset();
+      const f = filterRef.current.filter(input.x, input.y, input.timestamp);
       transitionPhase("began");
-      callbacksRef.current.onDrawStart(input);
+      callbacksRef.current.onDrawStart({ ...input, x: f.x, y: f.y });
     },
     [transitionPhase],
   );
 
   const handleDrawMove = useCallback(
     (input: InputEvent) => {
+      const f = filterRef.current.filter(input.x, input.y, input.timestamp);
       transitionPhase("active");
-      callbacksRef.current.onDrawMove(input);
+      callbacksRef.current.onDrawMove({ ...input, x: f.x, y: f.y });
     },
     [transitionPhase],
   );
@@ -116,11 +123,8 @@ export const useRnghPanAdapter = ({
         .maxPointers(1)
         .averageTouches(true)
         .minDistance(minDistance)
-        .onBegin((event) => {
+        .onBegin(() => {
           "worklet";
-          if (pencilOnlyShared.value && (event as any).pointerType === 0) {
-            return;
-          }
           runOnJS(handleInteractionBegin)();
         })
         .onStart((event) => {
@@ -133,12 +137,12 @@ export const useRnghPanAdapter = ({
           // derived from these timestamps will have ~1-4 ms jitter on the JS thread.
           const input = createInputEventFromRngh(event as unknown as RnghEventLike, Date.now());
 
+          phaseShared.value = "began";
+
           if (eraserModeShared.value) {
             runOnJS(handleEraseStart)(input);
             return;
           }
-
-          phaseShared.value = "began";
           runOnJS(handleDrawStart)(input);
         })
         .onUpdate((event) => {
@@ -148,31 +152,28 @@ export const useRnghPanAdapter = ({
           }
           const input = createInputEventFromRngh(event as unknown as RnghEventLike, Date.now());
 
+          phaseShared.value = "active";
+
           if (eraserModeShared.value) {
             runOnJS(handleEraseMove)(input);
             return;
           }
-
-          phaseShared.value = "active";
           runOnJS(handleDrawMove)(input);
         })
         .onEnd(() => {
           "worklet";
 
+          phaseShared.value = "ended";
+
           if (eraserModeShared.value) {
             return;
           }
-
-          phaseShared.value = "ended";
           runOnJS(handleDrawEnd)();
         })
-        .onFinalize((event) => {
+        .onFinalize(() => {
           "worklet";
-          if (pencilOnlyShared.value && (event as any).pointerType === 0) {
-            return;
-          }
 
-          if (phaseShared.value === "began" || phaseShared.value === "active") {
+          if (!eraserModeShared.value && (phaseShared.value === "began" || phaseShared.value === "active")) {
             phaseShared.value = "cancelled";
             runOnJS(handleDrawCancel)("gesture_failed" as CancelReason);
           }

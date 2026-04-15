@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Text, TextInput } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/features/student/scrap/components/Notification/Toast';
+import { PointingFeedbackQueueWiring } from '@/features/student/problem/services/PointingFeedbackQueueWiring';
 import { env } from '@utils';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { navigationRef } from '@/services/navigation';
@@ -48,6 +49,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <PointingFeedbackQueueWiring />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           {isReady && (

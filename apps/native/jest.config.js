@@ -1,0 +1,52 @@
+/** @type {import('jest').Config} */
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@assets/(.*)$': '<rootDir>/assets/$1',
+    '^@apis$': '<rootDir>/src/apis',
+    '^@apis/(.*)$': '<rootDir>/src/apis/$1',
+    '^@apis/student$': '<rootDir>/src/apis/controller/student',
+    '^@components$': '<rootDir>/src/components',
+    '^@components/(.*)$': '<rootDir>/src/components/$1',
+    '^@contexts$': '<rootDir>/src/contexts',
+    '^@contexts/(.*)$': '<rootDir>/src/contexts/$1',
+    '^@hooks$': '<rootDir>/src/hooks',
+    '^@hooks/(.*)$': '<rootDir>/src/hooks/$1',
+    '^@types$': '<rootDir>/src/types',
+    '^@schema$': '<rootDir>/src/types/api/schema.d.ts',
+    '^@utils$': '<rootDir>/src/utils',
+    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@theme$': '<rootDir>/src/theme',
+    '^@theme/(.*)$': '<rootDir>/src/theme/$1',
+    '^@config$': '<rootDir>/src/config',
+    '^@config/(.*)$': '<rootDir>/src/config/$1',
+    '^@navigation$': '<rootDir>/src/navigation',
+    '^@navigation/(.*)$': '<rootDir>/src/navigation/$1',
+    '^@stores$': '<rootDir>/src/stores',
+    '^@stores/(.*)$': '<rootDir>/src/stores/$1',
+    '^@features$': '<rootDir>/src/features',
+    '^@features/(.*)$': '<rootDir>/src/features/$1',
+  },
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          jsx: 'react-jsx',
+          esModuleInterop: true,
+          isolatedModules: true,
+          verbatimModuleSyntax: false,
+          target: 'es2020',
+          module: 'commonjs',
+          moduleResolution: 'node',
+        },
+        diagnostics: {
+          ignoreCodes: ['TS151001'],
+        },
+      },
+    ],
+  },
+};

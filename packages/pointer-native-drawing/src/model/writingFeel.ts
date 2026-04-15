@@ -1,4 +1,4 @@
-import type { StrokeSample, WritingFeelConfig } from './drawingTypes';
+import type { StrokeSample, WritingFeelConfig } from "./drawingTypes";
 
 /**
  * Returns true when the config produces a constant stroke width
@@ -14,14 +14,14 @@ export function isFixedWidthConfig(config: WritingFeelConfig): boolean {
 }
 
 export const DEFAULT_WRITING_FEEL_CONFIG: WritingFeelConfig = {
-  minWidth: 2.5,
-  maxWidth: 2.5,
-  pressureGamma: 1.0,
-  pressureWeight: 0.0,
-  velocityWeight: 0.0,
-  velocitySmoothing: 0.0,
-  velocityThinningK: 0.0,
-  widthSmoothing: 0.0,
+  minWidth: 0.9,
+  maxWidth: 3.6,
+  pressureGamma: 0.7,
+  pressureWeight: 0.8,
+  velocityWeight: 0.2,
+  velocitySmoothing: 0.18,
+  velocityThinningK: 0.22,
+  widthSmoothing: 0.32,
   tiltSensitivity: 0.0,
 };
 
@@ -34,7 +34,7 @@ export const DEFAULT_WRITING_FEEL_CONFIG: WritingFeelConfig = {
 export function computeVelocity(
   prev: StrokeSample,
   curr: StrokeSample,
-  smoothingAlpha = 0.15
+  smoothingAlpha = 0.15,
 ): { raw: number; smoothed: number } {
   const dt = curr.timestamp - prev.timestamp;
   if (dt <= 0) {
@@ -62,7 +62,7 @@ export function computeVelocity(
 export function resolveDynamicStrokeWidth(
   sample: StrokeSample,
   config: WritingFeelConfig,
-  prevSmoothedWidth?: number
+  prevSmoothedWidth?: number,
 ): number {
   const {
     minWidth,
@@ -93,13 +93,18 @@ export function resolveDynamicStrokeWidth(
   const totalWeight = pressureWeight + velocityWeight;
   const combined =
     totalWeight > 0
-      ? (pressureFactor * pressureWeight + velocityFactor * velocityWeight) / totalWeight
+      ? (pressureFactor * pressureWeight + velocityFactor * velocityWeight) /
+        totalWeight
       : 1;
 
   let rawWidth = minWidth + range * Math.max(0, Math.min(1, combined));
 
   // 4. Tilt magnification (opt-in, off by default)
-  if (tiltSensitivity > 0 && sample.tiltX !== undefined && sample.tiltY !== undefined) {
+  if (
+    tiltSensitivity > 0 &&
+    sample.tiltX !== undefined &&
+    sample.tiltY !== undefined
+  ) {
     const tiltMag = Math.hypot(sample.tiltX, sample.tiltY);
     rawWidth *= 1 + tiltSensitivity * tiltMag;
     rawWidth = Math.min(rawWidth, maxWidth * 1.5);

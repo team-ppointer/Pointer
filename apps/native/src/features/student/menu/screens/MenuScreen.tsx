@@ -7,7 +7,7 @@ import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native
 
 import { TanstackQueryClient, useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
-import { Container } from '@components/common';
+import { ContentInset, Header } from '@components/common';
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
 
 import {
@@ -52,10 +52,8 @@ const MenuScreen = () => {
 
   return (
     <View className='w-full flex-1'>
-      <Container className='h-[52px] justify-center bg-gray-100 py-[2px]'>
-        <Text className='text-20b text-black'>전체 메뉴</Text>
-      </Container>
-      <Container className='flex-1'>
+      <Header title='전체 메뉴' />
+      <ContentInset className='flex-1'>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName='pb-[40px]'>
           <View className='h-[20px]' />
           <View className='gap-[10px]'>
@@ -118,7 +116,7 @@ const MenuScreen = () => {
             </MenuSection>
           </View>
         </ScrollView>
-      </Container>
+      </ContentInset>
       <ConfirmationModal
         visible={isLogoutVisible}
         onClose={() => setIsLogoutVisible(false)}

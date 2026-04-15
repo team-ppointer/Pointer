@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Separator } from '../separator';
 import './toolbar.scss';
 import { cn } from '../../../utils';
-import { useMenuNavigation,  useComposedRef } from '../../../hooks';
+import { useMenuNavigation, useComposedRef } from '../../../hooks';
 
 type BaseProps = React.HTMLAttributes<HTMLDivElement>;
 

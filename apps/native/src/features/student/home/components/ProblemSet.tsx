@@ -200,6 +200,7 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
       initWithResume(group, {
         publishId,
         publishAt,
+        problemSetTitle: title,
       });
       const phase = useProblemSessionStore.getState().phase;
       navigation.navigate(getInitialScreenForPhase(phase));

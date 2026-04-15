@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Type } from 'lucide-react-native';
+import { Type, Undo2, Redo2 } from 'lucide-react-native';
 
 import { colors } from '@theme/tokens';
 import { PencilFilledIcon, EraserFilledIcon } from '@components/system/icons';
@@ -11,16 +11,22 @@ import { IconButton } from '../../../problem/components/WritingArea';
 export interface DrawingToolbarProps {
   // Mode selection
   isEraserMode: boolean;
-  isTextMode: boolean;
+  isTextBoxMode: boolean;
   onPenModePress: () => void;
   onEraserModePress: () => void;
-  onTextModePress: () => void;
+  onTextBoxModePress: () => void;
 
   // Size selection
   strokeWidth: number;
   eraserSize: number;
   onStrokeWidthChange: (size: number) => void;
   onEraserSizeChange: (size: number) => void;
+
+  // Undo/Redo
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
 
   // Narrow layout flag (drawingAreaWidth < 380)
   isNarrow?: boolean;
@@ -31,18 +37,22 @@ const ERASER_SIZES = [22, 14, 8];
 
 export const DrawingToolbar = ({
   isEraserMode,
-  isTextMode,
+  isTextBoxMode,
   onPenModePress,
   onEraserModePress,
-  onTextModePress,
+  onTextBoxModePress,
   strokeWidth,
   eraserSize,
   onStrokeWidthChange,
   onEraserSizeChange,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
   isNarrow = false,
 }: DrawingToolbarProps) => {
   const SizeSelectorComponent = (
-    <View pointerEvents={isTextMode ? 'none' : 'auto'} style={{ opacity: isTextMode ? 0 : 1 }}>
+    <View pointerEvents={isTextBoxMode ? 'none' : 'auto'} style={{ opacity: isTextBoxMode ? 0 : 1 }}>
       {isEraserMode ? (
         <SizeSelector
           type='eraser'
@@ -71,7 +81,7 @@ export const DrawingToolbar = ({
         <View className='flex-row items-center gap-[10px]'>
           <IconButton
             icon={PencilFilledIcon}
-            disabled={isTextMode || isEraserMode}
+            disabled={isTextBoxMode || isEraserMode}
             backgroundColor='bg-blue-200'
             disabledBackgroundColor='bg-gray-100'
             iconColor={colors['primary-500']}
@@ -93,18 +103,47 @@ export const DrawingToolbar = ({
           />
           <IconButton
             icon={Type}
-            disabled={!isTextMode}
+            disabled={!isTextBoxMode}
             backgroundColor='bg-blue-200'
             disabledBackgroundColor='bg-gray-100'
             iconColor={colors['primary-500']}
             disabledColor={colors['gray-700']}
-            onPress={onTextModePress}
+            onPress={onTextBoxModePress}
+            size={36}
+            radius={8}
+          />
+        </View>
+
+        <View className='h-[22px] w-[2px] bg-gray-500' />
+
+        {/* Undo/Redo */}
+        <View className='flex-row items-center gap-[6px]'>
+          <IconButton
+            icon={Undo2}
+            disabled={!canUndo}
+            backgroundColor='bg-gray-100'
+            disabledBackgroundColor='bg-gray-100'
+            iconColor={colors['gray-900']}
+            disabledColor={colors['gray-500']}
+            onPress={onUndo}
+            size={36}
+            radius={8}
+          />
+          <IconButton
+            icon={Redo2}
+            disabled={!canRedo}
+            backgroundColor='bg-gray-100'
+            disabledBackgroundColor='bg-gray-100'
+            iconColor={colors['gray-900']}
+            disabledColor={colors['gray-500']}
+            onPress={onRedo}
             size={36}
             radius={8}
           />
         </View>
 
         {!isNarrow && <View className='h-[22px] w-[2px] bg-gray-500' />}
+
 
         {/* Size Selection - 너비가 380 이상일 때만 첫 번째 줄에 표시 */}
         {!isNarrow && (

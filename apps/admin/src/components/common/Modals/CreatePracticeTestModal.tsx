@@ -54,7 +54,7 @@ const CreatePracticeTestModal = ({ onClose }: Props) => {
       {/* Header */}
       <div className='flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-6 py-5'>
         <div className='flex items-center gap-3'>
-          <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-main)] to-[var(--color-main)]/80 shadow-lg shadow-[var(--color-main)]/20'>
+          <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-main)] to-[var(--color-main)]/80 shadow-[var(--color-main)]/20 shadow-lg'>
             <Plus className='h-5 w-5 text-white' />
           </div>
           <div>
@@ -100,8 +100,7 @@ const CreatePracticeTestModal = ({ onClose }: Props) => {
 
             <div className='flex-1'>
               <label className='mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700'>
-                <Clock className='h-4 w-4 text-[var(--color-main)]' />
-                월
+                <Clock className='h-4 w-4 text-[var(--color-main)]' />월
               </label>
               <div className='relative'>
                 <Input

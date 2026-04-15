@@ -1,9 +1,11 @@
 import { useReducer, useCallback } from 'react';
+import type { ActiveTool } from '@repo/pointer-native-drawing';
 
-export type DrawingMode = 'pen' | 'eraser' | 'text';
+export type DrawingMode = ActiveTool;
 
 export interface DrawingState {
   mode: DrawingMode;
+  strokeColor: string;
   strokeWidth: number;
   eraserSize: number;
   hasUnsavedChanges: boolean;
@@ -11,14 +13,18 @@ export interface DrawingState {
 
 type DrawingAction =
   | { type: 'SET_MODE'; mode: DrawingMode }
+  | { type: 'SET_STROKE_COLOR'; color: string }
   | { type: 'SET_STROKE_WIDTH'; width: number }
   | { type: 'SET_ERASER_SIZE'; size: number }
   | { type: 'SET_UNSAVED_CHANGES'; hasChanges: boolean }
   | { type: 'MARK_AS_SAVED' }
   | { type: 'RESET' };
 
+const DEFAULT_STROKE_COLOR = '#1E1E21';
+
 const initialState: DrawingState = {
   mode: 'pen',
+  strokeColor: DEFAULT_STROKE_COLOR,
   strokeWidth: 2,
   eraserSize: 22,
   hasUnsavedChanges: false,
@@ -28,6 +34,8 @@ function drawingReducer(state: DrawingState, action: DrawingAction): DrawingStat
   switch (action.type) {
     case 'SET_MODE':
       return { ...state, mode: action.mode };
+    case 'SET_STROKE_COLOR':
+      return { ...state, strokeColor: action.color };
     case 'SET_STROKE_WIDTH':
       return { ...state, strokeWidth: action.width };
     case 'SET_ERASER_SIZE':
@@ -54,8 +62,12 @@ export function useDrawingState() {
     dispatch({ type: 'SET_MODE', mode: 'eraser' });
   }, []);
 
-  const setTextMode = useCallback(() => {
-    dispatch({ type: 'SET_MODE', mode: 'text' });
+  const setTextBoxMode = useCallback(() => {
+    dispatch({ type: 'SET_MODE', mode: 'textbox' });
+  }, []);
+
+  const setStrokeColor = useCallback((color: string) => {
+    dispatch({ type: 'SET_STROKE_COLOR', color });
   }, []);
 
   const setStrokeWidth = useCallback((width: number) => {
@@ -79,7 +91,8 @@ export function useDrawingState() {
     mode: state.mode,
     isPenMode: state.mode === 'pen',
     isEraserMode: state.mode === 'eraser',
-    isTextMode: state.mode === 'text',
+    isTextBoxMode: state.mode === 'textbox',
+    strokeColor: state.strokeColor,
     strokeWidth: state.strokeWidth,
     eraserSize: state.eraserSize,
     hasUnsavedChanges: state.hasUnsavedChanges,
@@ -87,7 +100,8 @@ export function useDrawingState() {
     // Actions
     setPenMode,
     setEraserMode,
-    setTextMode,
+    setTextBoxMode,
+    setStrokeColor,
     setStrokeWidth,
     setEraserSize,
     markAsSaved,

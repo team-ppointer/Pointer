@@ -139,6 +139,7 @@ const ScrapDetailScreen = () => {
 
   // Refs
   const canvasRef = useRef<DrawingCanvasRef>(null);
+  const [undoState, setUndoState] = useState({ canUndo: false, canRedo: false });
 
   // Custom Hooks
   const drawingState = useDrawingState();
@@ -189,9 +190,11 @@ const ScrapDetailScreen = () => {
     scrapId,
     canvasRef,
     hasUnsavedChanges: drawingState.hasUnsavedChanges,
+    strokeColor: drawingState.strokeColor,
     onSaveSuccess: () => {
       drawingState.markAsSaved();
     },
+    onColorRestore: drawingState.setStrokeColor,
   });
 
   // Tab management
@@ -613,7 +616,7 @@ const ScrapDetailScreen = () => {
               <View style={{ flex: 1 }}>
                 <DrawingToolbar
                   isEraserMode={drawingState.isEraserMode}
-                  isTextMode={drawingState.isTextMode}
+                  isTextBoxMode={drawingState.isTextBoxMode}
                   onPenModePress={drawingState.setPenMode}
                   onEraserModePress={() => {
                     if (drawingState.isEraserMode) {
@@ -622,20 +625,27 @@ const ScrapDetailScreen = () => {
                       drawingState.setEraserMode();
                     }
                   }}
-                  onTextModePress={drawingState.setTextMode}
+                  onTextBoxModePress={drawingState.setTextBoxMode}
                   strokeWidth={drawingState.strokeWidth}
                   eraserSize={drawingState.eraserSize}
                   onStrokeWidthChange={drawingState.setStrokeWidth}
                   onEraserSizeChange={drawingState.setEraserSize}
+                  canUndo={undoState.canUndo}
+                  canRedo={undoState.canRedo}
+                  onUndo={() => canvasRef.current?.undo()}
+                  onRedo={() => canvasRef.current?.redo()}
                   isNarrow={isNarrow}
                 />
                 <DrawingCanvas
                   key={`drawing-canvas-${scrapId}`}
                   ref={canvasRef}
-                  strokeColor='#1E1E21'
+                  strokeColor={drawingState.strokeColor}
                   strokeWidth={drawingState.strokeWidth}
-                  eraserMode={drawingState.isEraserMode}
+                  activeTool={drawingState.mode}
                   eraserSize={drawingState.eraserSize}
+                  pencilOnly
+                  enableZoomPan
+                  onUndoStateChange={setUndoState}
                 />
               </View>
             </KeyboardAvoidingView>

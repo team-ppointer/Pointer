@@ -15,7 +15,6 @@ export const LIVE_FULL_REBUILD_POINT_THRESHOLD = 240;
 export const createCommittedPicture = (
   paths: SkPath[],
   strokes: ReadonlyArray<ReadonlyStroke>,
-  fixedWidthMode = false,
 ): SkPicture | null => {
   if (paths.length === 0) {
     return null;
@@ -25,6 +24,7 @@ export const createCommittedPicture = (
   const canvas = recorder.beginRecording();
   const paint = Skia.Paint();
   paint.setAntiAlias(true);
+  paint.setStyle(PaintStyle.Stroke);
   paint.setStrokeJoin(StrokeJoin.Round);
 
   for (let i = 0; i < paths.length; i++) {
@@ -34,15 +34,11 @@ export const createCommittedPicture = (
       continue;
     }
 
-    const hasVariableWidth = !fixedWidthMode && stroke.samples && stroke.samples.length > 0;
-    paint.setStyle(hasVariableWidth ? PaintStyle.Fill : PaintStyle.Stroke);
     paint.setColor(Skia.Color(stroke.color));
-    if (!hasVariableWidth) {
-      paint.setStrokeWidth(stroke.width);
-      paint.setStrokeCap(
-        stroke.strokeCap === "butt" ? StrokeCap.Butt : StrokeCap.Round,
-      );
-    }
+    paint.setStrokeWidth(stroke.width);
+    paint.setStrokeCap(
+      stroke.strokeCap === "butt" ? StrokeCap.Butt : StrokeCap.Round,
+    );
     paint.setAlphaf(stroke.opacity ?? 1);
     canvas.drawPath(path, paint);
   }

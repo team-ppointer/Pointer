@@ -375,10 +375,7 @@ export function PointerEditor({
                 : {}),
             }}>
             {mobileView === 'main' ? (
-              <MainToolbarContent
-                ocrApiCall={ocrApiCall}
-                mathInstanceId={mathInstanceId}
-              />
+              <MainToolbarContent ocrApiCall={ocrApiCall} mathInstanceId={mathInstanceId} />
             ) : (
               <MobileToolbarContent
                 type={mobileView === 'highlighter' ? 'highlighter' : 'link'}
@@ -487,12 +484,22 @@ export function PointerEditor({
                     const pPos = previewPosRef.current;
                     const nodeAtPos = editor.state.doc.nodeAt(pPos);
                     if (nodeAtPos && nodeAtPos.type.name === 'inlineMath') {
-                      editor.chain().deleteRange({ from: pPos, to: pPos + nodeAtPos.nodeSize }).focus().run();
+                      editor
+                        .chain()
+                        .deleteRange({ from: pPos, to: pPos + nodeAtPos.nodeSize })
+                        .focus()
+                        .run();
                     }
                   }
                   previewInsertedRef.current = false;
                   previewPosRef.current = null;
-                  setMathState({ mode: 'create', open: false, latex: '', pos: null, anchorRect: null });
+                  setMathState({
+                    mode: 'create',
+                    open: false,
+                    latex: '',
+                    pos: null,
+                    anchorRect: null,
+                  });
                   return;
                 }
 
@@ -536,7 +543,13 @@ export function PointerEditor({
                 }
                 previewInsertedRef.current = false;
                 previewPosRef.current = null;
-                setMathState({ mode: 'create', open: false, latex: '', pos: null, anchorRect: null });
+                setMathState({
+                  mode: 'create',
+                  open: false,
+                  latex: '',
+                  pos: null,
+                  anchorRect: null,
+                });
                 return;
               }
 

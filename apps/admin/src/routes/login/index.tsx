@@ -4,7 +4,7 @@ import { Input } from '@components';
 import { useNavigation } from '@hooks';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { tokenStorage } from '@utils';
-import { Mail, Lock, LogIn, Sparkles, Shield } from 'lucide-react';
+import { Mail, Lock, LogIn } from 'lucide-react';
 
 export const Route = createFileRoute('/login/')({
   beforeLoad: async () => {

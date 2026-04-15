@@ -14,6 +14,12 @@ type StylusTouchPayload = {
   forces: readonly number[];
   altitudes: readonly number[];
   azimuths: readonly number[];
+  predictedXs: readonly number[];
+  predictedYs: readonly number[];
+  predictedTimestamps: readonly number[];
+  predictedForces: readonly number[];
+  predictedAltitudes: readonly number[];
+  predictedAzimuths: readonly number[];
 };
 
 const RAD_TO_DEG = 180 / Math.PI;
@@ -34,22 +40,39 @@ function uptimeMsToEpochMs(uptimeMs: number): number {
   return uptimeMs + BOOT_TIME_OFFSET_MS;
 }
 
-function unpackInputEvents(payload: StylusTouchPayload): InputEvent[] {
-  const { xs, ys, timestamps, forces } = payload;
+function unpackTouches(
+  xs: readonly number[], ys: readonly number[],
+  timestamps: readonly number[], forces: readonly number[],
+  altitudes: readonly number[], azimuths: readonly number[],
+): InputEvent[] {
   const count = xs.length;
   const events: InputEvent[] = new Array(count);
 
   for (let i = 0; i < count; i++) {
+    const alt = altitudes[i];
+    const az = azimuths[i];
+    let tiltX: number, tiltY: number;
+
+    if (alt >= Math.PI / 2) {
+      tiltX = 0;
+      tiltY = 0;
+    } else if (alt <= 0) {
+      tiltX = Math.round(Math.atan2(Math.cos(az), 0) * RAD_TO_DEG);
+      tiltY = Math.round(Math.atan2(Math.sin(az), 0) * RAD_TO_DEG);
+    } else {
+      const tanAlt = Math.tan(alt);
+      tiltX = Math.round(Math.atan2(Math.cos(az), tanAlt) * RAD_TO_DEG);
+      tiltY = Math.round(Math.atan2(Math.sin(az), tanAlt) * RAD_TO_DEG);
+    }
+
     events[i] = {
       x: xs[i],
       y: ys[i],
       timestamp: uptimeMsToEpochMs(timestamps[i]),
       pressure: forces[i],
       pointerType: "pen",
-      // tilt computation skipped — tiltSensitivity=0 in fixed-width mode.
-      // Re-enable when variable-width or tilt-based rendering is needed:
-      // tiltX: computeTiltX(altitudes[i], azimuths[i]),
-      // tiltY: computeTiltY(altitudes[i], azimuths[i]),
+      tiltX,
+      tiltY,
     };
   }
 
@@ -73,11 +96,23 @@ export function useNativeStylusAdapter(
     (event: { nativeEvent: StylusTouchPayload }) => {
       const { nativeEvent } = event;
       const { callbacks, eraserMode } = configRef.current;
-      const inputs = unpackInputEvents(nativeEvent);
+      const inputs = unpackTouches(
+        nativeEvent.xs, nativeEvent.ys, nativeEvent.timestamps,
+        nativeEvent.forces, nativeEvent.altitudes, nativeEvent.azimuths,
+      );
 
       if (inputs.length === 0) {
         return;
       }
+
+      // Unpack predicted touches (rendering only, not committed to stroke)
+      const predicted = nativeEvent.predictedXs.length > 0
+        ? unpackTouches(
+            nativeEvent.predictedXs, nativeEvent.predictedYs,
+            nativeEvent.predictedTimestamps, nativeEvent.predictedForces,
+            nativeEvent.predictedAltitudes, nativeEvent.predictedAzimuths,
+          )
+        : undefined;
 
       switch (nativeEvent.phase) {
         case 0: {
@@ -95,6 +130,7 @@ export function useNativeStylusAdapter(
             for (let i = 1; i < inputs.length; i++) {
               callbacks.onDrawMove(inputs[i]);
             }
+            if (predicted) callbacks.onPredictedSamples?.(predicted);
           }
           break;
         }
@@ -110,6 +146,7 @@ export function useNativeStylusAdapter(
             for (let i = 0; i < inputs.length; i++) {
               callbacks.onDrawMove(inputs[i]);
             }
+            if (predicted) callbacks.onPredictedSamples?.(predicted);
           }
           break;
         }

@@ -1,5 +1,3 @@
-/// <reference path="../types/katex-auto-render.d.ts" />
-
 import '../index.css';
 import 'katex/dist/katex.min.css';
 import * as React from 'react';

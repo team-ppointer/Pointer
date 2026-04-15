@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, ScrollView, Linking, AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 
-import { Container } from '@components/common';
+import { ContentInset } from '@components/common';
 import { usePutAllowPush, useGetPushSetting } from '@apis';
 import { showToast } from '@features/student/scrap/components/Notification';
 
@@ -211,7 +211,7 @@ const NotificationSettingsScreen = () => {
   return (
     <ScreenLayout title='알림 설정'>
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
-        <Container className='gap-[16px]'>
+        <ContentInset className='gap-[16px]'>
           <SettingsToggleItem
             title='푸시 알림'
             value={pushEnabled}
@@ -243,7 +243,7 @@ const NotificationSettingsScreen = () => {
             onValueChange={handleEventNotificationChange}
             disabled={!pushEnabled}
           />
-        </Container>
+        </ContentInset>
       </ScrollView>
     </ScreenLayout>
   );

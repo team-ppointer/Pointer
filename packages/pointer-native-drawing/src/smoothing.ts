@@ -9,9 +9,22 @@ import {
   resolveDynamicStrokeWidth,
   DEFAULT_WRITING_FEEL_CONFIG,
 } from "./model/writingFeel";
+import {
+  hasNativePathBuilder,
+  nativeBuildSmoothPath,
+  nativeBuildCenterlinePath,
+  nativeBuildVariableWidthPath,
+} from "./nativePathBuilder";
 
 /** Minimum knot interval below which we fall back to uniform 1/6 control points */
 const CENTRIPETAL_EPSILON = 1e-6;
+
+/**
+ * Centerline smoothing blend factor.
+ * 0 = no smoothing, 1 = full kernel average replacement.
+ * Single source of truth — passed to C++ via JSI parameter.
+ */
+export const CENTERLINE_SMOOTHING_FACTOR = 0.3;
 
 /** Kappa constant for quarter-circle cubic Bézier approximation */
 const KAPPA = 0.5523;
@@ -87,6 +100,11 @@ export function centripetalControlPointsMut(
 export function buildSmoothPath(
   points: ReadonlyArray<ReadonlyPoint>,
 ): SkPath {
+  if (hasNativePathBuilder()) {
+    const native = nativeBuildSmoothPath(points);
+    if (native) return native;
+  }
+
   const path = Skia.Path.Make();
   if (points.length === 0) return path;
 
@@ -125,6 +143,67 @@ export function buildSmoothPath(
     ) {
       continue;
     }
+
+    const cp = centripetalControlPointsMut(previous, current, next, nextNext);
+    path.cubicTo(cp.cp1x, cp.cp1y, cp.cp2x, cp.cp2y, next.x, next.y);
+  }
+
+  return path;
+}
+
+// ---------------------------------------------------------------------------
+// buildCenterlinePath — resample + smooth + Catmull-Rom (fixed-width)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a smooth centerline path from StrokeSamples using the full
+ * resample → smooth → Catmull-Rom pipeline. Produces higher quality
+ * output than `buildSmoothPath` by normalizing sample density and
+ * applying centerline smoothing.
+ *
+ * @param targetSpacing Arc-length spacing in logical points. Lower = smoother.
+ *   Use `3.0 / PixelRatio.get()` for DPI-aware spacing.
+ */
+export function buildCenterlinePath(
+  samples: ReadonlyArray<ReadonlyStrokeSample>,
+  config: WritingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
+  targetSpacing = 3.0,
+  smoothingFactor = CENTERLINE_SMOOTHING_FACTOR,
+): SkPath {
+  if (hasNativePathBuilder()) {
+    const native = nativeBuildCenterlinePath(samples, config, targetSpacing, smoothingFactor);
+    if (native) return native;
+  }
+
+  const path = Skia.Path.Make();
+  if (samples.length === 0) return path;
+
+  if (samples.length === 1) {
+    path.moveTo(samples[0].x, samples[0].y);
+    return path;
+  }
+
+  const resampled = resampleByArcLength(samples, targetSpacing);
+  smoothCenterline(resampled, smoothingFactor);
+
+  path.moveTo(resampled[0].x, resampled[0].y);
+
+  if (resampled.length === 2) {
+    path.lineTo(resampled[1].x, resampled[1].y);
+    return path;
+  }
+
+  for (let i = 0; i < resampled.length - 1; i++) {
+    const current = resampled[i];
+    const next = resampled[i + 1];
+    const previous =
+      i > 0
+        ? resampled[i - 1]
+        : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
+    const nextNext =
+      i + 2 < resampled.length
+        ? resampled[i + 2]
+        : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
 
     const cp = centripetalControlPointsMut(previous, current, next, nextNext);
     path.cubicTo(cp.cp1x, cp.cp1y, cp.cp2x, cp.cp2y, next.x, next.y);
@@ -203,18 +282,8 @@ export function resampleByArcLength(
     nextDist += targetSpacing;
   }
 
-  // Always include the last sample — but merge if the tail segment is too short
-  const lastSample = { ...samples[samples.length - 1] };
-  if (result.length >= 2) {
-    const prev = result[result.length - 1];
-    const tailDist = Math.hypot(lastSample.x - prev.x, lastSample.y - prev.y);
-    if (tailDist < targetSpacing * 0.5) {
-      // Replace the last resampled point instead of appending a micro-segment
-      result[result.length - 1] = lastSample;
-      return result;
-    }
-  }
-  result.push(lastSample);
+  // Always include the last sample
+  result.push({ ...samples[samples.length - 1] });
   return result;
 }
 
@@ -377,10 +446,9 @@ function applyTaper(
 /**
  * Append a semicircle cap at `(cx, cy)` with the given outward tangent and radius.
  * Assumes the path cursor is already at the "from" point
- * (center + normal * r, where normal is the CCW rotation of the tangent).
+ * (center + normal * r, where normal is 90° CW from tangent).
  *
- * from = center + normal × r  (left edge of the stroke)
- * to   = center − normal × r  (right edge of the stroke)
+ * Draws CW: from → tip → to (center − normal * r).
  */
 function addRoundCap(
   path: SkPath,
@@ -390,9 +458,9 @@ function addRoundCap(
   ty: number,
   r: number,
 ): void {
-  // Normal: 90° CCW from tangent (matches edge normal convention)
-  const nx = -ty;
-  const ny = tx;
+  // Normal: 90° CW from tangent
+  const nx = ty;
+  const ny = -tx;
 
   const k = KAPPA * r;
 
@@ -502,19 +570,18 @@ function endpointTangent(
 ): { tx: number; ty: number } {
   if (pts.length < 2) return { tx: 1, ty: 0 };
 
-  // Use a longer baseline (up to 3 samples) for a more stable tangent direction.
-  // With 3px arc-length resampling this gives ~9px baseline instead of ≤3px.
-  const reach = Math.min(3, pts.length - 1);
-
   let dx: number;
   let dy: number;
   if (end === "start") {
-    dx = pts[0].x - pts[reach].x;
-    dy = pts[0].y - pts[reach].y;
+    dx = pts[1].x - pts[0].x;
+    dy = pts[1].y - pts[0].y;
+    // Flip: outward for start cap points backward
+    dx = -dx;
+    dy = -dy;
   } else {
     const n = pts.length;
-    dx = pts[n - 1].x - pts[n - 1 - reach].x;
-    dy = pts[n - 1].y - pts[n - 1 - reach].y;
+    dx = pts[n - 1].x - pts[n - 2].x;
+    dy = pts[n - 1].y - pts[n - 2].y;
   }
 
   const len = Math.hypot(dx, dy);
@@ -562,13 +629,31 @@ export type PathBuildState = {
  *  9. Semicircle caps at start/end
  *  10. Close path
  */
+/**
+ * @deprecated Variable-width rendering is deprecated. Use `buildSmoothPath` for
+ * fixed-width centerline rendering instead. This function is preserved for
+ * future reactivation but is no longer called by the renderer.
+ */
 export function buildVariableWidthPath(
   samples: ReadonlyArray<ReadonlyStrokeSample>,
   config: WritingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
-  fallbackWidth = 2.5,
   state?: PathBuildState,
   taper?: { start?: boolean; end?: boolean },
 ): SkPath {
+  if (hasNativePathBuilder()) {
+    const native = nativeBuildVariableWidthPath(
+      samples,
+      config,
+      state,
+      taper?.start ?? true,
+      taper?.end ?? true,
+    );
+    if (native) {
+      if (state) state.lastSmoothedWidth = native.lastSmoothedWidth;
+      return native.path;
+    }
+  }
+
   const path = Skia.Path.Make();
   if (samples.length === 0) return path;
 
@@ -579,7 +664,7 @@ export function buildVariableWidthPath(
     return path;
   }
 
-  // Two-point stroke: minimal path with round caps
+  // Two-point stroke: minimal path
   if (samples.length === 2) {
     const w0 = resolveDynamicStrokeWidth(samples[0], config) / 2;
     const w1 = resolveDynamicStrokeWidth(samples[1], config) / 2;
@@ -588,14 +673,11 @@ export function buildVariableWidthPath(
     const len = Math.hypot(dx, dy) || 1;
     const nx = -dy / len;
     const ny = dx / len;
-    const tx = dx / len;
-    const ty = dy / len;
 
     path.moveTo(samples[0].x + nx * w0, samples[0].y + ny * w0);
     path.lineTo(samples[1].x + nx * w1, samples[1].y + ny * w1);
-    addRoundCap(path, samples[1].x, samples[1].y, tx, ty, w1);
+    path.lineTo(samples[1].x - nx * w1, samples[1].y - ny * w1);
     path.lineTo(samples[0].x - nx * w0, samples[0].y - ny * w0);
-    addRoundCap(path, samples[0].x, samples[0].y, -tx, -ty, w0);
     path.close();
     return path;
   }
@@ -627,31 +709,18 @@ export function buildVariableWidthPath(
     state.lastSmoothedWidth = prevSmoothedWidth;
   }
 
-  // --- Step 5: Taper (disabled — round caps handle end shape) ---
-  // TODO: re-enable taper when pressure-based natural fade is needed
-  // const doStartTaper = taper?.start ?? true;
-  // const doEndTaper = taper?.end ?? true;
-  // applyTaper(halfWidths, 4, 0.15, doStartTaper, doEndTaper);
-  // const MIN_CAP_FRACTION = 0.4;
-  // if (doStartTaper) {
-  //   halfWidths[0] = Math.max(halfWidths[0], preStartHW * MIN_CAP_FRACTION);
-  // }
-  // if (doEndTaper) {
-  //   halfWidths[halfWidths.length - 1] = Math.max(halfWidths[halfWidths.length - 1], preEndHW * MIN_CAP_FRACTION);
-  // }
+  // --- Step 5: Taper ---
+  applyTaper(halfWidths, 4, 0.15, taper?.start ?? true, taper?.end ?? true);
 
   // --- Step 6+7: Compute normals inline & offset to left/right edges ---
   const leftEdge: { x: number; y: number }[] = [];
   const rightEdge: { x: number; y: number }[] = [];
   let lastNx = 0, lastNy = 1;
 
-  const nPts = resampled.length;
-  const normalReach = Math.min(3, nPts - 1);
-  for (let i = 0; i < nPts; i++) {
+  for (let i = 0; i < resampled.length; i++) {
     const s = resampled[i];
-    // Use longer baseline at endpoints for stable normals (matches endpointTangent reach)
-    const prev = i === 0 ? s : resampled[i === nPts - 1 ? Math.max(0, i - normalReach) : i - 1];
-    const next = i === nPts - 1 ? s : resampled[i === 0 ? Math.min(nPts - 1, i + normalReach) : i + 1];
+    const prev = i > 0 ? resampled[i - 1] : s;
+    const next = i < resampled.length - 1 ? resampled[i + 1] : s;
     const dx = next.x - prev.x;
     const dy = next.y - prev.y;
     const len = Math.hypot(dx, dy);
@@ -679,7 +748,7 @@ export function buildVariableWidthPath(
     halfWidths[halfWidths.length - 1],
   );
 
-  // --- Step 8: Trace right edge backward (Catmull-Rom) ---
+  // --- Trace right edge backward (Catmull-Rom) ---
   traceCatmullRomEdgeReversed(path, rightEdge);
 
   // --- Step 9b: Start cap (semicircle) ---
@@ -698,55 +767,4 @@ export function buildVariableWidthPath(
   path.close();
 
   return path;
-}
-
-// ---------------------------------------------------------------------------
-// buildCenterlinePath — lightweight centerline-only pipeline
-// ---------------------------------------------------------------------------
-
-/**
- * Build a centerline stroke path from Apple Pencil samples.
- *
- * Same resample → smooth pipeline as buildVariableWidthPath, but returns a
- * simple centerline Catmull-Rom spline path instead of a filled polygon
- * envelope. The caller renders with style="stroke", strokeCap="round".
- *
- * Ideal for fixed-width strokes where pressure/velocity don't affect width.
- *
- * Pipeline:
- *  1. Arc-length resample (3 px spacing)
- *  2. Recompute velocities from resampled positions
- *  3. Smooth centerline ([0.25, 0.5, 0.25] kernel, sharp-turn preserve)
- *  4. Build Catmull-Rom spline centerline path
- */
-export function buildCenterlinePath(
-  samples: ReadonlyArray<ReadonlyStrokeSample>,
-  config: WritingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
-  state?: PathBuildState,
-): SkPath {
-  const path = Skia.Path.Make();
-  if (samples.length === 0) return path;
-
-  if (samples.length === 1) {
-    path.moveTo(samples[0].x, samples[0].y);
-    return path;
-  }
-
-  if (samples.length === 2) {
-    path.moveTo(samples[0].x, samples[0].y);
-    path.lineTo(samples[1].x, samples[1].y);
-    return path;
-  }
-
-  // Step 1: Arc-length resample (min distance filter)
-  const resampled = resampleByArcLength(samples);
-
-  // Step 2: Recompute velocities from resampled positions
-  recomputeVelocities(resampled, config.velocitySmoothing);
-
-  // Step 3: Smooth centerline
-  smoothCenterline(resampled, 0.3, state);
-
-  // Step 4: Build Catmull-Rom spline centerline
-  return buildSmoothPath(resampled);
 }

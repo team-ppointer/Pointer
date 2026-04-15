@@ -4,10 +4,12 @@
 @implementation PencilTouchData
 
 - (instancetype)initWithCoalescedTouches:(NSArray<UITouch *> *)coalesced
+                       predictedTouches:(NSArray<UITouch *> *)predicted
                            referenceView:(UIView *)view
 {
   if (self = [super init]) {
     _coalescedTouches = [coalesced copy];
+    _predictedTouches = [predicted copy];
     _referenceView = view;
   }
   return self;
@@ -34,7 +36,9 @@
       self.state = UIGestureRecognizerStateBegan;
 
       NSArray<UITouch *> *coalesced = [event coalescedTouchesForTouch:touch] ?: @[touch];
+      NSArray<UITouch *> *predicted = [event predictedTouchesForTouch:touch] ?: @[];
       PencilTouchData *data = [[PencilTouchData alloc] initWithCoalescedTouches:coalesced
+                                                               predictedTouches:predicted
                                                                   referenceView:self.view];
       [self.pencilDelegate pencilRecognizer:self touchBeganWith:data];
       return;
@@ -55,7 +59,9 @@
       self.state = UIGestureRecognizerStateChanged;
 
       NSArray<UITouch *> *coalesced = [event coalescedTouchesForTouch:touch] ?: @[touch];
+      NSArray<UITouch *> *predicted = [event predictedTouchesForTouch:touch] ?: @[];
       PencilTouchData *data = [[PencilTouchData alloc] initWithCoalescedTouches:coalesced
+                                                               predictedTouches:predicted
                                                                   referenceView:self.view];
       [self.pencilDelegate pencilRecognizer:self touchMovedWith:data];
       return;
@@ -72,7 +78,9 @@
   for (UITouch *touch in touches) {
     if (touch == _trackedTouch) {
       NSArray<UITouch *> *coalesced = [event coalescedTouchesForTouch:touch] ?: @[touch];
+      NSArray<UITouch *> *predicted = [event predictedTouchesForTouch:touch] ?: @[];
       PencilTouchData *data = [[PencilTouchData alloc] initWithCoalescedTouches:coalesced
+                                                               predictedTouches:predicted
                                                                   referenceView:self.view];
       [self.pencilDelegate pencilRecognizer:self touchEndedWith:data];
 
@@ -93,6 +101,7 @@
     if (touch == _trackedTouch) {
       NSArray<UITouch *> *coalesced = @[touch];
       PencilTouchData *data = [[PencilTouchData alloc] initWithCoalescedTouches:coalesced
+                                                               predictedTouches:@[]
                                                                   referenceView:self.view];
       [self.pencilDelegate pencilRecognizer:self touchCancelledWith:data];
 
