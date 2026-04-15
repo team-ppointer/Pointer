@@ -16,11 +16,11 @@ import {
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors } from '@theme/tokens';
 import { AlertBellButtonIcon, PointerSymbol } from '@components/system/icons';
-import { AnimatedPressable, ContentInset, Header } from '@components/common';
+import { AnimatedPressable, ContentInset, Header, PointerContentView } from '@components/common';
 import { useInvalidateAll } from '@hooks';
 import { formatDateKey } from '@utils/date';
+import { buildDocumentInit } from '@features/student/problem/transforms/contentRendererTransforms';
 
-import ProblemViewer from '../../problem/components/ProblemViewer';
 import ProblemSet from '../components/ProblemSet';
 import CalendarModal from '../components/CalendarModal';
 
@@ -31,6 +31,10 @@ const HomeScreen = () => {
   const studentName = useAuthStore((state) => state.studentProfile?.name);
 
   const { data: diagnosisData } = useGetLastDiagnosis();
+  const diagnosisContent = useMemo(
+    () => (diagnosisData?.content ? buildDocumentInit({ content: diagnosisData.content }) : null),
+    [diagnosisData?.content]
+  );
   const { data: studyData } = useGetMonthlyPublish({
     year: selectedMonth.getFullYear(),
     month: selectedMonth.getMonth() + 1,
@@ -113,8 +117,8 @@ const HomeScreen = () => {
                         : ''}
                     </Text>
                   </View>
-                  {diagnosisData?.content && (
-                    <ProblemViewer problemContent={diagnosisData.content} />
+                  {diagnosisContent && (
+                    <PointerContentView initMessage={diagnosisContent} />
                   )}
                 </View>
               </LinearGradient>
