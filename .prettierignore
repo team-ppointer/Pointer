@@ -14,5 +14,6 @@ apps/native/ios/build
 apps/native/android/.gradle
 apps/native/android/build
 apps/native/android/app/.cxx
+apps/native/.expo
 
 apps/admin/src/routeTree.gen.ts

@@ -139,7 +139,7 @@ function setActiveTab(sectionId: string): void {
   activeItem?.tabEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
 
-function scrollToSection(sectionId: string): void {
+export function scrollToSection(sectionId: string): void {
   const el = document.getElementById(`section-${sectionId}`);
   if (!el) return;
 

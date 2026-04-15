@@ -1,66 +1,50 @@
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Alert, Animated, type LayoutChangeEvent, ScrollView, Text, View } from 'react-native';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { BookmarkIcon, XIcon } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, Text, View } from 'react-native';
+import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
-import { colors, shadow } from '@theme/tokens';
 import { type StudentRootStackParamList } from '@navigation/student/types';
-import { ContentInset } from '@components/common';
+import { AnimatedPressable, Header } from '@components/common';
 import {
-  useGetScrapStatusById,
-  useToggleScrapFromProblem,
-  useToggleScrapFromReadingTip,
-  useToggleScrapFromOneStepMore,
-} from '@apis/student';
-import {
-  selectCurrentProblem,
   selectGroup,
   selectInitialized,
   selectPublishAt,
   selectPublishId,
-  selectProblemSetTitle,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
-import { Header } from '@components/common';
-import BottomActionBar from '../components/BottomActionBar';
-import { formatPublishDateLabel } from '../utils/formatters';
-import ProblemViewer from '../components/ProblemViewer';
+import {
+  useGetScrapStatusById,
+  useToggleScrapFromReadingTip,
+  useToggleScrapFromOneStepMore,
+  useToggleScrapFromPointing,
+} from '@apis/student';
+
+import {
+  PointerContentView,
+  type PointerContentViewHandle,
+} from '../components/PointerContentView';
+import ScrapItem from '../components/ScrapItem';
+import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
+import { pointingFeedbackQueue } from '../services';
+import {
+  buildAnalysisOverviewSections,
+  joinPointingsForAnalysis,
+} from '../transforms/contentRendererTransforms';
 
 const AnalysisScreen = ({
   navigation,
 }: Partial<NativeStackScreenProps<StudentRootStackParamList, 'Analysis'>>) => {
-  const [bottomBarHeight, setBottomBarHeight] = useState(0);
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [isScraped, setIsScraped] = useState(false);
-  const [isReadingTipScraped, setIsReadingTipScraped] = useState(false);
-  const [isOneStepMoreScraped, setIsOneStepMoreScraped] = useState(false);
-  const scrapAnimValue = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
 
-  const problem = useProblemSessionStore(selectCurrentProblem);
   const group = useProblemSessionStore(selectGroup);
   const initialized = useProblemSessionStore(selectInitialized);
   const publishId = useProblemSessionStore(selectPublishId);
   const publishAt = useProblemSessionStore(selectPublishAt);
-  const problemSetTitle = useProblemSessionStore(selectProblemSetTitle);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
-  const toggleScrapMutation = useToggleScrapFromProblem();
-  const toggleReadingTipScrapMutation = useToggleScrapFromReadingTip();
-  const toggleOneStepMoreScrapMutation = useToggleScrapFromOneStepMore();
-  const { data: scrapStatusData } = useGetScrapStatusById(problem?.id ?? 0, !!problem?.id);
-
-  // Scrap animation interpolation
-  const scrapBgColor = scrapAnimValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [colors['gray-200'], colors['gray-400']],
-  });
-
-  const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
 
   const problemSubtitle = useMemo(() => {
     if (!group) {
@@ -92,37 +76,10 @@ const AnalysisScreen = ({
     if (!initialized) {
       return;
     }
-    if (!group || !problem) {
+    if (!group) {
       redirectToHome();
     }
-  }, [group, initialized, problem, redirectToHome]);
-
-  useEffect(() => {
-    setSelectedTab(0);
-  }, [problem?.id]);
-
-  // Sync scrap state with fetched data
-  useEffect(() => {
-    const isProblemScrapped = scrapStatusData?.isProblemScrapped ?? false;
-    setIsScraped(isProblemScrapped);
-    scrapAnimValue.setValue(isProblemScrapped ? 1 : 0);
-  }, [scrapStatusData?.isProblemScrapped, scrapAnimValue]);
-
-  // Sync reading tip scrap state
-  useEffect(() => {
-    const isReadingTipScrapped = scrapStatusData?.isReadingTipScrapped ?? false;
-    setIsReadingTipScraped(isReadingTipScrapped);
-  }, [scrapStatusData?.isReadingTipScrapped]);
-
-  // Sync one step more scrap state
-  useEffect(() => {
-    const isOneStepMoreScrapped = scrapStatusData?.isOneStepMoreScrapped ?? false;
-    setIsOneStepMoreScraped(isOneStepMoreScrapped);
-  }, [scrapStatusData?.isOneStepMoreScrapped]);
-
-  const handleBottomBarLayout = useCallback((event: LayoutChangeEvent) => {
-    setBottomBarHeight(event.nativeEvent.layout.height);
-  }, []);
+  }, [group, initialized, redirectToHome]);
 
   const handleClose = useCallback(() => {
     goHome();
@@ -132,187 +89,160 @@ const AnalysisScreen = ({
     goHome();
   }, [goHome]);
 
-  const handleToggleScrap = useCallback(() => {
-    if (!problem?.id || toggleScrapMutation.isPending) {
-      return;
+  const queueSnapshot = pointingFeedbackQueue.snapshot();
+  const joined = useMemo(() => (group ? joinPointingsForAnalysis(group) : []), [group]);
+  const sections = useMemo(
+    () =>
+      group
+        ? buildAnalysisOverviewSections({
+            problem: group.problem,
+            joined,
+            pendingQueueEntries: queueSnapshot,
+          })
+        : [],
+    [group, joined, queueSnapshot]
+  );
+  const initMessage = useMemo(
+    () => ({ type: 'init' as const, mode: 'overview' as const, sections }),
+    [sections]
+  );
+
+  const contentViewRef = useRef<PointerContentViewHandle>(null);
+
+  const scrapSections = useMemo(
+    () =>
+      sections.filter(
+        (s) =>
+          s.id === 'reading' || s.id === 'one-step-more' || s.id.startsWith('pointing-divider-')
+      ),
+    [sections]
+  );
+
+  const getSectionLabel = (section: (typeof scrapSections)[number]): string => {
+    if (section.display.type === 'card' && section.display.variant === 'default') {
+      return section.display.displayLabel ?? '';
     }
-
-    // Optimistic update with animation
-    const previousState = isScraped;
-    const newScrapState = !previousState;
-    setIsScraped(newScrapState);
-    Animated.spring(scrapAnimValue, {
-      toValue: newScrapState ? 1 : 0,
-      useNativeDriver: false,
-      tension: 200,
-      friction: 20,
-    }).start();
-
-    toggleScrapMutation.mutate(
-      { problemId: problem.id },
-      {
-        onError: () => {
-          // Revert to previous state on error
-          setIsScraped(previousState);
-          Animated.spring(scrapAnimValue, {
-            toValue: previousState ? 1 : 0,
-            useNativeDriver: false,
-            tension: 200,
-            friction: 20,
-          }).start();
-          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
-        },
-      }
-    );
-  }, [problem?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
-
-  const handleToggleReadingTipScrap = useCallback(() => {
-    if (!problem?.id || toggleReadingTipScrapMutation.isPending) {
-      return;
+    if (section.display.type === 'divider') {
+      return section.display.text ?? '';
     }
+    return '';
+  };
 
-    // Optimistic update
-    const previousState = isReadingTipScraped;
-    const newScrapState = !previousState;
-    setIsReadingTipScraped(newScrapState);
+  const queryClient = useQueryClient();
+  const problemId = group?.problem.id;
+  const { data: scrapStatus } = useGetScrapStatusById(problemId ?? 0, problemId != null);
 
-    toggleReadingTipScrapMutation.mutate(
-      { problemId: problem.id },
-      {
-        onError: () => {
-          setIsReadingTipScraped(previousState);
-          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
-        },
+  const toggleReadingTip = useToggleScrapFromReadingTip();
+  const toggleOneStepMore = useToggleScrapFromOneStepMore();
+  const togglePointing = useToggleScrapFromPointing();
+
+  const invalidateScrapStatus = useCallback(() => {
+    void queryClient.invalidateQueries({
+      queryKey: ['get', '/api/student/scrap/by-problem/{problemId}'],
+    });
+  }, [queryClient]);
+
+  const getIsBookmarked = useCallback(
+    (sectionId: string): boolean => {
+      if (!scrapStatus) return false;
+      if (sectionId === 'reading') return scrapStatus.isReadingTipScrapped ?? false;
+      if (sectionId === 'one-step-more') return scrapStatus.isOneStepMoreScrapped ?? false;
+      const match = /^pointing-divider-(\d+)$/.exec(sectionId);
+      if (match) {
+        const index = Number(match[1]);
+        const pointingId = joined[index]?.pointing.id;
+        return pointingId != null && (scrapStatus.scrappedPointingIds ?? []).includes(pointingId);
       }
-    );
-  }, [problem?.id, isReadingTipScraped, toggleReadingTipScrapMutation]);
+      return false;
+    },
+    [scrapStatus, joined]
+  );
 
-  const handleToggleOneStepMoreScrap = useCallback(() => {
-    if (!problem?.id || toggleOneStepMoreScrapMutation.isPending) {
-      return;
-    }
-
-    // Optimistic update
-    const previousState = isOneStepMoreScraped;
-    const newScrapState = !previousState;
-    setIsOneStepMoreScraped(newScrapState);
-
-    toggleOneStepMoreScrapMutation.mutate(
-      { problemId: problem.id },
-      {
-        onError: () => {
-          setIsOneStepMoreScraped(previousState);
-          Alert.alert('스크랩 실패', '잠시 후 다시 시도해주세요.');
-        },
+  const handleBookmark = useCallback(
+    (sectionId: string) => {
+      if (!problemId) return;
+      if (sectionId === 'reading') {
+        toggleReadingTip.mutate({ problemId }, { onSuccess: invalidateScrapStatus });
+        return;
       }
-    );
-  }, [problem?.id, isOneStepMoreScraped, toggleOneStepMoreScrapMutation]);
+      if (sectionId === 'one-step-more') {
+        toggleOneStepMore.mutate({ problemId }, { onSuccess: invalidateScrapStatus });
+        return;
+      }
+      const match = /^pointing-divider-(\d+)$/.exec(sectionId);
+      if (match) {
+        const index = Number(match[1]);
+        const pointingId = joined[index]?.pointing.id;
+        if (pointingId != null) {
+          togglePointing.mutate({ pointingId }, { onSuccess: invalidateScrapStatus });
+        }
+      }
+    },
+    [problemId, toggleReadingTip, toggleOneStepMore, togglePointing, joined, invalidateScrapStatus]
+  );
+
+  const { leftWidth, rightWidth } = useSplitPanelLayout();
 
   const primaryButtonLabel = '학습 완료';
 
-  const tipText = problem?.oneStepMoreContent || '1등급 TIP이 없습니다.';
-  const readingTipText = problem?.readingTipContent || '읽기 팁이 없습니다.';
-  const oneStepMoreText = problem?.oneStepMoreContent || '추가 학습 내용이 없습니다.';
-  const explanationText = problem?.oneStepMoreContent || '해설이 준비 중입니다.';
-
   return (
-    <View className='flex-1'>
-      <SafeAreaView className='flex-1' edges={['top']}>
-        <Header
-          title={problemSetTitle}
-          subtitle={problemSubtitle}
-          right={<Header.IconButton icon={XIcon} onPress={handleClose} />}
-        />
-        <ContentInset>
-          <SegmentedControl
-            values={['분석', '해설']}
-            selectedIndex={selectedTab}
-            onChange={(event) => setSelectedTab(event.nativeEvent.selectedSegmentIndex)}
-            appearance='light'
-            style={{ height: 40 }}
-            fontStyle={{ fontSize: 14, fontWeight: '500' }}
-            activeFontStyle={{ fontSize: 14, fontWeight: '600' }}
+    <View className='flex-1 flex-row bg-white'>
+      <View
+        className='bg-primary-100 rounded-r-[24px]'
+        style={{ paddingTop: insets.top, width: leftWidth }}>
+        <View className='flex-1 overflow-hidden rounded-r-[24px]'>
+          <Header
+            title={'학습 마무리'}
+            subtitle={problemSubtitle}
+            paddingHorizontal={{ left: 28, right: 16 }}
           />
-        </ContentInset>
-        <View className='flex-1 overflow-hidden'>
-          <ContentInset className='flex-1 flex-col gap-[20px] pt-[20px] pb-[32px] md:flex-row'>
-            <View className='md:flex-1'>
-              <View
-                className='rounded-[8px] border border-gray-500 bg-white p-[14px]'
-                style={shadow[100]}>
-                <View className='mb-[6px] flex-row justify-between gap-[10px]'>
-                  <Text className='text-16sb text-gray-600'>문제 본문</Text>
-                  <TrackedAnimatedPressable
-                    buttonId={isScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='size-[32px] items-center justify-center'
-                    onPress={handleToggleScrap}>
-                    <BookmarkIcon
-                      size={20}
-                      color={isScraped ? colors['gray-800'] : colors['gray-600']}
-                      fill={isScraped ? colors['gray-800'] : 'transparent'}
-                    />
-                  </TrackedAnimatedPressable>
-                </View>
-                <ProblemViewer
-                  problemContent={problem?.problemContent ?? ''}
-                  minHeight={200}
-                  fontStyle='serif'
-                />
-              </View>
-            </View>
-
-            <ScrollView className='overflow-visible md:flex-1' style={shadow[100]}>
-              <View className='mb-[16px] flex-col rounded-[8px] border border-gray-400 bg-white p-[14px]'>
-                <View className='mb-[10px] flex-row items-start justify-between'>
-                  <View className='bg-primary-100 rounded-[4px] px-[6px] py-[2px]'>
-                    <Text className='text-16b text-primary-500'>문제를 읽어내려갈 때</Text>
-                  </View>
-                  <TrackedAnimatedPressable
-                    buttonId={isReadingTipScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='size-[32px] items-center justify-center'
-                    onPress={handleToggleReadingTipScrap}>
-                    <BookmarkIcon
-                      size={20}
-                      color={isReadingTipScraped ? colors['gray-800'] : colors['gray-600']}
-                      fill={isReadingTipScraped ? colors['gray-800'] : 'transparent'}
-                    />
-                  </TrackedAnimatedPressable>
-                </View>
-                <ProblemViewer problemContent={readingTipText} />
-              </View>
-              <View className='flex-col rounded-[8px] border border-gray-400 bg-white p-[14px]'>
-                <View className='mb-[10px] flex-row items-start justify-between'>
-                  <View className='bg-primary-100 rounded-[4px] px-[6px] py-[2px]'>
-                    <Text className='text-16b text-primary-500'>한 걸음 더</Text>
-                  </View>
-                  <TrackedAnimatedPressable
-                    buttonId={isOneStepMoreScraped ? 'remove_scrap' : 'add_scrap'}
-                    className='size-[32px] items-center justify-center'
-                    onPress={handleToggleOneStepMoreScrap}>
-                    <BookmarkIcon
-                      size={20}
-                      color={isOneStepMoreScraped ? colors['gray-800'] : colors['gray-600']}
-                      fill={isOneStepMoreScraped ? colors['gray-800'] : 'transparent'}
-                    />
-                  </TrackedAnimatedPressable>
-                </View>
-                <ProblemViewer problemContent={oneStepMoreText} />
-              </View>
-            </ScrollView>
-          </ContentInset>
+          <PointerContentView ref={contentViewRef} initMessage={initMessage} />
         </View>
-        <BottomActionBar bottomInset={insets.bottom} onLayout={handleBottomBarLayout}>
-          {/* <BottomActionBar.Button className='bg-gray-200' onPress={() => {}}>
-            <MessageCircleMoreIcon size={22} color={colors['gray-700']} />
-          </BottomActionBar.Button> */}
-          <BottomActionBar.Button
-            className='bg-primary-500 h-[42px]'
-            containerStyle={{ flex: 1 }}
+      </View>
+      <View style={{ paddingTop: insets.top, width: rightWidth }}>
+        <Header
+          right={<Header.IconButton icon={XIcon} onPress={handleClose} />}
+          paddingHorizontal={28}
+        />
+        <View className='flex-1 items-center px-[28px]' style={{ paddingBottom: insets.bottom }}>
+          <View className='my-[12px] size-[120px] bg-gray-400' />
+          <View className='mb-[8px] flex-row'>
+            <Text className='typo-display-1-bold'>{problemSubtitle} </Text>
+            <Text className='typo-display-1-bold text-primary-600'>완료!</Text>
+          </View>
+          <Text className='typo-body-1-medium mb-[40px] text-center text-gray-700'>
+            {problemSubtitle} 학습을 완료하셨습니다.{'\n'}
+            아래 스크랩을 통해 나만의 수학노트를 만들어봐요!
+          </Text>
+          <ScrollView
+            className='mb-auto max-h-[180px] w-[320px] rounded-[18px] border border-gray-200 bg-gray-100'
+            contentContainerClassName='gap-[8px] p-[16px]'>
+            {scrapSections.map((section) => (
+              <ScrapItem
+                key={section.id}
+                title={getSectionLabel(section)}
+                isBookmarked={getIsBookmarked(section.id)}
+                onPress={() => contentViewRef.current?.scrollToSection(section.id)}
+                onBookmark={() => handleBookmark(section.id)}
+              />
+            ))}
+          </ScrollView>
+          <AnimatedPressable
+            containerStyle={{ width: '100%', maxWidth: 420 }}
+            className='mb-[8px] flex h-[48px] w-full items-center justify-center rounded-[8px] border border-gray-500 bg-gray-100'
+            onPress={() => {
+              goHome();
+            }}>
+            <Text className='typo-body-1-medium text-black'>홈으로 이동</Text>
+          </AnimatedPressable>
+          <AnimatedPressable
+            containerStyle={{ width: '100%', maxWidth: 420 }}
+            className='bg-primary-600 mb-[40px] flex h-[48px] items-center justify-center rounded-[8px]'
             onPress={handlePrimaryAction}>
-            <Text className='text-16m text-white'>{primaryButtonLabel}</Text>
-          </BottomActionBar.Button>
-        </BottomActionBar>
-      </SafeAreaView>
+            <Text className='typo-body-1-medium text-white'>{primaryButtonLabel}</Text>
+          </AnimatedPressable>
+        </View>
+      </View>
     </View>
   );
 };
