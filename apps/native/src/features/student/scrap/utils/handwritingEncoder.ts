@@ -16,7 +16,7 @@ export function encodeHandwritingData(strokes: Stroke[], texts: TextBoxData[], l
   const data: HandwritingData = {
     strokes: strokes || [],
     texts: texts || [],
-    ...(lastColor ? { lastColor } : {}),
+    ...(lastColor != null ? { lastColor } : {}),
   };
   const jsonString = JSON.stringify(data);
   const base64Data = btoa(unescape(encodeURIComponent(jsonString)));

@@ -56,7 +56,9 @@ export function clampTransform(
   vpH: number,
   maxScale: number,
 ): ViewTransform {
-  // TODO: canvasW/canvasH가 0 이하일 때 NaN 전파 방지 — early return으로 identity transform 반환 필요
+  if (canvasW <= 0 || canvasH <= 0 || vpW <= 0 || vpH <= 0) {
+    return transform;
+  }
   const minScale = Math.min(1, vpW / canvasW);
   const scale = Math.min(Math.max(transform.scale, minScale), maxScale);
 

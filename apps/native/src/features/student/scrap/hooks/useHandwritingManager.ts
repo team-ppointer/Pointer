@@ -130,7 +130,7 @@ export function useHandwritingManager({
         return Promise.resolve(false);
       }
     },
-    [scrapId, canvasRef, updateHandwriting, onSaveSuccess, onSaveError, isSaving]
+    [scrapId, canvasRef, strokeColor, updateHandwriting, onSaveSuccess, onSaveError, isSaving]
   );
 
   // 5초마다 자동 저장
