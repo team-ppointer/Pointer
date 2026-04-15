@@ -25,10 +25,16 @@ export const colors = {
   'blue-700': '#123FC6', // 기존 blue300
 
   // Brand Colors
-  'primary-100': '#E9EBF8', // 기존 sub color2
-  'primary-200': '#C5CEFF', // 기존 sub color1
-  'primary-500': '#617AF9', // 기존 main color
-  'primary-600': '#526BEA', // 기존 main color2
+  'primary-100': '#EEF0FC',
+  'primary-200': '#D9DEFC',
+  'primary-300': '#B2BDFA',
+  'primary-400': '#8B9BF9',
+  'primary-500': '#617AF9',
+  'primary-600': '#4A5EF2',
+  'primary-700': '#3447D9',
+  'primary-800': '#2332B8',
+  'primary-900': '#162098',
+
   'secondary-100': '#FFF4CC', // 기존 light yellow
   'secondary-500': '#E59C00', // 기존 yellow
 
