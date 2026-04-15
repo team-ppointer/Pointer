@@ -4,7 +4,7 @@ import { MailIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import { GoogleIcon, KakaoIcon, PointerLogo, AppleIcon } from '@components/system/icons';
 import { colors } from '@theme/tokens';
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
@@ -27,7 +27,7 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
-      <Container className='flex-1'>
+      <ContentInset className='flex-1'>
         <View className='flex-1 items-center justify-center gap-[12px]'>
           <PointerLogo />
           <Text className='typo-body-1-regular text-gray-700'>
@@ -87,7 +87,7 @@ const LoginScreen = () => {
             <Text className='typo-body-1-medium text-primary-600'>이메일로 시작하기</Text>
           </AnimatedPressable>
         </View>
-      </Container>
+      </ContentInset>
     </SafeAreaView>
   );
 };

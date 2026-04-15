@@ -40,15 +40,17 @@ export const ImagePasteUpload = Extension.create<ImagePasteUploadOptions>({
 
             for (const file of images) {
               const pos = view.state.selection.from;
-              upload(file).then((url) => {
-                const imageNode = view.state.schema.nodes.image;
-                if (!imageNode) return;
-                const node = imageNode.create({ src: url });
-                const tr = view.state.tr.insert(pos, node);
-                view.dispatch(tr);
-              }).catch((err) => {
-                console.error('Paste image upload failed:', err);
-              });
+              upload(file)
+                .then((url) => {
+                  const imageNode = view.state.schema.nodes.image;
+                  if (!imageNode) return;
+                  const node = imageNode.create({ src: url });
+                  const tr = view.state.tr.insert(pos, node);
+                  view.dispatch(tr);
+                })
+                .catch((err) => {
+                  console.error('Paste image upload failed:', err);
+                });
             }
 
             return true;

@@ -3,10 +3,10 @@ import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } fro
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, CircleCheck, CircleAlert } from 'lucide-react-native';
+import { CircleCheck, CircleAlert } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset, Header } from '@components/common';
 import {
   useGetMe,
   usePutMe,
@@ -181,12 +181,8 @@ const EditPhoneNumberScreen = () => {
       className='w-full flex-1'
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}>
-      <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
-        <AnimatedPressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={32} color='#000' />
-        </AnimatedPressable>
-      </SafeAreaView>
-      <Container className='flex-1'>
+      <Header showBackButton />
+      <ContentInset className='flex-1'>
         <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
           <View className='gap-[32px]'>
             <View className='gap-1'>
@@ -279,7 +275,7 @@ const EditPhoneNumberScreen = () => {
             </AnimatedPressable>
           )}
         </SafeAreaView>
-      </Container>
+      </ContentInset>
     </KeyboardAvoidingView>
   );
 };

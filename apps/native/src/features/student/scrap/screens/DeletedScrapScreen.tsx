@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useGetTrash, useRestoreTrash, usePermanentDeleteTrash } from '@/apis';
-import { Container, LoadingScreen } from '@/components/common';
+import { ContentInset, LoadingScreen } from '@/components/common';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 import DeletedScrapHeader from '../components/Header/DeletedScrapHeader';
@@ -91,7 +91,7 @@ const DeletedScrapScreenContent = () => {
         }}
       />
       <View className='bg-gray-100'>
-        <Container className='flex-row items-center justify-between gap-[10px] py-[10px]'>
+        <ContentInset className='flex-row items-center justify-between gap-[10px] py-[10px]'>
           <Text className='text-14r text-gray-600'>
             휴지통의 스크랩은 30일 이후에 영구적으로 삭제됩니다.
           </Text>
@@ -102,14 +102,14 @@ const DeletedScrapScreenContent = () => {
             sortOrder={sortOrder}
             setSortOrder={setSortOrder}
           />
-        </Container>
-        <Container className='pb-[120px] pt-4'>
+        </ContentInset>
+        <ContentInset className='pt-4 pb-[120px]'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <TrashScrapGrid data={sortedData} reducerState={reducerState} dispatch={dispatch} />
           )}
-        </Container>
+        </ContentInset>
       </View>
       <ConfirmationModal
         visible={isDeleteModalVisible}

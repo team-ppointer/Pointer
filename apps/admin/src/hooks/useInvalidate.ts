@@ -72,7 +72,13 @@ const useInvalidate = () => {
     [queryClient]
   );
 
-  return { invalidateAll, invalidateProblemSet, invalidatePublish, invalidateNotice, invalidateQna };
+  return {
+    invalidateAll,
+    invalidateProblemSet,
+    invalidatePublish,
+    invalidateNotice,
+    invalidateQna,
+  };
 };
 
 export default useInvalidate;

@@ -1,11 +1,9 @@
 import { type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { ChevronLeftIcon } from 'lucide-react-native';
 
 import { colors } from '@theme/tokens';
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset, Header } from '@components/common';
 
 type Props = {
   title?: string;
@@ -42,56 +40,31 @@ export const EditScreenLayout = ({
   bottomSlot,
   isScrollable = true,
 }: Props) => {
-  const navigation = useNavigation();
-
-  const handleBack = () => {
-    if (!showBackButton) return;
-    if (onPressBack) {
-      onPressBack();
-      return;
-    }
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-    }
-  };
-
   const inset = useSafeAreaInsets();
+
+  const rightSlot =
+    (cancelLabel && onCancel) || (skipLabel && onSkip) ? (
+      <>
+        {cancelLabel && onCancel && (
+          <Header.TextButton onPress={onCancel} color={colors['gray-600']}>
+            {cancelLabel}
+          </Header.TextButton>
+        )}
+        {skipLabel && onSkip && (
+          <Header.TextButton onPress={onSkip} color={colors['primary-600']}>
+            {skipLabel}
+          </Header.TextButton>
+        )}
+      </>
+    ) : undefined;
+
   return (
     <KeyboardAvoidingView
       className='flex-1'
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}>
-      <View className='z-10 flex-row items-center justify-between bg-gray-100 px-[20px] py-[4px]'>
-        {showBackButton ? (
-          <AnimatedPressable
-            accessibilityRole='button'
-            onPress={handleBack}
-            className='items-center justify-center p-[8px]'>
-            <ChevronLeftIcon color={colors['gray-800']} size={32} />
-          </AnimatedPressable>
-        ) : (
-          <View className='size-[36px]' />
-        )}
-        {cancelLabel && onCancel ? (
-          <AnimatedPressable
-            onPress={onCancel}
-            className='h-[48px] items-center justify-center px-[10px]'>
-            <Text className='text-14sb text-gray-600'>{cancelLabel}</Text>
-          </AnimatedPressable>
-        ) : (
-          <View className='h-[20px]' />
-        )}
-        {skipLabel && onSkip ? (
-          <AnimatedPressable
-            onPress={onSkip}
-            className='h-[48px] items-center justify-center px-[10px]'>
-            <Text className='text-14sb text-primary-600'>{skipLabel}</Text>
-          </AnimatedPressable>
-        ) : (
-          <View className='h-[20px]' />
-        )}
-      </View>
-      <Container className='flex-1 pt-[6px]'>
+      <Header showBackButton={showBackButton} onPressBack={onPressBack} right={rightSlot} />
+      <ContentInset className='flex-1 pt-[6px]'>
         {isScrollable ? (
           <ScrollView
             className='flex-1 overflow-visible'
@@ -127,7 +100,7 @@ export const EditScreenLayout = ({
           containerStyle={{ marginBottom: inset.bottom + 18 }}>
           <Text className='text-18sb text-center text-white'>{ctaLabel}</Text>
         </AnimatedPressable>
-      </Container>
+      </ContentInset>
     </KeyboardAvoidingView>
   );
 };

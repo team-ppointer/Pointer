@@ -8,7 +8,7 @@
     "types": ["vite/client"],
     "paths": {
       "@/*": ["./src/*"],
-      "@/editor/*": ["./src/editor/*"],
+      "@/editor/*": ["./src/editor/*"]
     }
   },
   "include": ["src", "vite.config.ts"]

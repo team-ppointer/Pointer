@@ -127,10 +127,10 @@ function RouteComponent() {
     openSearchModal();
   };
 
-  const handleAddProblem = (index: number) => {
-    setCurrentProblemIndex(index);
-    openSearchModal();
-  };
+  // const handleAddProblem = (index: number) => {
+  //   setCurrentProblemIndex(index);
+  //   openSearchModal();
+  // };
 
   const handleClickDeleteProblem = (index: number) => {
     setDeleteProblemIndex(index);

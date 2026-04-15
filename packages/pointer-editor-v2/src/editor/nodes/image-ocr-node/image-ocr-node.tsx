@@ -266,15 +266,18 @@ export const ImageOCRNode: React.FC<NodeViewProps> = (props) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const extension = props.extension;
 
-  const uploadOptions: UploadOptions = {
-    maxSize,
-    limit,
-    accept,
-    upload: extension.options.upload,
-    onSuccess: extension.options.onSuccess,
-    onError: extension.options.onError,
-    ocrApiCall: extension.options.ocrApiCall,
-  };
+  const uploadOptions: UploadOptions = React.useMemo(
+    () => ({
+      maxSize,
+      limit,
+      accept,
+      upload: extension.options.upload,
+      onSuccess: extension.options.onSuccess,
+      onError: extension.options.onError,
+      ocrApiCall: extension.options.ocrApiCall,
+    }),
+    [maxSize, limit, accept, extension.options]
+  );
 
   const { fileItems, uploadFiles, removeFileItem, clearAllFiles } = useFileUpload(uploadOptions);
 

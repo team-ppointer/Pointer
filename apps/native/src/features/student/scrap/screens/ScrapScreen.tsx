@@ -8,7 +8,7 @@ import { colors } from '@/theme/tokens';
 import { useSearchScraps, useDeleteScrap } from '@/apis';
 import { useRecentScrapStore } from '@/features/student/scrap/stores/recentScrapStore';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
-import { Container, LoadingScreen } from '@/components/common';
+import { ContentInset, LoadingScreen } from '@/components/common';
 
 import ScrapHeader from '../components/Header/ScrapHeader';
 import { ScrapGrid } from '../components/Card/ScrapCardGrid';
@@ -163,16 +163,16 @@ const ScrapScreenContent = () => {
       />
       <ScrollView className='bg-gray-100' showsVerticalScrollIndicator={true}>
         {recentScrapsData.length > 0 && !reducerState.isSelecting && (
-          <Container className='flex-col items-start gap-[10px] pb-[40px] pt-[8px]'>
+          <ContentInset className='flex-col items-start gap-[10px] pt-[8px] pb-[40px]'>
             <Text className='text-16m text-gray-900'>최근 본</Text>
             <ScrollView horizontal={true} contentContainerStyle={{ gap: 10 }}>
               {recentScrapsData.map((scrap) => (
                 <RecentScrapCard key={scrap.id} scrap={scrap} />
               ))}
             </ScrollView>
-          </Container>
+          </ContentInset>
         )}
-        <Container className='flex-row items-center justify-between gap-[10px] py-[10px]'>
+        <ContentInset className='flex-row items-center justify-between gap-[10px] py-[10px]'>
           <Text className='text-16m text-gray-900'>전체 스크랩</Text>
           <SortDropdown
             ordertype={'LIST'}
@@ -181,14 +181,14 @@ const ScrapScreenContent = () => {
             sortOrder={sortOrder}
             setSortOrder={setSortOrder}
           />
-        </Container>
-        <Container className='pb-[120px] pt-[16px]'>
+        </ContentInset>
+        <ContentInset className='pt-[16px] pb-[120px]'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <ScrapGrid data={gridData} reducerState={reducerState} dispatch={dispatch} />
           )}
-        </Container>
+        </ContentInset>
       </ScrollView>
     </View>
   );

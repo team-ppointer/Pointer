@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CheckIcon } from 'lucide-react-native';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import { useAuthStore } from '@stores';
 import { deleteAccount } from '@apis';
 
@@ -68,7 +68,7 @@ const WithdrawalScreen = () => {
   return (
     <ScreenLayout title='회원 탈퇴'>
       <ScrollView className='flex-1 pt-[10px]' showsVerticalScrollIndicator={false}>
-        <Container>
+        <ContentInset>
           <View className='mb-[20px]'>
             {!showReasons ? (
               <>
@@ -108,11 +108,11 @@ const WithdrawalScreen = () => {
                 <Text className='text-16r flex-1 text-black'>{reason}</Text>
               </AnimatedPressable>
             ))}
-        </Container>
+        </ContentInset>
       </ScrollView>
 
       <SafeAreaView edges={['bottom']} className='mb-[18px]'>
-        <Container>
+        <ContentInset>
           <AnimatedPressable
             onPress={handleWithdrawalClick}
             disabled={showReasons && selectedReasons.length === 0}
@@ -121,7 +121,7 @@ const WithdrawalScreen = () => {
             }`}>
             <Text className='text-16m text-white'>탈퇴하기</Text>
           </AnimatedPressable>
-        </Container>
+        </ContentInset>
       </SafeAreaView>
     </ScreenLayout>
   );

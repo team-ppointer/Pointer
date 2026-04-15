@@ -3,7 +3,11 @@ import { useMemo } from 'react';
 import { formatDateKey, isSameDay } from '@/utils/date';
 
 import { publishProgressMap } from '../components/ProblemCalendar/constants';
-import { type CalendarCell, type CalendarProgress, type PublishResp } from '../components/ProblemCalendar/types';
+import {
+  type CalendarCell,
+  type CalendarProgress,
+  type PublishResp,
+} from '../components/ProblemCalendar/types';
 
 interface UseCalendarDataParams {
   selectedMonth: Date;
@@ -11,7 +15,11 @@ interface UseCalendarDataParams {
   studyData: PublishResp[];
 }
 
-export const useCalendarData = ({ selectedMonth, selectedDate, studyData }: UseCalendarDataParams): CalendarCell[] => {
+export const useCalendarData = ({
+  selectedMonth,
+  selectedDate,
+  studyData,
+}: UseCalendarDataParams): CalendarCell[] => {
   const progressByDate = useMemo(() => {
     return studyData.reduce<Record<string, CalendarProgress>>((acc, publish) => {
       acc[publish.publishAt] = publishProgressMap[publish.progress] ?? 'unavailable';

@@ -1,0 +1,294 @@
+/* ── Variant tokens ── */
+.overview-mode {
+  --overview-bg: var(--color-primary-100);
+  --overview-gap: 16px;
+  --overview-padding: 0px 20px 20px 20px;
+  --tab-bottom-border: none;
+  --divider-color: var(--color-primary-300);
+  --divider-text-color: var(--color-primary-600);
+
+  background-color: var(--overview-bg);
+  min-height: 100vh;
+  padding: var(--overview-padding);
+}
+
+.overview-mode--summary {
+  /* 학습 마무리: primary bg, 16px gap, no tab border — defaults */
+}
+
+.overview-mode--pointing {
+  --overview-bg: var(--color-white);
+  --overview-gap: 20px;
+  --overview-padding: 0px 20px 20px 20px;
+  --tab-bottom-border: 1px solid var(--color-gray-300);
+  --divider-color: var(--color-gray-300);
+  --divider-text-color: var(--color-gray-600);
+}
+
+/* Tab bar clip — clips border/shadow overflow */
+.tab-bar-clip {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  overflow: hidden;
+  margin: 0 -20px;
+  padding: 0 20px 20px 20px;
+  background-color: var(--overview-bg);
+}
+
+/* Tab bar wrapper — extends edge-to-edge for background */
+.tab-bar-wrapper {
+  border-bottom: var(--tab-bottom-border);
+}
+
+/* Tab bar — horizontal scroll only */
+.tab-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: -1px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-item {
+  position: relative;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--color-gray-600);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 26px;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 200ms ease,
+    border-bottom-color 200ms ease;
+}
+
+.tab-item--active {
+  color: var(--color-primary-600);
+  border-bottom-color: var(--color-primary-600);
+}
+
+.overview-section {
+  margin-bottom: var(--overview-gap);
+}
+
+/* ── Card base ── */
+.section-card {
+  background-color: var(--color-white);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Card: default ── */
+.section-card--default {
+  padding: 12px;
+}
+
+.section-card-label {
+  display: inline-block;
+  padding: 2px 4px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-600);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0.18px;
+}
+
+.section-card-content {
+  /* inherits base.css typography */
+}
+
+/* ── Card: pointing ── */
+.section-card--pointing {
+  background: var(--color-gray-100);
+  border: 1px solid var(--color-gray-500);
+  border-radius: 12px;
+  box-shadow: 0 2px 7px 0 rgba(30, 30, 33, 0.1);
+  overflow: hidden;
+}
+
+.section-card-pointing-top {
+  background: var(--color-white);
+  position: relative;
+  border: 1px solid var(--color-gray-400);
+  border-radius: 12px;
+  margin: -1px -1px 0 -1px;
+  padding: 16px;
+}
+
+.section-card-pointing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.section-card-pointing-header .bookmark-btn {
+  position: static;
+  flex-shrink: 0;
+}
+
+.section-card-pointing-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.section-card-pointing-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 26px;
+  color: var(--color-primary-600);
+}
+
+.section-card-pointing-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 26px;
+  color: var(--color-gray-700);
+}
+
+.section-card-pointing-question {
+  /* inherits base.css typography */
+}
+
+.section-card-pointing-answer {
+  padding: 16px;
+}
+
+/* ── Card: collapsible ── */
+.section-card--collapsible {
+  border: 1px solid var(--color-gray-400);
+  box-shadow: 0 1px 6px 0 rgba(12, 12, 13, 0.05);
+}
+
+.section-card-collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: var(--color-gray-100);
+  border-bottom: 1px solid transparent;
+  transition: border-bottom 300ms ease;
+  padding: 0 12px 0 16px;
+  height: 48px;
+}
+
+.section-card-collapsible-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 26px;
+}
+
+.section-card-collapsible-chevron {
+  display: flex;
+  align-items: center;
+  color: var(--color-gray-700);
+  transition: transform 300ms ease;
+}
+
+.section-card--collapsible-open .section-card-collapsible-chevron {
+  transform: rotate(180deg);
+}
+
+.section-card-collapsible-content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 300ms ease;
+}
+
+/* max-height is controlled by JS for accurate transitions */
+
+.section-card-collapsible-content-inner {
+  padding: 20px;
+}
+
+.section-card--collapsible-open .section-card-collapsible-header {
+  border-bottom: 1px solid var(--color-gray-400);
+}
+
+/* ── Plain ── */
+.section-plain {
+  background: none;
+  padding: 0;
+  font-family: 'KoPub Batang', serif;
+}
+
+/* ── Chat sections ── */
+.section-chat {
+  padding: 0;
+}
+
+/* ── Divider ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 10px 0 18px 0;
+  color: var(--divider-text-color);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0.18px;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--divider-color);
+}
+
+.section-divider::before {
+  margin-right: 8px;
+}
+
+.section-divider::after {
+  margin-left: 8px;
+}
+
+/* Divider without text — just a horizontal rule */
+.section-divider--plain {
+  margin: 10px 0 18px 0;
+}
+
+.section-divider--plain::before {
+  margin-right: 0;
+}
+
+.section-divider--plain::after {
+  display: none;
+}
+
+/* ── Bookmark button ── */
+.bookmark-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.bookmark-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}

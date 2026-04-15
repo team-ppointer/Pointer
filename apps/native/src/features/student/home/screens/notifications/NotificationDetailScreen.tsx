@@ -2,7 +2,7 @@ import { View, Text, ScrollView } from 'react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import ProblemViewer from '@features/student/problem/components/ProblemViewer';
-import { Container } from '@components/common';
+import { ContentInset } from '@components/common';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 
 type Props = NativeStackScreenProps<StudentRootStackParamList, 'NotificationDetail'>;
@@ -18,13 +18,13 @@ const NotificationDetailScreen = ({ route }: Props) => {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
       <View className='mx-auto w-full'>
-        <Container className='gap-[32px] pt-[16px]'>
+        <ContentInset className='gap-[32px] pt-[16px]'>
           <View className='flex-col gap-0.5'>
             <Text className='text-20b text-gray-900'>{title}</Text>
             <Text className='text-12m text-gray-700'>{formatDate(date)}</Text>
           </View>
           <ProblemViewer problemContent={content} minHeight={200} />
-        </Container>
+        </ContentInset>
       </View>
     </ScrollView>
   );

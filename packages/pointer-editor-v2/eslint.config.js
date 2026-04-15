@@ -1,14 +1,14 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-import importPlugin from 'eslint-plugin-import'
-import { globalIgnores } from 'eslint/config'
-import { fileURLToPath } from 'node:url'
-import { dirname } from 'node:path'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
+import { globalIgnores } from 'eslint/config';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Flat config for the pointer-editor-v2 package.
@@ -60,32 +60,34 @@ export default tseslint.config([
        *    Force consumers to import from the consolidated barrel: `../assets`.
        *    Also ban importing ui/base except inside src/editor/ui.
        */
-      'no-restricted-imports': ['error', {
-        paths: [
-          { name: '../assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
-          { name: '../../assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
-          { name: '@/editor/assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
-          { name: '@editor/assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
-        ],
-        patterns: [
-          // Disallow any nested path under assets/icon
-          '**/assets/icon',
-          '**/assets/icon/*',
-          // Disallow importing ui/base outside of the ui package
-          '**/editor/ui/base',
-          '**/editor/ui/base/*',
-          // Disallow importing from subpaths under editor/ui (enforce barrel usage)
-          '**/editor/ui/*',
-          '**/editor/ui/**',
-          // Disallow importing from subpaths under editor/utils (enforce barrel usage)
-          '**/editor/utils/*',
-          '**/editor/utils/**',
-          // Disallow importing from subpaths under editor/hooks (enforce barrel usage)
-          '**/editor/hooks/*',
-          '**/editor/hooks/**',
-        ],
-      }],
-
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            { name: '../assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
+            { name: '../../assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
+            { name: '@/editor/assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
+            { name: '@editor/assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
+          ],
+          patterns: [
+            // Disallow any nested path under assets/icon
+            '**/assets/icon',
+            '**/assets/icon/*',
+            // Disallow importing ui/base outside of the ui package
+            '**/editor/ui/base',
+            '**/editor/ui/base/*',
+            // Disallow importing from subpaths under editor/ui (enforce barrel usage)
+            '**/editor/ui/*',
+            '**/editor/ui/**',
+            // Disallow importing from subpaths under editor/utils (enforce barrel usage)
+            '**/editor/utils/*',
+            '**/editor/utils/**',
+            // Disallow importing from subpaths under editor/hooks (enforce barrel usage)
+            '**/editor/hooks/*',
+            '**/editor/hooks/**',
+          ],
+        },
+      ],
     },
   },
 
@@ -94,18 +96,18 @@ export default tseslint.config([
     files: ['src/editor/ui/**/*.{ts,tsx}'],
     rules: {
       // Re-apply only the assets/icon restriction; allow ui/base internally
-      'no-restricted-imports': ['error', {
-        paths: [
-          { name: '../assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
-          { name: '../../assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
-          { name: '@/editor/assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
-          { name: '@editor/assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
-        ],
-        patterns: [
-          '**/assets/icon',
-          '**/assets/icon/*',
-        ],
-      }],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            { name: '../assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
+            { name: '../../assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
+            { name: '@/editor/assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
+            { name: '@editor/assets/icon', message: '아이콘은 ../assets 에서만 임포트하세요.' },
+          ],
+          patterns: ['**/assets/icon', '**/assets/icon/*'],
+        },
+      ],
     },
   },
 
@@ -117,4 +119,4 @@ export default tseslint.config([
       'import/no-internal-modules': 'off',
     },
   },
-])
+]);

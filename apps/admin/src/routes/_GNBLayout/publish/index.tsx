@@ -181,7 +181,7 @@ function RouteComponent() {
 
   const handleClickPrevMonth = () => setCurrentMonth(currentMonth.subtract(1, 'month'));
   const handleClickNextMonth = () => setCurrentMonth(currentMonth.add(1, 'month'));
-  const handleClickCurrentMonth = () => setCurrentMonth(dayjs().startOf('month'));
+  // const handleClickCurrentMonth = () => setCurrentMonth(dayjs().startOf('month'));
 
   const daysInMonth = currentMonth.daysInMonth();
   const firstDayOfMonth = currentMonth.startOf('month').day(); // 1일 요일, 0: Sunday ~ 6: Saturday

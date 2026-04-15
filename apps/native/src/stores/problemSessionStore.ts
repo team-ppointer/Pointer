@@ -22,6 +22,7 @@ type ProblemSessionState = {
   group?: PublishProblemGroupResp;
   publishId?: number;
   publishAt?: string;
+  problemSetTitle?: string;
 
   phase: SessionPhase;
 
@@ -31,7 +32,7 @@ type ProblemSessionState = {
   mainCorrect?: boolean;
 };
 
-type SessionMeta = { publishId?: number; publishAt?: string };
+type SessionMeta = { publishId?: number; publishAt?: string; problemSetTitle?: string };
 
 type ProblemSessionActions = {
   init: (group: PublishProblemGroupResp, meta?: SessionMeta) => void;
@@ -41,6 +42,8 @@ type ProblemSessionActions = {
   finishMainRetry: () => void;
   finishChildProblem: () => void;
   nextPointing: () => void;
+  /** chat WebView 에서 모든 pointing 이 완료됐을 때 호출. pointingIndex 없이 동작. */
+  completeAllPointings: () => void;
 
   goToAnalysis: () => void;
   reset: () => void;
@@ -55,6 +58,7 @@ const initialState: ProblemSessionState = {
   group: undefined,
   publishId: undefined,
   publishAt: undefined,
+  problemSetTitle: undefined,
   phase: 'MAIN_PROBLEM',
   childIndex: INITIAL_INDEX,
   pointingIndex: INITIAL_INDEX,
@@ -293,6 +297,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         group,
         publishId: meta?.publishId,
         publishAt: meta?.publishAt,
+        problemSetTitle: meta?.problemSetTitle,
         phase: 'MAIN_PROBLEM',
       }),
     initWithResume: (group, meta) => {
@@ -303,6 +308,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
           group,
           publishId: meta?.publishId,
           publishAt: meta?.publishAt,
+          problemSetTitle: meta?.problemSetTitle,
           phase: 'MAIN_PROBLEM',
         });
         return;
@@ -315,6 +321,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         group,
         publishId: meta?.publishId,
         publishAt: meta?.publishAt,
+        problemSetTitle: meta?.problemSetTitle,
         ...resumeState,
       });
     },
@@ -522,6 +529,59 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         });
       }
     },
+    completeAllPointings: () => {
+      const { group, phase, childIndex, mainCorrect } = get();
+      if (!group) return;
+
+      if (phase === 'CHILD_POINTINGS') {
+        const childProblems = getChildProblems(group);
+        const mainPointings = getMainPointings(group);
+        const nextChildIndex = childIndex + 1;
+
+        if (mainCorrect) {
+          // 정답 경로: 남은 child 중 pointing 있는 것 탐색
+          for (let i = nextChildIndex; i < childProblems.length; i += 1) {
+            if ((childProblems[i].pointings?.length ?? 0) > 0) {
+              set({
+                phase: 'CHILD_POINTINGS',
+                childIndex: i,
+                pointingTarget: 'CHILD',
+                pointingIndex: 0,
+              });
+              return;
+            }
+          }
+          if (mainPointings.length > 0) {
+            set({ phase: 'MAIN_POINTINGS', pointingTarget: 'MAIN', pointingIndex: 0 });
+          } else {
+            set({ phase: 'ANALYSIS', pointingTarget: undefined, pointingIndex: INITIAL_INDEX });
+          }
+          return;
+        }
+
+        // 오답 경로: 다음 child 또는 메인 재풀이
+        if (nextChildIndex < childProblems.length) {
+          set({
+            phase: 'CHILD_PROBLEM',
+            childIndex: nextChildIndex,
+            pointingTarget: undefined,
+            pointingIndex: INITIAL_INDEX,
+          });
+          return;
+        }
+        set({
+          phase: 'MAIN_PROBLEM_RETRY',
+          childIndex: INITIAL_INDEX,
+          pointingTarget: undefined,
+          pointingIndex: INITIAL_INDEX,
+        });
+        return;
+      }
+
+      if (phase === 'MAIN_POINTINGS') {
+        set({ phase: 'ANALYSIS', pointingTarget: undefined, pointingIndex: INITIAL_INDEX });
+      }
+    },
     goToAnalysis: () =>
       set({
         phase: 'ANALYSIS',
@@ -553,6 +613,7 @@ export const selectInitialized = (state: ProblemSessionState) => state.initializ
 export const selectGroup = (state: ProblemSessionState) => state.group;
 export const selectPublishId = (state: ProblemSessionState) => state.publishId;
 export const selectPublishAt = (state: ProblemSessionState) => state.publishAt;
+export const selectProblemSetTitle = (state: ProblemSessionState) => state.problemSetTitle;
 export const selectPhase = (state: ProblemSessionState) => state.phase;
 export const selectChildIndex = (state: ProblemSessionState) => state.childIndex;
 

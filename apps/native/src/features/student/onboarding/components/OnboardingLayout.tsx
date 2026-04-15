@@ -10,10 +10,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeftIcon } from 'lucide-react-native';
-
 import { colors } from '@theme/tokens';
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset, Header } from '@components/common';
 
 type Props = {
   title?: string;
@@ -87,30 +85,20 @@ const OnboardingLayout = ({
     <KeyboardAvoidingView
       className='flex-1'
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View
-        className='z-10 flex-row items-center justify-between bg-gray-100 px-[20px] pb-[14px]'
-        style={{ paddingTop: inset.top + 14 }}>
-        {showBackButton ? (
-          <AnimatedPressable
-            accessibilityRole='button'
-            onPress={handleBack}
-            className='items-center justify-center p-[8px]'>
-            <ChevronLeftIcon color={colors['gray-800']} size={32} />
-          </AnimatedPressable>
-        ) : (
-          <View className='size-[36px]' />
-        )}
-        {skipLabel && onSkip ? (
-          <AnimatedPressable
-            onPress={onSkip}
-            className='h-[48px] items-center justify-center px-[10px]'>
-            <Text className='typo-heading-2-semibold text-primary-600'>{skipLabel}</Text>
-          </AnimatedPressable>
-        ) : (
-          <View className='h-[20px]' />
-        )}
+      <View style={{ paddingTop: inset.top }}>
+        <Header
+          showBackButton={showBackButton}
+          onPressBack={handleBack}
+          right={
+            skipLabel && onSkip ? (
+              <Header.TextButton onPress={onSkip} color={colors['primary-600']}>
+                {skipLabel}
+              </Header.TextButton>
+            ) : undefined
+          }
+        />
       </View>
-      <Container className='flex-1 pt-[6px]'>
+      <ContentInset className='flex-1 pt-[6px]'>
         {isScrollable ? (
           <ScrollView
             className='flex-1 overflow-visible'
@@ -140,7 +128,7 @@ const OnboardingLayout = ({
           containerStyle={{ marginBottom: isKeyboardVisible ? 18 : inset.bottom + 18 }}>
           <Text className='typo-body-1-medium text-center text-white'>{ctaLabel}</Text>
         </AnimatedPressable>
-      </Container>
+      </ContentInset>
     </KeyboardAvoidingView>
   );
 };

@@ -1,5 +1,5 @@
 import { getConcept } from '@apis';
-import { Button, Input, Tag } from '@components';
+import { Input, Tag } from '@components';
 import { debounce } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';

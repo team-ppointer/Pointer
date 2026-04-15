@@ -69,12 +69,24 @@ const useSubscribeQna = ({
   const onConnectionStatusChangeRef = useRef(onConnectionStatusChange);
 
   // 콜백 refs를 최신 값으로 동기화
-  useEffect(() => { onChatEventRef.current = onChatEvent; }, [onChatEvent]);
-  useEffect(() => { onReadStatusEventRef.current = onReadStatusEvent; }, [onReadStatusEvent]);
-  useEffect(() => { onHeartbeatRef.current = onHeartbeat; }, [onHeartbeat]);
-  useEffect(() => { onErrorRef.current = onError; }, [onError]);
-  useEffect(() => { onOpenRef.current = onOpen; }, [onOpen]);
-  useEffect(() => { onConnectionStatusChangeRef.current = onConnectionStatusChange; }, [onConnectionStatusChange]);
+  useEffect(() => {
+    onChatEventRef.current = onChatEvent;
+  }, [onChatEvent]);
+  useEffect(() => {
+    onReadStatusEventRef.current = onReadStatusEvent;
+  }, [onReadStatusEvent]);
+  useEffect(() => {
+    onHeartbeatRef.current = onHeartbeat;
+  }, [onHeartbeat]);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+  useEffect(() => {
+    onOpenRef.current = onOpen;
+  }, [onOpen]);
+  useEffect(() => {
+    onConnectionStatusChangeRef.current = onConnectionStatusChange;
+  }, [onConnectionStatusChange]);
 
   // Refs for stable function references
   const connectRef = useRef<() => void>(() => {});

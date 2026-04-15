@@ -19,4 +19,3 @@ const getQnaById = ({ qnaId, enabled = true }: GetQnaByIdParams) => {
 };
 
 export default getQnaById;
-

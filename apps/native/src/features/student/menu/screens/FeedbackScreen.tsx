@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import { colors } from '@theme/tokens';
 import { usePostFeedback } from '@apis';
 import { showToast } from '@features/student/scrap/components/Notification';
@@ -43,7 +43,7 @@ const FeedbackScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}>
       <ScreenLayout title='피드백 보내기'>
-        <Container className='flex-1 pt-[10px]'>
+        <ContentInset className='flex-1 pt-[10px]'>
           <ScrollView
             className='flex-1'
             showsVerticalScrollIndicator={false}
@@ -80,7 +80,7 @@ const FeedbackScreen = () => {
               <Text className='text-16m text-white'>보내기</Text>
             </AnimatedPressable>
           </SafeAreaView>
-        </Container>
+        </ContentInset>
       </ScreenLayout>
     </KeyboardAvoidingView>
   );
