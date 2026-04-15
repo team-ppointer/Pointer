@@ -1,3 +1,4 @@
+// TODO: SkPath는 타입으로만 사용됨 — `import type { SkPath }`로 분리할 것
 import { Skia, SkPath } from "@shopify/react-native-skia";
 import type {
   ReadonlyPoint,
