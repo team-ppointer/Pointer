@@ -9,7 +9,11 @@ import { onMessage, sendToRN } from './bridge';
 import { renderDocument } from './modes/document/document-renderer';
 import { runChatScenario } from './modes/chat/chat-controller';
 import { renderOverview } from './modes/overview/overview-renderer';
-import { initOverviewController, handleBookmarkResult, scrollToSection } from './modes/overview/overview-controller';
+import {
+  initOverviewController,
+  handleBookmarkResult,
+  scrollToSection,
+} from './modes/overview/overview-controller';
 
 const container = document.getElementById('content')!;
 
