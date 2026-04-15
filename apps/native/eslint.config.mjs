@@ -6,6 +6,8 @@ import sonarjs from 'eslint-plugin-sonarjs';
 import tailwindcss from 'eslint-plugin-tailwindcss';
 import typographyPlugin from './eslint-plugin-typography.js';
 
+const tsconfigRootDir = new URL('.', import.meta.url).pathname;
+
 /** @type {import('eslint').FlatConfig[]} */
 export default [
   ...expoConfig,
@@ -56,6 +58,20 @@ export default [
       ],
       '@typescript-eslint/no-non-null-assertion': 'error',
       '@typescript-eslint/no-unused-expressions': 'error',
+    },
+  },
+  {
+    // Type-aware rules (TS only) — 파서가 프로젝트 타입 정보를 읽도록 projectService 활성화.
+    // 비활성 시 @typescript-eslint/no-deprecated 가 hover 레벨에서만 동작하고 lint 에서는 미검지.
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-deprecated': 'warn',
 
       // React
       'react-hooks/exhaustive-deps': 'warn',
