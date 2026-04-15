@@ -8,6 +8,7 @@ import codegenNativeComponent from "react-native/Libraries/Utilities/codegenNati
 
 type StylusTouchEvent = Readonly<{
   phase: Int32; // 0=began, 1=moved, 2=ended, 3=cancelled
+  pointerType: Int32; // 0=touch (finger), 1=pencil
   // Parallel arrays — one entry per coalesced touch sample.
   // Using parallel arrays to work around react-native#47113
   // (codegen nested-object-in-array bug).
@@ -28,6 +29,7 @@ type StylusTouchEvent = Readonly<{
 }>;
 
 export interface NativeProps extends ViewProps {
+  acceptFingerInput?: boolean;
   onStylusTouch: DirectEventHandler<StylusTouchEvent>;
 }
 

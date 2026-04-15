@@ -5,9 +5,11 @@ import type { DrawingInputCallbacks } from "./inputTypes";
 import type { InputOverlayAdapter } from "./inputAdapterTypes";
 import type { InputPhase } from "./inputTypes";
 import StylusInputView from "../specs/StylusInputViewNativeComponent";
+import { OneEuroFilter2D } from "../model/oneEuroFilter";
 
 type StylusTouchPayload = {
   phase: number;
+  pointerType: number; // 0=touch (finger), 1=pencil
   xs: readonly number[];
   ys: readonly number[];
   timestamps: readonly number[];
@@ -44,6 +46,7 @@ function unpackTouches(
   xs: readonly number[], ys: readonly number[],
   timestamps: readonly number[], forces: readonly number[],
   altitudes: readonly number[], azimuths: readonly number[],
+  pointerType: "pen" | "touch",
 ): InputEvent[] {
   const count = xs.length;
   const events: InputEvent[] = new Array(count);
@@ -70,7 +73,7 @@ function unpackTouches(
       y: ys[i],
       timestamp: uptimeMsToEpochMs(timestamps[i]),
       pressure: forces[i],
-      pointerType: "pen",
+      pointerType,
       tiltX,
       tiltY,
     };
@@ -82,6 +85,7 @@ function unpackTouches(
 export type NativeStylusAdapterConfig = {
   callbacks: DrawingInputCallbacks;
   eraserMode: boolean;
+  acceptFingerInput?: boolean;
 };
 
 export function useNativeStylusAdapter(
@@ -92,25 +96,48 @@ export function useNativeStylusAdapter(
 
   const phaseRef = useRef<InputPhase>("idle");
 
+  // 1€ filter for native finger input (coalesced data is cleaner than RNGH,
+  // so we use a weaker filter: higher minCutoff = less smoothing)
+  const fingerFilterRef = useRef(new OneEuroFilter2D({ minCutoff: 10.0, beta: 0.05, dCutoff: 1.0 }));
+
   const handleStylusTouch = useCallback(
     (event: { nativeEvent: StylusTouchPayload }) => {
       const { nativeEvent } = event;
       const { callbacks, eraserMode } = configRef.current;
+      const isPencil = nativeEvent.pointerType === 1;
+      const ptrType = isPencil ? "pen" as const : "touch" as const;
+
       const inputs = unpackTouches(
         nativeEvent.xs, nativeEvent.ys, nativeEvent.timestamps,
         nativeEvent.forces, nativeEvent.altitudes, nativeEvent.azimuths,
+        ptrType,
       );
 
       if (inputs.length === 0) {
         return;
       }
 
-      // Unpack predicted touches (rendering only, not committed to stroke)
-      const predicted = nativeEvent.predictedXs.length > 0
+      // Light 1€ filter for finger input — native coalesced is cleaner than RNGH
+      // but still benefits from minimal smoothing to reduce angular artifacts.
+      if (!isPencil) {
+        if (nativeEvent.phase === 0) {
+          fingerFilterRef.current.reset();
+        }
+        for (const input of inputs) {
+          const f = fingerFilterRef.current.filter(input.x, input.y, input.timestamp);
+          input.x = f.x;
+          input.y = f.y;
+        }
+      }
+
+      // Unpack predicted touches (rendering only, not committed to stroke).
+      // Finger predicted touches cause visible "snap back" on lift — only use for pencil.
+      const predicted = isPencil && nativeEvent.predictedXs.length > 0
         ? unpackTouches(
             nativeEvent.predictedXs, nativeEvent.predictedYs,
             nativeEvent.predictedTimestamps, nativeEvent.predictedForces,
             nativeEvent.predictedAltitudes, nativeEvent.predictedAzimuths,
+            ptrType,
           )
         : undefined;
 
@@ -191,6 +218,7 @@ export function useNativeStylusAdapter(
       Platform.OS === "ios" ? (
         <StylusInputView
           style={StyleSheet.absoluteFill}
+          acceptFingerInput={config.acceptFingerInput ?? false}
           onStylusTouch={handleStylusTouch}
         />
       ) : null,

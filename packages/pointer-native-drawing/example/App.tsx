@@ -16,6 +16,7 @@ import type {
 
 const COLORS = ['#1E1E21', '#E53935', '#1E88E5', '#43A047', '#8E24AA'];
 const WIDTHS = [1, 3.9, 7.5];
+const ERASER_SIZES = [10, 20, 40];
 const TOOLS: {key: ActiveTool; label: string}[] = [
   {key: 'pen', label: 'Pen'},
   {key: 'eraser', label: 'Eraser'},
@@ -28,6 +29,7 @@ function App(): React.JSX.Element {
   const [strokeWidth, setStrokeWidth] = useState(1);
   const [activeTool, setActiveTool] = useState<ActiveTool>('pen');
   const [strokeCount, setStrokeCount] = useState(0);
+  const [eraserSize, setEraserSize] = useState(ERASER_SIZES[1]);
   const [enableZoomPan, setEnableZoomPan] = useState(false);
   const [undoState, setUndoState] = useState({canUndo: false, canRedo: false});
 
@@ -50,11 +52,12 @@ function App(): React.JSX.Element {
           strokeColor={strokeColor}
           strokeWidth={strokeWidth}
           activeTool={activeTool}
+          eraserSize={eraserSize}
           enableZoomPan={enableZoomPan}
           onChange={handleChange}
           onUndoStateChange={setUndoState}
           stylusInput="auto"
-          pencilOnly
+          pencilOnly={false}
         />
       </View>
 
@@ -127,6 +130,36 @@ function App(): React.JSX.Element {
             ))}
           </View>
         </View>
+
+        {/* Eraser size selector */}
+        {activeTool === 'eraser' && (
+          <View style={styles.row}>
+            <Text style={styles.label}>Eraser</Text>
+            <View style={styles.options}>
+              {ERASER_SIZES.map(s => (
+                <TouchableOpacity
+                  key={s}
+                  style={[
+                    styles.widthButton,
+                    eraserSize === s && styles.selectedWidth,
+                  ]}
+                  onPress={() => setEraserSize(s)}>
+                  <View
+                    style={[
+                      styles.widthDot,
+                      {
+                        width: s,
+                        height: s,
+                        borderRadius: s / 2,
+                        backgroundColor: '#AAAAAA',
+                      },
+                    ]}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Actions */}
         <View style={styles.row}>

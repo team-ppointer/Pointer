@@ -11,10 +11,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSArray<UITouch *> *coalescedTouches;
 @property (nonatomic, readonly) NSArray<UITouch *> *predictedTouches;
 @property (nonatomic, readonly) UIView *referenceView;
+@property (nonatomic, readonly) UITouchType touchType;
 
 - (instancetype)initWithCoalescedTouches:(NSArray<UITouch *> *)coalesced
                        predictedTouches:(NSArray<UITouch *> *)predicted
-                           referenceView:(UIView *)view;
+                           referenceView:(UIView *)view
+                               touchType:(UITouchType)touchType;
 
 @end
 
@@ -32,15 +34,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/// A gesture recognizer that only recognizes Apple Pencil touches.
-/// Finger touches are immediately failed so they fall through to
-/// underlying gesture recognizers (e.g. RNGH PanGestureHandler).
+/// A gesture recognizer that recognizes Apple Pencil touches and,
+/// when acceptsFingerInput is YES, also direct (finger) touches.
+/// When finger input is disabled, finger touches are immediately
+/// failed so they fall through to underlying gesture recognizers
+/// (e.g. RNGH PanGestureHandler).
 ///
 /// Coalesced touch data is forwarded via the pencilDelegate because
 /// UIGestureRecognizer action selectors do not receive the UIEvent.
 @interface PencilGestureRecognizer : UIGestureRecognizer
 
 @property (nonatomic, weak, nullable) id<PencilGestureRecognizerDelegate> pencilDelegate;
+
+/// When YES, finger (UITouchTypeDirect) touches are accepted in
+/// addition to pencil touches. Default is NO (pencil only).
+@property (nonatomic) BOOL acceptsFingerInput;
 
 @end
 

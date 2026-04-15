@@ -5,13 +5,14 @@ import type { DocumentSnapshot } from "../engine/HistoryManager";
 import type { HistoryManager } from "../engine/HistoryManager";
 import { screenToCanvas } from "../transform";
 import type { ViewTransform } from "../transform";
+import type { CancelReason } from "../input/inputTypes";
 
 export type DrawingActions = {
   startStroke: (input: InputEvent) => void;
   addPoint: (input: InputEvent) => void;
   finalizeStroke: () => void;
   eraseAtPoint: (input: InputEvent) => void;
-  cancelDraw: () => void;
+  cancelDraw: (reason?: CancelReason) => void;
   handlePredictedSamples: (inputs: InputEvent[]) => void;
   captureSnapshot: () => DocumentSnapshot;
   setEraserCursor: (cursor: { x: number; y: number } | null) => void;
@@ -65,7 +66,7 @@ export function useDrawingInteractionController({
       onDrawStart: startStroke,
       onDrawMove: addPoint,
       onDrawEnd: finalizeStroke,
-      onDrawCancel: () => cancelDraw(),
+      onDrawCancel: (reason) => cancelDraw(reason),
       onEraseStart: eraseAtPoint,
       onEraseMove: eraseAtPoint,
       onPredictedSamples: handlePredictedSamples,
