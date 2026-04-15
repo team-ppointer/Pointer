@@ -14,7 +14,7 @@ import {
   useGetNoticeCount,
 } from '@apis';
 import { type StudentRootStackParamList } from '@navigation/student/types';
-import { colors } from '@theme/tokens';
+import { colors, shadow } from '@theme/tokens';
 import { AlertBellButtonIcon, PointerSymbol } from '@components/system/icons';
 import { AnimatedPressable, ContentInset, Header, PointerContentView } from '@components/common';
 import { useInvalidateAll } from '@hooks';
@@ -32,7 +32,10 @@ const HomeScreen = () => {
 
   const { data: diagnosisData } = useGetLastDiagnosis();
   const diagnosisContent = useMemo(
-    () => (diagnosisData?.content ? buildDocumentInit({ content: diagnosisData.content }) : null),
+    () =>
+      diagnosisData?.content
+        ? buildDocumentInit({ content: diagnosisData.content, fontStyle: 'sans-serif' })
+        : null,
     [diagnosisData?.content]
   );
   const { data: studyData } = useGetMonthlyPublish({
@@ -86,55 +89,59 @@ const HomeScreen = () => {
         className='flex-1'
         contentContainerStyle={{ paddingBottom: 80 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <ContentInset className='flex-col gap-[12px] pt-[20px] md:flex-row'>
+        <ContentInset className='flex-col gap-[16px] pt-[20px] md:flex-row'>
           <View className='flex-1 flex-col'>
-            <View className='mb-[10px] w-full flex-row items-center gap-[8px] p-[8px]'>
-              <View className='bg-primary-500 size-[42px] items-center justify-center rounded-full'>
+            <View className='mb-[16px] w-full flex-row items-center gap-[8px]'>
+              <View className='bg-primary-600 size-[48px] items-center justify-center rounded-full'>
                 <PointerSymbol />
               </View>
-              <View className='flex-1 flex-col gap-[2px]'>
-                <Text className='text-18b text-black'>{studentName}만을 위한 코멘트</Text>
-                <Text className='text-14r text-gray-700'>from 포인터 출제진</Text>
+              <View className='flex-1 flex-col'>
+                <Text className='typo-heading-1-bold text-black'>
+                  {studentName}만을 위한 코멘트
+                </Text>
+                <Text className='typo-label-medium text-gray-700'>from 포인터 출제진</Text>
               </View>
               <AnimatedPressable onPress={() => {}} className='items-center justify-center p-[8px]'>
                 <ChevronRightIcon size={20} color={colors['gray-700']} />
               </AnimatedPressable>
             </View>
             <View className='w-full flex-1 gap-[10px] rounded-[20px] bg-gray-300 p-[16px]'>
-              <LinearGradient
-                colors={[colors['primary-500'], colors['primary-200']]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={{ borderRadius: 10, padding: 1 }}>
-                <View className='flex-col items-center justify-between rounded-[9px] bg-white p-[16px]'>
-                  <View className='mb-[8px] w-full flex-row items-center justify-between'>
-                    <Text className='text-16sb text-primary-500'>이번 주 학습 상태</Text>
-                    <Text className='text-13r text-gray-700'>
-                      {diagnosisData?.createdAt
-                        ? `${new Date(diagnosisData.createdAt).getMonth() + 1}월 ${new Date(
-                            diagnosisData.createdAt
-                          ).getDate()}일`
-                        : ''}
-                    </Text>
-                  </View>
-                  {diagnosisContent && (
-                    <PointerContentView initMessage={diagnosisContent} />
-                  )}
+              <View
+                className='border-primary-400 flex-col rounded-[9px] border bg-white px-[16px] py-[12px]'
+                style={shadow[100]}>
+                <View className='mb-[8px] w-full flex-row items-center justify-between'>
+                  <Text className='typo-heading-2-semibold text-primary-600'>
+                    이번 주 학습 상태
+                  </Text>
+                  <Text className='typo-label-medium mr-[2px] text-gray-700'>
+                    {diagnosisData?.createdAt
+                      ? `${new Date(diagnosisData.createdAt).getMonth() + 1}월 ${new Date(
+                          diagnosisData.createdAt
+                        ).getDate()}일`
+                      : ''}
+                  </Text>
                 </View>
-              </LinearGradient>
+                {diagnosisContent ? (
+                  <PointerContentView initMessage={diagnosisContent} />
+                ) : (
+                  <Text className='typo-body-1-regular text-gray-700'>
+                    아직 등록된 학습 상태가 없어요
+                  </Text>
+                )}
+              </View>
             </View>
           </View>
           <View className='flex-1 flex-col'>
-            <View className='mb-[10px] w-full flex-row items-center gap-[8px] p-[8px]'>
-              <View className='size-[42px] items-center justify-center rounded-full bg-blue-200'>
-                <BookOpenTextIcon size={20} color={colors['blue-500']} />
+            <View className='mb-[16px] w-full flex-row items-center gap-[8px]'>
+              <View className='bg-primary-200 size-[48px] items-center justify-center rounded-full'>
+                <BookOpenTextIcon size={24} color={colors['primary-600']} />
               </View>
-              <View className='flex-1 flex-col gap-[2px]'>
-                <Text className='text-18b text-black'>
+              <View className='flex-1 flex-col'>
+                <Text className='typo-heading-1-bold line-clamp-1 truncate text-black'>
                   {publishDetailData?.problemSet?.title ?? '미출제'}
                 </Text>
 
-                <Text className='text-14r text-gray-700'>
+                <Text className='typo-label-medium text-gray-700'>
                   {`${String(selectedDate.getMonth() + 1).padStart(2, '0')}월 ${String(selectedDate.getDate()).padStart(2, '0')}일`}
                   {publishDetailData?.publishAt &&
                     ` · ${publishDetailData?.problemSet?.problems?.length ?? 0}문제`}
@@ -146,11 +153,7 @@ const HomeScreen = () => {
                 <CalendarIcon size={20} color={colors['gray-700']} />
               </AnimatedPressable>
             </View>
-            <ProblemSet
-              publishDetail={publishDetailData ?? undefined}
-              selectedDate={selectedDate}
-              onDateChange={handleDateChange}
-            />
+            <ProblemSet publishDetail={publishDetailData ?? undefined} />
           </View>
         </ContentInset>
 

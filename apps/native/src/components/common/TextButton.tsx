@@ -30,18 +30,18 @@ const TextButton = ({
   buttonLabel,
   screenName,
 }: ButtonProps) => {
-  const baseStyle = 'h-[32px] w-fit items-center justify-center rounded-[8px] px-[10px]';
+  const baseStyle = 'h-[36px] w-fit items-center justify-center rounded-[8px] px-[10px]';
 
   const variantStyles = {
-    blue: 'bg-blue-500',
-    gray: 'bg-gray-800',
-    outline: 'bg-blue-200',
+    blue: 'bg-primary-600',
+    gray: 'bg-gray-400',
+    outline: 'bg-primary-200',
   };
 
   const textStyles = {
-    blue: 'text-white text-14m',
-    gray: 'text-white text-14m',
-    outline: 'text-blue-600 text-14m',
+    blue: 'text-white typo-body-2-medium',
+    gray: 'text-black typo-body-2-medium',
+    outline: 'text-primary-600 typo-body-2-medium',
   };
 
   const className = `${baseStyle} ${variantStyles[variant]}`;
