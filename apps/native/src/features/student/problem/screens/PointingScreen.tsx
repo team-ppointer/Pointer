@@ -6,7 +6,7 @@ import type { AnswerEventPayload } from '@repo/pointer-content-renderer';
 
 import { shadow } from '@theme/tokens';
 import { type StudentRootStackParamList } from '@navigation/student/types';
-import { Header } from '@components/common';
+import { Header, PointerContentView } from '@components/common';
 import {
   getInitialScreenForPhase,
   selectCurrentProblem,
@@ -22,7 +22,6 @@ import {
 import { useInvalidateStudyData } from '@hooks';
 
 import BottomActionBar from '../components/BottomActionBar';
-import { PointerContentView } from '../components/PointerContentView';
 import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
 import { pointingFeedbackQueue } from '../services';
 import {

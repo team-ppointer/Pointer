@@ -6,7 +6,12 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { type StudentRootStackParamList } from '@navigation/student/types';
-import { AnimatedPressable, Header } from '@components/common';
+import {
+  AnimatedPressable,
+  Header,
+  PointerContentView,
+  type PointerContentViewHandle,
+} from '@components/common';
 import {
   selectGroup,
   selectInitialized,
@@ -22,10 +27,6 @@ import {
   useToggleScrapFromPointing,
 } from '@apis/student';
 
-import {
-  PointerContentView,
-  type PointerContentViewHandle,
-} from '../components/PointerContentView';
 import ScrapItem from '../components/ScrapItem';
 import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
 import { pointingFeedbackQueue } from '../services';

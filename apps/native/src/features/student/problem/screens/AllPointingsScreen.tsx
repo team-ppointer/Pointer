@@ -7,15 +7,16 @@ import { XIcon } from 'lucide-react-native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { client } from '@apis/client';
-import { ContentInset, Header } from '@components/common';
+import {
+  ContentInset,
+  Header,
+  PointerContentView,
+  type PointerContentViewHandle,
+} from '@components/common';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { type components } from '@schema';
 import { useToggleScrapFromPointing } from '@apis/student';
 
-import {
-  PointerContentView,
-  type PointerContentViewHandle,
-} from '../components/PointerContentView';
 import {
   buildAllPointingsLeftSections,
   buildAllPointingsRightSections,
