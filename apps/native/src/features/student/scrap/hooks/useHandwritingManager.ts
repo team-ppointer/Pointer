@@ -54,9 +54,7 @@ export function useHandwritingManager({
           try {
             const decodedData = decodeHandwritingData(handwritingData.data);
             canvasRef.current.setStrokes(decodedData.strokes);
-            if (decodedData.texts?.length > 0) {
-              canvasRef.current.setTextBoxes(decodedData.texts);
-            }
+            canvasRef.current.setTextBoxes(decodedData.texts ?? []);
             if (decodedData.lastColor) {
               onColorRestore?.(decodedData.lastColor);
             }

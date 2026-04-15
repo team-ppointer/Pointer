@@ -645,6 +645,7 @@ const ScrapDetailScreen = () => {
                   eraserSize={drawingState.eraserSize}
                   pencilOnly
                   enableZoomPan
+                  onChange={drawingState.markAsUnsaved}
                   onUndoStateChange={setUndoState}
                 />
               </View>

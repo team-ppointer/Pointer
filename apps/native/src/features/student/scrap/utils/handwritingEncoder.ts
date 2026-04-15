@@ -46,6 +46,7 @@ export function decodeHandwritingData(base64Data: string): HandwritingData {
       return {
         strokes: data.strokes || [],
         texts: data.texts || [],
+        lastColor: data.lastColor,
       };
     }
   } catch (error) {

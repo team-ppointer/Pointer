@@ -104,6 +104,9 @@ export function useDrawingState() {
     setStrokeColor,
     setStrokeWidth,
     setEraserSize,
+    markAsUnsaved: useCallback(() => {
+      dispatch({ type: 'SET_UNSAVED_CHANGES', hasChanges: true });
+    }, []),
     markAsSaved,
     reset,
   };
