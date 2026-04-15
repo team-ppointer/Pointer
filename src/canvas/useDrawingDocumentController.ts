@@ -6,6 +6,7 @@ import { DrawingEngine } from "../engine/DrawingEngine";
 import { HistoryManager } from "../engine/HistoryManager";
 import type { DocumentSnapshot, HistoryEntry } from "../engine/HistoryManager";
 import type { RendererActions } from "../render/rendererTypes";
+import type { CancelReason } from "../input/inputTypes";
 
 /**
  * Minimal textbox actions interface consumed by the document controller.
@@ -234,9 +235,17 @@ export function useDrawingDocumentController({
     syncCanvasHeightFromMaxY,
   ]);
 
-  const cancelDraw = useCallback(() => {
-    const sessionPoints = engineRef.current.getSessionPoints();
+  const cancelDraw = useCallback((reason?: CancelReason) => {
+    if (reason === "interrupted") {
+      // 2nd finger (zoom/pan intent) — always discard partial stroke
+      cancelScheduledLivePathRender();
+      resetLivePath();
+      engineRef.current.discardSession();
+      return;
+    }
 
+    // RNGH gesture_failed — commit partial stroke if meaningful
+    const sessionPoints = engineRef.current.getSessionPoints();
     if (sessionPoints.length <= 1) {
       cancelScheduledLivePathRender();
       resetLivePath();

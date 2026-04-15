@@ -213,9 +213,15 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       (stylusInput === "native" ||
         (stylusInput === "auto" && Platform.OS === "ios"));
 
+    // Native finger input: when native stylus is available, zoom/pan mode is on,
+    // and not in textbox mode, route finger drawing through the native recognizer.
+    // In scroll mode, fall back to RNGH so ScrollView touch handling works.
+    const nativeFingerInput = useNativeStylus && enableZoomPan && activeTool !== "textbox";
+
     const nativeStylusAdapter = useNativeStylusAdapter({
       callbacks: transformedCallbacks,
       eraserMode,
+      acceptFingerInput: nativeFingerInput,
     });
 
     const { gesture: drawPan } = useRnghPanAdapter({
@@ -223,6 +229,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       pencilOnly,
       minDistance: PAN_MIN_DISTANCE,
       callbacks: transformedCallbacks,
+      enabled: !nativeFingerInput,
     });
 
     // --- Gesture Composer ---
@@ -230,6 +237,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       enableZoomPan,
       maxZoomScale,
       isTextBoxTool: activeTool === "textbox",
+      nativeFingerInput,
       viewTransformRef: vc.viewTransformRef,
       applyTransform: vc.applyTransform,
       drawPanGesture: drawPan,

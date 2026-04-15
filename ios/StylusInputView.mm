@@ -20,6 +20,13 @@ using namespace facebook::react;
   return concreteComponentDescriptorProvider<StylusInputViewComponentDescriptor>();
 }
 
+- (void)updateProps:(const Props::Shared &)props oldProps:(const Props::Shared &)oldProps
+{
+  const auto &newProps = static_cast<const StylusInputViewProps &>(*props);
+  _pencilRecognizer.acceptsFingerInput = newProps.acceptFingerInput;
+  [super updateProps:props oldProps:oldProps];
+}
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
@@ -114,6 +121,7 @@ using namespace facebook::react;
 
   StylusInputViewEventEmitter::OnStylusTouch event;
   event.phase = phase;
+  event.pointerType = (data.touchType == UITouchTypePencil) ? 1 : 0;
   event.xs = {xs.begin(), xs.end()};
   event.ys = {ys.begin(), ys.end()};
   event.timestamps = {timestamps.begin(), timestamps.end()};

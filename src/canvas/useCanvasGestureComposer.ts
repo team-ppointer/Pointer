@@ -10,6 +10,7 @@ export type UseCanvasGestureComposerArgs = {
   enableZoomPan: boolean;
   maxZoomScale: number;
   isTextBoxTool: boolean;
+  nativeFingerInput?: boolean;
   viewTransformRef: RefObject<ViewTransform>;
   applyTransform: (t: ViewTransform) => void;
   drawPanGesture: GestureType;
@@ -20,6 +21,7 @@ export function useCanvasGestureComposer({
   enableZoomPan,
   maxZoomScale,
   isTextBoxTool,
+  nativeFingerInput = false,
   viewTransformRef,
   applyTransform,
   drawPanGesture,
@@ -182,10 +184,16 @@ export function useCanvasGestureComposer({
         ? Gesture.Simultaneous(textBoxTapGesture, fingerPanGesture, pinchGesture)
         : textBoxTapGesture;
     }
+    if (nativeFingerInput) {
+      // 1-finger drawing handled by native recognizer → RNGH only needs 2-finger gestures
+      return enableZoomPan
+        ? Gesture.Simultaneous(fingerPanGesture, pinchGesture)
+        : drawPanGesture; // enabled=false dummy, keeps GestureDetector happy
+    }
     return enableZoomPan
       ? Gesture.Simultaneous(drawPanGesture, fingerPanGesture, pinchGesture)
       : drawPanGesture;
-  }, [enableZoomPan, drawPanGesture, fingerPanGesture, pinchGesture, textBoxTapGesture, isTextBoxTool]);
+  }, [enableZoomPan, nativeFingerInput, drawPanGesture, fingerPanGesture, pinchGesture, textBoxTapGesture, isTextBoxTool]);
 
   return { composedGesture };
 }
