@@ -13,8 +13,11 @@ import {
   type PointerContentViewHandle,
 } from '@components/common';
 import {
+  getInitialScreenForPhase,
   selectGroup,
+  selectHasNextProblem,
   selectInitialized,
+  selectPhase,
   selectPublishAt,
   selectPublishId,
   useProblemSessionStore,
@@ -46,6 +49,9 @@ const AnalysisScreen = ({
   const initialized = useProblemSessionStore(selectInitialized);
   const publishId = useProblemSessionStore(selectPublishId);
   const publishAt = useProblemSessionStore(selectPublishAt);
+  const phase = useProblemSessionStore(selectPhase);
+  const hasNextProblem = useProblemSessionStore(selectHasNextProblem);
+  const goToNextProblem = useProblemSessionStore((state) => state.goToNextProblem);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
 
@@ -76,21 +82,29 @@ const AnalysisScreen = ({
   }, [invalidateStudyData, navigation, publishAt, publishId, resetSession]);
 
   useEffect(() => {
-    if (!initialized) {
-      return;
-    }
+    if (!initialized) return;
     if (!group) {
       redirectToHome();
+      return;
     }
-  }, [group, initialized, redirectToHome]);
+    if (phase === 'ANALYSIS' || phase === 'DONE') return;
+    const target = getInitialScreenForPhase(phase);
+    if (target === 'Analysis') return;
+    navigation?.navigate(target);
+  }, [group, initialized, phase, navigation, redirectToHome]);
 
   const handleClose = useCallback(() => {
     goHome();
   }, [goHome]);
 
   const handlePrimaryAction = useCallback(() => {
-    goHome();
-  }, [goHome]);
+    if (hasNextProblem) {
+      void invalidateStudyData(publishId, publishAt);
+      goToNextProblem();
+    } else {
+      goHome();
+    }
+  }, [hasNextProblem, invalidateStudyData, publishId, publishAt, goToNextProblem, goHome]);
 
   const queueSnapshot = pointingFeedbackQueue.snapshot();
   const joined = useMemo(() => (group ? joinPointingsForAnalysis(group) : []), [group]);
@@ -240,7 +254,7 @@ const AnalysisScreen = ({
 
   const { leftWidth, rightWidth } = useSplitPanelLayout();
 
-  const primaryButtonLabel = '학습 완료';
+  const primaryButtonLabel = hasNextProblem ? '다음 문제 풀기' : '학습 마무리';
 
   return (
     <View className='flex-1 flex-row bg-white'>
