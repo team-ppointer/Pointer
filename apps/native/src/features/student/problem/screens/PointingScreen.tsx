@@ -3,6 +3,7 @@ import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo } from 'react';
 import type { AnswerEventPayload } from '@repo/pointer-content-renderer';
+import { useShallow } from 'zustand/react/shallow';
 
 import { shadow } from '@theme/tokens';
 import { type StudentRootStackParamList } from '@navigation/student/types';
@@ -46,7 +47,7 @@ const PointingScreen = ({
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
 
-  const pointings = useProblemSessionStore(selectPointingsForPointing);
+  const pointings = useProblemSessionStore(useShallow(selectPointingsForPointing));
 
   if (pointings.length === 0) console.warn('[PointingScreen] empty pointings array');
 
