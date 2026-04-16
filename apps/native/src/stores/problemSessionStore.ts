@@ -126,7 +126,8 @@ const computeResumeState = (
   }
 
   if (isMainCorrect) {
-    if (mainPointings.length > 0) {
+    const childPointingsCount = children.reduce((sum, c) => sum + (c.pointings?.length ?? 0), 0);
+    if (mainPointings.length + childPointingsCount > 0) {
       return {
         phase: 'MAIN_POINTINGS',
         childIndex: INITIAL_INDEX,
@@ -318,7 +319,11 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
       const mainPointings = getMainPointings(group);
 
       if (isCorrect) {
-        if (mainPointings.length > 0) {
+        const childPointingsCount = childProblems.reduce(
+          (sum, c) => sum + (c.pointings?.length ?? 0),
+          0
+        );
+        if (mainPointings.length + childPointingsCount > 0) {
           set({
             mainCorrect: true,
             phase: 'MAIN_POINTINGS',
