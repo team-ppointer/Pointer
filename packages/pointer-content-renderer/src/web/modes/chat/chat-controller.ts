@@ -8,6 +8,7 @@ import {
   createYesNoButtons,
   renderStaticQuestionPhase,
   renderStaticConfirmPhase,
+  renderActionBubble,
 } from './chat-renderer';
 import {
   getTypingTiming,
@@ -25,6 +26,13 @@ export interface AnswerEvent {
   pointingId: string;
   step: 'question' | 'confirm';
   response: 'yes' | 'no';
+}
+
+export interface ChatConfig {
+  /** Text prompt shown in the advance button bubble. Defaults to '다음으로 이동할까요?'. */
+  advanceMessage?: string;
+  /** Label for the advance button after the last pointing. Defaults to '다음'. */
+  advanceButtonLabel?: string;
 }
 
 async function showWithTypingIndicator(
@@ -82,9 +90,76 @@ async function showFixedMessage(
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
-  bubble.innerHTML = `<p>${text}</p>`;
+  const p = document.createElement('p');
+  p.textContent = text;
+  bubble.appendChild(p);
   replaceWithBubble(indicator, bubble);
   return bubble;
+}
+
+async function showInstantly(
+  container: HTMLElement,
+  node: PointingNode,
+  signal: AbortSignal
+): Promise<HTMLElement> {
+  if (signal.aborted) throw signal.reason;
+
+  const html = serializeNodeToHTML(node.contentNode);
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble chat-bubble--system';
+  bubble.style.animation = 'bubbleIn 300ms ease-out';
+  bubble.innerHTML = html;
+
+  if (node.expandContent) {
+    const expandBtn = document.createElement('button');
+    expandBtn.className = 'chat-expand-btn';
+    expandBtn.textContent = '?';
+
+    const expandContent = document.createElement('div');
+    expandContent.className = 'chat-expand-content';
+    expandContent.innerHTML = serializeNodeToHTML(node.expandContent);
+
+    expandBtn.addEventListener('click', () => {
+      expandContent.classList.toggle('chat-expand-content--visible');
+    });
+
+    bubble.appendChild(expandBtn);
+    bubble.appendChild(expandContent);
+    await renderMath(expandContent);
+    if (signal.aborted) throw signal.reason;
+  }
+
+  container.appendChild(bubble);
+  await renderMath(bubble);
+  if (signal.aborted) throw signal.reason;
+  scrollToBottom();
+  return bubble;
+}
+
+function waitForActionButton(
+  container: HTMLElement,
+  label: string,
+  signal: AbortSignal,
+  message?: string
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(signal.reason);
+      return;
+    }
+    const onAbort = () => reject(signal.reason);
+    signal.addEventListener('abort', onAbort, { once: true });
+
+    renderActionBubble(
+      container,
+      label,
+      () => {
+        signal.removeEventListener('abort', onAbort);
+        resolve();
+      },
+      message
+    );
+  });
 }
 
 function waitForYesNo(bubble: HTMLElement, signal: AbortSignal): Promise<'yes' | 'no'> {
@@ -108,7 +183,8 @@ export async function runChatScenario(
   scenario: ChatScenario,
   userAnswers: UserAnswer[] | undefined,
   signal: AbortSignal,
-  onAnswer: (ev: AnswerEvent) => void
+  onAnswer: (ev: AnswerEvent) => void,
+  config?: ChatConfig
 ): Promise<UserAnswer[]> {
   const answerMap = new Map<string, UserAnswer>();
   for (const a of userAnswers ?? []) {
@@ -126,7 +202,15 @@ export async function runChatScenario(
     }
   };
 
-  for (const pointing of scenario.pointings) {
+  const pointings = scenario.pointings;
+
+  // Short-circuit: no pointings → return immediately without blocking on advance
+  if (pointings.length === 0) {
+    return finalAnswers;
+  }
+
+  for (let i = 0; i < pointings.length; i++) {
+    const pointing = pointings[i];
     if (pointing.questionNodes.length === 0) {
       console.warn(`[content-renderer] pointing "${pointing.id}" has no questionNodes; skipping`);
       continue;
@@ -148,7 +232,7 @@ export async function runChatScenario(
 
       let lastBubble: HTMLElement | null = null;
       for (const node of pointing.questionNodes) {
-        lastBubble = await showWithTypingIndicator(container, node, signal);
+        lastBubble = await showInstantly(container, node, signal);
       }
       if (!lastBubble) continue; // defensive
 
@@ -182,10 +266,20 @@ export async function runChatScenario(
       questionResponse,
       confirmResponse,
     });
+
+    // Show "다음 포인팅" button between pointings (skip for last)
+    if (i < pointings.length - 1 && !existing?.confirmResponse) {
+      await waitForActionButton(container, '다음 포인팅', signal, '다음 포인팅으로 이동할까요?');
+    }
   }
 
   // All pointings were static → no interactive scroll yet. Bring user to the end.
   scrollToCursorIfFirstInteractive();
+
+  // Advance button after last pointing
+  const advanceLabel = config?.advanceButtonLabel ?? '다음';
+  const advanceMessage = config?.advanceMessage ?? '다음으로 이동할까요?';
+  await waitForActionButton(container, advanceLabel, signal, advanceMessage);
 
   return finalAnswers;
 }

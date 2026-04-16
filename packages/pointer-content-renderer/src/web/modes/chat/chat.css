@@ -118,6 +118,22 @@
   border-color: var(--color-red-400);
 }
 
+.chat-choice-btn--action {
+  background-color: var(--color-primary-600);
+  color: var(--color-white);
+  border-color: var(--color-primary-600);
+}
+
+.chat-choice-btn--action:hover:not(:disabled) {
+  background-color: var(--color-primary-700);
+}
+
+.chat-choice-btn--action:disabled {
+  background-color: var(--color-primary-300);
+  border-color: var(--color-primary-300);
+  color: var(--color-white) !important;
+}
+
 /* Expand button */
 .chat-expand-btn {
   display: inline-flex;

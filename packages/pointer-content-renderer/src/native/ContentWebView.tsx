@@ -49,12 +49,13 @@ interface ContentWebViewProps {
   onComplete?: (answers: UserAnswer[]) => void;
   onAnswer?: (event: AnswerEventPayload) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
+  onAdvance?: () => void;
   style?: StyleProp<ViewStyle>;
 }
 
 export const ContentWebView = forwardRef<ContentWebViewHandle, ContentWebViewProps>(
   function ContentWebView(
-    { htmlSource, initMessage, onReady, onComplete, onAnswer, onBookmark, style },
+    { htmlSource, initMessage, onReady, onComplete, onAnswer, onBookmark, onAdvance, style },
     ref
   ) {
     const mode = initMessage.mode;
@@ -72,6 +73,7 @@ export const ContentWebView = forwardRef<ContentWebViewHandle, ContentWebViewPro
       onComplete,
       onAnswer,
       onBookmark,
+      onAdvance,
     });
 
     useImperativeHandle(

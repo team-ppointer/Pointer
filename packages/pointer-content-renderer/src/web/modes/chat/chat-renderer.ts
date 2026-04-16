@@ -212,6 +212,48 @@ export async function renderStaticConfirmPhase(
   renderTextBubble(container, response === 'yes' ? '네' : '아니오', 'user', false);
 }
 
+/**
+ * Render a system bubble with an action button (confirm-prompt style).
+ * Optionally includes a text message above the button.
+ */
+export function renderActionBubble(
+  container: HTMLElement,
+  buttonLabel: string,
+  onAction: () => void,
+  message?: string
+): HTMLElement {
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble chat-bubble--system';
+  bubble.style.animation = 'bubbleIn 300ms ease-out';
+
+  if (message) {
+    const p = document.createElement('p');
+    p.textContent = message;
+    bubble.appendChild(p);
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'chat-choices';
+
+  const btn = document.createElement('button');
+  btn.className = 'chat-choice-btn chat-choice-btn--action';
+  btn.textContent = buttonLabel;
+  btn.addEventListener(
+    'click',
+    () => {
+      btn.disabled = true;
+      onAction();
+    },
+    { once: true }
+  );
+
+  wrapper.appendChild(btn);
+  bubble.appendChild(wrapper);
+  container.appendChild(bubble);
+  scrollToBottom();
+  return bubble;
+}
+
 export async function renderAllBubbles(
   container: HTMLElement,
   scenario: ChatScenario,
