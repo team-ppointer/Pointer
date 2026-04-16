@@ -126,32 +126,15 @@ const computeResumeState = (
   }
 
   if (isMainCorrect) {
-    for (let i = 0; i < children.length; i += 1) {
-      const cPointings = children[i].pointings ?? [];
-      if (cPointings.length === 0) continue;
-      const nextPIdx = cPointings.findIndex((p) => !isPointingCompleted(p));
-      if (nextPIdx !== -1) {
-        return {
-          phase: 'CHILD_POINTINGS',
-          childIndex: i,
-          pointingIndex: nextPIdx,
-          pointingTarget: 'CHILD',
-          mainCorrect: true,
-        };
-      }
-    }
-
-    const mainNextPIdx = mainPointings.findIndex((p) => !isPointingCompleted(p));
-    if (mainNextPIdx !== -1) {
+    if (mainPointings.length > 0) {
       return {
         phase: 'MAIN_POINTINGS',
         childIndex: INITIAL_INDEX,
-        pointingIndex: mainNextPIdx,
+        pointingIndex: 0,
         pointingTarget: 'MAIN',
         mainCorrect: true,
       };
     }
-
     return {
       phase: 'ANALYSIS',
       childIndex: INITIAL_INDEX,
@@ -335,20 +318,6 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
       const mainPointings = getMainPointings(group);
 
       if (isCorrect) {
-        const firstChildIndex = childProblems.findIndex(
-          (child) => (child.pointings?.length ?? 0) > 0
-        );
-        if (firstChildIndex !== -1) {
-          set({
-            mainCorrect: true,
-            phase: 'CHILD_POINTINGS',
-            childIndex: firstChildIndex,
-            pointingTarget: 'CHILD',
-            pointingIndex: 0,
-          });
-          return;
-        }
-
         if (mainPointings.length > 0) {
           set({
             mainCorrect: true,
@@ -530,36 +499,13 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
       }
     },
     completeAllPointings: () => {
-      const { group, phase, childIndex, mainCorrect } = get();
+      const { group, phase, childIndex } = get();
       if (!group) return;
 
       if (phase === 'CHILD_POINTINGS') {
         const childProblems = getChildProblems(group);
-        const mainPointings = getMainPointings(group);
         const nextChildIndex = childIndex + 1;
 
-        if (mainCorrect) {
-          // 정답 경로: 남은 child 중 pointing 있는 것 탐색
-          for (let i = nextChildIndex; i < childProblems.length; i += 1) {
-            if ((childProblems[i].pointings?.length ?? 0) > 0) {
-              set({
-                phase: 'CHILD_POINTINGS',
-                childIndex: i,
-                pointingTarget: 'CHILD',
-                pointingIndex: 0,
-              });
-              return;
-            }
-          }
-          if (mainPointings.length > 0) {
-            set({ phase: 'MAIN_POINTINGS', pointingTarget: 'MAIN', pointingIndex: 0 });
-          } else {
-            set({ phase: 'ANALYSIS', pointingTarget: undefined, pointingIndex: INITIAL_INDEX });
-          }
-          return;
-        }
-
-        // 오답 경로: 다음 child 또는 메인 재풀이
         if (nextChildIndex < childProblems.length) {
           set({
             phase: 'CHILD_PROBLEM',
@@ -650,4 +596,27 @@ export const selectCurrentPointing = (
   }
   const child = group.childProblems?.[childIndex];
   return child?.pointings?.[pointingIndex];
+};
+
+export const selectPointingsForPointing = (
+  state: ProblemSessionState
+): PointingWithFeedbackResp[] => {
+  const { group, phase, childIndex, mainCorrect } = state;
+  if (!group) return [];
+
+  if (phase === 'MAIN_POINTINGS' && mainCorrect) {
+    const childPointings = (group.childProblems ?? []).flatMap((c) => c.pointings ?? []);
+    const mainPointings = group.problem.pointings ?? [];
+    return [...childPointings, ...mainPointings];
+  }
+
+  if (phase === 'CHILD_POINTINGS') {
+    return group.childProblems?.[childIndex]?.pointings ?? [];
+  }
+
+  if (phase === 'MAIN_POINTINGS') {
+    return group.problem.pointings ?? [];
+  }
+
+  return [];
 };
