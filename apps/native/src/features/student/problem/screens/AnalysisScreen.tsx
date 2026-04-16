@@ -3,7 +3,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import {
@@ -22,10 +22,12 @@ import {
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
 import {
   useGetScrapStatusById,
+  useToggleScrapFromProblem,
   useToggleScrapFromReadingTip,
   useToggleScrapFromOneStepMore,
   useToggleScrapFromPointing,
 } from '@apis/student';
+import { client } from '@apis/client';
 
 import ScrapItem from '../components/ScrapItem';
 import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
@@ -136,6 +138,7 @@ const AnalysisScreen = ({
   const toggleReadingTip = useToggleScrapFromReadingTip();
   const toggleOneStepMore = useToggleScrapFromOneStepMore();
   const togglePointing = useToggleScrapFromPointing();
+  const toggleProblem = useToggleScrapFromProblem();
 
   const invalidateScrapStatus = useCallback(() => {
     void queryClient.invalidateQueries({
@@ -182,6 +185,59 @@ const AnalysisScreen = ({
     [problemId, toggleReadingTip, toggleOneStepMore, togglePointing, joined, invalidateScrapStatus]
   );
 
+  const childProblemIds = useMemo(
+    () => (group?.childProblems ?? []).map((c) => c.id),
+    [group?.childProblems]
+  );
+
+  const { data: childProblemScrapMap } = useQuery({
+    queryKey: ['get', '/api/student/scrap/by-problem/{problemId}', 'children', ...childProblemIds],
+    queryFn: async () => {
+      const results = await Promise.all(
+        childProblemIds.map((id) =>
+          client.GET('/api/student/scrap/by-problem/{problemId}', {
+            params: { path: { problemId: id } },
+          })
+        )
+      );
+      for (const res of results) {
+        if (res.error || !res.data) {
+          throw new Error('Failed to fetch child problem scrap status');
+        }
+      }
+      return Object.fromEntries(
+        results.map((r, i) => [childProblemIds[i], r.data?.isProblemScrapped ?? false])
+      ) as Record<number, boolean>;
+    },
+    enabled: childProblemIds.length > 0,
+  });
+
+  const problemScrapItems = useMemo(() => {
+    if (!group) return [];
+    const items: { id: number; label: string }[] = [
+      { id: group.problem.id, label: `문제 ${group.no}번` },
+    ];
+    (group.childProblems ?? []).forEach((child, i) => {
+      items.push({ id: child.id, label: `문제 ${group.no}-${i + 1}번` });
+    });
+    return items;
+  }, [group]);
+
+  const isProblemBookmarked = useCallback(
+    (targetProblemId: number): boolean => {
+      if (targetProblemId === group?.problem.id) return scrapStatus?.isProblemScrapped ?? false;
+      return childProblemScrapMap?.[targetProblemId] ?? false;
+    },
+    [group?.problem.id, scrapStatus, childProblemScrapMap]
+  );
+
+  const handleProblemBookmark = useCallback(
+    (targetProblemId: number) => {
+      toggleProblem.mutate({ problemId: targetProblemId }, { onSuccess: invalidateScrapStatus });
+    },
+    [toggleProblem, invalidateScrapStatus]
+  );
+
   const { leftWidth, rightWidth } = useSplitPanelLayout();
 
   const primaryButtonLabel = '학습 완료';
@@ -218,6 +274,14 @@ const AnalysisScreen = ({
           <ScrollView
             className='mb-auto max-h-[180px] w-[320px] rounded-[18px] border border-gray-200 bg-gray-100'
             contentContainerClassName='gap-[8px] p-[16px]'>
+            {problemScrapItems.map((item) => (
+              <ScrapItem
+                key={`problem-${item.id}`}
+                title={item.label}
+                isBookmarked={isProblemBookmarked(item.id)}
+                onBookmark={() => handleProblemBookmark(item.id)}
+              />
+            ))}
             {scrapSections.map((section) => (
               <ScrapItem
                 key={section.id}
