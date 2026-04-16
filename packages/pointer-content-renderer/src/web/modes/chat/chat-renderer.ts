@@ -213,32 +213,40 @@ export async function renderStaticConfirmPhase(
 }
 
 /**
- * Render a single action button bubble (e.g. "다음 포인팅", advance).
- * Clicking the button disables it and calls `onAction`.
+ * Render a system bubble with an action button (confirm-prompt style).
+ * Optionally includes a text message above the button.
  */
 export function renderActionBubble(
   container: HTMLElement,
   buttonLabel: string,
-  onAction: () => void
+  onAction: () => void,
+  message?: string
 ): HTMLElement {
   const bubble = document.createElement('div');
-  bubble.className = 'chat-bubble chat-bubble--system chat-bubble--action';
+  bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
 
+  if (message) {
+    bubble.innerHTML = `<p>${message}</p>`;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'chat-choices';
+
   const btn = document.createElement('button');
-  btn.className = 'chat-action-btn';
+  btn.className = 'chat-choice-btn chat-choice-btn--action';
   btn.textContent = buttonLabel;
   btn.addEventListener(
     'click',
     () => {
       btn.disabled = true;
-      btn.classList.add('chat-action-btn--pressed');
       onAction();
     },
     { once: true }
   );
 
-  bubble.appendChild(btn);
+  wrapper.appendChild(btn);
+  bubble.appendChild(wrapper);
   container.appendChild(bubble);
   scrollToBottom();
   return bubble;

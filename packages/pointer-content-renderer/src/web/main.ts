@@ -81,6 +81,7 @@ onMessage(async (msg) => {
             });
           },
           {
+            advanceMessage: msg.advanceMessage,
             advanceButtonLabel: msg.advanceButtonLabel,
             onAdvance: () => {
               if (!isCurrent()) return;

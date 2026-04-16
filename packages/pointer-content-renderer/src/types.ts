@@ -32,6 +32,8 @@ export type RNToWebViewMessage =
       scenario: ChatScenario;
       /** Previously saved answers for resume. Fields may be partial. */
       userAnswers?: UserAnswer[];
+      /** Text prompt shown in the advance button bubble. Defaults to '다음으로 이동할까요?'. */
+      advanceMessage?: string;
       /** Label for the advance button shown after the last pointing completes. Defaults to '다음'. */
       advanceButtonLabel?: string;
     }

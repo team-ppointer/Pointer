@@ -118,36 +118,20 @@
   border-color: var(--color-red-400);
 }
 
-/* Action button (advance / next pointing) */
-.chat-bubble--action {
-  display: flex;
-  justify-content: center;
-  padding: 12px 16px;
-}
-
-.chat-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 24px;
-  border-radius: 20px;
-  border: none;
-  background: var(--color-primary-600);
+.chat-choice-btn--action {
+  background-color: var(--color-primary-600);
   color: var(--color-white);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
+  border-color: var(--color-primary-600);
 }
 
-.chat-action-btn:active {
-  opacity: 0.8;
+.chat-choice-btn--action:hover:not(:disabled) {
+  background-color: var(--color-primary-700);
 }
 
-.chat-action-btn:disabled,
-.chat-action-btn--pressed {
-  opacity: 0.5;
-  cursor: default;
+.chat-choice-btn--action:disabled {
+  background-color: var(--color-primary-300);
+  border-color: var(--color-primary-300);
+  color: var(--color-white) !important;
 }
 
 /* Expand button */

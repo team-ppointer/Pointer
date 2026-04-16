@@ -29,6 +29,8 @@ export interface AnswerEvent {
 }
 
 export interface ChatConfig {
+  /** Text prompt shown in the advance button bubble. Defaults to '다음으로 이동할까요?'. */
+  advanceMessage?: string;
   /** Label for the advance button after the last pointing. Defaults to '다음'. */
   advanceButtonLabel?: string;
   /** Called when the user clicks the advance button. */
@@ -129,7 +131,8 @@ async function showInstantly(container: HTMLElement, node: PointingNode): Promis
 function waitForActionButton(
   container: HTMLElement,
   label: string,
-  signal: AbortSignal
+  signal: AbortSignal,
+  message?: string
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     if (signal.aborted) {
@@ -139,10 +142,15 @@ function waitForActionButton(
     const onAbort = () => reject(signal.reason);
     signal.addEventListener('abort', onAbort, { once: true });
 
-    renderActionBubble(container, label, () => {
-      signal.removeEventListener('abort', onAbort);
-      resolve();
-    });
+    renderActionBubble(
+      container,
+      label,
+      () => {
+        signal.removeEventListener('abort', onAbort);
+        resolve();
+      },
+      message
+    );
   });
 }
 
@@ -246,7 +254,7 @@ export async function runChatScenario(
     // Show "다음 포인팅" button between pointings (skip for last)
     const isLastPointing = scenario.pointings.indexOf(pointing) === scenario.pointings.length - 1;
     if (!isLastPointing && !existing?.confirmResponse) {
-      await waitForActionButton(container, '다음 포인팅', signal);
+      await waitForActionButton(container, '다음 포인팅', signal, '다음 포인팅으로 이동할까요?');
     }
   }
 
@@ -255,7 +263,8 @@ export async function runChatScenario(
 
   // Advance button after last pointing
   const advanceLabel = config?.advanceButtonLabel ?? '다음';
-  await waitForActionButton(container, advanceLabel, signal);
+  const advanceMessage = config?.advanceMessage ?? '다음으로 이동할까요?';
+  await waitForActionButton(container, advanceLabel, signal, advanceMessage);
   config?.onAdvance?.();
 
   return finalAnswers;
