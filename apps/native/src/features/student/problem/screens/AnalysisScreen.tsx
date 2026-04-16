@@ -193,18 +193,20 @@ const AnalysisScreen = ({
   const { data: childProblemScrapMap } = useQuery({
     queryKey: ['get', '/api/student/scrap/by-problem/{problemId}', 'children', ...childProblemIds],
     queryFn: async () => {
-      const results = await Promise.allSettled(
+      const results = await Promise.all(
         childProblemIds.map((id) =>
           client.GET('/api/student/scrap/by-problem/{problemId}', {
             params: { path: { problemId: id } },
           })
         )
       );
+      for (const res of results) {
+        if (res.error || !res.data) {
+          throw new Error('Failed to fetch child problem scrap status');
+        }
+      }
       return Object.fromEntries(
-        results.map((r, i) => [
-          childProblemIds[i],
-          r.status === 'fulfilled' ? (r.value.data?.isProblemScrapped ?? false) : false,
-        ])
+        results.map((r, i) => [childProblemIds[i], r.data?.isProblemScrapped ?? false])
       ) as Record<number, boolean>;
     },
     enabled: childProblemIds.length > 0,
