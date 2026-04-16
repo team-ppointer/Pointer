@@ -559,6 +559,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         g.no === group.no ? { ...g, progress: 'DONE' as const } : g
       );
       const currentIdx = updatedGroups.findIndex((g) => g.no === group.no);
+      if (currentIdx === -1) return;
       const ordered = [
         ...updatedGroups.slice(currentIdx + 1),
         ...updatedGroups.slice(0, currentIdx),
