@@ -12,7 +12,11 @@ export interface HandwritingData {
  * @param texts - 텍스트 아이템 배열
  * @returns Base64로 인코딩된 문자열
  */
-export function encodeHandwritingData(strokes: Stroke[], texts: TextBoxData[], lastColor?: string): string {
+export function encodeHandwritingData(
+  strokes: Stroke[],
+  texts: TextBoxData[],
+  lastColor?: string
+): string {
   const data: HandwritingData = {
     strokes: strokes || [],
     texts: texts || [],

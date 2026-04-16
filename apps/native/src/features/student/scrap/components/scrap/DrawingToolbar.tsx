@@ -52,7 +52,9 @@ export const DrawingToolbar = ({
   isNarrow = false,
 }: DrawingToolbarProps) => {
   const SizeSelectorComponent = (
-    <View pointerEvents={isTextBoxMode ? 'none' : 'auto'} style={{ opacity: isTextBoxMode ? 0 : 1 }}>
+    <View
+      pointerEvents={isTextBoxMode ? 'none' : 'auto'}
+      style={{ opacity: isTextBoxMode ? 0 : 1 }}>
       {isEraserMode ? (
         <SizeSelector
           type='eraser'
@@ -143,7 +145,6 @@ export const DrawingToolbar = ({
         </View>
 
         {!isNarrow && <View className='h-[22px] w-[2px] bg-gray-500' />}
-
 
         {/* Size Selection - 너비가 380 이상일 때만 첫 번째 줄에 표시 */}
         {!isNarrow && (
