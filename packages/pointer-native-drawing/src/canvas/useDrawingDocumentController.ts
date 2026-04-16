@@ -22,6 +22,7 @@ export type UseDrawingDocumentControllerArgs = {
   strokeColor: string;
   eraserSize: number;
   onChange?: (strokes: Stroke[]) => void;
+  onDirty?: () => void;
   onUndoStateChange?: (state: { canUndo: boolean; canRedo: boolean }) => void;
   rendererActions: RendererActions;
   textBoxActionsRef: RefObject<DocumentTextBoxActions | null>;
@@ -35,6 +36,7 @@ export function useDrawingDocumentController({
   strokeColor,
   eraserSize,
   onChange,
+  onDirty,
   onUndoStateChange,
   rendererActions,
   textBoxActionsRef,
@@ -57,10 +59,12 @@ export function useDrawingDocumentController({
 
   // Stable refs for props used in callbacks
   const onChangeRef = useRef(onChange);
+  const onDirtyRef = useRef(onDirty);
   const onUndoStateChangeRef = useRef(onUndoStateChange);
   const strokeColorRef = useRef(strokeColor);
   const eraserSizeRef = useRef(eraserSize);
   onChangeRef.current = onChange;
+  onDirtyRef.current = onDirty;
   onUndoStateChangeRef.current = onUndoStateChange;
   strokeColorRef.current = strokeColor;
   eraserSizeRef.current = eraserSize;
@@ -87,6 +91,7 @@ export function useDrawingDocumentController({
 
   const notifyChange = useCallback(() => {
     onChangeRef.current?.(engineRef.current.getStrokes());
+    onDirtyRef.current?.();
   }, []);
 
   const captureSnapshot = useCallback((): DocumentSnapshot => {

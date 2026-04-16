@@ -12,8 +12,8 @@ interface ProblemDrawingToolbarProps {
   onEraserModePress: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
-  onUndo?: () => void;
-  onRedo?: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
 }
 
 export const ProblemDrawingToolbar = ({

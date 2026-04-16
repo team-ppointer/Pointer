@@ -25,8 +25,8 @@ export interface DrawingToolbarProps {
   // Undo/Redo
   canUndo?: boolean;
   canRedo?: boolean;
-  onUndo?: () => void;
-  onRedo?: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
 
   // Narrow layout flag (drawingAreaWidth < 380)
   isNarrow?: boolean;

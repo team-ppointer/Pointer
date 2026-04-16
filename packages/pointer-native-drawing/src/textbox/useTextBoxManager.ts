@@ -55,7 +55,10 @@ export type TextBoxManagerState = {
 export function useTextBoxManager(
   historyRef: React.RefObject<HistoryManager>,
   canvasSize: { width: number; height: number },
+  onDirty?: () => void,
 ): [TextBoxManagerState, TextBoxActions] {
+  const onDirtyRef = useRef(onDirty);
+  onDirtyRef.current = onDirty;
   const [textBoxes, setTextBoxes] = useState<TextBoxData[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -258,6 +261,7 @@ export function useTextBoxManager(
     commitInProgressRef.current = false;
 
     historyRef.current?.unlock();
+    onDirtyRef.current?.();
   }, [editingId, historyRef]);
 
   // Keep ref in sync so handleTap can call it before declaration order
@@ -308,6 +312,7 @@ export function useTextBoxManager(
         index,
       });
       setTextBoxes((prev) => prev.filter((tb) => tb.id !== selectedId));
+      onDirtyRef.current?.();
     }
     setSelectedIdSync(null);
   }, [historyRef, selectedId]);
@@ -361,6 +366,7 @@ export function useTextBoxManager(
     const after = textBoxesRef.current.find((t) => t.id === selectedId);
     if (after && (before.x !== after.x || before.y !== after.y)) {
       historyRef.current?.push({ type: "move-textbox", before, after });
+      onDirtyRef.current?.();
     }
   }, [historyRef, selectedId]);
 
@@ -421,6 +427,7 @@ export function useTextBoxManager(
     const after = textBoxesRef.current.find((t) => t.id === selectedId);
     if (after && (before.width !== after.width || before.x !== after.x)) {
       historyRef.current?.push({ type: "resize-textbox", before, after });
+      onDirtyRef.current?.();
     }
   }, [historyRef, selectedId]);
 

@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from 'react-native';
+// TODO: runOnJS는 reanimated 4.x에서 deprecated. useAnimatedReaction 콜백 방식으로 교체 필요.
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -500,6 +501,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
             enableZoomPan
             onUndoStateChange={setUndoState}
             backgroundColor='transparent'
+            // NOTE: 현재 문제 콘텐츠가 screenHeight*2를 초과하는 케이스는 없음.
+            // 만약 초과할 경우 PointerContentView 높이 측정 후 동적 설정 필요.
             minCanvasHeight={screenHeight * 2}>
             <PointerContentView
               initMessage={problemInitMessage}

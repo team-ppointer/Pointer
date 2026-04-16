@@ -53,6 +53,8 @@ export type DrawingCanvasProps = {
   strokeWidth?: number;
   backgroundColor?: string;
   onChange?: (strokes: Stroke[]) => void;
+  /** Fired on any document mutation (strokes or textboxes). Use for dirty-tracking. */
+  onDirty?: () => void;
   onUndoStateChange?: (state: { canUndo: boolean; canRedo: boolean }) => void;
   onScrollOffsetChange?: (offsetY: number) => void;
   onCanvasHeightChange?: (height: number) => void;
@@ -80,6 +82,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       strokeWidth = 3,
       backgroundColor = "#fff",
       onChange,
+      onDirty,
       onUndoStateChange,
       onScrollOffsetChange,
       onCanvasHeightChange,
@@ -131,6 +134,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       strokeColor,
       eraserSize,
       onChange,
+      onDirty,
       onUndoStateChange,
       rendererActions,
       textBoxActionsRef,
@@ -140,7 +144,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     });
 
     // --- TextBox Manager ---
-    const [textBoxState, textBoxActions] = useTextBoxManager(docController.historyRef, { width: vc.viewportSize.width, height: vc.effectiveCanvasHeight });
+    const [textBoxState, textBoxActions] = useTextBoxManager(docController.historyRef, { width: vc.viewportSize.width, height: vc.effectiveCanvasHeight }, onDirty);
     textBoxActionsRef.current = textBoxActions;
 
     // End textbox session when switching away from textbox tool
