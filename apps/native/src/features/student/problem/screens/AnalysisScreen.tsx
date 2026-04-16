@@ -97,9 +97,9 @@ const AnalysisScreen = ({
     goHome();
   }, [goHome]);
 
-  const handlePrimaryAction = useCallback(() => {
+  const handlePrimaryAction = useCallback(async () => {
     if (hasNextProblem) {
-      void invalidateStudyData(publishId, publishAt);
+      await invalidateStudyData(publishId, publishAt);
       goToNextProblem();
     } else {
       goHome();
