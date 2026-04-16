@@ -10,7 +10,7 @@ import type {
   Stroke,
   StrokeBounds,
   StrokeSample,
-} from "../model/drawingTypes";
+} from '../model/drawingTypes';
 import {
   appendPointWithInterpolation,
   deepCopyStrokes,
@@ -19,9 +19,10 @@ import {
   normalizeStrokeWidth,
   pointToSegmentDistanceSquared,
   resolveMaxPointGap,
-} from "../model/strokeUtils";
-import { computeVelocity } from "../model/writingFeel";
-import type { EngineResult } from "./engineTypes";
+} from '../model/strokeUtils';
+import { computeVelocity } from '../model/writingFeel';
+
+import type { EngineResult } from './engineTypes';
 
 const ERASER_THROTTLE_MS = 16;
 
@@ -110,7 +111,10 @@ export class DrawingEngine {
     }
     this.session = { points: [], samples: [] };
     this.sessionMaxY = 0;
-    this.replaceDocument(copied, copied.map((stroke) => getStrokeBounds(stroke.points)));
+    this.replaceDocument(
+      copied,
+      copied.map((stroke) => getStrokeBounds(stroke.points))
+    );
     return this.createResult(true);
   }
 
@@ -140,7 +144,7 @@ export class DrawingEngine {
     appendPointWithInterpolation(
       this.session.points,
       { x: input.x, y: input.y },
-      resolveMaxPointGap(options.strokeWidth),
+      resolveMaxPointGap(options.strokeWidth)
     );
 
     const prevSample = this.session.samples[this.session.samples.length - 1];
@@ -173,9 +177,8 @@ export class DrawingEngine {
     }
 
     const pointsToFinalize = [...this.session.points];
-    const samplesToFinalize = this.session.samples.length > 0
-      ? [...this.session.samples]
-      : undefined;
+    const samplesToFinalize =
+      this.session.samples.length > 0 ? [...this.session.samples] : undefined;
     const appendedStroke: Stroke = {
       points: pointsToFinalize,
       color: options.strokeColor,
@@ -188,7 +191,7 @@ export class DrawingEngine {
     this.sessionMaxY = 0;
     this.replaceDocument(
       [...this.document.strokes, appendedStroke],
-      [...this.strokeBounds, appendedStrokeBounds],
+      [...this.strokeBounds, appendedStrokeBounds]
     );
 
     return {
@@ -231,7 +234,9 @@ export class DrawingEngine {
         for (let j = 0; j < pts.length - 1; j++) {
           const a = pts[j];
           const b = pts[j + 1];
-          if (pointToSegmentDistanceSquared(input.x, input.y, a.x, a.y, b.x, b.y) < thresholdSquared) {
+          if (
+            pointToSegmentDistanceSquared(input.x, input.y, a.x, a.y, b.x, b.y) < thresholdSquared
+          ) {
             isTouched = true;
             break;
           }

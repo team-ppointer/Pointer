@@ -1,10 +1,11 @@
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import type { ViewStyle, StyleProp } from "react-native";
-import TextBoxEditingOverlay from "../textbox/TextBoxEditingOverlay";
-import TextBoxSelectionOverlay from "../textbox/TextBoxSelectionOverlay";
-import type { TextBoxData } from "../textbox/textBoxTypes";
-import type { ViewTransform } from "../transform";
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import type { ViewStyle, StyleProp } from 'react-native';
+
+import TextBoxEditingOverlay from '../textbox/TextBoxEditingOverlay';
+import TextBoxSelectionOverlay from '../textbox/TextBoxSelectionOverlay';
+import type { TextBoxData } from '../textbox/textBoxTypes';
+import type { ViewTransform } from '../transform';
 
 // ---------------------------------------------------------------------------
 // Editing overlay (rendered inside gesture area)
@@ -30,7 +31,7 @@ export const CanvasEditingOverlay = React.memo(function CanvasEditingOverlay({
   return (
     <>
       {editingTextBox && (
-        <View style={style ?? StyleSheet.absoluteFill} pointerEvents="box-none">
+        <View style={style ?? StyleSheet.absoluteFill} pointerEvents='box-none'>
           <TextBoxEditingOverlay
             textBox={editingTextBox}
             onChangeText={onChangeText}
@@ -58,7 +59,7 @@ type CanvasSelectionOverlayProps = {
   onMoveUpdate: (canvasDx: number, canvasDy: number) => void;
   onMoveEnd: () => void;
   onResizeStart: () => void;
-  onResizeUpdate: (canvasDx: number, side: "left" | "right") => void;
+  onResizeUpdate: (canvasDx: number, side: 'left' | 'right') => void;
   onResizeEnd: () => void;
   setIsScrollEnabled: (enabled: boolean) => void;
 };

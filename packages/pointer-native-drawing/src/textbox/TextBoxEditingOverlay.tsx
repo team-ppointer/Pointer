@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
-import type { TextBoxData } from "./textBoxTypes";
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
+
+import type { TextBoxData } from './textBoxTypes';
 
 type Props = {
   textBox: TextBoxData;
@@ -13,12 +14,7 @@ type Props = {
  * RN TextInput overlay for an actively-editing TextBox.
  * Positioned at the TextBox's canvas coordinates (parent applies zoom transform).
  */
-function TextBoxEditingOverlay({
-  textBox,
-  onChangeText,
-  onHeightChange,
-  onBlur,
-}: Props) {
+function TextBoxEditingOverlay({ textBox, onChangeText, onHeightChange, onBlur }: Props) {
   const inputRef = useRef<TextInput>(null);
 
   // Auto-focus on mount
@@ -38,8 +34,7 @@ function TextBoxEditingOverlay({
           top: textBox.y,
           width: textBox.width,
         },
-      ]}
-    >
+      ]}>
       <TextInput
         ref={inputRef}
         style={[
@@ -58,7 +53,7 @@ function TextBoxEditingOverlay({
         multiline
         autoFocus
         scrollEnabled={false}
-        textAlignVertical="top"
+        textAlignVertical='top'
       />
     </View>
   );
@@ -66,12 +61,12 @@ function TextBoxEditingOverlay({
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
+    position: 'absolute',
   },
   input: {
     padding: 0,
     margin: 0,
-    textAlignVertical: "top",
+    textAlignVertical: 'top',
   },
 });
 

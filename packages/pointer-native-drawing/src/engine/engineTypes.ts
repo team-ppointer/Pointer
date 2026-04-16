@@ -3,7 +3,7 @@ import type {
   ReadonlyDrawingDocument,
   ReadonlyStroke,
   ReadonlyStrokeBounds,
-} from "../model/drawingTypes";
+} from '../model/drawingTypes';
 
 export type EngineResult = {
   readonly document: ReadonlyDrawingDocument;

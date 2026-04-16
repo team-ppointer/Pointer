@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import type { DrawingInputCallbacks, InputPhase } from "./inputTypes";
+import type { ReactNode } from 'react';
+
+import type { DrawingInputCallbacks, InputPhase } from './inputTypes';
 
 export type InputAdapterConfig = {
   eraserMode: boolean;

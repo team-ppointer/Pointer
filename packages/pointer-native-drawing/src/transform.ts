@@ -19,7 +19,7 @@ export const IDENTITY_TRANSFORM: ViewTransform = {
 export function screenToCanvas(
   sx: number,
   sy: number,
-  transform: ViewTransform,
+  transform: ViewTransform
 ): { x: number; y: number } {
   const s = transform.scale || 1;
   return {
@@ -32,7 +32,7 @@ export function screenToCanvas(
 export function canvasToScreen(
   cx: number,
   cy: number,
-  transform: ViewTransform,
+  transform: ViewTransform
 ): { x: number; y: number } {
   return {
     x: cx * transform.scale + transform.translateX,
@@ -54,7 +54,7 @@ export function clampTransform(
   canvasH: number,
   vpW: number,
   vpH: number,
-  maxScale: number,
+  maxScale: number
 ): ViewTransform {
   if (canvasW <= 0 || canvasH <= 0 || vpW <= 0 || vpH <= 0) {
     return transform;
@@ -76,8 +76,14 @@ export function transformToMatrix3(transform: ViewTransform): number[] {
   // Skia Matrix uses row-major order:
   // [scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2]
   return [
-    transform.scale, 0, transform.translateX,
-    0, transform.scale, transform.translateY,
-    0, 0, 1,
+    transform.scale,
+    0,
+    transform.translateX,
+    0,
+    transform.scale,
+    transform.translateY,
+    0,
+    0,
+    1,
   ];
 }

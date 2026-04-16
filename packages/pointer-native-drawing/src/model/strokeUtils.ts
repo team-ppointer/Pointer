@@ -1,4 +1,4 @@
-import type { Point, Stroke, StrokeBounds } from "./drawingTypes";
+import type { Point, Stroke, StrokeBounds } from './drawingTypes';
 
 export const MIN_RENDERABLE_STROKE_WIDTH = 1.2;
 export const DEFAULT_MAX_POINT_GAP = 0.95;
@@ -10,9 +10,7 @@ export const deepCopyStrokes = (strokes: Stroke[]): Stroke[] =>
     width: stroke.width,
     ...(stroke.opacity !== undefined ? { opacity: stroke.opacity } : {}),
     ...(stroke.strokeCap !== undefined ? { strokeCap: stroke.strokeCap } : {}),
-    ...(stroke.samples !== undefined
-      ? { samples: stroke.samples.map((s) => ({ ...s })) }
-      : {}),
+    ...(stroke.samples !== undefined ? { samples: stroke.samples.map((s) => ({ ...s })) } : {}),
   }));
 
 export const getMaxYFromStrokes = (strokes: Stroke[]): number => {
@@ -73,7 +71,7 @@ export const isPointNearBounds = (
   x: number,
   y: number,
   radius: number,
-  bounds: StrokeBounds,
+  bounds: StrokeBounds
 ): boolean =>
   x >= bounds.minX - radius &&
   x <= bounds.maxX + radius &&
@@ -90,7 +88,7 @@ export const pointToSegmentDistanceSquared = (
   ax: number,
   ay: number,
   bx: number,
-  by: number,
+  by: number
 ): number => {
   const abx = bx - ax;
   const aby = by - ay;
@@ -104,10 +102,7 @@ export const pointToSegmentDistanceSquared = (
   }
 
   // Project point onto the segment, clamped to [0, 1]
-  const t = Math.max(
-    0,
-    Math.min(1, ((px - ax) * abx + (py - ay) * aby) / lengthSquared),
-  );
+  const t = Math.max(0, Math.min(1, ((px - ax) * abx + (py - ay) * aby) / lengthSquared));
   const projX = ax + t * abx;
   const projY = ay + t * aby;
   const dx = px - projX;
@@ -132,7 +127,7 @@ export const resolveMaxPointGap = (activeWidth: number): number => {
 export const appendPointWithInterpolation = (
   points: Point[],
   nextPoint: Point,
-  maxGap: number,
+  maxGap: number
 ): void => {
   if (points.length === 0) {
     points.push(nextPoint);

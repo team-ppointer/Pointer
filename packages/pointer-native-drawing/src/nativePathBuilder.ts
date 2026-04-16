@@ -1,11 +1,8 @@
-import type { SkPath } from "@shopify/react-native-skia";
-import { NativeModules } from "react-native";
-import type {
-  ReadonlyPoint,
-  ReadonlyStrokeSample,
-  WritingFeelConfig,
-} from "./model/drawingTypes";
-import type { PathBuildState } from "./smoothing";
+import type { SkPath } from '@shopify/react-native-skia';
+import { NativeModules } from 'react-native';
+
+import type { ReadonlyPoint, ReadonlyStrokeSample, WritingFeelConfig } from './model/drawingTypes';
+import type { PathBuildState } from './smoothing';
 
 const STRIDE = 8;
 
@@ -13,29 +10,29 @@ let installed = false;
 let triedInstall = false;
 
 declare global {
-  var __PointerNativeDrawing_buildSmoothPath:
-    | ((buf: Float64Array) => SkPath)
-    | undefined;
+  var __PointerNativeDrawing_buildSmoothPath: ((buf: Float64Array) => SkPath) | undefined;
   var __PointerNativeDrawing_buildVariableWidthPath:
     | ((
         buf: Float64Array,
         config: WritingFeelConfig,
         state?: { lastSmoothedWidth: number },
         taperStart?: boolean,
-        taperEnd?: boolean,
+        taperEnd?: boolean
       ) => { path: SkPath; lastSmoothedWidth: number })
     | undefined;
   var __PointerNativeDrawing_buildCenterlinePath:
-    | ((buf: Float64Array, config: WritingFeelConfig, targetSpacing?: number, smoothingFactor?: number) => SkPath)
+    | ((
+        buf: Float64Array,
+        config: WritingFeelConfig,
+        targetSpacing?: number,
+        smoothingFactor?: number
+      ) => SkPath)
     | undefined;
 }
 
 function ensureInstalled(): boolean {
   if (installed) return true;
-  if (
-    typeof globalThis.__PointerNativeDrawing_buildVariableWidthPath ===
-    "function"
-  ) {
+  if (typeof globalThis.__PointerNativeDrawing_buildVariableWidthPath === 'function') {
     installed = true;
     return true;
   }
@@ -67,9 +64,7 @@ export function hasNativePathBuilder(): boolean {
  * absent values, which is semantically equivalent to the TS `=== undefined`
  * checks in the JS pipeline.
  */
-function packSamples(
-  samples: ReadonlyArray<ReadonlyStrokeSample>,
-): Float64Array {
+function packSamples(samples: ReadonlyArray<ReadonlyStrokeSample>): Float64Array {
   const buf = new Float64Array(samples.length * STRIDE);
   for (let i = 0; i < samples.length; i++) {
     const s = samples[i];
@@ -103,13 +98,9 @@ function packPoints(points: ReadonlyArray<ReadonlyPoint>): Float64Array {
   return buf;
 }
 
-export function nativeBuildSmoothPath(
-  points: ReadonlyArray<ReadonlyPoint>,
-): SkPath | null {
+export function nativeBuildSmoothPath(points: ReadonlyArray<ReadonlyPoint>): SkPath | null {
   if (!ensureInstalled()) return null;
-  return globalThis.__PointerNativeDrawing_buildSmoothPath!(
-    packPoints(points),
-  );
+  return globalThis.__PointerNativeDrawing_buildSmoothPath!(packPoints(points));
 }
 
 /**
@@ -120,17 +111,15 @@ export function nativeBuildVariableWidthPath(
   config: WritingFeelConfig,
   state?: PathBuildState,
   taperStart = true,
-  taperEnd = true,
+  taperEnd = true
 ): { path: SkPath; lastSmoothedWidth: number } | null {
   if (!ensureInstalled()) return null;
   return globalThis.__PointerNativeDrawing_buildVariableWidthPath!(
     packSamples(samples),
     config,
-    state
-      ? { lastSmoothedWidth: state.lastSmoothedWidth ?? NaN }
-      : undefined,
+    state ? { lastSmoothedWidth: state.lastSmoothedWidth ?? NaN } : undefined,
     taperStart,
-    taperEnd,
+    taperEnd
   );
 }
 
@@ -142,13 +131,13 @@ export function nativeBuildCenterlinePath(
   samples: ReadonlyArray<ReadonlyStrokeSample>,
   config: WritingFeelConfig,
   targetSpacing?: number,
-  smoothingFactor?: number,
+  smoothingFactor?: number
 ): SkPath | null {
   if (!ensureInstalled()) return null;
   return globalThis.__PointerNativeDrawing_buildCenterlinePath!(
     packSamples(samples),
     config,
     targetSpacing,
-    smoothingFactor,
+    smoothingFactor
   );
 }

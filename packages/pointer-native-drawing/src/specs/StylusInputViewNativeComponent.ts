@@ -1,10 +1,6 @@
-import type { ViewProps } from "react-native";
-import type {
-  DirectEventHandler,
-  Double,
-  Int32,
-} from "react-native/Libraries/Types/CodegenTypes";
-import codegenNativeComponent from "react-native/Libraries/Utilities/codegenNativeComponent";
+import type { ViewProps } from 'react-native';
+import type { DirectEventHandler, Double, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
+import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
 
 type StylusTouchEvent = Readonly<{
   phase: Int32; // 0=began, 1=moved, 2=ended, 3=cancelled
@@ -31,4 +27,4 @@ export interface NativeProps extends ViewProps {
   onStylusTouch: DirectEventHandler<StylusTouchEvent>;
 }
 
-export default codegenNativeComponent<NativeProps>("StylusInputView");
+export default codegenNativeComponent<NativeProps>('StylusInputView');

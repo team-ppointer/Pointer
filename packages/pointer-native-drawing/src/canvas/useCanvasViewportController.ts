@@ -1,14 +1,15 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import type { RefObject } from "react";
+import { useCallback, useMemo, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import {
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
-} from "react-native";
-import type { ViewTransform } from "../transform";
-import { IDENTITY_TRANSFORM, clampTransform } from "../transform";
-import type { RendererViewport } from "../render/rendererTypes";
+} from 'react-native';
+
+import type { ViewTransform } from '../transform';
+import { IDENTITY_TRANSFORM, clampTransform } from '../transform';
+import type { RendererViewport } from '../render/rendererTypes';
 
 export type UseCanvasViewportControllerArgs = {
   minCanvasHeight: number;
@@ -39,9 +40,7 @@ export function useCanvasViewportController({
   // --- Canvas height state ---
   const scrollViewRef = useRef<ScrollView>(null);
   const minimumCanvasHeightRef = useRef<number>(Math.max(400, minCanvasHeight));
-  const [canvasHeight, setCanvasHeight] = useState<number>(
-    minimumCanvasHeightRef.current,
-  );
+  const [canvasHeight, setCanvasHeight] = useState<number>(minimumCanvasHeightRef.current);
 
   // Stable refs for callbacks
   const onCanvasHeightChangeRef = useRef(onCanvasHeightChange);
@@ -53,17 +52,14 @@ export function useCanvasViewportController({
 
   // --- Height helpers ---
 
-  const setCanvasHeightValue = useCallback(
-    (nextHeight: number) => {
-      const normalized = Math.max(minimumCanvasHeightRef.current, nextHeight);
-      setCanvasHeight((prev) => {
-        if (prev === normalized) return prev;
-        onCanvasHeightChangeRef.current?.(normalized);
-        return normalized;
-      });
-    },
-    [],
-  );
+  const setCanvasHeightValue = useCallback((nextHeight: number) => {
+    const normalized = Math.max(minimumCanvasHeightRef.current, nextHeight);
+    setCanvasHeight((prev) => {
+      if (prev === normalized) return prev;
+      onCanvasHeightChangeRef.current?.(normalized);
+      return normalized;
+    });
+  }, []);
 
   const resetCanvasHeight = useCallback(() => {
     setCanvasHeightValue(minimumCanvasHeightRef.current);
@@ -76,7 +72,7 @@ export function useCanvasViewportController({
         setCanvasHeightValue(nextMaxY + Math.max(200, viewportSize.height));
       }
     },
-    [setCanvasHeightValue, viewportSize.height],
+    [setCanvasHeightValue, viewportSize.height]
   );
 
   const syncCanvasHeightFromMaxY = useCallback(
@@ -89,7 +85,7 @@ export function useCanvasViewportController({
       maxYRef.current = nextMaxY;
       setCanvasHeightValue(nextMaxY + Math.max(200, viewportSize.height));
     },
-    [resetCanvasHeight, setCanvasHeightValue, viewportSize.height],
+    [resetCanvasHeight, setCanvasHeightValue, viewportSize.height]
   );
 
   // In zoom mode, floor at 2x viewport so there's room to draw
@@ -99,7 +95,7 @@ export function useCanvasViewportController({
 
   const zoomContentSizeStyle = useMemo(
     () => ({ width: viewportSize.width, height: effectiveCanvasHeight }),
-    [viewportSize.width, effectiveCanvasHeight],
+    [viewportSize.width, effectiveCanvasHeight]
   );
 
   // --- Transform helpers ---
@@ -108,7 +104,10 @@ export function useCanvasViewportController({
     (next: ViewTransform) => {
       const canvasW = viewportSize.width;
       const canvasH = enableZoomPan
-        ? Math.max(effectiveCanvasHeight, maxYRef.current > 0 ? maxYRef.current + viewportSize.height : 0)
+        ? Math.max(
+            effectiveCanvasHeight,
+            maxYRef.current > 0 ? maxYRef.current + viewportSize.height : 0
+          )
         : effectiveCanvasHeight;
       const clamped = clampTransform(
         next,
@@ -116,13 +115,13 @@ export function useCanvasViewportController({
         canvasH,
         viewportSize.width,
         viewportSize.height,
-        maxZoomScale,
+        maxZoomScale
       );
       viewTransformRef.current = clamped;
       setViewTransform(clamped);
       onTransformChangeRef.current?.(clamped);
     },
-    [enableZoomPan, effectiveCanvasHeight, maxZoomScale, viewportSize, maxYRef],
+    [enableZoomPan, effectiveCanvasHeight, maxZoomScale, viewportSize, maxYRef]
   );
 
   // --- Layout & scroll handlers ---
@@ -132,11 +131,14 @@ export function useCanvasViewportController({
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetY = event.nativeEvent.contentOffset.y;
-      updateViewport({ scrollOffsetY: offsetY, viewportHeight: viewportRef.current.viewportHeight });
+      updateViewport({
+        scrollOffsetY: offsetY,
+        viewportHeight: viewportRef.current.viewportHeight,
+      });
       viewportRef.current = { ...viewportRef.current, scrollOffsetY: offsetY };
       onScrollOffsetChangeRef.current?.(offsetY);
     },
-    [updateViewport],
+    [updateViewport]
   );
 
   const handleLayout = useCallback(
@@ -149,7 +151,7 @@ export function useCanvasViewportController({
       updateViewport({ scrollOffsetY: viewportRef.current.scrollOffsetY, viewportHeight: height });
       viewportRef.current = { ...viewportRef.current, viewportHeight: height };
     },
-    [updateViewport],
+    [updateViewport]
   );
 
   const handleZoomLayout = useCallback(
@@ -162,7 +164,7 @@ export function useCanvasViewportController({
       updateViewport({ scrollOffsetY: 0, viewportHeight: height });
       viewportRef.current = { scrollOffsetY: 0, viewportHeight: height };
     },
-    [updateViewport],
+    [updateViewport]
   );
 
   return {

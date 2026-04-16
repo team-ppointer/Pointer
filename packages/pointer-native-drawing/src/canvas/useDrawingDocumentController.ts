@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { RefObject } from "react";
-import type { InputEvent, Stroke } from "../model/drawingTypes";
-import { normalizeStrokeWidth } from "../model/strokeUtils";
-import { DrawingEngine } from "../engine/DrawingEngine";
-import { HistoryManager } from "../engine/HistoryManager";
-import type { DocumentSnapshot, HistoryEntry } from "../engine/HistoryManager";
-import type { RendererActions } from "../render/rendererTypes";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { RefObject } from 'react';
+
+import type { InputEvent, Stroke } from '../model/drawingTypes';
+import { normalizeStrokeWidth } from '../model/strokeUtils';
+import { DrawingEngine } from '../engine/DrawingEngine';
+import { HistoryManager } from '../engine/HistoryManager';
+import type { DocumentSnapshot, HistoryEntry } from '../engine/HistoryManager';
+import type { RendererActions } from '../render/rendererTypes';
 
 /**
  * Minimal textbox actions interface consumed by the document controller.
@@ -14,7 +15,7 @@ import type { RendererActions } from "../render/rendererTypes";
 export type DocumentTextBoxActions = {
   endSession: () => void;
   clearTextBoxes: () => void;
-  applyHistoryEntry: (entry: HistoryEntry, direction: "undo" | "redo") => void;
+  applyHistoryEntry: (entry: HistoryEntry, direction: 'undo' | 'redo') => void;
 };
 
 export type UseDrawingDocumentControllerArgs = {
@@ -40,7 +41,7 @@ export function useDrawingDocumentController({
   onUndoStateChange,
   rendererActions,
   textBoxActionsRef,
-  maxYRef,
+  maxYRef: _maxYRef,
   maybeGrowCanvasHeight,
   syncCanvasHeightFromMaxY,
 }: UseDrawingDocumentControllerArgs) {
@@ -52,10 +53,7 @@ export function useDrawingDocumentController({
     y: number;
   } | null>(null);
 
-  const normalizedPenStrokeWidth = useMemo(
-    () => normalizeStrokeWidth(strokeWidth),
-    [strokeWidth],
-  );
+  const normalizedPenStrokeWidth = useMemo(() => normalizeStrokeWidth(strokeWidth), [strokeWidth]);
 
   // Stable refs for props used in callbacks
   const onChangeRef = useRef(onChange);
@@ -109,7 +107,7 @@ export function useDrawingDocumentController({
       startLivePath(input.x, input.y);
       maybeGrowCanvasHeight(result.maxY);
     },
-    [startLivePath, maybeGrowCanvasHeight],
+    [startLivePath, maybeGrowCanvasHeight]
   );
 
   const addPoint = useCallback(
@@ -121,7 +119,7 @@ export function useDrawingDocumentController({
       scheduleLivePathRender(engineRef.current.getSessionSamples());
       maybeGrowCanvasHeight(result.maxY);
     },
-    [normalizedPenStrokeWidth, scheduleLivePathRender, maybeGrowCanvasHeight],
+    [normalizedPenStrokeWidth, scheduleLivePathRender, maybeGrowCanvasHeight]
   );
 
   const handlePredictedSamples = useCallback(
@@ -137,7 +135,7 @@ export function useDrawingDocumentController({
       }));
       scheduleLivePathRender([...sessionSamples, ...predicted]);
     },
-    [scheduleLivePathRender],
+    [scheduleLivePathRender]
   );
 
   const finalizeStroke = useCallback(() => {
@@ -160,17 +158,13 @@ export function useDrawingDocumentController({
     }
 
     historyRef.current.push({
-      type: "append-stroke",
+      type: 'append-stroke',
       stroke: result.appendedStroke as Stroke,
       bounds: result.appendedStrokeBounds!,
       snapshotBefore,
     });
 
-    appendCommittedStroke(
-      result.document.strokes,
-      result.strokeBounds,
-      result.appendedStroke,
-    );
+    appendCommittedStroke(result.document.strokes, result.strokeBounds, result.appendedStroke);
     notifyChange();
     syncCanvasHeightFromMaxY(result.maxY);
 
@@ -196,12 +190,12 @@ export function useDrawingDocumentController({
       retainOrRebuildCommittedStrokes(
         result.document.strokes,
         result.strokeBounds,
-        result.retainedStrokeIndices,
+        result.retainedStrokeIndices
       );
       syncCanvasHeightFromMaxY(result.maxY);
       notifyChange();
     },
-    [notifyChange, retainOrRebuildCommittedStrokes, syncCanvasHeightFromMaxY],
+    [notifyChange, retainOrRebuildCommittedStrokes, syncCanvasHeightFromMaxY]
   );
 
   const forceCommitActiveSession = useCallback(() => {
@@ -218,16 +212,12 @@ export function useDrawingDocumentController({
     });
     if (result.changed && result.appendedStroke) {
       historyRef.current.push({
-        type: "append-stroke",
+        type: 'append-stroke',
         stroke: result.appendedStroke as Stroke,
         bounds: result.appendedStrokeBounds!,
         snapshotBefore,
       });
-      appendCommittedStroke(
-        result.document.strokes,
-        result.strokeBounds,
-        result.appendedStroke,
-      );
+      appendCommittedStroke(result.document.strokes, result.strokeBounds, result.appendedStroke);
       syncCanvasHeightFromMaxY(result.maxY);
     }
   }, [
@@ -251,12 +241,7 @@ export function useDrawingDocumentController({
 
     forceCommitActiveSession();
     notifyChange();
-  }, [
-    cancelScheduledLivePathRender,
-    forceCommitActiveSession,
-    notifyChange,
-    resetLivePath,
-  ]);
+  }, [cancelScheduledLivePathRender, forceCommitActiveSession, notifyChange, resetLivePath]);
 
   const setStrokesFromOutside = useCallback(
     (nextStrokes: Stroke[]) => {
@@ -276,7 +261,7 @@ export function useDrawingDocumentController({
       replaceCommittedStrokes,
       syncCanvasHeightFromMaxY,
       textBoxActionsRef,
-    ],
+    ]
   );
 
   const clear = useCallback(() => {
@@ -298,7 +283,7 @@ export function useDrawingDocumentController({
     const result = engineRef.current.clear();
 
     historyRef.current.push({
-      type: "replace-document",
+      type: 'replace-document',
       snapshotBefore,
       snapshotAfter: { strokes: [], bounds: [] },
     });
@@ -322,78 +307,60 @@ export function useDrawingDocumentController({
   }, []);
 
   const applyHistoryState = useCallback(
-    (entry: HistoryEntry, direction: "undo" | "redo") => {
+    (entry: HistoryEntry, direction: 'undo' | 'redo') => {
       let result;
       switch (entry.type) {
-        case "append-stroke": {
-          if (direction === "undo") {
-            result = engineRef.current.applyStrokes(
-              entry.snapshotBefore.strokes as Stroke[],
-            );
+        case 'append-stroke': {
+          if (direction === 'undo') {
+            result = engineRef.current.applyStrokes(entry.snapshotBefore.strokes as Stroke[]);
           } else {
-            result = engineRef.current.applyStrokes(
-              [...entry.snapshotBefore.strokes, entry.stroke] as Stroke[],
-            );
+            result = engineRef.current.applyStrokes([
+              ...entry.snapshotBefore.strokes,
+              entry.stroke,
+            ] as Stroke[]);
           }
           break;
         }
-        case "erase-strokes": {
-          const snapshot =
-            direction === "undo"
-              ? entry.snapshotBefore
-              : entry.snapshotAfter;
-          result = engineRef.current.applyStrokes(
-            snapshot.strokes as Stroke[],
-          );
+        case 'erase-strokes': {
+          const snapshot = direction === 'undo' ? entry.snapshotBefore : entry.snapshotAfter;
+          result = engineRef.current.applyStrokes(snapshot.strokes as Stroke[]);
           break;
         }
-        case "replace-document": {
-          const snapshot =
-            direction === "undo"
-              ? entry.snapshotBefore
-              : entry.snapshotAfter;
-          result = engineRef.current.applyStrokes(
-            snapshot.strokes as Stroke[],
-          );
+        case 'replace-document': {
+          const snapshot = direction === 'undo' ? entry.snapshotBefore : entry.snapshotAfter;
+          result = engineRef.current.applyStrokes(snapshot.strokes as Stroke[]);
           break;
         }
-        case "add-textbox":
-        case "delete-textbox":
-        case "edit-textbox":
-        case "resize-textbox":
-        case "move-textbox": {
+        case 'add-textbox':
+        case 'delete-textbox':
+        case 'edit-textbox':
+        case 'resize-textbox':
+        case 'move-textbox': {
           textBoxActionsRef.current?.applyHistoryEntry(entry, direction);
           return;
         }
         default: {
           const _exhaustive: never = entry;
-          throw new Error(
-            `Unknown history entry type: ${(_exhaustive as any).type}`,
-          );
+          throw new Error(`Unknown history entry type: ${_exhaustive as never}`);
         }
       }
       replaceCommittedStrokes(result!.document.strokes, result!.strokeBounds);
       syncCanvasHeightFromMaxY(result!.maxY);
       notifyChange();
     },
-    [
-      replaceCommittedStrokes,
-      syncCanvasHeightFromMaxY,
-      notifyChange,
-      textBoxActionsRef,
-    ],
+    [replaceCommittedStrokes, syncCanvasHeightFromMaxY, notifyChange, textBoxActionsRef]
   );
 
   const undo = useCallback(() => {
     const entry = historyRef.current.undo();
     if (!entry) return;
-    applyHistoryState(entry, "undo");
+    applyHistoryState(entry, 'undo');
   }, [applyHistoryState]);
 
   const redo = useCallback(() => {
     const entry = historyRef.current.redo();
     if (!entry) return;
-    applyHistoryState(entry, "redo");
+    applyHistoryState(entry, 'redo');
   }, [applyHistoryState]);
 
   return {

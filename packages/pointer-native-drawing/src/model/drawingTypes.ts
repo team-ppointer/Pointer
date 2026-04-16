@@ -28,7 +28,7 @@ export type Stroke = {
   color: string;
   width: number;
   opacity?: number;
-  strokeCap?: "round" | "butt";
+  strokeCap?: 'round' | 'butt';
   samples?: StrokeSample[];
 };
 
@@ -37,7 +37,7 @@ export type ActiveStrokeSession = {
   samples: StrokeSample[];
 };
 
-export type PointerType = "touch" | "pen" | "mouse" | "unknown";
+export type PointerType = 'touch' | 'pen' | 'mouse' | 'unknown';
 
 export type InputEvent = {
   x: number;
@@ -66,7 +66,7 @@ export type ReadonlyPoint = Readonly<Point>;
 export type ReadonlyStrokeSample = Readonly<StrokeSample>;
 
 export type ReadonlyStroke = Readonly<
-  Omit<Stroke, "points" | "samples"> & {
+  Omit<Stroke, 'points' | 'samples'> & {
     readonly points: ReadonlyArray<ReadonlyPoint>;
     readonly samples?: ReadonlyArray<ReadonlyStrokeSample>;
   }

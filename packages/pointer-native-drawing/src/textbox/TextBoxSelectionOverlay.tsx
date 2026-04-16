@@ -1,10 +1,12 @@
-import React, { useCallback, useMemo, useRef } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { runOnJS } from "react-native-reanimated";
-import type { TextBoxData } from "./textBoxTypes";
-import type { ViewTransform } from "../transform";
-import { canvasToScreen } from "../transform";
+import React, { useCallback, useMemo, useRef } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
+
+import type { ViewTransform } from '../transform';
+import { canvasToScreen } from '../transform';
+
+import type { TextBoxData } from './textBoxTypes';
 
 type Props = {
   textBox: TextBoxData;
@@ -16,7 +18,7 @@ type Props = {
   onMoveUpdate: (canvasDx: number, canvasDy: number) => void;
   onMoveEnd: () => void;
   onResizeStart: () => void;
-  onResizeUpdate: (canvasDx: number, side: "left" | "right") => void;
+  onResizeUpdate: (canvasDx: number, side: 'left' | 'right') => void;
   onResizeEnd: () => void;
   /** Lock outer scroll/zoom during drag. */
   onDragLock?: () => void;
@@ -81,13 +83,10 @@ function TextBoxSelectionOverlay(props: Props) {
     propsRef.current.onMoveStart();
   }, []);
 
-  const handleMoveUpdate = useCallback(
-    (translationX: number, translationY: number) => {
-      const s = scaleRef.current;
-      propsRef.current.onMoveUpdate(translationX / s, translationY / s);
-    },
-    [],
-  );
+  const handleMoveUpdate = useCallback((translationX: number, translationY: number) => {
+    const s = scaleRef.current;
+    propsRef.current.onMoveUpdate(translationX / s, translationY / s);
+  }, []);
 
   const handleMoveEnd = useCallback(() => {
     propsRef.current.onMoveEnd();
@@ -101,12 +100,12 @@ function TextBoxSelectionOverlay(props: Props) {
 
   const handleResizeLeftUpdate = useCallback((translationX: number) => {
     const s = scaleRef.current;
-    propsRef.current.onResizeUpdate(translationX / s, "left");
+    propsRef.current.onResizeUpdate(translationX / s, 'left');
   }, []);
 
   const handleResizeRightUpdate = useCallback((translationX: number) => {
     const s = scaleRef.current;
-    propsRef.current.onResizeUpdate(translationX / s, "right");
+    propsRef.current.onResizeUpdate(translationX / s, 'right');
   }, []);
 
   const handleResizeEnd = useCallback(() => {
@@ -126,30 +125,30 @@ function TextBoxSelectionOverlay(props: Props) {
   const dismissGesture = useMemo(
     () =>
       Gesture.Tap().onEnd(() => {
-        "worklet";
+        'worklet';
         runOnJS(handleDismiss)();
       }),
-    [handleDismiss],
+    [handleDismiss]
   );
 
   // Delete button: tap
   const deleteGesture = useMemo(
     () =>
       Gesture.Tap().onEnd(() => {
-        "worklet";
+        'worklet';
         runOnJS(handleDelete)();
       }),
-    [handleDelete],
+    [handleDelete]
   );
 
   // Body tap: tap on body → enter editing
   const bodyTapGesture = useMemo(
     () =>
       Gesture.Tap().onEnd(() => {
-        "worklet";
+        'worklet';
         runOnJS(handleEdit)();
       }),
-    [handleEdit],
+    [handleEdit]
   );
 
   // Move: pan on body area
@@ -158,24 +157,24 @@ function TextBoxSelectionOverlay(props: Props) {
       Gesture.Pan()
         .minDistance(1)
         .onStart(() => {
-          "worklet";
+          'worklet';
           runOnJS(handleMoveStart)();
         })
         .onUpdate((e) => {
-          "worklet";
+          'worklet';
           runOnJS(handleMoveUpdate)(e.translationX, e.translationY);
         })
         .onFinalize(() => {
-          "worklet";
+          'worklet';
           runOnJS(handleMoveEnd)();
         }),
-    [handleMoveStart, handleMoveUpdate, handleMoveEnd],
+    [handleMoveStart, handleMoveUpdate, handleMoveEnd]
   );
 
   // Body gesture: tap (edit) races with pan (move)
   const bodyGesture = useMemo(
     () => Gesture.Race(bodyTapGesture, movePanGesture),
-    [bodyTapGesture, movePanGesture],
+    [bodyTapGesture, movePanGesture]
   );
 
   // Resize left handle: pan
@@ -184,18 +183,18 @@ function TextBoxSelectionOverlay(props: Props) {
       Gesture.Pan()
         .minDistance(1)
         .onStart(() => {
-          "worklet";
+          'worklet';
           runOnJS(handleResizeStart)();
         })
         .onUpdate((e) => {
-          "worklet";
+          'worklet';
           runOnJS(handleResizeLeftUpdate)(e.translationX);
         })
         .onFinalize(() => {
-          "worklet";
+          'worklet';
           runOnJS(handleResizeEnd)();
         }),
-    [handleResizeStart, handleResizeLeftUpdate, handleResizeEnd],
+    [handleResizeStart, handleResizeLeftUpdate, handleResizeEnd]
   );
 
   // Resize right handle: pan
@@ -204,18 +203,18 @@ function TextBoxSelectionOverlay(props: Props) {
       Gesture.Pan()
         .minDistance(1)
         .onStart(() => {
-          "worklet";
+          'worklet';
           runOnJS(handleResizeStart)();
         })
         .onUpdate((e) => {
-          "worklet";
+          'worklet';
           runOnJS(handleResizeRightUpdate)(e.translationX);
         })
         .onFinalize(() => {
-          "worklet";
+          'worklet';
           runOnJS(handleResizeEnd)();
         }),
-    [handleResizeStart, handleResizeRightUpdate, handleResizeEnd],
+    [handleResizeStart, handleResizeRightUpdate, handleResizeEnd]
   );
 
   // =======================================================================
@@ -229,7 +228,7 @@ function TextBoxSelectionOverlay(props: Props) {
   // =======================================================================
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+    <View style={StyleSheet.absoluteFill} pointerEvents='box-none'>
       {/* Dismiss backdrop — lowest z-order, catches taps on empty area */}
       <GestureDetector gesture={dismissGesture}>
         <View style={StyleSheet.absoluteFill} />
@@ -287,8 +286,7 @@ function TextBoxSelectionOverlay(props: Props) {
               left: screenX + scaledWidth / 2 - 30,
               top: screenY - 40,
             },
-          ]}
-        >
+          ]}>
           <Text style={styles.deleteText}>삭제</Text>
         </View>
       </GestureDetector>
@@ -298,26 +296,26 @@ function TextBoxSelectionOverlay(props: Props) {
 
 const styles = StyleSheet.create({
   moveArea: {
-    position: "absolute",
+    position: 'absolute',
     borderWidth: 1,
-    borderColor: "#007AFF",
+    borderColor: '#007AFF',
     borderRadius: 2,
   },
   resizeHandle: {
-    position: "absolute",
+    position: 'absolute',
     width: HANDLE_SIZE,
     height: HANDLE_SIZE,
     borderRadius: HANDLE_SIZE / 2,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: "#007AFF",
+    borderColor: '#007AFF',
   },
   toolbar: {
-    position: "absolute",
-    flexDirection: "row",
-    backgroundColor: "#fff",
+    position: 'absolute',
+    flexDirection: 'row',
+    backgroundColor: '#fff',
     borderRadius: 6,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -327,8 +325,8 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 14,
-    color: "#FF3B30",
-    fontWeight: "600",
+    color: '#FF3B30',
+    fontWeight: '600',
   },
 });
 
