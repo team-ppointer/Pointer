@@ -1,8 +1,9 @@
-import { Alert, Text, View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import type { AnswerEventPayload } from '@repo/pointer-content-renderer';
+import { useShallow } from 'zustand/react/shallow';
 
 import { shadow } from '@theme/tokens';
 import { type StudentRootStackParamList } from '@navigation/student/types';
@@ -14,6 +15,7 @@ import {
   selectGroup,
   selectInitialized,
   selectPhase,
+  selectPointingsForPointing,
   selectPublishAt,
   selectPublishId,
   selectProblemSetTitle,
@@ -21,7 +23,6 @@ import {
 } from '@stores/problemSessionStore';
 import { useInvalidateStudyData } from '@hooks';
 
-import BottomActionBar from '../components/BottomActionBar';
 import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
 import { pointingFeedbackQueue } from '../services';
 import {
@@ -42,12 +43,37 @@ const PointingScreen = ({
   const publishAt = useProblemSessionStore(selectPublishAt);
   const problemSetTitle = useProblemSessionStore(selectProblemSetTitle);
   const completeAllPointings = useProblemSessionStore((state) => state.completeAllPointings);
+  const goToAnalysis = useProblemSessionStore((state) => state.goToAnalysis);
   const resetSession = useProblemSessionStore((state) => state.reset);
   const { invalidateStudyData } = useInvalidateStudyData();
 
-  const pointings = useMemo(() => currentProblem?.pointings ?? [], [currentProblem?.pointings]);
+  const pointings = useProblemSessionStore(useShallow(selectPointingsForPointing));
 
   if (pointings.length === 0) console.warn('[PointingScreen] empty pointings array');
+
+  const { advanceMessage, advanceButtonLabel } = useMemo(() => {
+    if (phase === 'MAIN_POINTINGS') {
+      return {
+        advanceMessage: '학습을 마무리할까요?',
+        advanceButtonLabel: '학습 마무리 바로가기',
+      };
+    }
+    if (phase === 'CHILD_POINTINGS') {
+      const childProblems = group?.childProblems ?? [];
+      const isLastChild = childIndex + 1 >= childProblems.length;
+      if (isLastChild) {
+        return {
+          advanceMessage: '실전 문제를 다시 풀어볼까요?',
+          advanceButtonLabel: '실전 문제 다시 풀기',
+        };
+      }
+      return {
+        advanceMessage: '다음 연습 문제를 풀어볼까요?',
+        advanceButtonLabel: '다음 연습 문제 풀기',
+      };
+    }
+    return { advanceMessage: undefined, advanceButtonLabel: undefined };
+  }, [phase, childIndex, group?.childProblems]);
 
   const chatInitMessage = useMemo(
     () => ({
@@ -55,8 +81,10 @@ const PointingScreen = ({
       mode: 'chat' as const,
       scenario: toChatScenario(pointings),
       userAnswers: toUserAnswers(pointings, pointingFeedbackQueue.snapshot()),
+      advanceMessage,
+      advanceButtonLabel,
     }),
-    [pointings]
+    [pointings, advanceMessage, advanceButtonLabel]
   );
 
   const documentInitMessage = useMemo(
@@ -81,21 +109,13 @@ const PointingScreen = ({
     [publishId]
   );
 
-  const [isPointingDone, setIsPointingDone] = useState(false);
-
-  const handleComplete = useCallback(() => {
-    setIsPointingDone(true);
-  }, []);
-
-  useEffect(() => {
-    setIsPointingDone(false);
-  }, [currentProblem?.id]);
-
   const handleAdvance = useCallback(() => {
-    completeAllPointings();
-  }, [completeAllPointings]);
-
-  const ctaLabel = phase === 'MAIN_POINTINGS' ? '학습 마무리' : '다음 문제';
+    if (phase === 'CHILD_POINTINGS') {
+      completeAllPointings();
+    } else if (phase === 'MAIN_POINTINGS') {
+      goToAnalysis();
+    }
+  }, [phase, completeAllPointings, goToAnalysis]);
 
   const problemSubtitle = useMemo(() => {
     if (!group) {
@@ -183,7 +203,7 @@ const PointingScreen = ({
             <PointerContentView
               initMessage={chatInitMessage}
               onAnswer={handleAnswer}
-              onComplete={handleComplete}
+              onAdvance={handleAdvance}
             />
           </View>
         </View>
@@ -200,13 +220,6 @@ const PointingScreen = ({
             minHeight={200}
             style={{ marginTop: 20, maxWidth: 720 }}
           />
-          {isPointingDone && (
-            <View className='pt-[16px]'>
-              <BottomActionBar.Button className='bg-primary-500 self-start' onPress={handleAdvance}>
-                <Text className='typo-title-1-bold text-white'>{ctaLabel}</Text>
-              </BottomActionBar.Button>
-            </View>
-          )}
         </View>
       </View>
     </View>
