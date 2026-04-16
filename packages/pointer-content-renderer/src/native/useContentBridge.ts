@@ -16,6 +16,7 @@ interface ContentBridgeOptions {
   onComplete?: (answers: UserAnswer[]) => void;
   onAnswer?: (event: AnswerEventPayload) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
+  onAdvance?: () => void;
 }
 
 export function useContentBridge(options: ContentBridgeOptions) {
@@ -65,6 +66,9 @@ export function useContentBridge(options: ContentBridgeOptions) {
           case 'bookmark':
             options.onBookmark?.(msg.sectionId, msg.bookmarked, msg.requestId);
             break;
+          case 'advance':
+            options.onAdvance?.();
+            break;
         }
       } catch {
         // ignore non-JSON messages
@@ -76,6 +80,7 @@ export function useContentBridge(options: ContentBridgeOptions) {
       options.onComplete,
       options.onAnswer,
       options.onBookmark,
+      options.onAdvance,
       injectMessage,
     ]
   );

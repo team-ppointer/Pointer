@@ -79,6 +79,13 @@ onMessage(async (msg) => {
               step: ev.step,
               response: ev.response,
             });
+          },
+          {
+            advanceButtonLabel: msg.advanceButtonLabel,
+            onAdvance: () => {
+              if (!isCurrent()) return;
+              sendToRN({ type: 'advance' });
+            },
           }
         );
         if (!isCurrent()) return;
