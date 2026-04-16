@@ -212,6 +212,38 @@ export async function renderStaticConfirmPhase(
   renderTextBubble(container, response === 'yes' ? '네' : '아니오', 'user', false);
 }
 
+/**
+ * Render a single action button bubble (e.g. "다음 포인팅", advance).
+ * Clicking the button disables it and calls `onAction`.
+ */
+export function renderActionBubble(
+  container: HTMLElement,
+  buttonLabel: string,
+  onAction: () => void
+): HTMLElement {
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble chat-bubble--system chat-bubble--action';
+  bubble.style.animation = 'bubbleIn 300ms ease-out';
+
+  const btn = document.createElement('button');
+  btn.className = 'chat-action-btn';
+  btn.textContent = buttonLabel;
+  btn.addEventListener(
+    'click',
+    () => {
+      btn.disabled = true;
+      btn.classList.add('chat-action-btn--pressed');
+      onAction();
+    },
+    { once: true }
+  );
+
+  bubble.appendChild(btn);
+  container.appendChild(bubble);
+  scrollToBottom();
+  return bubble;
+}
+
 export async function renderAllBubbles(
   container: HTMLElement,
   scenario: ChatScenario,

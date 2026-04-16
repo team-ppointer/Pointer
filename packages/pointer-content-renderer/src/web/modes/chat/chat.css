@@ -118,6 +118,38 @@
   border-color: var(--color-red-400);
 }
 
+/* Action button (advance / next pointing) */
+.chat-bubble--action {
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px;
+}
+
+.chat-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: 20px;
+  border: none;
+  background: var(--color-primary-600);
+  color: var(--color-white);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.chat-action-btn:active {
+  opacity: 0.8;
+}
+
+.chat-action-btn:disabled,
+.chat-action-btn--pressed {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* Expand button */
 .chat-expand-btn {
   display: inline-flex;
