@@ -99,6 +99,9 @@ export const ContentWebView = forwardRef<ContentWebViewHandle, ContentWebViewPro
           source={htmlSource as unknown as WebViewSource}
           onMessage={handleMessage}
           scrollEnabled={!isDocument}
+          bounces={false}
+          overScrollMode='never'
+          decelerationRate='normal'
           style={[
             isDocument ? { height, width: '100%' } : { flex: 1 },
             { backgroundColor },
