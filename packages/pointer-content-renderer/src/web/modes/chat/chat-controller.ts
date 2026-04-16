@@ -33,8 +33,6 @@ export interface ChatConfig {
   advanceMessage?: string;
   /** Label for the advance button after the last pointing. Defaults to '다음'. */
   advanceButtonLabel?: string;
-  /** Called when the user clicks the advance button. */
-  onAdvance?: () => void;
 }
 
 async function showWithTypingIndicator(
@@ -97,7 +95,13 @@ async function showFixedMessage(
   return bubble;
 }
 
-async function showInstantly(container: HTMLElement, node: PointingNode): Promise<HTMLElement> {
+async function showInstantly(
+  container: HTMLElement,
+  node: PointingNode,
+  signal: AbortSignal
+): Promise<HTMLElement> {
+  if (signal.aborted) throw signal.reason;
+
   const html = serializeNodeToHTML(node.contentNode);
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
@@ -120,10 +124,12 @@ async function showInstantly(container: HTMLElement, node: PointingNode): Promis
     bubble.appendChild(expandBtn);
     bubble.appendChild(expandContent);
     await renderMath(expandContent);
+    if (signal.aborted) throw signal.reason;
   }
 
   container.appendChild(bubble);
   await renderMath(bubble);
+  if (signal.aborted) throw signal.reason;
   scrollToBottom();
   return bubble;
 }
@@ -194,7 +200,15 @@ export async function runChatScenario(
     }
   };
 
-  for (const pointing of scenario.pointings) {
+  const pointings = scenario.pointings;
+
+  // Short-circuit: no pointings → return immediately without blocking on advance
+  if (pointings.length === 0) {
+    return finalAnswers;
+  }
+
+  for (let i = 0; i < pointings.length; i++) {
+    const pointing = pointings[i];
     if (pointing.questionNodes.length === 0) {
       console.warn(`[content-renderer] pointing "${pointing.id}" has no questionNodes; skipping`);
       continue;
@@ -216,7 +230,7 @@ export async function runChatScenario(
 
       let lastBubble: HTMLElement | null = null;
       for (const node of pointing.questionNodes) {
-        lastBubble = await showInstantly(container, node);
+        lastBubble = await showInstantly(container, node, signal);
       }
       if (!lastBubble) continue; // defensive
 
@@ -252,8 +266,7 @@ export async function runChatScenario(
     });
 
     // Show "다음 포인팅" button between pointings (skip for last)
-    const isLastPointing = scenario.pointings.indexOf(pointing) === scenario.pointings.length - 1;
-    if (!isLastPointing && !existing?.confirmResponse) {
+    if (i < pointings.length - 1 && !existing?.confirmResponse) {
       await waitForActionButton(container, '다음 포인팅', signal, '다음 포인팅으로 이동할까요?');
     }
   }
@@ -265,7 +278,6 @@ export async function runChatScenario(
   const advanceLabel = config?.advanceButtonLabel ?? '다음';
   const advanceMessage = config?.advanceMessage ?? '다음으로 이동할까요?';
   await waitForActionButton(container, advanceLabel, signal, advanceMessage);
-  config?.onAdvance?.();
 
   return finalAnswers;
 }

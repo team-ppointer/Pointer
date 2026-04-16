@@ -83,14 +83,11 @@ onMessage(async (msg) => {
           {
             advanceMessage: msg.advanceMessage,
             advanceButtonLabel: msg.advanceButtonLabel,
-            onAdvance: () => {
-              if (!isCurrent()) return;
-              sendToRN({ type: 'advance' });
-            },
           }
         );
         if (!isCurrent()) return;
         sendToRN({ type: 'complete', answers });
+        sendToRN({ type: 'advance' });
       } catch (e) {
         if (abortController.signal.aborted) return;
         console.error('[content-renderer] chat error:', e);
