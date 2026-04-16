@@ -227,7 +227,9 @@ export function renderActionBubble(
   bubble.style.animation = 'bubbleIn 300ms ease-out';
 
   if (message) {
-    bubble.innerHTML = `<p>${message}</p>`;
+    const p = document.createElement('p');
+    p.textContent = message;
+    bubble.appendChild(p);
   }
 
   const wrapper = document.createElement('div');

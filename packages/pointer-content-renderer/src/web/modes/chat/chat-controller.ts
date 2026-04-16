@@ -90,7 +90,9 @@ async function showFixedMessage(
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
-  bubble.innerHTML = `<p>${text}</p>`;
+  const p = document.createElement('p');
+  p.textContent = text;
+  bubble.appendChild(p);
   replaceWithBubble(indicator, bubble);
   return bubble;
 }
