@@ -193,7 +193,7 @@ const AnalysisScreen = ({
   const { data: childProblemScrapMap } = useQuery({
     queryKey: ['get', '/api/student/scrap/by-problem/{problemId}', 'children', ...childProblemIds],
     queryFn: async () => {
-      const results = await Promise.all(
+      const results = await Promise.allSettled(
         childProblemIds.map((id) =>
           client.GET('/api/student/scrap/by-problem/{problemId}', {
             params: { path: { problemId: id } },
@@ -201,7 +201,10 @@ const AnalysisScreen = ({
         )
       );
       return Object.fromEntries(
-        results.map((r, i) => [childProblemIds[i], r.data?.isProblemScrapped ?? false])
+        results.map((r, i) => [
+          childProblemIds[i],
+          r.status === 'fulfilled' ? (r.value.data?.isProblemScrapped ?? false) : false,
+        ])
       ) as Record<number, boolean>;
     },
     enabled: childProblemIds.length > 0,
@@ -219,16 +222,16 @@ const AnalysisScreen = ({
   }, [group]);
 
   const isProblemBookmarked = useCallback(
-    (problemId: number): boolean => {
-      if (problemId === group?.problem.id) return scrapStatus?.isProblemScrapped ?? false;
-      return childProblemScrapMap?.[problemId] ?? false;
+    (targetProblemId: number): boolean => {
+      if (targetProblemId === group?.problem.id) return scrapStatus?.isProblemScrapped ?? false;
+      return childProblemScrapMap?.[targetProblemId] ?? false;
     },
     [group?.problem.id, scrapStatus, childProblemScrapMap]
   );
 
   const handleProblemBookmark = useCallback(
-    (problemId: number) => {
-      toggleProblem.mutate({ problemId }, { onSuccess: invalidateScrapStatus });
+    (targetProblemId: number) => {
+      toggleProblem.mutate({ problemId: targetProblemId }, { onSuccess: invalidateScrapStatus });
     },
     [toggleProblem, invalidateScrapStatus]
   );
