@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { Alert, AppState, type AppStateStatus } from 'react-native';
-
-import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
+import { Alert, AppState, InteractionManager, type AppStateStatus } from 'react-native';
+import { useGetHandwriting, useUpdateHandwriting } from '@apis';
 
 import { type DrawingCanvasRef } from '../utils/skia';
 import { encodeHandwritingData, decodeHandwritingData } from '../utils/handwritingEncoder';
@@ -43,6 +42,7 @@ export function useHandwritingManager({
     // 저장 중이 아니고, scrapId가 일치할 때만 로드 (데이터 유실 방지)
     if (
       handwritingData?.data &&
+      handwritingData.data !== lastSavedDataRef.current &&
       canvasRef.current &&
       currentScrapIdRef.current === scrapId &&
       !isSaving
@@ -54,7 +54,9 @@ export function useHandwritingManager({
           try {
             const decodedData = decodeHandwritingData(handwritingData.data);
             canvasRef.current.setStrokes(decodedData.strokes);
-            canvasRef.current.setTextBoxes(decodedData.texts ?? []);
+            if (decodedData.texts?.length > 0) {
+              canvasRef.current.setTextBoxes(decodedData.texts);
+            }
             if (decodedData.lastColor) {
               onColorRestore?.(decodedData.lastColor);
             }
@@ -69,23 +71,15 @@ export function useHandwritingManager({
     }
   }, [handwritingData, canvasRef, scrapId]);
 
-  // 저장하기 함수
-  const handleSave = useCallback(
-    (isAutoSave = false, targetScrapId?: number) => {
-      if (!canvasRef.current) return Promise.resolve(false);
-
-      // 이미 저장 중이면 중복 저장 방지
-      if (isSaving) {
-        return Promise.resolve(false);
-      }
-
-      const strokes = canvasRef.current.getStrokes();
-      const textBoxes = canvasRef.current.getTextBoxes();
-
+  // 실제 저장 로직 (encode + API call)
+  const doSave = useCallback(
+    (strokes: ReturnType<DrawingCanvasRef['getStrokes']>,
+     textBoxes: ReturnType<DrawingCanvasRef['getTextBoxes']>,
+     isAutoSave: boolean,
+     targetScrapId?: number): Promise<boolean> => {
       try {
         const base64Data = encodeHandwritingData(strokes || [], textBoxes || [], strokeColor);
 
-        // 변경사항 없으면 저장 안 함
         if (base64Data === lastSavedDataRef.current) {
           if (!isAutoSave) {
             Alert.alert('알림', '변경사항이 없습니다.');
@@ -93,7 +87,6 @@ export function useHandwritingManager({
           return Promise.resolve(true);
         }
 
-        // targetScrapId가 제공되면 그것을 사용, 아니면 scrapId 사용
         const saveScrapId = targetScrapId ?? scrapId;
 
         return new Promise<boolean>((resolve) => {
@@ -130,7 +123,32 @@ export function useHandwritingManager({
         return Promise.resolve(false);
       }
     },
-    [scrapId, canvasRef, strokeColor, updateHandwriting, onSaveSuccess, onSaveError, isSaving]
+    [scrapId, strokeColor, updateHandwriting, onSaveSuccess, onSaveError]
+  );
+
+  // 저장하기 함수
+  const handleSave = useCallback(
+    (isAutoSave = false, targetScrapId?: number) => {
+      if (!canvasRef.current) return Promise.resolve(false);
+      if (isSaving) return Promise.resolve(false);
+
+      // 스냅샷은 즉시 캡처 (O(1) cache hit)
+      const strokes = canvasRef.current.getStrokes();
+      const textBoxes = canvasRef.current.getTextBoxes();
+
+      if (!isAutoSave) {
+        // 수동 저장: 즉시 실행 (유저가 기다리는 중)
+        return doSave(strokes, textBoxes, false, targetScrapId);
+      }
+
+      // 자동 저장: interaction 끝난 후 실행 → 터치 이벤트와 같은 프레임에서 경쟁하지 않음
+      return new Promise<boolean>((resolve) => {
+        InteractionManager.runAfterInteractions(() => {
+          doSave(strokes, textBoxes, true, targetScrapId).then(resolve);
+        });
+      });
+    },
+    [canvasRef, isSaving, doSave]
   );
 
   // 5초마다 자동 저장
@@ -152,6 +170,21 @@ export function useHandwritingManager({
     });
     return () => subscription.remove();
   }, [hasUnsavedChanges, isSaving, handleSave]);
+
+  // 최신 상태를 ref로 유지 (unmount cleanup에서 stale closure 방지)
+  const hasUnsavedRef = useRef(hasUnsavedChanges);
+  const handleSaveRef = useRef(handleSave);
+  hasUnsavedRef.current = hasUnsavedChanges;
+  handleSaveRef.current = handleSave;
+
+  // 화면 떠날 때 (unmount) 저장
+  useEffect(() => {
+    return () => {
+      if (hasUnsavedRef.current) {
+        handleSaveRef.current(true);
+      }
+    };
+  }, []);
 
   return {
     isLoading,

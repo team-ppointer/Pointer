@@ -1,4 +1,11 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 
@@ -40,8 +47,6 @@ export type DrawingCanvasProps = {
   strokeWidth?: number;
   backgroundColor?: string;
   onChange?: (strokes: Stroke[]) => void;
-  /** Fired on any document mutation (strokes or textboxes). Use for dirty-tracking. */
-  onDirty?: () => void;
   onUndoStateChange?: (state: { canUndo: boolean; canRedo: boolean }) => void;
   onScrollOffsetChange?: (offsetY: number) => void;
   onCanvasHeightChange?: (height: number) => void;
@@ -69,7 +74,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       strokeWidth = 3,
       backgroundColor = '#fff',
       onChange,
-      onDirty,
       onUndoStateChange,
       onScrollOffsetChange,
       onCanvasHeightChange,
@@ -98,7 +102,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
     // --- Renderer ---
     const [rendererState, rendererActions] = useSkiaDrawingRenderer(writingFeelConfig);
-    const { paths, strokes, livePath, isLiveStrokeActive, viewport, canvasRef } = rendererState;
+    const { paths, strokes, livePathSV, viewport, canvasRef } = rendererState;
     const { updateViewport } = rendererActions;
 
     // --- Viewport Controller ---
@@ -121,7 +125,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       strokeColor,
       eraserSize,
       onChange,
-      onDirty,
       onUndoStateChange,
       rendererActions,
       textBoxActionsRef,
@@ -131,12 +134,15 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     });
 
     // --- TextBox Manager ---
-    const [textBoxState, textBoxActions] = useTextBoxManager(
-      docController.historyRef,
-      { width: vc.viewportSize.width, height: vc.effectiveCanvasHeight },
-      onDirty
+    const canvasSize = useMemo(
+      () => ({ width: vc.viewportSize.width, height: vc.effectiveCanvasHeight }),
+      [vc.viewportSize.width, vc.effectiveCanvasHeight]
     );
+    const [textBoxState, textBoxActions] = useTextBoxManager(docController.historyRef, canvasSize);
     textBoxActionsRef.current = textBoxActions;
+
+    const textBoxesRef = useRef(textBoxState.textBoxes);
+    textBoxesRef.current = textBoxState.textBoxes;
 
     // End textbox session when switching away from textbox tool
     const prevToolRef = useRef(activeTool);
@@ -164,7 +170,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         },
         getStrokes: docController.getStrokes,
         setStrokes: docController.setStrokes,
-        getTextBoxes: () => [...textBoxState.textBoxes],
+        getTextBoxes: () => [...textBoxesRef.current],
         setTextBoxes: (tbs: TextBoxData[]) => {
           textBoxActions.setTextBoxes(tbs);
           docController.historyRef.current.clear();
@@ -186,7 +192,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         vc.viewTransformRef,
         vc.scrollViewRef,
         enableZoomPan,
-        textBoxState.textBoxes,
         textBoxActions,
       ]
     );
@@ -202,13 +207,19 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       setIsScrollEnabled,
     });
 
-    const isFabric = !!(globalThis as Record<string, unknown>).nativeFabricUIManager;
+    const isFabric = 'nativeFabricUIManager' in globalThis;
     const useNativeStylus =
       isFabric && (stylusInput === 'native' || (stylusInput === 'auto' && Platform.OS === 'ios'));
+
+    // Native finger input: when native stylus is available, zoom/pan mode is on,
+    // and not in textbox mode, route finger drawing through the native recognizer.
+    // In scroll mode, fall back to RNGH so ScrollView touch handling works.
+    const nativeFingerInput = useNativeStylus && enableZoomPan && activeTool !== 'textbox';
 
     const nativeStylusAdapter = useNativeStylusAdapter({
       callbacks: transformedCallbacks,
       eraserMode,
+      acceptFingerInput: nativeFingerInput && !pencilOnly,
     });
 
     const { gesture: drawPan } = useRnghPanAdapter({
@@ -216,6 +227,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       pencilOnly,
       minDistance: PAN_MIN_DISTANCE,
       callbacks: transformedCallbacks,
+      enabled: !nativeFingerInput,
     });
 
     // --- Gesture Composer ---
@@ -223,6 +235,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       enableZoomPan,
       maxZoomScale,
       isTextBoxTool: activeTool === 'textbox',
+      nativeFingerInput,
       viewTransformRef: vc.viewTransformRef,
       applyTransform: vc.applyTransform,
       drawPanGesture: drawPan,
@@ -265,8 +278,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
                   strokeBounds={rendererState.strokeBounds}
                   strokeColor={strokeColor}
                   normalizedPenStrokeWidth={docController.normalizedPenStrokeWidth}
-                  livePath={livePath}
-                  isLiveStrokeActive={isLiveStrokeActive}
+                  livePathSV={livePathSV}
                   eraserCursor={docController.eraserCursor}
                   eraserSize={eraserSize}
                   canvasRef={canvasRef}
@@ -335,8 +347,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
                   strokeBounds={rendererState.strokeBounds}
                   strokeColor={strokeColor}
                   normalizedPenStrokeWidth={docController.normalizedPenStrokeWidth}
-                  livePath={livePath}
-                  isLiveStrokeActive={isLiveStrokeActive}
+                  livePathSV={livePathSV}
                   eraserCursor={docController.eraserCursor}
                   eraserSize={eraserSize}
                   canvasRef={canvasRef}

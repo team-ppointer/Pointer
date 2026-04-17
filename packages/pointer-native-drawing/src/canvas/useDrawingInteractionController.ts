@@ -2,20 +2,22 @@ import { useMemo } from 'react';
 import type { RefObject } from 'react';
 
 import type { InputEvent } from '../model/drawingTypes';
-import type { DocumentSnapshot } from '../engine/HistoryManager';
 import type { HistoryManager } from '../engine/HistoryManager';
 import { screenToCanvas } from '../transform';
 import type { ViewTransform } from '../transform';
+import type { CancelReason } from '../input/inputTypes';
 
 export type DrawingActions = {
   startStroke: (input: InputEvent) => void;
   addPoint: (input: InputEvent) => void;
   finalizeStroke: () => void;
   eraseAtPoint: (input: InputEvent) => void;
-  cancelDraw: () => void;
+  cancelDraw: (reason?: CancelReason) => void;
   handlePredictedSamples: (inputs: InputEvent[]) => void;
   captureSnapshot: () => DocumentSnapshot;
   setEraserCursor: (cursor: { x: number; y: number } | null) => void;
+  beginEraseTransaction: () => void;
+  commitEraseTransaction: () => void;
 };
 
 export type UseDrawingInteractionControllerArgs = {
@@ -32,7 +34,7 @@ export function useDrawingInteractionController({
   eraserMode,
   enableZoomPan,
   canvasWidth,
-  historyRef,
+  historyRef: _historyRef,
   viewTransformRef,
   drawingActions,
   setIsScrollEnabled,
@@ -44,8 +46,9 @@ export function useDrawingInteractionController({
     eraseAtPoint,
     cancelDraw,
     handlePredictedSamples,
-    captureSnapshot,
     setEraserCursor,
+    beginEraseTransaction,
+    commitEraseTransaction,
   } = drawingActions;
 
   const inputCallbacks = useMemo(
@@ -53,34 +56,34 @@ export function useDrawingInteractionController({
       onInteractionBegin: () => {
         if (!enableZoomPan) setIsScrollEnabled(false);
         if (eraserMode) {
-          historyRef.current.beginTransaction(captureSnapshot());
+          beginEraseTransaction();
         }
       },
       onInteractionFinalize: () => {
         if (!enableZoomPan) setIsScrollEnabled(true);
         if (eraserMode) {
-          historyRef.current.commitTransaction(captureSnapshot());
+          commitEraseTransaction();
         }
         setEraserCursor(null);
       },
       onDrawStart: startStroke,
       onDrawMove: addPoint,
       onDrawEnd: finalizeStroke,
-      onDrawCancel: () => cancelDraw(),
+      onDrawCancel: (reason) => cancelDraw(reason),
       onEraseStart: eraseAtPoint,
       onEraseMove: eraseAtPoint,
       onPredictedSamples: handlePredictedSamples,
     }),
     [
       addPoint,
+      beginEraseTransaction,
       cancelDraw,
-      captureSnapshot,
+      commitEraseTransaction,
       enableZoomPan,
       eraserMode,
       eraseAtPoint,
       finalizeStroke,
       handlePredictedSamples,
-      historyRef,
       setEraserCursor,
       setIsScrollEnabled,
       startStroke,

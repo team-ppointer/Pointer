@@ -46,7 +46,8 @@ export const useRnghPanAdapter = ({
   pencilOnly,
   minDistance,
   callbacks,
-}: InputAdapterConfig): InputAdapter<ReturnType<typeof Gesture.Pan>> => {
+  enabled = true,
+}: InputAdapterConfig & { enabled?: boolean }): InputAdapter<ReturnType<typeof Gesture.Pan>> => {
   const callbacksRef = useRef(callbacks);
   callbacksRef.current = callbacks;
 
@@ -117,6 +118,7 @@ export const useRnghPanAdapter = ({
   const gesture = useMemo(
     () =>
       Gesture.Pan()
+        .enabled(enabled)
         .maxPointers(1)
         .averageTouches(true)
         .minDistance(minDistance)
@@ -188,6 +190,7 @@ export const useRnghPanAdapter = ({
           runOnJS(handleInteractionFinalize)();
         }),
     [
+      enabled,
       phaseShared,
       eraserModeShared,
       pencilOnlyShared,

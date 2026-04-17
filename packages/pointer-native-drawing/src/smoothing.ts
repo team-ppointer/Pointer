@@ -1,5 +1,4 @@
-import { Skia } from '@shopify/react-native-skia';
-import type { SkPath } from '@shopify/react-native-skia';
+import { Skia, SkPath } from '@shopify/react-native-skia';
 
 import type {
   ReadonlyPoint,
@@ -7,6 +6,7 @@ import type {
   StrokeSample,
   WritingFeelConfig,
 } from './model/drawingTypes';
+import { unpackPoints, unpackSamples } from './model/drawingTypes';
 import { resolveDynamicStrokeWidth, DEFAULT_WRITING_FEEL_CONFIG } from './model/writingFeel';
 import {
   hasNativePathBuilder,
@@ -82,39 +82,40 @@ export function centripetalControlPointsMut(
 // buildSmoothPath (Point[] fallback — unchanged)
 // ---------------------------------------------------------------------------
 
-export function buildSmoothPath(points: ReadonlyArray<ReadonlyPoint>): SkPath {
-  if (hasNativePathBuilder()) {
+export function buildSmoothPath(points: ReadonlyArray<ReadonlyPoint> | Float64Array): SkPath {
+  if (hasNativePathBuilder() && !(points instanceof Float64Array)) {
     const native = nativeBuildSmoothPath(points);
     if (native) return native;
   }
 
-  const path = Skia.Path.Make();
-  if (points.length === 0) return path;
+  // JS fallback — unpack if packed
+  const pts: ReadonlyArray<ReadonlyPoint> =
+    points instanceof Float64Array ? unpackPoints(points) : points;
 
-  const firstPoint = points[0];
+  const path = Skia.Path.Make();
+  if (pts.length === 0) return path;
+
+  const firstPoint = pts[0];
   if (!isValidPoint(firstPoint)) return path;
 
   path.moveTo(firstPoint.x, firstPoint.y);
 
-  if (points.length === 1) return path;
+  if (pts.length === 1) return path;
 
-  if (points.length < 3) {
-    const secondPoint = points[1];
+  if (pts.length < 3) {
+    const secondPoint = pts[1];
     if (isValidPoint(secondPoint)) {
       path.lineTo(secondPoint.x, secondPoint.y);
     }
     return path;
   }
 
-  for (let i = 0; i < points.length - 1; i++) {
-    const current = points[i];
-    const next = points[i + 1];
-    const previous =
-      i > 0 ? points[i - 1] : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
+  for (let i = 0; i < pts.length - 1; i++) {
+    const current = pts[i];
+    const next = pts[i + 1];
+    const previous = i > 0 ? pts[i - 1] : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
     const nextNext =
-      i + 2 < points.length
-        ? points[i + 2]
-        : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
+      i + 2 < pts.length ? pts[i + 2] : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
 
     if (
       !isValidPoint(previous) ||
@@ -146,25 +147,34 @@ export function buildSmoothPath(points: ReadonlyArray<ReadonlyPoint>): SkPath {
  *   Use `3.0 / PixelRatio.get()` for DPI-aware spacing.
  */
 export function buildCenterlinePath(
-  samples: ReadonlyArray<ReadonlyStrokeSample>,
+  samples: ReadonlyArray<ReadonlyStrokeSample> | Float64Array,
   config: WritingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
   targetSpacing = 3.0,
   smoothingFactor = CENTERLINE_SMOOTHING_FACTOR
 ): SkPath {
   if (hasNativePathBuilder()) {
-    const native = nativeBuildCenterlinePath(samples, config, targetSpacing, smoothingFactor);
+    const native = nativeBuildCenterlinePath(
+      samples instanceof Float64Array ? unpackSamples(samples) : samples,
+      config,
+      targetSpacing,
+      smoothingFactor
+    );
     if (native) return native;
   }
 
-  const path = Skia.Path.Make();
-  if (samples.length === 0) return path;
+  // JS fallback — unpack if packed
+  const sams: ReadonlyArray<ReadonlyStrokeSample> =
+    samples instanceof Float64Array ? unpackSamples(samples) : samples;
 
-  if (samples.length === 1) {
-    path.moveTo(samples[0].x, samples[0].y);
+  const path = Skia.Path.Make();
+  if (sams.length === 0) return path;
+
+  if (sams.length === 1) {
+    path.moveTo(sams[0].x, sams[0].y);
     return path;
   }
 
-  const resampled = resampleByArcLength(samples, targetSpacing);
+  const resampled = resampleByArcLength(sams, targetSpacing);
   smoothCenterline(resampled, smoothingFactor);
 
   path.moveTo(resampled[0].x, resampled[0].y);

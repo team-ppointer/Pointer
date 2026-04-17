@@ -1,16 +1,16 @@
-import { useCallback, useMemo, useRef } from 'react';
-import type { RefObject } from 'react';
-import { Gesture } from 'react-native-gesture-handler';
-import type { GestureType } from 'react-native-gesture-handler';
-import { runOnJS, useSharedValue } from 'react-native-reanimated';
-
-import type { ViewTransform } from '../transform';
-import { IDENTITY_TRANSFORM, screenToCanvas } from '../transform';
+import { useCallback, useMemo, useRef } from "react";
+import type { RefObject } from "react";
+import { Gesture } from "react-native-gesture-handler";
+import type { GestureType } from "react-native-gesture-handler";
+import { runOnJS, useSharedValue } from "react-native-reanimated";
+import type { ViewTransform } from "../transform";
+import { IDENTITY_TRANSFORM, screenToCanvas } from "../transform";
 
 export type UseCanvasGestureComposerArgs = {
   enableZoomPan: boolean;
   maxZoomScale: number;
   isTextBoxTool: boolean;
+  nativeFingerInput?: boolean;
   viewTransformRef: RefObject<ViewTransform>;
   applyTransform: (t: ViewTransform) => void;
   drawPanGesture: GestureType;
@@ -21,6 +21,7 @@ export function useCanvasGestureComposer({
   enableZoomPan,
   maxZoomScale,
   isTextBoxTool,
+  nativeFingerInput = false,
   viewTransformRef,
   applyTransform,
   drawPanGesture,
@@ -39,7 +40,7 @@ export function useCanvasGestureComposer({
       }
       onTextBoxTap(canvasX, canvasY);
     },
-    [enableZoomPan, onTextBoxTap, viewTransformRef]
+    [enableZoomPan, onTextBoxTap, viewTransformRef],
   );
 
   const textBoxTapGesture = useMemo(
@@ -47,10 +48,10 @@ export function useCanvasGestureComposer({
       Gesture.Tap()
         .enabled(isTextBoxTool)
         .onEnd((e) => {
-          'worklet';
+          "worklet";
           runOnJS(handleTextBoxTapJS)(e.x, e.y);
         }),
-    [isTextBoxTool, handleTextBoxTapJS]
+    [isTextBoxTool, handleTextBoxTapJS],
   );
 
   // --- Shared flags for pinch/pan coordination (worklet-level) ---
@@ -70,7 +71,7 @@ export function useCanvasGestureComposer({
         y: (focalY - current.translateY) / current.scale,
       };
     },
-    [viewTransformRef]
+    [viewTransformRef],
   );
 
   const handlePinchUpdate = useCallback(
@@ -83,7 +84,7 @@ export function useCanvasGestureComposer({
 
       applyTransform({ scale: newScale, translateX: newTx, translateY: newTy });
     },
-    [applyTransform, maxZoomScale]
+    [applyTransform, maxZoomScale],
   );
 
   const handlePinchEnd = useCallback(() => {
@@ -94,13 +95,13 @@ export function useCanvasGestureComposer({
     () =>
       Gesture.Pinch()
         .onStart((e) => {
-          'worklet';
+          "worklet";
           pinchDeadShared.value = false;
           pinchActiveShared.value = true;
           runOnJS(handlePinchStart)(e.focalX, e.focalY);
         })
         .onUpdate((e) => {
-          'worklet';
+          "worklet";
           if (e.numberOfPointers < 2) {
             if (!pinchDeadShared.value) {
               pinchDeadShared.value = true;
@@ -112,15 +113,15 @@ export function useCanvasGestureComposer({
           runOnJS(handlePinchUpdate)(e.scale, e.focalX, e.focalY);
         })
         .onEnd(() => {
-          'worklet';
+          "worklet";
           pinchActiveShared.value = false;
           runOnJS(handlePinchEnd)();
         })
         .onFinalize(() => {
-          'worklet';
+          "worklet";
           pinchActiveShared.value = false;
         }),
-    [pinchDeadShared, pinchActiveShared, handlePinchStart, handlePinchUpdate, handlePinchEnd]
+    [pinchDeadShared, pinchActiveShared, handlePinchStart, handlePinchUpdate, handlePinchEnd],
   );
 
   // --- 2-finger pan (canvas panning) ---
@@ -128,10 +129,13 @@ export function useCanvasGestureComposer({
   const fingerPanBaseRef = useRef<ViewTransform>(IDENTITY_TRANSFORM);
   const fingerPanActiveRef = useRef(false);
 
-  const handleFingerPanStart = useCallback(() => {
-    fingerPanActiveRef.current = true;
-    fingerPanBaseRef.current = viewTransformRef.current;
-  }, [viewTransformRef]);
+  const handleFingerPanStart = useCallback(
+    () => {
+      fingerPanActiveRef.current = true;
+      fingerPanBaseRef.current = viewTransformRef.current;
+    },
+    [viewTransformRef],
+  );
 
   const handleFingerPanUpdate = useCallback(
     (translationX: number, translationY: number) => {
@@ -143,7 +147,7 @@ export function useCanvasGestureComposer({
         translateY: base.translateY + translationY,
       });
     },
-    [applyTransform]
+    [applyTransform],
   );
 
   const handleFingerPanEnd = useCallback(() => {
@@ -157,20 +161,20 @@ export function useCanvasGestureComposer({
         .maxPointers(2)
         .minDistance(1)
         .onStart(() => {
-          'worklet';
+          "worklet";
           if (pinchActiveShared.value) return;
           runOnJS(handleFingerPanStart)();
         })
         .onUpdate((e) => {
-          'worklet';
+          "worklet";
           if (pinchActiveShared.value) return;
           runOnJS(handleFingerPanUpdate)(e.translationX, e.translationY);
         })
         .onFinalize(() => {
-          'worklet';
+          "worklet";
           runOnJS(handleFingerPanEnd)();
         }),
-    [pinchActiveShared, handleFingerPanStart, handleFingerPanUpdate, handleFingerPanEnd]
+    [pinchActiveShared, handleFingerPanStart, handleFingerPanUpdate, handleFingerPanEnd],
   );
 
   // --- Composed gesture ---
@@ -180,17 +184,16 @@ export function useCanvasGestureComposer({
         ? Gesture.Simultaneous(textBoxTapGesture, fingerPanGesture, pinchGesture)
         : textBoxTapGesture;
     }
+    if (nativeFingerInput) {
+      // 1-finger drawing handled by native recognizer → RNGH only needs 2-finger gestures
+      return enableZoomPan
+        ? Gesture.Simultaneous(fingerPanGesture, pinchGesture)
+        : drawPanGesture; // enabled=false dummy, keeps GestureDetector happy
+    }
     return enableZoomPan
       ? Gesture.Simultaneous(drawPanGesture, fingerPanGesture, pinchGesture)
       : drawPanGesture;
-  }, [
-    enableZoomPan,
-    drawPanGesture,
-    fingerPanGesture,
-    pinchGesture,
-    textBoxTapGesture,
-    isTextBoxTool,
-  ]);
+  }, [enableZoomPan, nativeFingerInput, drawPanGesture, fingerPanGesture, pinchGesture, textBoxTapGesture, isTextBoxTool]);
 
   return { composedGesture };
 }

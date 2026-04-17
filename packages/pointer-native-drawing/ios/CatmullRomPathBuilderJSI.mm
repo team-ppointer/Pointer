@@ -1,5 +1,9 @@
 #import "CatmullRomPathBuilderJSI.h"
 #import "CatmullRomPathBuilder.h"
+#import "NativeDrawingLivePathBridge.h"
+#import "StylusInputView.h"
+
+#import <ReactCommon/CallInvoker.h>
 
 #include <memory>
 #include <vector>
@@ -241,6 +245,64 @@ void installPathBuilder(
   runtime.global().setProperty(
       runtime, "__PointerNativeDrawing_buildCenterlinePath",
       std::move(buildCL));
+
+  // __PointerNativeDrawing_getNativeLivePath() → SkPath | null
+  // Returns the latest live path built by the native drawing session (Phase 3).
+  // If no native session is active, returns null and JS falls back to its own
+  // path building pipeline.
+  auto getNativeLive = jsi::Function::createFromHostFunction(
+      runtime,
+      jsi::PropNameID::forAscii(
+          runtime, "__PointerNativeDrawing_getNativeLivePath"),
+      0,
+      [ctx](jsi::Runtime &rt, const jsi::Value & /*thisVal*/,
+            const jsi::Value * /*args*/, size_t /*count*/) -> jsi::Value {
+        try {
+          if (!ctx) return jsi::Value::null();
+          SkPath path;
+          if (!LivePathBridge::get(path)) return jsi::Value::null();
+          return wrapSkPath(rt, ctx, std::move(path));
+        } catch (...) {
+          return jsi::Value::null();
+        }
+      });
+
+  runtime.global().setProperty(
+      runtime, "__PointerNativeDrawing_getNativeLivePath",
+      std::move(getNativeLive));
+
+  // __PointerNativeDrawing_setSessionConfig(config, targetSpacing, smoothingFactor, strokeWidth)
+  // Syncs JS drawing config to the native StylusInputView session.
+  auto setConfig = jsi::Function::createFromHostFunction(
+      runtime,
+      jsi::PropNameID::forAscii(
+          runtime, "__PointerNativeDrawing_setSessionConfig"),
+      4,
+      [](jsi::Runtime &rt, const jsi::Value & /*thisVal*/,
+         const jsi::Value *args, size_t count) -> jsi::Value {
+        if (count < 4) return jsi::Value::undefined();
+
+        auto config = parseConfig(rt, args[0]);
+        double spacing = args[1].isNumber() ? args[1].asNumber() : 3.0;
+        double factor = args[2].isNumber() ? args[2].asNumber() : 0.3;
+        double width = args[3].isNumber() ? args[3].asNumber() : 1.8;
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+          StylusInputView *view = [StylusInputView activeView];
+          if (view) {
+            [view setPathConfig:config
+                  targetSpacing:spacing
+                smoothingFactor:factor
+                    strokeWidth:width];
+          }
+        });
+
+        return jsi::Value::undefined();
+      });
+
+  runtime.global().setProperty(
+      runtime, "__PointerNativeDrawing_setSessionConfig",
+      std::move(setConfig));
 }
 
 } // namespace PointerNativeDrawing
@@ -251,6 +313,7 @@ void installPathBuilder(
 
 @interface RCTBridge (PointerDrawingPrivate)
 - (void *)runtime;
+- (std::shared_ptr<facebook::react::CallInvoker>)jsCallInvoker;
 @end
 
 @interface PointerDrawingPathBuilderModule : NSObject <RCTBridgeModule>
@@ -263,13 +326,18 @@ void installPathBuilder(
 RCT_EXPORT_MODULE(PointerDrawingPathBuilder)
 
 RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
-  // 1. Get JSI runtime from bridge
+  // 1. Get JSI runtime + CallInvoker from bridge
   if (!_bridge || ![_bridge respondsToSelector:@selector(runtime)])
     return @(NO);
 
   void *runtimePtr = [_bridge runtime];
   if (!runtimePtr)
     return @(NO);
+
+  std::shared_ptr<facebook::react::CallInvoker> callInvoker;
+  if ([_bridge respondsToSelector:@selector(jsCallInvoker)]) {
+    callInvoker = [_bridge jsCallInvoker];
+  }
 
   // 2. Get Skia platform context (architecture-dependent)
   std::shared_ptr<RNSkia::RNSkManager> skManager;
@@ -304,6 +372,54 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
   // 3. Install JSI bindings
   auto &runtime = *static_cast<facebook::jsi::Runtime *>(runtimePtr);
   PointerNativeDrawing::installPathBuilder(runtime, context);
+
+  // 4. Phase 3D: Install registerLivePathCallback + wire CallInvoker push
+  //    JS calls registerLivePathCallback(fn) where fn = (path) => { sv.value = path }
+  //    Native stores fn, and on each touch uses CallInvoker to call fn with the built path.
+  if (callInvoker && context) {
+    auto rtPtr = &runtime;
+    auto ctxCapture = context;
+    auto invoker = callInvoker;
+
+    auto registerCb = jsi::Function::createFromHostFunction(
+        runtime,
+        jsi::PropNameID::forAscii(
+            runtime, "__PointerNativeDrawing_registerLivePathCallback"),
+        1,
+        [rtPtr, ctxCapture, invoker](
+            jsi::Runtime &rt, const jsi::Value & /*thisVal*/,
+            const jsi::Value *args, size_t count) -> jsi::Value {
+          if (count < 1 || !args[0].isObject())
+            return jsi::Value::undefined();
+
+          // Store the JS callback as a shared_ptr so it's safe to capture in lambdas
+          auto jsFn = std::make_shared<jsi::Function>(
+              args[0].asObject(rt).asFunction(rt));
+
+          // Register push callback on LivePathBridge
+          PointerNativeDrawing::LivePathBridge::setPushCallback(
+              [rtPtr, ctxCapture, invoker,
+               jsFn](std::shared_ptr<SkPath> path) {
+                invoker->invokeAsync(
+                    [rtPtr, ctxCapture, jsFn, path]() {
+                      try {
+                        auto wrapped = RNSkia::JsiSkPath::toValue(
+                            *rtPtr, ctxCapture, SkPath(*path));
+                        jsFn->call(*rtPtr, std::move(wrapped));
+                      } catch (...) {
+                        // Swallow — path push is best-effort
+                      }
+                    });
+              });
+
+          return jsi::Value::undefined();
+        });
+
+    runtime.global().setProperty(
+        runtime, "__PointerNativeDrawing_registerLivePathCallback",
+        std::move(registerCb));
+  }
+
   return @(YES);
 }
 

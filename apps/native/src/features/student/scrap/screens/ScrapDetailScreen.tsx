@@ -191,7 +191,9 @@ const ScrapDetailScreen = () => {
     canvasRef,
     hasUnsavedChanges: drawingState.hasUnsavedChanges,
     strokeColor: drawingState.strokeColor,
-    onSaveSuccess: drawingState.markAsSaved,
+    onSaveSuccess: () => {
+      drawingState.markAsSaved();
+    },
     onColorRestore: drawingState.setStrokeColor,
   });
 
@@ -643,7 +645,7 @@ const ScrapDetailScreen = () => {
                   eraserSize={drawingState.eraserSize}
                   pencilOnly
                   enableZoomPan
-                  onDirty={drawingState.markAsUnsaved}
+                  onChange={drawingState.markAsUnsaved}
                   onUndoStateChange={setUndoState}
                 />
               </View>

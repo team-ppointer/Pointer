@@ -7,6 +7,7 @@ import { DrawingEngine } from '../engine/DrawingEngine';
 import { HistoryManager } from '../engine/HistoryManager';
 import type { DocumentSnapshot, HistoryEntry } from '../engine/HistoryManager';
 import type { RendererActions } from '../render/rendererTypes';
+import type { CancelReason } from '../input/inputTypes';
 
 /**
  * Minimal textbox actions interface consumed by the document controller.
@@ -23,7 +24,6 @@ export type UseDrawingDocumentControllerArgs = {
   strokeColor: string;
   eraserSize: number;
   onChange?: (strokes: Stroke[]) => void;
-  onDirty?: () => void;
   onUndoStateChange?: (state: { canUndo: boolean; canRedo: boolean }) => void;
   rendererActions: RendererActions;
   textBoxActionsRef: RefObject<DocumentTextBoxActions | null>;
@@ -37,7 +37,6 @@ export function useDrawingDocumentController({
   strokeColor,
   eraserSize,
   onChange,
-  onDirty,
   onUndoStateChange,
   rendererActions,
   textBoxActionsRef,
@@ -57,22 +56,29 @@ export function useDrawingDocumentController({
 
   // Stable refs for props used in callbacks
   const onChangeRef = useRef(onChange);
-  const onDirtyRef = useRef(onDirty);
   const onUndoStateChangeRef = useRef(onUndoStateChange);
   const strokeColorRef = useRef(strokeColor);
   const eraserSizeRef = useRef(eraserSize);
   onChangeRef.current = onChange;
-  onDirtyRef.current = onDirty;
   onUndoStateChangeRef.current = onUndoStateChange;
   strokeColorRef.current = strokeColor;
   eraserSizeRef.current = eraserSize;
 
-  // Wire history state listener
+  // Wire history state listener + eviction callback for path disposal
   useEffect(() => {
-    historyRef.current.setListener((state) => {
+    const history = historyRef.current;
+    history.setListener((state) => {
       onUndoStateChangeRef.current?.(state);
     });
-    return () => historyRef.current.setListener(null);
+    history.setOnEntryEvicted((entry) => {
+      if (entry.type === 'erase-strokes' && entry.cachedPathsBefore) {
+        for (const p of entry.cachedPathsBefore) (p as { dispose(): void }).dispose();
+      }
+    });
+    return () => {
+      history.setListener(null);
+      history.setOnEntryEvicted(null);
+    };
   }, []);
 
   const {
@@ -83,13 +89,14 @@ export function useDrawingDocumentController({
     replaceCommittedStrokes,
     appendCommittedStroke,
     retainOrRebuildCommittedStrokes,
+    popCommittedStroke,
+    getCommittedPaths,
   } = rendererActions;
 
   // --- Document operations ---
 
   const notifyChange = useCallback(() => {
     onChangeRef.current?.(engineRef.current.getStrokes());
-    onDirtyRef.current?.();
   }, []);
 
   const captureSnapshot = useCallback((): DocumentSnapshot => {
@@ -168,7 +175,11 @@ export function useDrawingDocumentController({
     notifyChange();
     syncCanvasHeightFromMaxY(result.maxY);
 
-    resetLivePath();
+    // Delay live path reset to next frame so committed path renders first.
+    // SharedValue writes are immediate while React state is deferred,
+    // so resetting here would create a gap (no live, no committed = flash).
+    // By deferring, committed appears first → then live clears → seamless.
+    requestAnimationFrame(() => resetLivePath());
   }, [
     appendCommittedStroke,
     cancelScheduledLivePathRender,
@@ -178,6 +189,14 @@ export function useDrawingDocumentController({
     resetLivePath,
     syncCanvasHeightFromMaxY,
   ]);
+
+  const beginEraseTransaction = useCallback(() => {
+    historyRef.current.beginTransaction(captureSnapshot(), getCommittedPaths());
+  }, [captureSnapshot, getCommittedPaths]);
+
+  const commitEraseTransaction = useCallback(() => {
+    historyRef.current.commitTransaction(captureSnapshot());
+  }, [captureSnapshot]);
 
   const eraseAtPoint = useCallback(
     (input: InputEvent) => {
@@ -229,19 +248,30 @@ export function useDrawingDocumentController({
     syncCanvasHeightFromMaxY,
   ]);
 
-  const cancelDraw = useCallback(() => {
-    const sessionPoints = engineRef.current.getSessionPoints();
+  const cancelDraw = useCallback(
+    (reason?: CancelReason) => {
+      if (reason === 'interrupted') {
+        // 2nd finger (zoom/pan intent) — always discard partial stroke
+        cancelScheduledLivePathRender();
+        resetLivePath();
+        engineRef.current.discardSession();
+        return;
+      }
 
-    if (sessionPoints.length <= 1) {
-      cancelScheduledLivePathRender();
-      resetLivePath();
-      engineRef.current.discardSession();
-      return;
-    }
+      // RNGH gesture_failed — commit partial stroke if meaningful
+      const sessionPoints = engineRef.current.getSessionPoints();
+      if (sessionPoints.length <= 1) {
+        cancelScheduledLivePathRender();
+        resetLivePath();
+        engineRef.current.discardSession();
+        return;
+      }
 
-    forceCommitActiveSession();
-    notifyChange();
-  }, [cancelScheduledLivePathRender, forceCommitActiveSession, notifyChange, resetLivePath]);
+      forceCommitActiveSession();
+      notifyChange();
+    },
+    [cancelScheduledLivePathRender, forceCommitActiveSession, notifyChange, resetLivePath]
+  );
 
   const setStrokesFromOutside = useCallback(
     (nextStrokes: Stroke[]) => {
@@ -308,27 +338,69 @@ export function useDrawingDocumentController({
 
   const applyHistoryState = useCallback(
     (entry: HistoryEntry, direction: 'undo' | 'redo') => {
+      // ── append-stroke: Optimistic Fast Path (O(S)) ──
+      if (entry.type === 'append-stroke') {
+        if (direction === 'undo') {
+          const engine = engineRef.current;
+          const doc = engine.getDocument();
+          const lastStroke = doc.strokes[doc.strokes.length - 1];
+          if (lastStroke === entry.stroke || lastStroke?.points === entry.stroke.points) {
+            const result = engine.popLastStroke();
+            popCommittedStroke(result.document.strokes, result.strokeBounds);
+            syncCanvasHeightFromMaxY(result.maxY);
+            notifyChange();
+            return;
+          }
+          // Identity mismatch → fall through to full rebuild
+        } else {
+          const result = engineRef.current.pushStroke(entry.stroke as Stroke, entry.bounds);
+          appendCommittedStroke(result.document.strokes, result.strokeBounds, entry.stroke);
+          syncCanvasHeightFromMaxY(result.maxY);
+          notifyChange();
+          return;
+        }
+      }
+
+      // ── Fallback: Rebuild (trusted snapshots skip deepCopy) ──
       let result;
       switch (entry.type) {
         case 'append-stroke': {
           if (direction === 'undo') {
-            result = engineRef.current.applyStrokes(entry.snapshotBefore.strokes as Stroke[]);
+            const snap = entry.snapshotBefore;
+            result = engineRef.current.applyStrokesTrusted([...snap.strokes] as Stroke[], [
+              ...snap.bounds,
+            ]);
           } else {
-            result = engineRef.current.applyStrokes([
-              ...entry.snapshotBefore.strokes,
-              entry.stroke,
-            ] as Stroke[]);
+            // redo: snapshotBefore + entry.stroke (both frozen)
+            result = engineRef.current.applyStrokesTrusted(
+              [...entry.snapshotBefore.strokes, entry.stroke] as Stroke[],
+              [...entry.snapshotBefore.bounds, entry.bounds]
+            );
           }
           break;
         }
         case 'erase-strokes': {
           const snapshot = direction === 'undo' ? entry.snapshotBefore : entry.snapshotAfter;
-          result = engineRef.current.applyStrokes(snapshot.strokes as Stroke[]);
+          result = engineRef.current.applyStrokesTrusted([...snapshot.strokes] as Stroke[], [
+            ...snapshot.bounds,
+          ]);
+          if (direction === 'undo' && entry.cachedPathsBefore) {
+            replaceCommittedStrokes(
+              result.document.strokes,
+              result.strokeBounds,
+              entry.cachedPathsBefore
+            );
+            syncCanvasHeightFromMaxY(result.maxY);
+            notifyChange();
+            return;
+          }
           break;
         }
         case 'replace-document': {
           const snapshot = direction === 'undo' ? entry.snapshotBefore : entry.snapshotAfter;
-          result = engineRef.current.applyStrokes(snapshot.strokes as Stroke[]);
+          result = engineRef.current.applyStrokesTrusted([...snapshot.strokes] as Stroke[], [
+            ...snapshot.bounds,
+          ]);
           break;
         }
         case 'add-textbox':
@@ -341,14 +413,21 @@ export function useDrawingDocumentController({
         }
         default: {
           const _exhaustive: never = entry;
-          throw new Error(`Unknown history entry type: ${_exhaustive as never}`);
+          throw new Error(`Unknown history entry type: ${(_exhaustive as HistoryEntry).type}`);
         }
       }
       replaceCommittedStrokes(result!.document.strokes, result!.strokeBounds);
       syncCanvasHeightFromMaxY(result!.maxY);
       notifyChange();
     },
-    [replaceCommittedStrokes, syncCanvasHeightFromMaxY, notifyChange, textBoxActionsRef]
+    [
+      replaceCommittedStrokes,
+      appendCommittedStroke,
+      popCommittedStroke,
+      syncCanvasHeightFromMaxY,
+      notifyChange,
+      textBoxActionsRef,
+    ]
   );
 
   const undo = useCallback(() => {
@@ -383,5 +462,7 @@ export function useDrawingDocumentController({
     captureSnapshot,
     notifyChange,
     handlePredictedSamples,
+    beginEraseTransaction,
+    commitEraseTransaction,
   };
 }

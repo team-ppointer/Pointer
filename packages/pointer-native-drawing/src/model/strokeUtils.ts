@@ -1,16 +1,39 @@
 import type { Point, Stroke, StrokeBounds } from './drawingTypes';
 
+/**
+ * Freeze a stroke and its nested arrays to enforce immutability.
+ * Only active in __DEV__ builds; production builds eliminate this via dead code elimination.
+ */
+export const freezeStroke = (stroke: Stroke): Stroke => {
+  if (__DEV__) {
+    Object.freeze(stroke);
+    Object.freeze(stroke.points);
+    if (stroke.samples) Object.freeze(stroke.samples);
+  }
+  return stroke;
+};
+
 export const MIN_RENDERABLE_STROKE_WIDTH = 1.2;
 export const DEFAULT_MAX_POINT_GAP = 0.95;
 
 export const deepCopyStrokes = (strokes: Stroke[]): Stroke[] =>
   strokes.map((stroke) => ({
-    points: stroke.points.map((p) => ({ ...p })),
+    points:
+      stroke.points instanceof Float64Array
+        ? Float64Array.from(stroke.points)
+        : stroke.points.map((p) => ({ ...p })),
     color: stroke.color,
     width: stroke.width,
     ...(stroke.opacity !== undefined ? { opacity: stroke.opacity } : {}),
     ...(stroke.strokeCap !== undefined ? { strokeCap: stroke.strokeCap } : {}),
-    ...(stroke.samples !== undefined ? { samples: stroke.samples.map((s) => ({ ...s })) } : {}),
+    ...(stroke.samples !== undefined
+      ? {
+          samples:
+            stroke.samples instanceof Float64Array
+              ? Float64Array.from(stroke.samples)
+              : stroke.samples.map((s) => ({ ...s })),
+        }
+      : {}),
   }));
 
 export const getMaxYFromStrokes = (strokes: Stroke[]): number => {
@@ -19,8 +42,41 @@ export const getMaxYFromStrokes = (strokes: Stroke[]): number => {
 
   for (let i = 0; i < strokes.length; i++) {
     const points = strokes[i].points;
-    for (let j = 0; j < points.length; j++) {
-      const y = points[j].y;
+    if (points instanceof Float64Array) {
+      for (let j = 1; j < points.length; j += 2) {
+        if (!hasPoint || points[j] > max) {
+          max = points[j];
+          hasPoint = true;
+        }
+      }
+    } else {
+      for (let j = 0; j < points.length; j++) {
+        const y = points[j].y;
+        if (!hasPoint || y > max) {
+          max = y;
+          hasPoint = true;
+        }
+      }
+    }
+  }
+
+  return hasPoint ? max : 0;
+};
+
+export const getMaxYFromPoints = (points: Point[] | Float64Array): number => {
+  let max = 0;
+  let hasPoint = false;
+
+  if (points instanceof Float64Array) {
+    for (let i = 1; i < points.length; i += 2) {
+      if (!hasPoint || points[i] > max) {
+        max = points[i];
+        hasPoint = true;
+      }
+    }
+  } else {
+    for (let i = 0; i < points.length; i++) {
+      const y = points[i].y;
       if (!hasPoint || y > max) {
         max = y;
         hasPoint = true;
@@ -31,24 +87,25 @@ export const getMaxYFromStrokes = (strokes: Stroke[]): number => {
   return hasPoint ? max : 0;
 };
 
-export const getMaxYFromPoints = (points: Point[]): number => {
-  let max = 0;
-  let hasPoint = false;
-
-  for (let i = 0; i < points.length; i++) {
-    const y = points[i].y;
-    if (!hasPoint || y > max) {
-      max = y;
-      hasPoint = true;
-    }
-  }
-
-  return hasPoint ? max : 0;
-};
-
-export const getStrokeBounds = (points: Point[]): StrokeBounds => {
+export const getStrokeBounds = (points: Point[] | Float64Array): StrokeBounds => {
   if (points.length === 0) {
     return { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+  }
+
+  if (points instanceof Float64Array) {
+    let minX = points[0],
+      minY = points[1],
+      maxX = points[0],
+      maxY = points[1];
+    for (let i = 2; i < points.length; i += 2) {
+      const x = points[i],
+        y = points[i + 1];
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+    return { minX, minY, maxX, maxY };
   }
 
   let minX = points[0].x;

@@ -10,6 +10,7 @@ import {
   Skia,
   SkPath,
 } from '@shopify/react-native-skia';
+import type { SharedValue } from 'react-native-reanimated';
 
 import type { ReadonlyStroke, ReadonlyStrokeBounds } from '../../model/drawingTypes';
 import type { TextBoxData } from '../../textbox/textBoxTypes';
@@ -27,8 +28,7 @@ type SkiaDrawingCanvasSurfaceProps = {
   strokeBounds: ReadonlyArray<ReadonlyStrokeBounds>;
   strokeColor: string;
   normalizedPenStrokeWidth: number;
-  livePath: SkPath;
-  isLiveStrokeActive: boolean;
+  livePathSV: SharedValue<SkPath>;
   eraserCursor?: { x: number; y: number } | null;
   eraserSize?: number;
   canvasRef: RefObject<CanvasRef | null>;
@@ -76,8 +76,7 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
   strokeBounds,
   strokeColor,
   normalizedPenStrokeWidth,
-  livePath,
-  isLiveStrokeActive,
+  livePathSV,
   eraserCursor,
   eraserSize,
   canvasRef,
@@ -181,7 +180,7 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
     prevParagraphsRef.current = textBoxParagraphs?.map((p) => p.paragraph) ?? [];
     return () => {
       for (const p of prev) {
-        (p as unknown as { dispose?: () => void }).dispose?.();
+        (p as any).dispose?.();
       }
     };
   }, [textBoxParagraphs]);
@@ -189,17 +188,15 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
   const drawingContent = (
     <>
       {committedPicture ? <Picture picture={committedPicture} /> : renderedPaths}
-      {isLiveStrokeActive && (
-        <Path
-          path={livePath}
-          style='stroke'
-          strokeWidth={normalizedPenStrokeWidth}
-          color={strokeColor}
-          strokeCap='round'
-          strokeJoin='round'
-          antiAlias
-        />
-      )}
+      <Path
+        path={livePathSV}
+        style='stroke'
+        strokeWidth={normalizedPenStrokeWidth}
+        color={strokeColor}
+        strokeCap='round'
+        strokeJoin='round'
+        antiAlias
+      />
       {textBoxParagraphs?.map((item) => (
         <Paragraph
           key={item.id}
