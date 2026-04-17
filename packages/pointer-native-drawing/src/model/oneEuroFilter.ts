@@ -29,11 +29,7 @@ function smoothingFactor(rate: number, cutoff: number): number {
   return 1.0 / (1.0 + tau / te);
 }
 
-function exponentialSmoothing(
-  alpha: number,
-  raw: number,
-  prev: number,
-): number {
+function exponentialSmoothing(alpha: number, raw: number, prev: number): number {
   return alpha * raw + (1 - alpha) * prev;
 }
 

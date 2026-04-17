@@ -47,6 +47,10 @@ export type RNToWebViewMessage =
       /** Echo of the requestId from the originating bookmark request */
       requestId: number;
       success: boolean;
+    }
+  | {
+      type: 'scrollToSection';
+      sectionId: string;
     };
 
 // ── Bridge messages: WebView → RN ──

@@ -21,6 +21,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 export interface PointerContentViewHandle {
   sendBookmarkResult: (args: BookmarkResultArgs) => void;
+  scrollToSection: (sectionId: string) => void;
 }
 
 interface Props {
@@ -43,6 +44,9 @@ export const PointerContentView = forwardRef<PointerContentViewHandle, Props>(
       () => ({
         sendBookmarkResult: (args) => {
           innerRef.current?.sendBookmarkResult(args);
+        },
+        scrollToSection: (sectionId) => {
+          innerRef.current?.scrollToSection(sectionId);
         },
       }),
       []

@@ -21,9 +21,9 @@ Peer dependencies:
 ## Usage
 
 ```tsx
-import React, { useRef } from "react";
-import { View } from "react-native";
-import { DrawingCanvas, DrawingCanvasRef } from "pointer-native-drawing";
+import React, { useRef } from 'react';
+import { View } from 'react-native';
+import { DrawingCanvas, DrawingCanvasRef } from 'pointer-native-drawing';
 
 export default function App() {
   const canvasRef = useRef<DrawingCanvasRef>(null);
@@ -32,9 +32,9 @@ export default function App() {
     <View style={{ flex: 1 }}>
       <DrawingCanvas
         ref={canvasRef}
-        strokeColor="#1E1E21"
+        strokeColor='#1E1E21'
         strokeWidth={3}
-        activeTool="pen"
+        activeTool='pen'
         eraserSize={22}
         enableZoomPan
       />
@@ -45,37 +45,37 @@ export default function App() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `strokeColor` | `string` | `"#1E1E21"` | 스트로크 색상 |
-| `strokeWidth` | `number` | `3` | 스트로크 두께 (pt) |
-| `backgroundColor` | `string` | — | 캔버스 배경색 |
-| `activeTool` | `"pen" \| "eraser" \| "textbox"` | `"pen"` | 활성 도구 |
-| `eraserSize` | `number` | — | 지우개 크기 |
-| `enableZoomPan` | `boolean` | `false` | 핀치 줌/2-finger 팬 활성화 |
-| `maxZoomScale` | `number` | `2.0` | 최대 줌 배율 |
-| `stylusInput` | `"auto" \| "native" \| "rngh"` | — | 입력 어댑터 선택 |
-| `pencilOnly` | `boolean` | — | Apple Pencil 전용 모드 |
-| `minCanvasHeight` | `number` | — | 최소 캔버스 높이 |
-| `writingFeelConfig` | `WritingFeelConfig` | — | 필기감 설정 |
-| `onChange` | `(strokes: Stroke[]) => void` | — | 스트로크 변경 콜백 |
-| `onUndoStateChange` | `(state) => void` | — | Undo/Redo 상태 콜백 |
-| `onTransformChange` | `(t: ViewTransform) => void` | — | 줌/팬 변환 콜백 |
-| `onScrollOffsetChange` | `(offsetY: number) => void` | — | 스크롤 오프셋 콜백 |
-| `onCanvasHeightChange` | `(height: number) => void` | — | 캔버스 높이 변경 콜백 |
-| `children` | `ReactNode` | — | 캔버스 위에 오버레이할 자식 요소 |
+| Prop                   | Type                             | Default     | Description                      |
+| ---------------------- | -------------------------------- | ----------- | -------------------------------- |
+| `strokeColor`          | `string`                         | `"#1E1E21"` | 스트로크 색상                    |
+| `strokeWidth`          | `number`                         | `3`         | 스트로크 두께 (pt)               |
+| `backgroundColor`      | `string`                         | —           | 캔버스 배경색                    |
+| `activeTool`           | `"pen" \| "eraser" \| "textbox"` | `"pen"`     | 활성 도구                        |
+| `eraserSize`           | `number`                         | —           | 지우개 크기                      |
+| `enableZoomPan`        | `boolean`                        | `false`     | 핀치 줌/2-finger 팬 활성화       |
+| `maxZoomScale`         | `number`                         | `2.0`       | 최대 줌 배율                     |
+| `stylusInput`          | `"auto" \| "native" \| "rngh"`   | —           | 입력 어댑터 선택                 |
+| `pencilOnly`           | `boolean`                        | —           | Apple Pencil 전용 모드           |
+| `minCanvasHeight`      | `number`                         | —           | 최소 캔버스 높이                 |
+| `writingFeelConfig`    | `WritingFeelConfig`              | —           | 필기감 설정                      |
+| `onChange`             | `(strokes: Stroke[]) => void`    | —           | 스트로크 변경 콜백               |
+| `onUndoStateChange`    | `(state) => void`                | —           | Undo/Redo 상태 콜백              |
+| `onTransformChange`    | `(t: ViewTransform) => void`     | —           | 줌/팬 변환 콜백                  |
+| `onScrollOffsetChange` | `(offsetY: number) => void`      | —           | 스크롤 오프셋 콜백               |
+| `onCanvasHeightChange` | `(height: number) => void`       | —           | 캔버스 높이 변경 콜백            |
+| `children`             | `ReactNode`                      | —           | 캔버스 위에 오버레이할 자식 요소 |
 
 ## Ref Methods (`DrawingCanvasRef`)
 
-| Method | Description |
-|--------|-------------|
-| `clear()` | 캔버스 초기화 |
-| `scrollTo(y, animated?)` | 스크롤 이동 |
-| `getStrokes()` / `setStrokes(strokes)` | 스트로크 get/set |
-| `getTextBoxes()` / `setTextBoxes(textBoxes)` | 텍스트박스 get/set |
-| `getTransform()` / `setTransform(t)` | 줌/팬 변환 get/set |
-| `resetZoom()` | 줌 초기화 |
-| `undo()` / `redo()` | 실행 취소 / 다시 실행 |
+| Method                                       | Description           |
+| -------------------------------------------- | --------------------- |
+| `clear()`                                    | 캔버스 초기화         |
+| `scrollTo(y, animated?)`                     | 스크롤 이동           |
+| `getStrokes()` / `setStrokes(strokes)`       | 스트로크 get/set      |
+| `getTextBoxes()` / `setTextBoxes(textBoxes)` | 텍스트박스 get/set    |
+| `getTransform()` / `setTransform(t)`         | 줌/팬 변환 get/set    |
+| `resetZoom()`                                | 줌 초기화             |
+| `undo()` / `redo()`                          | 실행 취소 / 다시 실행 |
 
 ## Exports
 
@@ -101,13 +101,15 @@ export default function App() {
 
 - `DrawingCanvasRef`, `DrawingCanvasProps`, `ActiveTool`
 - `Stroke`, `Point`, `StrokeSample`, `WritingFeelConfig`, `InputEvent`, `PointerType`
-- `ReadonlyPoint`, `ReadonlyStroke`, `ReadonlyStrokeSample`, `ReadonlyDrawingDocument`, `ReadonlyActiveStrokeSession`, `ReadonlyStrokeBounds`
+- `ReadonlyPoint`, `ReadonlyStroke`, `ReadonlyStrokeSample`, `ReadonlyDrawingDocument`,
+  `ReadonlyActiveStrokeSession`, `ReadonlyStrokeBounds`
 - `InputPhase`, `CancelReason`, `DrawingInputCallbacks`
 - `InputAdapter`, `InputAdapterConfig`, `InputAdapterState`, `InputOverlayAdapter`
 - `NativeStylusAdapterConfig`, `OneEuroFilterConfig`, `PathBuildState`
 - `ViewTransform`, `RendererViewport`, `CommittedStrokeDiff`, `RendererState`, `RendererActions`
 - `SkiaRendererState`, `SkiaRendererActions`
-- `CanvasObject`, `StrokeObject`, `TextBoxObject`, `CanvasDocument`, `ReadonlyCanvasObject`, `ReadonlyCanvasDocument`
+- `CanvasObject`, `StrokeObject`, `TextBoxObject`, `CanvasDocument`, `ReadonlyCanvasObject`,
+  `ReadonlyCanvasDocument`
 - `DocumentSnapshot`, `HistoryEntry`, `HistoryStateListener` 및 개별 entry 타입들
 - `TextBoxData`, `TextBoxState`
 
@@ -121,7 +123,8 @@ Input (RNGH 60Hz / Native Stylus 240Hz)
   → Skia <Path style="stroke" />
 ```
 
-- **Input Adapters** — RNGH (finger/pen, 1€ filter) + Native Stylus (Apple Pencil, predicted touches)
+- **Input Adapters** — RNGH (finger/pen, 1€ filter) + Native Stylus (Apple Pencil, predicted
+  touches)
 - **DrawingEngine** — 스트로크 모델, 세션 관리, HistoryManager (undo/redo)
 - **Renderer** — `buildCenterlinePath` 고정폭 centerline, DPI-aware spacing (`3.0 / PixelRatio`)
 - **Native Path Builder** — iOS C++ SkPathBuilder JSI 바인딩, TS fallback 자동 전환

@@ -1,13 +1,8 @@
-import type { InputEvent } from "../model/drawingTypes";
+import type { InputEvent } from '../model/drawingTypes';
 
-export type InputPhase =
-  | "idle"
-  | "began"
-  | "active"
-  | "ended"
-  | "cancelled";
+export type InputPhase = 'idle' | 'began' | 'active' | 'ended' | 'cancelled';
 
-export type CancelReason = "gesture_failed" | "interrupted" | "unknown";
+export type CancelReason = 'gesture_failed' | 'interrupted' | 'unknown';
 
 export type DrawingInputCallbacks = {
   onInteractionBegin: () => void;

@@ -6,6 +6,7 @@ import NotificationItem from './NotificationItem';
 import TextButton from './TextButton';
 import SegmentedControl from './SegmentedControl';
 import { ImageWithSkeleton } from './ImageWithSkeleton';
+import { PointerContentView } from './PointerContentView';
 
 export {
   Header,
@@ -16,4 +17,6 @@ export {
   TextButton,
   SegmentedControl,
   ImageWithSkeleton,
+  PointerContentView,
 };
+export type { PointerContentViewHandle } from './PointerContentView';

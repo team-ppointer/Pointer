@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { TextBoxData } from "./textBoxTypes";
-import { createTextBox, hitTestTextBox } from "./textBoxUtils";
-import type { HistoryManager } from "../engine/HistoryManager";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import type { HistoryManager } from '../engine/HistoryManager';
+
+import type { TextBoxData } from './textBoxTypes';
+import { createTextBox, hitTestTextBox } from './textBoxUtils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,7 +26,7 @@ export type TextBoxActions = {
   updateMove: (canvasDx: number, canvasDy: number) => void;
   endMove: () => void;
   beginResize: () => void;
-  updateResize: (canvasDx: number, side: "left" | "right") => void;
+  updateResize: (canvasDx: number, side: 'left' | 'right') => void;
   endResize: () => void;
   applyHistoryEntry: (
     entry: {
@@ -34,7 +36,7 @@ export type TextBoxActions = {
       before?: TextBoxData;
       after?: TextBoxData;
     },
-    direction: "undo" | "redo",
+    direction: 'undo' | 'redo'
   ) => void;
   setTextBoxes: (textBoxes: TextBoxData[]) => void;
   clearTextBoxes: () => void;
@@ -55,7 +57,10 @@ export type TextBoxManagerState = {
 export function useTextBoxManager(
   historyRef: React.RefObject<HistoryManager>,
   canvasSize: { width: number; height: number },
+  onDirty?: () => void
 ): [TextBoxManagerState, TextBoxActions] {
+  const onDirtyRef = useRef(onDirty);
+  onDirtyRef.current = onDirty;
   const [textBoxes, setTextBoxes] = useState<TextBoxData[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -70,7 +75,7 @@ export function useTextBoxManager(
   canvasSizeRef.current = canvasSize;
 
   // Editing refs
-  const editingTextRef = useRef<string>("");
+  const editingTextRef = useRef<string>('');
   const editingHeightRef = useRef<number>(0);
   const isNewTextBoxRef = useRef(false);
   const editingBeforeRef = useRef<TextBoxData | null>(null);
@@ -98,12 +103,10 @@ export function useTextBoxManager(
   // Derived
   // -----------------------------------------------------------------------
 
-  const editingTextBox = editingId
-    ? textBoxes.find((tb) => tb.id === editingId) ?? null
-    : null;
+  const editingTextBox = editingId ? (textBoxes.find((tb) => tb.id === editingId) ?? null) : null;
 
   const selectedTextBox = selectedId
-    ? textBoxes.find((tb) => tb.id === selectedId) ?? null
+    ? (textBoxes.find((tb) => tb.id === selectedId) ?? null)
     : null;
 
   // -----------------------------------------------------------------------
@@ -123,7 +126,7 @@ export function useTextBoxManager(
       setSelectedIdSync(id);
       historyRef.current?.lock();
     },
-    [historyRef, setSelectedIdSync],
+    [historyRef, setSelectedIdSync]
   );
 
   // -----------------------------------------------------------------------
@@ -169,13 +172,13 @@ export function useTextBoxManager(
       setEditingId(newTb.id);
       isNewTextBoxRef.current = true;
       editingBeforeRef.current = null;
-      editingTextRef.current = "";
+      editingTextRef.current = '';
       editingHeightRef.current = 0;
 
       historyRef.current?.lock();
       return true;
     },
-    [historyRef, startEditing, setSelectedIdSync],
+    [historyRef, startEditing, setSelectedIdSync]
   );
 
   // -----------------------------------------------------------------------
@@ -186,22 +189,18 @@ export function useTextBoxManager(
     (text: string) => {
       editingTextRef.current = text;
       if (!editingId) return;
-      setTextBoxes((prev) =>
-        prev.map((tb) => (tb.id === editingId ? { ...tb, text } : tb)),
-      );
+      setTextBoxes((prev) => prev.map((tb) => (tb.id === editingId ? { ...tb, text } : tb)));
     },
-    [editingId],
+    [editingId]
   );
 
   const updateEditingHeight = useCallback(
     (height: number) => {
       editingHeightRef.current = height;
       if (!editingId) return;
-      setTextBoxes((prev) =>
-        prev.map((tb) => (tb.id === editingId ? { ...tb, height } : tb)),
-      );
+      setTextBoxes((prev) => prev.map((tb) => (tb.id === editingId ? { ...tb, height } : tb)));
     },
-    [editingId],
+    [editingId]
   );
 
   const commitEditing = useCallback(() => {
@@ -216,48 +215,43 @@ export function useTextBoxManager(
     const before = editingBeforeRef.current;
 
     if (isNew) {
-      if (text === "") {
+      if (text === '') {
         setTextBoxes((prev) => prev.filter((tb) => tb.id !== editingId));
       } else {
         const current = textBoxesRef.current.find((tb) => tb.id === editingId);
         if (current) {
           const finalTb: TextBoxData = { ...current, text, height };
-          historyRef.current?.push({ type: "add-textbox", textBox: finalTb });
-          setTextBoxes((prev) =>
-            prev.map((tb) => (tb.id === editingId ? finalTb : tb)),
-          );
+          historyRef.current?.push({ type: 'add-textbox', textBox: finalTb });
+          setTextBoxes((prev) => prev.map((tb) => (tb.id === editingId ? finalTb : tb)));
         }
       }
     } else if (before) {
-      if (text === "") {
-        setTextBoxes((prev) =>
-          prev.map((tb) => (tb.id === editingId ? before : tb)),
-        );
+      if (text === '') {
+        setTextBoxes((prev) => prev.map((tb) => (tb.id === editingId ? before : tb)));
       } else if (text !== before.text) {
         const current = textBoxesRef.current.find((tb) => tb.id === editingId);
         if (current) {
           const finalTb: TextBoxData = { ...current, text, height };
           historyRef.current?.push({
-            type: "edit-textbox",
+            type: 'edit-textbox',
             before,
             after: finalTb,
           });
-          setTextBoxes((prev) =>
-            prev.map((tb) => (tb.id === editingId ? finalTb : tb)),
-          );
+          setTextBoxes((prev) => prev.map((tb) => (tb.id === editingId ? finalTb : tb)));
         }
       }
     }
 
     editingIdRef.current = null;
     setEditingId(null);
-    editingTextRef.current = "";
+    editingTextRef.current = '';
     editingHeightRef.current = 0;
     isNewTextBoxRef.current = false;
     editingBeforeRef.current = null;
     commitInProgressRef.current = false;
 
     historyRef.current?.unlock();
+    onDirtyRef.current?.();
   }, [editingId, historyRef]);
 
   // Keep ref in sync so handleTap can call it before declaration order
@@ -293,7 +287,7 @@ export function useTextBoxManager(
       setEditingId(null);
       isNewTextBoxRef.current = false;
       editingBeforeRef.current = null;
-      editingTextRef.current = "";
+      editingTextRef.current = '';
       editingHeightRef.current = 0;
       commitInProgressRef.current = false;
       historyRef.current?.unlock();
@@ -303,11 +297,12 @@ export function useTextBoxManager(
     if (index !== -1) {
       const deleted = currentTbs[index];
       historyRef.current?.push({
-        type: "delete-textbox",
+        type: 'delete-textbox',
         textBox: deleted,
         index,
       });
       setTextBoxes((prev) => prev.filter((tb) => tb.id !== selectedId));
+      onDirtyRef.current?.();
     }
     setSelectedIdSync(null);
   }, [historyRef, selectedId]);
@@ -343,14 +338,10 @@ export function useTextBoxManager(
         newY = Math.max(0, Math.min(newY, ch - effectiveH));
       }
       setTextBoxes((prev) =>
-        prev.map((tb) =>
-          tb.id === selectedId
-            ? { ...tb, x: newX, y: newY }
-            : tb,
-        ),
+        prev.map((tb) => (tb.id === selectedId ? { ...tb, x: newX, y: newY } : tb))
       );
     },
-    [selectedId],
+    [selectedId]
   );
 
   const endMove = useCallback(() => {
@@ -360,7 +351,8 @@ export function useTextBoxManager(
 
     const after = textBoxesRef.current.find((t) => t.id === selectedId);
     if (after && (before.x !== after.x || before.y !== after.y)) {
-      historyRef.current?.push({ type: "move-textbox", before, after });
+      historyRef.current?.push({ type: 'move-textbox', before, after });
+      onDirtyRef.current?.();
     }
   }, [historyRef, selectedId]);
 
@@ -376,21 +368,19 @@ export function useTextBoxManager(
   }, [selectedId]);
 
   const updateResize = useCallback(
-    (canvasDx: number, side: "left" | "right") => {
+    (canvasDx: number, side: 'left' | 'right') => {
       if (!selectedId || !dragBeforeRef.current) return;
       const before = dragBeforeRef.current;
       const minWidth = 60;
       const { width: cw } = canvasSizeRef.current;
 
-      if (side === "right") {
+      if (side === 'right') {
         let newWidth = Math.max(minWidth, before.width + canvasDx);
         if (cw > 0) {
           newWidth = Math.min(newWidth, cw - before.x);
         }
         setTextBoxes((prev) =>
-          prev.map((tb) =>
-            tb.id === selectedId ? { ...tb, width: newWidth } : tb,
-          ),
+          prev.map((tb) => (tb.id === selectedId ? { ...tb, width: newWidth } : tb))
         );
       } else {
         const delta = Math.min(canvasDx, before.width - minWidth);
@@ -402,15 +392,11 @@ export function useTextBoxManager(
           newWidth = Math.max(minWidth, newWidth);
         }
         setTextBoxes((prev) =>
-          prev.map((tb) =>
-            tb.id === selectedId
-              ? { ...tb, x: newX, width: newWidth }
-              : tb,
-          ),
+          prev.map((tb) => (tb.id === selectedId ? { ...tb, x: newX, width: newWidth } : tb))
         );
       }
     },
-    [selectedId],
+    [selectedId]
   );
 
   const endResize = useCallback(() => {
@@ -420,7 +406,8 @@ export function useTextBoxManager(
 
     const after = textBoxesRef.current.find((t) => t.id === selectedId);
     if (after && (before.width !== after.width || before.x !== after.x)) {
-      historyRef.current?.push({ type: "resize-textbox", before, after });
+      historyRef.current?.push({ type: 'resize-textbox', before, after });
+      onDirtyRef.current?.();
     }
   }, [historyRef, selectedId]);
 
@@ -437,21 +424,19 @@ export function useTextBoxManager(
         before?: TextBoxData;
         after?: TextBoxData;
       },
-      direction: "undo" | "redo",
+      direction: 'undo' | 'redo'
     ) => {
       switch (entry.type) {
-        case "add-textbox": {
-          if (direction === "undo") {
-            setTextBoxes((prev) =>
-              prev.filter((tb) => tb.id !== entry.textBox!.id),
-            );
+        case 'add-textbox': {
+          if (direction === 'undo') {
+            setTextBoxes((prev) => prev.filter((tb) => tb.id !== entry.textBox!.id));
           } else {
             setTextBoxes((prev) => [...prev, entry.textBox!]);
           }
           break;
         }
-        case "delete-textbox": {
-          if (direction === "undo") {
+        case 'delete-textbox': {
+          if (direction === 'undo') {
             const idx = entry.index ?? 0;
             setTextBoxes((prev) => {
               const next = [...prev];
@@ -459,19 +444,15 @@ export function useTextBoxManager(
               return next;
             });
           } else {
-            setTextBoxes((prev) =>
-              prev.filter((tb) => tb.id !== entry.textBox!.id),
-            );
+            setTextBoxes((prev) => prev.filter((tb) => tb.id !== entry.textBox!.id));
           }
           break;
         }
-        case "edit-textbox":
-        case "resize-textbox":
-        case "move-textbox": {
-          const target = direction === "undo" ? entry.before! : entry.after!;
-          setTextBoxes((prev) =>
-            prev.map((tb) => (tb.id === target.id ? target : tb)),
-          );
+        case 'edit-textbox':
+        case 'resize-textbox':
+        case 'move-textbox': {
+          const target = direction === 'undo' ? entry.before! : entry.after!;
+          setTextBoxes((prev) => prev.map((tb) => (tb.id === target.id ? target : tb)));
           break;
         }
       }
@@ -481,7 +462,7 @@ export function useTextBoxManager(
       editingIdRef.current = null;
       setEditingId(null);
     },
-    [setSelectedIdSync],
+    [setSelectedIdSync]
   );
 
   // -----------------------------------------------------------------------
@@ -521,30 +502,46 @@ export function useTextBoxManager(
     if (id) startEditing(id);
   }, [startEditing]);
 
-  const actions: TextBoxActions = useMemo(() => ({
-    handleTap,
-    updateEditingText,
-    updateEditingHeight,
-    commitEditing,
-    endSession,
-    deleteSelected,
-    deselect,
-    editSelected,
-    beginMove,
-    updateMove,
-    endMove,
-    beginResize,
-    updateResize,
-    endResize,
-    applyHistoryEntry,
-    setTextBoxes: setTextBoxesExternal,
-    clearTextBoxes,
-  }), [
-    handleTap, updateEditingText, updateEditingHeight, commitEditing,
-    endSession, deleteSelected, deselect, editSelected,
-    beginMove, updateMove, endMove, beginResize, updateResize, endResize,
-    applyHistoryEntry, setTextBoxesExternal, clearTextBoxes,
-  ]);
+  const actions: TextBoxActions = useMemo(
+    () => ({
+      handleTap,
+      updateEditingText,
+      updateEditingHeight,
+      commitEditing,
+      endSession,
+      deleteSelected,
+      deselect,
+      editSelected,
+      beginMove,
+      updateMove,
+      endMove,
+      beginResize,
+      updateResize,
+      endResize,
+      applyHistoryEntry,
+      setTextBoxes: setTextBoxesExternal,
+      clearTextBoxes,
+    }),
+    [
+      handleTap,
+      updateEditingText,
+      updateEditingHeight,
+      commitEditing,
+      endSession,
+      deleteSelected,
+      deselect,
+      editSelected,
+      beginMove,
+      updateMove,
+      endMove,
+      beginResize,
+      updateResize,
+      endResize,
+      applyHistoryEntry,
+      setTextBoxesExternal,
+      clearTextBoxes,
+    ]
+  );
 
   return [state, actions];
 }

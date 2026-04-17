@@ -43,6 +43,7 @@
     "build": "tsup",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0 --ignore-pattern dist/",
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {

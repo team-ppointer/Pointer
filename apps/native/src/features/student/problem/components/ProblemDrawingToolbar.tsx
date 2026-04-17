@@ -12,8 +12,8 @@ interface ProblemDrawingToolbarProps {
   onEraserModePress: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
-  onUndo?: () => void;
-  onRedo?: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
 }
 
 export const ProblemDrawingToolbar = ({
@@ -59,19 +59,13 @@ export const ProblemDrawingToolbar = ({
           onPress={onUndo}
           disabled={!canUndo}
           className='size-[36px] items-center justify-center rounded-lg border border-gray-500 bg-white'>
-          <Undo2
-            size={16}
-            color={canUndo ? colors['gray-900'] : colors['gray-500']}
-          />
+          <Undo2 size={16} color={canUndo ? colors['gray-900'] : colors['gray-500']} />
         </AnimatedPressable>
         <AnimatedPressable
           onPress={onRedo}
           disabled={!canRedo}
           className='size-[36px] items-center justify-center rounded-lg border border-gray-500 bg-white'>
-          <Redo2
-            size={16}
-            color={canRedo ? colors['gray-900'] : colors['gray-500']}
-          />
+          <Redo2 size={16} color={canRedo ? colors['gray-900'] : colors['gray-500']} />
         </AnimatedPressable>
       </View>
     </View>

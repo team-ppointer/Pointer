@@ -1,9 +1,9 @@
-import type { TextBoxData } from "./textBoxTypes";
+import type { TextBoxData } from './textBoxTypes';
 import {
   DEFAULT_TEXTBOX_WIDTH,
   DEFAULT_TEXTBOX_FONT_SIZE,
   DEFAULT_TEXTBOX_COLOR,
-} from "./textBoxTypes";
+} from './textBoxTypes';
 
 // ---------------------------------------------------------------------------
 // ID generation
@@ -19,18 +19,14 @@ export function generateTextBoxId(): string {
 // Factory
 // ---------------------------------------------------------------------------
 
-export function createTextBox(
-  x: number,
-  y: number,
-  color?: string,
-): TextBoxData {
+export function createTextBox(x: number, y: number, color?: string): TextBoxData {
   return {
     id: generateTextBoxId(),
     x,
     y,
     width: DEFAULT_TEXTBOX_WIDTH,
     height: 0,
-    text: "",
+    text: '',
     fontSize: DEFAULT_TEXTBOX_FONT_SIZE,
     color: color ?? DEFAULT_TEXTBOX_COLOR,
   };
@@ -47,7 +43,7 @@ export function createTextBox(
 export function hitTestTextBox(
   canvasX: number,
   canvasY: number,
-  textBoxes: readonly TextBoxData[],
+  textBoxes: readonly TextBoxData[]
 ): string | null {
   for (let i = textBoxes.length - 1; i >= 0; i--) {
     const tb = textBoxes[i];

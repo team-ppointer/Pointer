@@ -20,7 +20,7 @@ export type TextBoxData = {
 
 export const DEFAULT_TEXTBOX_WIDTH = 200;
 export const DEFAULT_TEXTBOX_FONT_SIZE = 16;
-export const DEFAULT_TEXTBOX_COLOR = "#1E1E21";
+export const DEFAULT_TEXTBOX_COLOR = '#1E1E21';
 
 // ---------------------------------------------------------------------------
 // TextBox interaction state
