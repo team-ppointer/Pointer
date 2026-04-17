@@ -40,7 +40,7 @@ export function useDrawingDocumentController({
   onUndoStateChange,
   rendererActions,
   textBoxActionsRef,
-  maxYRef,
+  maxYRef: _maxYRef,
   maybeGrowCanvasHeight,
   syncCanvasHeightFromMaxY,
 }: UseDrawingDocumentControllerArgs) {
@@ -413,7 +413,7 @@ export function useDrawingDocumentController({
         }
         default: {
           const _exhaustive: never = entry;
-          throw new Error(`Unknown history entry type: ${(_exhaustive as any).type}`);
+          throw new Error(`Unknown history entry type: ${(_exhaustive as HistoryEntry).type}`);
         }
       }
       replaceCommittedStrokes(result!.document.strokes, result!.strokeBounds);

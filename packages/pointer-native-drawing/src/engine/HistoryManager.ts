@@ -1,5 +1,5 @@
-import type { Stroke, StrokeBounds } from "../model/drawingTypes";
-import type { TextBoxData } from "../textbox/textBoxTypes";
+import type { Stroke, StrokeBounds } from '../model/drawingTypes';
+import type { TextBoxData } from '../textbox/textBoxTypes';
 
 // ---------------------------------------------------------------------------
 // Document snapshot (lightweight — stores references, not deep copies)
@@ -15,7 +15,7 @@ export type DocumentSnapshot = {
 // ---------------------------------------------------------------------------
 
 export type AppendStrokeEntry = {
-  readonly type: "append-stroke";
+  readonly type: 'append-stroke';
   readonly stroke: Stroke;
   readonly bounds: StrokeBounds;
   /** Document state before this stroke was appended. */
@@ -23,7 +23,7 @@ export type AppendStrokeEntry = {
 };
 
 export type EraseStrokesEntry = {
-  readonly type: "erase-strokes";
+  readonly type: 'erase-strokes';
   readonly snapshotBefore: DocumentSnapshot;
   readonly snapshotAfter: DocumentSnapshot;
   /** Cached SkPath[] from before the erase — used for O(1) undo. */
@@ -31,36 +31,36 @@ export type EraseStrokesEntry = {
 };
 
 export type ReplaceDocumentEntry = {
-  readonly type: "replace-document";
+  readonly type: 'replace-document';
   readonly snapshotBefore: DocumentSnapshot;
   readonly snapshotAfter: DocumentSnapshot;
 };
 
 export type AddTextBoxEntry = {
-  readonly type: "add-textbox";
+  readonly type: 'add-textbox';
   readonly textBox: TextBoxData;
 };
 
 export type DeleteTextBoxEntry = {
-  readonly type: "delete-textbox";
+  readonly type: 'delete-textbox';
   readonly textBox: TextBoxData;
   readonly index: number;
 };
 
 export type EditTextBoxEntry = {
-  readonly type: "edit-textbox";
+  readonly type: 'edit-textbox';
   readonly before: TextBoxData;
   readonly after: TextBoxData;
 };
 
 export type ResizeTextBoxEntry = {
-  readonly type: "resize-textbox";
+  readonly type: 'resize-textbox';
   readonly before: TextBoxData;
   readonly after: TextBoxData;
 };
 
 export type MoveTextBoxEntry = {
-  readonly type: "move-textbox";
+  readonly type: 'move-textbox';
   readonly before: TextBoxData;
   readonly after: TextBoxData;
 };
@@ -79,10 +79,7 @@ export type HistoryEntry =
 // State listener
 // ---------------------------------------------------------------------------
 
-export type HistoryStateListener = (state: {
-  canUndo: boolean;
-  canRedo: boolean;
-}) => void;
+export type HistoryStateListener = (state: { canUndo: boolean; canRedo: boolean }) => void;
 
 // ---------------------------------------------------------------------------
 // HistoryManager
@@ -208,7 +205,7 @@ export class HistoryManager {
     if (snapshotBefore.strokes.length === snapshotAfter.strokes.length) return;
 
     this.push({
-      type: "erase-strokes",
+      type: 'erase-strokes',
       snapshotBefore,
       snapshotAfter,
       ...(cachedPaths ? { cachedPathsBefore: cachedPaths } : {}),
@@ -218,12 +215,14 @@ export class HistoryManager {
   discardTransaction(): void {
     if (this.activeTransaction?.cachedPaths) {
       // Evict cached paths from discarded transaction
-      this.evictEntries([{
-        type: 'erase-strokes',
-        snapshotBefore: this.activeTransaction.snapshotBefore,
-        snapshotAfter: this.activeTransaction.snapshotBefore,
-        cachedPathsBefore: this.activeTransaction.cachedPaths,
-      }]);
+      this.evictEntries([
+        {
+          type: 'erase-strokes',
+          snapshotBefore: this.activeTransaction.snapshotBefore,
+          snapshotAfter: this.activeTransaction.snapshotBefore,
+          cachedPathsBefore: this.activeTransaction.cachedPaths,
+        },
+      ]);
     }
     this.activeTransaction = null;
   }

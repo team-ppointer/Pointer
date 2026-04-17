@@ -1,11 +1,11 @@
-import { useCallback, useMemo, useRef } from "react";
-import type { RefObject } from "react";
-import type { InputEvent } from "../model/drawingTypes";
-import type { DocumentSnapshot } from "../engine/HistoryManager";
-import type { HistoryManager } from "../engine/HistoryManager";
-import { screenToCanvas } from "../transform";
-import type { ViewTransform } from "../transform";
-import type { CancelReason } from "../input/inputTypes";
+import { useMemo } from 'react';
+import type { RefObject } from 'react';
+
+import type { InputEvent } from '../model/drawingTypes';
+import type { HistoryManager } from '../engine/HistoryManager';
+import { screenToCanvas } from '../transform';
+import type { ViewTransform } from '../transform';
+import type { CancelReason } from '../input/inputTypes';
 
 export type DrawingActions = {
   startStroke: (input: InputEvent) => void;
@@ -34,7 +34,7 @@ export function useDrawingInteractionController({
   eraserMode,
   enableZoomPan,
   canvasWidth,
-  historyRef,
+  historyRef: _historyRef,
   viewTransformRef,
   drawingActions,
   setIsScrollEnabled,
@@ -87,7 +87,7 @@ export function useDrawingInteractionController({
       setEraserCursor,
       setIsScrollEnabled,
       startStroke,
-    ],
+    ]
   );
 
   // Wrap input callbacks: screenToCanvas when zoom active + clamp to canvas bounds

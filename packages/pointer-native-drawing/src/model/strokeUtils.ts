@@ -18,18 +18,20 @@ export const DEFAULT_MAX_POINT_GAP = 0.95;
 
 export const deepCopyStrokes = (strokes: Stroke[]): Stroke[] =>
   strokes.map((stroke) => ({
-    points: stroke.points instanceof Float64Array
-      ? Float64Array.from(stroke.points)
-      : stroke.points.map((p) => ({ ...p })),
+    points:
+      stroke.points instanceof Float64Array
+        ? Float64Array.from(stroke.points)
+        : stroke.points.map((p) => ({ ...p })),
     color: stroke.color,
     width: stroke.width,
     ...(stroke.opacity !== undefined ? { opacity: stroke.opacity } : {}),
     ...(stroke.strokeCap !== undefined ? { strokeCap: stroke.strokeCap } : {}),
     ...(stroke.samples !== undefined
       ? {
-          samples: stroke.samples instanceof Float64Array
-            ? Float64Array.from(stroke.samples)
-            : stroke.samples.map((s) => ({ ...s })),
+          samples:
+            stroke.samples instanceof Float64Array
+              ? Float64Array.from(stroke.samples)
+              : stroke.samples.map((s) => ({ ...s })),
         }
       : {}),
   }));
@@ -42,12 +44,18 @@ export const getMaxYFromStrokes = (strokes: Stroke[]): number => {
     const points = strokes[i].points;
     if (points instanceof Float64Array) {
       for (let j = 1; j < points.length; j += 2) {
-        if (!hasPoint || points[j] > max) { max = points[j]; hasPoint = true; }
+        if (!hasPoint || points[j] > max) {
+          max = points[j];
+          hasPoint = true;
+        }
       }
     } else {
       for (let j = 0; j < points.length; j++) {
         const y = points[j].y;
-        if (!hasPoint || y > max) { max = y; hasPoint = true; }
+        if (!hasPoint || y > max) {
+          max = y;
+          hasPoint = true;
+        }
       }
     }
   }
@@ -61,12 +69,18 @@ export const getMaxYFromPoints = (points: Point[] | Float64Array): number => {
 
   if (points instanceof Float64Array) {
     for (let i = 1; i < points.length; i += 2) {
-      if (!hasPoint || points[i] > max) { max = points[i]; hasPoint = true; }
+      if (!hasPoint || points[i] > max) {
+        max = points[i];
+        hasPoint = true;
+      }
     }
   } else {
     for (let i = 0; i < points.length; i++) {
       const y = points[i].y;
-      if (!hasPoint || y > max) { max = y; hasPoint = true; }
+      if (!hasPoint || y > max) {
+        max = y;
+        hasPoint = true;
+      }
     }
   }
 
@@ -79,9 +93,13 @@ export const getStrokeBounds = (points: Point[] | Float64Array): StrokeBounds =>
   }
 
   if (points instanceof Float64Array) {
-    let minX = points[0], minY = points[1], maxX = points[0], maxY = points[1];
+    let minX = points[0],
+      minY = points[1],
+      maxX = points[0],
+      maxY = points[1];
     for (let i = 2; i < points.length; i += 2) {
-      const x = points[i], y = points[i + 1];
+      const x = points[i],
+        y = points[i + 1];
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;

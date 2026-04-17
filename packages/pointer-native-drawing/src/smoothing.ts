@@ -1,21 +1,19 @@
-import { Skia, SkPath } from "@shopify/react-native-skia";
+import { Skia, SkPath } from '@shopify/react-native-skia';
+
 import type {
   ReadonlyPoint,
   ReadonlyStrokeSample,
   StrokeSample,
   WritingFeelConfig,
-} from "./model/drawingTypes";
-import { unpackPoints, unpackSamples } from "./model/drawingTypes";
-import {
-  resolveDynamicStrokeWidth,
-  DEFAULT_WRITING_FEEL_CONFIG,
-} from "./model/writingFeel";
+} from './model/drawingTypes';
+import { unpackPoints, unpackSamples } from './model/drawingTypes';
+import { resolveDynamicStrokeWidth, DEFAULT_WRITING_FEEL_CONFIG } from './model/writingFeel';
 import {
   hasNativePathBuilder,
   nativeBuildSmoothPath,
   nativeBuildCenterlinePath,
   nativeBuildVariableWidthPath,
-} from "./nativePathBuilder";
+} from './nativePathBuilder';
 
 /** Minimum knot interval below which we fall back to uniform 1/6 control points */
 const CENTRIPETAL_EPSILON = 1e-6;
@@ -49,23 +47,13 @@ export function centripetalControlPointsMut(
   p0: ReadonlyPoint,
   p1: ReadonlyPoint,
   p2: ReadonlyPoint,
-  p3: ReadonlyPoint,
+  p3: ReadonlyPoint
 ): typeof _cpOut {
-  const d01 = Math.sqrt(Math.sqrt(
-    (p1.x - p0.x) * (p1.x - p0.x) + (p1.y - p0.y) * (p1.y - p0.y),
-  ));
-  const d12 = Math.sqrt(Math.sqrt(
-    (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y),
-  ));
-  const d23 = Math.sqrt(Math.sqrt(
-    (p3.x - p2.x) * (p3.x - p2.x) + (p3.y - p2.y) * (p3.y - p2.y),
-  ));
+  const d01 = Math.sqrt(Math.sqrt((p1.x - p0.x) * (p1.x - p0.x) + (p1.y - p0.y) * (p1.y - p0.y)));
+  const d12 = Math.sqrt(Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y)));
+  const d23 = Math.sqrt(Math.sqrt((p3.x - p2.x) * (p3.x - p2.x) + (p3.y - p2.y) * (p3.y - p2.y)));
 
-  if (
-    d01 < CENTRIPETAL_EPSILON ||
-    d12 < CENTRIPETAL_EPSILON ||
-    d23 < CENTRIPETAL_EPSILON
-  ) {
+  if (d01 < CENTRIPETAL_EPSILON || d12 < CENTRIPETAL_EPSILON || d23 < CENTRIPETAL_EPSILON) {
     _cpOut.cp1x = p1.x + (p2.x - p0.x) / 6;
     _cpOut.cp1y = p1.y + (p2.y - p0.y) / 6;
     _cpOut.cp2x = p2.x - (p3.x - p1.x) / 6;
@@ -76,15 +64,11 @@ export function centripetalControlPointsMut(
   const d01_d12 = d01 + d12;
   const d12_d23 = d12 + d23;
 
-  const v1x =
-    (p1.x - p0.x) / d01 - (p2.x - p0.x) / d01_d12 + (p2.x - p1.x) / d12;
-  const v1y =
-    (p1.y - p0.y) / d01 - (p2.y - p0.y) / d01_d12 + (p2.y - p1.y) / d12;
+  const v1x = (p1.x - p0.x) / d01 - (p2.x - p0.x) / d01_d12 + (p2.x - p1.x) / d12;
+  const v1y = (p1.y - p0.y) / d01 - (p2.y - p0.y) / d01_d12 + (p2.y - p1.y) / d12;
 
-  const v2x =
-    (p2.x - p1.x) / d12 - (p3.x - p1.x) / d12_d23 + (p3.x - p2.x) / d23;
-  const v2y =
-    (p2.y - p1.y) / d12 - (p3.y - p1.y) / d12_d23 + (p3.y - p2.y) / d23;
+  const v2x = (p2.x - p1.x) / d12 - (p3.x - p1.x) / d12_d23 + (p3.x - p2.x) / d23;
+  const v2y = (p2.y - p1.y) / d12 - (p3.y - p1.y) / d12_d23 + (p3.y - p2.y) / d23;
 
   const scale = d12 / 3;
   _cpOut.cp1x = p1.x + v1x * scale;
@@ -98,9 +82,7 @@ export function centripetalControlPointsMut(
 // buildSmoothPath (Point[] fallback — unchanged)
 // ---------------------------------------------------------------------------
 
-export function buildSmoothPath(
-  points: ReadonlyArray<ReadonlyPoint> | Float64Array,
-): SkPath {
+export function buildSmoothPath(points: ReadonlyArray<ReadonlyPoint> | Float64Array): SkPath {
   if (hasNativePathBuilder() && !(points instanceof Float64Array)) {
     const native = nativeBuildSmoothPath(points);
     if (native) return native;
@@ -131,14 +113,9 @@ export function buildSmoothPath(
   for (let i = 0; i < pts.length - 1; i++) {
     const current = pts[i];
     const next = pts[i + 1];
-    const previous =
-      i > 0
-        ? pts[i - 1]
-        : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
+    const previous = i > 0 ? pts[i - 1] : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
     const nextNext =
-      i + 2 < pts.length
-        ? pts[i + 2]
-        : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
+      i + 2 < pts.length ? pts[i + 2] : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
 
     if (
       !isValidPoint(previous) ||
@@ -173,14 +150,14 @@ export function buildCenterlinePath(
   samples: ReadonlyArray<ReadonlyStrokeSample> | Float64Array,
   config: WritingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
   targetSpacing = 3.0,
-  smoothingFactor = CENTERLINE_SMOOTHING_FACTOR,
+  smoothingFactor = CENTERLINE_SMOOTHING_FACTOR
 ): SkPath {
   if (hasNativePathBuilder()) {
     const native = nativeBuildCenterlinePath(
       samples instanceof Float64Array ? unpackSamples(samples) : samples,
       config,
       targetSpacing,
-      smoothingFactor,
+      smoothingFactor
     );
     if (native) return native;
   }
@@ -211,9 +188,7 @@ export function buildCenterlinePath(
     const current = resampled[i];
     const next = resampled[i + 1];
     const previous =
-      i > 0
-        ? resampled[i - 1]
-        : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
+      i > 0 ? resampled[i - 1] : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
     const nextNext =
       i + 2 < resampled.length
         ? resampled[i + 2]
@@ -230,20 +205,12 @@ export function buildCenterlinePath(
 // Helper: lerp optional number
 // ---------------------------------------------------------------------------
 
-function lerpOpt(
-  a: number | undefined,
-  b: number | undefined,
-  t: number,
-): number | undefined {
+function lerpOpt(a: number | undefined, b: number | undefined, t: number): number | undefined {
   if (a === undefined || b === undefined) return undefined;
   return a + (b - a) * t;
 }
 
-function lerpSample(
-  a: ReadonlyStrokeSample,
-  b: ReadonlyStrokeSample,
-  t: number,
-): StrokeSample {
+function lerpSample(a: ReadonlyStrokeSample, b: ReadonlyStrokeSample, t: number): StrokeSample {
   return {
     x: a.x + (b.x - a.x) * t,
     y: a.y + (b.y - a.y) * t,
@@ -262,7 +229,7 @@ function lerpSample(
 
 export function resampleByArcLength(
   samples: ReadonlyArray<ReadonlyStrokeSample>,
-  targetSpacing = 3.0,
+  targetSpacing = 3.0
 ): StrokeSample[] {
   if (samples.length <= 1) return samples.map((s) => ({ ...s }));
 
@@ -313,10 +280,7 @@ export function resampleByArcLength(
  *
  * Mutates `samples` in-place (the resampled array is already a fresh copy).
  */
-export function recomputeVelocities(
-  samples: StrokeSample[],
-  alpha: number,
-): void {
+export function recomputeVelocities(samples: StrokeSample[], alpha: number): void {
   if (samples.length === 0) return;
 
   samples[0].velocity = 0;
@@ -357,7 +321,7 @@ export function recomputeVelocities(
 export function smoothCenterline(
   samples: StrokeSample[],
   factor: number,
-  state?: PathBuildState,
+  state?: PathBuildState
 ): void {
   const n = samples.length;
   if (n < 3) return;
@@ -428,7 +392,7 @@ function applyTaper(
   taperCount = 4,
   minFraction = 0.15,
   start = true,
-  end = true,
+  end = true
 ): void {
   const n = halfWidths.length;
   // Start taper
@@ -470,7 +434,7 @@ function addRoundCap(
   cy: number,
   tx: number,
   ty: number,
-  r: number,
+  r: number
 ): void {
   // Normal: 90° CW from tangent
   const nx = ty;
@@ -489,7 +453,7 @@ function addRoundCap(
     tipX + nx * k,
     tipY + ny * k,
     tipX,
-    tipY,
+    tipY
   );
 
   // Quarter 2: tip → to (center − n*r)
@@ -499,7 +463,7 @@ function addRoundCap(
     cx - nx * r + tx * k,
     cy - ny * r + ty * k,
     cx - nx * r,
-    cy - ny * r,
+    cy - ny * r
   );
 }
 
@@ -511,10 +475,7 @@ function addRoundCap(
  * Trace an array of edge points using centripetal Catmull-Rom cubicTo.
  * Assumes path cursor is already at `edge[0]`.
  */
-function traceCatmullRomEdge(
-  path: SkPath,
-  edge: ReadonlyArray<{ x: number; y: number }>,
-): void {
+function traceCatmullRomEdge(path: SkPath, edge: ReadonlyArray<{ x: number; y: number }>): void {
   if (edge.length < 2) return;
 
   if (edge.length === 2) {
@@ -525,14 +486,9 @@ function traceCatmullRomEdge(
   for (let i = 0; i < edge.length - 1; i++) {
     const current = edge[i];
     const next = edge[i + 1];
-    const previous =
-      i > 0
-        ? edge[i - 1]
-        : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
+    const previous = i > 0 ? edge[i - 1] : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
     const nextNext =
-      i + 2 < edge.length
-        ? edge[i + 2]
-        : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
+      i + 2 < edge.length ? edge[i + 2] : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
 
     const cp = centripetalControlPointsMut(previous, current, next, nextNext);
     path.cubicTo(cp.cp1x, cp.cp1y, cp.cp2x, cp.cp2y, next.x, next.y);
@@ -547,7 +503,7 @@ function traceCatmullRomEdge(
  */
 function traceCatmullRomEdgeReversed(
   path: SkPath,
-  edge: ReadonlyArray<{ x: number; y: number }>,
+  edge: ReadonlyArray<{ x: number; y: number }>
 ): void {
   if (edge.length < 2) return;
 
@@ -561,13 +517,9 @@ function traceCatmullRomEdgeReversed(
     const current = edge[i];
     const next = edge[i - 1];
     const previous =
-      i < last
-        ? edge[i + 1]
-        : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
+      i < last ? edge[i + 1] : { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
     const nextNext =
-      i - 2 >= 0
-        ? edge[i - 2]
-        : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
+      i - 2 >= 0 ? edge[i - 2] : { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
 
     const cp = centripetalControlPointsMut(previous, current, next, nextNext);
     path.cubicTo(cp.cp1x, cp.cp1y, cp.cp2x, cp.cp2y, next.x, next.y);
@@ -580,13 +532,13 @@ function traceCatmullRomEdgeReversed(
 
 function endpointTangent(
   pts: ReadonlyArray<{ x: number; y: number }>,
-  end: "start" | "end",
+  end: 'start' | 'end'
 ): { tx: number; ty: number } {
   if (pts.length < 2) return { tx: 1, ty: 0 };
 
   let dx: number;
   let dy: number;
-  if (end === "start") {
+  if (end === 'start') {
     dx = pts[1].x - pts[0].x;
     dy = pts[1].y - pts[0].y;
     // Flip: outward for start cap points backward
@@ -652,7 +604,7 @@ export function buildVariableWidthPath(
   samples: ReadonlyArray<ReadonlyStrokeSample>,
   config: WritingFeelConfig = DEFAULT_WRITING_FEEL_CONFIG,
   state?: PathBuildState,
-  taper?: { start?: boolean; end?: boolean },
+  taper?: { start?: boolean; end?: boolean }
 ): SkPath {
   if (hasNativePathBuilder()) {
     const native = nativeBuildVariableWidthPath(
@@ -660,7 +612,7 @@ export function buildVariableWidthPath(
       config,
       state,
       taper?.start ?? true,
-      taper?.end ?? true,
+      taper?.end ?? true
     );
     if (native) {
       if (state) state.lastSmoothedWidth = native.lastSmoothedWidth;
@@ -709,11 +661,7 @@ export function buildVariableWidthPath(
   const halfWidths: number[] = [];
   let prevSmoothedWidth: number | undefined = state?.lastSmoothedWidth;
   for (let i = 0; i < resampled.length; i++) {
-    const w = resolveDynamicStrokeWidth(
-      resampled[i],
-      config,
-      prevSmoothedWidth,
-    );
+    const w = resolveDynamicStrokeWidth(resampled[i], config, prevSmoothedWidth);
     prevSmoothedWidth = w;
     halfWidths.push(w / 2);
   }
@@ -729,7 +677,8 @@ export function buildVariableWidthPath(
   // --- Step 6+7: Compute normals inline & offset to left/right edges ---
   const leftEdge: { x: number; y: number }[] = [];
   const rightEdge: { x: number; y: number }[] = [];
-  let lastNx = 0, lastNy = 1;
+  let lastNx = 0,
+    lastNy = 1;
 
   for (let i = 0; i < resampled.length; i++) {
     const s = resampled[i];
@@ -739,8 +688,15 @@ export function buildVariableWidthPath(
     const dy = next.y - prev.y;
     const len = Math.hypot(dx, dy);
     let nx: number, ny: number;
-    if (len < 1e-8) { nx = lastNx; ny = lastNy; }
-    else { nx = -dy / len; ny = dx / len; lastNx = nx; lastNy = ny; }
+    if (len < 1e-8) {
+      nx = lastNx;
+      ny = lastNy;
+    } else {
+      nx = -dy / len;
+      ny = dx / len;
+      lastNx = nx;
+      lastNy = ny;
+    }
     const hw = halfWidths[i];
     leftEdge.push({ x: s.x + nx * hw, y: s.y + ny * hw });
     rightEdge.push({ x: s.x - nx * hw, y: s.y - ny * hw });
@@ -752,30 +708,16 @@ export function buildVariableWidthPath(
 
   // --- Step 9a: End cap (semicircle) ---
   const last = resampled[resampled.length - 1];
-  const endTan = endpointTangent(resampled, "end");
-  addRoundCap(
-    path,
-    last.x,
-    last.y,
-    endTan.tx,
-    endTan.ty,
-    halfWidths[halfWidths.length - 1],
-  );
+  const endTan = endpointTangent(resampled, 'end');
+  addRoundCap(path, last.x, last.y, endTan.tx, endTan.ty, halfWidths[halfWidths.length - 1]);
 
   // --- Trace right edge backward (Catmull-Rom) ---
   traceCatmullRomEdgeReversed(path, rightEdge);
 
   // --- Step 9b: Start cap (semicircle) ---
   const first = resampled[0];
-  const startTan = endpointTangent(resampled, "start");
-  addRoundCap(
-    path,
-    first.x,
-    first.y,
-    startTan.tx,
-    startTan.ty,
-    halfWidths[0],
-  );
+  const startTan = endpointTangent(resampled, 'start');
+  addRoundCap(path, first.x, first.y, startTan.tx, startTan.ty, halfWidths[0]);
 
   // --- Step 10: Close ---
   path.close();

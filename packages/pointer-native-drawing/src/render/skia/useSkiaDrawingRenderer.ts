@@ -13,7 +13,11 @@ import type {
 import type { RendererActions, RendererState, RendererViewport } from '../rendererTypes';
 import { buildSmoothPath, buildCenterlinePath } from '../../smoothing';
 import { DEFAULT_WRITING_FEEL_CONFIG } from '../../model/writingFeel';
-import { getNativeLivePath, registerLivePathCallback, setNativeSessionConfig } from '../../nativePathBuilder';
+import {
+  getNativeLivePath,
+  registerLivePathCallback,
+  setNativeSessionConfig,
+} from '../../nativePathBuilder';
 
 const EMPTY_PATH_SENTINEL = Skia.Path.Make();
 

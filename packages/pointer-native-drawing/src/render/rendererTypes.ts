@@ -1,5 +1,4 @@
 import type {
-  ReadonlyPoint,
   ReadonlyStroke,
   ReadonlyStrokeBounds,
   ReadonlyStrokeSample,

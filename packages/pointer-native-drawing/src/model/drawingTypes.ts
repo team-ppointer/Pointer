@@ -28,7 +28,7 @@ export type Stroke = {
   color: string;
   width: number;
   opacity?: number;
-  strokeCap?: "round" | "butt";
+  strokeCap?: 'round' | 'butt';
   samples?: StrokeSample[] | Float64Array;
 };
 
@@ -88,9 +88,7 @@ export function packPoints(points: ReadonlyArray<ReadonlyPoint>): Float64Array {
 }
 
 /** Create a packed samples buffer from StrokeSample[] */
-export function packSamplesArray(
-  samples: ReadonlyArray<ReadonlyStrokeSample>,
-): Float64Array {
+export function packSamplesArray(samples: ReadonlyArray<ReadonlyStrokeSample>): Float64Array {
   const buf = new Float64Array(samples.length * SAMPLE_STRIDE);
   for (let i = 0; i < samples.length; i++) {
     const s = samples[i];
@@ -142,7 +140,7 @@ export function unpackPoints(buf: Float64Array): Point[] {
   return result;
 }
 
-export type PointerType = "touch" | "pen" | "mouse" | "unknown";
+export type PointerType = 'touch' | 'pen' | 'mouse' | 'unknown';
 
 export type InputEvent = {
   x: number;
@@ -171,7 +169,7 @@ export type ReadonlyPoint = Readonly<Point>;
 export type ReadonlyStrokeSample = Readonly<StrokeSample>;
 
 export type ReadonlyStroke = Readonly<
-  Omit<Stroke, "points" | "samples"> & {
+  Omit<Stroke, 'points' | 'samples'> & {
     readonly points: ReadonlyArray<ReadonlyPoint> | Float64Array;
     readonly samples?: ReadonlyArray<ReadonlyStrokeSample> | Float64Array;
   }

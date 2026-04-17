@@ -1,4 +1,11 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 
@@ -200,7 +207,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       setIsScrollEnabled,
     });
 
-    const isFabric = !!(globalThis as any).nativeFabricUIManager;
+    const isFabric = 'nativeFabricUIManager' in globalThis;
     const useNativeStylus =
       isFabric && (stylusInput === 'native' || (stylusInput === 'auto' && Platform.OS === 'ios'));
 
@@ -272,7 +279,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
                   strokeColor={strokeColor}
                   normalizedPenStrokeWidth={docController.normalizedPenStrokeWidth}
                   livePathSV={livePathSV}
-
                   eraserCursor={docController.eraserCursor}
                   eraserSize={eraserSize}
                   canvasRef={canvasRef}
@@ -342,7 +348,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
                   strokeColor={strokeColor}
                   normalizedPenStrokeWidth={docController.normalizedPenStrokeWidth}
                   livePathSV={livePathSV}
-
                   eraserCursor={docController.eraserCursor}
                   eraserSize={eraserSize}
                   canvasRef={canvasRef}
