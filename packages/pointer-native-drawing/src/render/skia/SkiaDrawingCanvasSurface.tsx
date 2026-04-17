@@ -180,7 +180,7 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
     prevParagraphsRef.current = textBoxParagraphs?.map((p) => p.paragraph) ?? [];
     return () => {
       for (const p of prev) {
-        (p as any).dispose?.();
+        (p as { dispose?: () => void }).dispose?.();
       }
     };
   }, [textBoxParagraphs]);
