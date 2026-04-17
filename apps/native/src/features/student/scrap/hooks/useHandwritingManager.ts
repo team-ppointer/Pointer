@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { Alert, AppState, type AppStateStatus } from 'react-native';
-
-import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
+import { Alert, AppState, InteractionManager, type AppStateStatus } from 'react-native';
+import { useGetHandwriting, useUpdateHandwriting } from '@apis';
 
 import { type DrawingCanvasRef } from '../utils/skia';
 import { encodeHandwritingData, decodeHandwritingData } from '../utils/handwritingEncoder';
@@ -29,12 +28,14 @@ export function useHandwritingManager({
   const { mutate: updateHandwriting, isPending: isSaving } = useUpdateHandwriting();
   const lastSavedDataRef = useRef<string>('');
   const currentScrapIdRef = useRef<number>(scrapId);
+  const initialLoadDoneRef = useRef(false);
 
   // scrapId가 변경되면 lastSavedDataRef 초기화
   useEffect(() => {
     if (currentScrapIdRef.current !== scrapId) {
       lastSavedDataRef.current = '';
       currentScrapIdRef.current = scrapId;
+      initialLoadDoneRef.current = false;
     }
   }, [scrapId]);
 
@@ -45,7 +46,8 @@ export function useHandwritingManager({
       handwritingData?.data &&
       canvasRef.current &&
       currentScrapIdRef.current === scrapId &&
-      !isSaving
+      !isSaving &&
+      !initialLoadDoneRef.current
     ) {
       // clear() 완료를 보장하기 위해 약간의 지연 후 로드
       const loadTimer = setTimeout(() => {
@@ -61,6 +63,7 @@ export function useHandwritingManager({
               onColorRestore?.(decodedData.lastColor);
             }
             lastSavedDataRef.current = handwritingData.data;
+            initialLoadDoneRef.current = true;
           } catch (error) {
             console.error('필기 데이터 로드 실패:', error);
           }
@@ -71,23 +74,15 @@ export function useHandwritingManager({
     }
   }, [handwritingData, canvasRef, scrapId]);
 
-  // 저장하기 함수
-  const handleSave = useCallback(
-    (isAutoSave = false, targetScrapId?: number) => {
-      if (!canvasRef.current) return Promise.resolve(false);
-
-      // 이미 저장 중이면 중복 저장 방지
-      if (isSaving) {
-        return Promise.resolve(false);
-      }
-
-      const strokes = canvasRef.current.getStrokes();
-      const textBoxes = canvasRef.current.getTextBoxes();
-
+  // 실제 저장 로직 (encode + API call)
+  const doSave = useCallback(
+    (strokes: ReturnType<DrawingCanvasRef['getStrokes']>,
+     textBoxes: ReturnType<DrawingCanvasRef['getTextBoxes']>,
+     isAutoSave: boolean,
+     targetScrapId?: number): Promise<boolean> => {
       try {
         const base64Data = encodeHandwritingData(strokes || [], textBoxes || [], strokeColor);
 
-        // 변경사항 없으면 저장 안 함
         if (base64Data === lastSavedDataRef.current) {
           if (!isAutoSave) {
             Alert.alert('알림', '변경사항이 없습니다.');
@@ -95,7 +90,6 @@ export function useHandwritingManager({
           return Promise.resolve(true);
         }
 
-        // targetScrapId가 제공되면 그것을 사용, 아니면 scrapId 사용
         const saveScrapId = targetScrapId ?? scrapId;
 
         return new Promise<boolean>((resolve) => {
@@ -132,7 +126,32 @@ export function useHandwritingManager({
         return Promise.resolve(false);
       }
     },
-    [scrapId, canvasRef, updateHandwriting, onSaveSuccess, onSaveError, isSaving]
+    [scrapId, strokeColor, updateHandwriting, onSaveSuccess, onSaveError]
+  );
+
+  // 저장하기 함수
+  const handleSave = useCallback(
+    (isAutoSave = false, targetScrapId?: number) => {
+      if (!canvasRef.current) return Promise.resolve(false);
+      if (isSaving) return Promise.resolve(false);
+
+      // 스냅샷은 즉시 캡처 (O(1) cache hit)
+      const strokes = canvasRef.current.getStrokes();
+      const textBoxes = canvasRef.current.getTextBoxes();
+
+      if (!isAutoSave) {
+        // 수동 저장: 즉시 실행 (유저가 기다리는 중)
+        return doSave(strokes, textBoxes, false, targetScrapId);
+      }
+
+      // 자동 저장: interaction 끝난 후 실행 → 터치 이벤트와 같은 프레임에서 경쟁하지 않음
+      return new Promise<boolean>((resolve) => {
+        InteractionManager.runAfterInteractions(() => {
+          doSave(strokes, textBoxes, true, targetScrapId).then(resolve);
+        });
+      });
+    },
+    [canvasRef, isSaving, doSave]
   );
 
   // 5초마다 자동 저장
