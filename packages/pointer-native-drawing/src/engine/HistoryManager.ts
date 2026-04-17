@@ -26,6 +26,8 @@ export type EraseStrokesEntry = {
   readonly type: "erase-strokes";
   readonly snapshotBefore: DocumentSnapshot;
   readonly snapshotAfter: DocumentSnapshot;
+  /** Cached SkPath[] from before the erase — used for O(1) undo. */
+  readonly cachedPathsBefore?: readonly unknown[];
 };
 
 export type ReplaceDocumentEntry = {
@@ -95,7 +97,11 @@ export class HistoryManager {
   private maxSize: number;
   private locked = false;
   private listener: HistoryStateListener | null = null;
-  private activeTransaction: { snapshotBefore: DocumentSnapshot } | null = null;
+  private onEntryEvicted: ((entry: HistoryEntry) => void) | null = null;
+  private activeTransaction: {
+    snapshotBefore: DocumentSnapshot;
+    cachedPaths?: readonly unknown[];
+  } | null = null;
 
   constructor(maxSize: number = DEFAULT_MAX_SIZE) {
     this.maxSize = maxSize;
@@ -109,8 +115,17 @@ export class HistoryManager {
     this.listener = listener;
   }
 
+  setOnEntryEvicted(cb: ((entry: HistoryEntry) => void) | null): void {
+    this.onEntryEvicted = cb;
+  }
+
   private notifyListener(): void {
     this.listener?.({ canUndo: this.canUndo(), canRedo: this.canRedo() });
+  }
+
+  private evictEntries(entries: HistoryEntry[]): void {
+    if (!this.onEntryEvicted) return;
+    for (const e of entries) this.onEntryEvicted(e);
   }
 
   // -----------------------------------------------------------------------
@@ -120,6 +135,7 @@ export class HistoryManager {
   push(entry: HistoryEntry): void {
     // Truncate forward history (invalidated by new action)
     if (this.pointer < this.stack.length - 1) {
+      this.evictEntries(this.stack.slice(this.pointer + 1));
       this.stack.length = this.pointer + 1;
     }
 
@@ -128,7 +144,8 @@ export class HistoryManager {
 
     // Evict oldest if over capacity
     if (this.stack.length > this.maxSize) {
-      this.stack.shift();
+      const evicted = this.stack.shift()!;
+      this.evictEntries([evicted]);
       this.pointer = this.stack.length - 1;
     }
 
@@ -172,10 +189,10 @@ export class HistoryManager {
   // -----------------------------------------------------------------------
 
   /** Call at erase gesture start to capture the document state. */
-  beginTransaction(snapshotBefore: DocumentSnapshot): void {
+  beginTransaction(snapshotBefore: DocumentSnapshot, cachedPaths?: readonly unknown[]): void {
     // Safety: discard any leaked transaction from a previous gesture
-    // (e.g., mid-gesture mode switch that skipped commitTransaction)
-    this.activeTransaction = { snapshotBefore };
+    this.discardTransaction();
+    this.activeTransaction = { snapshotBefore, cachedPaths };
   }
 
   /**
@@ -184,21 +201,30 @@ export class HistoryManager {
    */
   commitTransaction(snapshotAfter: DocumentSnapshot): void {
     if (!this.activeTransaction) return;
-    const { snapshotBefore } = this.activeTransaction;
+    const { snapshotBefore, cachedPaths } = this.activeTransaction;
     this.activeTransaction = null;
 
     // Erase only removes strokes — length equality implies no change.
-    // If future operations can replace strokes, switch to deep comparison.
     if (snapshotBefore.strokes.length === snapshotAfter.strokes.length) return;
 
     this.push({
       type: "erase-strokes",
       snapshotBefore,
       snapshotAfter,
+      ...(cachedPaths ? { cachedPathsBefore: cachedPaths } : {}),
     });
   }
 
   discardTransaction(): void {
+    if (this.activeTransaction?.cachedPaths) {
+      // Evict cached paths from discarded transaction
+      this.evictEntries([{
+        type: 'erase-strokes',
+        snapshotBefore: this.activeTransaction.snapshotBefore,
+        snapshotAfter: this.activeTransaction.snapshotBefore,
+        cachedPathsBefore: this.activeTransaction.cachedPaths,
+      }]);
+    }
     this.activeTransaction = null;
   }
 
@@ -236,10 +262,11 @@ export class HistoryManager {
   // -----------------------------------------------------------------------
 
   clear(): void {
+    this.evictEntries(this.stack);
+    this.discardTransaction();
     this.stack = [];
     this.pointer = -1;
     this.locked = false;
-    this.activeTransaction = null;
     this.notifyListener();
   }
 }

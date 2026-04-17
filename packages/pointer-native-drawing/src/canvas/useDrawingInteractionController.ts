@@ -16,6 +16,8 @@ export type DrawingActions = {
   handlePredictedSamples: (inputs: InputEvent[]) => void;
   captureSnapshot: () => DocumentSnapshot;
   setEraserCursor: (cursor: { x: number; y: number } | null) => void;
+  beginEraseTransaction: () => void;
+  commitEraseTransaction: () => void;
 };
 
 export type UseDrawingInteractionControllerArgs = {
@@ -44,8 +46,9 @@ export function useDrawingInteractionController({
     eraseAtPoint,
     cancelDraw,
     handlePredictedSamples,
-    captureSnapshot,
     setEraserCursor,
+    beginEraseTransaction,
+    commitEraseTransaction,
   } = drawingActions;
 
   const inputCallbacks = useMemo(
@@ -53,13 +56,13 @@ export function useDrawingInteractionController({
       onInteractionBegin: () => {
         if (!enableZoomPan) setIsScrollEnabled(false);
         if (eraserMode) {
-          historyRef.current.beginTransaction(captureSnapshot());
+          beginEraseTransaction();
         }
       },
       onInteractionFinalize: () => {
         if (!enableZoomPan) setIsScrollEnabled(true);
         if (eraserMode) {
-          historyRef.current.commitTransaction(captureSnapshot());
+          commitEraseTransaction();
         }
         setEraserCursor(null);
       },
@@ -73,14 +76,14 @@ export function useDrawingInteractionController({
     }),
     [
       addPoint,
+      beginEraseTransaction,
       cancelDraw,
-      captureSnapshot,
+      commitEraseTransaction,
       enableZoomPan,
       eraserMode,
       eraseAtPoint,
       finalizeStroke,
       handlePredictedSamples,
-      historyRef,
       setEraserCursor,
       setIsScrollEnabled,
       startStroke,
