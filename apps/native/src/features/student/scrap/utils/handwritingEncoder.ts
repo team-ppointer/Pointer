@@ -74,9 +74,11 @@ export function encodeHandwritingData(
     ...(lastColor ? { lastColor } : {}),
   };
   const jsonString = JSON.stringify(data);
-  return btoa(encodeURIComponent(jsonString).replace(/%([0-9A-F]{2})/g, (_, p1) =>
-    String.fromCharCode(parseInt(p1, 16))
-  ));
+  return btoa(
+    encodeURIComponent(jsonString).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+      String.fromCharCode(parseInt(p1, 16))
+    )
+  );
 }
 
 /**
@@ -104,18 +106,16 @@ export function decodeHandwritingData(base64Data: string): HandwritingData {
     }
 
     // TextBoxData migration: width/height fallback for old TextItem format
-    const texts: TextBoxData[] = (data.texts || []).map(
-      (t: Record<string, unknown>) => ({
-        id: t.id,
-        x: (t.x as number) ?? 0,
-        y: (t.y as number) ?? 0,
-        width: (t.width as number) ?? 200,
-        height: (t.height as number) ?? 0,
-        text: (t.text as string) ?? '',
-        fontSize: (t.fontSize as number) ?? 16,
-        color: (t.color as string) ?? '#1E1E21',
-      })
-    );
+    const texts: TextBoxData[] = (data.texts || []).map((t: Record<string, unknown>) => ({
+      id: t.id,
+      x: (t.x as number) ?? 0,
+      y: (t.y as number) ?? 0,
+      width: (t.width as number) ?? 200,
+      height: (t.height as number) ?? 0,
+      text: (t.text as string) ?? '',
+      fontSize: (t.fontSize as number) ?? 16,
+      color: (t.color as string) ?? '#1E1E21',
+    }));
 
     return {
       strokes: data.strokes || [],

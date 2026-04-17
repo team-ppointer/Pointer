@@ -53,11 +53,7 @@ export function useHandwritingManager({
       !isSavingRef.current
     ) {
       const loadTimer = setTimeout(() => {
-        if (
-          currentScrapIdRef.current === scrapId &&
-          canvasRef.current &&
-          !isSavingRef.current
-        ) {
+        if (currentScrapIdRef.current === scrapId && canvasRef.current && !isSavingRef.current) {
           try {
             const decodedData = decodeHandwritingData(handwritingData.data);
             canvasRef.current.setStrokes(decodedData.strokes);
@@ -87,11 +83,7 @@ export function useHandwritingManager({
       targetScrapId?: number
     ): Promise<boolean> => {
       try {
-        const base64Data = encodeHandwritingData(
-          strokes || [],
-          textBoxes || [],
-          strokeColor
-        );
+        const base64Data = encodeHandwritingData(strokes || [], textBoxes || [], strokeColor);
 
         if (base64Data === lastSavedDataRef.current) {
           if (!isAutoSave) {
@@ -174,14 +166,11 @@ export function useHandwritingManager({
   }, [hasUnsavedChanges, isSaving, handleSave]);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener(
-      'change',
-      (nextState: AppStateStatus) => {
-        if (nextState === 'background' && hasUnsavedChanges && !isSaving) {
-          handleSave(true);
-        }
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (nextState === 'background' && hasUnsavedChanges && !isSaving) {
+        handleSave(true);
       }
-    );
+    });
     return () => subscription.remove();
   }, [hasUnsavedChanges, isSaving, handleSave]);
 
