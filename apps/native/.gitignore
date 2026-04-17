@@ -5,6 +5,8 @@ node_modules/
 
 # vsc
 .vscode
+.omx/
+.omc/
 
 # Expo
 .expo/
