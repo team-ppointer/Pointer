@@ -7,21 +7,25 @@ import type {
   ReadonlyPoint,
   ReadonlyStrokeBounds,
   ReadonlyStrokeSample,
+  Point,
   Stroke,
   StrokeBounds,
   StrokeSample,
-} from "../model/drawingTypes";
+} from '../model/drawingTypes';
+import { packPoints, packSamplesArray } from '../model/drawingTypes';
 import {
   appendPointWithInterpolation,
   deepCopyStrokes,
+  freezeStroke,
   getStrokeBounds,
   isPointNearBounds,
   normalizeStrokeWidth,
   pointToSegmentDistanceSquared,
   resolveMaxPointGap,
-} from "../model/strokeUtils";
-import { computeVelocity } from "../model/writingFeel";
-import type { EngineResult } from "./engineTypes";
+} from '../model/strokeUtils';
+import { computeVelocity } from '../model/writingFeel';
+
+import type { EngineResult } from './engineTypes';
 
 const ERASER_THROTTLE_MS = 16;
 
@@ -95,7 +99,7 @@ export class DrawingEngine {
       return cached.snapshot;
     }
 
-    const snapshot = deepCopyStrokes(this.document.strokes);
+    const snapshot = [...this.document.strokes];
     this.strokesSnapshotCache = {
       version: this.strokesVersion,
       snapshot,
@@ -107,10 +111,35 @@ export class DrawingEngine {
     const copied = deepCopyStrokes(nextStrokes);
     for (let i = 0; i < copied.length; i++) {
       copied[i].width = normalizeStrokeWidth(copied[i].width);
+      freezeStroke(copied[i]);
     }
     this.session = { points: [], samples: [] };
     this.sessionMaxY = 0;
-    this.replaceDocument(copied, copied.map((stroke) => getStrokeBounds(stroke.points)));
+    this.replaceDocument(
+      copied,
+      copied.map((stroke) => getStrokeBounds(stroke.points))
+    );
+    return this.createResult(true);
+  }
+
+  /**
+   * Apply strokes from a trusted source (history snapshots) without deep copy.
+   * All strokes must already be frozen and width-normalized (via finalizeStroke).
+   */
+  applyStrokesTrusted(trustedStrokes: Stroke[], trustedBounds: StrokeBounds[]): EngineResult {
+    if (__DEV__) {
+      for (const s of trustedStrokes) {
+        if (!Object.isFrozen(s)) {
+          console.warn('applyStrokesTrusted: stroke is not frozen');
+        }
+        if (s.width !== normalizeStrokeWidth(s.width)) {
+          console.warn('applyStrokesTrusted: stroke width not normalized');
+        }
+      }
+    }
+    this.session = { points: [], samples: [] };
+    this.sessionMaxY = 0;
+    this.replaceDocument(trustedStrokes, trustedBounds);
     return this.createResult(true);
   }
 
@@ -140,7 +169,7 @@ export class DrawingEngine {
     appendPointWithInterpolation(
       this.session.points,
       { x: input.x, y: input.y },
-      resolveMaxPointGap(options.strokeWidth),
+      resolveMaxPointGap(options.strokeWidth)
     );
 
     const prevSample = this.session.samples[this.session.samples.length - 1];
@@ -172,23 +201,22 @@ export class DrawingEngine {
       return this.createResult(false);
     }
 
-    const pointsToFinalize = [...this.session.points];
-    const samplesToFinalize = this.session.samples.length > 0
-      ? [...this.session.samples]
-      : undefined;
-    const appendedStroke: Stroke = {
+    const pointsToFinalize = packPoints(this.session.points);
+    const samplesToFinalize =
+      this.session.samples.length > 0 ? packSamplesArray(this.session.samples) : undefined;
+    const appendedStroke: Stroke = freezeStroke({
       points: pointsToFinalize,
       color: options.strokeColor,
       width: normalizeStrokeWidth(options.strokeWidth),
       ...(samplesToFinalize ? { samples: samplesToFinalize } : {}),
-    };
+    });
     const appendedStrokeBounds = getStrokeBounds(pointsToFinalize);
 
     this.session = { points: [], samples: [] };
     this.sessionMaxY = 0;
     this.replaceDocument(
       [...this.document.strokes, appendedStroke],
-      [...this.strokeBounds, appendedStrokeBounds],
+      [...this.strokeBounds, appendedStrokeBounds]
     );
 
     return {
@@ -223,15 +251,21 @@ export class DrawingEngine {
 
       let isTouched = false;
       const pts = stroke.points;
-      if (pts.length === 1) {
-        const dx = pts[0].x - input.x;
-        const dy = pts[0].y - input.y;
+      const isPacked = pts instanceof Float64Array;
+      const ptCount = isPacked ? pts.length / 2 : (pts as Point[]).length;
+      if (ptCount === 1) {
+        const px = isPacked ? (pts as Float64Array)[0] : (pts as Point[])[0].x;
+        const py = isPacked ? (pts as Float64Array)[1] : (pts as Point[])[0].y;
+        const dx = px - input.x;
+        const dy = py - input.y;
         isTouched = dx * dx + dy * dy < thresholdSquared;
       } else {
-        for (let j = 0; j < pts.length - 1; j++) {
-          const a = pts[j];
-          const b = pts[j + 1];
-          if (pointToSegmentDistanceSquared(input.x, input.y, a.x, a.y, b.x, b.y) < thresholdSquared) {
+        for (let j = 0; j < ptCount - 1; j++) {
+          const ax = isPacked ? (pts as Float64Array)[j * 2] : (pts as Point[])[j].x;
+          const ay = isPacked ? (pts as Float64Array)[j * 2 + 1] : (pts as Point[])[j].y;
+          const bx = isPacked ? (pts as Float64Array)[(j + 1) * 2] : (pts as Point[])[j + 1].x;
+          const by = isPacked ? (pts as Float64Array)[(j + 1) * 2 + 1] : (pts as Point[])[j + 1].y;
+          if (pointToSegmentDistanceSquared(input.x, input.y, ax, ay, bx, by) < thresholdSquared) {
             isTouched = true;
             break;
           }
@@ -254,6 +288,20 @@ export class DrawingEngine {
       ...this.createResult(true),
       retainedStrokeIndices,
     };
+  }
+
+  popLastStroke(): EngineResult {
+    const nextStrokes = this.document.strokes.slice(0, -1);
+    const nextBounds = this.strokeBounds.slice(0, -1);
+    this.replaceDocument(nextStrokes, nextBounds);
+    return this.createResult(true);
+  }
+
+  pushStroke(stroke: Stroke, bounds: StrokeBounds): EngineResult {
+    const nextStrokes = [...this.document.strokes, freezeStroke(stroke)];
+    const nextBounds = [...this.strokeBounds, bounds];
+    this.replaceDocument(nextStrokes, nextBounds);
+    return this.createResult(true);
   }
 
   private replaceDocument(nextStrokes: Stroke[], nextBounds: StrokeBounds[]): void {
