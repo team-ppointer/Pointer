@@ -1,13 +1,23 @@
-import React, { RefObject, useEffect, useMemo, useRef } from "react";
-import { Canvas, CanvasRef, Circle, Group, Paragraph, Path, Picture, Skia, SkPath } from "@shopify/react-native-skia";
-import type { ReadonlyStroke, ReadonlyStrokeBounds } from "../../model/drawingTypes";
-import type { TextBoxData } from "../../textbox/textBoxTypes";
-import type { ViewTransform } from "../../transform";
-import { transformToMatrix3 } from "../../transform";
+import React, { RefObject, useEffect, useMemo, useRef } from 'react';
 import {
-  createCommittedPicture,
-  PICTURE_CACHE_STROKE_THRESHOLD,
-} from "./skiaDrawingUtils";
+  Canvas,
+  CanvasRef,
+  Circle,
+  Group,
+  Paragraph,
+  Path,
+  Picture,
+  Skia,
+  SkPath,
+} from '@shopify/react-native-skia';
+import type { SharedValue } from 'react-native-reanimated';
+
+import type { ReadonlyStroke, ReadonlyStrokeBounds } from '../../model/drawingTypes';
+import type { TextBoxData } from '../../textbox/textBoxTypes';
+import type { ViewTransform } from '../../transform';
+import { transformToMatrix3 } from '../../transform';
+
+import { createCommittedPicture, PICTURE_CACHE_STROKE_THRESHOLD } from './skiaDrawingUtils';
 
 const VIEWPORT_CULLING_MARGIN = 280;
 const CANVAS_STYLE = { flex: 1 } as const;
@@ -18,8 +28,7 @@ type SkiaDrawingCanvasSurfaceProps = {
   strokeBounds: ReadonlyArray<ReadonlyStrokeBounds>;
   strokeColor: string;
   normalizedPenStrokeWidth: number;
-  livePath: SkPath;
-  isLiveStrokeActive: boolean;
+  livePathSV: SharedValue<SkPath>;
   eraserCursor?: { x: number; y: number } | null;
   eraserSize?: number;
   canvasRef: RefObject<CanvasRef | null>;
@@ -38,21 +47,19 @@ const isStrokeVisible = (
   scrollOffsetY: number,
   viewportHeight: number,
   viewTransform?: ViewTransform,
-  viewportWidth?: number,
+  viewportWidth?: number
 ): boolean => {
   if (viewportHeight <= 0) return true;
 
   if (viewTransform) {
     const s = viewTransform.scale || 1;
     const visibleTop = -viewTransform.translateY / s - VIEWPORT_CULLING_MARGIN;
-    const visibleBottom =
-      (viewportHeight - viewTransform.translateY) / s + VIEWPORT_CULLING_MARGIN;
+    const visibleBottom = (viewportHeight - viewTransform.translateY) / s + VIEWPORT_CULLING_MARGIN;
     if (bounds.maxY < visibleTop || bounds.minY > visibleBottom) return false;
 
     if (viewportWidth && viewportWidth > 0) {
       const visibleLeft = -viewTransform.translateX / s - VIEWPORT_CULLING_MARGIN;
-      const visibleRight =
-        (viewportWidth - viewTransform.translateX) / s + VIEWPORT_CULLING_MARGIN;
+      const visibleRight = (viewportWidth - viewTransform.translateX) / s + VIEWPORT_CULLING_MARGIN;
       if (bounds.maxX < visibleLeft || bounds.minX > visibleRight) return false;
     }
     return true;
@@ -69,8 +76,7 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
   strokeBounds,
   strokeColor,
   normalizedPenStrokeWidth,
-  livePath,
-  isLiveStrokeActive,
+  livePathSV,
   eraserCursor,
   eraserSize,
   canvasRef,
@@ -83,7 +89,7 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
 }: SkiaDrawingCanvasSurfaceProps) {
   const matrix = useMemo(
     () => (viewTransform ? transformToMatrix3(viewTransform) : undefined),
-    [viewTransform],
+    [viewTransform]
   );
 
   const renderedPaths = useMemo(() => {
@@ -93,7 +99,10 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
 
     return paths.map((path, index) => {
       const bounds = strokeBounds[index];
-      if (bounds && !isStrokeVisible(bounds, scrollOffsetY, viewportHeight, viewTransform, viewportWidth)) {
+      if (
+        bounds &&
+        !isStrokeVisible(bounds, scrollOffsetY, viewportHeight, viewTransform, viewportWidth)
+      ) {
         return null;
       }
 
@@ -102,36 +111,46 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
         <Path
           key={`path-${index}`}
           path={path}
-          style="stroke"
+          style='stroke'
           strokeWidth={stroke?.width ?? normalizedPenStrokeWidth}
           color={stroke?.color ?? strokeColor}
-          strokeCap={stroke?.strokeCap ?? "round"}
-          strokeJoin="round"
+          strokeCap={stroke?.strokeCap ?? 'round'}
+          strokeJoin='round'
           opacity={stroke?.opacity ?? 1}
           antiAlias
         />
       );
     });
-  }, [normalizedPenStrokeWidth, paths, scrollOffsetY, strokeBounds, strokeColor, strokes, viewportHeight, viewportWidth, viewTransform]);
+  }, [
+    normalizedPenStrokeWidth,
+    paths,
+    scrollOffsetY,
+    strokeBounds,
+    strokeColor,
+    strokes,
+    viewportHeight,
+    viewportWidth,
+    viewTransform,
+  ]);
 
-  const committedPicture = useMemo(
-    () => {
-      if (paths.length < PICTURE_CACHE_STROKE_THRESHOLD) return null;
+  const committedPicture = useMemo(() => {
+    if (paths.length < PICTURE_CACHE_STROKE_THRESHOLD) return null;
 
-      const visiblePaths: SkPath[] = [];
-      const visibleStrokes: ReadonlyStroke[] = [];
-      for (let i = 0; i < paths.length; i++) {
-        const bounds = strokeBounds[i];
-        if (bounds && !isStrokeVisible(bounds, scrollOffsetY, viewportHeight, viewTransform, viewportWidth)) {
-          continue;
-        }
-        visiblePaths.push(paths[i]);
-        visibleStrokes.push(strokes[i]);
+    const visiblePaths: SkPath[] = [];
+    const visibleStrokes: ReadonlyStroke[] = [];
+    for (let i = 0; i < paths.length; i++) {
+      const bounds = strokeBounds[i];
+      if (
+        bounds &&
+        !isStrokeVisible(bounds, scrollOffsetY, viewportHeight, viewTransform, viewportWidth)
+      ) {
+        continue;
       }
-      return createCommittedPicture(visiblePaths, visibleStrokes);
-    },
-    [paths, scrollOffsetY, strokeBounds, strokes, viewportHeight, viewportWidth, viewTransform],
-  );
+      visiblePaths.push(paths[i]);
+      visibleStrokes.push(strokes[i]);
+    }
+    return createCommittedPicture(visiblePaths, visibleStrokes);
+  }, [paths, scrollOffsetY, strokeBounds, strokes, viewportHeight, viewportWidth, viewTransform]);
 
   // Build Skia Paragraphs for committed TextBoxes.
   // ParagraphBuilder.Make() without fontMgr uses the platform default internally.
@@ -169,17 +188,15 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
   const drawingContent = (
     <>
       {committedPicture ? <Picture picture={committedPicture} /> : renderedPaths}
-      {isLiveStrokeActive && (
-        <Path
-          path={livePath}
-          style="stroke"
-          strokeWidth={normalizedPenStrokeWidth}
-          color={strokeColor}
-          strokeCap="round"
-          strokeJoin="round"
-          antiAlias
-        />
-      )}
+      <Path
+        path={livePathSV}
+        style='stroke'
+        strokeWidth={normalizedPenStrokeWidth}
+        color={strokeColor}
+        strokeCap='round'
+        strokeJoin='round'
+        antiAlias
+      />
       {textBoxParagraphs?.map((item) => (
         <Paragraph
           key={item.id}
@@ -199,9 +216,9 @@ export const SkiaDrawingCanvasSurface = React.memo(function SkiaDrawingCanvasSur
       cx={eraserCursor.x}
       cy={eraserCursor.y}
       r={eraserSize}
-      style="stroke"
+      style='stroke'
       strokeWidth={1}
-      color="#AAAAAA"
+      color='#AAAAAA'
       antiAlias
     />
   );

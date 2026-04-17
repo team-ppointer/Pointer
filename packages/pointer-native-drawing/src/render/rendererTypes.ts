@@ -1,4 +1,9 @@
-import type { ReadonlyPoint, ReadonlyStroke, ReadonlyStrokeBounds, ReadonlyStrokeSample } from "../model/drawingTypes";
+import type {
+  ReadonlyPoint,
+  ReadonlyStroke,
+  ReadonlyStrokeBounds,
+  ReadonlyStrokeSample,
+} from '../model/drawingTypes';
 
 export type RendererViewport = {
   scrollOffsetY: number;
@@ -15,7 +20,6 @@ export type CommittedStrokeDiff = {
 export type RendererState = {
   readonly strokes: ReadonlyArray<ReadonlyStroke>;
   readonly strokeBounds: ReadonlyArray<ReadonlyStrokeBounds>;
-  readonly isLiveStrokeActive: boolean;
   readonly viewport: RendererViewport;
 };
 
@@ -27,16 +31,22 @@ export type RendererActions = {
   replaceCommittedStrokes: (
     nextStrokes: ReadonlyArray<ReadonlyStroke>,
     nextBounds: ReadonlyArray<ReadonlyStrokeBounds>,
+    prebuiltPaths?: readonly unknown[]
   ) => void;
   appendCommittedStroke: (
     nextStrokes: ReadonlyArray<ReadonlyStroke>,
     nextBounds: ReadonlyArray<ReadonlyStrokeBounds>,
-    appendedStroke: ReadonlyStroke,
+    appendedStroke: ReadonlyStroke
   ) => void;
   retainOrRebuildCommittedStrokes: (
     nextStrokes: ReadonlyArray<ReadonlyStroke>,
     nextBounds: ReadonlyArray<ReadonlyStrokeBounds>,
-    retainedStrokeIndices?: ReadonlyArray<number>,
+    retainedStrokeIndices?: ReadonlyArray<number>
   ) => void;
+  popCommittedStroke: (
+    nextStrokes: ReadonlyArray<ReadonlyStroke>,
+    nextBounds: ReadonlyArray<ReadonlyStrokeBounds>
+  ) => void;
+  getCommittedPaths: () => readonly unknown[];
   updateViewport: (viewport: RendererViewport) => void;
 };
