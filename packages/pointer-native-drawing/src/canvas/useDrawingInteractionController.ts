@@ -69,7 +69,7 @@ export function useDrawingInteractionController({
       onDrawStart: startStroke,
       onDrawMove: addPoint,
       onDrawEnd: finalizeStroke,
-      onDrawCancel: (reason) => cancelDraw(reason),
+      onDrawCancel: (reason?: CancelReason) => cancelDraw(reason),
       onEraseStart: eraseAtPoint,
       onEraseMove: eraseAtPoint,
       onPredictedSamples: handlePredictedSamples,
