@@ -32,7 +32,7 @@
   z-index: 100;
   overflow: hidden;
   margin: 0 -20px;
-  padding: 0 20px 20px 20px;
+  padding: 0 20px 1px 20px;
   background-color: var(--overview-bg);
 }
 
@@ -80,7 +80,7 @@
 }
 
 .overview-section {
-  margin-bottom: var(--overview-gap);
+  margin: var(--overview-gap) 0;
 }
 
 /* ── Card base ── */

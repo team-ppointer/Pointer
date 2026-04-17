@@ -146,11 +146,12 @@ const ProblemSet = ({ publishDetail }: ProblemSetProps) => {
         publishId,
         publishAt,
         problemSetTitle: title,
+        problemSetGroups: groups,
       });
       const phase = useProblemSessionStore.getState().phase;
       navigation.navigate(getInitialScreenForPhase(phase));
     },
-    [initWithResume, navigation, publishAt, publishId, title]
+    [groups, initWithResume, navigation, publishAt, publishId, title]
   );
 
   // 첫 번째 미완료 문제 찾기 (DOING 또는 NONE 상태)

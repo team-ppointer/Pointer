@@ -89,6 +89,7 @@
   line-height: 22px;
   letter-spacing: 0.07px;
   transition: background-color 150ms ease;
+  padding: 0 16px;
 }
 
 .chat-choice-btn:hover:not(:disabled) {

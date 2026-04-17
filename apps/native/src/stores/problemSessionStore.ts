@@ -23,6 +23,7 @@ type ProblemSessionState = {
   publishId?: number;
   publishAt?: string;
   problemSetTitle?: string;
+  problemSetGroups?: PublishProblemGroupResp[];
 
   phase: SessionPhase;
 
@@ -32,7 +33,12 @@ type ProblemSessionState = {
   mainCorrect?: boolean;
 };
 
-type SessionMeta = { publishId?: number; publishAt?: string; problemSetTitle?: string };
+type SessionMeta = {
+  publishId?: number;
+  publishAt?: string;
+  problemSetTitle?: string;
+  problemSetGroups?: PublishProblemGroupResp[];
+};
 
 type ProblemSessionActions = {
   init: (group: PublishProblemGroupResp, meta?: SessionMeta) => void;
@@ -46,6 +52,7 @@ type ProblemSessionActions = {
   completeAllPointings: () => void;
 
   goToAnalysis: () => void;
+  goToNextProblem: () => void;
   reset: () => void;
 };
 
@@ -59,6 +66,7 @@ const initialState: ProblemSessionState = {
   publishId: undefined,
   publishAt: undefined,
   problemSetTitle: undefined,
+  problemSetGroups: undefined,
   phase: 'MAIN_PROBLEM',
   childIndex: INITIAL_INDEX,
   pointingIndex: INITIAL_INDEX,
@@ -282,6 +290,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         publishId: meta?.publishId,
         publishAt: meta?.publishAt,
         problemSetTitle: meta?.problemSetTitle,
+        problemSetGroups: meta?.problemSetGroups,
         phase: 'MAIN_PROBLEM',
       }),
     initWithResume: (group, meta) => {
@@ -293,6 +302,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
           publishId: meta?.publishId,
           publishAt: meta?.publishAt,
           problemSetTitle: meta?.problemSetTitle,
+          problemSetGroups: meta?.problemSetGroups,
           phase: 'MAIN_PROBLEM',
         });
         return;
@@ -306,6 +316,7 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         publishId: meta?.publishId,
         publishAt: meta?.publishAt,
         problemSetTitle: meta?.problemSetTitle,
+        problemSetGroups: meta?.problemSetGroups,
         ...resumeState,
       });
     },
@@ -539,6 +550,45 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         pointingTarget: undefined,
         pointingIndex: INITIAL_INDEX,
       }),
+    goToNextProblem: () => {
+      const state = get();
+      const { group, problemSetGroups } = state;
+      if (!group || !problemSetGroups) return;
+
+      const updatedGroups = problemSetGroups.map((g) =>
+        g.no === group.no ? { ...g, progress: 'DONE' as const } : g
+      );
+      const currentIdx = updatedGroups.findIndex((g) => g.no === group.no);
+      if (currentIdx === -1) return;
+      const ordered = [
+        ...updatedGroups.slice(currentIdx + 1),
+        ...updatedGroups.slice(0, currentIdx),
+      ];
+      const nextGroup = ordered.find((g) => g.progress !== 'DONE');
+      if (!nextGroup) return;
+
+      const resumeState =
+        nextGroup.progress === 'DOING' && nextGroup.lastProgressInfo
+          ? computeResumeState(nextGroup, nextGroup.lastProgressInfo)
+          : {
+              phase: 'MAIN_PROBLEM' as const,
+              childIndex: INITIAL_INDEX,
+              pointingIndex: INITIAL_INDEX,
+              pointingTarget: undefined,
+              mainCorrect: undefined,
+            };
+
+      set({
+        ...initialState,
+        initialized: true,
+        group: nextGroup,
+        publishId: state.publishId,
+        publishAt: state.publishAt,
+        problemSetTitle: state.problemSetTitle,
+        problemSetGroups: updatedGroups,
+        ...resumeState,
+      });
+    },
     reset: () => set(initialState),
   })
 );
@@ -624,4 +674,10 @@ export const selectPointingsForPointing = (
   }
 
   return [];
+};
+
+export const selectHasNextProblem = (state: ProblemSessionState): boolean => {
+  const { group, problemSetGroups } = state;
+  if (!group || !problemSetGroups || problemSetGroups.length <= 1) return false;
+  return problemSetGroups.some((g) => g.no !== group.no && g.progress !== 'DONE');
 };
