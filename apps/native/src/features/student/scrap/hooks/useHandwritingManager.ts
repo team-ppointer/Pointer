@@ -28,14 +28,12 @@ export function useHandwritingManager({
   const { mutate: updateHandwriting, isPending: isSaving } = useUpdateHandwriting();
   const lastSavedDataRef = useRef<string>('');
   const currentScrapIdRef = useRef<number>(scrapId);
-  const initialLoadDoneRef = useRef(false);
 
   // scrapId가 변경되면 lastSavedDataRef 초기화
   useEffect(() => {
     if (currentScrapIdRef.current !== scrapId) {
       lastSavedDataRef.current = '';
       currentScrapIdRef.current = scrapId;
-      initialLoadDoneRef.current = false;
     }
   }, [scrapId]);
 
@@ -44,10 +42,10 @@ export function useHandwritingManager({
     // 저장 중이 아니고, scrapId가 일치할 때만 로드 (데이터 유실 방지)
     if (
       handwritingData?.data &&
+      handwritingData.data !== lastSavedDataRef.current &&
       canvasRef.current &&
       currentScrapIdRef.current === scrapId &&
-      !isSaving &&
-      !initialLoadDoneRef.current
+      !isSaving
     ) {
       // clear() 완료를 보장하기 위해 약간의 지연 후 로드
       const loadTimer = setTimeout(() => {
@@ -63,7 +61,6 @@ export function useHandwritingManager({
               onColorRestore?.(decodedData.lastColor);
             }
             lastSavedDataRef.current = handwritingData.data;
-            initialLoadDoneRef.current = true;
           } catch (error) {
             console.error('필기 데이터 로드 실패:', error);
           }
@@ -173,6 +170,21 @@ export function useHandwritingManager({
     });
     return () => subscription.remove();
   }, [hasUnsavedChanges, isSaving, handleSave]);
+
+  // 최신 상태를 ref로 유지 (unmount cleanup에서 stale closure 방지)
+  const hasUnsavedRef = useRef(hasUnsavedChanges);
+  const handleSaveRef = useRef(handleSave);
+  hasUnsavedRef.current = hasUnsavedChanges;
+  handleSaveRef.current = handleSave;
+
+  // 화면 떠날 때 (unmount) 저장
+  useEffect(() => {
+    return () => {
+      if (hasUnsavedRef.current) {
+        handleSaveRef.current(true);
+      }
+    };
+  }, []);
 
   return {
     isLoading,

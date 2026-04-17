@@ -78,6 +78,10 @@ export function useDrawingState() {
     dispatch({ type: 'SET_ERASER_SIZE', size });
   }, []);
 
+  const markAsUnsaved = useCallback(() => {
+    dispatch({ type: 'SET_UNSAVED_CHANGES', hasChanges: true });
+  }, []);
+
   const markAsSaved = useCallback(() => {
     dispatch({ type: 'MARK_AS_SAVED' });
   }, []);
@@ -104,6 +108,7 @@ export function useDrawingState() {
     setStrokeColor,
     setStrokeWidth,
     setEraserSize,
+    markAsUnsaved,
     markAsSaved,
     reset,
   };
