@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { Alert, AppState, InteractionManager, type AppStateStatus } from 'react-native';
+import { Alert, AppState, type AppStateStatus } from 'react-native';
 import { useGetHandwriting, useUpdateHandwriting } from '@apis';
 
 import { type DrawingCanvasRef } from '../utils/skia';
@@ -29,6 +29,12 @@ export function useHandwritingManager({
   const lastSavedDataRef = useRef<string>('');
   const currentScrapIdRef = useRef<number>(scrapId);
 
+  // Stable refs for callback props (avoids exhaustive-deps issues)
+  const onColorRestoreRef = useRef(onColorRestore);
+  const isSavingRef = useRef(isSaving);
+  onColorRestoreRef.current = onColorRestore;
+  isSavingRef.current = isSaving;
+
   // scrapId가 변경되면 lastSavedDataRef 초기화
   useEffect(() => {
     if (currentScrapIdRef.current !== scrapId) {
@@ -39,18 +45,19 @@ export function useHandwritingManager({
 
   // 필기 데이터 로드
   useEffect(() => {
-    // 저장 중이 아니고, scrapId가 일치할 때만 로드 (데이터 유실 방지)
     if (
       handwritingData?.data &&
       handwritingData.data !== lastSavedDataRef.current &&
       canvasRef.current &&
       currentScrapIdRef.current === scrapId &&
-      !isSaving
+      !isSavingRef.current
     ) {
-      // clear() 완료를 보장하기 위해 약간의 지연 후 로드
       const loadTimer = setTimeout(() => {
-        // 다시 한번 scrapId 확인 (clear() 실행 중일 수 있음)
-        if (currentScrapIdRef.current === scrapId && canvasRef.current && !isSaving) {
+        if (
+          currentScrapIdRef.current === scrapId &&
+          canvasRef.current &&
+          !isSavingRef.current
+        ) {
           try {
             const decodedData = decodeHandwritingData(handwritingData.data);
             canvasRef.current.setStrokes(decodedData.strokes);
@@ -58,14 +65,14 @@ export function useHandwritingManager({
               canvasRef.current.setTextBoxes(decodedData.texts);
             }
             if (decodedData.lastColor) {
-              onColorRestore?.(decodedData.lastColor);
+              onColorRestoreRef.current?.(decodedData.lastColor);
             }
             lastSavedDataRef.current = handwritingData.data;
           } catch (error) {
             console.error('필기 데이터 로드 실패:', error);
           }
         }
-      }, 50); // 50ms 지연으로 clear() 완료 보장
+      }, 50);
 
       return () => clearTimeout(loadTimer);
     }
@@ -73,12 +80,18 @@ export function useHandwritingManager({
 
   // 실제 저장 로직 (encode + API call)
   const doSave = useCallback(
-    (strokes: ReturnType<DrawingCanvasRef['getStrokes']>,
-     textBoxes: ReturnType<DrawingCanvasRef['getTextBoxes']>,
-     isAutoSave: boolean,
-     targetScrapId?: number): Promise<boolean> => {
+    (
+      strokes: ReturnType<DrawingCanvasRef['getStrokes']>,
+      textBoxes: ReturnType<DrawingCanvasRef['getTextBoxes']>,
+      isAutoSave: boolean,
+      targetScrapId?: number
+    ): Promise<boolean> => {
       try {
-        const base64Data = encodeHandwritingData(strokes || [], textBoxes || [], strokeColor);
+        const base64Data = encodeHandwritingData(
+          strokes || [],
+          textBoxes || [],
+          strokeColor
+        );
 
         if (base64Data === lastSavedDataRef.current) {
           if (!isAutoSave) {
@@ -132,18 +145,16 @@ export function useHandwritingManager({
       if (!canvasRef.current) return Promise.resolve(false);
       if (isSaving) return Promise.resolve(false);
 
-      // 스냅샷은 즉시 캡처 (O(1) cache hit)
       const strokes = canvasRef.current.getStrokes();
       const textBoxes = canvasRef.current.getTextBoxes();
 
       if (!isAutoSave) {
-        // 수동 저장: 즉시 실행 (유저가 기다리는 중)
         return doSave(strokes, textBoxes, false, targetScrapId);
       }
 
-      // 자동 저장: interaction 끝난 후 실행 → 터치 이벤트와 같은 프레임에서 경쟁하지 않음
+      // 자동 저장: 다음 idle 시점에 실행
       return new Promise<boolean>((resolve) => {
-        InteractionManager.runAfterInteractions(() => {
+        requestAnimationFrame(() => {
           doSave(strokes, textBoxes, true, targetScrapId).then(resolve);
         });
       });
@@ -157,17 +168,20 @@ export function useHandwritingManager({
       if (hasUnsavedChanges && !isSaving) {
         handleSave(true);
       }
-    }, 5000); // 5초마다 실행
+    }, 5000);
 
     return () => clearInterval(autoSaveInterval);
   }, [hasUnsavedChanges, isSaving, handleSave]);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
-      if (nextState === 'background' && hasUnsavedChanges && !isSaving) {
-        handleSave(true);
+    const subscription = AppState.addEventListener(
+      'change',
+      (nextState: AppStateStatus) => {
+        if (nextState === 'background' && hasUnsavedChanges && !isSaving) {
+          handleSave(true);
+        }
       }
-    });
+    );
     return () => subscription.remove();
   }, [hasUnsavedChanges, isSaving, handleSave]);
 

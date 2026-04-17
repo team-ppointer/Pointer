@@ -10,15 +10,19 @@ export interface HandwritingData {
  * Float64Array stroke를 JSON-safe 객체로 변환
  */
 function strokeToJSON(stroke: Stroke): Record<string, unknown> {
-  const points =
-    stroke.points instanceof Float64Array
-      ? Array.from({ length: stroke.points.length / 2 }, (_, i) => ({
-          x: stroke.points[i * 2] as number,
-          y: (stroke.points as Float64Array)[i * 2 + 1],
-        }))
-      : stroke.points;
+  let points: { x: number; y: number }[];
+  if (stroke.points instanceof Float64Array) {
+    const buf = stroke.points;
+    const len = buf.length / 2;
+    points = Array.from({ length: len }, (_, i) => ({
+      x: buf[i * 2],
+      y: buf[i * 2 + 1],
+    }));
+  } else {
+    points = stroke.points;
+  }
 
-  let samples: unknown[] | undefined;
+  let samples: Record<string, unknown>[] | undefined;
   if (stroke.samples) {
     if (stroke.samples instanceof Float64Array) {
       const buf = stroke.samples;
@@ -42,7 +46,7 @@ function strokeToJSON(stroke: Stroke): Record<string, unknown> {
         };
       });
     } else {
-      samples = stroke.samples;
+      samples = stroke.samples as Record<string, unknown>[];
     }
   }
 
@@ -62,7 +66,7 @@ function strokeToJSON(stroke: Stroke): Record<string, unknown> {
 export function encodeHandwritingData(
   strokes: Stroke[],
   texts: TextBoxData[],
-  lastColor?: string,
+  lastColor?: string
 ): string {
   const data = {
     strokes: (strokes || []).map(strokeToJSON),
@@ -70,8 +74,9 @@ export function encodeHandwritingData(
     ...(lastColor ? { lastColor } : {}),
   };
   const jsonString = JSON.stringify(data);
-  const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
-  return base64Data;
+  return btoa(encodeURIComponent(jsonString).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+    String.fromCharCode(parseInt(p1, 16))
+  ));
 }
 
 /**
@@ -80,16 +85,17 @@ export function encodeHandwritingData(
  */
 export function decodeHandwritingData(base64Data: string): HandwritingData {
   try {
-    // Auto-detect: binary format starts with version byte 0x01,
-    // JSON starts with '{' (0x7B) or '[' (0x5B)
+    // Auto-detect: binary format starts with version byte 0x01
     const firstByte = atob(base64Data.slice(0, 4)).charCodeAt(0);
     if (firstByte === 0x01) {
-      // Binary data saved during testing — fall back to empty to force re-save as JSON
       console.warn('Binary handwriting data detected, resetting to empty');
       return { strokes: [], texts: [] };
     }
 
-    const decodedData = decodeURIComponent(escape(atob(base64Data)));
+    const binary = atob(base64Data);
+    const decodedData = decodeURIComponent(
+      binary.replace(/[\s\S]/g, (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+    );
     const data = JSON.parse(decodedData);
 
     // 이전 형식 호환성: strokes만 있는 경우와 { strokes, texts } 형식 모두 지원
@@ -98,16 +104,18 @@ export function decodeHandwritingData(base64Data: string): HandwritingData {
     }
 
     // TextBoxData migration: width/height fallback for old TextItem format
-    const texts: TextBoxData[] = (data.texts || []).map((t: any) => ({
-      id: t.id,
-      x: t.x ?? 0,
-      y: t.y ?? 0,
-      width: t.width ?? 200,
-      height: t.height ?? 0,
-      text: t.text ?? '',
-      fontSize: t.fontSize ?? 16,
-      color: t.color ?? '#1E1E21',
-    }));
+    const texts: TextBoxData[] = (data.texts || []).map(
+      (t: Record<string, unknown>) => ({
+        id: t.id,
+        x: (t.x as number) ?? 0,
+        y: (t.y as number) ?? 0,
+        width: (t.width as number) ?? 200,
+        height: (t.height as number) ?? 0,
+        text: (t.text as string) ?? '',
+        fontSize: (t.fontSize as number) ?? 16,
+        color: (t.color as string) ?? '#1E1E21',
+      })
+    );
 
     return {
       strokes: data.strokes || [],
