@@ -12,9 +12,10 @@ import { ScreenLayout } from '../components';
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
+  const hasTime = /\d{2}:\d{2}/.test(dateString);
   const isToday = date.toDateString() === now.toDateString();
 
-  if (isToday) {
+  if (isToday && hasTime) {
     return `오늘 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   }
 
