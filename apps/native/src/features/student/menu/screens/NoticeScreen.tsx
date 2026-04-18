@@ -10,9 +10,14 @@ import { type StudentRootStackParamList } from '@/navigation/student/types';
 import { ScreenLayout } from '../components';
 
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
   const hasTime = /\d{2}:\d{2}/.test(dateString);
+  const date = !hasTime && /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+    ? (() => {
+        const [year, month, day] = dateString.split('-').map(Number);
+        return new Date(year, month - 1, day);
+      })()
+    : new Date(dateString);
+  const now = new Date();
   const isToday = date.toDateString() === now.toDateString();
 
   if (isToday && hasTime) {
