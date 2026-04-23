@@ -101,7 +101,7 @@ const OnboardingLayout = ({
       <ContentInset className='flex-1 pt-[6px]'>
         {isScrollable ? (
           <ScrollView
-            className='flex-1 overflow-visible'
+            className='flex-1'
             contentContainerStyle={{ paddingBottom: 32 }}
             keyboardShouldPersistTaps='handled'>
             <View className={description ? 'mb-[32px]' : 'mb-[20px]'}>

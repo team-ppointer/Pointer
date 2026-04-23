@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ContentInset, Header, PointerContentView } from '@components/common';
 import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
@@ -450,7 +450,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
 
   return (
     <View className='flex-1 bg-white'>
-      <SafeAreaView className='flex-1' edges={['top']}>
+      <View className='flex-1' style={{ paddingTop: insets.top }}>
         <Header
           title={problemSetTitle}
           subtitle={problemSubtitle}
@@ -577,7 +577,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
             </Animated.View>
           </View>
         </BottomActionBar>
-      </SafeAreaView>
+      </View>
       <View pointerEvents='box-none' style={StyleSheet.absoluteFill}>
         <ResultSheet
           ref={resultSheetRef}

@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
 import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
 import { ContentInset, LoadingScreen } from '@/components/common';
@@ -22,6 +22,7 @@ import { withScrapModals } from '../hoc';
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
 const FolderScrapScreenContent = () => {
+  const insets = useSafeAreaInsets();
   const route = useRoute<FolderScrapRouteProp>();
   const { id } = route.params;
 
@@ -72,8 +73,8 @@ const FolderScrapScreenContent = () => {
 
   return (
     <View className='w-full flex-1 bg-gray-100'>
-      <SafeAreaView
-        edges={['top']}
+      <View
+        style={{ paddingTop: insets.top }}
         className={`bg-${!reducerState.isSelecting ? 'gray-100' : 'gray-200'}`}>
         <ScrapHeader
           reducerState={reducerState}
@@ -122,7 +123,7 @@ const FolderScrapScreenContent = () => {
             },
           }}
         />
-      </SafeAreaView>
+      </View>
       <View className='bg-gray-100'>
         <ContentInset className='items-end gap-[10px] py-[10px]'>
           <SortDropdown

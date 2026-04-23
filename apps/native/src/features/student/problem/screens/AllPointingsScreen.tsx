@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View } from 'react-native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -45,6 +45,7 @@ type AllPointingsRouteParams = {
 };
 
 const AllPointingsScreen = (props: AllPointingsScreenProps) => {
+  const insets = useSafeAreaInsets();
   const { navigation, route } = props;
 
   const params = route?.params as AllPointingsRouteParams | undefined;
@@ -183,7 +184,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
   if (!params) {
     return (
       <View className='flex-1'>
-        <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
+        <View className='flex-1' style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
           <Header
             title='포인팅 전체보기'
             right={<Header.IconButton icon={XIcon} onPress={() => navigation.goBack()} />}
@@ -193,14 +194,14 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
               포인팅 정보를 불러올 수 없어요.
             </Text>
           </View>
-        </SafeAreaView>
+        </View>
       </View>
     );
   }
 
   return (
     <View className='flex-1 bg-white'>
-      <SafeAreaView className='flex-1' edges={['top']}>
+      <View className='flex-1' style={{ paddingTop: insets.top }}>
         <Header
           title={headerTitle}
           subtitle={publishDateLabel ?? undefined}
@@ -221,7 +222,7 @@ const AllPointingsScreen = (props: AllPointingsScreenProps) => {
             </View>
           </ContentInset>
         </View>
-      </SafeAreaView>
+      </View>
     </View>
   );
 };

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { type RouteProp, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -70,6 +70,7 @@ const DIVIDER_WIDTH = 8;
 const DRAG_HANDLE_GAP = 10;
 
 const ScrapDetailScreen = () => {
+  const insets = useSafeAreaInsets();
   const route = useRoute<ScrapDetailRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const { id } = route.params;
@@ -450,7 +451,7 @@ const ScrapDetailScreen = () => {
     <>
       <View style={{ flex: 1, backgroundColor: '#F2F4F7' }}>
         {/* Header */}
-        <SafeAreaView edges={['top']} className='bg-gray-800 text-white'>
+        <View style={{ paddingTop: insets.top }} className='bg-gray-800 text-white'>
           <ScrapDetailHeader
             key={`scrap-detail-header-${scrapId}`}
             scrapName={scrapName || scrapDetail.name || '스크랩 상세'}
@@ -494,7 +495,7 @@ const ScrapDetailScreen = () => {
             tabLayouts={tabLayouts}
             onTabLayout={handleTabLayout}
           />
-        </SafeAreaView>
+        </View>
 
         {/* Main Content */}
         <View style={{ flex: 1, flexDirection: 'row', position: 'relative' }}>

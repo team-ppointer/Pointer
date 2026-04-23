@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CheckIcon } from 'lucide-react-native';
 
 import { AnimatedPressable, ContentInset } from '@components/common';
@@ -29,6 +29,7 @@ const REASON_MAPPING: Record<
 };
 
 const WithdrawalScreen = () => {
+  const insets = useSafeAreaInsets();
   const signOut = useAuthStore((state) => state.signOut);
 
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
@@ -111,7 +112,7 @@ const WithdrawalScreen = () => {
         </ContentInset>
       </ScrollView>
 
-      <SafeAreaView edges={['bottom']} className='mb-[18px]'>
+      <View style={{ paddingBottom: insets.bottom }} className='mb-[18px]'>
         <ContentInset>
           <AnimatedPressable
             onPress={handleWithdrawalClick}
@@ -122,7 +123,7 @@ const WithdrawalScreen = () => {
             <Text className='text-16m text-white'>탈퇴하기</Text>
           </AnimatedPressable>
         </ContentInset>
-      </SafeAreaView>
+      </View>
     </ScreenLayout>
   );
 };
