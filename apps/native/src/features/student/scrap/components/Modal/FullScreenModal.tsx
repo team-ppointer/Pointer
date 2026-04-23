@@ -1,4 +1,4 @@
-import { Modal, View, Pressable, Text } from 'react-native';
+import { Modal, Platform, View, Pressable, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import Toast from 'react-native-toast-message';
@@ -12,6 +12,13 @@ interface FullScreenModalProps {
   children: React.ReactNode;
 }
 
+const Backdrop = Platform.OS === 'ios' ? BlurView : View;
+const backdropProps = Platform.OS === 'ios' ? { intensity: 50, tint: 'light' as const } : {};
+const backdropStyle =
+  Platform.OS === 'ios'
+    ? { flex: 1, backgroundColor: 'rgba(248,249,252,0.5)' }
+    : { flex: 1, backgroundColor: 'rgba(248,249,252,0.9)' };
+
 export const AddFolderScreenModal = ({
   visible,
   onCancel,
@@ -21,13 +28,9 @@ export const AddFolderScreenModal = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <Modal animationType='none' transparent visible={visible} onRequestClose={onClose}>
+    <Modal animationType='none' transparent visible={visible} onRequestClose={onClose} statusBarTranslucent>
       <View style={{ flex: 1, paddingTop: insets.top }}>
-        <BlurView
-          intensity={50}
-          tint='light'
-          style={{ flex: 1, backgroundColor: 'rgba(248,249,252,0.5)' }} // #F8F9FC80
-        >
+        <Backdrop {...backdropProps} style={backdropStyle}>
           {/* Header */}
           <View className='flex-row items-center justify-between bg-gray-100 px-5 py-3'>
             <Pressable onPress={onCancel} className='min-w-[60px]'>
@@ -47,7 +50,7 @@ export const AddFolderScreenModal = ({
           <View className='flex-1'>{children}</View>
 
           <Toast config={toastConfig} />
-        </BlurView>
+        </Backdrop>
       </View>
     </Modal>
   );
@@ -62,7 +65,7 @@ export const LoadQnaImageScreenModal = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <Modal animationType='fade' transparent visible={visible} onRequestClose={onClose}>
+    <Modal animationType='fade' transparent visible={visible} onRequestClose={onClose} statusBarTranslucent>
       <View style={{ flex: 1, paddingTop: insets.top }} className='bg-gray-800'>
         {/* Header */}
         <View className='flex-row items-center justify-between border-b border-gray-700 px-5 py-3'>
