@@ -16,8 +16,11 @@ const withFoldableConfigChanges: ConfigPlugin = (config) => {
       (a) => a.$?.['android:name'] === '.MainActivity'
     );
     if (mainActivity) {
-      mainActivity.$['android:configChanges'] =
-        'keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode|density';
+      const existing = mainActivity.$['android:configChanges'] ?? '';
+      const required = ['smallestScreenSize', 'density'];
+      const current = existing.split('|').filter(Boolean);
+      const merged = [...new Set([...current, ...required])].join('|');
+      mainActivity.$['android:configChanges'] = merged;
     }
     return config;
   });
