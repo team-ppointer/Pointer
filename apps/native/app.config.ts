@@ -1,8 +1,26 @@
 import type { ExpoConfig } from 'expo/config';
-import { withDangerousMod, type ConfigPlugin } from 'expo/config-plugins';
+import { withDangerousMod, withAndroidManifest, type ConfigPlugin } from 'expo/config-plugins';
 import * as fs from 'fs';
 import * as path from 'path';
 import 'dotenv/config';
+
+/**
+ * Config Plugin: Foldable 기기(Galaxy Fold 등)에서 화면 접기/펼기 시 Activity 재생성 방지.
+ * smallestScreenSize, density를 configChanges에 추가.
+ */
+const withFoldableConfigChanges: ConfigPlugin = (config) => {
+  return withAndroidManifest(config, (config) => {
+    const mainActivity =
+      config.modResults.manifest.application?.[0]?.activity?.find(
+        (a) => a.$?.['android:name'] === '.MainActivity'
+      );
+    if (mainActivity) {
+      mainActivity.$['android:configChanges'] =
+        'keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode|density';
+    }
+    return config;
+  });
+};
 
 /**
  * Custom Expo Config Plugin to enforce modular headers for Firebase dependencies.
@@ -148,4 +166,4 @@ const config: ExpoConfig = {
   },
 };
 
-export default withFirebaseModularHeaders(config);
+export default withFoldableConfigChanges(withFirebaseModularHeaders(config));
