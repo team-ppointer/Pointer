@@ -1,7 +1,9 @@
-import type { ExpoConfig } from 'expo/config';
-import { withDangerousMod, withAndroidManifest, type ConfigPlugin } from 'expo/config-plugins';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import type { ExpoConfig } from 'expo/config';
+import { withDangerousMod, withAndroidManifest, type ConfigPlugin } from 'expo/config-plugins';
+
 import 'dotenv/config';
 
 /**
@@ -10,10 +12,9 @@ import 'dotenv/config';
  */
 const withFoldableConfigChanges: ConfigPlugin = (config) => {
   return withAndroidManifest(config, (config) => {
-    const mainActivity =
-      config.modResults.manifest.application?.[0]?.activity?.find(
-        (a) => a.$?.['android:name'] === '.MainActivity'
-      );
+    const mainActivity = config.modResults.manifest.application?.[0]?.activity?.find(
+      (a) => a.$?.['android:name'] === '.MainActivity'
+    );
     if (mainActivity) {
       mainActivity.$['android:configChanges'] =
         'keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode|density';
