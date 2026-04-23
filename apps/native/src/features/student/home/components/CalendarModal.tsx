@@ -35,7 +35,12 @@ const CalendarModal = ({
   onNavigate,
   onClose,
 }: CalendarModalProps) => (
-  <Modal transparent animationType='fade' visible={visible} onRequestClose={onClose} statusBarTranslucent>
+  <Modal
+    transparent
+    animationType='fade'
+    visible={visible}
+    onRequestClose={onClose}
+    statusBarTranslucent>
     <Backdrop {...backdropProps} style={backdropStyle}>
       <View className='flex-1 items-center justify-center'>
         <Pressable className='absolute inset-0' onPress={onClose} />

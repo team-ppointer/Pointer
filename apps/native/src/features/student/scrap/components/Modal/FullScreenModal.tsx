@@ -28,7 +28,12 @@ export const AddFolderScreenModal = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <Modal animationType='none' transparent visible={visible} onRequestClose={onClose} statusBarTranslucent>
+    <Modal
+      animationType='none'
+      transparent
+      visible={visible}
+      onRequestClose={onClose}
+      statusBarTranslucent>
       <View style={{ flex: 1, paddingTop: insets.top }}>
         <Backdrop {...backdropProps} style={backdropStyle}>
           {/* Header */}
@@ -65,7 +70,12 @@ export const LoadQnaImageScreenModal = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <Modal animationType='fade' transparent visible={visible} onRequestClose={onClose} statusBarTranslucent>
+    <Modal
+      animationType='fade'
+      transparent
+      visible={visible}
+      onRequestClose={onClose}
+      statusBarTranslucent>
       <View style={{ flex: 1, paddingTop: insets.top }} className='bg-gray-800'>
         {/* Header */}
         <View className='flex-row items-center justify-between border-b border-gray-700 px-5 py-3'>
