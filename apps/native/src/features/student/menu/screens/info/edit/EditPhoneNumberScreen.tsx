@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 import { CircleCheck, CircleAlert } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedPressable, ContentInset, Header } from '@components/common';
 import {
@@ -29,6 +29,7 @@ const TIMER_CONTAINER_STYLE = {
 };
 
 const EditPhoneNumberScreen = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
 
@@ -259,7 +260,7 @@ const EditPhoneNumberScreen = () => {
           </View>
         </ScrollView>
 
-        <SafeAreaView edges={['bottom']} className='mb-[10px]'>
+        <View style={{ paddingBottom: insets.bottom }} className='mb-[10px]'>
           {!isCodeSent || timer === 0 ? (
             <AnimatedPressable
               onPress={handleSendCode}
@@ -274,7 +275,7 @@ const EditPhoneNumberScreen = () => {
               <Text className='text-16m text-white'>인증 완료</Text>
             </AnimatedPressable>
           )}
-        </SafeAreaView>
+        </View>
       </ContentInset>
     </KeyboardAvoidingView>
   );

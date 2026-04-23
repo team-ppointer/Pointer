@@ -1,6 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
 import { Header } from '@components/common';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
@@ -30,6 +31,15 @@ const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>()
  * Inner navigator component that uses screen tracking
  * Must be inside AnalyticsProvider
  */
+const SafeAreaHeader = ({ title }: { title: string }) => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={{ paddingTop: insets.top }}>
+      <Header title={title} showBackButton />
+    </View>
+  );
+};
+
 const StudentNavigatorContent = () => {
   // Track screen navigation for analytics
   useScreenTracking();
@@ -42,11 +52,7 @@ const StudentNavigatorContent = () => {
         component={NotificationScreen}
         options={{
           headerShown: true,
-          header: () => (
-            <SafeAreaView edges={['top']}>
-              <Header title='알림' showBackButton />
-            </SafeAreaView>
-          ),
+          header: () => <SafeAreaHeader title='알림' />,
         }}
       />
       <StudentRootStack.Screen
@@ -54,11 +60,7 @@ const StudentNavigatorContent = () => {
         component={NotificationDetailScreen}
         options={{
           headerShown: true,
-          header: () => (
-            <SafeAreaView edges={['top']}>
-              <Header title='공지' showBackButton />
-            </SafeAreaView>
-          ),
+          header: () => <SafeAreaHeader title='공지' />,
         }}
       />
       <StudentRootStack.Screen name='Problem' component={ProblemScreen} />

@@ -1,4 +1,3 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, Search, Trash2 } from 'lucide-react-native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';

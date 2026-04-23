@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, Trash2, Undo2 } from 'lucide-react-native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -31,10 +31,11 @@ const DeletedScrapHeader = ({
   isAllSelected,
   actions,
 }: DeletedScrapHeaderProps) => {
+  const insets = useSafeAreaInsets();
   const isActionEnabled = reducerState.selectedItems.length > 0;
   return (
-    <SafeAreaView
-      edges={['top']}
+    <View
+      style={{ paddingTop: insets.top }}
       className={`bg-${!reducerState.isSelecting ? 'background' : 'gray-200'}`}>
       {!reducerState.isSelecting && (
         <ContentInset className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
@@ -97,7 +98,7 @@ const DeletedScrapHeader = ({
           </View>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedPressable, ContentInset } from '@components/common';
 import { colors } from '@theme/tokens';
@@ -10,6 +10,7 @@ import { showToast } from '@features/student/scrap/components/Notification';
 import { ScreenLayout } from '../components';
 
 const FeedbackScreen = () => {
+  const insets = useSafeAreaInsets();
   const { mutate: postFeedback, isPending } = usePostFeedback();
 
   const [content, setContent] = useState('');
@@ -70,7 +71,7 @@ const FeedbackScreen = () => {
             </View>
           </ScrollView>
 
-          <SafeAreaView edges={['bottom']} className='mb-[18px]'>
+          <View style={{ paddingBottom: insets.bottom }} className='mb-[18px]'>
             <AnimatedPressable
               onPress={handleSubmit}
               disabled={isPending || content.length < 10}
@@ -79,7 +80,7 @@ const FeedbackScreen = () => {
               }`}>
               <Text className='text-16m text-white'>보내기</Text>
             </AnimatedPressable>
-          </SafeAreaView>
+          </View>
         </ContentInset>
       </ScreenLayout>
     </KeyboardAvoidingView>
