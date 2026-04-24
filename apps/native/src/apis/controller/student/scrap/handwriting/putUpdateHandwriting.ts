@@ -29,14 +29,13 @@ export const useUpdateHandwriting = () => {
       });
       return data as UpdateHandwritingResponse;
     },
-    // onSuccess: (_, { scrapId }) => {
-    //   queryClient.invalidateQueries({
-    //     queryKey: TanstackQueryClient.queryOptions(
-    //       'get',
-    //       '/api/student/scrap/{scrapId}/handwriting',
-    //       { params: { path: { scrapId } } }
-    //     ).queryKey,
-    //   });
-    // },
+    onSuccess: (_, { scrapId, request }) => {
+      queryClient.setQueryData(
+        TanstackQueryClient.queryOptions('get', '/api/student/scrap/{scrapId}/handwriting', {
+          params: { path: { scrapId } },
+        }).queryKey,
+        { data: request.data }
+      );
+    },
   });
 };
