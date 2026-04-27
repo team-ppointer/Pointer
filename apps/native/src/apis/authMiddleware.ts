@@ -23,7 +23,14 @@ import { useAuthStore } from '@stores';
 
 const UNPROTECTED_ROUTES = [
   '/api/student/auth/login/social',
+  '/api/student/auth/login/local',
+  '/api/student/auth/signup/local',
+  '/api/student/auth/register',
   '/api/student/auth/refresh',
+  '/api/student/auth/password/reset',
+  '/api/student/auth/password/reset/send-code',
+  '/api/student/auth/password/reset/verify-code',
+  '/api/student/auth/email/exists',
   '/api/common/upload-file',
 ];
 const TEACHER_UNPROTECTED_ROUTES = [
@@ -34,6 +41,11 @@ const TEACHER_UNPROTECTED_ROUTES = [
 
 const isTeacherRoute = (schemaPath: string) => {
   return schemaPath.startsWith('/api/teacher/') || schemaPath.includes('teacher');
+};
+
+const isUnprotectedRoute = (schemaPath: string, isTeacher: boolean) => {
+  const routes = isTeacher ? TEACHER_UNPROTECTED_ROUTES : UNPROTECTED_ROUTES;
+  return routes.some((pathname) => schemaPath.startsWith(pathname));
 };
 
 // 401 재시도 시 body가 이미 소비된 원본 대신 사용할 clone을 보관한다.
@@ -110,8 +122,7 @@ const authMiddleware: Middleware = {
     const isTeacher = false;
 
     // 보호되지 않은 라우트 체크
-    const unprotectedRoutes = isTeacher ? TEACHER_UNPROTECTED_ROUTES : UNPROTECTED_ROUTES;
-    if (unprotectedRoutes.some((pathname) => schemaPath.startsWith(pathname))) {
+    if (isUnprotectedRoute(schemaPath, isTeacher)) {
       return;
     }
 
@@ -150,6 +161,15 @@ const authMiddleware: Middleware = {
   async onResponse({ request, response, schemaPath }) {
     if (response.status === 401) {
       const isTeacher = isTeacherRoute(schemaPath);
+
+      // 로그인/refresh/회원가입 같은 unprotected 라우트의 401은 토큰 만료가
+      // 아니라 자격 검증 실패다. refresh/retry를 시도하면 불필요한 signOut
+      // 또는 body 소비된 원본 재전송으로 이어지므로 그대로 전달한다.
+      if (isUnprotectedRoute(schemaPath, isTeacher)) {
+        retryRequestClones.delete(request);
+        return response;
+      }
+
       console.warn(`${isTeacher ? '선생님' : '학생'} Access token expired. Attempting reissue...`);
 
       const newAccessToken = isTeacher
