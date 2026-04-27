@@ -152,8 +152,12 @@ const authMiddleware: Middleware = {
       }
     }
 
-    // body가 아직 소비되지 않은 시점에 retry 용 clone을 확보한다.
-    retryRequestClones.set(request, request.clone());
+    // body 있는 요청에 한해 retry용 clone을 확보한다. body-less 요청
+    // (GET/HEAD 등)은 onResponse에서 원본 request를 그대로 fetch해도
+    // 안전하므로 clone 비용을 들이지 않는다.
+    if (request.body !== null) {
+      retryRequestClones.set(request, request.clone());
+    }
 
     return request;
   },
