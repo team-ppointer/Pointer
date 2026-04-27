@@ -50,3 +50,25 @@ export type DrawingCanvasRef = {
   getTexts: () => TextItem[];
   setTexts: (texts: TextItem[]) => void;
 };
+
+export type DrawingCanvasProps = {
+  strokeColor?: string;
+  strokeWidth?: number;
+  onChange?: (strokes: Stroke[]) => void;
+  onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
+  eraserMode?: boolean;
+  eraserSize?: number;
+  textMode?: boolean;
+  textFontPath?: number;
+};
+
+// ── Snapshot (lightweight — stores references, not deep copies) ─
+
+export type DocumentSnapshot = {
+  readonly strokes: readonly Stroke[];
+  readonly bounds: readonly StrokeBounds[];
+};
+
+// ── History (legacy — DrawingCanvas에서 HistoryManager로 대체됨) ──
+
+export type HistoryState = { strokes: Stroke[]; texts: TextItem[] };

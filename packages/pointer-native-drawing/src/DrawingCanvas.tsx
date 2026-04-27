@@ -24,12 +24,15 @@ import { runOnJS, useSharedValue } from 'react-native-reanimated';
 
 import { buildSmoothPath } from './smoothing';
 import {
+  type DrawingCanvasProps,
+  type DrawingCanvasRef,
+  type DocumentSnapshot,
   type Point,
   type Stroke,
   type TextItem,
-  type DrawingCanvasRef,
 } from './model/drawingTypes';
-import { deepCopyStrokes, deepCopyTexts, safeMax } from './model/strokeUtils';
+import { deepCopyTexts, safeMax, computeStrokeBounds } from './model/strokeUtils';
+import { HistoryManager } from './engine/HistoryManager';
 import { wrapTextToLines } from './render/skia/skiaRenderUtils';
 import { useSkiaDrawingRenderer } from './render/skia/useSkiaDrawingRenderer';
 import { SkiaDrawingCanvasSurface } from './render/skia/SkiaDrawingCanvasSurface';
@@ -95,75 +98,53 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const eraserDidModify = useRef<boolean>(false);
     const ERASER_THROTTLE_MS = 16; // ~60fps
 
-    // 히스토리 관리 (모든 동작에 대한 undo 지원)
-    type HistoryState = { strokes: Stroke[]; texts: TextItem[] };
-    const historyRef = useRef<HistoryState[]>([]);
-    const historyIndexRef = useRef<number>(-1);
+    // 히스토리 관리 — command pattern
+    const historyManager = useRef(new HistoryManager(50)).current;
 
-    // 히스토리 상태 변경 알림
     const notifyHistoryChange = useCallback(() => {
       if (!onHistoryChange) return;
-
-      const canUndo =
-        activeTextInput !== null ||
-        historyIndexRef.current > 0 ||
-        (historyIndexRef.current === 0 && historyRef.current.length > 1);
-
-      const canRedo =
-        activeTextInput === null && historyIndexRef.current + 1 < historyRef.current.length;
-
+      const canUndo = activeTextInput !== null || historyManager.canUndo();
+      const canRedo = activeTextInput === null && historyManager.canRedo();
       onHistoryChange(canUndo, canRedo);
-    }, [onHistoryChange, activeTextInput]);
+    }, [onHistoryChange, activeTextInput, historyManager]);
 
-    // 현재 상태를 히스토리에 저장
-    const saveToHistory = useCallback(() => {
-      const currentState: HistoryState = {
-        strokes: deepCopyStrokes(strokesRef.current),
-        texts: deepCopyTexts(textsRef.current),
-      };
+    useEffect(() => {
+      historyManager.setListener(onHistoryChange ? () => notifyHistoryChange() : null);
+    }, [historyManager, onHistoryChange, notifyHistoryChange]);
 
-      // 현재 인덱스 이후의 히스토리 제거 (새 동작이 발생하면 redo 불가)
-      historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
+    /** 현재 stroke 상태의 경량 스냅샷 (reference 저장, deep copy 아님) */
+    const createSnapshot = useCallback((): DocumentSnapshot => ({
+      strokes: strokesRef.current,
+      bounds: strokesRef.current.map((s) => computeStrokeBounds(s.points)),
+    }), []);
 
-      // 새 상태 추가
-      historyRef.current.push(currentState);
-      historyIndexRef.current = historyRef.current.length - 1;
-
-      // 히스토리 크기 제한 (메모리 관리)
-      if (historyRef.current.length > 50) {
-        historyRef.current.shift();
-        historyIndexRef.current--;
-      }
-
-      notifyHistoryChange();
-    }, [notifyHistoryChange]);
-
-    // 히스토리에서 상태 복원
-    const restoreFromHistory = useCallback(
-      (index: number) => {
-        if (index < 0 || index >= historyRef.current.length) return;
-
-        const state = historyRef.current[index];
-        const restoredStrokes = deepCopyStrokes(state.strokes);
-        const restoredTexts = deepCopyTexts(state.texts);
+    /** 스냅샷을 React 상태에 반영 + 선택적 텍스트 복원 */
+    const applySnapshot = useCallback(
+      (snapshot: DocumentSnapshot, newTexts?: readonly TextItem[]) => {
+        const restoredStrokes = [...snapshot.strokes];
         const newPaths = restoredStrokes.map((stroke) => buildSmoothPath(stroke.points));
 
         setStrokes(restoredStrokes);
         setPaths(newPaths);
-        setTexts(restoredTexts);
         strokesRef.current = restoredStrokes;
-        textsRef.current = restoredTexts;
+
+        if (newTexts) {
+          const restoredTexts = [...newTexts];
+          setTexts(restoredTexts);
+          textsRef.current = restoredTexts;
+        }
 
         // 최대 Y 좌표 재계산
         let maxYValue = 0;
-        if (state.strokes.length > 0) {
+        if (snapshot.strokes.length > 0) {
           const strokesMaxY = safeMax(
-            state.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+            snapshot.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
           );
           maxYValue = Math.max(maxYValue, strokesMaxY);
         }
-        if (state.texts.length > 0) {
-          const textsMaxY = safeMax(state.texts.map((text) => text.y));
+        const currentTexts = newTexts ?? textsRef.current;
+        if (currentTexts.length > 0) {
+          const textsMaxY = safeMax(currentTexts.map((text) => text.y));
           maxYValue = Math.max(maxYValue, textsMaxY);
         }
 
@@ -176,10 +157,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         }
 
         onChange?.(restoredStrokes);
-        // 상태 변경으로 자동 리렌더링
-        notifyHistoryChange();
       },
-      [onChange, notifyHistoryChange]
+      [onChange]
     );
 
     // 폰트 로드 (Skia Text용) - 고정 15px
@@ -242,17 +221,10 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         // 상태 변경으로 자동 리렌더링
         onChange?.(newStrokes);
 
-        // 히스토리 초기화 및 초기 상태 저장 (외부에서 로드한 경우)
-        historyRef.current = [
-          {
-            strokes: deepCopyStrokes(newStrokes),
-            texts: deepCopyTexts(textsRef.current),
-          },
-        ];
-        historyIndexRef.current = 0;
-        notifyHistoryChange();
+        // 히스토리 초기화 (외부에서 로드한 경우)
+        historyManager.clear();
       },
-      [onChange, notifyHistoryChange]
+      [onChange, historyManager]
     );
 
     const loadTexts = useCallback((newTexts: TextItem[]) => {
@@ -356,6 +328,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         return;
       }
 
+      const snapshotBefore = createSnapshot();
+
       const pointsToFinalize = [...currentPoints.current];
       // 최대 Y 좌표 업데이트
       const strokeMaxY = safeMax(pointsToFinalize.map((p) => p.y));
@@ -370,9 +344,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         color: strokeColor,
         width: strokeWidth,
       };
+      const bounds = computeStrokeBounds(strokeData.points);
       const nextStrokes = [...strokesRef.current, strokeData];
 
-      // ref를 먼저 동기화해 history/onChange가 항상 최신값을 사용하도록 보장
       strokesRef.current = nextStrokes;
       setStrokes(nextStrokes);
       setPaths((prev) => [...prev, newPath]);
@@ -381,8 +355,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       livePath.current.reset();
 
       onChange?.(nextStrokes);
-      saveToHistory();
-    }, [strokeColor, strokeWidth, onChange, saveToHistory]);
+      historyManager.push({
+        type: 'append-stroke',
+        stroke: strokeData,
+        bounds,
+        snapshotBefore,
+      });
+    }, [strokeColor, strokeWidth, onChange, createSnapshot, historyManager]);
 
     // 지우개: 터치한 위치에서 가까운 점들을 제거
     const eraseAtPoint = useCallback(
@@ -425,18 +404,21 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const startEraser = useCallback(
       (x: number, y: number) => {
         eraserPoints.current = [{ x, y }];
+        historyManager.beginTransaction(createSnapshot());
         eraseAtPoint(x, y);
       },
-      [eraseAtPoint]
+      [eraseAtPoint, createSnapshot, historyManager]
     );
 
     const finalizeEraser = useCallback(() => {
       eraserPoints.current = [];
       if (eraserDidModify.current) {
-        saveToHistory();
+        historyManager.commitTransaction(createSnapshot());
         eraserDidModify.current = false;
+      } else {
+        historyManager.discardTransaction();
       }
-    }, [saveToHistory]);
+    }, [createSnapshot, historyManager]);
 
     const deleteText = useCallback((textId: string) => {
       setTexts((prev) => {
@@ -588,6 +570,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       if (activeTextInput && activeTextInput.value.trim()) {
         isConfirmingTextRef.current = true;
         const currentTexts = textsRef.current;
+        const snapshotBefore = createSnapshot();
+        const textsBefore = [...currentTexts];
 
         // 기존 텍스트 수정인지 새 텍스트 추가인지 확인
         const existingTextIndex = currentTexts.findIndex((t) => t.id === activeTextInput.id);
@@ -632,7 +616,13 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           setTick((t) => t + 1);
         }
 
-        saveToHistory();
+        historyManager.push({
+          type: 'replace-document',
+          snapshotBefore,
+          snapshotAfter: createSnapshot(),
+          textsBefore,
+          textsAfter: [...nextTexts],
+        });
       }
 
       // activeTextInput을 먼저 null로 설정하여 중복 실행 방지
@@ -640,7 +630,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
       // 플래그 리셋
       isConfirmingTextRef.current = false;
-    }, [activeTextInput, saveToHistory, calculateTextLineCount]);
+    }, [activeTextInput, createSnapshot, historyManager, calculateTextLineCount]);
 
     const handleTextInputBlur = useCallback(() => {
       // 이미 처리 중이거나 activeTextInput이 없으면 실행하지 않음
@@ -673,150 +663,77 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     );
 
     const undo = useCallback(() => {
-      // 활성 텍스트 입력이 있으면 먼저 취소
       if (activeTextInput) {
         setActiveTextInput(null);
         return;
       }
 
-      // 히스토리에서 이전 상태로 복원
-      if (historyIndexRef.current > 0) {
-        const currentState = historyRef.current[historyIndexRef.current];
-        const previousState = historyRef.current[historyIndexRef.current - 1];
+      const entry = historyManager.undo();
+      if (!entry) return;
 
-        // 현재에만 있고 이전에 없던 텍스트 찾기 (마지막에 추가된 텍스트)
-        const previousTextIds = new Set(previousState.texts.map((t) => t.id));
-
-        // 새로 추가된 텍스트 찾기
-        const newlyAddedText = currentState.texts.find((text) => !previousTextIds.has(text.id));
-
-        if (newlyAddedText) {
-          // 새로 추가된 텍스트가 있으면 편집 모드로 전환
-          // 이전 상태로 복원하되, 새로 추가된 텍스트는 activeTextInput으로 설정
-          historyIndexRef.current--;
-
-          // strokes는 이전 상태로 복원
-          const newPaths = previousState.strokes.map((stroke) => buildSmoothPath(stroke.points));
-          setStrokes(previousState.strokes);
-          setPaths(newPaths);
-          strokesRef.current = previousState.strokes;
-
-          // texts는 이전 상태로 복원 (새로 추가된 텍스트 제외)
-          setTexts(previousState.texts);
-          textsRef.current = previousState.texts;
-
-          // 새로 추가된 텍스트를 편집 모드로 설정
-          setActiveTextInput({
-            id: newlyAddedText.id,
-            x: newlyAddedText.x,
-            y: newlyAddedText.y,
-            value: newlyAddedText.text,
-          });
-
-          // TextInput 포커스
-          setTimeout(() => {
-            textInputRef.current?.focus();
-          }, 100);
-
-          // 최대 Y 좌표 재계산
-          let maxYValue = 0;
-          if (previousState.strokes.length > 0) {
-            const strokesMaxY = safeMax(
-              previousState.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
-            );
-            maxYValue = Math.max(maxYValue, strokesMaxY);
-          }
-          if (previousState.texts.length > 0) {
-            const textsMaxY = safeMax(previousState.texts.map((text) => text.y));
-            maxYValue = Math.max(maxYValue, textsMaxY);
-          }
-
-          if (maxYValue > 0) {
-            maxY.current = maxYValue;
-            canvasHeight.current = Math.max(800, maxY.current + 200);
-          } else {
-            maxY.current = 0;
-            canvasHeight.current = 800;
-          }
-
-          onChange?.(previousState.strokes);
-          notifyHistoryChange();
-        } else {
-          // 새로 추가된 텍스트가 없으면 일반적인 undo
-          historyIndexRef.current--;
-          restoreFromHistory(historyIndexRef.current);
+      switch (entry.type) {
+        case 'append-stroke': {
+          // O(1): 마지막 stroke/path만 제거
+          const nextStrokes = strokesRef.current.slice(0, -1);
+          strokesRef.current = nextStrokes;
+          setStrokes(nextStrokes);
+          setPaths((prev) => prev.slice(0, -1));
+          onChange?.(nextStrokes);
+          break;
         }
-      } else if (historyIndexRef.current === 0) {
-        // 첫 번째 상태로 복원 (빈 상태)
-        const currentState = historyRef.current[0];
-        const previousState: HistoryState = { strokes: [], texts: [] };
+        case 'erase-strokes': {
+          applySnapshot(entry.snapshotBefore);
+          break;
+        }
+        case 'replace-document': {
+          // 텍스트 변경 undo — 새로 추가된 텍스트는 편집 모드로 되돌림
+          const prevTextIds = new Set(entry.textsBefore.map((t) => t.id));
+          const newlyAdded = entry.textsAfter.find((t) => !prevTextIds.has(t.id));
 
-        // 현재 상태에 텍스트가 있고 이전 상태가 비어있으면
-        if (currentState.texts.length > 0 && previousState.texts.length === 0) {
-          const newlyAddedText = currentState.texts[0]; // 첫 번째 텍스트
+          applySnapshot(entry.snapshotBefore, entry.textsBefore);
 
-          // strokes는 빈 상태로
-          setStrokes([]);
-          setPaths([]);
-          strokesRef.current = [];
-
-          // texts는 빈 상태로
-          setTexts([]);
-          textsRef.current = [];
-
-          // 첫 번째 텍스트를 편집 모드로 설정
-          setActiveTextInput({
-            id: newlyAddedText.id,
-            x: newlyAddedText.x,
-            y: newlyAddedText.y,
-            value: newlyAddedText.text,
-          });
-
-          setTimeout(() => {
-            textInputRef.current?.focus();
-          }, 100);
-
-          maxY.current = 0;
-          canvasHeight.current = 800;
-
-          onChange?.([]);
-          historyIndexRef.current = -1;
-          notifyHistoryChange();
-        } else {
-          historyIndexRef.current = -1;
-          restoreFromHistory(0);
+          if (newlyAdded) {
+            setActiveTextInput({
+              id: newlyAdded.id,
+              x: newlyAdded.x,
+              y: newlyAdded.y,
+              value: newlyAdded.text,
+            });
+            setTimeout(() => {
+              textInputRef.current?.focus();
+            }, 100);
+          }
+          break;
         }
       }
-      // historyIndexRef.current === -1이면 undo할 히스토리가 없음
-    }, [activeTextInput, restoreFromHistory, onChange, notifyHistoryChange]);
+    }, [activeTextInput, historyManager, applySnapshot, onChange]);
 
     const redo = useCallback(() => {
-      // 활성 텍스트 입력이 있으면 redo 불가
-      if (activeTextInput) {
-        return;
-      }
+      if (activeTextInput) return;
 
-      // 히스토리에서 다음 상태로 복원
-      const nextIndex = historyIndexRef.current + 1;
-      if (nextIndex < historyRef.current.length) {
-        historyIndexRef.current = nextIndex;
-        restoreFromHistory(nextIndex);
-      }
-      // nextIndex >= historyRef.current.length이면 redo할 히스토리가 없음
-    }, [activeTextInput, restoreFromHistory]);
+      const entry = historyManager.redo();
+      if (!entry) return;
 
-    // 초기 상태를 히스토리에 저장
-    useEffect(() => {
-      if (historyRef.current.length === 0) {
-        const initialState: HistoryState = {
-          strokes: [],
-          texts: [],
-        };
-        historyRef.current = [initialState];
-        historyIndexRef.current = 0;
-        notifyHistoryChange();
+      switch (entry.type) {
+        case 'append-stroke': {
+          // stroke + path 다시 추가
+          const nextStrokes = [...strokesRef.current, entry.stroke];
+          strokesRef.current = nextStrokes;
+          setStrokes(nextStrokes);
+          setPaths((prev) => [...prev, buildSmoothPath(entry.stroke.points)]);
+          onChange?.(nextStrokes);
+          break;
+        }
+        case 'erase-strokes': {
+          applySnapshot(entry.snapshotAfter);
+          break;
+        }
+        case 'replace-document': {
+          applySnapshot(entry.snapshotAfter, entry.textsAfter);
+          break;
+        }
       }
-    }, [notifyHistoryChange]);
+    }, [activeTextInput, historyManager, applySnapshot, onChange]);
 
     // activeTextInput 상태 변경 시 히스토리 상태 알림
     useEffect(() => {
@@ -841,33 +758,14 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         livePath.current.reset();
         maxY.current = 0;
         canvasHeight.current = 800;
-        // 상태 변경으로 자동 리렌더링
         onChange?.([]);
 
-        // 히스토리 초기화
-        historyRef.current = [];
-        historyIndexRef.current = -1;
-        notifyHistoryChange();
+        historyManager.clear();
       },
       undo,
       redo,
-      canUndo: () => {
-        // 활성 텍스트 입력이 있으면 undo 가능
-        if (activeTextInput) return true;
-        // 히스토리 인덱스가 0보다 크면 undo 가능 (이전 상태가 있음)
-        if (historyIndexRef.current > 0) return true;
-        // 초기 상태만 있고 실제 변경이 없으면 undo 불가능
-        // 히스토리가 1개만 있으면 (초기 상태만) undo 불가능
-        if (historyRef.current.length === 1) return false;
-        // 히스토리가 2개 이상이면 undo 가능
-        return historyIndexRef.current === 0 && historyRef.current.length > 1;
-      },
-      canRedo: () => {
-        // 활성 텍스트 입력이 있으면 redo 불가
-        if (activeTextInput) return false;
-        // 다음 히스토리가 있으면 redo 가능
-        return historyIndexRef.current + 1 < historyRef.current.length;
-      },
+      canUndo: () => activeTextInput !== null || historyManager.canUndo(),
+      canRedo: () => activeTextInput === null && historyManager.canRedo(),
       getStrokes: () => strokesRef.current,
       setStrokes: loadStrokes,
       getTexts: () => textsRef.current,
