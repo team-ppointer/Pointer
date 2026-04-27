@@ -45,7 +45,11 @@ const isTeacherRoute = (schemaPath: string) => {
 
 const isUnprotectedRoute = (schemaPath: string, isTeacher: boolean) => {
   const routes = isTeacher ? TEACHER_UNPROTECTED_ROUTES : UNPROTECTED_ROUTES;
-  return routes.some((pathname) => schemaPath.startsWith(pathname));
+  // 인증 우회는 실패 시 영향이 크므로 정확 매칭 또는 명시적 하위 경로(`/`)
+  // 매칭만 허용한다. prefix-only 매칭은 미래 라우트와 우발 충돌 가능.
+  return routes.some(
+    (pathname) => schemaPath === pathname || schemaPath.startsWith(`${pathname}/`)
+  );
 };
 
 // 401 재시도 시 body가 이미 소비된 원본 대신 사용할 clone을 보관한다.
