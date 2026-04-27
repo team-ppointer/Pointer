@@ -124,8 +124,8 @@ const authMiddleware: Middleware = {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (data) {
-        setName(data.name);
-        setGrade(data.grade);
+        await setName(data.name);
+        await setGrade(data.grade);
       }
     }
 
