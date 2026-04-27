@@ -10,10 +10,8 @@ import React, {
 import {
   View,
   StyleSheet,
-  TextInput,
+  type TextInput,
   Dimensions,
-  Pressable,
-  Text as RNText,
   ScrollView,
   Keyboard,
   Platform,
@@ -31,11 +29,13 @@ import {
   type Stroke,
   type TextItem,
 } from './model/drawingTypes';
-import { deepCopyTexts, safeMax, computeStrokeBounds } from './model/strokeUtils';
+import { safeMax, computeStrokeBounds } from './model/strokeUtils';
 import { HistoryManager } from './engine/HistoryManager';
 import { wrapTextToLines } from './render/skia/skiaRenderUtils';
 import { useSkiaDrawingRenderer } from './render/skia/useSkiaDrawingRenderer';
 import { SkiaDrawingCanvasSurface } from './render/skia/SkiaDrawingCanvasSurface';
+import { type ActiveTextInput, TEXT_LINE_HEIGHT } from './textbox/textBoxTypes';
+import { TextBoxEditingOverlay, TextDeleteButtons } from './textbox/TextBoxEditingOverlay';
 
 type Props = {
   strokeColor?: string;
@@ -51,7 +51,7 @@ type Props = {
 const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
   (
     {
-      strokeColor = 'black',
+      strokeColor = '#1E1E21',
       strokeWidth = 3,
       onChange,
       onHistoryChange,
@@ -66,12 +66,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const [strokes, setStrokes] = useState<Stroke[]>([]);
     const [texts, setTexts] = useState<TextItem[]>([]);
     const [, setTick] = useState(0);
-    const [activeTextInput, setActiveTextInput] = useState<{
-      id: string;
-      x: number;
-      y: number;
-      value: string;
-    } | null>(null);
+    const [activeTextInput, setActiveTextInput] = useState<ActiveTextInput | null>(null);
     const textInputRef = useRef<TextInput>(null);
     const scrollViewRef = useRef<ScrollView>(null);
     const containerLayout = useRef<{ x: number; y: number; width: number; height: number } | null>(
@@ -259,67 +254,22 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       // 상태 변경으로 자동 리렌더링
     }, []);
 
-    // 텍스트 영역과 충돌하는지 확인 (32px 여백 포함, 캔버스 전체 너비, 멀티라인 고려)
-    const isNearExistingText = useCallback(
-      (y: number): boolean => {
-        const safeDistance = 32; // 텍스트 주변 32px 보호 영역
+    const addPoint = useCallback((x: number, y: number) => {
+      currentPoints.current.push({ x, y });
+      livePath.current = buildSmoothPath(currentPoints.current);
 
-        for (const textItem of texts) {
-          // 실제 줄 수 계산
-          const lineCount = calculateTextLineCount(textItem.text);
-          const totalTextHeight = lineCount * 22.5; // 고정 줄 높이
+      if (y > maxY.current) {
+        maxY.current = y;
+        canvasHeight.current = Math.max(800, maxY.current + 200);
+      }
+      setTick((t) => t + 1);
+    }, []);
 
-          // 텍스트 영역의 Y 범위 (32px 여백 포함, X는 캔버스 전체 너비)
-          const textTop = textItem.y - safeDistance;
-          const textBottom = textItem.y + totalTextHeight + safeDistance;
-
-          // Y 좌표가 텍스트 영역 내에 있으면 캔버스 전체 너비에서 필기 차단
-          if (y >= textTop && y <= textBottom) {
-            return true;
-          }
-        }
-        return false;
-      },
-      [texts, calculateTextLineCount]
-    );
-
-    const addPoint = useCallback(
-      (x: number, y: number) => {
-        // 텍스트 영역에서는 필기 차단
-        if (isNearExistingText(y)) {
-          return;
-        }
-
-        currentPoints.current.push({ x, y });
-        // 경로는 매번 재생성
-        livePath.current = buildSmoothPath(currentPoints.current);
-
-        // 최대 Y 좌표 업데이트 시에만 리렌더링
-        if (y > maxY.current) {
-          maxY.current = y;
-          canvasHeight.current = Math.max(800, maxY.current + 200);
-          setTick((t) => t + 1);
-        } else {
-          // 일반적인 경우에도 livePath가 변경되었으므로 리렌더링 필요
-          setTick((t) => t + 1);
-        }
-      },
-      [isNearExistingText]
-    );
-
-    const startStroke = useCallback(
-      (x: number, y: number) => {
-        // 텍스트 영역에서는 필기 시작 차단
-        if (isNearExistingText(y)) {
-          return;
-        }
-
-        currentPoints.current = [{ x, y }];
-        livePath.current = buildSmoothPath(currentPoints.current);
-        setTick((t) => t + 1);
-      },
-      [isNearExistingText]
-    );
+    const startStroke = useCallback((x: number, y: number) => {
+      currentPoints.current = [{ x, y }];
+      livePath.current = buildSmoothPath(currentPoints.current);
+      setTick((t) => t + 1);
+    }, []);
 
     const finalizeStroke = useCallback(() => {
       if (currentPoints.current.length === 0) {
@@ -505,7 +455,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         // 기존 텍스트 클릭 확인
         for (const textItem of texts) {
           const lineCount = calculateTextLineCount(textItem.text);
-          const totalTextHeight = lineCount * 22.5; // 고정 줄 높이
+          const totalTextHeight = lineCount * TEXT_LINE_HEIGHT; // 고정 줄 높이
 
           // 텍스트 영역 확인 (X 좌표는 캔버스 전체 너비, Y 좌표만 확인)
           const textTop = textItem.y;
@@ -541,7 +491,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         if (texts.length > 0) {
           const textBottoms = texts.map((text) => {
             const lineCount = calculateTextLineCount(text.text);
-            const totalHeight = lineCount * 22.5; // 고정 줄 높이
+            const totalHeight = lineCount * TEXT_LINE_HEIGHT; // 고정 줄 높이
             return text.y + totalHeight;
           });
           const maxTextBottom = safeMax(textBottoms);
@@ -578,7 +528,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
         // 텍스트의 실제 줄 수 계산하여 최대 Y 좌표 업데이트
         const lineCount = calculateTextLineCount(activeTextInput.value);
-        const totalTextHeight = lineCount * 22.5;
+        const totalTextHeight = lineCount * TEXT_LINE_HEIGHT;
         const textBottomY = activeTextInput.y + totalTextHeight;
         let nextTexts: TextItem[];
 
@@ -648,7 +598,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           // 입력 중에도 캔버스 높이 동적 확장
           if (text.trim()) {
             const lineCount = calculateTextLineCount(text);
-            const totalTextHeight = lineCount * 22.5; // 고정 줄 높이 22.5px
+            const totalTextHeight = lineCount * TEXT_LINE_HEIGHT; // 고정 줄 높이 22.5px
             const textBottomY = activeTextInput.y + totalTextHeight;
 
             if (textBottomY > maxY.current) {
@@ -899,43 +849,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     });
 
     // 텍스트 삭제 버튼 렌더링 (텍스트 모드일 때만, 텍스트 시작 위치에 배치)
-    const renderedTextDeleteButtons = useMemo(() => {
-      if (!textMode || eraserMode) return null;
-
-      return texts
-        .filter((textItem) => {
-          // activeTextInput이 있고 id가 일치하면 편집 중이므로 삭제 버튼도 표시하지 않음
-          if (activeTextInput && activeTextInput.id === textItem.id) {
-            return false;
-          }
-          return true;
-        })
-        .map((textItem) => {
-          const buttonSize = 20;
-          const buttonX = textItem.x - buttonSize + 10; // 텍스트 시작 왼쪽에 배치
-          const buttonY = textItem.y + (15 - buttonSize) / 2 + 10;
-
-          return (
-            <Pressable
-              key={`delete-${textItem.id}`}
-              style={[
-                styles.deleteButton,
-                {
-                  position: 'absolute',
-                  left: buttonX,
-                  top: buttonY,
-                  width: buttonSize,
-                  height: buttonSize,
-                  zIndex: 100,
-                },
-              ]}
-              onPress={() => deleteText(textItem.id)}>
-              <RNText style={styles.deleteButtonText}>×</RNText>
-            </Pressable>
-          );
-        });
-    }, [texts, textMode, eraserMode, deleteText, activeTextInput]);
-
     return (
       <ScrollView
         ref={scrollViewRef}
@@ -981,56 +894,25 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
               </Group>
             </SkiaDrawingCanvasSurface>
 
-            {/* 인라인 텍스트 입력 박스 */}
             {activeTextInput && (
-              <View
-                style={[
-                  styles.textInputWrapper,
-                  {
-                    left: Math.max(
-                      0,
-                      Math.min(activeTextInput.x, (containerLayout.current?.width || 400) - 200)
-                    ),
-                    top: Math.max(
-                      16,
-                      Math.min(
-                        activeTextInput.y,
-                        (containerLayout.current?.height || 400) - 16 - 15
-                      )
-                    ),
-                    width: maxTextWidth, // 동적 너비 적용
-                  },
-                ]}>
-                <TextInput
-                  ref={textInputRef}
-                  style={[
-                    styles.inlineTextInput,
-                    {
-                      fontSize: 15, // 고정 폰트 크기
-                      color: '#1E1E21', // 고정 텍스트 색상
-                      width: maxTextWidth, // 동적 너비 적용
-                      maxWidth: maxTextWidth, // 최대 너비 제한
-                      fontFamily: 'Pretendard', // 고정 폰트
-                      fontWeight: '400', // 고정 폰트 굵기 (Regular)
-                      lineHeight: 22.5, // 고정 줄 높이 (15px의 150%)
-                    },
-                  ]}
-                  value={activeTextInput.value}
-                  onChangeText={handleTextInputChange}
-                  placeholder='텍스트 입력'
-                  placeholderTextColor='#9CA3AF'
-                  multiline
-                  autoFocus
-                  onBlur={handleTextInputBlur}
-                  blurOnSubmit={false}
-                  scrollEnabled={false}
-                  textBreakStrategy='simple'
-                />
-              </View>
+              <TextBoxEditingOverlay
+                ref={textInputRef}
+                activeTextInput={activeTextInput}
+                maxTextWidth={maxTextWidth}
+                containerWidth={containerLayout.current?.width ?? 400}
+                containerHeight={containerLayout.current?.height ?? 400}
+                onChangeText={handleTextInputChange}
+                onBlur={handleTextInputBlur}
+              />
             )}
 
-            {/* 텍스트 삭제 버튼 */}
-            {renderedTextDeleteButtons}
+            <TextDeleteButtons
+              texts={texts}
+              textMode={textMode}
+              eraserMode={eraserMode}
+              activeTextInputId={activeTextInput?.id ?? null}
+              onDelete={deleteText}
+            />
           </View>
         </GestureDetector>
       </ScrollView>
@@ -1048,33 +930,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   container: { minHeight: 400, position: 'relative' },
-  textInputWrapper: {
-    position: 'absolute',
-    backgroundColor: 'transparent',
-    overflow: 'hidden', // 컨테이너 넘어가는 내용 숨김
-    // width는 인라인 스타일로 동적 적용
-  },
-  inlineTextInput: {
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-    padding: 0,
-    margin: 0,
-    textAlignVertical: 'top',
-    flexWrap: 'wrap', // 텍스트 줄바꿈
-    // width는 인라인 스타일로 동적 적용
-  },
-  deleteButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  deleteButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    lineHeight: 16,
-  },
 });
 
 export default React.memo(DrawingCanvas);
