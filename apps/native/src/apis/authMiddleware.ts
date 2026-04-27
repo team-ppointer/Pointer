@@ -4,13 +4,16 @@ import {
   getAccessToken,
   getGrade,
   getName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
   getTeacherAccessToken,
   getTeacherName,
   setAccessToken,
   setGrade,
   setName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
   setTeacherAccessToken,
   setTeacherName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
   setTeacherRefreshToken,
 } from '@utils/auth';
 import { bareClient } from '@apis/bareClient';
@@ -33,33 +36,48 @@ const isTeacherRoute = (schemaPath: string) => {
   return schemaPath.startsWith('/api/teacher/') || schemaPath.includes('teacher');
 };
 
+let studentRefreshPromise: Promise<string | null> | null = null;
+
 const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
-  const accessToken = getAccessToken();
-
-  if (accessToken && !forceRefresh) {
-    return accessToken;
+  if (!forceRefresh) {
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      return accessToken;
+    }
   }
 
-  if (forceRefresh) {
-    await setAccessToken(null);
+  if (studentRefreshPromise) {
+    return studentRefreshPromise;
   }
 
-  const result = await refreshAndPersistTokens();
+  studentRefreshPromise = (async () => {
+    try {
+      if (forceRefresh) {
+        await setAccessToken(null);
+      }
 
-  if (!result.success) {
-    console.warn('Student token refresh failed, clearing credentials.');
-    await useAuthStore.getState().signOut();
-    return null;
-  }
+      const result = await refreshAndPersistTokens();
 
-  if (result.data.name !== undefined) {
-    await setName(result.data.name);
-  }
-  if (result.data.grade !== undefined) {
-    await setGrade(result.data.grade);
-  }
+      if (!result.success) {
+        console.warn('Student token refresh failed, clearing credentials.');
+        await useAuthStore.getState().signOut();
+        return null;
+      }
 
-  return result.data.token.accessToken;
+      if (result.data.name !== undefined) {
+        await setName(result.data.name);
+      }
+      if (result.data.grade !== undefined) {
+        await setGrade(result.data.grade);
+      }
+
+      return result.data.token.accessToken;
+    } finally {
+      studentRefreshPromise = null;
+    }
+  })();
+
+  return studentRefreshPromise;
 };
 
 const reissueTeacherToken = async () => {
