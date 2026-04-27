@@ -1,36 +1,36 @@
 import React from 'react';
-import { Path, Circle, Svg } from 'react-native-svg';
+import { Path, Svg } from 'react-native-svg';
 import type { LucideIcon, LucideProps } from 'lucide-react-native';
 
 const AlertButtonIcon = React.forwardRef<React.ComponentRef<typeof Svg>, LucideProps>(
-  ({ color = 'black', size = 48, strokeWidth = 2, ...rest }, ref) => {
-    const resolvedStrokeWidth = Number(strokeWidth);
-
+  ({ size = 24, ...rest }, ref) => {
     return (
-      <Svg ref={ref} width={size} height={size} viewBox='0 0 48 48' fill='none' {...rest}>
-        <Path
-          d='M22.2681 33C22.4436 33.304 22.6961 33.5565 23.0001 33.732C23.3041 33.9075 23.649 33.9999 24.0001 33.9999C24.3511 33.9999 24.696 33.9075 25 33.732C25.3041 33.5565 25.5565 33.304 25.7321 33'
-          stroke={color}
-          strokeWidth={resolvedStrokeWidth}
-          strokeLinecap='round'
-          strokeLinejoin='round'
-        />
-        <Path
-          d='M25.9161 14.3141C25.0136 14.01 24.0516 13.9251 23.1098 14.0664C22.168 14.2077 21.2733 14.5712 20.4998 15.1269C19.7263 15.6825 19.0961 16.4142 18.6614 17.2616C18.2268 18.1091 18.0001 19.0478 18.0001 20.0001C18.0001 24.4991 16.5891 25.9561 15.2601 27.3271C15.1297 27.4705 15.0437 27.6486 15.0127 27.8399C14.9816 28.0312 15.0068 28.2274 15.0852 28.4047C15.1636 28.5819 15.2918 28.7325 15.4542 28.8383C15.6167 28.944 15.8063 29.0002 16.0001 29.0001H32.0001C32.1939 29.0002 32.3836 28.944 32.546 28.8383C32.7084 28.7325 32.8366 28.5819 32.915 28.4047C32.9934 28.2274 33.0186 28.0312 32.9876 27.8399C32.9565 27.6486 32.8705 27.4705 32.7401 27.3271C32.5343 27.1152 32.3391 26.8933 32.1551 26.6621'
-          stroke={color}
-          strokeWidth={resolvedStrokeWidth}
-          strokeLinecap='round'
-          strokeLinejoin='round'
-        />
-        <Circle
-          cx={30}
-          cy={20}
-          r={3}
-          fill='#E57A00'
-          stroke='#E57A00'
-          strokeWidth={resolvedStrokeWidth}
-        />
-      </Svg>
+      <>
+        <Svg ref={ref} width={size} height={size} viewBox='0 0 24 24' fill='none' {...rest}>
+          <Path
+            d='M10.2681 21C10.4436 21.304 10.6961 21.5565 11.0001 21.732C11.3041 21.9075 11.649 21.9999 12.0001 21.9999C12.3511 21.9999 12.696 21.9075 13 21.732C13.3041 21.5565 13.5565 21.304 13.7321 21'
+            stroke='#1E1E21'
+            strokeWidth={2}
+            strokeLinecap='round'
+            strokeLinejoin='round'
+          />
+          <Path
+            d='M13.9159 2.31415C13.0134 2.01002 12.0514 1.9251 11.1096 2.06642C10.1677 2.20774 9.27304 2.57124 8.49953 3.12685C7.72601 3.68246 7.09586 4.41423 6.6612 5.26164C6.22654 6.10905 5.99985 7.04776 5.99987 8.00015C5.99987 12.4991 4.58887 13.9561 3.25987 15.3271C3.12944 15.4705 3.04348 15.6486 3.01243 15.8399C2.98138 16.0312 3.00659 16.2274 3.08498 16.4047C3.16338 16.5819 3.29158 16.7325 3.454 16.8383C3.61643 16.944 3.80607 17.0002 3.99987 17.0001H19.9999C20.1937 17.0002 20.3833 16.944 20.5457 16.8383C20.7082 16.7325 20.8364 16.5819 20.9148 16.4047C20.9932 16.2274 21.0184 16.0312 20.9873 15.8399C20.9563 15.6486 20.8703 15.4705 20.7399 15.3271C20.5341 15.1152 20.3388 14.8933 20.1549 14.6621'
+            stroke='#1E1E21'
+            strokeWidth={2}
+            strokeLinecap='round'
+            strokeLinejoin='round'
+          />
+          <Path
+            d='M18 11C19.6569 11 21 9.65685 21 8C21 6.34315 19.6569 5 18 5C16.3431 5 15 6.34315 15 8C15 9.65685 16.3431 11 18 11Z'
+            fill='#E57A00'
+            stroke='#E57A00'
+            strokeWidth={2}
+            strokeLinecap='round'
+            strokeLinejoin='round'
+          />
+        </Svg>
+      </>
     );
   }
 ) as LucideIcon;

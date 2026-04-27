@@ -1,10 +1,10 @@
-import { Text, View, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Platform, Text, View, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MailIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset } from '@components/common';
 import { GoogleIcon, KakaoIcon, PointerLogo, AppleIcon } from '@components/system/icons';
 import { colors } from '@theme/tokens';
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
@@ -14,6 +14,7 @@ import { useNativeOAuth, type OAuthProvider } from '../hooks';
 type NavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
 const LoginScreen = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp>();
   const { isLoading, loadingProvider, error, signInWithProvider } = useNativeOAuth();
 
@@ -26,8 +27,8 @@ const LoginScreen = () => {
   };
 
   return (
-    <SafeAreaView className='flex-1' edges={['top', 'bottom']}>
-      <Container className='flex-1'>
+    <View className='flex-1' style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+      <ContentInset className='flex-1'>
         <View className='flex-1 items-center justify-center gap-[12px]'>
           <PointerLogo />
           <Text className='typo-body-1-regular text-gray-700'>
@@ -40,19 +41,21 @@ const LoginScreen = () => {
               <Text className='typo-label-regular text-red-600'>{error}</Text>
             </View>
           )}
-          <AnimatedPressable
-            className='h-[48px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-black px-[20px]'
-            onPress={() => handleSocialButtonPress('APPLE')}
-            disabled={isLoading}>
-            {loadingProvider === 'APPLE' ? (
-              <ActivityIndicator size='small' color='white' />
-            ) : (
-              <>
-                <AppleIcon size={20} />
-                <Text className='typo-body-1-medium text-white'>Apple로 시작하기</Text>
-              </>
-            )}
-          </AnimatedPressable>
+          {Platform.OS === 'ios' && (
+            <AnimatedPressable
+              className='h-[48px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-black px-[20px]'
+              onPress={() => handleSocialButtonPress('APPLE')}
+              disabled={isLoading}>
+              {loadingProvider === 'APPLE' ? (
+                <ActivityIndicator size='small' color='white' />
+              ) : (
+                <>
+                  <AppleIcon size={20} />
+                  <Text className='typo-body-1-medium text-white'>Apple로 시작하기</Text>
+                </>
+              )}
+            </AnimatedPressable>
+          )}
           <AnimatedPressable
             className='h-[48px] flex-row items-center justify-center gap-[8px] rounded-[8px] bg-[#FFDE00] px-[20px]'
             onPress={() => handleSocialButtonPress('KAKAO')}
@@ -87,8 +90,8 @@ const LoginScreen = () => {
             <Text className='typo-body-1-medium text-primary-600'>이메일로 시작하기</Text>
           </AnimatedPressable>
         </View>
-      </Container>
-    </SafeAreaView>
+      </ContentInset>
+    </View>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo } from 'react';
-import { ScrollView, Text } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import {
@@ -8,7 +8,8 @@ import {
 } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Container, AnimatedPressable } from '@components/common';
+import { ContentInset, Header } from '@components/common';
+import { colors } from '@theme/tokens';
 import { BookHeartIcon, CircleStarIcon, ProfileBasicIcon } from '@components/system/icons';
 import { useGetMe, usePutMe, TanstackQueryClient } from '@apis';
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
@@ -235,14 +236,12 @@ const MyInfoScreen = () => {
   }, [localData, data]);
 
   const saveButton = (
-    <AnimatedPressable
+    <Header.TextButton
       onPress={handleSaveAll}
       disabled={isPending || !hasChanges}
-      className={`items-center justify-center pr-5 ${isPending || !hasChanges ? 'opacity-50' : ''}`}>
-      <Text className={`text-14sm ${isPending || !hasChanges ? 'text-gray-600' : 'text-blue-500'}`}>
-        저장하기
-      </Text>
-    </AnimatedPressable>
+      color={isPending || !hasChanges ? colors['gray-600'] : colors['blue-500']}>
+      저장하기
+    </Header.TextButton>
   );
 
   // 표시할 데이터는 로컬 상태를 우선 사용, 없으면 API 데이터 사용
@@ -274,7 +273,7 @@ const MyInfoScreen = () => {
     <>
       <ScreenLayout
         title='내 정보'
-        rightElement={saveButton}
+        right={saveButton}
         onPressBack={() => {
           if (hasChanges) {
             setIsConfirmationModalVisible(true);
@@ -283,7 +282,7 @@ const MyInfoScreen = () => {
           navigation.goBack();
         }}>
         <ScrollView className='flex-1 bg-blue-100 pt-[10px]' contentContainerClassName='flex-grow'>
-          <Container className='-mt-[100%] gap-[28px] bg-gray-100 pt-[100%] pb-[24px]'>
+          <ContentInset className='-mt-[100%] gap-[28px] bg-gray-100 pt-[100%] pb-[24px]'>
             <InfoSection
               icon={<ProfileBasicIcon />}
               title='기본 정보'
@@ -344,9 +343,9 @@ const MyInfoScreen = () => {
                 },
               ]}
             />
-          </Container>
+          </ContentInset>
 
-          <Container
+          <ContentInset
             className='flex-1 bg-blue-100 pt-[24px]'
             style={{ paddingBottom: 24 + bottom }}>
             <InfoSection
@@ -358,7 +357,7 @@ const MyInfoScreen = () => {
                 { label: '이메일', value: data?.email || '' },
               ]}
             />
-          </Container>
+          </ContentInset>
         </ScrollView>
       </ScreenLayout>
       <ConfirmationModal

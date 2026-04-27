@@ -104,6 +104,8 @@ const handleDeepLink = async (url: string | undefined | null) => {
       initWithResume(targetGroup, {
         publishId: parsed.id,
         publishAt: publishDetail.publishAt,
+        problemSetTitle: publishDetail.problemSet?.title,
+        problemSetGroups: groups,
       });
 
       const phase = useProblemSessionStore.getState().phase;

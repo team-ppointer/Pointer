@@ -2,7 +2,6 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
 
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
@@ -13,8 +12,6 @@ import { STATUS_OPTIONS } from '../../constants';
 
 interface ChatRoomHeaderProps {
   chatRoom: ChatRoom;
-  selectedTab?: number;
-  onTabChange?: (index: number) => void;
   onStatusChange?: (status: ChatRoomStatus) => void;
   onBack?: () => void;
   showBackButton?: boolean;
@@ -22,8 +19,6 @@ interface ChatRoomHeaderProps {
 
 const ChatRoomHeader = ({
   chatRoom,
-  selectedTab = 0,
-  onTabChange,
   onStatusChange,
   onBack,
   showBackButton = false,
@@ -35,8 +30,7 @@ const ChatRoomHeader = ({
     <View
       className='border-b border-gray-500 bg-gray-100'
       style={{ paddingTop: showBackButton ? insets.top : 0 }}>
-      {/* Title Row */}
-      <View className='h-[50px] flex-row items-center justify-center px-[16px]'>
+      <View className='h-[56px] flex-row items-center justify-center px-[16px]'>
         <View className='flex-row items-center gap-[8px]'>
           {showBackButton && (
             <AnimatedPressable
@@ -61,21 +55,6 @@ const ChatRoomHeader = ({
           {showBackButton && <View className='size-[40px]' />}
         </View>
       </View>
-
-      {/* Tab Row for Publisher - iOS Native Segmented Control */}
-      {isPublisher && onTabChange && (
-        <View className='px-[16px] pb-[10px]'>
-          <SegmentedControl
-            values={['QnA', '코멘트 모아보기']}
-            selectedIndex={selectedTab}
-            onChange={(event) => onTabChange(event.nativeEvent.selectedSegmentIndex)}
-            appearance='light'
-            style={{ height: 40 }}
-            fontStyle={{ fontSize: 14, fontWeight: '500' }}
-            activeFontStyle={{ fontSize: 14, fontWeight: '600' }}
-          />
-        </View>
-      )}
     </View>
   );
 };

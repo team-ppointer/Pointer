@@ -6,7 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { colors } from '@/theme/tokens';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
-import Container from '@/components/common/Container';
+import ContentInset from '@/components/common/ContentInset';
 import { useSearchHistoryStore } from '@/features/student/scrap/stores/searchHistoryStore';
 import { useSearchScraps } from '@/apis';
 

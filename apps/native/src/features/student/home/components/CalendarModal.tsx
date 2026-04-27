@@ -1,4 +1,4 @@
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Platform, Pressable, Text, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
 
@@ -18,6 +18,13 @@ interface CalendarModalProps {
   onClose: () => void;
 }
 
+const Backdrop = Platform.OS === 'ios' ? BlurView : View;
+const backdropProps = Platform.OS === 'ios' ? { intensity: 20, tint: 'light' as const } : {};
+const backdropStyle =
+  Platform.OS === 'ios'
+    ? { flex: 1, backgroundColor: '#C6CAD480' }
+    : { flex: 1, backgroundColor: 'rgba(198,202,212,0.85)' };
+
 const CalendarModal = ({
   visible,
   selectedMonth,
@@ -28,8 +35,13 @@ const CalendarModal = ({
   onNavigate,
   onClose,
 }: CalendarModalProps) => (
-  <Modal transparent animationType='fade' visible={visible} onRequestClose={onClose}>
-    <BlurView intensity={20} tint='light' style={{ flex: 1, backgroundColor: '#C6CAD480' }}>
+  <Modal
+    transparent
+    animationType='fade'
+    visible={visible}
+    onRequestClose={onClose}
+    statusBarTranslucent>
+    <Backdrop {...backdropProps} style={backdropStyle}>
       <View className='flex-1 items-center justify-center'>
         <Pressable className='absolute inset-0' onPress={onClose} />
         <View className='mx-5 w-full max-w-[540px] rounded-[14px] bg-white'>
@@ -56,7 +68,7 @@ const CalendarModal = ({
           </AnimatedPressable>
         </View>
       </View>
-    </BlurView>
+    </Backdrop>
   </Modal>
 );
 

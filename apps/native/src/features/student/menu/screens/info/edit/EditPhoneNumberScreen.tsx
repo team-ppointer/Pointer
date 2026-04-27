@@ -3,10 +3,10 @@ import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } fro
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, CircleCheck, CircleAlert } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { CircleCheck, CircleAlert } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AnimatedPressable, Container } from '@components/common';
+import { AnimatedPressable, ContentInset, Header } from '@components/common';
 import {
   useGetMe,
   usePutMe,
@@ -29,6 +29,7 @@ const TIMER_CONTAINER_STYLE = {
 };
 
 const EditPhoneNumberScreen = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
   const { data } = useGetMe();
 
@@ -181,12 +182,8 @@ const EditPhoneNumberScreen = () => {
       className='w-full flex-1'
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}>
-      <SafeAreaView edges={['top']} className='flex-row items-center justify-between px-5 py-1'>
-        <AnimatedPressable onPress={() => navigation.goBack()} className='p-2'>
-          <ChevronLeft size={32} color='#000' />
-        </AnimatedPressable>
-      </SafeAreaView>
-      <Container className='flex-1'>
+      <Header showBackButton />
+      <ContentInset className='flex-1'>
         <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
           <View className='gap-[32px]'>
             <View className='gap-1'>
@@ -263,7 +260,7 @@ const EditPhoneNumberScreen = () => {
           </View>
         </ScrollView>
 
-        <SafeAreaView edges={['bottom']} className='mb-[10px]'>
+        <View style={{ paddingBottom: insets.bottom }} className='mb-[10px]'>
           {!isCodeSent || timer === 0 ? (
             <AnimatedPressable
               onPress={handleSendCode}
@@ -278,8 +275,8 @@ const EditPhoneNumberScreen = () => {
               <Text className='text-16m text-white'>인증 완료</Text>
             </AnimatedPressable>
           )}
-        </SafeAreaView>
-      </Container>
+        </View>
+      </ContentInset>
     </KeyboardAvoidingView>
   );
 };

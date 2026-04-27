@@ -3,7 +3,7 @@ import { View, Text, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Container, NotificationItem } from '@components/common';
+import { ContentInset, NotificationItem } from '@components/common';
 import { putReadNotice, useGetNotice, useInvalidateNoticeData } from '@apis';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 
@@ -97,7 +97,7 @@ const NoticeScreen = () => {
           <Text className='text-14m text-gray-600'>공지사항이 없어요.</Text>
         </View>
       ) : (
-        <Container>
+        <ContentInset>
           <FlatList
             data={allNotices}
             renderItem={renderItem}
@@ -106,7 +106,7 @@ const NoticeScreen = () => {
             onEndReachedThreshold={0.3}
             contentContainerStyle={NOTICE_LIST_CONTENT_STYLE}
           />
-        </Container>
+        </ContentInset>
       )}
     </ScreenLayout>
   );

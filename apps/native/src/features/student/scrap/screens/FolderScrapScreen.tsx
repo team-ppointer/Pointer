@@ -2,10 +2,10 @@ import { View } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
 import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGetScrapsByFolder, useDeleteScrap, useGetFolders } from '@/apis';
-import { Container, LoadingScreen } from '@/components/common';
+import { ContentInset, LoadingScreen } from '@/components/common';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 import ScrapHeader from '../components/Header/ScrapHeader';
@@ -22,6 +22,7 @@ import { withScrapModals } from '../hoc';
 type FolderScrapRouteProp = RouteProp<StudentRootStackParamList, 'ScrapContent'>;
 
 const FolderScrapScreenContent = () => {
+  const insets = useSafeAreaInsets();
   const route = useRoute<FolderScrapRouteProp>();
   const { id } = route.params;
 
@@ -72,8 +73,8 @@ const FolderScrapScreenContent = () => {
 
   return (
     <View className='w-full flex-1 bg-gray-100'>
-      <SafeAreaView
-        edges={['top']}
+      <View
+        style={{ paddingTop: insets.top }}
         className={`bg-${!reducerState.isSelecting ? 'gray-100' : 'gray-200'}`}>
         <ScrapHeader
           reducerState={reducerState}
@@ -122,9 +123,9 @@ const FolderScrapScreenContent = () => {
             },
           }}
         />
-      </SafeAreaView>
+      </View>
       <View className='bg-gray-100'>
-        <Container className='items-end gap-[10px] py-[10px]'>
+        <ContentInset className='items-end gap-[10px] py-[10px]'>
           <SortDropdown
             ordertype={'CONTENT'}
             orderValue={sortKey}
@@ -132,14 +133,14 @@ const FolderScrapScreenContent = () => {
             sortOrder={sortOrder}
             setSortOrder={setSortOrder}
           />
-        </Container>
-        <Container className='pt-4 pb-[120px]'>
+        </ContentInset>
+        <ContentInset className='pt-4 pb-[120px]'>
           {isLoading ? (
             <LoadingScreen label='데이터를 불러오고 있습니다.' />
           ) : (
             <ScrapGrid data={sortedData} reducerState={reducerState} dispatch={dispatch} />
           )}
-        </Container>
+        </ContentInset>
       </View>
     </View>
   );

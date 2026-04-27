@@ -2,7 +2,7 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft, CircleX, X } from 'lucide-react-native';
 import { useEffect, useRef } from 'react';
 import { Pressable, TextInput, View, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/theme/tokens';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
@@ -21,6 +21,7 @@ const SearchScrapHeader = ({
   setQuery,
   onSubmitEditing,
 }: SearchScrapHeaderProps) => {
+  const insets = useSafeAreaInsets();
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const SearchScrapHeader = ({
   }, []);
 
   return (
-    <SafeAreaView edges={['top']} className='bg-gray-100'>
+    <View style={{ paddingTop: insets.top }} className='bg-gray-100'>
       <View className='flex-row items-center justify-between px-5 py-[14px]'>
         <View className='h-[40px] flex-1 flex-row justify-center rounded-[8px] border border-gray-500 bg-white px-3.5 py-2'>
           <TextInput
@@ -65,7 +66,7 @@ const SearchScrapHeader = ({
           <View className='size-[48px] gap-[10px]' />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

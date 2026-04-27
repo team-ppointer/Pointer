@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native';
 import { Alert, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -9,20 +9,15 @@ import { type components } from '@schema';
 import { colors, shadow } from '@theme/tokens';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
-import { TrackedAnimatedPressable } from '@/features/student/analytics';
+import { TrackedAnimatedPressable } from '@features/student/analytics';
 
 type PublishDetail = components['schemas']['PublishResp'];
-type ProblemSetWithOptionalPublishAt = components['schemas']['ProblemSetResp'] & {
-  publishAt?: string;
-};
 type PublishGroup = components['schemas']['PublishProblemGroupResp'];
 type GroupProgress = PublishGroup['progress'];
 type ProblemProgress = NonNullable<components['schemas']['ProblemWithStudyInfoResp']['progress']>;
 
 interface ProblemSetProps {
   publishDetail?: PublishDetail;
-  selectedDate: Date;
-  onDateChange: (date: Date) => void;
 }
 
 interface ProblemItemProps {
@@ -34,12 +29,8 @@ interface ProblemListProps {
   group: PublishGroup;
   unitTitle: string;
   index: number;
-  isExpanded: boolean;
-  onToggle: () => void;
   onActionPress?: (group: PublishGroup) => void;
 }
-
-const WEEKDAY_LABELS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
 const Divider = () => {
   return <View className='h-px bg-gray-400' />;
@@ -58,43 +49,30 @@ const ProblemStatusIcon: Record<
 const groupStatusMeta: Record<
   GroupProgress,
   {
-    label: string;
-    badgeClass: string;
     buttonLabel: string;
     buttonVariant: 'blue' | 'gray' | 'outline';
-    actionable: boolean;
   }
 > = {
   DONE: {
-    label: '학습 완료',
-    badgeClass: 'text-green-500',
     buttonLabel: '포인팅 모아보기',
     buttonVariant: 'outline',
-    actionable: true,
   },
   DOING: {
-    label: '학습 중',
-    badgeClass: 'text-blue-500',
-    buttonLabel: '이어서 풀기',
+    buttonLabel: '이어서 학습하기',
     buttonVariant: 'gray',
-    actionable: true,
   },
   NONE: {
-    label: '학습 전',
-    badgeClass: 'text-gray-800',
     buttonLabel: '문제 풀기',
     buttonVariant: 'blue',
-    actionable: true,
   },
 };
 
 const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
-  const normalizedStatus: ProblemProgress = status ?? 'NONE';
-  const { Icon, color, bgColor } = ProblemStatusIcon[normalizedStatus];
+  const { Icon, color, bgColor } = ProblemStatusIcon[status];
 
   return (
-    <View className='flex-row items-center gap-[8px] py-[2px]'>
-      <Text className='text-16m text-black'>{title}</Text>
+    <View className='flex-row items-center gap-[8px]'>
+      <Text className='typo-body-2-medium text-black'>{title}</Text>
       <View className={`rounded-[4px] p-[4px] ${bgColor}`}>
         <Icon color={color} size={14} strokeWidth={2.5} />
       </View>
@@ -102,14 +80,11 @@ const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
   );
 };
 
-const ProblemList = ({ group, index, onToggle, onActionPress, unitTitle }: ProblemListProps) => {
+const ProblemList = ({ group, index, onActionPress, unitTitle }: ProblemListProps) => {
   const statusMeta = groupStatusMeta[group.progress];
   const handlePress = useCallback(() => {
-    if (!statusMeta.actionable) {
-      return;
-    }
     onActionPress?.(group);
-  }, [group, onActionPress, statusMeta.actionable]);
+  }, [group, onActionPress]);
   const problems = useMemo(() => {
     const childProblems = group.childProblems ?? [];
     return childProblems.map((child, childIndex) => ({
@@ -125,15 +100,15 @@ const ProblemList = ({ group, index, onToggle, onActionPress, unitTitle }: Probl
     <View
       className='flex-col gap-[12px] rounded-[10px] bg-white px-[14px] py-[10px]'
       style={shadow[100]}>
-      <View className='flex-row items-center justify-between'>
-        <View className='flex-col'>
+      <View className='flex-row items-center justify-between gap-[8px]'>
+        <View className='flex-1 flex-col'>
           <View className='flex-row items-center'>
-            <Text className='text-16b mr-[8px] text-black'>{`문제 ${index + 1}번`}</Text>
+            <Text className='typo-heading-2-bold mr-[8px] text-black'>{`문제 ${index + 1}번`}</Text>
             <View className={`rounded-[4px] p-[4px] ${bgColor}`}>
               <Icon color={color} size={14} strokeWidth={2.5} />
             </View>
           </View>
-          <Text className='text-13r text-gray-700'>{unitTitle}</Text>
+          <Text className='typo-label-medium line-clamp-1 text-gray-700'>{unitTitle}</Text>
         </View>
         <TextButton variant={statusMeta.buttonVariant} onPress={handlePress} buttonId='start_study'>
           {statusMeta.buttonLabel}
@@ -148,38 +123,12 @@ const ProblemList = ({ group, index, onToggle, onActionPress, unitTitle }: Probl
   );
 };
 
-const formatPublishDate = (publishAt?: string, fallbackDate?: Date) => {
-  const baseDate = publishAt ? new Date(publishAt) : fallbackDate;
-  if (!baseDate || Number.isNaN(baseDate.getTime())) return '';
-  const month = String(baseDate.getMonth() + 1).padStart(2, '0');
-  const day = String(baseDate.getDate()).padStart(2, '0');
-  const weekday = WEEKDAY_LABELS[baseDate.getDay()];
-  return `${month}월 ${day}일 ${weekday}`;
-};
-
-const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetProps) => {
+const ProblemSet = ({ publishDetail }: ProblemSetProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
-  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
   const groups = publishDetail?.data ?? [];
   const title = publishDetail?.problemSet?.title ?? '미출제';
-  const publishAt =
-    (publishDetail?.problemSet as ProblemSetWithOptionalPublishAt | undefined)?.publishAt ??
-    publishDetail?.publishAt;
-  const subtitle = formatPublishDate(publishAt, selectedDate);
+  const publishAt = publishDetail?.publishAt;
   const publishId = publishDetail?.id;
-
-  const handleToggleGroup = (key: number) => {
-    setExpandedGroups((prev) => {
-      const isCurrentlyExpanded = prev[key] ?? false;
-      return { ...prev, [key]: !isCurrentlyExpanded };
-    });
-  };
-
-  const handleMoveDate = (offset: number) => {
-    const nextDate = new Date(selectedDate);
-    nextDate.setDate(nextDate.getDate() + offset);
-    onDateChange(nextDate);
-  };
 
   const initWithResume = useProblemSessionStore((state) => state.initWithResume);
 
@@ -193,18 +142,16 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
         });
         return;
       }
-      if (!group) {
-        Alert.alert('진행할 문제가 없어요.');
-        return;
-      }
       initWithResume(group, {
         publishId,
         publishAt,
+        problemSetTitle: title,
+        problemSetGroups: groups,
       });
       const phase = useProblemSessionStore.getState().phase;
       navigation.navigate(getInitialScreenForPhase(phase));
     },
-    [initWithResume, navigation, publishAt, publishId, title]
+    [groups, initWithResume, navigation, publishAt, publishId, title]
   );
 
   // 첫 번째 미완료 문제 찾기 (DOING 또는 NONE 상태)
@@ -239,36 +186,33 @@ const ProblemSet = ({ publishDetail, selectedDate, onDateChange }: ProblemSetPro
   }, [groups, allDone, firstIncompleteInfo]);
 
   return (
-    <View className='gap-[12px] rounded-[20px] bg-blue-100 p-[16px] md:flex-1 md:basis-1/2'>
+    <View className='bg-primary-100 gap-[10px] rounded-[20px] p-[16px] md:flex-1 md:basis-1/2'>
       {groups.length === 0 ? (
         <View className='h-full items-center justify-center'>
-          <Text className='text-14r text-center text-gray-600'>표시할 문제가 없어요.</Text>
+          <Text className='typo-body-1-regular text-center text-gray-700'>
+            표시할 문제가 없어요
+          </Text>
         </View>
       ) : (
         <>
           {startButtonLabel && (
             <TrackedAnimatedPressable
               buttonId='start_study'
-              className='bg-primary-500 mb-[4px] items-center justify-center rounded-[8px] p-[12px]'
-              onPress={handleStartFromFirst}
-              style={shadow[100]}>
-              <Text className='text-16m text-white'>{startButtonLabel}</Text>
+              className='bg-primary-600 mb-[6px] h-[48px] items-center justify-center rounded-[8px] px-[20px]'
+              onPress={handleStartFromFirst}>
+              <Text className='typo-body-1-medium text-white'>{startButtonLabel}</Text>
             </TrackedAnimatedPressable>
           )}
           {groups.map((group, index) => {
             const key = group.problemId ?? index;
-            const isExpanded = expandedGroups[key] ?? false;
             return (
-              <View key={key}>
-                <ProblemList
-                  group={group}
-                  index={index}
-                  unitTitle={title}
-                  isExpanded={isExpanded}
-                  onToggle={() => handleToggleGroup(key)}
-                  onActionPress={handleGroupAction}
-                />
-              </View>
+              <ProblemList
+                group={group}
+                index={index}
+                unitTitle={title}
+                onActionPress={handleGroupAction}
+                key={key}
+              />
             );
           })}
         </>

@@ -82,7 +82,6 @@ interface NotificationItemProps {
   icon: IconType;
   title: string;
   time: string;
-  hasShadow?: boolean;
   hasBadge?: boolean;
   children: React.ReactNode;
 }
@@ -92,7 +91,6 @@ const NotificationItem = ({
   icon,
   title,
   time,
-  hasShadow = false,
   hasBadge = false,
   children,
 }: NotificationItemProps) => {
@@ -103,7 +101,7 @@ const NotificationItem = ({
 
   return (
     <View
-      className={`h-[76px] flex-row items-center justify-between gap-[10px] rounded-[12px] border p-[16px] ${variantStyles[variant]} ${hasShadow ? 'shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]' : ''}`}>
+      className={`h-[76px] flex-row items-center justify-between gap-[10px] rounded-[12px] border p-[16px] ${variantStyles[variant]}`}>
       <View className='flex-1 flex-row items-center gap-[12px]'>
         <View className='flex-shrink-0'>
           <IconContainer type={icon} />

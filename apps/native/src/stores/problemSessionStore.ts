@@ -22,6 +22,8 @@ type ProblemSessionState = {
   group?: PublishProblemGroupResp;
   publishId?: number;
   publishAt?: string;
+  problemSetTitle?: string;
+  problemSetGroups?: PublishProblemGroupResp[];
 
   phase: SessionPhase;
 
@@ -31,7 +33,12 @@ type ProblemSessionState = {
   mainCorrect?: boolean;
 };
 
-type SessionMeta = { publishId?: number; publishAt?: string };
+type SessionMeta = {
+  publishId?: number;
+  publishAt?: string;
+  problemSetTitle?: string;
+  problemSetGroups?: PublishProblemGroupResp[];
+};
 
 type ProblemSessionActions = {
   init: (group: PublishProblemGroupResp, meta?: SessionMeta) => void;
@@ -41,8 +48,11 @@ type ProblemSessionActions = {
   finishMainRetry: () => void;
   finishChildProblem: () => void;
   nextPointing: () => void;
+  /** chat WebView 에서 모든 pointing 이 완료됐을 때 호출. pointingIndex 없이 동작. */
+  completeAllPointings: () => void;
 
   goToAnalysis: () => void;
+  goToNextProblem: () => void;
   reset: () => void;
 };
 
@@ -55,6 +65,8 @@ const initialState: ProblemSessionState = {
   group: undefined,
   publishId: undefined,
   publishAt: undefined,
+  problemSetTitle: undefined,
+  problemSetGroups: undefined,
   phase: 'MAIN_PROBLEM',
   childIndex: INITIAL_INDEX,
   pointingIndex: INITIAL_INDEX,
@@ -122,32 +134,16 @@ const computeResumeState = (
   }
 
   if (isMainCorrect) {
-    for (let i = 0; i < children.length; i += 1) {
-      const cPointings = children[i].pointings ?? [];
-      if (cPointings.length === 0) continue;
-      const nextPIdx = cPointings.findIndex((p) => !isPointingCompleted(p));
-      if (nextPIdx !== -1) {
-        return {
-          phase: 'CHILD_POINTINGS',
-          childIndex: i,
-          pointingIndex: nextPIdx,
-          pointingTarget: 'CHILD',
-          mainCorrect: true,
-        };
-      }
-    }
-
-    const mainNextPIdx = mainPointings.findIndex((p) => !isPointingCompleted(p));
-    if (mainNextPIdx !== -1) {
+    const childPointingsCount = children.reduce((sum, c) => sum + (c.pointings?.length ?? 0), 0);
+    if (mainPointings.length + childPointingsCount > 0) {
       return {
         phase: 'MAIN_POINTINGS',
         childIndex: INITIAL_INDEX,
-        pointingIndex: mainNextPIdx,
+        pointingIndex: 0,
         pointingTarget: 'MAIN',
         mainCorrect: true,
       };
     }
-
     return {
       phase: 'ANALYSIS',
       childIndex: INITIAL_INDEX,
@@ -293,6 +289,8 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         group,
         publishId: meta?.publishId,
         publishAt: meta?.publishAt,
+        problemSetTitle: meta?.problemSetTitle,
+        problemSetGroups: meta?.problemSetGroups,
         phase: 'MAIN_PROBLEM',
       }),
     initWithResume: (group, meta) => {
@@ -303,6 +301,8 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
           group,
           publishId: meta?.publishId,
           publishAt: meta?.publishAt,
+          problemSetTitle: meta?.problemSetTitle,
+          problemSetGroups: meta?.problemSetGroups,
           phase: 'MAIN_PROBLEM',
         });
         return;
@@ -315,6 +315,8 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         group,
         publishId: meta?.publishId,
         publishAt: meta?.publishAt,
+        problemSetTitle: meta?.problemSetTitle,
+        problemSetGroups: meta?.problemSetGroups,
         ...resumeState,
       });
     },
@@ -328,21 +330,11 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
       const mainPointings = getMainPointings(group);
 
       if (isCorrect) {
-        const firstChildIndex = childProblems.findIndex(
-          (child) => (child.pointings?.length ?? 0) > 0
+        const childPointingsCount = childProblems.reduce(
+          (sum, c) => sum + (c.pointings?.length ?? 0),
+          0
         );
-        if (firstChildIndex !== -1) {
-          set({
-            mainCorrect: true,
-            phase: 'CHILD_POINTINGS',
-            childIndex: firstChildIndex,
-            pointingTarget: 'CHILD',
-            pointingIndex: 0,
-          });
-          return;
-        }
-
-        if (mainPointings.length > 0) {
+        if (mainPointings.length + childPointingsCount > 0) {
           set({
             mainCorrect: true,
             phase: 'MAIN_POINTINGS',
@@ -522,12 +514,81 @@ export const useProblemSessionStore = create<ProblemSessionState & ProblemSessio
         });
       }
     },
+    completeAllPointings: () => {
+      const { group, phase, childIndex } = get();
+      if (!group) return;
+
+      if (phase === 'CHILD_POINTINGS') {
+        const childProblems = getChildProblems(group);
+        const nextChildIndex = childIndex + 1;
+
+        if (nextChildIndex < childProblems.length) {
+          set({
+            phase: 'CHILD_PROBLEM',
+            childIndex: nextChildIndex,
+            pointingTarget: undefined,
+            pointingIndex: INITIAL_INDEX,
+          });
+          return;
+        }
+        set({
+          phase: 'MAIN_PROBLEM_RETRY',
+          childIndex: INITIAL_INDEX,
+          pointingTarget: undefined,
+          pointingIndex: INITIAL_INDEX,
+        });
+        return;
+      }
+
+      if (phase === 'MAIN_POINTINGS') {
+        set({ phase: 'ANALYSIS', pointingTarget: undefined, pointingIndex: INITIAL_INDEX });
+      }
+    },
     goToAnalysis: () =>
       set({
         phase: 'ANALYSIS',
         pointingTarget: undefined,
         pointingIndex: INITIAL_INDEX,
       }),
+    goToNextProblem: () => {
+      const state = get();
+      const { group, problemSetGroups } = state;
+      if (!group || !problemSetGroups) return;
+
+      const updatedGroups = problemSetGroups.map((g) =>
+        g.no === group.no ? { ...g, progress: 'DONE' as const } : g
+      );
+      const currentIdx = updatedGroups.findIndex((g) => g.no === group.no);
+      if (currentIdx === -1) return;
+      const ordered = [
+        ...updatedGroups.slice(currentIdx + 1),
+        ...updatedGroups.slice(0, currentIdx),
+      ];
+      const nextGroup = ordered.find((g) => g.progress !== 'DONE');
+      if (!nextGroup) return;
+
+      const resumeState =
+        nextGroup.progress === 'DOING' && nextGroup.lastProgressInfo
+          ? computeResumeState(nextGroup, nextGroup.lastProgressInfo)
+          : {
+              phase: 'MAIN_PROBLEM' as const,
+              childIndex: INITIAL_INDEX,
+              pointingIndex: INITIAL_INDEX,
+              pointingTarget: undefined,
+              mainCorrect: undefined,
+            };
+
+      set({
+        ...initialState,
+        initialized: true,
+        group: nextGroup,
+        publishId: state.publishId,
+        publishAt: state.publishAt,
+        problemSetTitle: state.problemSetTitle,
+        problemSetGroups: updatedGroups,
+        ...resumeState,
+      });
+    },
     reset: () => set(initialState),
   })
 );
@@ -553,6 +614,7 @@ export const selectInitialized = (state: ProblemSessionState) => state.initializ
 export const selectGroup = (state: ProblemSessionState) => state.group;
 export const selectPublishId = (state: ProblemSessionState) => state.publishId;
 export const selectPublishAt = (state: ProblemSessionState) => state.publishAt;
+export const selectProblemSetTitle = (state: ProblemSessionState) => state.problemSetTitle;
 export const selectPhase = (state: ProblemSessionState) => state.phase;
 export const selectChildIndex = (state: ProblemSessionState) => state.childIndex;
 
@@ -589,4 +651,33 @@ export const selectCurrentPointing = (
   }
   const child = group.childProblems?.[childIndex];
   return child?.pointings?.[pointingIndex];
+};
+
+export const selectPointingsForPointing = (
+  state: ProblemSessionState
+): PointingWithFeedbackResp[] => {
+  const { group, phase, childIndex, mainCorrect } = state;
+  if (!group) return [];
+
+  if (phase === 'MAIN_POINTINGS' && mainCorrect) {
+    const childPointings = (group.childProblems ?? []).flatMap((c) => c.pointings ?? []);
+    const mainPointings = group.problem.pointings ?? [];
+    return [...childPointings, ...mainPointings];
+  }
+
+  if (phase === 'CHILD_POINTINGS') {
+    return group.childProblems?.[childIndex]?.pointings ?? [];
+  }
+
+  if (phase === 'MAIN_POINTINGS') {
+    return group.problem.pointings ?? [];
+  }
+
+  return [];
+};
+
+export const selectHasNextProblem = (state: ProblemSessionState): boolean => {
+  const { group, problemSetGroups } = state;
+  if (!group || !problemSetGroups || problemSetGroups.length <= 1) return false;
+  return problemSetGroups.some((g) => g.no !== group.no && g.progress !== 'DONE');
 };

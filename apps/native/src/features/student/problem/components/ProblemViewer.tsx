@@ -24,6 +24,23 @@ interface ProblemViewerProps {
   fontStyle?: 'sans-serif' | 'serif';
 }
 
+/**
+ * @deprecated
+ * `@components/common` 의 `PointerContentView` 를 사용하세요.
+ * ProblemViewer 는 scrap / home feature 의 마이그레이션이 완료되는 대로 삭제됩니다.
+ * (MAT-277 follow-up)
+ *
+ * 마이그레이션 가이드:
+ * ```tsx
+ * import { PointerContentView } from '@components/common';
+ * import { buildDocumentInit } from '@/features/student/problem/transforms/contentRendererTransforms';
+ *
+ * <PointerContentView
+ *   initMessage={buildDocumentInit({ content: problemContent, fontStyle, padding })}
+ *   minHeight={minHeight}
+ * />
+ * ```
+ */
 const ProblemViewer = ({
   problemContent,
   minHeight = 0,

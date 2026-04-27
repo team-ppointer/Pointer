@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type BottomSheet from '@gorhom/bottom-sheet';
-import { BookmarkIcon } from 'lucide-react-native';
+import { BookmarkIcon, XIcon } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -13,9 +13,9 @@ import {
   View,
 } from 'react-native';
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Container } from '@components/common';
+import { ContentInset, Header, PointerContentView } from '@components/common';
 import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
 import type { StudentRootStackParamList } from '@navigation/student/types';
 import { useInvalidateStudyData } from '@hooks';
@@ -29,16 +29,15 @@ import {
   selectPhase,
   selectPublishAt,
   selectPublishId,
+  selectProblemSetTitle,
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
 
 import ResultSheet from '../components/ResultSheet';
 import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
-import Header from '../components/Header';
 import BottomActionBar from '../components/BottomActionBar';
-import { formatPublishDateLabel } from '../utils/formatters';
-import ProblemViewer from '../components/ProblemViewer';
+import { buildDocumentInit } from '../transforms/contentRendererTransforms';
 import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
@@ -74,6 +73,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const childIndex = useProblemSessionStore(selectChildIndex);
   const publishId = useProblemSessionStore(selectPublishId);
   const publishAt = useProblemSessionStore(selectPublishAt);
+  const problemSetTitle = useProblemSessionStore(selectProblemSetTitle);
   const finishMain = useProblemSessionStore((state) => state.finishMain);
   const finishMainRetry = useProblemSessionStore((state) => state.finishMainRetry);
   const finishChildProblem = useProblemSessionStore((state) => state.finishChildProblem);
@@ -85,8 +85,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     !!currentProblem?.id
   );
 
-  const publishDateLabel = useMemo(() => formatPublishDateLabel(publishAt), [publishAt]);
-
   // Scrap animation interpolations
   const scrapBgColor = scrapAnimValue.interpolate({
     inputRange: [0, 1],
@@ -97,7 +95,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     outputRange: [colors['gray-700'], colors['primary-500']],
   });
 
-  const problemTitle = useMemo(() => {
+  const problemSubtitle = useMemo(() => {
     if (!group) {
       return '';
     }
@@ -107,11 +105,11 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       phase === 'MAIN_POINTINGS' ||
       phase === 'ANALYSIS'
     ) {
-      return `실전문제 ${group.no}번`;
+      return `문제 ${group.no}번`;
     }
     if (phase === 'CHILD_PROBLEM' || phase === 'CHILD_POINTINGS') {
       const order = childIndex >= 0 ? childIndex + 1 : 0;
-      return order > 0 ? `연습문제 ${order}번` : '연습문제';
+      return order > 0 ? `문제 ${group.no}-${order}번` : `문제 ${group.no}번`;
     }
     return '';
   }, [childIndex, group, phase]);
@@ -429,7 +427,21 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     );
   }, [currentProblem?.id, isScraped, scrapAnimValue, toggleScrapMutation]);
 
-  const subtitle = publishDateLabel ?? '';
+  const problemInitMessage = useMemo(
+    () =>
+      buildDocumentInit({
+        content: currentProblem?.problemContent ?? '',
+        fontStyle: 'serif',
+      }),
+    [currentProblem?.problemContent]
+  );
+
+  const badgeStatus = useMemo(() => {
+    const progress = problemProgress ?? currentProblem?.progress;
+    if (progress === 'CORRECT') return 'correct' as const;
+    if (progress === 'INCORRECT') return 'incorrect' as const;
+    return;
+  }, [problemProgress, currentProblem?.progress]);
 
   const canvasRef = useRef<DrawingCanvasRef>(null);
   const drawingState = useDrawingState();
@@ -438,14 +450,13 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
 
   return (
     <View className='flex-1 bg-white'>
-      <SafeAreaView className='flex-1' edges={['top']}>
-        <Header onClose={() => setIsCloseVisible(true)}>
-          <Header.TitleGroup>
-            <Header.Title>{problemTitle}</Header.Title>
-            {subtitle ? <Header.Subtitle>{subtitle}</Header.Subtitle> : null}
-            <Header.Status status={problemProgress ?? currentProblem?.progress} />
-          </Header.TitleGroup>
-        </Header>
+      <View className='flex-1' style={{ paddingTop: insets.top }}>
+        <Header
+          title={problemSetTitle}
+          subtitle={problemSubtitle}
+          badge={badgeStatus}
+          right={<Header.IconButton icon={XIcon} onPress={() => setIsCloseVisible(true)} />}
+        />
 
         <View
           style={{
@@ -477,17 +488,15 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
         </View>
 
         <ScrollView>
-          <Container className='flex-1'>
+          <ContentInset className='flex-1'>
             {/* Problem */}
             <View
-              className='my-[10px] overflow-hidden rounded-[8px]'
+              className='my-[12px] overflow-hidden rounded-[8px]'
               style={{ position: 'relative', height: screenHeight - 200 }}>
-              {/* 아래층: ProblemViewer */}
-              <ProblemViewer
-                problemContent={currentProblem?.problemContent ?? ''}
+              <PointerContentView
+                initMessage={problemInitMessage}
                 minHeight={200}
-                padding={20}
-                fontStyle='serif'
+                style={{ maxWidth: 720 }}
               />
 
               {/* 위층: DrawingCanvas - ProblemViewer 위에 겹쳐짐 */}
@@ -506,7 +515,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                 </View>
               </View>
             </View>
-          </Container>
+          </ContentInset>
         </ScrollView>
         <AnswerKeyboardSheet
           ref={bottomSheetRef}
@@ -541,34 +550,34 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                 />
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className='bg-primary-500 h-[42px]'
+                className='bg-primary-600'
                 containerStyle={{ flex: 1 }}
                 onPress={toggleKeyboard}>
-                <Text className='text-16m text-white'>답 입력하기</Text>
+                <Text className='typo-body-1-medium text-white'>답 입력하기</Text>
               </BottomActionBar.Button>
             </Animated.View>
             <Animated.View
               style={[actionBarStyles.layer, actionBarStyles.overlay, { opacity: actionBarFade }]}
               pointerEvents={isKeyboardVisible ? 'auto' : 'none'}>
               <BottomActionBar.Button
-                className='bg-primary-200 h-[42px]'
+                className='border border-gray-500 bg-gray-100'
                 containerStyle={{ flex: 1 }}
                 onPress={handleIDontKnow}>
-                <Text className='text-14m text-black'>잘 모르겠어요</Text>
+                <Text className='typo-body-1-medium text-black'>잘 모르겠어요</Text>
               </BottomActionBar.Button>
               <BottomActionBar.Button
-                className={`bg-primary-500 h-[42px] ${isSubmitting ? 'opacity-60' : ''}`}
-                containerStyle={{ flex: 1 }}
-                disabled={isSubmitting}
+                className={!answer || isSubmitting ? 'bg-primary-300' : 'bg-primary-600'}
+                containerStyle={{ flex: 2 }}
+                disabled={!answer || isSubmitting}
                 onPress={handleSubmitAnswer}>
-                <Text className='text-16m text-white'>
+                <Text className='typo-body-1-medium text-white'>
                   {isSubmitting ? '제출 중...' : '제출하기'}
                 </Text>
               </BottomActionBar.Button>
             </Animated.View>
           </View>
         </BottomActionBar>
-      </SafeAreaView>
+      </View>
       <View pointerEvents='box-none' style={StyleSheet.absoluteFill}>
         <ResultSheet
           ref={resultSheetRef}

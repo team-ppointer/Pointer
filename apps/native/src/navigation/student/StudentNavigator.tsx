@@ -1,6 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
+import { Header } from '@components/common';
 import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '@features/student/home/screens/notifications/NotificationDetailScreen';
 import {
@@ -21,7 +24,6 @@ import { AnalyticsProvider, useScreenTracking } from '@/features/student/analyti
 
 import StudentTabs from './StudentTabs';
 import { type StudentRootStackParamList } from './types';
-import NotificationHeader from './components/NotificationHeader';
 
 const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>();
 
@@ -29,6 +31,15 @@ const StudentRootStack = createNativeStackNavigator<StudentRootStackParamList>()
  * Inner navigator component that uses screen tracking
  * Must be inside AnalyticsProvider
  */
+const SafeAreaHeader = ({ title }: { title: string }) => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={{ paddingTop: insets.top }}>
+      <Header title={title} showBackButton />
+    </View>
+  );
+};
+
 const StudentNavigatorContent = () => {
   // Track screen navigation for analytics
   useScreenTracking();
@@ -41,7 +52,7 @@ const StudentNavigatorContent = () => {
         component={NotificationScreen}
         options={{
           headerShown: true,
-          header: (props) => <NotificationHeader title='알림' {...props} />,
+          header: () => <SafeAreaHeader title='알림' />,
         }}
       />
       <StudentRootStack.Screen
@@ -49,7 +60,7 @@ const StudentNavigatorContent = () => {
         component={NotificationDetailScreen}
         options={{
           headerShown: true,
-          header: (props) => <NotificationHeader title='공지' {...props} />,
+          header: () => <SafeAreaHeader title='공지' />,
         }}
       />
       <StudentRootStack.Screen name='Problem' component={ProblemScreen} />

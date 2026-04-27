@@ -1,11 +1,10 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Pressable } from 'react-native';
 import { ArrowRightLeft, ChevronLeft, Search, Trash2 } from 'lucide-react-native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { colors } from '@/theme/tokens';
 import { CircleCheckDashed } from '@/components/system/icons';
-import { Container } from '@/components/common';
+import { ContentInset } from '@/components/common';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 import { type State } from '../../utils/reducer';
@@ -52,7 +51,7 @@ const ScrapHeader = ({
   return (
     <View className={`bg-${!reducerState.isSelecting ? 'gray-100' : 'gray-200'}`}>
       {!reducerState.isSelecting && (
-        <Container className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
+        <ContentInset className='flex-row items-center justify-between bg-gray-100 py-[14px]'>
           {navigateback && navigateback.canGoBack() && (
             <Pressable
               onPress={() => navigateback.goBack()}
@@ -90,7 +89,7 @@ const ScrapHeader = ({
               <Trash2 size={24} strokeWidth={2} color='#FF3B30' />
             </Pressable>
           </View>
-        </Container>
+        </ContentInset>
       )}
 
       {reducerState.isSelecting && (
