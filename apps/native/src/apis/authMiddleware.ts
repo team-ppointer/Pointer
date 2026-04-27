@@ -36,6 +36,9 @@ const isTeacherRoute = (schemaPath: string) => {
   return schemaPath.startsWith('/api/teacher/') || schemaPath.includes('teacher');
 };
 
+// 401 재시도 시 body가 이미 소비된 원본 대신 사용할 clone을 보관한다.
+const retryRequestClones = new WeakMap<Request, Request>();
+
 let studentRefreshPromise: Promise<string | null> | null = null;
 
 const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
@@ -138,6 +141,9 @@ const authMiddleware: Middleware = {
       }
     }
 
+    // body가 아직 소비되지 않은 시점에 retry 용 clone을 확보한다.
+    retryRequestClones.set(request, request.clone());
+
     return request;
   },
 
@@ -151,13 +157,17 @@ const authMiddleware: Middleware = {
         : await reissueStudentToken({ forceRefresh: true });
 
       if (!newAccessToken) {
+        retryRequestClones.delete(request);
         console.warn('Reissue failed, redirecting to login page.');
         return response;
       }
 
-      request.headers.set('Authorization', `Bearer ${newAccessToken}`);
-      return fetch(request);
+      const retryRequest = retryRequestClones.get(request) ?? request;
+      retryRequestClones.delete(request);
+      retryRequest.headers.set('Authorization', `Bearer ${newAccessToken}`);
+      return fetch(retryRequest);
     }
+    retryRequestClones.delete(request);
     return response;
   },
 };
