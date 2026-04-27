@@ -18,18 +18,9 @@ import {
   Keyboard,
   Platform,
 } from 'react-native';
-import {
-  Canvas,
-  Path,
-  type SkPath,
-  Skia,
-  Text,
-  useFont,
-  Circle,
-  Group,
-} from '@shopify/react-native-skia';
+import { Path, type SkPath, Skia, useFont, Circle, Group } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-handler';
-import { runOnJS, useSharedValue, useDerivedValue } from 'react-native-reanimated';
+import { runOnJS, useSharedValue } from 'react-native-reanimated';
 
 import { buildSmoothPath } from './smoothing';
 import {
@@ -39,6 +30,9 @@ import {
   type DrawingCanvasRef,
 } from './model/drawingTypes';
 import { deepCopyStrokes, deepCopyTexts, safeMax } from './model/strokeUtils';
+import { wrapTextToLines } from './render/skia/skiaRenderUtils';
+import { useSkiaDrawingRenderer } from './render/skia/useSkiaDrawingRenderer';
+import { SkiaDrawingCanvasSurface } from './render/skia/SkiaDrawingCanvasSurface';
 
 type Props = {
   strokeColor?: string;
@@ -199,50 +193,19 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       return containerWidth - 40; // 좌우 패딩 20px씩
     }, [containerWidth]);
 
-    // 텍스트의 실제 줄 수 계산 (자동 줄바꿈 포함) - 메모이제이션
+    // 텍스트의 실제 줄 수 계산 (자동 줄바꿈 포함) - wrapTextToLines로 중복 제거
     const textLineCountCache = useRef<Map<string, number>>(new Map());
 
     const calculateTextLineCount = useCallback(
       (text: string): number => {
         if (!font) return 1;
 
-        // 캐시 확인
         const cacheKey = `${text}-${maxTextWidth}`;
         if (textLineCountCache.current.has(cacheKey)) {
           return textLineCountCache.current.get(cacheKey) ?? 1;
         }
 
-        let totalLines = 0;
-        const paragraphs = text.split('\n');
-
-        paragraphs.forEach((paragraph) => {
-          if (!paragraph) {
-            totalLines += 1;
-            return;
-          }
-
-          const words = paragraph.split(' ');
-          let currentLine = '';
-          let paragraphLines = 0;
-
-          words.forEach((word, idx) => {
-            const testLine = currentLine ? `${currentLine} ${word}` : word;
-            const textWidth = font.measureText(testLine).width;
-
-            if (textWidth > maxTextWidth && currentLine) {
-              paragraphLines += 1;
-              currentLine = word;
-            } else {
-              currentLine = testLine;
-            }
-
-            if (idx === words.length - 1) {
-              paragraphLines += 1;
-            }
-          });
-
-          totalLines += paragraphLines;
-        });
+        const lineCount = wrapTextToLines(text, maxTextWidth, (t) => font.measureText(t)).length;
 
         // 캐시 저장 (최대 100개 항목만 유지)
         if (textLineCountCache.current.size > 100) {
@@ -251,9 +214,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             textLineCountCache.current.delete(firstKey);
           }
         }
-        textLineCountCache.current.set(cacheKey, totalLines);
+        textLineCountCache.current.set(cacheKey, lineCount);
 
-        return totalLines;
+        return lineCount;
       },
       [font, maxTextWidth]
     );
@@ -1020,98 +983,22 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       []
     );
 
-    // 호버 opacity를 위한 derived value
-    const hoverOpacity = useDerivedValue(() => {
-      return showHover.value ? 0.6 : 0;
-    }, [showHover]);
-
     const composedGesture = useMemo(
       () => Gesture.Simultaneous(Gesture.Race(tap, pan), hoverGesture),
       [tap, pan, hoverGesture]
     );
 
-    // 경로 렌더링 최적화: paths 배열이 변경될 때만 재렌더링
-    // 각 stroke는 저장된 width와 color를 사용
-    const renderedPaths = useMemo(
-      () =>
-        paths.map((p, i) => {
-          const stroke = strokes[i];
-          return (
-            <Path
-              key={`path-${i}`}
-              path={p}
-              style='stroke'
-              strokeWidth={stroke?.width || strokeWidth}
-              color={stroke?.color || strokeColor}
-              strokeCap='round'
-              strokeJoin='round'
-            />
-          );
-        }),
-      [paths, strokes, strokeWidth, strokeColor]
-    );
-
-    // 텍스트 렌더링 최적화 (멀티라인 지원 + 자동 줄바꿈)
-    const renderedTexts = useMemo(
-      () =>
-        font
-          ? texts
-              .filter((textItem) => {
-                // activeTextInput이 있고 id가 일치하면 편집 중이므로 렌더링하지 않음
-                if (activeTextInput && activeTextInput.id === textItem.id) {
-                  return false;
-                }
-                return true;
-              })
-              .flatMap((textItem) => {
-                const allLines: string[] = [];
-
-                // 먼저 명시적 줄바꿈으로 분할
-                const paragraphs = textItem.text.split('\n');
-
-                // 각 문단을 너비 기준으로 추가 분할
-                paragraphs.forEach((paragraph) => {
-                  if (!paragraph) {
-                    allLines.push(''); // 빈 줄 유지
-                    return;
-                  }
-
-                  const words = paragraph.split(' ');
-                  let currentLine = '';
-
-                  words.forEach((word, idx) => {
-                    const testLine = currentLine ? `${currentLine} ${word}` : word;
-                    const textWidth = font.measureText(testLine).width;
-
-                    if (textWidth > maxTextWidth && currentLine) {
-                      // 현재 줄이 최대 너비를 초과하면 줄바꿈
-                      allLines.push(currentLine);
-                      currentLine = word;
-                    } else {
-                      currentLine = testLine;
-                    }
-
-                    // 마지막 단어인 경우 현재 줄 추가
-                    if (idx === words.length - 1) {
-                      allLines.push(currentLine);
-                    }
-                  });
-                });
-
-                return allLines.map((line, lineIndex) => (
-                  <Text
-                    key={`${textItem.id}-line-${lineIndex}`}
-                    x={textItem.x}
-                    y={textItem.y + 15 + lineIndex * 22.5}
-                    text={line}
-                    font={font}
-                    color={textItem.color}
-                  />
-                ));
-              })
-          : null,
-      [texts, font, maxTextWidth, activeTextInput]
-    );
+    const { renderedPaths, renderedTexts, hoverOpacity } = useSkiaDrawingRenderer({
+      paths,
+      strokes,
+      strokeWidth,
+      strokeColor,
+      texts,
+      font,
+      maxTextWidth,
+      activeTextInputId: activeTextInput?.id ?? null,
+      showHover,
+    });
 
     // 텍스트 삭제 버튼 렌더링 (텍스트 모드일 때만, 텍스트 시작 위치에 배치)
     const renderedTextDeleteButtons = useMemo(() => {
@@ -1169,7 +1056,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
               // 실제 컨테이너 너비 업데이트
               setContainerWidth(width);
             }}>
-            <Canvas style={[styles.canvas, { height: canvasHeight.current }]}>
+            <SkiaDrawingCanvasSurface height={canvasHeight.current}>
               {renderedPaths}
               {currentPoints.current.length > 0 && (
                 <Path
@@ -1194,7 +1081,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
                   strokeWidth={1.5}
                 />
               </Group>
-            </Canvas>
+            </SkiaDrawingCanvasSurface>
 
             {/* 인라인 텍스트 입력 박스 */}
             {activeTextInput && (
@@ -1263,7 +1150,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   container: { minHeight: 400, position: 'relative' },
-  canvas: { width: '100%', backgroundColor: 'transparent' },
   textInputWrapper: {
     position: 'absolute',
     backgroundColor: 'transparent',
