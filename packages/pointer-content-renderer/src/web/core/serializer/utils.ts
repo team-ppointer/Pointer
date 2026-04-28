@@ -24,16 +24,17 @@ export function escapeAttr(text: string): string {
   return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-const SAFE_CSS_COLOR_RE =
-  /^(?:#[0-9a-fA-F]{3,8}|[a-zA-Z]+|(?:rgb|rgba|hsl|hsla)\(\s*[\d.,\s%]+\s*\))$/;
+const HIGHLIGHT_COLOR_VAR_RE = /^var\(--tt-color-highlight-[a-z][a-z0-9-]*\)$/;
 
 /**
- * style 속성에 사용자 입력 색상을 흘려보낼 때 사용하는 화이트리스트 검증.
- * `;` `:` 등을 포함한 CSS 문장 주입을 차단한다.
+ * highlight mark 의 색상 값으로 허용할 형식.
+ * 콘텐츠는 항상 `var(--tt-color-highlight-<name>)` 으로 들어오며,
+ * 실제 색상은 CSS 변수에서 결정된다. `;` `:` 등 CSS 문장 주입 시도를
+ * 차단하기 위해 형식 자체를 좁힌다.
  */
-export function isSafeCssColor(value: string): boolean {
+export function isSafeHighlightColor(value: string): boolean {
   if (value.length > 64) return false;
-  return SAFE_CSS_COLOR_RE.test(value);
+  return HIGHLIGHT_COLOR_VAR_RE.test(value);
 }
 
 export function areAttrsEqual(a?: Record<string, unknown>, b?: Record<string, unknown>): boolean {

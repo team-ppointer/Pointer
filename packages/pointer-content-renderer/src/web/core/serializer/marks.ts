@@ -1,6 +1,6 @@
 import type { JSONMark } from '../../../types';
 
-import { escapeAttr, isSafeCssColor } from './utils';
+import { escapeAttr, isSafeHighlightColor } from './utils';
 
 export function renderMarks(text: string, marks?: JSONMark[]): string {
   if (!marks || marks.length === 0) return text;
@@ -19,7 +19,7 @@ export function renderMarks(text: string, marks?: JSONMark[]): string {
         const color = mark.attrs?.color;
         if (!color) return acc;
         const colorStr = String(color);
-        if (!isSafeCssColor(colorStr)) return acc;
+        if (!isSafeHighlightColor(colorStr)) return acc;
         const escColor = escapeAttr(colorStr);
         return `<mark data-color="${escColor}" style="background-color: ${escColor}; color: inherit;">${acc}</mark>`;
       }
