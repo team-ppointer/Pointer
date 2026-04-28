@@ -155,12 +155,21 @@ function serializeBulletList(node: JSONNode): string {
   return `<ul>${items}</ul>`;
 }
 
+const ORDERED_LIST_TYPES = new Set(['1', 'a', 'A', 'i', 'I']);
+
+function toSafeStart(value: unknown): number {
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n < 1 || n > 9999) return 1;
+  return n;
+}
+
 function serializeOrderedList(node: JSONNode): string {
   const attrs = node.attrs ?? {};
-  const start = attrs.start ?? 1;
-  const type = attrs.type ?? null;
+  const start = toSafeStart(attrs.start);
+  const typeRaw = attrs.type != null ? String(attrs.type) : '';
+  const type = ORDERED_LIST_TYPES.has(typeRaw) ? typeRaw : '';
 
-  const typeAttr = type ? ` type="${escapeAttr(String(type))}"` : '';
+  const typeAttr = type ? ` type="${type}"` : '';
   const startAttr = start !== 1 ? ` start="${start}"` : '';
 
   const items = (node.content ?? []).map(serializeListItem).join('');
