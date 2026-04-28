@@ -60,6 +60,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const [isCloseVisible, setIsCloseVisible] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [lastAttemptCount, setLastAttemptCount] = useState(0);
   const [problemProgress, setProblemProgress] = useState<ProblemProgress | null>(null);
   const [isScraped, setIsScraped] = useState(false);
@@ -145,6 +146,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   useEffect(() => {
     setAnswer('');
     setIsAnswerCorrect(false);
+    isSubmittingRef.current = false;
     setIsSubmitting(false);
     setKeyboardVisible(false);
     setResultSheetVisible(false);
@@ -234,7 +236,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   }, [closeKeyboard, openKeyboard, isKeyboardVisible, isResultSheetVisible]);
 
   const handleSubmitAnswer = useCallback(async () => {
-    if (isSubmitting) {
+    if (isSubmittingRef.current) {
       return;
     }
     if (!answer) {
@@ -252,8 +254,9 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       return;
     }
 
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
       const response = await postAnswer(publishId, currentProblem.id, numericAnswer);
       if (!response?.data) {
         throw new Error('Missing submission response');
@@ -269,12 +272,13 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       console.error('Failed to submit answer', error);
       Alert.alert('답안을 제출할 수 없어요.', '잠시 후 다시 시도해주세요.');
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
-  }, [answer, closeKeyboard, currentProblem?.id, isSubmitting, openResultSheet, publishId]);
+  }, [answer, closeKeyboard, currentProblem?.id, openResultSheet, publishId]);
 
   const handleIDontKnow = useCallback(async () => {
-    if (isSubmitting) {
+    if (isSubmittingRef.current) {
       return;
     }
     if (!publishId || !currentProblem?.id) {
@@ -282,8 +286,9 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       return;
     }
 
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
       const response = await postAnswer(publishId, currentProblem.id, null);
       if (!response?.data) {
         throw new Error('Missing submission response');
@@ -300,9 +305,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       console.error('Failed to submit answer', error);
       Alert.alert('답안을 제출할 수 없어요.', '잠시 후 다시 시도해주세요.');
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
-  }, [closeKeyboard, currentProblem?.id, isSubmitting, openResultSheet, publishId]);
+  }, [closeKeyboard, currentProblem?.id, openResultSheet, publishId]);
 
   const handleDeleteDigit = useCallback(() => {
     setAnswer((prev) => prev.slice(0, -1));
