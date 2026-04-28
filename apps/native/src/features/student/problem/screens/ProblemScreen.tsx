@@ -178,8 +178,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       ? (group?.attemptCount ?? currentProblem?.attemptCount ?? 0)
       : (currentProblem?.attemptCount ?? 0);
     setLastAttemptCount(initialAttempts);
-    // attemptCount / SharedValue .value 는 reset 본문 내 1회 read-time 값이고
-    // deps 추가 시 제출 직후 store 갱신으로 result sheet 가 닫히는 회귀가 발생하므로 명시 제외.
+    // group/currentProblem 의 attemptCount 와 keyboardSheetIndex.value,
+    // resultSheetIndex.value 는 reset 본문에서만 사용하는 1회 read-time 값이다.
+    // 이들을 deps 에 추가하면 제출 직후 store/shared value 갱신으로 reset effect 가 다시 실행되어
+    // result sheet 가 닫히는 회귀가 발생하므로 의도적으로 제외한다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProblem?.id, phase]);
 
