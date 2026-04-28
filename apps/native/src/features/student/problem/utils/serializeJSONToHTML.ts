@@ -27,6 +27,12 @@ function isSafeCssColor(value: string): boolean {
   return SAFE_CSS_COLOR_RE.test(value);
 }
 
+function toSafeSpan(value: unknown): number {
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n < 1 || n > 1000) return 1;
+  return n;
+}
+
 function renderMarks(text: string, marks?: JSONMark[]): string {
   if (!marks || marks.length === 0) return text;
 
@@ -184,8 +190,8 @@ function serializeTable(node: JSONNode): string {
     .map((row) => {
       const cells = (row.content ?? [])
         .map((cell) => {
-          const colspan = cell.attrs?.colspan ?? 1;
-          const rowspan = cell.attrs?.rowspan ?? 1;
+          const colspan = toSafeSpan(cell.attrs?.colspan);
+          const rowspan = toSafeSpan(cell.attrs?.rowspan);
           const colSpanAttr = ` colspan="${colspan}"`;
           const rowSpanAttr = ` rowspan="${rowspan}"`;
 
