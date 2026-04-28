@@ -32,28 +32,13 @@ import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-hand
 import { runOnJS, useSharedValue, useDerivedValue } from 'react-native-reanimated';
 
 import { buildSmoothPath } from './smoothing';
-
-export type Point = { x: number; y: number };
-export type Stroke = { points: Point[]; color: string; width: number };
-export type TextItem = {
-  id: string;
-  text: string;
-  x: number;
-  y: number;
-  fontSize: number;
-  color: string;
-};
-export type DrawingCanvasRef = {
-  clear: () => void;
-  undo: () => void;
-  redo: () => void;
-  canUndo: () => boolean;
-  canRedo: () => boolean;
-  getStrokes: () => Stroke[];
-  setStrokes: (strokes: Stroke[]) => void;
-  getTexts: () => TextItem[];
-  setTexts: (texts: TextItem[]) => void;
-};
+import {
+  type Point,
+  type Stroke,
+  type TextItem,
+  type DrawingCanvasRef,
+} from './model/drawingTypes';
+import { deepCopyStrokes, deepCopyTexts, safeMax } from './model/strokeUtils';
 
 type Props = {
   strokeColor?: string;
@@ -65,18 +50,6 @@ type Props = {
   textMode?: boolean;
   textFontPath?: number; // Skia에서 사용할 폰트 파일 경로 (require로 전달)
 };
-
-const deepCopyStrokes = (strokes: Stroke[]): Stroke[] =>
-  strokes.map((stroke) => ({
-    points: stroke.points.map((p) => ({ ...p })),
-    color: stroke.color,
-    width: stroke.width,
-  }));
-
-const deepCopyTexts = (texts: TextItem[]): TextItem[] => texts.map((text) => ({ ...text }));
-
-const safeMax = (arr: number[], fallback = 0): number =>
-  arr.length > 0 ? arr.reduce((max, v) => (v > max ? v : max), arr[0]) : fallback;
 
 const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
   (
