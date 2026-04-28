@@ -89,7 +89,10 @@ export function renderTextBubble(
   side: 'system' | 'user',
   animated: boolean
 ): HTMLElement {
-  const bubble = createBubbleElement(`<p>${text}</p>`, side, animated);
+  const bubble = createBubbleElement('', side, animated);
+  const p = document.createElement('p');
+  p.textContent = text;
+  bubble.appendChild(p);
   container.appendChild(bubble);
   if (animated) scrollToBottom();
   return bubble;

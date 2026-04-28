@@ -46,13 +46,16 @@ function countTableColumns(row: JSONNode): number {
   }, 0);
 }
 
+const MAX_TABLE_COLS = 200;
+
 export function serializeTable(node: JSONNode): string {
   const rows = node.content ?? [];
   const firstRow = rows[0];
   const cols = firstRow ? countTableColumns(firstRow) : 1;
-  const minWidth = cols * 25;
+  const safeCols = Math.min(Math.max(1, cols), MAX_TABLE_COLS);
+  const minWidth = safeCols * 25;
 
-  const colgroup = `<colgroup>${Array.from({ length: cols })
+  const colgroup = `<colgroup>${Array.from({ length: safeCols })
     .map(() => `<col style="min-width: 25px;"></col>`)
     .join('')}</colgroup>`;
 
