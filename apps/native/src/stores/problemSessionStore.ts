@@ -196,8 +196,13 @@ const computeResumeState = (
       }
     }
 
-    const nextChildIdx = lastChildIdx + 1;
-    if (nextChildIdx < children.length) {
+    // lastChildIdx === -1: 서버가 보낸 lastSolvedChildProblemNo가 현재 children에 없는 데이터 불일치.
+    // 0번으로 리셋되지 않도록 첫 미완료 자식으로 fallback, 없으면 children-done 브랜치로 fallthrough.
+    const nextChildIdx =
+      lastChildIdx === -1
+        ? children.findIndex((c) => c.progress !== 'CORRECT' && c.progress !== 'SEMI_CORRECT')
+        : lastChildIdx + 1;
+    if (nextChildIdx !== -1 && nextChildIdx < children.length) {
       return {
         phase: 'CHILD_PROBLEM',
         childIndex: nextChildIdx,
