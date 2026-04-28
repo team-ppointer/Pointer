@@ -89,9 +89,7 @@ export function renderTextBubble(
   side: 'system' | 'user',
   animated: boolean
 ): HTMLElement {
-  const bubble = document.createElement('div');
-  bubble.className = `chat-bubble chat-bubble--${side}`;
-  if (animated) bubble.style.animation = 'bubbleIn 300ms ease-out';
+  const bubble = createBubbleElement('', side, animated);
   const p = document.createElement('p');
   p.textContent = text;
   bubble.appendChild(p);
