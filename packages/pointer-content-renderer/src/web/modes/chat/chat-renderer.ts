@@ -89,7 +89,12 @@ export function renderTextBubble(
   side: 'system' | 'user',
   animated: boolean
 ): HTMLElement {
-  const bubble = createBubbleElement(`<p>${text}</p>`, side, animated);
+  const bubble = document.createElement('div');
+  bubble.className = `chat-bubble chat-bubble--${side}`;
+  if (animated) bubble.style.animation = 'bubbleIn 300ms ease-out';
+  const p = document.createElement('p');
+  p.textContent = text;
+  bubble.appendChild(p);
   container.appendChild(bubble);
   if (animated) scrollToBottom();
   return bubble;
