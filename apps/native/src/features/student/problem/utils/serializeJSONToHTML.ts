@@ -19,6 +19,14 @@ function escapeAttr(text: string): string {
   return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+const SAFE_CSS_COLOR_RE =
+  /^(?:#[0-9a-fA-F]{3,8}|[a-zA-Z]+|(?:rgb|rgba|hsl|hsla)\(\s*[\d.,\s%]+\s*\))$/;
+
+function isSafeCssColor(value: string): boolean {
+  if (value.length > 64) return false;
+  return SAFE_CSS_COLOR_RE.test(value);
+}
+
 function renderMarks(text: string, marks?: JSONMark[]): string {
   if (!marks || marks.length === 0) return text;
 
@@ -35,7 +43,9 @@ function renderMarks(text: string, marks?: JSONMark[]): string {
       case 'highlight': {
         const color = mark.attrs?.color;
         if (!color) return acc;
-        const escColor = escapeAttr(String(color));
+        const colorStr = String(color);
+        if (!isSafeCssColor(colorStr)) return acc;
+        const escColor = escapeAttr(colorStr);
         return `<mark data-color="${escColor}" style="background-color: ${escColor}; color: inherit;">${acc}</mark>`;
       }
       default:
