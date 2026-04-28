@@ -139,7 +139,28 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     }
   }, [initialized, group, currentProblem, redirectToHome]);
 
+  const prevPhaseRef = useRef<typeof phase | undefined>(undefined);
+  const prevProblemIdRef = useRef<number | undefined>(undefined);
+
   useEffect(() => {
+    const prevPhase = prevPhaseRef.current;
+    const prevProblemId = prevProblemIdRef.current;
+    prevPhaseRef.current = phase;
+    prevProblemIdRef.current = currentProblem?.id;
+
+    const idChanged = prevProblemId !== currentProblem?.id;
+    const isRetryToggle =
+      (prevPhase === 'MAIN_PROBLEM' && phase === 'MAIN_PROBLEM_RETRY') ||
+      (prevPhase === 'MAIN_PROBLEM_RETRY' && phase === 'MAIN_PROBLEM');
+
+    // POINTINGS / ANALYSIS 등으로의 phase 전환은 navigate 가 동반되어 reset 결과가
+    // 사용자에게 비가시지만, 그 invariant 가 깨지면 화면 잔류 중 답안/시트가 사라지는
+    // 회귀가 발생한다. 따라서 "새 문제 진입(id 변경)" 또는 "동일 id 메인 ↔ RETRY 토글"
+    // 에서만 reset 을 수행하도록 명시 가드.
+    if (!idChanged && !isRetryToggle) {
+      return;
+    }
+
     setAnswer('');
     setIsAnswerCorrect(false);
     isSubmittingRef.current = false;
@@ -157,8 +178,8 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       ? (group?.attemptCount ?? currentProblem?.attemptCount ?? 0)
       : (currentProblem?.attemptCount ?? 0);
     setLastAttemptCount(initialAttempts);
-    // 의도: 문제 변경(currentProblem.id) 또는 phase 전환(MAIN_PROBLEM ↔ MAIN_PROBLEM_RETRY)에만 reset.
-    // attemptCount / SharedValue .value 는 실행 시점 값을 1회 사용하는 read-time 값이므로 의존성에서 제외 (제출 후 store 갱신으로 sheet 가 닫히는 회귀 차단).
+    // attemptCount / SharedValue .value 는 reset 본문 내 1회 read-time 값이고
+    // deps 추가 시 제출 직후 store 갱신으로 result sheet 가 닫히는 회귀가 발생하므로 명시 제외.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProblem?.id, phase]);
 
