@@ -16,7 +16,7 @@ function escapeHtml(text: string): string {
 }
 
 function escapeAttr(text: string): string {
-  return escapeHtml(text).replace(/"/g, '&quot;');
+  return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function renderMarks(text: string, marks?: JSONMark[]): string {
