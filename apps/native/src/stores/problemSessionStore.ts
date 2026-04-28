@@ -169,14 +169,21 @@ const computeResumeState = (
     }
 
     const lastChildIdx = findChildIndexByNo(children, lastChildNo);
-    if (lastChildIdx !== -1) {
-      const child = children[lastChildIdx];
+    // lastChildIdx === -1: 서버 lastSolvedChildProblemNo가 현재 children에 없는 데이터 불일치.
+    // 0번으로 리셋되지 않도록 첫 미완료 자식을 effective current로 사용하고, retry/pointing 분기도 동일 적용.
+    const effectiveChildIdx =
+      lastChildIdx !== -1
+        ? lastChildIdx
+        : children.findIndex((c) => c.progress !== 'CORRECT' && c.progress !== 'SEMI_CORRECT');
+
+    if (effectiveChildIdx !== -1) {
+      const child = children[effectiveChildIdx];
       const childAttempts = child.attemptCount ?? 0;
       const childCorrect = child.progress === 'CORRECT' || child.progress === 'SEMI_CORRECT';
       if (!childCorrect && childAttempts < MAX_RETRY_ATTEMPTS) {
         return {
           phase: 'CHILD_PROBLEM',
-          childIndex: lastChildIdx,
+          childIndex: effectiveChildIdx,
           pointingIndex: INITIAL_INDEX,
           pointingTarget: undefined,
           mainCorrect: false,
@@ -188,7 +195,7 @@ const computeResumeState = (
       if (nextPIdx !== -1) {
         return {
           phase: 'CHILD_POINTINGS',
-          childIndex: lastChildIdx,
+          childIndex: effectiveChildIdx,
           pointingIndex: nextPIdx,
           pointingTarget: 'CHILD',
           mainCorrect: false,
@@ -196,8 +203,8 @@ const computeResumeState = (
       }
     }
 
-    const nextChildIdx = lastChildIdx + 1;
-    if (nextChildIdx < children.length) {
+    const nextChildIdx = effectiveChildIdx === -1 ? -1 : effectiveChildIdx + 1;
+    if (nextChildIdx !== -1 && nextChildIdx < children.length) {
       return {
         phase: 'CHILD_PROBLEM',
         childIndex: nextChildIdx,
