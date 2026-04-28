@@ -91,10 +91,6 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
     inputRange: [0, 1],
     outputRange: [colors['gray-200'], colors['gray-400']],
   });
-  const scrapIconColor = scrapAnimValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [colors['gray-700'], colors['primary-500']],
-  });
 
   const problemSubtitle = useMemo(() => {
     if (!group) {
