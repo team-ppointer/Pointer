@@ -21,7 +21,7 @@ export function escapeHtml(text: string): string {
 }
 
 export function escapeAttr(text: string): string {
-  return escapeHtml(text).replace(/"/g, '&quot;');
+  return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 export function areAttrsEqual(a?: Record<string, unknown>, b?: Record<string, unknown>): boolean {
