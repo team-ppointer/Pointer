@@ -18,24 +18,7 @@ import { parseDeepLinkUrl, isValidDeepLink } from '@utils/deepLink';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
 import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
 import { useIsTablet } from '@/features/student/qna/hooks/useIsTablet';
-
-const formatDate = (dateString: string) => {
-  const hasTime = /\d{2}:\d{2}/.test(dateString);
-  const date = !hasTime && /^\d{4}-\d{2}-\d{2}$/.test(dateString)
-    ? (() => {
-        const [year, month, day] = dateString.split('-').map(Number);
-        return new Date(year, month - 1, day);
-      })()
-    : new Date(dateString);
-  const now = new Date();
-  const isToday = date.toDateString() === now.toDateString();
-
-  if (isToday && hasTime) {
-    return `오늘 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-  }
-
-  return `${date.getMonth() + 1}월 ${date.getDate()}일`;
-};
+import { formatNoticeDate, formatNotificationDate } from '@utils/dateFormatter';
 
 const getNotificationIcon = (type: string): 'megaphone' | 'message' | 'book' => {
   switch (type) {
@@ -161,7 +144,7 @@ const NotificationScreen = () => {
               key={notice.id}
               icon='megaphone'
               title={notice.title}
-              time={formatDate(notice.startAt)}
+              time={formatNoticeDate(notice.startAt)}
               hasBadge={!notice.isRead}>
               <NotificationItem.Button
                 variant='ghost'
@@ -208,7 +191,7 @@ const NotificationScreen = () => {
                 key={notification.id}
                 icon={getNotificationIcon(notification.type)}
                 title={notification.title}
-                time={formatDate(notification.createdAt)}
+                time={formatNotificationDate(notification.createdAt)}
                 hasBadge={!notification.isRead}>
                 <NotificationItem.Button
                   icon={ChevronRight}
