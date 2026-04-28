@@ -24,6 +24,18 @@ export function escapeAttr(text: string): string {
   return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+const SAFE_CSS_COLOR_RE =
+  /^(?:#[0-9a-fA-F]{3,8}|[a-zA-Z]+|(?:rgb|rgba|hsl|hsla)\(\s*[\d.,\s%]+\s*\))$/;
+
+/**
+ * style 속성에 사용자 입력 색상을 흘려보낼 때 사용하는 화이트리스트 검증.
+ * `;` `:` 등을 포함한 CSS 문장 주입을 차단한다.
+ */
+export function isSafeCssColor(value: string): boolean {
+  if (value.length > 64) return false;
+  return SAFE_CSS_COLOR_RE.test(value);
+}
+
 export function areAttrsEqual(a?: Record<string, unknown>, b?: Record<string, unknown>): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
