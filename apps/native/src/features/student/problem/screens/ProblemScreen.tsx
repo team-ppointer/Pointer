@@ -161,7 +161,10 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
       ? (group?.attemptCount ?? currentProblem?.attemptCount ?? 0)
       : (currentProblem?.attemptCount ?? 0);
     setLastAttemptCount(initialAttempts);
-  }, [currentProblem?.id]);
+    // 의도: 문제 변경(currentProblem.id) 또는 phase 전환(MAIN_PROBLEM ↔ MAIN_PROBLEM_RETRY)에만 reset.
+    // attemptCount / SharedValue .value 는 실행 시점 값을 1회 사용하는 read-time 값이므로 의존성에서 제외 (제출 후 store 갱신으로 sheet 가 닫히는 회귀 차단).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentProblem?.id, phase]);
 
   // Sync scrap state with fetched data
   useEffect(() => {
