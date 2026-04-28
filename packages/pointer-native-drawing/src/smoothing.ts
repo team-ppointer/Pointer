@@ -1,6 +1,6 @@
 import { Skia, type SkPath } from '@shopify/react-native-skia';
 
-type Point = { x: number; y: number };
+import { type Point } from './model/drawingTypes';
 
 export function buildSmoothPath(points: Point[]): SkPath {
   const path = Skia.Path.Make();
