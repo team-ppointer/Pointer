@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { client } from '@/apis/client';
+import { client, TanstackQueryClient } from '@/apis/client';
 
 export const useDeleteHandwriting = () => {
   const queryClient = useQueryClient();
@@ -14,8 +14,18 @@ export const useDeleteHandwriting = () => {
       });
     },
     onSuccess: (_, scrapId) => {
-      queryClient.invalidateQueries({ queryKey: ['scrap', 'handwriting', scrapId] });
-      queryClient.invalidateQueries({ queryKey: ['scrap', 'detail', scrapId] });
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions(
+          'get',
+          '/api/student/scrap/{scrapId}/handwriting',
+          { params: { path: { scrapId } } }
+        ).queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: TanstackQueryClient.queryOptions('get', '/api/student/scrap/{id}', {
+          params: { path: { id: scrapId } },
+        }).queryKey,
+      });
     },
   });
 };

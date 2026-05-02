@@ -29,12 +29,12 @@ export const useUpdateHandwriting = () => {
       });
       return data as UpdateHandwritingResponse;
     },
-    onSuccess: (_, { scrapId, request }) => {
+    onSuccess: (response, { scrapId }) => {
       queryClient.setQueryData(
         TanstackQueryClient.queryOptions('get', '/api/student/scrap/{scrapId}/handwriting', {
           params: { path: { scrapId } },
         }).queryKey,
-        { data: request.data }
+        response
       );
     },
   });
