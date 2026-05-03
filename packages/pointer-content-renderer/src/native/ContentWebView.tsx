@@ -1,10 +1,7 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import WebView from 'react-native-webview';
-import type {
-  WebViewSource,
-  ShouldStartLoadRequest,
-} from 'react-native-webview/lib/WebViewTypes';
+import type { WebViewSource, ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import type { ViewStyle, StyleProp, ImageRequireSource } from 'react-native';
 
 import type { RNToWebViewMessage, UserAnswer, ContentMode } from '../types';
