@@ -8,6 +8,7 @@ import type { RNToWebViewMessage } from '../types';
 import { destroyBridge, onMessage, sendToRN } from './bridge';
 import { renderDocument } from './modes/document/document-renderer';
 import { runChatScenario } from './modes/chat/chat-controller';
+import { destroyChatScroll, initChatScroll } from './modes/chat/scroll';
 import { renderOverview } from './modes/overview/overview-renderer';
 import {
   initOverviewController,
@@ -63,7 +64,11 @@ onMessage(async (msg) => {
 
     case 'chat': {
       const abortController = new AbortController();
-      activeDispose = () => abortController.abort();
+      initChatScroll();
+      activeDispose = () => {
+        abortController.abort();
+        destroyChatScroll();
+      };
       sendToRN({ type: 'ready', mode: 'chat' });
       try {
         const answers = await runChatScenario(
