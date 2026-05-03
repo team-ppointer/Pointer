@@ -208,6 +208,8 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   },
 
   verifySession: async () => {
+    // JS single-thread 보장: check 와 IIFE 의 동기 할당 사이에 다른 caller 가
+    // 끼어들 수 없으므로 dedupe 가 성립한다. 향후 이 사이에 await 를 추가하지 말 것.
     if (verifySessionPromise) return verifySessionPromise;
 
     verifySessionPromise = (async () => {

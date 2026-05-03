@@ -68,8 +68,8 @@ const ensureStudentProfile = async (accessToken: string): Promise<void> => {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (data) {
-        await setName(data.name);
-        await setGrade(data.grade);
+        if (data.name !== undefined) await setName(data.name ?? null);
+        if (data.grade !== undefined) await setGrade(data.grade ?? null);
       }
     } finally {
       studentMePromise = null;
