@@ -2,7 +2,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView, Text, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { type StudentRootStackParamList } from '@navigation/student/types';
@@ -39,6 +39,14 @@ import {
   buildAnalysisOverviewSections,
   joinPointingsForAnalysis,
 } from '../transforms/contentRendererTransforms';
+
+// Module-level stable references for useSyncExternalStore — passing inline
+// closures here would defeat React's identity check and re-subscribe on
+// every render. Snapshot itself is referentially stable thanks to the
+// queue's internal cache (cleared on notify), so consecutive calls return
+// the same array until entries actually change.
+const queueSubscribe = (cb: () => void) => pointingFeedbackQueue.subscribe(cb);
+const queueGetSnapshot = () => pointingFeedbackQueue.snapshot();
 
 const AnalysisScreen = ({
   navigation,
@@ -106,7 +114,7 @@ const AnalysisScreen = ({
     }
   }, [hasNextProblem, invalidateStudyData, publishId, publishAt, goToNextProblem, goHome]);
 
-  const queueSnapshot = pointingFeedbackQueue.snapshot();
+  const queueSnapshot = useSyncExternalStore(queueSubscribe, queueGetSnapshot);
   const joined = useMemo(() => (group ? joinPointingsForAnalysis(group) : []), [group]);
   const sections = useMemo(
     () =>

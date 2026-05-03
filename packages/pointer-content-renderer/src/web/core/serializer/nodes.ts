@@ -5,8 +5,14 @@ import { serializeInlineList, serializeImage } from './inline';
 
 const ORDERED_LIST_TYPES = new Set(['1', 'a', 'A', 'i', 'I']);
 
-// Forward declaration — will be set by index.ts to break circular dependency
-let _serializeNode: (node: JSONNode) => string;
+// Forward declaration — set by index.ts to break circular dependency.
+// Default throws so accidental use before wiring is loud, not a silent
+// "undefined is not a function" deep in the call stack.
+let _serializeNode: (node: JSONNode) => string = () => {
+  throw new Error(
+    'serializer/nodes: _serializeNode not initialized. Ensure serializer/index.ts is imported before invoking node serializers.'
+  );
+};
 export function setSerializeNode(fn: (node: JSONNode) => string): void {
   _serializeNode = fn;
 }

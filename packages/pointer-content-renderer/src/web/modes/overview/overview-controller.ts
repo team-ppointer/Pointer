@@ -9,18 +9,44 @@ interface TabItem {
   tabEl: HTMLElement;
 }
 
-let tabItems: TabItem[] = [];
-let activeTabId: string | null = null;
+// Track the active controller's dispose so a re-init never leaks the previous
+// scroll listener if the caller forgot to dispose. Module-level mutable state
+// is restricted to this single reference; per-instance state lives in the
+// closure of initOverviewController.
+let _activeDispose: (() => void) | null = null;
 
 export function initOverviewController(
   container: HTMLElement,
   sections: OverviewSection[]
 ): () => void {
-  tabItems = buildTabItems(sections);
-  if (tabItems.length === 0) return () => {};
+  if (_activeDispose) {
+    _activeDispose();
+    _activeDispose = null;
+  }
+
+  const tabItems = buildTabItems(sections);
+  if (tabItems.length === 0) {
+    const noop = () => {};
+    _activeDispose = noop;
+    return noop;
+  }
 
   const tabBar = createTabBar(tabItems);
   container.insertBefore(tabBar, container.firstChild);
+
+  let activeTabId: string | null = null;
+  const setActiveTab = (sectionId: string): void => {
+    if (activeTabId === sectionId) return;
+    activeTabId = sectionId;
+
+    for (const item of tabItems) {
+      const isActive = item.sectionId === sectionId;
+      item.tabEl.classList.toggle('tab-item--active', isActive);
+    }
+
+    const activeItem = tabItems.find((t) => t.sectionId === sectionId);
+    activeItem?.tabEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  };
 
   setActiveTab(tabItems[0].sectionId);
 
@@ -74,12 +100,18 @@ export function initOverviewController(
 
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  return () => {
+  let disposed = false;
+  const dispose = () => {
+    if (disposed) return;
+    disposed = true;
     window.removeEventListener('scroll', onScroll);
-    tabItems = [];
-    activeTabId = null;
     clearBookmarkStates();
+    if (_activeDispose === dispose) {
+      _activeDispose = null;
+    }
   };
+  _activeDispose = dispose;
+  return dispose;
 }
 
 function buildTabItems(sections: OverviewSection[]): TabItem[] {
@@ -124,19 +156,6 @@ function createTabBar(items: TabItem[]): HTMLElement {
 function getTabBarHeight(): number {
   const clip = document.querySelector<HTMLElement>('.tab-bar-clip');
   return clip?.offsetHeight ?? 0;
-}
-
-function setActiveTab(sectionId: string): void {
-  if (activeTabId === sectionId) return;
-  activeTabId = sectionId;
-
-  for (const item of tabItems) {
-    const isActive = item.sectionId === sectionId;
-    item.tabEl.classList.toggle('tab-item--active', isActive);
-  }
-
-  const activeItem = tabItems.find((t) => t.sectionId === sectionId);
-  activeItem?.tabEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
 
 export function scrollToSection(sectionId: string): void {
