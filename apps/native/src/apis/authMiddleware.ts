@@ -7,7 +7,6 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
   getTeacherAccessToken,
   getTeacherName,
-  setAccessToken,
   setGrade,
   setName,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
@@ -56,6 +55,30 @@ const isUnprotectedRoute = (schemaPath: string, isTeacher: boolean) => {
 const retryRequestClones = new WeakMap<Request, Request>();
 
 let studentRefreshPromise: Promise<string | null> | null = null;
+let studentMePromise: Promise<void> | null = null;
+
+const ensureStudentProfile = async (accessToken: string): Promise<void> => {
+  // 한쪽 필드(name 또는 grade)만 캐시되고 다른 한쪽이 비어 있으면 보충해야 한다.
+  // 둘 다 null 이 아닐 때만 fetch 를 생략한다.
+  if (getName() !== null && getGrade() !== null) return;
+  if (studentMePromise) return studentMePromise;
+
+  studentMePromise = (async () => {
+    try {
+      const { data } = await bareClient.GET('/api/student/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (data) {
+        if (data.name !== undefined) await setName(data.name ?? null);
+        if (data.grade !== undefined) await setGrade(data.grade ?? null);
+      }
+    } finally {
+      studentMePromise = null;
+    }
+  })();
+
+  return studentMePromise;
+};
 
 const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
   if (!forceRefresh) {
@@ -71,14 +94,22 @@ const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
 
   studentRefreshPromise = (async () => {
     try {
-      if (forceRefresh) {
-        await setAccessToken(null);
-      }
-
+      // 기존 access token 은 refresh 결과가 확정될 때까지 보존한다.
+      // 성공 시 refreshAndPersistTokens 내부에서 새 토큰으로 교체되고,
+      // 명시적 실패 시 signOut 이 자격증명 전체를 정리한다. transient
+      // 실패에서는 기존 토큰을 유지해 5xx/네트워크 장애가 짧게 지나가면
+      // 그대로 복구되도록 한다.
       const result = await refreshAndPersistTokens();
 
       if (!result.success) {
-        console.warn('Student token refresh failed, clearing credentials.');
+        if (result.transient) {
+          // 서버 5xx/네트워크 장애. refresh token 자체가 무효라고 단정할 수 없으므로
+          // 자격증명을 보존한다. 실패한 호출은 401 그대로 caller 에 전달되어
+          // 사용자 메시징/재시도로 이어진다.
+          console.warn('Student token refresh transient failure; keeping credentials.');
+          return null;
+        }
+        console.warn('Student token refresh failed (token invalid), clearing credentials.');
         await useAuthStore.getState().signOut();
         return null;
       }
@@ -137,14 +168,8 @@ const authMiddleware: Middleware = {
       request.headers.set('Authorization', `Bearer ${accessToken}`);
     }
 
-    if (accessToken && !isTeacher && !getName() && !getGrade()) {
-      const { data } = await bareClient.GET('/api/student/me', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (data) {
-        await setName(data.name);
-        await setGrade(data.grade);
-      }
+    if (accessToken && !isTeacher) {
+      await ensureStudentProfile(accessToken);
     }
 
     if (accessToken && isTeacher && !getTeacherName()) {

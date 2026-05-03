@@ -81,6 +81,25 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/study/problem/{publishId}/{problemId}/handwriting': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 필기 데이터 조회 */
+    get: operations['getHandwriting'];
+    /** 필기 데이터 저장/수정 */
+    put: operations['updateHandwriting'];
+    post?: never;
+    /** 필기 데이터 삭제 */
+    delete: operations['deleteHandwriting'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/scrap/{scrapId}': {
     parameters: {
       query?: never;
@@ -157,12 +176,12 @@ export interface paths {
       cookie?: never;
     };
     /** 필기 데이터 조회 */
-    get: operations['getHandwriting'];
+    get: operations['getHandwriting_1'];
     /** 필기 데이터 저장/수정 */
-    put: operations['updateHandwriting'];
+    put: operations['updateHandwriting_1'];
     post?: never;
     /** 필기 데이터 삭제 */
-    delete: operations['deleteHandwriting'];
+    delete: operations['deleteHandwriting_1'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2974,6 +2993,30 @@ export interface components {
       /** @description 마케팅 알림 허용 여부 (이벤트 및 업데이트 관련 알림) */
       isAllowMarketingPush?: boolean;
     };
+    StudyHandwritingUpdateRequest: {
+      /** @description 필기 데이터 (Base64 인코딩) */
+      data: string;
+    };
+    /** @description 학습 필기 데이터 응답 */
+    StudyHandwritingResp: {
+      /**
+       * Format: int64
+       * @description 발행 ID
+       */
+      publishId: number;
+      /**
+       * Format: int64
+       * @description 문제 ID
+       */
+      problemId: number;
+      /** @description 필기 데이터 (Base64 인코딩) */
+      data: string;
+      /**
+       * Format: date-time
+       * @description 필기 데이터 수정일시 (필기 없으면 null)
+       */
+      updatedAt?: string;
+    };
     ScrapUpdateRequest: {
       /**
        * Format: int64
@@ -3004,6 +3047,13 @@ export interface components {
       name: string;
       category: components['schemas']['ConceptCategoryResp'];
     };
+    PointingCommentContentResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      contentJson: string;
+    };
     /** @description 포인팅 목록 */
     PointingResp: {
       /** Format: int64 */
@@ -3012,6 +3062,7 @@ export interface components {
       no: number;
       questionContent: string;
       commentContent: string;
+      commentContentList?: components['schemas']['PointingCommentContentResp'][];
       concepts: components['schemas']['ConceptResp'][];
     };
     PracticeTestResp: {
@@ -3316,6 +3367,13 @@ export interface components {
     TeacherStudentAssignReq: {
       students: number[];
     };
+    CommentContentRequest: {
+      /** Format: int64 */
+      id?: number;
+      /** Format: int32 */
+      no?: number;
+      contentJson?: string;
+    };
     PointingUpdateRequest: {
       /** Format: int64 */
       id?: number;
@@ -3323,6 +3381,7 @@ export interface components {
       no?: number;
       questionContent?: string;
       commentContent?: string;
+      commentContentList?: components['schemas']['CommentContentRequest'][];
       concepts?: number[];
     };
     ProblemUpdateRequest: {
@@ -4026,6 +4085,7 @@ export interface components {
       no: number;
       questionContent: string;
       commentContent: string;
+      commentContentList?: components['schemas']['PointingCommentContentResp'][];
       concepts: components['schemas']['ConceptResp'][];
       isQuestionUnderstood?: boolean;
       isCommentUnderstood?: boolean;
@@ -4167,6 +4227,7 @@ export interface components {
       no?: number;
       questionContent?: string;
       commentContent?: string;
+      commentContentList?: components['schemas']['CommentContentRequest'][];
       concepts?: number[];
     };
     ProblemCreateRequest: {
@@ -4447,6 +4508,7 @@ export interface components {
       no: number;
       questionContent: string;
       commentContent: string;
+      commentContentList?: components['schemas']['PointingCommentContentResp'][];
       concepts: components['schemas']['ConceptResp'][];
       isQuestionUnderstood?: boolean;
       isCommentUnderstood?: boolean;
@@ -5023,8 +5085,7 @@ export interface components {
       path?: string;
       /** Format: date-time */
       timestamp?: string;
-      rootCause?: string;
-      stackTrace?: string[];
+      requestId?: string;
     };
   };
   responses: never;
@@ -5199,6 +5260,77 @@ export interface operations {
       };
     };
   };
+  getHandwriting: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudyHandwritingResp'];
+        };
+      };
+    };
+  };
+  updateHandwriting: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudyHandwritingUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudyHandwritingResp'];
+        };
+      };
+    };
+  };
+  deleteHandwriting: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   updateScrap: {
     parameters: {
       query?: never;
@@ -5303,7 +5435,7 @@ export interface operations {
       };
     };
   };
-  getHandwriting: {
+  getHandwriting_1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5325,7 +5457,7 @@ export interface operations {
       };
     };
   };
-  updateHandwriting: {
+  updateHandwriting_1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5351,7 +5483,7 @@ export interface operations {
       };
     };
   };
-  deleteHandwriting: {
+  deleteHandwriting_1: {
     parameters: {
       query?: never;
       header?: never;
