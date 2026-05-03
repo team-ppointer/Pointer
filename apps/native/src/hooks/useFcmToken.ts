@@ -55,7 +55,7 @@ const useFcmToken = () => {
         // 2. APNs 토큰 확인 (iOS 필수: 이게 없으면 FCM 토큰이 있어도 동작 안 함)
         if (Platform.OS === 'ios') {
           const apnsToken = await messaging().getAPNSToken();
-          console.log('[FCM] APNs Token:', apnsToken);
+          if (__DEV__) console.log('[FCM] APNs Token:', apnsToken);
           if (!apnsToken) {
             console.error('[FCM] APNs Token is missing! Swizzling might be failed.');
             // 여기서 APNs 토큰이 없다면 iOS 설정 문제(Capabilities 등)일 가능성이 큼
@@ -64,12 +64,12 @@ const useFcmToken = () => {
 
         // 3. FCM 토큰 가져오기
         const token = await messaging().getToken();
-        console.log('[FCM] Device FCM Token:', token);
+        if (__DEV__) console.log('[FCM] Device FCM Token:', token);
 
         if (token && !hasRegistered.current) {
           await postPushToken(token);
           hasRegistered.current = true;
-          console.log('[FCM] Token registered to server');
+          if (__DEV__) console.log('[FCM] Token registered to server');
         }
       } catch (error) {
         console.error('[FCM] Registration failed:', error);
@@ -80,7 +80,9 @@ const useFcmToken = () => {
 
     // 4. 포그라운드 메시지 수신 (앱이 켜져 있을 때 로그 확인용)
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      console.log('[FCM] A new FCM message arrived!', JSON.stringify(remoteMessage));
+      if (__DEV__) {
+        console.log('[FCM] A new FCM message arrived!', JSON.stringify(remoteMessage));
+      }
 
       // 앱이 켜져 있을 때도 상단 알림을 띄우고 싶다면 expo-notifications 사용
       await Notifications.scheduleNotificationAsync({
