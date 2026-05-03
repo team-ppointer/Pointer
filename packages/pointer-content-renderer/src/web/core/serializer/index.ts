@@ -52,8 +52,16 @@ setSerializeNode(serializeNode);
 
 export function serializeJSONToHTML(doc: JSONNode | string): string {
   let json: JSONNode;
-  if (typeof doc === 'string') json = JSON.parse(doc);
-  else json = doc;
+  if (typeof doc === 'string') {
+    try {
+      json = JSON.parse(doc) as JSONNode;
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      throw new Error(`serializeJSONToHTML: invalid JSON payload (${detail})`);
+    }
+  } else {
+    json = doc;
+  }
 
   if (json.type !== 'doc') {
     throw new Error('root node must be type=doc');
