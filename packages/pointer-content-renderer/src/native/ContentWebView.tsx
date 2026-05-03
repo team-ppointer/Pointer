@@ -10,7 +10,13 @@ import { useContentBridge, type AnswerEventPayload } from './useContentBridge';
 
 // 번들된 정적 HTML 만 로드. 외부 origin 으로의 navigation 은 모두 차단.
 // (CSS/JS subresource 는 originWhitelist 적용 대상이 아니므로 jsdelivr CDN 은 정상 로드됨.)
-const ALLOWED_ORIGIN_WHITELIST = ['file://', 'about:blank'];
+//
+// dev 모드에서는 Metro bundler 가 require('./*.html') 자산을
+// `http://<LAN-IP>:8081/...` 로 서빙하므로 http/https 도 허용해야 한다.
+// 프로덕션 번들에서는 file:// 만 허용.
+const ALLOWED_ORIGIN_WHITELIST = __DEV__
+  ? ['file://', 'about:blank', 'http://', 'https://']
+  : ['file://', 'about:blank'];
 
 const shouldAllowRequest = (request: ShouldStartLoadRequest): boolean => {
   const url = request.url;
@@ -18,8 +24,9 @@ const shouldAllowRequest = (request: ShouldStartLoadRequest): boolean => {
   if (url.startsWith('about:blank')) return true;
   // RN WebView 가 내부적으로 사용하는 data: URL (iOS injectedJavaScript 등)
   if (url.startsWith('data:')) return true;
-  // dev 빌드의 Metro/localhost 자산 (예: source map)
-  if (__DEV__ && (url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1'))) {
+  // dev 빌드: Metro 가 어떤 host (LAN IP / localhost) 로 서빙되든 허용.
+  // 프로덕션에서는 file:// 만 통과되므로 보안 가드 유지.
+  if (__DEV__ && (url.startsWith('http://') || url.startsWith('https://'))) {
     return true;
   }
   if (__DEV__) console.warn('[ContentWebView] blocked navigation:', url);
