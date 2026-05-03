@@ -58,6 +58,60 @@ const initialState: AuthState = {
   teacherProfile: undefined,
 };
 
+let verifySessionPromise: Promise<void> | null = null;
+
+type AuthSetter = (
+  partial:
+    | (AuthState & AuthActions)
+    | Partial<AuthState & AuthActions>
+    | ((
+        state: AuthState & AuthActions
+      ) => (AuthState & AuthActions) | Partial<AuthState & AuthActions>)
+) => void;
+
+const applyStudentVerified = async (
+  set: AuthSetter,
+  result: { name?: string; grade?: string }
+): Promise<void> => {
+  if (result.name !== undefined) await setName(result.name ?? null);
+  if (result.grade !== undefined) await setGrade(result.grade ?? null);
+  set({
+    sessionStatus: 'authenticated',
+    studentProfile: {
+      name: result.name !== undefined ? result.name : getName(),
+      grade: result.grade !== undefined ? result.grade : getGrade(),
+    },
+  });
+};
+
+const runStudentVerification = async (set: AuthSetter): Promise<void> => {
+  const result = await verifyStudentSession();
+  if (result.valid) {
+    await applyStudentVerified(set, result);
+    return;
+  }
+  await clearAuthState();
+  set({ ...initialState, sessionStatus: 'unauthenticated' });
+};
+
+const runVerifySession = async (set: AuthSetter): Promise<void> => {
+  const state = useAuthStore.getState();
+  if (state.sessionStatus !== 'checking') return;
+
+  if (state.role === 'student') {
+    await runStudentVerification(set);
+    return;
+  }
+
+  // TODO: implement teacher token verification when teacher refresh API is ready
+  if (state.role === 'teacher') {
+    set({ sessionStatus: 'authenticated' });
+    return;
+  }
+
+  set({ ...initialState, sessionStatus: 'unauthenticated' });
+};
+
 const verifyStudentSession = async (): Promise<{
   valid: boolean;
   name?: string;
@@ -134,43 +188,21 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   },
 
   verifySession: async () => {
-    const state = useAuthStore.getState();
+    if (verifySessionPromise) return verifySessionPromise;
 
-    if (state.sessionStatus !== 'checking') return;
-
-    try {
-      if (state.role === 'student') {
-        const result = await verifyStudentSession();
-
-        if (result.valid) {
-          if (result.name !== undefined) await setName(result.name ?? null);
-          if (result.grade !== undefined) await setGrade(result.grade ?? null);
-          set({
-            sessionStatus: 'authenticated',
-            studentProfile: {
-              name: result.name !== undefined ? result.name : getName(),
-              grade: result.grade !== undefined ? result.grade : getGrade(),
-            },
-          });
-        } else {
-          await clearAuthState();
-          set({ ...initialState, sessionStatus: 'unauthenticated' });
-        }
-        return;
+    verifySessionPromise = (async () => {
+      try {
+        await runVerifySession(set);
+      } catch (error) {
+        console.warn('Session verification failed unexpectedly', error);
+        await clearAuthState().catch(() => {});
+        set({ ...initialState, sessionStatus: 'unauthenticated' });
+      } finally {
+        verifySessionPromise = null;
       }
+    })();
 
-      // TODO: implement teacher token verification when teacher refresh API is ready
-      if (state.role === 'teacher') {
-        set({ sessionStatus: 'authenticated' });
-        return;
-      }
-
-      set({ ...initialState, sessionStatus: 'unauthenticated' });
-    } catch (error) {
-      console.warn('Session verification failed unexpectedly', error);
-      await clearAuthState().catch(() => {});
-      set({ ...initialState, sessionStatus: 'unauthenticated' });
-    }
+    return verifySessionPromise;
   },
 
   setRole: (role) => set({ role }),
