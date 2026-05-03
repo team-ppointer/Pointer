@@ -25,8 +25,6 @@ Notifications.setNotificationHandler({
  */
 const useFcmToken = () => {
   const hasRegistered = useRef(false);
-  const notificationListener = useRef<Notifications.EventSubscription | null>(null);
-  const responseListener = useRef<Notifications.EventSubscription | null>(null);
 
   useEffect(() => {
     // 웹에서는 FCM을 사용하지 않음
