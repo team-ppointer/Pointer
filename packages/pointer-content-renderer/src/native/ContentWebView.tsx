@@ -1,12 +1,33 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import WebView from 'react-native-webview';
-import type { WebViewSource } from 'react-native-webview/lib/WebViewTypes';
+import type {
+  WebViewSource,
+  ShouldStartLoadRequest,
+} from 'react-native-webview/lib/WebViewTypes';
 import type { ViewStyle, StyleProp, ImageRequireSource } from 'react-native';
 
 import type { RNToWebViewMessage, UserAnswer, ContentMode } from '../types';
 
 import { useContentBridge, type AnswerEventPayload } from './useContentBridge';
+
+// 번들된 정적 HTML 만 로드. 외부 origin 으로의 navigation 은 모두 차단.
+// (CSS/JS subresource 는 originWhitelist 적용 대상이 아니므로 jsdelivr CDN 은 정상 로드됨.)
+const ALLOWED_ORIGIN_WHITELIST = ['file://', 'about:blank'];
+
+const shouldAllowRequest = (request: ShouldStartLoadRequest): boolean => {
+  const url = request.url;
+  if (url.startsWith('file://')) return true;
+  if (url.startsWith('about:blank')) return true;
+  // RN WebView 가 내부적으로 사용하는 data: URL (iOS injectedJavaScript 등)
+  if (url.startsWith('data:')) return true;
+  // dev 빌드의 Metro/localhost 자산 (예: source map)
+  if (__DEV__ && (url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1'))) {
+    return true;
+  }
+  if (__DEV__) console.warn('[ContentWebView] blocked navigation:', url);
+  return false;
+};
 
 /**
  * Accepts:
@@ -109,7 +130,9 @@ export const ContentWebView = forwardRef<ContentWebViewHandle, ContentWebViewPro
             { backgroundColor },
             isLoading ? { opacity: 0 } : { opacity: 1 },
           ]}
-          originWhitelist={['*']}
+          // 정적 번들 HTML + 신뢰된 CDN(jsdelivr KaTeX) 만 사용. 외부 navigation 차단.
+          originWhitelist={ALLOWED_ORIGIN_WHITELIST}
+          onShouldStartLoadWithRequest={shouldAllowRequest}
         />
         {isLoading && (
           <View
