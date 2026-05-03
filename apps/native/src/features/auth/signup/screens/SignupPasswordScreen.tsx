@@ -4,12 +4,11 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { EyeIcon, EyeOffIcon } from 'lucide-react-native';
 
 import { colors } from '@theme/tokens';
-import { postEmailSignup } from '@apis/student';
+import { postSignUpLocal } from '@apis/student';
 import { setAccessToken, setRefreshToken } from '@utils';
 import { useAuthStore } from '@stores';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
-
 import type { AuthStackParamList } from '@navigation/auth/AuthNavigator';
 import { OnboardingInput, OnboardingLayout } from '@features/student/onboarding/components';
 
@@ -38,21 +37,21 @@ const SignupPasswordScreen = ({ navigation, route }: Props) => {
     setError(null);
 
     try {
-      const response = await postEmailSignup({ email, password });
+      const { data, error } = await postSignUpLocal({ email, password });
 
-      if (!response.isSuccess || !response.data) {
+      if (error || !data) {
         throw new Error('회원가입에 실패했습니다.');
       }
 
-      await setAccessToken(response.data.token.accessToken);
-      if (response.data.token.refreshToken) {
-        await setRefreshToken(response.data.token.refreshToken);
+      await setAccessToken(data.token.accessToken);
+      if (data.token.refreshToken) {
+        await setRefreshToken(data.token.refreshToken);
       }
 
-      if (response.data.name || response.data.grade) {
+      if (data.name || data.grade) {
         await updateStudentProfile({
-          name: response.data.name ?? null,
-          grade: response.data.grade ?? null,
+          name: data.name ?? null,
+          grade: data.grade ?? null,
         });
       }
 

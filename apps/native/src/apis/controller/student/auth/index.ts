@@ -1,5 +1,4 @@
 import deleteAccount from './deleteAccount';
-import postEmailSignup from './postEmailSignup';
 import postLoginLocal from './postLoginLocal';
 import postOauthNative from './postOauthNative';
 import postPasswordReset from './postPasswordReset';
@@ -14,7 +13,6 @@ export type { OAuthNativeRequest, OAuthNativeResponse, OAuthNativeUser } from '.
 
 export {
   deleteAccount,
-  postEmailSignup,
   postLoginLocal,
   postOauthNative,
   postPasswordReset,
