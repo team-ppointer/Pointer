@@ -55,9 +55,15 @@ onMessage(async (msg) => {
 
   switch (msg.mode) {
     case 'document': {
-      const dispose = await renderDocument(container, msg, isCurrent);
-      if (!isCurrent()) return;
-      activeDispose = dispose;
+      try {
+        const dispose = await renderDocument(container, msg, isCurrent);
+        if (!isCurrent()) return;
+        activeDispose = dispose;
+      } catch (e) {
+        if (!isCurrent()) return;
+        console.error('[content-renderer] document render error:', e);
+        container.replaceChildren();
+      }
       sendToRN({ type: 'ready', mode: 'document' });
       break;
     }
@@ -104,10 +110,16 @@ onMessage(async (msg) => {
       if (msg.variant) {
         document.body.classList.add(`overview-mode--${msg.variant}`);
       }
-      await renderOverview(container, msg.sections, isCurrent);
-      if (!isCurrent()) return;
-      const dispose = initOverviewController(container, msg.sections);
-      activeDispose = dispose;
+      try {
+        await renderOverview(container, msg.sections, isCurrent);
+        if (!isCurrent()) return;
+        const dispose = initOverviewController(container, msg.sections);
+        activeDispose = dispose;
+      } catch (e) {
+        if (!isCurrent()) return;
+        console.error('[content-renderer] overview render error:', e);
+        container.replaceChildren();
+      }
       sendToRN({ type: 'ready', mode: 'overview' });
       break;
     }
