@@ -20,8 +20,11 @@ const readySubscribers = new Set<() => void>();
  * navigationRef 가 attach 된 시점에 호출되어 대기 중인 subscriber 들을 깨운다.
  */
 export const handleNavigationReady = () => {
-  for (const cb of readySubscribers) cb();
-  readySubscribers.clear();
+  // snapshot 후 호출 — 각 handler 가 finish() 안에서 자기 자신을 delete 하므로
+  // 반복 중 mutation 을 피하면서도 leak 없이 정리된다. clear() 를 하지 않는 이유는
+  // Fast Refresh / container 재mount 시 onReady 가 다시 발화될 수 있어, 그 사이
+  // 등록된 subscriber 가 손실되지 않도록 함이다.
+  [...readySubscribers].forEach((cb) => cb());
 };
 
 /**
