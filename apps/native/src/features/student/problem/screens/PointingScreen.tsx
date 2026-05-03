@@ -49,8 +49,6 @@ const PointingScreen = ({
 
   const pointings = useProblemSessionStore(useShallow(selectPointingsForPointing));
 
-  if (pointings.length === 0) console.warn('[PointingScreen] empty pointings array');
-
   const { advanceMessage, advanceButtonLabel } = useMemo(() => {
     if (phase === 'MAIN_POINTINGS') {
       return {
