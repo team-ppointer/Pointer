@@ -4,7 +4,7 @@ import messaging, { type FirebaseMessagingTypes } from '@react-native-firebase/m
 import * as Notifications from 'expo-notifications';
 import { CommonActions } from '@react-navigation/native';
 
-import { navigationRef, isNavigationReady } from '@/services/navigation';
+import { navigationRef, waitForNavigationReady } from '@/services/navigation';
 import { parseDeepLinkUrl, isValidDeepLink } from '@/utils/deepLink';
 import { getPublishDetailById } from '@/apis/controller/student/study';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@/stores';
@@ -32,16 +32,9 @@ const handleDeepLink = async (url: string | undefined | null) => {
     return false;
   }
 
-  // 네비게이션이 준비될 때까지 대기 (최대 3초)
-  const waitForNavigation = async (timeout = 3000): Promise<boolean> => {
-    const startTime = Date.now();
-    while (!isNavigationReady() && Date.now() - startTime < timeout) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-    return isNavigationReady();
-  };
-
-  const isReady = await waitForNavigation();
+  // navigationRef 가 ready 가 될 때까지 이벤트 기반으로 대기 (busy-wait 제거).
+  // 저사양 기기의 콜드 스타트 (>3s) 에서도 딥링크가 손실되지 않도록 30s 까지 허용.
+  const isReady = await waitForNavigationReady();
   if (!isReady) {
     console.warn('[DeepLink] Navigation not ready, cannot handle deep link');
     return false;

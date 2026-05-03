@@ -17,7 +17,7 @@ import { toastConfig } from '@/features/student/scrap/components/Notification/To
 import { PointingFeedbackQueueWiring } from '@/features/student/problem/services/PointingFeedbackQueueWiring';
 import { env } from '@utils';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
-import { navigationRef } from '@/services/navigation';
+import { navigationRef, handleNavigationReady } from '@/services/navigation';
 
 initializeKakaoSDK(env.kakaoNativeAppKey);
 
@@ -53,7 +53,10 @@ export default function App() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           {isReady && (
-            <NavigationContainer ref={navigationRef} theme={navigationTheme}>
+            <NavigationContainer
+              ref={navigationRef}
+              theme={navigationTheme}
+              onReady={handleNavigationReady}>
               <StatusBar style='dark' />
               <RootNavigator />
               <Toast config={toastConfig} />
