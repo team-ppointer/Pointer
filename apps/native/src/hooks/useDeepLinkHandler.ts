@@ -51,7 +51,9 @@ const handleDeepLink = async (url: string | undefined | null) => {
   // 안에서 처리되므로 동일 route 를 게이트로 사용.)
   const studentAppReady = await waitForRouteRegistered('StudentApp');
   if (!studentAppReady) {
-    console.warn('[DeepLink] StudentApp route 미등록 — 알림이 unauthenticated 상태에 도착했을 가능성');
+    console.warn(
+      '[DeepLink] StudentApp route 미등록 — 알림이 unauthenticated 상태에 도착했을 가능성'
+    );
     return false;
   }
 
