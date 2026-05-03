@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import type WebView from 'react-native-webview';
 
 import type { RNToWebViewMessage, WebViewToRNMessage, UserAnswer, ContentMode } from '../types';
@@ -27,8 +27,11 @@ export function useContentBridge(options: ContentBridgeOptions) {
   // across renders. Without this, callers passing inline arrows (typical)
   // would rebuild `handleMessage` every render and risk WebView reload via
   // the `onMessage` prop changing identity.
+  // useLayoutEffect to close the post-commit/pre-effect window where a
+  // WebView message arriving between render and effect would otherwise read
+  // a stale callback (RN has no SSR concerns).
   const optionsRef = useRef(options);
-  useEffect(() => {
+  useLayoutEffect(() => {
     optionsRef.current = options;
   });
 
