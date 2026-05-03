@@ -59,8 +59,8 @@ let studentMePromise: Promise<void> | null = null;
 
 const ensureStudentProfile = async (accessToken: string): Promise<void> => {
   // 한쪽 필드(name 또는 grade)만 캐시되고 다른 한쪽이 비어 있으면 보충해야 한다.
-  // 둘 다 채워졌을 때만 fetch 를 생략한다.
-  if (getName() && getGrade()) return;
+  // 둘 다 null 이 아닐 때만 fetch 를 생략한다.
+  if (getName() !== null && getGrade() !== null) return;
   if (studentMePromise) return studentMePromise;
 
   studentMePromise = (async () => {
