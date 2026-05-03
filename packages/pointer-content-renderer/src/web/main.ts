@@ -5,7 +5,7 @@ import './modes/overview/overview.css';
 
 import type { RNToWebViewMessage } from '../types';
 
-import { onMessage, sendToRN } from './bridge';
+import { destroyBridge, onMessage, sendToRN } from './bridge';
 import { renderDocument } from './modes/document/document-renderer';
 import { runChatScenario } from './modes/chat/chat-controller';
 import { renderOverview } from './modes/overview/overview-renderer';
@@ -113,4 +113,11 @@ sendToRN({ type: 'bridgeReady' });
 
 if (import.meta.env.DEV) {
   import('../../dev/dev-panel');
+}
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    disposeCurrentRender();
+    destroyBridge();
+  });
 }
