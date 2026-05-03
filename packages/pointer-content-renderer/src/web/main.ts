@@ -42,6 +42,15 @@ function handleNonInitMessage(msg: RNToWebViewMessage): void {
   }
 }
 
+// 빈 컨테이너만 보내면 RN 측에서 '성공한 빈 콘텐츠'로 인지되므로,
+// 사용자에게 실패 사실을 가시화하기 위한 최소 fallback DOM 을 렌더한다.
+function renderFallback(): void {
+  const el = document.createElement('div');
+  el.className = 'content-error';
+  el.textContent = '콘텐츠를 불러올 수 없습니다.';
+  container.replaceChildren(el);
+}
+
 onMessage(async (msg) => {
   if (msg.type !== 'init') {
     handleNonInitMessage(msg);
@@ -62,7 +71,7 @@ onMessage(async (msg) => {
       } catch (e) {
         if (!isCurrent()) return;
         console.error('[content-renderer] document render error:', e);
-        container.replaceChildren();
+        renderFallback();
       }
       sendToRN({ type: 'ready', mode: 'document' });
       break;
@@ -118,7 +127,7 @@ onMessage(async (msg) => {
       } catch (e) {
         if (!isCurrent()) return;
         console.error('[content-renderer] overview render error:', e);
-        container.replaceChildren();
+        renderFallback();
       }
       sendToRN({ type: 'ready', mode: 'overview' });
       break;

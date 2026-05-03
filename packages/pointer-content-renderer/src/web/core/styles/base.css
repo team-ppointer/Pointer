@@ -311,6 +311,14 @@ table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
   transform: translateY(-50%);
 }
 
+/* Render-failure fallback (main.ts renderFallback) */
+.content-error {
+  padding: 2.5em 1.25em;
+  text-align: center;
+  color: var(--color-gray-700);
+  font-size: 0.9375rem;
+}
+
 /* Inline math */
 span[data-type='inline-math'] {
   display: inline-flex;
