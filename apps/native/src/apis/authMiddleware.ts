@@ -7,7 +7,6 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
   getTeacherAccessToken,
   getTeacherName,
-  setAccessToken,
   setGrade,
   setName,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
@@ -59,7 +58,9 @@ let studentRefreshPromise: Promise<string | null> | null = null;
 let studentMePromise: Promise<void> | null = null;
 
 const ensureStudentProfile = async (accessToken: string): Promise<void> => {
-  if (getName() || getGrade()) return;
+  // 한쪽 필드(name 또는 grade)만 캐시되고 다른 한쪽이 비어 있으면 보충해야 한다.
+  // 둘 다 채워졌을 때만 fetch 를 생략한다.
+  if (getName() && getGrade()) return;
   if (studentMePromise) return studentMePromise;
 
   studentMePromise = (async () => {
@@ -93,10 +94,11 @@ const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
 
   studentRefreshPromise = (async () => {
     try {
-      if (forceRefresh) {
-        await setAccessToken(null);
-      }
-
+      // 기존 access token 은 refresh 결과가 확정될 때까지 보존한다.
+      // 성공 시 refreshAndPersistTokens 내부에서 새 토큰으로 교체되고,
+      // 명시적 실패 시 signOut 이 자격증명 전체를 정리한다. transient
+      // 실패에서는 기존 토큰을 유지해 5xx/네트워크 장애가 짧게 지나가면
+      // 그대로 복구되도록 한다.
       const result = await refreshAndPersistTokens();
 
       if (!result.success) {
