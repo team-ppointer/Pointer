@@ -78,7 +78,14 @@ const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
       const result = await refreshAndPersistTokens();
 
       if (!result.success) {
-        console.warn('Student token refresh failed, clearing credentials.');
+        if (result.transient) {
+          // 서버 5xx/네트워크 장애. refresh token 자체가 무효라고 단정할 수 없으므로
+          // 자격증명을 보존한다. 실패한 호출은 401 그대로 caller 에 전달되어
+          // 사용자 메시징/재시도로 이어진다.
+          console.warn('Student token refresh transient failure; keeping credentials.');
+          return null;
+        }
+        console.warn('Student token refresh failed (token invalid), clearing credentials.');
         await useAuthStore.getState().signOut();
         return null;
       }

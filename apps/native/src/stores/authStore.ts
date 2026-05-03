@@ -90,6 +90,15 @@ const runStudentVerification = async (set: AuthSetter): Promise<void> => {
     await applyStudentVerified(set, result);
     return;
   }
+  if (result.transient) {
+    // 5xx/네트워크 장애로 검증을 끝낼 수 없으면 캐시된 프로필로 낙관적 인증 유지.
+    // 다음 API 호출에서 갱신/실패가 자연스럽게 처리된다.
+    set({
+      sessionStatus: 'authenticated',
+      studentProfile: { name: getName(), grade: getGrade() },
+    });
+    return;
+  }
   await clearAuthState();
   set({ ...initialState, sessionStatus: 'unauthenticated' });
 };
@@ -112,43 +121,54 @@ const runVerifySession = async (set: AuthSetter): Promise<void> => {
   set({ ...initialState, sessionStatus: 'unauthenticated' });
 };
 
-const verifyStudentSession = async (): Promise<{
-  valid: boolean;
-  name?: string;
-  grade?: string;
-}> => {
+type VerifyStudentSessionResult =
+  | { valid: true; name?: string; grade?: string }
+  | { valid: false; transient: boolean };
+
+const fetchStudentMe = async (
+  accessToken: string
+): Promise<
+  { ok: true; name?: string; grade?: string } | { ok: false; status: 'auth' | 'transient' }
+> => {
+  try {
+    const result = await bareClient.GET('/api/student/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (result.data) {
+      return { ok: true, name: result.data.name, grade: result.data.grade };
+    }
+    const status = result.response?.status;
+    if (status !== undefined && status >= 500) {
+      return { ok: false, status: 'transient' };
+    }
+    return { ok: false, status: 'auth' };
+  } catch {
+    return { ok: false, status: 'transient' };
+  }
+};
+
+const verifyStudentSession = async (): Promise<VerifyStudentSessionResult> => {
   const accessToken = getAccessToken();
   const refreshToken = getRefreshToken();
 
   if (accessToken) {
-    try {
-      const { data } = await bareClient.GET('/api/student/me', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (data) {
-        return { valid: true, name: data.name, grade: data.grade };
-      }
-    } catch {
-      // noop
-    }
+    const me = await fetchStudentMe(accessToken);
+    if (me.ok) return { valid: true, name: me.name, grade: me.grade };
+    if (me.status === 'transient') return { valid: false, transient: true };
+    // auth failure → fall through to refresh
   }
 
-  if (!refreshToken) return { valid: false };
+  if (!refreshToken) return { valid: false, transient: false };
 
   const result = await refreshAndPersistTokens();
-  if (!result.success) return { valid: false };
+  if (!result.success) return { valid: false, transient: result.transient };
 
-  try {
-    const { data } = await bareClient.GET('/api/student/me', {
-      headers: { Authorization: `Bearer ${result.data.token.accessToken}` },
-    });
-    if (data) {
-      return { valid: true, name: data.name, grade: data.grade };
-    }
-  } catch {
-    // /me failed after successful refresh — use refresh response as fallback
+  const me = await fetchStudentMe(result.data.token.accessToken);
+  if (me.ok) return { valid: true, name: me.name, grade: me.grade };
+  if (me.status === 'transient') {
+    return { valid: false, transient: true };
   }
-
+  // /me 가 refresh 직후에도 401/4xx 라면 응답 페이로드에 담긴 name/grade 를 fallback 으로 사용한다.
   return { valid: true, name: result.data.name, grade: result.data.grade };
 };
 
