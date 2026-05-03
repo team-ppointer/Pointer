@@ -5,7 +5,6 @@ import postOauthNative from './postOauthNative';
 import postPasswordReset from './postPasswordReset';
 import postPasswordResetSendCode from './postPasswordResetSendCode';
 import postPasswordResetVerifyCode from './postPasswordResetVerifyCode';
-import postRefreshToken from './postRefreshToken';
 import postRegister from './postRegister';
 import postSignUpLocal from './postSignUpLocal';
 import postSocialLogin from './postSocialLogin';
@@ -21,7 +20,6 @@ export {
   postPasswordReset,
   postPasswordResetSendCode,
   postPasswordResetVerifyCode,
-  postRefreshToken,
   postRegister,
   postSignUpLocal,
   postSocialLogin,
