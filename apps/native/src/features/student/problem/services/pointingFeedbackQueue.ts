@@ -43,6 +43,10 @@ export class PointingFeedbackQueue {
   private flushLock = false;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private onSuccessCallback: ((entry: PointingQueueEntry) => void) | undefined;
+  // Cached snapshot — invalidated by notify() so subscribers get a stable
+  // reference until entries actually change. Required for React's
+  // useSyncExternalStore to avoid tearing/infinite re-render loops.
+  private snapshotCache: PointingQueueEntry[] | null = null;
 
   constructor(private readonly poster: QueuePoster) {}
 
@@ -69,7 +73,10 @@ export class PointingFeedbackQueue {
 
   /** 현재 큐 상태 스냅샷 (UI `toUserAnswers` merge 소비용). */
   snapshot(): PointingQueueEntry[] {
-    return [...this.entries.values()];
+    if (!this.snapshotCache) {
+      this.snapshotCache = [...this.entries.values()];
+    }
+    return this.snapshotCache;
   }
 
   /** 큐 변화 구독. 반환 함수 호출로 해제. */
@@ -91,6 +98,7 @@ export class PointingFeedbackQueue {
     this.listeners.clear();
     this.onSuccessCallback = undefined;
     this.flushLock = false;
+    this.snapshotCache = null;
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;
@@ -98,6 +106,7 @@ export class PointingFeedbackQueue {
   }
 
   private notify(): void {
+    this.snapshotCache = null;
     this.listeners.forEach((fn) => {
       fn();
     });
