@@ -15,6 +15,7 @@ import {
   handleBookmarkResult,
   scrollToSection,
 } from './modes/overview/overview-controller';
+import { clearBookmarkStates } from './modes/overview/bookmark-state';
 
 const container = document.getElementById('content')!;
 
@@ -44,7 +45,12 @@ function handleNonInitMessage(msg: RNToWebViewMessage): void {
 
 // 빈 컨테이너만 보내면 RN 측에서 '성공한 빈 콘텐츠'로 인지되므로,
 // 사용자에게 실패 사실을 가시화하기 위한 최소 fallback DOM 을 렌더한다.
+// 추가로, overview 의 `renderOverview` 가 도중에 throw 하면
+// `initBookmarkState` 로 채워둔 모듈 레벨 Map 이 잔존하므로
+// (성공 경로의 controller dispose 는 호출되지 않는다) 여기서 정리한다.
+// 다른 모드는 bookmark-state 를 건드리지 않아 호출이 무해하다.
 function renderFallback(): void {
+  clearBookmarkStates();
   const el = document.createElement('div');
   el.className = 'content-error';
   el.textContent = '콘텐츠를 불러올 수 없습니다.';
