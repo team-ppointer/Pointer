@@ -56,6 +56,28 @@ const isUnprotectedRoute = (schemaPath: string, isTeacher: boolean) => {
 const retryRequestClones = new WeakMap<Request, Request>();
 
 let studentRefreshPromise: Promise<string | null> | null = null;
+let studentMePromise: Promise<void> | null = null;
+
+const ensureStudentProfile = async (accessToken: string): Promise<void> => {
+  if (getName() || getGrade()) return;
+  if (studentMePromise) return studentMePromise;
+
+  studentMePromise = (async () => {
+    try {
+      const { data } = await bareClient.GET('/api/student/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (data) {
+        await setName(data.name);
+        await setGrade(data.grade);
+      }
+    } finally {
+      studentMePromise = null;
+    }
+  })();
+
+  return studentMePromise;
+};
 
 const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
   if (!forceRefresh) {
@@ -144,14 +166,8 @@ const authMiddleware: Middleware = {
       request.headers.set('Authorization', `Bearer ${accessToken}`);
     }
 
-    if (accessToken && !isTeacher && !getName() && !getGrade()) {
-      const { data } = await bareClient.GET('/api/student/me', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (data) {
-        await setName(data.name);
-        await setGrade(data.grade);
-      }
+    if (accessToken && !isTeacher) {
+      await ensureStudentProfile(accessToken);
     }
 
     if (accessToken && isTeacher && !getTeacherName()) {
