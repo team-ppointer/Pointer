@@ -55,12 +55,12 @@ export const waitForNavigationReady = (timeoutMs = 30_000): Promise<boolean> => 
 
   return new Promise((resolve) => {
     let settled = false;
-    let timer: ReturnType<typeof setTimeout>;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const finish = (ready: boolean) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
       readySubscribers.delete(handler);
       resolve(ready);
     };
@@ -99,12 +99,12 @@ export const waitForRouteRegistered = (
 
   return new Promise((resolve) => {
     let settled = false;
-    let timer: ReturnType<typeof setTimeout>;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const finish = (ok: boolean) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
       readySubscribers.delete(handler);
       stateSubscribers.delete(handler);
       resolve(ok);

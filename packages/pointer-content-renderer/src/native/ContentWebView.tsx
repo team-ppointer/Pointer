@@ -44,8 +44,9 @@ const shouldAllowRequest = (request: ShouldStartLoadRequest): boolean => {
 
 /**
  * 번들된 정적 HTML 자산 또는 inline HTML 만 지원한다.
- * 외부 https URL ({ uri }) 은 의도적으로 받지 않는다 — `originWhitelist` 가
- * 프로덕션에서 file://, about:blank 만 허용하므로 외부 uri 를 넘기면 초기 로드가 차단된다.
+ * 외부 URL source ({ uri }) 은 의도적으로 받지 않는다. `originWhitelist` 는
+ * 외부 앱 fallback 방지를 위한 통과 layer 이며, 실제 navigation 차단은
+ * `shouldAllowRequest` 에서 deny-by-default 로 강제한다.
  *
  * - `number` (Metro asset id from `require('@assets/webview/content.html')`)
  * - `{ html: string }` — 테스트/스토리북용 inline HTML
