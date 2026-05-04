@@ -1,154 +1,252 @@
-import { useEffect, useCallback, useRef } from 'react';
-import { Alert, AppState, type AppStateStatus } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
+import { client, TanstackQueryClient } from '@/apis/client';
+import { useGetHandwriting } from '@/apis';
+import { type paths } from '@schema';
 
-import { type DrawingCanvasRef } from '../utils/skia/drawing';
-import { encodeHandwritingData, decodeHandwritingData } from '../utils/handwritingEncoder';
+import { showToast } from '../components/Notification/Toast';
+import { type DrawingCanvasRef, type Stroke, type TextItem } from '../utils/skia/drawing';
+import { decodeHandwritingData, encodeHandwritingData } from '../utils/handwritingEncoder';
+
+type UpdateHandwritingRequest =
+  paths['/api/student/scrap/{scrapId}/handwriting']['put']['requestBody']['content']['application/json'];
+type UpdateHandwritingResponse =
+  paths['/api/student/scrap/{scrapId}/handwriting']['put']['responses']['200']['content']['*/*'];
+
+interface UpdateHandwritingParams {
+  scrapId: number;
+  request: UpdateHandwritingRequest;
+}
+
+const AUTOSAVE_INTERVAL_MS = 5000;
+const FLUSH_TIMEOUT_MS = 5000;
+
+type FlushDecision =
+  | 'allow'
+  | 'no-needs-save'
+  | 'pending-load'
+  | 'decode-error'
+  | 'scrap-id-mismatch'
+  | 'no-canvas';
+
+type FlushContext = {
+  needsSave: boolean;
+  pendingLoad: boolean;
+  decodeError: string | null;
+  appliedScrapId: number | null;
+  currentScrapId: number;
+  hasCanvas: boolean;
+};
+
+type MarkContext = {
+  pendingLoad: boolean;
+  appliedScrapId: number | null;
+  currentScrapId: number;
+  decodeError: string | null;
+};
+
+function evaluateFlush(ctx: FlushContext): FlushDecision {
+  if (!ctx.needsSave) return 'no-needs-save';
+  if (ctx.pendingLoad) return 'pending-load';
+  if (ctx.decodeError) return 'decode-error';
+  if (ctx.appliedScrapId !== ctx.currentScrapId) return 'scrap-id-mismatch';
+  if (!ctx.hasCanvas) return 'no-canvas';
+  return 'allow';
+}
+
+function canMark(ctx: MarkContext): boolean {
+  if (ctx.pendingLoad) return false;
+  if (ctx.appliedScrapId !== ctx.currentScrapId) return false;
+  if (ctx.decodeError) return false;
+  return true;
+}
 
 export interface UseHandwritingManagerProps {
   scrapId: number;
-  canvasRef: React.RefObject<DrawingCanvasRef | null>;
-  hasUnsavedChanges: boolean;
-  onSaveSuccess?: () => void;
-  onSaveError?: () => void;
 }
 
-export function useHandwritingManager({
-  scrapId,
-  canvasRef,
-  hasUnsavedChanges,
-  onSaveSuccess,
-  onSaveError,
-}: UseHandwritingManagerProps) {
+export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
+  const queryClient = useQueryClient();
   const { data: handwritingData, isLoading } = useGetHandwriting(scrapId, !!scrapId);
-  const { mutate: updateHandwriting, isPending: isSaving } = useUpdateHandwriting();
-  const lastSavedDataRef = useRef<string>('');
-  const currentScrapIdRef = useRef<number>(scrapId);
 
-  // scrapId가 변경되면 lastSavedDataRef 초기화
+  // canvas 인스턴스는 ref 로, mount 사실은 boolean state 로 분리.
+  // useImperativeHandle (drawing.tsx) 가 deps 없이 매 render 마다 새 object
+  // 로 ref 를 업데이트하므로 object 자체를 useState 에 담으면 매 render 마다
+  // setState → 무한 루프. boolean 은 같은 값일 때 React 가 dedupe → 안전.
+  const canvasRef = useRef<DrawingCanvasRef | null>(null);
+  const [canvasMounted, setCanvasMounted] = useState(false);
+  const setCanvasRef = useCallback((node: DrawingCanvasRef | null) => {
+    canvasRef.current = node;
+    setCanvasMounted(node !== null);
+  }, []);
+
+  const updateMutation = useMutation({
+    mutationFn: async ({
+      scrapId: id,
+      request,
+    }: UpdateHandwritingParams): Promise<UpdateHandwritingResponse> => {
+      const { data } = await client.PUT('/api/student/scrap/{scrapId}/handwriting', {
+        params: { path: { scrapId: id } },
+        body: request,
+      });
+      return data as UpdateHandwritingResponse;
+    },
+    onSuccess: (response, { scrapId: id }) => {
+      queryClient.setQueryData(
+        TanstackQueryClient.queryOptions('get', '/api/student/scrap/{scrapId}/handwriting', {
+          params: { path: { scrapId: id } },
+        }).queryKey,
+        response
+      );
+    },
+    onError: () => {
+      showToast('error', '자동저장에 실패했어요');
+    },
+  });
+
+  const needsSaveRef = useRef(false);
+  const pendingLoadRef = useRef(false);
+  const appliedScrapIdRef = useRef<number | null>(null);
+  const [decodeError, setDecodeError] = useState<string | null>(null);
+
+  // decodeError / updateMutation 을 ref 로 미러링 — 콜백 deps 에서 제외해
+  // 매 render 마다 새 reference 가 만들어지는 걸 막음 (DrawingCanvas 의
+  // notifyHistoryChange 가 prop 변경에 따라 새 reference 가 되어 캔버스 내부
+  // useEffect 가 재발화 → onHistoryChange 콜백 호출 → setState → 무한 루프).
+  const decodeErrorRef = useRef<string | null>(null);
+  decodeErrorRef.current = decodeError;
+  const updateMutationRef = useRef(updateMutation);
+  updateMutationRef.current = updateMutation;
+
+  const applyData = useCallback(
+    (strokes: Stroke[], texts: TextItem[]) => {
+      const c = canvasRef.current;
+      if (!c) return;
+      pendingLoadRef.current = true;
+      try {
+        c.setStrokes(strokes);
+        c.setTexts(texts);
+      } finally {
+        pendingLoadRef.current = false;
+      }
+      appliedScrapIdRef.current = scrapId;
+      needsSaveRef.current = false;
+    },
+    [scrapId]
+  );
+
   useEffect(() => {
-    if (currentScrapIdRef.current !== scrapId) {
-      lastSavedDataRef.current = '';
-      currentScrapIdRef.current = scrapId;
+    appliedScrapIdRef.current = null;
+    needsSaveRef.current = false;
+    setDecodeError(null);
+    pendingLoadRef.current = true;
+    try {
+      canvasRef.current?.clear();
+    } finally {
+      pendingLoadRef.current = false;
     }
   }, [scrapId]);
 
-  // 필기 데이터 로드
   useEffect(() => {
-    // 저장 중이 아니고, scrapId가 일치할 때만 로드 (데이터 유실 방지)
-    if (
-      handwritingData?.data &&
-      canvasRef.current &&
-      currentScrapIdRef.current === scrapId &&
-      !isSaving
-    ) {
-      // clear() 완료를 보장하기 위해 약간의 지연 후 로드
-      const loadTimer = setTimeout(() => {
-        // 다시 한번 scrapId 확인 (clear() 실행 중일 수 있음)
-        if (currentScrapIdRef.current === scrapId && canvasRef.current && !isSaving) {
-          try {
-            const decodedData = decodeHandwritingData(handwritingData.data);
-            canvasRef.current.setStrokes(decodedData.strokes);
-            canvasRef.current.setTexts(decodedData.texts);
-            lastSavedDataRef.current = handwritingData.data;
-          } catch (error) {
-            console.error('필기 데이터 로드 실패:', error);
-          }
-        }
-      }, 50); // 50ms 지연으로 clear() 완료 보장
-
-      return () => clearTimeout(loadTimer);
+    if (handwritingData === undefined) return;
+    if (appliedScrapIdRef.current === scrapId) return;
+    if (!canvasMounted) return;
+    try {
+      const decoded = handwritingData?.data
+        ? decodeHandwritingData(handwritingData.data)
+        : { strokes: [] as Stroke[], texts: [] as TextItem[] };
+      applyData(decoded.strokes, decoded.texts);
+    } catch (e) {
+      console.error('[handwriting] decode failed', e);
+      setDecodeError('필기를 불러오지 못했어요.');
     }
-  }, [handwritingData, canvasRef, scrapId]);
+  }, [handwritingData, scrapId, applyData, canvasMounted]);
 
-  // 저장하기 함수
-  const handleSave = useCallback(
-    (isAutoSave = false, targetScrapId?: number) => {
-      if (!canvasRef.current) return Promise.resolve(false);
+  const markNeedsSave = useCallback(() => {
+    if (
+      !canMark({
+        pendingLoad: pendingLoadRef.current,
+        appliedScrapId: appliedScrapIdRef.current,
+        currentScrapId: scrapId,
+        decodeError: decodeErrorRef.current,
+      })
+    )
+      return;
+    needsSaveRef.current = true;
+  }, [scrapId]);
 
-      // 이미 저장 중이면 중복 저장 방지
-      if (isSaving) {
-        return Promise.resolve(false);
-      }
-
-      const strokes = canvasRef.current.getStrokes();
-      const texts = canvasRef.current.getTexts();
-
-      try {
-        const base64Data = encodeHandwritingData(strokes || [], texts || []);
-
-        // 변경사항 없으면 저장 안 함
-        if (base64Data === lastSavedDataRef.current) {
-          if (!isAutoSave) {
-            Alert.alert('알림', '변경사항이 없습니다.');
-          }
-          return Promise.resolve(true);
-        }
-
-        // targetScrapId가 제공되면 그것을 사용, 아니면 scrapId 사용
-        const saveScrapId = targetScrapId ?? scrapId;
-
-        return new Promise<boolean>((resolve) => {
-          updateHandwriting(
-            {
-              scrapId: saveScrapId,
-              request: { data: base64Data },
-            },
-            {
-              onSuccess: () => {
-                lastSavedDataRef.current = base64Data;
-                onSaveSuccess?.();
-                if (!isAutoSave) {
-                  Alert.alert('성공', '필기가 저장되었습니다.');
-                }
-                resolve(true);
-              },
-              onError: (error) => {
-                console.error('필기 저장 실패:', error);
-                onSaveError?.();
-                if (!isAutoSave) {
-                  Alert.alert('오류', '필기 저장에 실패했습니다.');
-                }
-                resolve(false);
-              },
-            }
-          );
-        });
-      } catch (error) {
-        console.error('필기 데이터 변환 실패:', error);
-        if (!isAutoSave) {
-          Alert.alert('오류', '필기 데이터 변환에 실패했습니다.');
-        }
-        return Promise.resolve(false);
-      }
-    },
-    [scrapId, canvasRef, updateHandwriting, onSaveSuccess, onSaveError, isSaving]
-  );
-
-  // 5초마다 자동 저장
-  useEffect(() => {
-    const autoSaveInterval = setInterval(() => {
-      if (hasUnsavedChanges && !isSaving) {
-        handleSave(true);
-      }
-    }, 5000); // 5초마다 실행
-
-    return () => clearInterval(autoSaveInterval);
-  }, [hasUnsavedChanges, isSaving, handleSave]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
-      if (nextState === 'background' && hasUnsavedChanges && !isSaving) {
-        handleSave(true);
-      }
+  const flushFireAndForget = useCallback(() => {
+    const c = canvasRef.current;
+    const decision = evaluateFlush({
+      needsSave: needsSaveRef.current,
+      pendingLoad: pendingLoadRef.current,
+      decodeError: decodeErrorRef.current,
+      appliedScrapId: appliedScrapIdRef.current,
+      currentScrapId: scrapId,
+      hasCanvas: !!c,
     });
-    return () => subscription.remove();
-  }, [hasUnsavedChanges, isSaving, handleSave]);
+    if (decision !== 'allow' || !c) return;
+    const data = encodeHandwritingData(c.getStrokes() ?? [], c.getTexts() ?? []);
+    needsSaveRef.current = false;
+    updateMutationRef.current.mutate({ scrapId, request: { data } });
+  }, [scrapId]);
+
+  const flushAwait = useCallback(async (): Promise<boolean> => {
+    const c = canvasRef.current;
+    const decision = evaluateFlush({
+      needsSave: needsSaveRef.current,
+      pendingLoad: pendingLoadRef.current,
+      decodeError: decodeErrorRef.current,
+      appliedScrapId: appliedScrapIdRef.current,
+      currentScrapId: scrapId,
+      hasCanvas: !!c,
+    });
+    if (decision !== 'allow' || !c) return true;
+
+    const data = encodeHandwritingData(c.getStrokes() ?? [], c.getTexts() ?? []);
+    needsSaveRef.current = false;
+
+    try {
+      await Promise.race([
+        updateMutationRef.current.mutateAsync({ scrapId, request: { data } }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('flush-timeout')), FLUSH_TIMEOUT_MS)
+        ),
+      ]);
+      return true;
+    } catch {
+      needsSaveRef.current = true;
+      showToast('error', '저장에 실패했어요');
+      return true;
+    }
+  }, [scrapId]);
+
+  const flushFireAndForgetRef = useRef(flushFireAndForget);
+  flushFireAndForgetRef.current = flushFireAndForget;
+
+  useEffect(() => {
+    const id = setInterval(() => flushFireAndForgetRef.current(), AUTOSAVE_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  const flushAwaitRef = useRef(flushAwait);
+  flushAwaitRef.current = flushAwait;
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
+      if (next === 'background') void flushAwaitRef.current();
+    });
+    return () => sub.remove();
+  }, []);
 
   return {
     isLoading,
-    isSaving,
-    handleSave,
+    decodeError,
+    markNeedsSave,
+    flushPending: flushAwait,
+    setCanvasRef,
+    canvasRef,
   };
 }

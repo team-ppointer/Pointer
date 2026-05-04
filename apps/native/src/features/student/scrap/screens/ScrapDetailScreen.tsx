@@ -22,13 +22,11 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { colors } from '@/theme/tokens';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
 import { LoadingScreen } from '@/components/common';
 import {
-  TanstackQueryClient,
   useGetScrapDetail,
   useUpdateScrapName,
   useGetEntireProblemPointing,
@@ -37,7 +35,7 @@ import {
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
-import DrawingCanvas, { type DrawingCanvasRef } from '../utils/skia/drawing';
+import DrawingCanvas from '../utils/skia/drawing';
 import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
 import { TabNavigator } from '../components/scrap/TabNavigator';
 import { FilterBar } from '../components/scrap/FilterBar';
@@ -98,7 +96,6 @@ const ScrapDetailScreen = () => {
 
   const [_scrapName, setScrapName] = useState<string | undefined>();
   const scrapName = _scrapName ?? scrapDetail?.name ?? '';
-  const queryClient = useQueryClient();
 
   React.useEffect(() => {
     if (scrapDetail) {
@@ -138,9 +135,6 @@ const ScrapDetailScreen = () => {
     }
   };
 
-  // Refs
-  const canvasRef = useRef<DrawingCanvasRef>(null);
-
   // Custom Hooks
   const drawingState = useDrawingState();
   const uiState = useScrapUIState();
@@ -174,26 +168,7 @@ const ScrapDetailScreen = () => {
     }, [refetchScrapDetail, activeNoteId, scrapId])
   );
 
-  useEffect(() => {
-    return () => {
-      queryClient.invalidateQueries({
-        queryKey: TanstackQueryClient.queryOptions(
-          'get',
-          '/api/student/scrap/{scrapId}/handwriting',
-          { params: { path: { scrapId } } }
-        ).queryKey,
-      });
-    };
-  }, [scrapId, queryClient]);
-
-  const handwriting = useHandwritingManager({
-    scrapId,
-    canvasRef,
-    hasUnsavedChanges: drawingState.hasUnsavedChanges,
-    onSaveSuccess: () => {
-      drawingState.markAsSaved();
-    },
-  });
+  const handwriting = useHandwritingManager({ scrapId });
 
   // Tab management
   const [tabLayouts, setTabLayouts] = useState<Record<number, { x: number; width: number }>>({});
@@ -209,35 +184,24 @@ const ScrapDetailScreen = () => {
     }
   }, [activeNoteId, scrapId, navigation]);
 
-  // scrapId 변경 시 모든 state 초기화
+  // scrapId 변경 시 screen-scoped state 초기화 (canvas reset 은 매니저가 담당)
   useEffect(() => {
-    // 저장 중이면 초기화 지연 (데이터 유실 방지)
-    if (handwriting.isSaving) {
-      // 저장이 완료될 때까지 대기
-      const checkSaveComplete = setInterval(() => {
-        if (!handwriting.isSaving) {
-          clearInterval(checkSaveComplete);
-          // 저장 완료 후 초기화
-          drawingState.reset();
-          uiState.reset();
-          canvasRef.current?.clear();
-          setTabLayouts({});
-        }
-      }, 100); // 100ms마다 체크
-
-      return () => clearInterval(checkSaveComplete);
-    }
-
-    // 저장 중이 아니면 즉시 초기화
-    // Drawing state 초기화
     drawingState.reset();
-    // UI state 초기화
     uiState.reset();
-    // Canvas 초기화
-    canvasRef.current?.clear();
-    // Tab layouts 초기화
     setTabLayouts({});
   }, [scrapId]);
+
+  // DrawingCanvas onHistoryChange 안정적 reference — 인라인 함수로 전달하면
+  // canvas 내부 useCallback deps 가 매 render 마다 변하면서 무한 렌더 발생.
+  const { setHistoryState } = drawingState;
+  const { markNeedsSave } = handwriting;
+  const handleHistoryChange = useCallback(
+    (canUndo: boolean, canRedo: boolean) => {
+      setHistoryState(canUndo, canRedo);
+      markNeedsSave();
+    },
+    [setHistoryState, markNeedsSave]
+  );
 
   // Save indicator animation interval
   const indicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -433,6 +397,20 @@ const ScrapDetailScreen = () => {
     return <LoadingScreen label='스크랩을 불러오고 있습니다.' />;
   }
 
+  // Decode error state
+  if (handwriting.decodeError) {
+    return (
+      <View className='flex-1 items-center justify-center gap-[12px]'>
+        <Text>{handwriting.decodeError}</Text>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          className='rounded bg-gray-300 px-[16px] py-[8px]'>
+          <Text>뒤로가기</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   // Error state
   if (!scrapDetail) {
     return (
@@ -458,8 +436,8 @@ const ScrapDetailScreen = () => {
             onScrapNameChange={handleUpdateScrapName}
             showSave={uiState.showSave}
             onBack={async () => {
-              const saved = await handwriting.handleSave(true, scrapId);
-              if (saved) {
+              const ok = await handwriting.flushPending();
+              if (ok) {
                 navigation.goBack();
               }
             }}
@@ -476,18 +454,14 @@ const ScrapDetailScreen = () => {
             activeNoteId={activeNoteId}
             onTabPress={async (noteId) => {
               if (noteId === activeNoteId) return;
-              // 저장 중이면 탭 전환 방지
-              if (handwriting.isSaving) return;
-              const saved = await handwriting.handleSave(true, scrapId);
-              if (!saved) return;
+              const ok = await handwriting.flushPending();
+              if (!ok) return;
               setActiveNote(noteId);
             }}
             onTabClose={async (noteId) => {
               if (noteId === activeNoteId) {
-                // 저장 중이면 탭 닫기 방지
-                if (handwriting.isSaving) return;
-                const saved = await handwriting.handleSave(true, scrapId);
-                if (!saved) return;
+                const ok = await handwriting.flushPending();
+                if (!ok) return;
               }
               closeNote(noteId);
             }}
@@ -615,8 +589,8 @@ const ScrapDetailScreen = () => {
                 <DrawingToolbar
                   canUndo={drawingState.canUndo}
                   canRedo={drawingState.canRedo}
-                  onUndo={() => canvasRef.current?.undo()}
-                  onRedo={() => canvasRef.current?.redo()}
+                  onUndo={() => handwriting.canvasRef.current?.undo()}
+                  onRedo={() => handwriting.canvasRef.current?.redo()}
                   isEraserMode={drawingState.isEraserMode}
                   isTextMode={drawingState.isTextMode}
                   onPenModePress={drawingState.setPenMode}
@@ -635,14 +609,13 @@ const ScrapDetailScreen = () => {
                   isNarrow={isNarrow}
                 />
                 <DrawingCanvas
-                  key={`drawing-canvas-${scrapId}`}
-                  ref={canvasRef}
+                  ref={handwriting.setCanvasRef}
                   strokeColor='#1E1E21'
                   strokeWidth={drawingState.strokeWidth}
                   textMode={drawingState.isTextMode}
                   eraserMode={drawingState.isEraserMode}
                   eraserSize={drawingState.eraserSize}
-                  onHistoryChange={drawingState.setHistoryState}
+                  onHistoryChange={handleHistoryChange}
                 />
               </View>
             </KeyboardAvoidingView>
