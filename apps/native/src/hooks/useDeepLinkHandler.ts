@@ -1,10 +1,10 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { Platform, Alert, Dimensions } from 'react-native';
 import messaging, { type FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import * as Notifications from 'expo-notifications';
 import { CommonActions } from '@react-navigation/native';
 
-import { navigationRef, isNavigationReady } from '@/services/navigation';
+import { navigationRef, waitForRouteRegistered } from '@/services/navigation';
 import { parseDeepLinkUrl, isValidDeepLink } from '@/utils/deepLink';
 import { getPublishDetailById } from '@/apis/controller/student/study';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@/stores';
@@ -32,18 +32,16 @@ const handleDeepLink = async (url: string | undefined | null) => {
     return false;
   }
 
-  // 네비게이션이 준비될 때까지 대기 (최대 3초)
-  const waitForNavigation = async (timeout = 3000): Promise<boolean> => {
-    const startTime = Date.now();
-    while (!isNavigationReady() && Date.now() - startTime < timeout) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-    return isNavigationReady();
-  };
-
-  const isReady = await waitForNavigation();
-  if (!isReady) {
-    console.warn('[DeepLink] Navigation not ready, cannot handle deep link');
+  // RootNavigator 가 sessionStatus 에 따라 단일 root screen 만 등록하므로,
+  // 콜드스타트 hydrating 단계에는 Splash 만 등록되어 'StudentApp' 으로의 navigate 가
+  // silent no-op 이 된다. waitForRouteRegistered 는 navigation ready 와 auth hydration
+  // 후 StudentApp 등록을 단일 30s budget 으로 기다린다. (qna/publish 둘 다 StudentApp
+  // 안에서 처리되므로 동일 route 를 게이트로 사용.)
+  const studentAppReady = await waitForRouteRegistered('StudentApp');
+  if (!studentAppReady) {
+    console.warn(
+      '[DeepLink] StudentApp route 미등록 — 알림이 unauthenticated 상태에 도착했을 가능성'
+    );
     return false;
   }
 

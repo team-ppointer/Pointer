@@ -267,8 +267,16 @@ function serializeNode(node: JSONNode): string {
 
 export function serializeJSONToHTML(doc: JSONNode | string): string {
   let json: JSONNode;
-  if (typeof doc === 'string') json = JSON.parse(doc);
-  else json = doc;
+  if (typeof doc === 'string') {
+    try {
+      json = JSON.parse(doc);
+    } catch (e) {
+      const detail = e instanceof Error ? e.message : String(e);
+      throw new Error(`serializeJSONToHTML: invalid JSON input — ${detail}`);
+    }
+  } else {
+    json = doc;
+  }
 
   if (json.type !== 'doc') {
     throw new Error('root node must be type=doc');

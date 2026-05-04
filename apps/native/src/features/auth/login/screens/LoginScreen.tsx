@@ -18,8 +18,9 @@ const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { isLoading, loadingProvider, error, signInWithProvider } = useNativeOAuth();
 
-  const handleSocialButtonPress = async (provider: OAuthProvider) => {
-    await signInWithProvider(provider);
+  const handleSocialButtonPress = (provider: OAuthProvider) => {
+    // useNativeOAuth 의 error state 로 이미 사용자에게 노출되므로 여기서는 void.
+    void signInWithProvider(provider);
   };
 
   const handleEmailButtonPress = () => {
