@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { login as kakaoLogin, logout as kakaoLogout } from '@react-native-kakao/user';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useNavigation } from '@react-navigation/native';
@@ -25,6 +25,25 @@ type UseNativeOAuthReturn = OAuthState & {
   signOut: () => Promise<void>;
 };
 
+const APPLE_CANCEL_CODE = 'ERR_REQUEST_CANCELED';
+
+const createOAuthCancelError = (code: string) => {
+  const error = new Error('OAuth sign in cancelled');
+  return Object.assign(error, { code });
+};
+
+const getErrorCode = (error: unknown) => {
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    return String((error as { code: unknown }).code);
+  }
+  return null;
+};
+
+const isOAuthCancelError = (error: unknown) => {
+  const code = getErrorCode(error);
+  return code === APPLE_CANCEL_CODE || code === statusCodes.SIGN_IN_CANCELLED;
+};
+
 const useNativeOAuth = (): UseNativeOAuthReturn => {
   const [state, setState] = useState<OAuthState>({
     loadingProvider: null,
@@ -46,14 +65,17 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
 
   const getGoogleToken = async (): Promise<string> => {
     await GoogleSignin.hasPlayServices();
-    await GoogleSignin.signIn();
-    const tokens = await GoogleSignin.getTokens();
 
-    if (!tokens.idToken) {
+    const result = await GoogleSignin.signIn();
+    if (result.type === 'cancelled') {
+      throw createOAuthCancelError(statusCodes.SIGN_IN_CANCELLED);
+    }
+
+    if (!result.data.idToken) {
       throw new Error('Google ID token not found');
     }
 
-    return tokens.idToken;
+    return result.data.idToken;
   };
 
   const getKakaoToken = async (): Promise<string> => {
@@ -170,13 +192,8 @@ const useNativeOAuth = (): UseNativeOAuthReturn => {
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
-        // Apple 로그인 취소는 에러로 처리하지 않음
-        if (
-          typeof error === 'object' &&
-          error !== null &&
-          'code' in error &&
-          (error as { code: string }).code === 'ERR_REQUEST_CANCELED'
-        ) {
+        // OAuth 취소는 에러로 처리하지 않음.
+        if (isOAuthCancelError(error)) {
           setState({ loadingProvider: null, error: null });
           return;
         }
