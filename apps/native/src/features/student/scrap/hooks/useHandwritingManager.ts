@@ -1,24 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { client, TanstackQueryClient } from '@/apis/client';
-import { useGetHandwriting } from '@/apis';
-import { type paths } from '@schema';
+import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
 
 import { showToast } from '../components/Notification/Toast';
 import { type DrawingCanvasRef, type Stroke, type TextItem } from '../utils/skia/drawing';
 import { decodeHandwritingData, encodeHandwritingData } from '../utils/handwritingEncoder';
-
-type UpdateHandwritingRequest =
-  paths['/api/student/scrap/{scrapId}/handwriting']['put']['requestBody']['content']['application/json'];
-type UpdateHandwritingResponse =
-  paths['/api/student/scrap/{scrapId}/handwriting']['put']['responses']['200']['content']['*/*'];
-
-interface UpdateHandwritingParams {
-  scrapId: number;
-  request: UpdateHandwritingRequest;
-}
 
 const AUTOSAVE_INTERVAL_MS = 5000;
 const FLUSH_TIMEOUT_MS = 5000;
@@ -68,7 +55,6 @@ export interface UseHandwritingManagerProps {
 }
 
 export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
-  const queryClient = useQueryClient();
   const { data: handwritingData, isLoading } = useGetHandwriting(scrapId, !!scrapId);
 
   // canvas 인스턴스는 ref 로, mount 사실은 boolean state 로 분리.
@@ -82,29 +68,7 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
     setCanvasMounted(node !== null);
   }, []);
 
-  const updateMutation = useMutation({
-    mutationFn: async ({
-      scrapId: id,
-      request,
-    }: UpdateHandwritingParams): Promise<UpdateHandwritingResponse> => {
-      const { data } = await client.PUT('/api/student/scrap/{scrapId}/handwriting', {
-        params: { path: { scrapId: id } },
-        body: request,
-      });
-      return data as UpdateHandwritingResponse;
-    },
-    onSuccess: (response, { scrapId: id }) => {
-      queryClient.setQueryData(
-        TanstackQueryClient.queryOptions('get', '/api/student/scrap/{scrapId}/handwriting', {
-          params: { path: { scrapId: id } },
-        }).queryKey,
-        response
-      );
-    },
-    onError: () => {
-      showToast('error', '자동저장에 실패했어요');
-    },
-  });
+  const updateMutation = useUpdateHandwriting();
 
   const needsSaveRef = useRef(false);
   const pendingLoadRef = useRef(false);
@@ -190,10 +154,18 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
     if (decision !== 'allow' || !c) return;
     const data = encodeHandwritingData(c.getStrokes() ?? [], c.getTexts() ?? []);
     needsSaveRef.current = false;
-    updateMutationRef.current.mutate({ scrapId, request: { data } });
+    updateMutationRef.current.mutate(
+      { scrapId, request: { data } },
+      {
+        // autosave 는 silent — 토스트 없이 다음 interval 에 재시도
+        onError: () => {
+          needsSaveRef.current = true;
+        },
+      }
+    );
   }, [scrapId]);
 
-  const flushAwait = useCallback(async (): Promise<boolean> => {
+  const flushPending = useCallback(async (): Promise<void> => {
     const c = canvasRef.current;
     const decision = evaluateFlush({
       needsSave: needsSaveRef.current,
@@ -203,7 +175,7 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
       currentScrapId: scrapId,
       hasCanvas: !!c,
     });
-    if (decision !== 'allow' || !c) return true;
+    if (decision !== 'allow' || !c) return;
 
     const data = encodeHandwritingData(c.getStrokes() ?? [], c.getTexts() ?? []);
     needsSaveRef.current = false;
@@ -215,11 +187,9 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
           setTimeout(() => reject(new Error('flush-timeout')), FLUSH_TIMEOUT_MS)
         ),
       ]);
-      return true;
     } catch {
       needsSaveRef.current = true;
       showToast('error', '저장에 실패했어요');
-      return true;
     }
   }, [scrapId]);
 
@@ -231,12 +201,12 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
     return () => clearInterval(id);
   }, []);
 
-  const flushAwaitRef = useRef(flushAwait);
-  flushAwaitRef.current = flushAwait;
+  const flushPendingRef = useRef(flushPending);
+  flushPendingRef.current = flushPending;
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
-      if (next === 'background') void flushAwaitRef.current();
+      if (next === 'background') void flushPendingRef.current();
     });
     return () => sub.remove();
   }, []);
@@ -245,7 +215,7 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
     isLoading,
     decodeError,
     markNeedsSave,
-    flushPending: flushAwait,
+    flushPending,
     setCanvasRef,
     canvasRef,
   };

@@ -436,10 +436,8 @@ const ScrapDetailScreen = () => {
             onScrapNameChange={handleUpdateScrapName}
             showSave={uiState.showSave}
             onBack={async () => {
-              const ok = await handwriting.flushPending();
-              if (ok) {
-                navigation.goBack();
-              }
+              await handwriting.flushPending();
+              navigation.goBack();
             }}
             canGoBack={navigation.canGoBack()}
             onMoveFolderPress={() => {
@@ -454,14 +452,12 @@ const ScrapDetailScreen = () => {
             activeNoteId={activeNoteId}
             onTabPress={async (noteId) => {
               if (noteId === activeNoteId) return;
-              const ok = await handwriting.flushPending();
-              if (!ok) return;
+              await handwriting.flushPending();
               setActiveNote(noteId);
             }}
             onTabClose={async (noteId) => {
               if (noteId === activeNoteId) {
-                const ok = await handwriting.flushPending();
-                if (!ok) return;
+                await handwriting.flushPending();
               }
               closeNote(noteId);
             }}
