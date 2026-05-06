@@ -1357,7 +1357,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** 관리자 계정 목록 조회 */
+    get: operations['getUserList'];
     put?: never;
     /** 관리자 계정 생성 */
     post: operations['create_2'];
@@ -1366,6 +1367,26 @@ export interface paths {
     head?: never;
     patch?: never;
     trace?: never;
+  };
+  '/api/admin/user/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 관리자 계정 단건 조회 */
+    get: operations['getUserById'];
+    put?: never;
+    post?: never;
+    /** 관리자 계정 삭제 */
+    delete: operations['deleteUser'];
+    options?: never;
+    head?: never;
+    /** 관리자 계정 수정 */
+    patch?: never;
+    trace?: never;
+    put: operations['putUser'];
   };
   '/api/admin/teacher': {
     parameters: {
@@ -3954,8 +3975,24 @@ export interface components {
       clientEventId?: string;
     };
     AdminCreateRequest: {
+      name: string;
       email: string;
       password: string;
+    };
+    AdminUpdateRequest: {
+      name?: string;
+      email?: string;
+      password?: string;
+    };
+    AdminResp: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      email: string;
+      adminType: 'SUPER' | 'ROLE_BASED';
+      /** Format: int64 */
+      roleId?: number | null;
+      roleName?: string | null;
     };
     TeacherCreateRequest: {
       name: string;
@@ -7450,6 +7487,95 @@ export interface operations {
         'application/json': components['schemas']['AdminCreateRequest'];
       };
     };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getUserList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AdminResp'][];
+        };
+      };
+    };
+  };
+  getUserById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** Format: int64 */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AdminResp'];
+        };
+      };
+    };
+  };
+  putUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** Format: int64 */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  deleteUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** Format: int64 */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
     responses: {
       /** @description OK */
       200: {
