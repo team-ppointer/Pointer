@@ -10,6 +10,7 @@ import {
   Package,
   ChartNoAxesCombined,
   Users,
+  ShieldCheck,
   Megaphone,
   Tags,
   MessageCircle,
@@ -98,7 +99,7 @@ const GNB = () => {
   return (
     <div
       className={`fixed top-0 left-0 z-40 h-screen bg-white shadow-xl shadow-gray-200/50 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-80'}`}>
-      <div className='flex h-full flex-col'>
+      <div className='flex h-full min-h-0 flex-col'>
         {/* Header */}
         <div className='mb-3.5 flex items-center justify-between pt-4 pl-4'>
           <div className='flex items-center gap-3'>
@@ -123,8 +124,8 @@ const GNB = () => {
         </div>
 
         {/* Navigation */}
-        <nav className='flex flex-1 flex-col justify-between px-4 pb-4'>
-          <div className='flex-1'>
+        <nav className='flex min-h-0 flex-1 flex-col px-4 pb-4'>
+          <div className='min-h-0 flex-1 overflow-y-auto pr-1'>
             {/* Student Management Section */}
             <div className=''>
               <SectionTitle isCollapsed={isCollapsed}>학생 관리</SectionTitle>
@@ -274,9 +275,20 @@ const GNB = () => {
                 isCollapsed={isCollapsed}
               />
             </div>
+
+            <div className='space-y-1'>
+              <SectionTitle isCollapsed={isCollapsed}>운영 관리</SectionTitle>
+              <NavItem
+                to='/admin-user'
+                icon={<ShieldCheck className='h-5 w-5' />}
+                label='관리자 계정'
+                isCollapsed={isCollapsed}
+              />
+            </div>
           </div>
+
           <div
-            className={`relative mb-1 flex h-12 w-full cursor-pointer items-center gap-3.5 overflow-hidden rounded-2xl px-3.5 text-gray-700 transition-all duration-300 hover:bg-black/5`}
+            className={`mt-3 flex h-12 w-full flex-shrink-0 cursor-pointer items-center gap-3.5 overflow-hidden rounded-2xl px-3.5 text-gray-700 transition-all duration-300 hover:bg-black/5`}
             onClick={toggleCollapse}>
             <div
               className={`flex h-5 w-5 flex-shrink-0 items-center justify-center transition-transform duration-300`}>
