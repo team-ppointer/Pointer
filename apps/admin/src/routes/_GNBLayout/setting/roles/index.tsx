@@ -11,10 +11,16 @@ export const Route = createFileRoute('/_GNBLayout/setting/roles/')({
 });
 
 type AdminRoleResp = components['schemas']['AdminRoleResp'];
+type AdminMenuResp = components['schemas']['AdminMenuResp'];
 
 type RoleFormState = {
   name: string;
   menuIds: number[];
+};
+
+type MenuGroup = {
+  parent: AdminMenuResp;
+  children: AdminMenuResp[];
 };
 
 const initialRoleFormState: RoleFormState = {
@@ -29,6 +35,7 @@ const getMenuLabel = (name?: string) => {
     NOTICE: '공지',
     NOTIFICATION: '알림',
     DIAGNOSIS: '학생 진단',
+    GRAPH: '그래프 관리',
     QNA: 'Q&A',
     PROBLEM: '문제 관리',
     PROBLEM_ITEM: '문제',
@@ -58,6 +65,20 @@ function RouteComponent() {
   const [editingRoleId, setEditingRoleId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<RoleFormState>(initialRoleFormState);
   const roleQueryKey = useMemo(() => $api.queryOptions('get', '/api/admin/role').queryKey, []);
+  const menuGroups = useMemo<MenuGroup[]>(() => {
+    const parentMenus = menus.filter((menu) => typeof menu.id === 'number' && menu.parentId == null);
+    const parentMenuIds = new Set(parentMenus.map((menu) => menu.id));
+    const orphanMenus = menus.filter(
+      (menu) => typeof menu.id === 'number' && menu.parentId != null && !parentMenuIds.has(menu.parentId)
+    );
+
+    return [...parentMenus, ...orphanMenus].map((parent) => ({
+      parent,
+      children: menus.filter(
+        (menu) => typeof menu.id === 'number' && menu.parentId === parent.id && menu.id !== parent.id
+      ),
+    }));
+  }, [menus]);
 
   const invalidateRoles = () => {
     queryClient.invalidateQueries({ queryKey: roleQueryKey });
@@ -128,32 +149,52 @@ function RouteComponent() {
     );
   };
 
+  const renderMenuOption = (
+    menu: AdminMenuResp,
+    form: RoleFormState,
+    onChange: (menuIds: number[]) => void,
+    className?: string
+  ) => {
+    if (typeof menu.id !== 'number') return null;
+
+    const isChecked = form.menuIds.includes(menu.id);
+
+    return (
+      <label
+        key={menu.id}
+        className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${
+          isChecked
+            ? 'border-main/30 bg-main/10 text-main'
+            : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+        } ${className ?? ''}`}>
+        <input
+          type='checkbox'
+          checked={isChecked}
+          onChange={() => onChange(toggleMenuId(form.menuIds, menu.id))}
+          className='accent-main h-4 w-4'
+        />
+        <span>{getMenuLabel(menu.name)}</span>
+        <span className='ml-auto text-xs font-medium text-gray-400'>{menu.name}</span>
+      </label>
+    );
+  };
+
   const renderMenuCheckboxes = (form: RoleFormState, onChange: (menuIds: number[]) => void) => (
-    <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3'>
-      {menus.map((menu) => {
-        if (!menu.id) return null;
-
-        const isChecked = form.menuIds.includes(menu.id);
-
-        return (
-          <label
-            key={menu.id}
-            className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${
-              isChecked
-                ? 'border-main/30 bg-main/10 text-main'
-                : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-            }`}>
-            <input
-              type='checkbox'
-              checked={isChecked}
-              onChange={() => onChange(toggleMenuId(form.menuIds, menu.id))}
-              className='accent-main h-4 w-4'
-            />
-            <span>{getMenuLabel(menu.name)}</span>
-            <span className='ml-auto text-xs font-medium text-gray-400'>{menu.name}</span>
-          </label>
-        );
-      })}
+    <div className='grid grid-cols-1 gap-3 xl:grid-cols-2'>
+      {menuGroups.map(({ parent, children }) => (
+        <div
+          key={parent.id}
+          className='rounded-2xl border border-gray-100 bg-gray-50/60 p-3'>
+          {renderMenuOption(parent, form, onChange, 'bg-white')}
+          {children.length > 0 && (
+            <div className='mt-2 grid grid-cols-1 gap-2 pl-3'>
+              {children.map((child) =>
+                renderMenuOption(child, form, onChange, 'border-dashed bg-white/80')
+              )}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 

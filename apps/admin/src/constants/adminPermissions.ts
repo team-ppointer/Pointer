@@ -160,25 +160,39 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   },
 ];
 
-const LEAF_MENU_NAMES = new Set(
-  ADMIN_NAV_SECTIONS.flatMap((section) => section.items.map((item) => item.menuName))
+const ALL_MENU_NAMES = new Set(
+  ADMIN_NAV_SECTIONS.flatMap((section) => [
+    ...(section.menuName ? [section.menuName] : []),
+    ...section.items.map((item) => item.menuName),
+  ])
 );
 
-export const isAdminMenuName = (name?: string): name is AdminMenuName => {
-  return !!name && LEAF_MENU_NAMES.has(name as AdminMenuName);
+const getAllowedMenuNames = (item: AdminNavItem, section?: AdminNavSection) => {
+  return section?.menuName ? [item.menuName, section.menuName] : [item.menuName];
 };
 
-export const hasMenuPermission = (session: AdminSession | null, menuName: AdminMenuName) => {
+export const isAdminMenuName = (name?: string): name is AdminMenuName => {
+  return !!name && ALL_MENU_NAMES.has(name as AdminMenuName);
+};
+
+export const hasMenuPermission = (
+  session: AdminSession | null,
+  menuName: AdminMenuName | AdminMenuName[]
+) => {
   if (!session) return false;
   if (session.adminType === 'SUPER') return true;
 
-  return session.accessibleMenus.some((menu) => menu.name === menuName);
+  const menuNames = Array.isArray(menuName) ? menuName : [menuName];
+
+  return session.accessibleMenus.some((menu) => {
+    return !!menu.name && menuNames.includes(menu.name as AdminMenuName);
+  });
 };
 
 export const getAccessibleNavSections = (session: AdminSession | null) => {
   return ADMIN_NAV_SECTIONS.map((section) => ({
     ...section,
-    items: section.items.filter((item) => hasMenuPermission(session, item.menuName)),
+    items: section.items.filter((item) => hasMenuPermission(session, getAllowedMenuNames(item, section))),
   })).filter((section) => section.items.length > 0);
 };
 
@@ -191,7 +205,7 @@ export const canAccessPath = (session: AdminSession | null, pathname: string) =>
 
   return ADMIN_NAV_SECTIONS.some((section) =>
     section.items.some((item) => {
-      if (!hasMenuPermission(session, item.menuName)) return false;
+      if (!hasMenuPermission(session, getAllowedMenuNames(item, section))) return false;
 
       return item.routePrefixes.some(
         (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
