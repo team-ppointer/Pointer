@@ -2,14 +2,17 @@ import React, { useRef } from 'react';
 import { StyleSheet, View, Dimensions, Animated, Pressable, Text } from 'react-native';
 import { type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bookmark, Home, Menu, MessageCircleMore } from 'lucide-react-native';
+import { Bell, Bookmark, Home, Menu, MessageCircleMore } from 'lucide-react-native';
 
 import {
+  AlertBellButtonIcon,
   BookmarkFilledIcon,
   HomeFilledIcon,
   MessageCircleMoreFilledIcon,
 } from '@components/system/icons';
-import { colors } from '@/theme/tokens';
+import { colors } from '@theme/tokens';
+import { ContentInset } from '@components/common';
+import { useGetNoticeCount, useGetNotificationCount } from '@apis';
 
 import { useTabTransition } from './TabScreenTransition';
 
@@ -62,17 +65,20 @@ const AnimatedTabItem = ({
       onLongPress={onLongPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      className='w-[56px] items-center justify-center'>
+      className='w-[90px] items-center justify-center'>
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }} className='items-center'>
         {IconComponent && (
           <View className='size-[32px] items-center justify-center'>
             <IconComponent
               size={22}
-              color={isFocused ? colors['primary-500'] : colors['gray-600']}
+              color={isFocused ? colors['primary-600'] : colors['gray-600']}
             />
           </View>
         )}
-        <Text className={isFocused ? 'text-14b text-primary-500' : 'text-14m text-gray-600'}>
+        <Text
+          className={
+            isFocused ? 'typo-label-semibold text-primary-600' : 'typo-label-semibold text-gray-600'
+          }>
           {label}
         </Text>
       </Animated.View>
@@ -84,6 +90,10 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
   const insets = useSafeAreaInsets();
   const { setIndex } = useTabTransition();
   const { height: screenHeight } = Dimensions.get('window');
+
+  const { data: notificationCountData } = useGetNotificationCount({});
+  const { data: noticeCountData } = useGetNoticeCount();
+  const hasUnread = !!(notificationCountData?.unreadCount || noticeCountData?.unreadCount);
 
   // Sync animation state with navigation state
   React.useEffect(() => {
@@ -134,7 +144,7 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
           style={{ paddingBottom: 4 + insets.bottom }}
           pointerEvents='box-none'>
           {/* Tab Bar Content */}
-          <View className='w-full max-w-[572px] flex-row justify-between px-[28px]'>
+          <ContentInset className='flex-row justify-around'>
             {state.routes.map((route, index) => {
               const isFocused = state.index === index;
 
@@ -173,6 +183,10 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
                   label = 'QnA';
                   IconComponent = isFocused ? MessageCircleMoreFilledIcon : MessageCircleMore;
                   break;
+                case 'Notification':
+                  label = '알림';
+                  IconComponent = hasUnread ? AlertBellButtonIcon : Bell;
+                  break;
                 case 'AllMenu':
                   label = '전체 메뉴';
                   IconComponent = Menu;
@@ -192,7 +206,7 @@ const MainTabBar = ({ state, navigation, descriptors }: BottomTabBarProps) => {
                 />
               );
             })}
-          </View>
+          </ContentInset>
         </View>
       )}
     </View>

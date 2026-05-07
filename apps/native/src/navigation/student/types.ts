@@ -12,6 +12,7 @@ export type StudentTabParamList = {
         initialChatRoomId?: number;
       }
     | undefined;
+  Notification: undefined;
   AllMenu: undefined;
 };
 
