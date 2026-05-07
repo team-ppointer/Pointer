@@ -9,9 +9,9 @@ import {
   getRoles,
   getUserById,
   getUserList,
-  patchUserRole,
   postUser,
   putUser,
+  putUserRole,
 } from '@apis';
 import { useModal } from '@hooks';
 import { components } from '@schema';
@@ -516,7 +516,7 @@ function RouteComponent() {
   const { data: userListResponse, isLoading } = getUserList();
   const { data: roleList = [] } = getRoles();
   const { mutate: removeUser, isPending: isDeletePending } = deleteUser();
-  const { mutate: assignRole, isPending: isAssignRolePending } = patchUserRole();
+  const { mutate: assignRole, isPending: isAssignRolePending } = putUserRole();
 
   const userList = userListResponse ?? [];
   const userListQueryKey = $api.queryOptions('get', '/api/admin/user').queryKey;

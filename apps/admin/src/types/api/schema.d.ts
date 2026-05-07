@@ -405,6 +405,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/user/{id}/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 관리자에 역할 할당 (roleId=null이면 슈퍼 관리자 전환) */
+    put: operations['assignRole'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/teacher/{id}': {
     parameters: {
       query?: never;
@@ -1673,26 +1690,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/admin/user/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** 관리자 계정 단건 조회 */
-    get: operations['getUserById'];
-    put?: never;
-    post?: never;
-    /** 관리자 계정 삭제 */
-    delete: operations['deleteUser'];
-    options?: never;
-    head?: never;
-    /** 관리자 계정 수정 */
-    patch?: never;
-    trace?: never;
-    put: operations['putUser'];
-  };
   '/api/admin/teacher': {
     parameters: {
       query?: never;
@@ -2190,23 +2187,6 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
-    trace?: never;
-  };
-  '/api/admin/user/{id}/role': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** 관리자에 역할 할당 (roleId=null이면 슈퍼 관리자 전환) */
-    patch: operations['assignRole'];
     trace?: never;
   };
   '/your-redirect-url': {
@@ -3980,6 +3960,13 @@ export interface components {
       /** @description 비밀번호. null/빈문자열이면 기존 값 유지 */
       password?: string;
     };
+    AdminRoleAssignRequest: {
+      /**
+       * Format: int64
+       * @description 역할 ID. null이면 역할 해제 (슈퍼 관리자 전환)
+       */
+      roleId?: number;
+    };
     TeacherUpdateRequest: {
       name: string;
       email: string;
@@ -4955,21 +4942,6 @@ export interface components {
       email: string;
       password: string;
     };
-    AdminUpdateRequest: {
-      name?: string;
-      email?: string;
-      password?: string;
-    };
-    AdminResp: {
-      /** Format: int64 */
-      id: number;
-      name: string;
-      email: string;
-      adminType: 'SUPER' | 'ROLE_BASED';
-      /** Format: int64 */
-      roleId?: number | null;
-      roleName?: string | null;
-    };
     TeacherCreateRequest: {
       name: string;
       email: string;
@@ -5255,6 +5227,18 @@ export interface components {
       /** @description 발송 대상 학생 ID 리스트 (isAll=false일 때 필수) */
       studentIds?: number[];
     };
+    /** @description 학생별 FCM 발송 실패 사유 목록 */
+    FcmDeliveryFailure: {
+      /**
+       * Format: int64
+       * @description 대상 학생 ID
+       */
+      studentId: number;
+      /** @description 실패 사유 코드 */
+      code: string;
+      /** @description 실패 사유 메시지 */
+      message: string;
+    };
     NotificationSendResp: {
       /**
        * Format: int32
@@ -5271,8 +5255,15 @@ export interface components {
        * @description FCM 발송 시도 수
        */
       fcmAttemptCount: number;
+      /**
+       * Format: int32
+       * @description FCM 발송 성공 수
+       */
+      fcmSuccessCount: number;
       /** @description FCM 지원 여부 */
       fcmSupported: boolean;
+      /** @description 학생별 FCM 발송 실패 사유 목록 */
+      failures: components['schemas']['FcmDeliveryFailure'][];
     };
     MockExamTypeCreateRequest: {
       code: string;
@@ -5444,13 +5435,6 @@ export interface components {
     AdminLoginReq: {
       email: string;
       password: string;
-    };
-    AdminRoleAssignRequest: {
-      /**
-       * Format: int64
-       * @description 역할 ID. null이면 역할 해제 (슈퍼 관리자 전환)
-       */
-      roleId?: number;
     };
     ListRespPublishResp: {
       requestId: string;
@@ -7158,6 +7142,30 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  assignRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminRoleAssignRequest'];
+      };
+    };
     responses: {
       /** @description OK */
       200: {
@@ -9461,95 +9469,6 @@ export interface operations {
       };
     };
   };
-  getUserList: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['AdminResp'][];
-        };
-      };
-    };
-  };
-  getUserById: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** Format: int64 */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          '*/*': components['schemas']['AdminResp'];
-        };
-      };
-    };
-  };
-  putUser: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** Format: int64 */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['AdminUpdateRequest'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  deleteUser: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** Format: int64 */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
   search: {
     parameters: {
       query?: {
@@ -10695,30 +10614,6 @@ export interface operations {
         content: {
           '*/*': components['schemas']['AdminTokenResp'];
         };
-      };
-    };
-  };
-  assignRole: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['AdminRoleAssignRequest'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
       };
     };
   };

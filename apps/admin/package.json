@@ -10,7 +10,7 @@
     "serve": "vite preview",
     "start": "vite",
     "lint": "eslint .",
-    "openapi": "pnpm dlx openapi-typescript https://dev.api.math-pointer.com/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
+    "openapi": "sh -c 'test -n \"$OPENAPI_BASIC_AUTH_USERNAME\" && test -n \"$OPENAPI_BASIC_AUTH_PASSWORD\" && curl -fsS -u \"$OPENAPI_BASIC_AUTH_USERNAME:$OPENAPI_BASIC_AUTH_PASSWORD\" https://qa.api.math-pointer.com/v3/api-docs -o /tmp/admin-openapi.json && openapi-typescript /tmp/admin-openapi.json --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts'"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
