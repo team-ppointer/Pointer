@@ -2,7 +2,9 @@ import { lazy } from 'react';
 import { createRootRoute, Outlet, redirect } from '@tanstack/react-router';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import { checkIsLoggedIn } from '../utils/auth';
+import { adminSessionStorage, checkIsLoggedIn, silentLogout } from '../utils/auth';
+
+import { canAccessPath, getFirstAccessibleRoute } from '@/constants/adminPermissions';
 
 const TanStackRouterDevtools =
   import.meta.env.MODE === 'production'
@@ -23,6 +25,22 @@ export const Route = createRootRoute({
     if (!isLoggedIn) {
       throw redirect({
         to: '/login',
+      });
+    }
+
+    const session = adminSessionStorage.getSession();
+    const firstAccessibleRoute = getFirstAccessibleRoute(session);
+
+    if (!firstAccessibleRoute) {
+      silentLogout();
+      throw redirect({
+        to: '/login',
+      });
+    }
+
+    if (!canAccessPath(session, location.pathname)) {
+      throw redirect({
+        to: firstAccessibleRoute,
       });
     }
   },

@@ -1,5 +1,8 @@
+import { adminSessionStorage } from './adminSessionStorage';
 import { tokenStorage } from './tokenStorage';
 import { silentLogout } from './logout';
+
+import { toAdminSession } from '@/constants/adminPermissions';
 
 // 리프레시 토큰을 이용한 액세스 토큰 재발급
 export const reissueToken = async () => {
@@ -22,6 +25,7 @@ export const reissueToken = async () => {
     const data = await response.json();
     const accessToken = data.token.accessToken;
     tokenStorage.setToken(accessToken);
+    adminSessionStorage.setSession(toAdminSession(data));
     return accessToken;
   } catch (error) {
     console.error('Reissue failed:', error);

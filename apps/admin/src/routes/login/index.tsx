@@ -1,16 +1,24 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { postLogin } from '@apis';
 import { Input } from '@components';
-import { useNavigation } from '@hooks';
-import { createFileRoute, redirect } from '@tanstack/react-router';
-import { tokenStorage } from '@utils';
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
+import { adminSessionStorage, silentLogout, tokenStorage } from '@utils';
 import { Mail, Lock, LogIn } from 'lucide-react';
+
+import { getFirstAccessibleRoute, toAdminSession } from '@/constants/adminPermissions';
 
 export const Route = createFileRoute('/login/')({
   beforeLoad: async () => {
-    if (tokenStorage.getToken()) {
+    if (tokenStorage.getToken() && adminSessionStorage.getSession()) {
+      const firstAccessibleRoute = getFirstAccessibleRoute(adminSessionStorage.getSession());
+
+      if (!firstAccessibleRoute) {
+        silentLogout();
+        return;
+      }
+
       throw redirect({
-        to: '/publish',
+        to: firstAccessibleRoute,
       });
     }
   },
@@ -24,7 +32,7 @@ interface LoginType {
 
 function RouteComponent() {
   const { mutate, isPending } = postLogin();
-  const { goPublish } = useNavigation();
+  const router = useRouter();
 
   const {
     register,
@@ -44,8 +52,17 @@ function RouteComponent() {
         onSuccess: (data) => {
           const { accessToken } = data.token;
           if (accessToken) {
+            const adminSession = toAdminSession(data);
+            const firstAccessibleRoute = getFirstAccessibleRoute(adminSession);
+
+            if (!firstAccessibleRoute) {
+              silentLogout();
+              return;
+            }
+
             tokenStorage.setToken(accessToken);
-            goPublish();
+            adminSessionStorage.setSession(adminSession);
+            router.navigate({ to: firstAccessibleRoute });
           }
         },
       }

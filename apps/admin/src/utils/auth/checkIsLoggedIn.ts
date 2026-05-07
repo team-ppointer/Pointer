@@ -1,3 +1,4 @@
+import { adminSessionStorage } from './adminSessionStorage';
 import { tokenStorage } from './tokenStorage';
 import { reissueToken } from './reissueToken';
 
@@ -6,8 +7,8 @@ export const checkIsLoggedIn = async (): Promise<boolean> => {
   // 액세스 토큰이 있으면 로그인된 것으로 간주
   let accessToken = tokenStorage.getToken();
 
-  // 액세스 토큰이 없으면 리프레시 토큰으로 재발급 시도
-  if (!accessToken) {
+  // 액세스 토큰이나 세션 정보가 없으면 리프레시 토큰으로 재발급 시도
+  if (!accessToken || !adminSessionStorage.getSession()) {
     try {
       accessToken = await reissueToken();
 

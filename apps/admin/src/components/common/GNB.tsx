@@ -1,26 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from '@tanstack/react-router';
-import {
-  FileText,
-  Calendar,
-  GraduationCap,
-  Search,
-  ChevronDown,
-  ChevronRight,
-  Package,
-  ChartNoAxesCombined,
-  Users,
-  ShieldCheck,
-  Megaphone,
-  Tags,
-  MessageCircle,
-  Bell,
-} from 'lucide-react';
+import { GraduationCap, Search, ChevronDown, ChevronRight } from 'lucide-react';
 import { getStudent } from '@apis';
 import { useSelectedStudent } from '@hooks';
 import { components } from '@schema';
 
+import { getAccessibleNavSections } from '@/constants/adminPermissions';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { adminSessionStorage } from '@/utils';
 
 interface NavItemProps {
   to: string;
@@ -77,6 +64,8 @@ const GNB = () => {
   const { data: studentListResponse } = getStudent({ query: searchQuery });
   const studentList = studentListResponse?.data ?? [];
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const navSections = getAccessibleNavSections(adminSessionStorage.getSession());
+  const studentManagementSection = navSections.find((section) => section.title === '학생 관리');
 
   useEffect(() => {
     if (studentSearchOpen && searchInputRef.current) {
@@ -200,91 +189,41 @@ const GNB = () => {
                 )}
               </div>
 
-              <NavItem
-                to='/publish'
-                icon={<Calendar className='h-5 w-5' />}
-                label='발행'
-                isCollapsed={isCollapsed}
-              />
+              {studentManagementSection?.items.map((item) => {
+                const Icon = item.icon;
 
-              <NavItem
-                to='/notice'
-                icon={<Megaphone className='h-5 w-5' />}
-                label='공지'
-                isCollapsed={isCollapsed}
-              />
-
-              <NavItem
-                to='/notification'
-                icon={<Bell className='h-5 w-5' />}
-                label='알림'
-                isCollapsed={isCollapsed}
-              />
-
-              <NavItem
-                to='/diagnosis'
-                icon={<ChartNoAxesCombined className='h-5 w-5' />}
-                label='학생 진단'
-                isCollapsed={isCollapsed}
-              />
+                return (
+                  <NavItem
+                    key={item.menuName}
+                    to={item.to}
+                    icon={<Icon className='h-5 w-5' />}
+                    label={item.label}
+                    isCollapsed={isCollapsed}
+                  />
+                );
+              })}
             </div>
 
-            <div className='space-y-1'>
-              <SectionTitle isCollapsed={isCollapsed}>Q&A</SectionTitle>
-              <NavItem
-                to='/qna'
-                icon={<MessageCircle className='h-5 w-5' />}
-                label='Q&A'
-                isCollapsed={isCollapsed}
-              />
-            </div>
+            {navSections
+              .filter((section) => section.title !== '학생 관리')
+              .map((section) => (
+                <div key={section.title} className='space-y-1'>
+                  <SectionTitle isCollapsed={isCollapsed}>{section.title}</SectionTitle>
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
 
-            {/* Problem Management Section */}
-            <div className='space-y-1'>
-              <SectionTitle isCollapsed={isCollapsed}>문제 관리</SectionTitle>
-
-              <NavItem
-                to='/problem'
-                icon={<FileText className='h-5 w-5' />}
-                label='문제'
-                isCollapsed={isCollapsed}
-              />
-
-              <NavItem
-                to='/problem-set'
-                icon={<Package className='h-5 w-5' />}
-                label='세트'
-                isCollapsed={isCollapsed}
-              />
-
-              <NavItem
-                to='/concept-tags'
-                icon={<Tags className='h-5 w-5' />}
-                label='개념 태그'
-                isCollapsed={isCollapsed}
-              />
-            </div>
-
-            {/* Teacher Info */}
-            <div className='space-y-1'>
-              <SectionTitle isCollapsed={isCollapsed}>선생님 관리</SectionTitle>
-              <NavItem
-                to='/teacher'
-                icon={<Users className='h-5 w-5' />}
-                label='과외 선생 정보'
-                isCollapsed={isCollapsed}
-              />
-            </div>
-
-            <div className='space-y-1'>
-              <SectionTitle isCollapsed={isCollapsed}>운영 관리</SectionTitle>
-              <NavItem
-                to='/admin-user'
-                icon={<ShieldCheck className='h-5 w-5' />}
-                label='관리자 계정'
-                isCollapsed={isCollapsed}
-              />
-            </div>
+                    return (
+                      <NavItem
+                        key={item.menuName}
+                        to={item.to}
+                        icon={<Icon className='h-5 w-5' />}
+                        label={item.label}
+                        isCollapsed={isCollapsed}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
           </div>
 
           <div
