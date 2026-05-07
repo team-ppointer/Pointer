@@ -1,4 +1,6 @@
+import deleteMenu from './deleteMenu';
 import getMenus from './getMenus';
 import postMenu from './postMenu';
+import putMenu from './putMenu';
 
-export { getMenus, postMenu };
+export { deleteMenu, getMenus, postMenu, putMenu };
