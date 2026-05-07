@@ -4,7 +4,7 @@ import { View, Text, ScrollView, Alert } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react-native';
 
-import { AnimatedPressable, ContentInset, NotificationItem } from '@components/common';
+import { AnimatedPressable, ContentInset, Header, NotificationItem } from '@components/common';
 import { NoNotificationBellIcon } from '@components/system/icons';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import {
@@ -16,8 +16,8 @@ import {
 import { useGetNotice, putReadNotice, useInvalidateNoticeData, getPublishDetailById } from '@apis';
 import { parseDeepLinkUrl, isValidDeepLink } from '@utils/deepLink';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
-import useInvalidateNotificationData from '@/apis/controller/student/notification/useIncalidateNotificationData';
-import { useIsTablet } from '@/features/student/qna/hooks/useIsTablet';
+import useInvalidateNotificationData from '@apis/controller/student/notification/useIncalidateNotificationData';
+import { useIsTablet } from '@features/student/qna/hooks/useIsTablet';
 import { formatNoticeDate, formatNotificationDate } from '@utils/dateFormatter';
 
 const getNotificationIcon = (type: string): 'megaphone' | 'message' | 'book' => {
@@ -135,19 +135,19 @@ const NotificationScreen = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
-      <View className='mx-auto w-full'>
-        <ContentInset className='gap-[10px] pt-[16px]'>
-          <Text className='text-20b text-gray-900'>공지</Text>
-          {notices.map((notice) => (
-            <NotificationItem
-              key={notice.id}
-              icon='megaphone'
-              title={notice.title}
-              time={formatNoticeDate(notice.startAt)}
-              hasBadge={!notice.isRead}>
-              <NotificationItem.Button
-                variant='ghost'
+    <>
+      <Header title='알림' />
+      <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+        <View className='mx-auto w-full'>
+          <ContentInset className='gap-[10px] pt-[20px]'>
+            <Text className='typo-title-2-bold pt-[10px] text-gray-800'>공지</Text>
+            {notices.map((notice) => (
+              <NotificationItem
+                key={notice.id}
+                icon='megaphone'
+                title={notice.title}
+                time={formatNoticeDate(notice.startAt)}
+                hasBadge={!notice.isRead}
                 onPress={() => {
                   if (!notice.isRead) {
                     putReadNotice(notice.id).then(() => {
@@ -160,65 +160,68 @@ const NotificationScreen = () => {
                     date: notice.startAt,
                     content: notice.content,
                   });
-                }}>
-                더보기
-              </NotificationItem.Button>
-            </NotificationItem>
-          ))}
-          {notices.length === 0 && (
-            <View className='flex-col items-center gap-[10px] py-[30px]'>
-              <Text className='text-14m text-gray-600'>공지사항이 없어요.</Text>
+                }}
+              />
+            ))}
+            {notices.length === 0 && (
+              <View className='flex-col items-center gap-[10px] py-[30px]'>
+                <Text className='typo-body-1-medium text-gray-600'>공지사항이 없어요.</Text>
+              </View>
+            )}
+          </ContentInset>
+          <ContentInset className='pt-[28px]'>
+            <View className='flex-row items-center justify-between'>
+              <Text className='typo-title-2-bold text-gray-800'>알림</Text>
+              <AnimatedPressable
+                className='flex h-[48px] items-center justify-center px-[12px]'
+                onPress={handleReadAll}
+                disabled={unreadNotificationCount === 0}>
+                <Text
+                  className={`typo-body-2-medium ${unreadNotificationCount >= 1 ? 'text-primary-600' : 'text-gray-500'}`}>
+                  모두 읽음
+                </Text>
+              </AnimatedPressable>
             </View>
-          )}
-        </ContentInset>
-        <ContentInset className='gap-[10px] pt-[26px]'>
-          <View className='flex-row items-center justify-between'>
-            <Text className='text-20b text-gray-900'>알림</Text>
-            <AnimatedPressable
-              className='px-2'
-              onPress={handleReadAll}
-              disabled={unreadNotificationCount === 0}>
-              <Text
-                className={`text-12sb ${unreadNotificationCount >= 1 ? 'text-blue-500' : 'text-gray-500'}`}>
-                모두 읽음
-              </Text>
-            </AnimatedPressable>
-          </View>
 
-          {notifications.length > 0 ? (
-            notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                icon={getNotificationIcon(notification.type)}
-                title={notification.title}
-                time={formatNotificationDate(notification.createdAt)}
-                hasBadge={!notification.isRead}>
-                <NotificationItem.Button
-                  icon={ChevronRight}
-                  variant='outline'
-                  onPress={() => {
-                    void handleNotificationPress(
-                      notification.id,
-                      notification.url,
-                      notification.isRead
-                    );
-                  }}>
-                  더보기
-                </NotificationItem.Button>
-              </NotificationItem>
-            ))
-          ) : (
-            <View className='flex-col items-center gap-[10px] py-[30px]'>
-              <NoNotificationBellIcon />
-              <Text className='text-20b text-gray-800'>받은 알림이 없어요.</Text>
+            <View className='gap-[10px]'>
+              {notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    icon={getNotificationIcon(notification.type)}
+                    title={notification.title}
+                    time={formatNotificationDate(notification.createdAt)}
+                    hasBadge={!notification.isRead}>
+                    <NotificationItem.Button
+                      icon={ChevronRight}
+                      variant='outline'
+                      onPress={() => {
+                        void handleNotificationPress(
+                          notification.id,
+                          notification.url,
+                          notification.isRead
+                        );
+                      }}>
+                      더보기
+                    </NotificationItem.Button>
+                  </NotificationItem>
+                ))
+              ) : (
+                <View className='flex-col items-center gap-[10px] py-[10px]'>
+                  <NoNotificationBellIcon />
+                  <Text className='text-20b text-gray-800'>받은 알림이 없어요.</Text>
+                </View>
+              )}
             </View>
-          )}
+          </ContentInset>
+        </View>
+        <ContentInset className='flex-1 items-center justify-center gap-[10px] pt-[20px]'>
+          <Text className='typo-body-1-medium text-gray-600'>
+            7일 전 알림까지 확인할 수 있어요.
+          </Text>
         </ContentInset>
-      </View>
-      <ContentInset className='flex-1 items-center justify-center gap-[10px] pt-[20px] pb-[100px]'>
-        <Text className='text-14m text-gray-600'>7일 전 알림까지 확인할 수 있어요.</Text>
-      </ContentInset>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 };
 
