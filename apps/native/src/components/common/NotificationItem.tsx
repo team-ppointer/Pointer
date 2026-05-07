@@ -5,7 +5,7 @@ import { Text, View } from 'react-native';
 import { colors } from '@theme/tokens';
 import { AnimatedPressable } from '@components/common';
 
-type IconType = 'megaphone' | 'message' | 'book' | 'book-white';
+type IconType = 'megaphone' | 'message' | 'book';
 
 type IconConfig = {
   Icon: LucideIcon;
@@ -22,17 +22,12 @@ const iconConfigs: Record<IconType, IconConfig> = {
   message: {
     Icon: MessageCircleMore,
     bgClass: 'bg-[#FFE5CC]',
-    iconColor: '#F27900',
+    iconColor: '#F68300',
   },
   book: {
     Icon: BookOpenText,
-    bgClass: 'bg-[#D6E1FF]',
-    iconColor: colors['blue-500'],
-  },
-  'book-white': {
-    Icon: BookOpenText,
-    bgClass: 'bg-white',
-    iconColor: colors['blue-500'],
+    bgClass: 'bg-primary-200',
+    iconColor: colors['primary-600'],
   },
 };
 
@@ -55,18 +50,18 @@ interface ButtonProps {
 
 const Button = ({ variant = 'blue', icon: Icon, onPress, children }: ButtonProps) => {
   const baseStyles =
-    'flex flex-row items-center justify-center gap-[2px] rounded-[6px] px-[12px] py-[6px]';
+    'flex flex-row items-center justify-center gap-[2px] rounded-[8px] px-[10px] h-[36px]';
 
   const variantStyles = {
-    blue: 'bg-blue-500',
-    outline: 'border bg-white border-gray-400',
+    blue: 'bg-primary-600',
+    outline: 'border bg-white border-gray-500',
     ghost: 'bg-transparent text-blue-500 hover:text-blue-600 active:text-blue-700',
   };
 
   const textStyles = {
-    blue: 'text-14m text-white',
-    outline: 'text-14m text-gray-800',
-    ghost: 'text-12m text-blue-500',
+    blue: 'typo-body-2-medium text-white',
+    outline: 'typo-body-2-medium text-black',
+    ghost: 'typo-body-2-medium text-primary-600',
   };
 
   return (
@@ -83,7 +78,8 @@ interface NotificationItemProps {
   title: string;
   time: string;
   hasBadge?: boolean;
-  children: React.ReactNode;
+  onPress?: () => void;
+  children?: React.ReactNode;
 }
 
 const NotificationItem = ({
@@ -92,6 +88,7 @@ const NotificationItem = ({
   title,
   time,
   hasBadge = false,
+  onPress,
   children,
 }: NotificationItemProps) => {
   const variantStyles = {
@@ -99,7 +96,7 @@ const NotificationItem = ({
     blue: 'border-primary-200 bg-[#D6E1FF]',
   };
 
-  return (
+  const content = (
     <View
       className={`h-[76px] flex-row items-center justify-between gap-[10px] rounded-[12px] border p-[16px] ${variantStyles[variant]}`}>
       <View className='flex-1 flex-row items-center gap-[12px]'>
@@ -109,16 +106,22 @@ const NotificationItem = ({
             <View className='bg-new absolute top-0 right-0 size-[10px] rounded-full'></View>
           )}
         </View>
-        <View className='flex-1'>
-          <Text className='text-16sb mb-[2px] truncate text-black' numberOfLines={1}>
+        <View className='flex-1 gap-[2px]'>
+          <Text className='typo-heading-2-semibold truncate text-black' numberOfLines={1}>
             {title}
           </Text>
-          <Text className='text-12r text-gray-700'>{time}</Text>
+          <Text className='typo-caption-regular text-gray-700'>{time}</Text>
         </View>
       </View>
       {children}
     </View>
   );
+
+  if (onPress) {
+    return <AnimatedPressable onPress={onPress}>{content}</AnimatedPressable>;
+  }
+
+  return content;
 };
 
 NotificationItem.Button = Button;
