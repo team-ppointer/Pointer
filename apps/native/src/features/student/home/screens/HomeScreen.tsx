@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, RefreshControl } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BellIcon, BookOpenTextIcon, CalendarIcon, ChevronRightIcon } from 'lucide-react-native';
@@ -15,7 +14,7 @@ import {
 } from '@apis';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors, shadow } from '@theme/tokens';
-import { AlertBellButtonIcon, PointerSymbol } from '@components/system/icons';
+import { AlertBellButtonIcon, PointerLogo, PointerSymbol } from '@components/system/icons';
 import { AnimatedPressable, ContentInset, Header, PointerContentView } from '@components/common';
 import { useInvalidateAll } from '@hooks';
 import { formatDateKey } from '@utils/date';
@@ -77,14 +76,19 @@ const HomeScreen = () => {
 
   return (
     <View className='flex-1'>
-      <Header
+      {/*<Header
         right={
           <Header.IconButton
             icon={hasUnread ? AlertBellButtonIcon : BellIcon}
             onPress={() => navigation.navigate('Notifications')}
           />
         }
-      />
+      />*/}
+      <ContentInset className='flex h-[56px] justify-center'>
+        <View className='flex h-[40px] w-[120px] items-center justify-center'>
+          <PointerLogo width={106} height={24} />
+        </View>
+      </ContentInset>
       <ScrollView
         className='flex-1'
         contentContainerStyle={{ paddingBottom: 80 }}
