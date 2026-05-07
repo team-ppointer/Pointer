@@ -3,7 +3,8 @@ import { ScrollView, Text, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+// TODO: scrap 기능 복구 시 활성화
+// import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import {
@@ -23,16 +24,17 @@ import {
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
-import {
-  useGetScrapStatusById,
-  useToggleScrapFromProblem,
-  useToggleScrapFromReadingTip,
-  useToggleScrapFromOneStepMore,
-  useToggleScrapFromPointing,
-} from '@apis/student';
-import { client } from '@apis/client';
+// TODO: scrap 기능 복구 시 활성화
+// import {
+//   useGetScrapStatusById,
+//   useToggleScrapFromProblem,
+//   useToggleScrapFromReadingTip,
+//   useToggleScrapFromOneStepMore,
+//   useToggleScrapFromPointing,
+// } from '@apis/student';
+// import { client } from '@apis/client';
 
-import ScrapItem from '../components/ScrapItem';
+// import ScrapItem from '../components/ScrapItem';
 import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
 import { pointingFeedbackQueue } from '../services';
 import {
@@ -134,6 +136,7 @@ const AnalysisScreen = ({
 
   const contentViewRef = useRef<PointerContentViewHandle>(null);
 
+  /* TODO: scrap 기능 복구 시 활성화
   const scrapSections = useMemo(
     () =>
       sections.filter(
@@ -259,6 +262,7 @@ const AnalysisScreen = ({
     },
     [toggleProblem, invalidateScrapStatus]
   );
+  */
 
   const { leftWidth, rightWidth } = useSplitPanelLayout();
 
