@@ -150,9 +150,16 @@ const NotificationScreen = () => {
                 hasBadge={!notice.isRead}
                 onPress={() => {
                   if (!notice.isRead) {
-                    putReadNotice(notice.id).then(() => {
-                      invalidateNotices();
-                    });
+                    putReadNotice(notice.id)
+                      .then(() => {
+                        invalidateNotices();
+                      })
+                      .catch((error) => {
+                        console.error(
+                          '[NotificationsScreen] Failed to mark notice as read:',
+                          error
+                        );
+                      });
                   }
                   navigation.push('NotificationDetail', {
                     noticeId: notice.id,
