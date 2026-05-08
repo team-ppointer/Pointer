@@ -7,13 +7,15 @@ import React, {
   useMemo,
 } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Canvas, Path, type SkPath, Skia, Circle, Group } from '@shopify/react-native-skia';
+import { Path, type SkPath, Skia, Circle, Group } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-handler';
-import { runOnJS, useSharedValue, useDerivedValue } from 'react-native-reanimated';
+import { runOnJS, useSharedValue } from 'react-native-reanimated';
 
 import { buildSmoothPath } from './smoothing';
 import { type Point, type Stroke, type DrawingCanvasRef } from './model/drawingTypes';
 import { deepCopyStrokes, safeMax } from './model/strokeUtils';
+import { SkiaDrawingCanvasSurface } from './render/skia/SkiaDrawingCanvasSurface';
+import { useSkiaDrawingRenderer } from './render/skia/useSkiaDrawingRenderer';
 
 type Props = {
   strokeColor?: string;
@@ -375,33 +377,18 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       [hoverX, hoverY, showHover]
     );
 
-    const hoverOpacity = useDerivedValue(() => {
-      return showHover.value ? 0.6 : 0;
-    }, [showHover]);
-
     const composedGesture = useMemo(
       () => Gesture.Simultaneous(pan, hoverGesture),
       [pan, hoverGesture]
     );
 
-    const renderedPaths = useMemo(
-      () =>
-        paths.map((p, i) => {
-          const stroke = strokes[i];
-          return (
-            <Path
-              key={`path-${i}`}
-              path={p}
-              style='stroke'
-              strokeWidth={stroke?.width || strokeWidth}
-              color={stroke?.color || strokeColor}
-              strokeCap='round'
-              strokeJoin='round'
-            />
-          );
-        }),
-      [paths, strokes, strokeWidth, strokeColor]
-    );
+    const { renderedPaths, hoverOpacity } = useSkiaDrawingRenderer({
+      paths,
+      strokes,
+      strokeWidth,
+      strokeColor,
+      showHover,
+    });
 
     return (
       <ScrollView
@@ -411,7 +398,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         nestedScrollEnabled={true}>
         <GestureDetector gesture={composedGesture}>
           <View style={styles.container} collapsable={false}>
-            <Canvas style={[styles.canvas, { height: canvasHeight.current }]}>
+            <SkiaDrawingCanvasSurface height={canvasHeight.current}>
               {renderedPaths}
               {currentPoints.current.length > 0 && (
                 <Path
@@ -435,7 +422,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
                   strokeWidth={1.5}
                 />
               </Group>
-            </Canvas>
+            </SkiaDrawingCanvasSurface>
           </View>
         </GestureDetector>
       </ScrollView>
@@ -453,7 +440,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   container: { minHeight: 400, position: 'relative' },
-  canvas: { width: '100%', backgroundColor: 'transparent' },
 });
 
 export default React.memo(DrawingCanvas);
