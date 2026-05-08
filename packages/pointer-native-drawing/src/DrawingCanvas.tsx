@@ -4,6 +4,7 @@ import React, {
   useRef,
   useState,
   useCallback,
+  useEffect,
   useMemo,
 } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
@@ -12,21 +13,20 @@ import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-hand
 import { runOnJS, useSharedValue } from 'react-native-reanimated';
 
 import { buildSmoothPath } from './smoothing';
-import { type Point, type Stroke, type DrawingCanvasRef } from './model/drawingTypes';
-import { deepCopyStrokes, safeMax } from './model/strokeUtils';
+import {
+  type Point,
+  type Stroke,
+  type StrokeBounds,
+  type DocumentSnapshot,
+  type DrawingCanvasRef,
+  type DrawingCanvasProps,
+} from './model/drawingTypes';
+import { computeStrokeBounds, safeMax } from './model/strokeUtils';
+import { HistoryManager } from './engine/HistoryManager';
 import { SkiaDrawingCanvasSurface } from './render/skia/SkiaDrawingCanvasSurface';
 import { useSkiaDrawingRenderer } from './render/skia/useSkiaDrawingRenderer';
 
-type Props = {
-  strokeColor?: string;
-  strokeWidth?: number;
-  onChange?: (strokes: Stroke[]) => void;
-  onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
-  eraserMode?: boolean;
-  eraserSize?: number;
-};
-
-const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
+const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
   (
     {
       strokeColor = 'black',
@@ -52,56 +52,50 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const livePath = useRef<SkPath>(Skia.Path.Make());
     const currentPoints = useRef<Point[]>([]);
     const strokesRef = useRef<Stroke[]>([]);
+    /** stroke와 동일 인덱스로 incremental 관리. createSnapshot N×P 재계산 회피. */
+    const strokeBoundsRef = useRef<StrokeBounds[]>([]);
     const eraserPoints = useRef<Point[]>([]);
     const lastEraserTime = useRef<number>(0);
     const eraserDidModify = useRef<boolean>(false);
     const ERASER_THROTTLE_MS = 16; // ~60fps
 
-    type HistoryState = { strokes: Stroke[] };
-    const historyRef = useRef<HistoryState[]>([]);
-    const historyIndexRef = useRef<number>(-1);
+    // 히스토리 매니저 — lazy init (StrictMode 더블 렌더 시 한 번만 생성)
+    const historyManagerRef = useRef<HistoryManager | null>(null);
+    historyManagerRef.current ??= new HistoryManager(50);
+    const historyManager = historyManagerRef.current;
 
-    const notifyHistoryChange = useCallback(() => {
-      if (!onHistoryChange) return;
-      const canUndo =
-        historyIndexRef.current > 0 ||
-        (historyIndexRef.current === 0 && historyRef.current.length > 1);
-      const canRedo = historyIndexRef.current + 1 < historyRef.current.length;
-      onHistoryChange(canUndo, canRedo);
-    }, [onHistoryChange]);
-
-    const saveToHistory = useCallback(() => {
-      const currentState: HistoryState = {
-        strokes: deepCopyStrokes(strokesRef.current),
-      };
-
-      historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
-      historyRef.current.push(currentState);
-      historyIndexRef.current = historyRef.current.length - 1;
-
-      if (historyRef.current.length > 50) {
-        historyRef.current.shift();
-        historyIndexRef.current--;
+    useEffect(() => {
+      if (!onHistoryChange) {
+        historyManager.setListener(null);
+        return;
       }
+      historyManager.setListener(({ canUndo, canRedo }) => {
+        onHistoryChange(canUndo, canRedo);
+      });
+    }, [historyManager, onHistoryChange]);
 
-      notifyHistoryChange();
-    }, [notifyHistoryChange]);
+    /** 현재 stroke 상태의 경량 스냅샷. bounds는 ref incremental 결과 사용. */
+    const createSnapshot = useCallback(
+      (): DocumentSnapshot => ({
+        strokes: strokesRef.current,
+        bounds: [...strokeBoundsRef.current],
+      }),
+      []
+    );
 
-    const restoreFromHistory = useCallback(
-      (index: number) => {
-        if (index < 0 || index >= historyRef.current.length) return;
-
-        const state = historyRef.current[index];
-        const restoredStrokes = deepCopyStrokes(state.strokes);
+    const applySnapshot = useCallback(
+      (snapshot: DocumentSnapshot) => {
+        const restoredStrokes = [...snapshot.strokes];
         const newPaths = restoredStrokes.map((stroke) => buildSmoothPath(stroke.points));
 
         setStrokes(restoredStrokes);
         setPaths(newPaths);
         strokesRef.current = restoredStrokes;
+        strokeBoundsRef.current = [...snapshot.bounds];
 
-        if (state.strokes.length > 0) {
+        if (snapshot.strokes.length > 0) {
           const strokesMaxY = safeMax(
-            state.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
+            snapshot.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
           );
           maxY.current = strokesMaxY;
           canvasHeight.current = Math.max(800, strokesMaxY + 200);
@@ -111,17 +105,18 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         }
 
         onChange?.(restoredStrokes);
-        notifyHistoryChange();
       },
-      [onChange, notifyHistoryChange]
+      [onChange]
     );
 
     const loadStrokes = useCallback(
       (newStrokes: Stroke[]) => {
         const newPaths = newStrokes.map((stroke) => buildSmoothPath(stroke.points));
+        const newBounds = newStrokes.map((stroke) => computeStrokeBounds(stroke.points));
         setStrokes(newStrokes);
         setPaths(newPaths);
         strokesRef.current = newStrokes;
+        strokeBoundsRef.current = newBounds;
 
         if (newStrokes.length > 0) {
           const maxYValue = safeMax(newStrokes.flatMap((stroke) => stroke.points.map((p) => p.y)));
@@ -133,12 +128,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         }
 
         onChange?.(newStrokes);
-
-        historyRef.current = [{ strokes: deepCopyStrokes(newStrokes) }];
-        historyIndexRef.current = 0;
-        notifyHistoryChange();
+        historyManager.clear();
       },
-      [onChange, notifyHistoryChange]
+      [onChange, historyManager]
     );
 
     const addPoint = useCallback((x: number, y: number) => {
@@ -178,9 +170,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
         color: strokeColor,
         width: strokeWidth,
       };
+      const bounds = computeStrokeBounds(strokeData.points);
       const nextStrokes = [...strokesRef.current, strokeData];
 
       strokesRef.current = nextStrokes;
+      strokeBoundsRef.current.push(bounds);
       setStrokes(nextStrokes);
       setPaths((prev) => [...prev, newPath]);
 
@@ -188,8 +182,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       livePath.current.reset();
 
       onChange?.(nextStrokes);
-      saveToHistory();
-    }, [strokeColor, strokeWidth, onChange, saveToHistory]);
+      historyManager.push({ type: 'append-stroke', stroke: strokeData, bounds });
+    }, [strokeColor, strokeWidth, onChange, historyManager]);
 
     const eraseAtPoint = useCallback(
       (x: number, y: number) => {
@@ -199,7 +193,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
 
         const thresholdSquared = eraserSize * eraserSize;
         const prevStrokes = strokesRef.current;
-        const nextStrokes = prevStrokes.filter((stroke) => {
+        const prevBounds = strokeBoundsRef.current;
+        const keepMask = prevStrokes.map((stroke) => {
           const isTouched = stroke.points.some((point) => {
             const dx = point.x - x;
             const dy = point.y - y;
@@ -208,14 +203,17 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
           return !isTouched;
         });
 
-        if (nextStrokes.length !== prevStrokes.length) {
-          const newPaths = nextStrokes.map((s) => buildSmoothPath(s.points));
-          setStrokes(nextStrokes);
-          setPaths(newPaths);
-          strokesRef.current = nextStrokes;
-          onChange?.(nextStrokes);
-          eraserDidModify.current = true;
-        }
+        if (keepMask.every((keep) => keep)) return;
+
+        const nextStrokes = prevStrokes.filter((_, i) => keepMask[i]);
+        const nextBounds = prevBounds.filter((_, i) => keepMask[i]);
+        const newPaths = nextStrokes.map((s) => buildSmoothPath(s.points));
+        setStrokes(nextStrokes);
+        setPaths(newPaths);
+        strokesRef.current = nextStrokes;
+        strokeBoundsRef.current = nextBounds;
+        onChange?.(nextStrokes);
+        eraserDidModify.current = true;
       },
       [eraserSize, onChange]
     );
@@ -231,59 +229,80 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
     const startEraser = useCallback(
       (x: number, y: number) => {
         eraserPoints.current = [{ x, y }];
+        historyManager.beginTransaction(createSnapshot());
         eraseAtPoint(x, y);
       },
-      [eraseAtPoint]
+      [eraseAtPoint, createSnapshot, historyManager]
     );
 
     const finalizeEraser = useCallback(() => {
       eraserPoints.current = [];
       if (eraserDidModify.current) {
-        saveToHistory();
+        historyManager.commitTransaction(createSnapshot());
         eraserDidModify.current = false;
+      } else {
+        historyManager.discardTransaction();
       }
-    }, [saveToHistory]);
+    }, [createSnapshot, historyManager]);
 
     const undo = useCallback(() => {
-      if (historyIndexRef.current > 0) {
-        historyIndexRef.current--;
-        restoreFromHistory(historyIndexRef.current);
-      } else if (historyIndexRef.current === 0) {
-        historyIndexRef.current = -1;
-        restoreFromHistory(0);
+      const entry = historyManager.undo();
+      if (!entry) return;
+
+      switch (entry.type) {
+        case 'append-stroke': {
+          const nextStrokes = strokesRef.current.slice(0, -1);
+          strokesRef.current = nextStrokes;
+          strokeBoundsRef.current = strokeBoundsRef.current.slice(0, -1);
+          setStrokes(nextStrokes);
+          setPaths((prev) => prev.slice(0, -1));
+          onChange?.(nextStrokes);
+          break;
+        }
+        case 'erase-strokes': {
+          applySnapshot(entry.snapshotBefore);
+          break;
+        }
       }
-    }, [restoreFromHistory]);
+    }, [historyManager, applySnapshot, onChange]);
 
     const redo = useCallback(() => {
-      const nextIndex = historyIndexRef.current + 1;
-      if (nextIndex < historyRef.current.length) {
-        historyIndexRef.current = nextIndex;
-        restoreFromHistory(nextIndex);
+      const entry = historyManager.redo();
+      if (!entry) return;
+
+      switch (entry.type) {
+        case 'append-stroke': {
+          const nextStrokes = [...strokesRef.current, entry.stroke];
+          strokesRef.current = nextStrokes;
+          strokeBoundsRef.current.push(entry.bounds);
+          setStrokes(nextStrokes);
+          setPaths((prev) => [...prev, buildSmoothPath(entry.stroke.points)]);
+          onChange?.(nextStrokes);
+          break;
+        }
+        case 'erase-strokes': {
+          applySnapshot(entry.snapshotAfter);
+          break;
+        }
       }
-    }, [restoreFromHistory]);
+    }, [historyManager, applySnapshot, onChange]);
 
     useImperativeHandle(ref, () => ({
       clear() {
         setPaths([]);
         setStrokes([]);
         strokesRef.current = [];
+        strokeBoundsRef.current = [];
         livePath.current.reset();
         maxY.current = 0;
         canvasHeight.current = 800;
         onChange?.([]);
-
-        historyRef.current = [];
-        historyIndexRef.current = -1;
-        notifyHistoryChange();
+        historyManager.clear();
       },
       undo,
       redo,
-      canUndo: () => {
-        if (historyIndexRef.current > 0) return true;
-        if (historyRef.current.length === 1) return false;
-        return historyIndexRef.current === 0 && historyRef.current.length > 1;
-      },
-      canRedo: () => historyIndexRef.current + 1 < historyRef.current.length,
+      canUndo: () => historyManager.canUndo(),
+      canRedo: () => historyManager.canRedo(),
       getStrokes: () => strokesRef.current,
       setStrokes: loadStrokes,
     }));
