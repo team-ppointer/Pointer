@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, RefreshControl } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+// import { useNavigation } from '@react-navigation/native';
+// import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BellIcon, BookOpenTextIcon, CalendarIcon, ChevronRightIcon } from 'lucide-react-native';
 
 import { useAuthStore, useHomeStore } from '@stores';
@@ -10,12 +9,12 @@ import {
   useGetLastDiagnosis,
   useGetMonthlyPublish,
   useGetPublishDetail,
-  useGetNotificationCount,
-  useGetNoticeCount,
+  // useGetNotificationCount,
+  // useGetNoticeCount,
 } from '@apis';
-import { type StudentRootStackParamList } from '@navigation/student/types';
+// import { type StudentRootStackParamList } from '@navigation/student/types';
 import { colors, shadow } from '@theme/tokens';
-import { AlertBellButtonIcon, PointerSymbol } from '@components/system/icons';
+import { AlertBellButtonIcon, PointerLogo, PointerSymbol } from '@components/system/icons';
 import { AnimatedPressable, ContentInset, Header, PointerContentView } from '@components/common';
 import { useInvalidateAll } from '@hooks';
 import { formatDateKey } from '@utils/date';
@@ -25,7 +24,7 @@ import ProblemSet from '../components/ProblemSet';
 import CalendarModal from '../components/CalendarModal';
 
 const HomeScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
+  // const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
   const { selectedMonth, selectedDate, setSelectedMonth, setSelectedDate } = useHomeStore();
   const [isCalendarModalVisible, setIsCalendarModalVisible] = useState(false);
   const studentName = useAuthStore((state) => state.studentProfile?.name);
@@ -43,10 +42,10 @@ const HomeScreen = () => {
     month: selectedMonth.getMonth() + 1,
   });
 
-  const { data: notificationCountData } = useGetNotificationCount({});
-  const { data: noticeCountData } = useGetNoticeCount();
+  // const { data: notificationCountData } = useGetNotificationCount({});
+  // const { data: noticeCountData } = useGetNoticeCount();
 
-  const hasUnread = !!(notificationCountData?.unreadCount || noticeCountData?.unreadCount);
+  // const hasUnread = !!(notificationCountData?.unreadCount || noticeCountData?.unreadCount);
 
   const selectedPublishId = useMemo(() => {
     if (!studyData?.data) return -1;
@@ -77,14 +76,19 @@ const HomeScreen = () => {
 
   return (
     <View className='flex-1'>
-      <Header
+      {/*<Header
         right={
           <Header.IconButton
             icon={hasUnread ? AlertBellButtonIcon : BellIcon}
             onPress={() => navigation.navigate('Notifications')}
           />
         }
-      />
+      />*/}
+      <ContentInset className='flex h-[56px] justify-center'>
+        <View className='flex h-[40px] w-[120px] items-center justify-center'>
+          <PointerLogo width={106} height={24} />
+        </View>
+      </ContentInset>
       <ScrollView
         className='flex-1'
         contentContainerStyle={{ paddingBottom: 80 }}

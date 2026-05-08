@@ -103,7 +103,7 @@ async function renderCardPointing(
   titleGroup.appendChild(subtitleSpan);
   header.appendChild(titleGroup);
 
-  if (display.bookmarkable) {
+  if (false && display.bookmarkable) {
     const btn = document.createElement('button');
     btn.className = 'bookmark-btn';
     setBookmarkButtonState(btn, !!display.bookmarked);
