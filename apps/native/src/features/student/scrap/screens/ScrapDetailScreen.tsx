@@ -23,6 +23,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useQueryClient } from '@tanstack/react-query';
+import { DrawingCanvas, type DrawingCanvasRef } from '@repo/pointer-native-drawing';
 
 import { colors } from '@/theme/tokens';
 import { useNoteStore } from '@/features/student/scrap/stores/scrapNoteStore';
@@ -37,7 +38,6 @@ import {
 import { type StudentRootStackParamList } from '@/navigation/student/types';
 
 import { toAlphabetSequence } from '../utils/formatters/toAlphabetSequence';
-import DrawingCanvas, { type DrawingCanvasRef } from '../utils/skia/drawing';
 import { ScrapDetailHeader } from '../components/Header/ScrapDetailHeader';
 import { TabNavigator } from '../components/scrap/TabNavigator';
 import { FilterBar } from '../components/scrap/FilterBar';
@@ -639,8 +639,7 @@ const ScrapDetailScreen = () => {
                   ref={canvasRef}
                   strokeColor='#1E1E21'
                   strokeWidth={drawingState.strokeWidth}
-                  textMode={drawingState.isTextMode}
-                  eraserMode={drawingState.isEraserMode}
+                  activeTool={drawingState.isEraserMode ? 'eraser' : 'pen'}
                   eraserSize={drawingState.eraserSize}
                   onHistoryChange={drawingState.setHistoryState}
                 />

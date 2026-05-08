@@ -1,4 +1,15 @@
-import { type Stroke, type TextItem } from './skia/drawing';
+import { type Stroke } from '@repo/pointer-native-drawing';
+
+// 텍스트박스 임시 비활성화 — local TextItem 정의 유지 (서버 schema 호환).
+// 재활성화 시 @repo/pointer-native-drawing 으로 환원.
+type TextItem = {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  color: string;
+};
 
 export interface HandwritingData {
   strokes: Stroke[];
