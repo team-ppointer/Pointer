@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Path, type SkPath, Skia, Circle, Group } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-handler';
 import { useSharedValue } from 'react-native-reanimated';
@@ -24,6 +24,7 @@ import {
 import { computeStrokeBounds, safeMax } from './model/strokeUtils';
 import { HistoryManager } from './engine/HistoryManager';
 import { type DrawingInputCallbacks } from './input/inputTypes';
+import { useNativeStylusAdapter } from './input/nativeStylusAdapter';
 import { useRnghPanAdapter } from './input/rnghPanAdapter';
 import { SkiaDrawingCanvasSurface } from './render/skia/SkiaDrawingCanvasSurface';
 import { useSkiaDrawingRenderer } from './render/skia/useSkiaDrawingRenderer';
@@ -354,10 +355,20 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       ]
     );
 
+    // iOS: native UIPencil 입력 (240Hz coalesced + predicted touches). rngh pan 비활성화.
+    // Android/Web: rngh pan adapter (native module 없음).
+    const useNativeStylus = Platform.OS === 'ios';
+
     const inputAdapter = useRnghPanAdapter({
       eraserMode,
       pencilOnly: true,
       minDistance: 1,
+      callbacks: drawingCallbacks,
+      enabled: !useNativeStylus,
+    });
+
+    const nativeStylusAdapter = useNativeStylusAdapter({
+      eraserMode,
       callbacks: drawingCallbacks,
     });
 
@@ -441,6 +452,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
                 />
               </Group>
             </SkiaDrawingCanvasSurface>
+            {nativeStylusAdapter?.overlay}
           </View>
         </GestureDetector>
       </ScrollView>
