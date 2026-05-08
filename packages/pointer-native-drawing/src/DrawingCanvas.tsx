@@ -12,7 +12,7 @@ import { Path, type SkPath, Skia, Circle, Group } from '@shopify/react-native-sk
 import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-handler';
 import { useSharedValue } from 'react-native-reanimated';
 
-import { buildSmoothPath } from './smoothing';
+import { buildSmoothPath, IncrementalPathBuilder } from './smoothing';
 import {
   type Point,
   type Stroke,
@@ -52,6 +52,10 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     const showHover = useSharedValue(false);
 
     const livePath = useRef<SkPath>(Skia.Path.Make());
+    // frozen prefix 증분 path 빌더 — lazy init
+    const pathBuilderRef = useRef<IncrementalPathBuilder | null>(null);
+    pathBuilderRef.current ??= new IncrementalPathBuilder();
+    const pathBuilder = pathBuilderRef.current;
     const currentPoints = useRef<Point[]>([]);
     const strokesRef = useRef<Stroke[]>([]);
     /** stroke와 동일 인덱스로 incremental 관리. createSnapshot N×P 재계산 회피. */
@@ -135,26 +139,34 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       [onChange, historyManager]
     );
 
-    const addPoint = useCallback((x: number, y: number) => {
-      currentPoints.current.push({ x, y });
-      livePath.current = buildSmoothPath(currentPoints.current);
+    const addPoint = useCallback(
+      (x: number, y: number) => {
+        currentPoints.current.push({ x, y });
+        livePath.current = pathBuilder.update(currentPoints.current);
 
-      if (y > maxY.current) {
-        maxY.current = y;
-        canvasHeight.current = Math.max(800, maxY.current + 200);
-      }
-      setTick((t) => t + 1);
-    }, []);
+        if (y > maxY.current) {
+          maxY.current = y;
+          canvasHeight.current = Math.max(800, maxY.current + 200);
+        }
+        setTick((t) => t + 1);
+      },
+      [pathBuilder]
+    );
 
-    const startStroke = useCallback((x: number, y: number) => {
-      currentPoints.current = [{ x, y }];
-      livePath.current = buildSmoothPath(currentPoints.current);
-      setTick((t) => t + 1);
-    }, []);
+    const startStroke = useCallback(
+      (x: number, y: number) => {
+        currentPoints.current = [{ x, y }];
+        pathBuilder.reset();
+        livePath.current = pathBuilder.update(currentPoints.current);
+        setTick((t) => t + 1);
+      },
+      [pathBuilder]
+    );
 
     const finalizeStroke = useCallback(() => {
       if (currentPoints.current.length === 0) {
         livePath.current.reset();
+        pathBuilder.reset();
         setTick((t) => t + 1);
         return;
       }
@@ -182,16 +194,18 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
       currentPoints.current = [];
       livePath.current.reset();
+      pathBuilder.reset();
 
       onChange?.(nextStrokes);
       historyManager.push({ type: 'append-stroke', stroke: strokeData, bounds });
-    }, [strokeColor, strokeWidth, onChange, historyManager]);
+    }, [strokeColor, strokeWidth, onChange, historyManager, pathBuilder]);
 
     const cancelStroke = useCallback(() => {
       currentPoints.current = [];
       livePath.current.reset();
+      pathBuilder.reset();
       setTick((t) => t + 1);
-    }, []);
+    }, [pathBuilder]);
 
     const eraseAtPoint = useCallback(
       (x: number, y: number) => {
@@ -312,6 +326,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         strokesRef.current = [];
         strokeBoundsRef.current = [];
         livePath.current.reset();
+        pathBuilder.reset();
         maxY.current = 0;
         canvasHeight.current = 800;
         onChange?.([]);
