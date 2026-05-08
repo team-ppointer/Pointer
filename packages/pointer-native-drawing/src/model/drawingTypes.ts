@@ -8,6 +8,20 @@ export type Stroke = {
   width: number;
 };
 
+// ── Input ──
+
+export type PointerType = 'touch' | 'pen' | 'mouse' | 'unknown';
+
+export type InputEvent = {
+  x: number;
+  y: number;
+  timestamp: number;
+  pressure?: number;
+  pointerType?: PointerType;
+  tiltX?: number;
+  tiltY?: number;
+};
+
 // ── Bounds ──
 
 /** stroke의 AABB (axis-aligned bounding box). 지우개 히트 테스트 최적화 기반. */

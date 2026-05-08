@@ -10,7 +10,7 @@ import React, {
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Path, type SkPath, Skia, Circle, Group } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-handler';
-import { runOnJS, useSharedValue } from 'react-native-reanimated';
+import { useSharedValue } from 'react-native-reanimated';
 
 import { buildSmoothPath } from './smoothing';
 import {
@@ -23,6 +23,8 @@ import {
 } from './model/drawingTypes';
 import { computeStrokeBounds, safeMax } from './model/strokeUtils';
 import { HistoryManager } from './engine/HistoryManager';
+import { type DrawingInputCallbacks } from './input/inputTypes';
+import { useRnghPanAdapter } from './input/rnghPanAdapter';
 import { SkiaDrawingCanvasSurface } from './render/skia/SkiaDrawingCanvasSurface';
 import { useSkiaDrawingRenderer } from './render/skia/useSkiaDrawingRenderer';
 
@@ -47,7 +49,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     const hoverX = useSharedValue(0);
     const hoverY = useSharedValue(0);
     const showHover = useSharedValue(false);
-    const isActiveGesture = useSharedValue(false);
 
     const livePath = useRef<SkPath>(Skia.Path.Make());
     const currentPoints = useRef<Point[]>([]);
@@ -185,6 +186,12 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       historyManager.push({ type: 'append-stroke', stroke: strokeData, bounds });
     }, [strokeColor, strokeWidth, onChange, historyManager]);
 
+    const cancelStroke = useCallback(() => {
+      currentPoints.current = [];
+      livePath.current.reset();
+      setTick((t) => t + 1);
+    }, []);
+
     const eraseAtPoint = useCallback(
       (x: number, y: number) => {
         const now = Date.now();
@@ -194,7 +201,17 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         const thresholdSquared = eraserSize * eraserSize;
         const prevStrokes = strokesRef.current;
         const prevBounds = strokeBoundsRef.current;
-        const keepMask = prevStrokes.map((stroke) => {
+        const keepMask = prevStrokes.map((stroke, i) => {
+          // AABB 사전 검사: bounds + eraserSize 영역 밖이면 무조건 keep (점 검사 skip)
+          const b = prevBounds[i];
+          if (
+            x < b.minX - eraserSize ||
+            x > b.maxX + eraserSize ||
+            y < b.minY - eraserSize ||
+            y > b.maxY + eraserSize
+          ) {
+            return true;
+          }
           const isTouched = stroke.points.some((point) => {
             const dx = point.x - x;
             const dy = point.y - y;
@@ -307,60 +324,42 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       setStrokes: loadStrokes,
     }));
 
-    const pan = useMemo(
-      () =>
-        Gesture.Pan()
-          .minPointers(1)
-          .maxPointers(1)
-          .onBegin((e) => {
-            'worklet';
-            const pointerType = e.pointerType;
-            if (pointerType !== PointerType.STYLUS && pointerType !== PointerType.MOUSE) {
-              return;
-            }
-            isActiveGesture.value = true;
-            showHover.value = false;
-            if (eraserMode) {
-              runOnJS(startEraser)(e.x, e.y);
-            } else {
-              runOnJS(startStroke)(e.x, e.y);
-            }
-          })
-          .onUpdate((e) => {
-            'worklet';
-            const pointerType = e.pointerType;
-            if (pointerType !== PointerType.STYLUS && pointerType !== PointerType.MOUSE) {
-              return;
-            }
-            if (eraserMode) {
-              runOnJS(addEraserPoint)(e.x, e.y);
-            } else {
-              runOnJS(addPoint)(e.x, e.y);
-            }
-          })
-          .onEnd(() => {
-            'worklet';
-            if (!isActiveGesture.value) return;
-            isActiveGesture.value = false;
-            if (eraserMode) {
-              runOnJS(finalizeEraser)();
-            } else {
-              runOnJS(finalizeStroke)();
-            }
-          })
-          .minDistance(1),
+    const drawingCallbacks = useMemo<DrawingInputCallbacks>(
+      () => ({
+        onInteractionBegin: () => {
+          showHover.value = false;
+        },
+        onInteractionFinalize: () => {
+          if (eraserMode) {
+            finalizeEraser();
+          }
+        },
+        onDrawStart: (input) => startStroke(input.x, input.y),
+        onDrawMove: (input) => addPoint(input.x, input.y),
+        onDrawEnd: () => finalizeStroke(),
+        onDrawCancel: () => cancelStroke(),
+        onEraseStart: (input) => startEraser(input.x, input.y),
+        onEraseMove: (input) => addEraserPoint(input.x, input.y),
+      }),
       [
+        showHover,
         eraserMode,
         startStroke,
         addPoint,
         finalizeStroke,
+        cancelStroke,
         startEraser,
         addEraserPoint,
         finalizeEraser,
-        isActiveGesture,
-        showHover,
       ]
     );
+
+    const inputAdapter = useRnghPanAdapter({
+      eraserMode,
+      pencilOnly: true,
+      minDistance: 1,
+      callbacks: drawingCallbacks,
+    });
 
     const hoverGesture = useMemo(
       () =>
@@ -397,8 +396,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     );
 
     const composedGesture = useMemo(
-      () => Gesture.Simultaneous(pan, hoverGesture),
-      [pan, hoverGesture]
+      () => Gesture.Simultaneous(inputAdapter.gesture, hoverGesture),
+      [inputAdapter.gesture, hoverGesture]
     );
 
     const { renderedPaths, hoverOpacity } = useSkiaDrawingRenderer({
