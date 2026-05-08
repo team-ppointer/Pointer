@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DrawingCanvas, type DrawingCanvasRef } from '@repo/pointer-native-drawing';
 
 import { ContentInset, Header, PointerContentView } from '@components/common';
 import { postAnswer, useGetScrapStatusById, useToggleScrapFromProblem } from '@apis/student';
@@ -38,7 +39,6 @@ import ResultSheet from '../components/ResultSheet';
 import AnswerKeyboardSheet from '../components/AnswerKeyboardSheet';
 import BottomActionBar from '../components/BottomActionBar';
 import { buildDocumentInit } from '../transforms/contentRendererTransforms';
-import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
@@ -536,7 +536,7 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
                     ref={canvasRef}
                     strokeColor='#1E1E21'
                     strokeWidth={2}
-                    eraserMode={drawingState.isEraserMode}
+                    activeTool={drawingState.isEraserMode ? 'eraser' : 'pen'}
                     eraserSize={12}
                     onHistoryChange={drawingState.setHistoryState}
                   />

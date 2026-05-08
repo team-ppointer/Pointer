@@ -1,9 +1,9 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { Alert, AppState, type AppStateStatus } from 'react-native';
+import { type DrawingCanvasRef } from '@repo/pointer-native-drawing';
 
 import { useGetHandwriting, useUpdateHandwriting } from '@/apis';
 
-import { type DrawingCanvasRef } from '../utils/skia/drawing';
 import { encodeHandwritingData, decodeHandwritingData } from '../utils/handwritingEncoder';
 
 export interface UseHandwritingManagerProps {
@@ -50,7 +50,7 @@ export function useHandwritingManager({
           try {
             const decodedData = decodeHandwritingData(handwritingData.data);
             canvasRef.current.setStrokes(decodedData.strokes);
-            canvasRef.current.setTexts(decodedData.texts);
+            // textbox 임시 비활성화 — setTexts 호출 제거 (재활성화 시 부활)
             lastSavedDataRef.current = handwritingData.data;
           } catch (error) {
             console.error('필기 데이터 로드 실패:', error);
@@ -73,10 +73,10 @@ export function useHandwritingManager({
       }
 
       const strokes = canvasRef.current.getStrokes();
-      const texts = canvasRef.current.getTexts();
+      // textbox 임시 비활성화 — getTexts 호출 제거. 빈 배열로 encode.
 
       try {
-        const base64Data = encodeHandwritingData(strokes || [], texts || []);
+        const base64Data = encodeHandwritingData(strokes || [], []);
 
         // 변경사항 없으면 저장 안 함
         if (base64Data === lastSavedDataRef.current) {
