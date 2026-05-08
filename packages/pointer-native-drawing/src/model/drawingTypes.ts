@@ -29,3 +29,19 @@ export type DrawingCanvasRef = {
   getStrokes: () => Stroke[];
   setStrokes: (strokes: Stroke[]) => void;
 };
+
+export type DrawingCanvasProps = {
+  strokeColor?: string;
+  strokeWidth?: number;
+  onChange?: (strokes: Stroke[]) => void;
+  onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
+  eraserMode?: boolean;
+  eraserSize?: number;
+};
+
+// ── Snapshot (lightweight — stores references) ──
+
+export type DocumentSnapshot = {
+  readonly strokes: readonly Stroke[];
+  readonly bounds: readonly StrokeBounds[];
+};
