@@ -34,6 +34,8 @@ export type StrokeBounds = {
 
 // ── 컴포넌트 공개 API ──
 
+export type ActiveTool = 'pen' | 'eraser';
+
 export type DrawingCanvasRef = {
   clear: () => void;
   undo: () => void;
@@ -49,8 +51,13 @@ export type DrawingCanvasProps = {
   strokeWidth?: number;
   onChange?: (strokes: Stroke[]) => void;
   onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
-  eraserMode?: boolean;
   eraserSize?: number;
+  /** 활성 도구. default 'pen'. textbox는 임시 비활성화. */
+  activeTool?: ActiveTool;
+  /** zoom/pan 활성화. default false. true 시 2-finger pinch/pan 지원. */
+  enableZoomPan?: boolean;
+  /** 최대 줌 배율. default 4. */
+  maxZoomScale?: number;
 };
 
 // ── Snapshot (lightweight — stores references) ──

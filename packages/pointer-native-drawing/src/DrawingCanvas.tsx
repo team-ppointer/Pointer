@@ -10,7 +10,7 @@ import React, {
 import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Path, type SkPath, Skia, Circle, Group } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector, PointerType } from 'react-native-gesture-handler';
-import { useSharedValue } from 'react-native-reanimated';
+import { useDerivedValue, useSharedValue } from 'react-native-reanimated';
 
 import { buildSmoothPath, IncrementalPathBuilder } from './smoothing';
 import {
@@ -28,6 +28,13 @@ import { useNativeStylusAdapter } from './input/nativeStylusAdapter';
 import { useRnghPanAdapter } from './input/rnghPanAdapter';
 import { SkiaDrawingCanvasSurface } from './render/skia/SkiaDrawingCanvasSurface';
 import { useSkiaDrawingRenderer } from './render/skia/useSkiaDrawingRenderer';
+import { type RendererViewport } from './render/rendererTypes';
+import { screenToCanvas, transformToMatrix3 } from './transform';
+import { useCanvasViewportController } from './canvas/useCanvasViewportController';
+import { useCanvasGestureComposer } from './canvas/useCanvasGestureComposer';
+
+const MIN_CANVAS_HEIGHT_FLOOR = 400;
+const DEFAULT_MAX_ZOOM_SCALE = 4;
 
 const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
   (
@@ -36,23 +43,25 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       strokeWidth = 3,
       onChange,
       onHistoryChange,
-      eraserMode = false,
       eraserSize = 20,
+      activeTool = 'pen',
+      enableZoomPan = false,
+      maxZoomScale = DEFAULT_MAX_ZOOM_SCALE,
     },
     ref
   ) => {
+    const eraserMode = activeTool === 'eraser';
+
     const [paths, setPaths] = useState<SkPath[]>([]);
     const [strokes, setStrokes] = useState<Stroke[]>([]);
     const [, setTick] = useState(0);
-    const canvasHeight = useRef<number>(800);
-    const maxY = useRef<number>(0);
+    const maxYRef = useRef<number>(0);
 
     const hoverX = useSharedValue(0);
     const hoverY = useSharedValue(0);
     const showHover = useSharedValue(false);
 
     const livePath = useRef<SkPath>(Skia.Path.Make());
-    // frozen prefix 증분 path 빌더 — lazy init
     const pathBuilderRef = useRef<IncrementalPathBuilder | null>(null);
     pathBuilderRef.current ??= new IncrementalPathBuilder();
     const pathBuilder = pathBuilderRef.current;
@@ -65,7 +74,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
     const eraserDidModify = useRef<boolean>(false);
     const ERASER_THROTTLE_MS = 16; // ~60fps
 
-    // 히스토리 매니저 — lazy init (StrictMode 더블 렌더 시 한 번만 생성)
+    // 히스토리 매니저 — lazy init
     const historyManagerRef = useRef<HistoryManager | null>(null);
     historyManagerRef.current ??= new HistoryManager(50);
     const historyManager = historyManagerRef.current;
@@ -79,6 +88,20 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         onHistoryChange(canUndo, canRedo);
       });
     }, [historyManager, onHistoryChange]);
+
+    // 렌더러 viewport (외부에서 사용 안 하지만 viewport controller 시그니처 유지)
+    const updateViewport = useCallback((_viewport: RendererViewport) => {
+      // PR #305+#306 시점 활용처 0 — 향후 culling 등에 사용
+    }, []);
+
+    // viewport controller — zoom/pan + canvas height 관리
+    const viewport = useCanvasViewportController({
+      minCanvasHeight: MIN_CANVAS_HEIGHT_FLOOR,
+      enableZoomPan,
+      maxZoomScale,
+      maxYRef,
+      updateViewport,
+    });
 
     /** 현재 stroke 상태의 경량 스냅샷. bounds는 ref incremental 결과 사용. */
     const createSnapshot = useCallback(
@@ -103,16 +126,14 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
           const strokesMaxY = safeMax(
             snapshot.strokes.flatMap((stroke) => stroke.points.map((p) => p.y))
           );
-          maxY.current = strokesMaxY;
-          canvasHeight.current = Math.max(800, strokesMaxY + 200);
+          viewport.syncCanvasHeightFromMaxY(strokesMaxY);
         } else {
-          maxY.current = 0;
-          canvasHeight.current = 800;
+          viewport.syncCanvasHeightFromMaxY(0);
         }
 
         onChange?.(restoredStrokes);
       },
-      [onChange]
+      [onChange, viewport]
     );
 
     const loadStrokes = useCallback(
@@ -126,31 +147,25 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
         if (newStrokes.length > 0) {
           const maxYValue = safeMax(newStrokes.flatMap((stroke) => stroke.points.map((p) => p.y)));
-          maxY.current = maxYValue;
-          canvasHeight.current = Math.max(800, maxYValue + 200);
+          viewport.syncCanvasHeightFromMaxY(maxYValue);
         } else {
-          maxY.current = 0;
-          canvasHeight.current = 800;
+          viewport.syncCanvasHeightFromMaxY(0);
         }
 
         onChange?.(newStrokes);
         historyManager.clear();
       },
-      [onChange, historyManager]
+      [onChange, historyManager, viewport]
     );
 
     const addPoint = useCallback(
       (x: number, y: number) => {
         currentPoints.current.push({ x, y });
         livePath.current = pathBuilder.update(currentPoints.current);
-
-        if (y > maxY.current) {
-          maxY.current = y;
-          canvasHeight.current = Math.max(800, maxY.current + 200);
-        }
+        viewport.maybeGrowCanvasHeight(y);
         setTick((t) => t + 1);
       },
-      [pathBuilder]
+      [pathBuilder, viewport]
     );
 
     const startStroke = useCallback(
@@ -173,10 +188,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
       const pointsToFinalize = [...currentPoints.current];
       const strokeMaxY = safeMax(pointsToFinalize.map((p) => p.y));
-      if (strokeMaxY > maxY.current) {
-        maxY.current = strokeMaxY;
-        canvasHeight.current = Math.max(800, maxY.current + 200);
-      }
+      viewport.maybeGrowCanvasHeight(strokeMaxY);
 
       const newPath = buildSmoothPath(pointsToFinalize);
       const strokeData: Stroke = {
@@ -198,7 +210,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
       onChange?.(nextStrokes);
       historyManager.push({ type: 'append-stroke', stroke: strokeData, bounds });
-    }, [strokeColor, strokeWidth, onChange, historyManager, pathBuilder]);
+    }, [strokeColor, strokeWidth, onChange, historyManager, pathBuilder, viewport]);
 
     const cancelStroke = useCallback(() => {
       currentPoints.current = [];
@@ -327,8 +339,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         strokeBoundsRef.current = [];
         livePath.current.reset();
         pathBuilder.reset();
-        maxY.current = 0;
-        canvasHeight.current = 800;
+        viewport.syncCanvasHeightFromMaxY(0);
         onChange?.([]);
         historyManager.clear();
       },
@@ -340,6 +351,19 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       setStrokes: loadStrokes,
     }));
 
+    // zoom 활성화 시 stylus 입력 좌표는 screen → canvas 변환 필요
+    const transformInputToCanvas = useCallback(
+      (sx: number, sy: number): { x: number; y: number } => {
+        if (!enableZoomPan) return { x: sx, y: sy };
+        const t = viewport.viewTransform.value;
+        if (t.scale === 1 && t.translateX === 0 && t.translateY === 0) {
+          return { x: sx, y: sy };
+        }
+        return screenToCanvas(sx, sy, t);
+      },
+      [enableZoomPan, viewport.viewTransform]
+    );
+
     const drawingCallbacks = useMemo<DrawingInputCallbacks>(
       () => ({
         onInteractionBegin: () => {
@@ -350,12 +374,24 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
             finalizeEraser();
           }
         },
-        onDrawStart: (input) => startStroke(input.x, input.y),
-        onDrawMove: (input) => addPoint(input.x, input.y),
+        onDrawStart: (input) => {
+          const c = transformInputToCanvas(input.x, input.y);
+          startStroke(c.x, c.y);
+        },
+        onDrawMove: (input) => {
+          const c = transformInputToCanvas(input.x, input.y);
+          addPoint(c.x, c.y);
+        },
         onDrawEnd: () => finalizeStroke(),
         onDrawCancel: () => cancelStroke(),
-        onEraseStart: (input) => startEraser(input.x, input.y),
-        onEraseMove: (input) => addEraserPoint(input.x, input.y),
+        onEraseStart: (input) => {
+          const c = transformInputToCanvas(input.x, input.y);
+          startEraser(c.x, c.y);
+        },
+        onEraseMove: (input) => {
+          const c = transformInputToCanvas(input.x, input.y);
+          addEraserPoint(c.x, c.y);
+        },
       }),
       [
         showHover,
@@ -367,11 +403,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         startEraser,
         addEraserPoint,
         finalizeEraser,
+        transformInputToCanvas,
       ]
     );
 
     // iOS: native UIPencil 입력 (240Hz coalesced + predicted touches). rngh pan 비활성화.
-    // Android/Web: rngh pan adapter (native module 없음).
     const useNativeStylus = Platform.OS === 'ios';
 
     const inputAdapter = useRnghPanAdapter({
@@ -387,9 +423,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       callbacks: drawingCallbacks,
     });
 
+    // hover gesture (zoom 비활성 시만; zoom 시 finger 게스처가 hover 차단)
     const hoverGesture = useMemo(
       () =>
         Gesture.Hover()
+          .enabled(!enableZoomPan)
           .onBegin((e) => {
             'worklet';
             const pointerType = e.pointerType;
@@ -418,13 +456,28 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
             'worklet';
             showHover.value = false;
           }),
-      [hoverX, hoverY, showHover]
+      [hoverX, hoverY, showHover, enableZoomPan]
     );
 
+    // gesture composer: zoom 활성 시 pinch/finger pan 추가
+    const { composedGesture: zoomComposed } = useCanvasGestureComposer({
+      enableZoomPan,
+      maxZoomScale,
+      nativeFingerInput: useNativeStylus,
+      viewTransform: viewport.viewTransform,
+      viewportWidthShared: viewport.viewportWidthShared,
+      viewportHeightShared: viewport.viewportHeightShared,
+      canvasHeightShared: viewport.canvasHeightShared,
+      drawPanGesture: inputAdapter.gesture,
+    });
+
     const composedGesture = useMemo(
-      () => Gesture.Simultaneous(inputAdapter.gesture, hoverGesture),
-      [inputAdapter.gesture, hoverGesture]
+      () => Gesture.Simultaneous(zoomComposed, hoverGesture),
+      [zoomComposed, hoverGesture]
     );
+
+    // Skia matrix prop — SharedValue 자동 감지 (UI thread 업데이트 그대로 반영)
+    const skiaMatrix = useDerivedValue(() => transformToMatrix3(viewport.viewTransform.value));
 
     const { renderedPaths, hoverOpacity } = useSkiaDrawingRenderer({
       paths,
@@ -436,24 +489,30 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
     return (
       <ScrollView
+        ref={viewport.scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
-        nestedScrollEnabled={true}>
+        nestedScrollEnabled={true}
+        scrollEnabled={!enableZoomPan}
+        onScroll={viewport.handleScroll}
+        scrollEventThrottle={16}>
         <GestureDetector gesture={composedGesture}>
-          <View style={styles.container} collapsable={false}>
-            <SkiaDrawingCanvasSurface height={canvasHeight.current}>
-              {renderedPaths}
-              {currentPoints.current.length > 0 && (
-                <Path
-                  path={livePath.current}
-                  style='stroke'
-                  strokeWidth={strokeWidth}
-                  color={strokeColor}
-                  strokeCap='round'
-                  strokeJoin='round'
-                />
-              )}
+          <View style={styles.container} collapsable={false} onLayout={viewport.handleLayout}>
+            <SkiaDrawingCanvasSurface height={viewport.canvasHeight}>
+              <Group matrix={skiaMatrix}>
+                {renderedPaths}
+                {currentPoints.current.length > 0 && (
+                  <Path
+                    path={livePath.current}
+                    style='stroke'
+                    strokeWidth={strokeWidth}
+                    color={strokeColor}
+                    strokeCap='round'
+                    strokeJoin='round'
+                  />
+                )}
+              </Group>
 
               <Group>
                 <Circle
