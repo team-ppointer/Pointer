@@ -16,9 +16,20 @@
     },
     "./package.json": "./package.json"
   },
+  "codegenConfig": {
+    "name": "PointerNativeDrawingSpec",
+    "type": "components",
+    "jsSrcsDir": "src/specs",
+    "ios": {
+      "componentProvider": {
+        "StylusInputView": "StylusInputView"
+      }
+    }
+  },
   "files": [
     "dist",
-    "src"
+    "src",
+    "ios"
   ],
   "license": "MIT",
   "scripts": {
