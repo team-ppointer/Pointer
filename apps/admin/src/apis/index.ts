@@ -4,6 +4,7 @@ export { $api } from './client';
 // controllers
 export * from './controller/auth';
 export * from './controller/concept';
+export * from './controller/conceptGraph';
 export * from './controller/diagnosis';
 export * from './controller/file';
 export * from './controller/menu';

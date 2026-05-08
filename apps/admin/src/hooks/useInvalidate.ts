@@ -87,6 +87,82 @@ const useInvalidate = () => {
     [queryClient]
   );
 
+  const invalidateConceptGraphSheets = useCallback(() => {
+    return Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/sheet/node'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/sheet/edge'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/sheet/action-edge'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/node-type'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/edge-type'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/action-edge-type'],
+      }),
+    ]);
+  }, [queryClient]);
+
+  const invalidateConceptGraphNodes = useCallback(() => {
+    return Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/sheet/node'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/node'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/sheet/edge'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/sheet/action-edge'],
+      }),
+    ]);
+  }, [queryClient]);
+
+  const invalidateConceptGraphEdges = useCallback(() => {
+    return Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/sheet/edge'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/edge'],
+      }),
+    ]);
+  }, [queryClient]);
+
+  const invalidateConceptGraphActionEdges = useCallback(() => {
+    return Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/sheet/action-edge'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/action-edge'],
+      }),
+    ]);
+  }, [queryClient]);
+
+  const invalidateConceptGraphTypes = useCallback(() => {
+    return Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/node-type'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/edge-type'],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/admin/concept/graph/action-edge-type'],
+      }),
+    ]);
+  }, [queryClient]);
+
   return {
     invalidateAll,
     invalidateProblemSet,
@@ -94,6 +170,11 @@ const useInvalidate = () => {
     invalidateNotice,
     invalidateNotification,
     invalidateQna,
+    invalidateConceptGraphSheets,
+    invalidateConceptGraphNodes,
+    invalidateConceptGraphEdges,
+    invalidateConceptGraphActionEdges,
+    invalidateConceptGraphTypes,
   };
 };
 

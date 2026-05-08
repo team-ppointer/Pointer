@@ -1,8 +1,22 @@
+import type { paths } from '@schema';
+
 export interface GetConceptParams {
   query?: string;
   page?: number;
   size?: number;
 }
+
+export type ConceptNodeSheetSearchOptions = NonNullable<
+  paths['/api/admin/concept/graph/sheet/node']['get']['parameters']['query']
+>;
+
+export type ConceptEdgeSheetSearchOptions = NonNullable<
+  paths['/api/admin/concept/graph/sheet/edge']['get']['parameters']['query']
+>;
+
+export type ActionGraphSheetSearchOptions = NonNullable<
+  paths['/api/admin/concept/graph/sheet/action-edge']['get']['parameters']['query']
+>;
 
 export interface GetConceptCategoryParams {
   query?: string;
