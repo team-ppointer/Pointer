@@ -6,6 +6,7 @@ import {
   Megaphone,
   MessageCircle,
   Package,
+  PanelsTopLeft,
   Settings,
   Tags,
   Users,
@@ -13,7 +14,6 @@ import {
 import { components } from '@schema';
 
 export type AdminMenuName =
-  | 'STUDENT'
   | 'PUBLISH'
   | 'NOTICE'
   | 'NOTIFICATION'
@@ -26,7 +26,8 @@ export type AdminMenuName =
   | 'TEACHER'
   | 'SETTING'
   | 'ADMIN_ACCOUNT'
-  | 'ADMIN_ROLE';
+  | 'ADMIN_ROLE'
+  | 'ADMIN_MENU';
 
 export type AdminSession = {
   id: number;
@@ -55,7 +56,6 @@ export type AdminNavSection = {
 export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   {
     title: '학생 관리',
-    menuName: 'STUDENT',
     items: [
       {
         menuName: 'PUBLISH',
@@ -156,6 +156,13 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
         icon: Settings,
         routePrefixes: ['/setting/roles'],
       },
+      {
+        menuName: 'ADMIN_MENU',
+        to: '/setting/menus',
+        label: '메뉴 관리',
+        icon: PanelsTopLeft,
+        routePrefixes: ['/setting/menus'],
+      },
     ],
   },
 ];
@@ -192,7 +199,9 @@ export const hasMenuPermission = (
 export const getAccessibleNavSections = (session: AdminSession | null) => {
   return ADMIN_NAV_SECTIONS.map((section) => ({
     ...section,
-    items: section.items.filter((item) => hasMenuPermission(session, getAllowedMenuNames(item, section))),
+    items: section.items.filter((item) =>
+      hasMenuPermission(session, getAllowedMenuNames(item, section))
+    ),
   })).filter((section) => section.items.length > 0);
 };
 

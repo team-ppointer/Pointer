@@ -4190,7 +4190,7 @@ export interface components {
       createdAt?: string;
       content?: string;
     };
-    UpdateRequest: {
+    DailyCommentAdminUpdateRequest: {
       /**
        * @description 코멘트 내용
        * @example 수정된 코멘트입니다.
@@ -4243,6 +4243,12 @@ export interface components {
       payload?: {
         [key: string]: Record<string, never>;
       };
+    };
+    ListRespConceptActionEdgeResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ConceptActionEdgeResp'][];
     };
     NodeTypeCodeResp: {
       /** Format: int64 */
@@ -5346,7 +5352,7 @@ export interface components {
       studentId?: number;
       content?: string;
     };
-    UpsertRequest: {
+    DailyCommentAdminUpsertRequest: {
       /**
        * @description 학생 ID 목록
        * @example [
@@ -5367,6 +5373,12 @@ export interface components {
        * @example 오늘도 학습을 잘 진행했습니다.
        */
       contentJson?: string;
+    };
+    ListRespDailyCommentResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['DailyCommentResp'][];
     };
     ConceptCreateRequest: {
       name: string;
@@ -5889,6 +5901,12 @@ export interface components {
        */
       timestamp?: string;
     };
+    ListRespAdminResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['AdminResp'][];
+    };
     PageRespTeacherResp: {
       requestId: string;
       /** Format: int32 */
@@ -5914,6 +5932,12 @@ export interface components {
       id?: number;
       name?: string;
       menus?: components['schemas']['AdminMenuResp'][];
+    };
+    ListRespAdminRoleResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['AdminRoleResp'][];
     };
     PageRespProblemMetaResp: {
       requestId: string;
@@ -5965,6 +5989,12 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['MockExamTypeResp'][];
+    };
+    ListRespAdminMenuResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['AdminMenuResp'][];
     };
     /** @description FCM 상태 응답 */
     FcmStatusResp: {
@@ -6046,12 +6076,6 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['EdgeTypeCodeResp'][];
-    };
-    ListRespConceptActionEdgeResp: {
-      requestId: string;
-      /** Format: int32 */
-      total: number;
-      data: components['schemas']['ConceptActionEdgeResp'][];
     };
     ListRespActionEdgeTypeCodeResp: {
       requestId: string;
@@ -7819,7 +7843,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateRequest'];
+        'application/json': components['schemas']['DailyCommentAdminUpdateRequest'];
       };
     };
     responses: {
@@ -7931,7 +7955,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['ConceptActionEdgeResp'][];
+          '*/*': components['schemas']['ListRespConceptActionEdgeResp'];
         };
       };
     };
@@ -9514,7 +9538,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['AdminResp'][];
+          '*/*': components['schemas']['ListRespAdminResp'];
         };
       };
     };
@@ -9532,8 +9556,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9578,8 +9602,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9605,8 +9629,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9631,7 +9655,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['AdminRoleResp'][];
+          '*/*': components['schemas']['ListRespAdminRoleResp'];
         };
       };
     };
@@ -9649,8 +9673,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9671,8 +9695,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9719,8 +9743,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9770,8 +9794,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9818,8 +9842,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9864,8 +9888,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9913,8 +9937,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -9964,8 +9988,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -10058,8 +10082,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -10128,7 +10152,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['AdminMenuResp'][];
+          '*/*': components['schemas']['ListRespAdminMenuResp'];
         };
       };
     };
@@ -10146,8 +10170,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -10214,8 +10238,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -10251,7 +10275,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['DailyCommentResp'][];
+          '*/*': components['schemas']['ListRespDailyCommentResp'];
         };
       };
     };
@@ -10265,7 +10289,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpsertRequest'];
+        'application/json': components['schemas']['DailyCommentAdminUpsertRequest'];
       };
     };
     responses: {
@@ -10275,7 +10299,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['DailyCommentResp'][];
+          '*/*': components['schemas']['ListRespDailyCommentResp'];
         };
       };
     };
@@ -10318,8 +10342,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -10630,8 +10654,8 @@ export interface operations {
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };

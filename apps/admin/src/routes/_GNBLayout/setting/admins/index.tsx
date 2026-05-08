@@ -32,6 +32,7 @@ export const Route = createFileRoute('/_GNBLayout/setting/admins/')({
 });
 
 type AdminResp = components['schemas']['AdminResp'];
+type AdminListResp = components['schemas']['ListRespAdminResp'];
 
 interface UserFormValues {
   name: string;
@@ -514,11 +515,12 @@ function RouteComponent() {
     closeModal: closeSuccessModal,
   } = useModal();
   const { data: userListResponse, isLoading } = getUserList();
-  const { data: roleList = [] } = getRoles();
+  const { data: roleListResponse } = getRoles();
   const { mutate: removeUser, isPending: isDeletePending } = deleteUser();
   const { mutate: assignRole, isPending: isAssignRolePending } = putUserRole();
 
-  const userList = userListResponse ?? [];
+  const userList = userListResponse?.data ?? [];
+  const roleList = roleListResponse?.data ?? [];
   const userListQueryKey = $api.queryOptions('get', '/api/admin/user').queryKey;
 
   const refreshUserList = () => {
@@ -602,12 +604,16 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
-          queryClient.setQueryData<AdminResp[] | undefined>(userListQueryKey, (oldData) => {
+          queryClient.setQueryData<AdminListResp | undefined>(userListQueryKey, (oldData) => {
             if (!oldData) {
               return oldData;
             }
 
-            return oldData.filter((user) => user.id !== deleteTarget.id);
+            return {
+              ...oldData,
+              total: Math.max(0, oldData.total - 1),
+              data: oldData.data.filter((user) => user.id !== deleteTarget.id),
+            };
           });
           handleCloseDeleteModal();
           handleSuccess('관리자 계정 삭제가 완료되었습니다.');
