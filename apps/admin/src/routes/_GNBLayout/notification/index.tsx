@@ -182,6 +182,7 @@ function RouteComponent() {
       console.error('Failed to send notification:', error);
       const message = (error as { message?: string })?.message || '알림 발송에 실패했습니다.';
       setErrorMessage(message);
+      closeSendModal();
       openErrorModal();
     } finally {
       invalidateNotification(selectedStudent?.id || 0);
