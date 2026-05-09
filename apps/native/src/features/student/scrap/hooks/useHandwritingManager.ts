@@ -43,15 +43,17 @@ export function useHandwritingManager({
       currentScrapIdRef.current === scrapId &&
       !isSaving
     ) {
+      // setTimeout closure 안에선 mutable property 의 narrowing 이 풀리므로 const 로 capture.
+      const data = handwritingData.data;
       // clear() 완료를 보장하기 위해 약간의 지연 후 로드
       const loadTimer = setTimeout(() => {
         // 다시 한번 scrapId 확인 (clear() 실행 중일 수 있음)
         if (currentScrapIdRef.current === scrapId && canvasRef.current && !isSaving) {
           try {
-            const decodedData = decodeHandwritingData(handwritingData.data);
+            const decodedData = decodeHandwritingData(data);
             canvasRef.current.setStrokes(decodedData.strokes);
             canvasRef.current.setTexts(decodedData.texts);
-            lastSavedDataRef.current = handwritingData.data;
+            lastSavedDataRef.current = data;
           } catch (error) {
             console.error('필기 데이터 로드 실패:', error);
           }
