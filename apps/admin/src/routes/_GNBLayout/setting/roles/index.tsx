@@ -5,7 +5,7 @@ import { $api, deleteRole, getMenus, getRoles, postRole, putRole } from '@apis';
 import { Button, Header, Input } from '@components';
 import { components } from '@schema';
 import { adminSessionStorage, reissueToken } from '@utils';
-import { CheckSquare, FolderTree, Pencil, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, CheckSquare, FolderTree, Pencil, Plus, Trash2 } from 'lucide-react';
 
 export const Route = createFileRoute('/_GNBLayout/setting/roles/')({
   component: RouteComponent,
@@ -22,6 +22,17 @@ type RoleFormState = {
 const initialRoleFormState: RoleFormState = {
   name: '',
   menuIds: [],
+};
+
+const getRoleMutationErrorMessage = (error: unknown): string => {
+  const fallback = '요청 처리 중 오류가 발생했습니다.';
+  if (!error || typeof error !== 'object') return fallback;
+  const typed = error as {
+    message?: string;
+    error?: { message?: string };
+    data?: { message?: string };
+  };
+  return typed.message ?? typed.error?.message ?? typed.data?.message ?? fallback;
 };
 
 const getMenuLabel = (name?: string) => {
@@ -56,6 +67,7 @@ function RouteComponent() {
   const [createForm, setCreateForm] = useState<RoleFormState>(initialRoleFormState);
   const [editingRoleId, setEditingRoleId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<RoleFormState>(initialRoleFormState);
+  const [mutationError, setMutationError] = useState('');
   const roleQueryKey = useMemo(() => $api.queryOptions('get', '/api/admin/role').queryKey, []);
   const roles = roleListResponse?.data ?? [];
   const menus = menuListResponse?.data ?? [];
@@ -168,6 +180,7 @@ function RouteComponent() {
 
   const handleCreateSubmit = (event: FormEvent) => {
     event.preventDefault();
+    setMutationError('');
 
     createRole(
       {
@@ -177,6 +190,9 @@ function RouteComponent() {
         onSuccess: () => {
           setCreateForm(initialRoleFormState);
           invalidateRoles();
+        },
+        onError: (error) => {
+          setMutationError(getRoleMutationErrorMessage(error));
         },
       }
     );
@@ -201,6 +217,7 @@ function RouteComponent() {
 
   const submitEditRole = () => {
     if (!editingRoleId) return;
+    setMutationError('');
 
     updateRole(
       {
@@ -218,12 +235,16 @@ function RouteComponent() {
           setEditForm(initialRoleFormState);
           invalidateRoles();
         },
+        onError: (error) => {
+          setMutationError(getRoleMutationErrorMessage(error));
+        },
       }
     );
   };
 
   const handleDelete = (id?: number) => {
     if (!id || !window.confirm('역할을 삭제할까요?')) return;
+    setMutationError('');
 
     removeRole(
       {
@@ -237,6 +258,9 @@ function RouteComponent() {
         onSuccess: async () => {
           await refreshSessionIfOwnRole(id);
           invalidateRoles();
+        },
+        onError: (error) => {
+          setMutationError(getRoleMutationErrorMessage(error));
         },
       }
     );
@@ -373,6 +397,19 @@ function RouteComponent() {
       </Header>
 
       <div className='mx-auto max-w-7xl px-8 py-8'>
+        {mutationError && (
+          <div className='mb-4 flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600'>
+            <AlertCircle className='mt-0.5 h-4 w-4 flex-shrink-0' />
+            <span className='flex-1'>{mutationError}</span>
+            <button
+              type='button'
+              onClick={() => setMutationError('')}
+              className='text-xs font-semibold text-red-600 underline-offset-2 hover:underline'>
+              닫기
+            </button>
+          </div>
+        )}
+
         <div className='mb-6 rounded-2xl border border-gray-200 bg-white p-6'>
           <h2 className='text-xl font-bold text-gray-900'>역할 생성</h2>
           <p className='mt-2 text-sm text-gray-500'>역할별 접근 메뉴를 체크박스로 관리합니다.</p>
