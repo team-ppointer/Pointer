@@ -503,6 +503,7 @@ function RouteComponent() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminResp | null>(null);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
+  const [roleChangeError, setRoleChangeError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const {
     isOpen: isUserModalOpen,
@@ -535,6 +536,31 @@ function RouteComponent() {
   };
 
   const handleChangeRole = (userId: number, value: string) => {
+    const isSuper = value === 'SUPER';
+    const newRoleId = isSuper ? null : Number(value);
+    const nextRole = isSuper ? null : (roleList.find((role) => role.id === newRoleId) ?? null);
+
+    const previousData = queryClient.getQueryData<AdminListResp>(userListQueryKey);
+
+    queryClient.setQueryData<AdminListResp | undefined>(userListQueryKey, (oldData) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        data: oldData.data.map((user) =>
+          user.id === userId
+            ? {
+                ...user,
+                adminType: isSuper ? 'SUPER' : 'ROLE_BASED',
+                roleId: newRoleId ?? undefined,
+                roleName: nextRole?.name ?? undefined,
+              }
+            : user
+        ),
+      };
+    });
+
+    setRoleChangeError('');
+
     assignRole(
       {
         params: {
@@ -543,7 +569,7 @@ function RouteComponent() {
           },
         },
         body: {
-          roleId: value === 'SUPER' ? null : Number(value),
+          roleId: newRoleId,
         },
       },
       {
@@ -552,10 +578,11 @@ function RouteComponent() {
           if (userId === adminSessionStorage.getSession()?.id) {
             await reissueToken({ silentLogoutOnFail: false });
           }
-          refreshUserList();
         },
         onError: (error) => {
-          window.alert(getCreateOrUpdateErrorMessage(error));
+          // 롤백
+          queryClient.setQueryData(userListQueryKey, previousData);
+          setRoleChangeError(getCreateOrUpdateErrorMessage(error));
         },
       }
     );
@@ -649,6 +676,19 @@ function RouteComponent() {
       </Header>
 
       <div className='mx-auto max-w-7xl px-8 py-8'>
+        {roleChangeError && (
+          <div className='mb-4 flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600'>
+            <AlertCircle className='mt-0.5 h-4 w-4 flex-shrink-0' />
+            <span className='flex-1'>{roleChangeError}</span>
+            <button
+              type='button'
+              onClick={() => setRoleChangeError('')}
+              className='text-xs font-semibold text-red-600 underline-offset-2 hover:underline'>
+              닫기
+            </button>
+          </div>
+        )}
+
         <div className='mb-5 flex items-center justify-between'>
           <div>
             <h2 className='text-lg font-bold text-gray-900'>계정 목록</h2>
