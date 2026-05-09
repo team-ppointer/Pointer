@@ -28,18 +28,6 @@ const formSchema = z.object({
   description: z.string().optional(),
   example: z.string().optional(),
   pointingExample: z.string().optional(),
-  payload: z
-    .string()
-    .optional()
-    .superRefine((val, ctx) => {
-      if (!val || val.trim().length === 0) return;
-      try {
-        JSON.parse(val);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'JSON 형식이 올바르지 않습니다';
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message });
-      }
-    }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -77,15 +65,6 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
   const postNodeMutation = postNode();
   const putNodeMutation = putNode();
 
-  const defaultPayload = useMemo(() => {
-    if (!target?.payload) return '';
-    try {
-      return JSON.stringify(target.payload, null, 2);
-    } catch {
-      return '';
-    }
-  }, [target]);
-
   const defaultDescription = useMemo(() => {
     return target?.description && target.description.length > 0
       ? target.description
@@ -120,7 +99,6 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
       description: defaultDescription,
       example: defaultExample,
       pointingExample: defaultPointingExample,
-      payload: defaultPayload,
     },
   });
 
@@ -131,9 +109,8 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
       description: defaultDescription,
       example: defaultExample,
       pointingExample: defaultPointingExample,
-      payload: defaultPayload,
     });
-  }, [target, reset, defaultPayload, defaultDescription, defaultExample, defaultPointingExample]);
+  }, [target, reset, defaultDescription, defaultExample, defaultPointingExample]);
 
   const selectedNodeTypeId = watch('nodeTypeId');
   const isActionType = useMemo(() => {
@@ -165,13 +142,6 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
         Object.keys(actionPayload).length > 0
           ? (actionPayload as unknown as { [key: string]: Record<string, never> })
           : undefined;
-    } else if (values.payload && values.payload.trim().length > 0) {
-      try {
-        payload = JSON.parse(values.payload);
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : '잘못된 JSON 입니다');
-        return;
-      }
     }
 
     const body = {
@@ -257,7 +227,7 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
           </div>
         </div>
 
-        {isActionType ? (
+        {isActionType && (
           <>
             <div className='space-y-2'>
               <label className='text-sm font-semibold text-gray-700'>예시</label>
@@ -272,22 +242,6 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
               </div>
             </div>
           </>
-        ) : (
-          <div className='space-y-2'>
-            <label className='text-sm font-semibold text-gray-700'>Payload (JSON)</label>
-            <textarea
-              placeholder='{"any": "json"}'
-              rows={6}
-              spellCheck={false}
-              {...register('payload')}
-              className={`focus:border-main focus:ring-main/20 w-full resize-y rounded-xl border px-4 py-3 font-mono text-xs transition-all duration-200 placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:outline-none ${
-                errors.payload ? 'border-red-300 focus:border-red-500' : 'border-gray-200'
-              }`}
-            />
-            {errors.payload && (
-              <p className='text-xs font-medium text-red-500'>{errors.payload.message}</p>
-            )}
-          </div>
         )}
 
         <div className='flex justify-end gap-3 pt-2'>

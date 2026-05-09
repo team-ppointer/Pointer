@@ -212,17 +212,46 @@ function RouteComponent() {
     {
       key: 'payload',
       label: 'Payload',
-      render: (row) => (
-        <button
-          type='button'
-          onClick={(e) => {
-            e.stopPropagation();
-            setPayloadPreview(row);
-          }}
-          className='hover:text-main max-w-[280px] truncate text-left font-mono text-xs text-gray-600 transition-colors'>
-          {truncatePayload(row.payload) || '-'}
-        </button>
-      ),
+      render: (row) => {
+        if (row.nodeType?.code === 'Action') {
+          const payload = row.payload as
+            | { example?: unknown; pointingExample?: unknown }
+            | undefined;
+          const example = typeof payload?.example === 'string' ? payload.example : '';
+          const pointingExample =
+            typeof payload?.pointingExample === 'string' ? payload.pointingExample : '';
+          if (!example && !pointingExample) {
+            return <span className='text-xs text-gray-400'>-</span>;
+          }
+          return (
+            <div className='max-w-[320px] space-y-1 text-xs text-gray-700'>
+              {example && (
+                <div className='flex gap-1'>
+                  <span className='shrink-0 font-semibold text-gray-500'>예시</span>
+                  <InlineProblemViewer maxLine={1}>{example}</InlineProblemViewer>
+                </div>
+              )}
+              {pointingExample && (
+                <div className='flex gap-1'>
+                  <span className='shrink-0 font-semibold text-gray-500'>포인팅</span>
+                  <InlineProblemViewer maxLine={1}>{pointingExample}</InlineProblemViewer>
+                </div>
+              )}
+            </div>
+          );
+        }
+        return (
+          <button
+            type='button'
+            onClick={(e) => {
+              e.stopPropagation();
+              setPayloadPreview(row);
+            }}
+            className='hover:text-main max-w-[280px] truncate text-left font-mono text-xs text-gray-600 transition-colors'>
+            {truncatePayload(row.payload) || '-'}
+          </button>
+        );
+      },
     },
   ];
 
