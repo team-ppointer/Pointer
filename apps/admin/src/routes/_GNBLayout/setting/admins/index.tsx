@@ -15,6 +15,7 @@ import {
 } from '@apis';
 import { useModal } from '@hooks';
 import { components } from '@schema';
+import { adminSessionStorage, reissueToken } from '@utils';
 import {
   AlertCircle,
   Eye,
@@ -222,7 +223,11 @@ const UserFormModal = ({
         body,
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          // 본인 계정 수정 시 로컬 세션의 name/email이 stale 상태로 남지 않도록 재발급
+          if (userId === adminSessionStorage.getSession()?.id) {
+            await reissueToken({ silentLogoutOnFail: false });
+          }
           onSuccess('관리자 계정 수정이 완료되었습니다.');
           onClose();
         },
@@ -542,7 +547,11 @@ function RouteComponent() {
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          // 본인 역할이 바뀌면 accessibleMenus도 즉시 갱신
+          if (userId === adminSessionStorage.getSession()?.id) {
+            await reissueToken({ silentLogoutOnFail: false });
+          }
           refreshUserList();
         },
         onError: (error) => {
