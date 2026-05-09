@@ -55,7 +55,7 @@ export function initOverviewController(
 
   const updateActiveTab = () => {
     const tabBarHeight = getTabBarHeight();
-    const threshold = tabBarHeight + 8;
+    const threshold = tabBarHeight + SCROLL_TOP_GAP_PX + 8;
     let closest: { id: string; distance: number } | null = null;
 
     for (const id of tabSectionIds) {
@@ -158,12 +158,14 @@ function getTabBarHeight(): number {
   return clip?.offsetHeight ?? 0;
 }
 
+const SCROLL_TOP_GAP_PX = 16;
+
 export function scrollToSection(sectionId: string): void {
   const el = document.getElementById(`section-${sectionId}`);
   if (!el) return;
 
   const tabBarHeight = getTabBarHeight();
-  const elTop = el.getBoundingClientRect().top + window.scrollY - tabBarHeight;
+  const elTop = el.getBoundingClientRect().top + window.scrollY - tabBarHeight - SCROLL_TOP_GAP_PX;
   window.scrollTo({ top: elTop, behavior: 'smooth' });
 }
 
