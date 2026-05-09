@@ -110,73 +110,16 @@ function RouteComponent() {
     queryClient.invalidateQueries({ queryKey: roleQueryKey });
   };
 
-  const getDescendantIds = (menuId: number) => {
-    const descendants: number[] = [];
-    const stack = [...(childrenMap.get(menuId) ?? [])];
-
-    while (stack.length > 0) {
-      const current = stack.pop();
-      const currentId = current?.id;
-
-      if (typeof currentId !== 'number') continue;
-
-      descendants.push(currentId);
-      stack.push(...(childrenMap.get(currentId) ?? []));
-    }
-
-    return descendants;
-  };
-
-  const getAncestorIds = (menuId: number) => {
-    const ancestors: number[] = [];
-    let currentParentId = menuMap.get(menuId)?.parentId;
-
-    while (typeof currentParentId === 'number') {
-      ancestors.push(currentParentId);
-      currentParentId = menuMap.get(currentParentId)?.parentId;
-    }
-
-    return ancestors;
-  };
-
-  const getEffectiveMenuIds = (menuIds: number[]) => {
-    return Array.from(new Set(menuIds.flatMap((id) => [id, ...getAncestorIds(id)])));
-  };
-
-  const pruneAncestorIds = (menuIds: number[]) => {
-    const selectedMenuIds = new Set(menuIds);
-    const sortedMenuIds = [...selectedMenuIds].sort(
-      (left, right) => getAncestorIds(right).length - getAncestorIds(left).length
-    );
-
-    sortedMenuIds.forEach((currentMenuId) => {
-      const childIds = (childrenMap.get(currentMenuId) ?? [])
-        .map((child) => child.id)
-        .filter((id): id is number => typeof id === 'number');
-
-      if (childIds.length === 0) return;
-
-      const hasSelectedChild = childIds.some((childId) => selectedMenuIds.has(childId));
-      if (!hasSelectedChild) {
-        selectedMenuIds.delete(currentMenuId);
-      }
-    });
-
-    return Array.from(selectedMenuIds);
-  };
-
+  // 자식 선택 시 부모를 자동 주입하면
+  // sibling 자식 메뉴까지 의도치 않게 열리므로, 메뉴 토글은 항상 독립적으로 동작한다.
   const toggleMenuIds = (menuIds: number[], menuId: number) => {
     const selectedMenuIds = new Set(menuIds);
-    const isChecked = selectedMenuIds.has(menuId);
-
-    if (isChecked) {
-      const descendantIds = getDescendantIds(menuId);
-      const nextMenuIds = menuIds.filter((id) => id !== menuId && !descendantIds.includes(id));
-
-      return pruneAncestorIds(nextMenuIds);
+    if (selectedMenuIds.has(menuId)) {
+      selectedMenuIds.delete(menuId);
+    } else {
+      selectedMenuIds.add(menuId);
     }
-
-    return getEffectiveMenuIds([...menuIds, menuId]);
+    return Array.from(selectedMenuIds);
   };
 
   const handleCreateSubmit = (event: FormEvent) => {
