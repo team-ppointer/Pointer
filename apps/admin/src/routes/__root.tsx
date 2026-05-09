@@ -2,7 +2,7 @@ import { lazy } from 'react';
 import { createRootRoute, Outlet, redirect } from '@tanstack/react-router';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import { adminSessionStorage, checkIsLoggedIn, silentLogout } from '../utils/auth';
+import { adminSessionStorage, checkIsLoggedIn } from '../utils/auth';
 
 import { canAccessPath, getFirstAccessibleRoute } from '@/constants/adminPermissions';
 
@@ -28,6 +28,10 @@ export const Route = createRootRoute({
       });
     }
 
+    // /no-access 는 로그인된 사용자라면 누구나 접근 가능. 자체 가드에서
+    // 권한이 생긴 경우 이탈시킨다.
+    if (location.pathname === '/no-access') return;
+
     const session = adminSessionStorage.getSession();
 
     // 현재 경로가 허용되면 즉시 통과. ADDITIONAL_ROUTE_PERMISSIONS 만 가진
@@ -41,10 +45,9 @@ export const Route = createRootRoute({
       });
     }
 
-    // 접근 가능한 경로가 단 하나도 없을 때만 로그아웃 처리
-    silentLogout();
+    // 접근 가능한 경로가 하나도 없으면 안내 페이지로 보낸다.
     throw redirect({
-      to: '/login',
+      to: '/no-access',
     });
   },
 

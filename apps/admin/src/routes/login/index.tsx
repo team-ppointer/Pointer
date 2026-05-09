@@ -2,7 +2,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { postLogin } from '@apis';
 import { Input } from '@components';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
-import { adminSessionStorage, silentLogout, tokenStorage } from '@utils';
+import { adminSessionStorage, tokenStorage } from '@utils';
 import { Mail, Lock, LogIn } from 'lucide-react';
 
 import { getFirstAccessibleRoute, toAdminSession } from '@/constants/adminPermissions';
@@ -12,13 +12,8 @@ export const Route = createFileRoute('/login/')({
     if (tokenStorage.getToken() && adminSessionStorage.getSession()) {
       const firstAccessibleRoute = getFirstAccessibleRoute(adminSessionStorage.getSession());
 
-      if (!firstAccessibleRoute) {
-        silentLogout();
-        return;
-      }
-
       throw redirect({
-        to: firstAccessibleRoute,
+        to: firstAccessibleRoute ?? '/no-access',
       });
     }
   },
@@ -55,14 +50,10 @@ function RouteComponent() {
             const adminSession = toAdminSession(data);
             const firstAccessibleRoute = getFirstAccessibleRoute(adminSession);
 
-            if (!firstAccessibleRoute) {
-              silentLogout();
-              return;
-            }
-
             tokenStorage.setToken(accessToken);
             adminSessionStorage.setSession(adminSession);
-            router.navigate({ to: firstAccessibleRoute });
+            // 권한이 하나도 없는 계정도 로그인 자체는 성공시키고 안내 페이지로 보낸다.
+            router.navigate({ to: firstAccessibleRoute ?? '/no-access' });
           }
         },
       }
