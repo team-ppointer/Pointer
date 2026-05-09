@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { $api, deleteRole, getMenus, getRoles, postRole, putRole } from '@apis';
 import { Button, Header, Input } from '@components';
 import { components } from '@schema';
-import { adminSessionStorage, reissueToken } from '@utils';
+import { adminSessionStorage, refreshSession } from '@utils';
 import { AlertCircle, CheckSquare, FolderTree, Pencil, Plus, Trash2 } from 'lucide-react';
 
 export const Route = createFileRoute('/_GNBLayout/setting/roles/')({
@@ -211,7 +211,7 @@ function RouteComponent() {
   const refreshSessionIfOwnRole = async (roleId: number) => {
     // 본인이 바인딩된 role의 권한이 바뀌면 accessibleMenus가 stale 상태로 남음
     if (roleId === adminSessionStorage.getSession()?.roleId) {
-      await reissueToken({ silentLogoutOnFail: false });
+      await refreshSession();
     }
   };
 

@@ -1,5 +1,5 @@
 import { Middleware } from 'openapi-fetch';
-import { tokenStorage, reissueToken } from '@utils';
+import { enforceSession, tokenStorage } from '@utils';
 
 const UNPROTECTED_ROUTES = ['/api/admin/auth/login/local'];
 
@@ -13,7 +13,7 @@ const authMiddleware: Middleware = {
 
     if (!accessToken) {
       try {
-        accessToken = await reissueToken();
+        accessToken = await enforceSession();
 
         if (!accessToken) {
           console.error('Access token reissue failed. User needs to login again.');
@@ -34,7 +34,7 @@ const authMiddleware: Middleware = {
       console.warn('Access token expired. Attempting reissue...');
 
       try {
-        const newAccessToken = await reissueToken();
+        const newAccessToken = await enforceSession();
 
         if (!newAccessToken) {
           console.error('Token reissue failed. User needs to login again.');
