@@ -61,12 +61,16 @@ const GNB = () => {
   const [studentSearchOpen, setStudentSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { selectedStudent, setSelectedStudent } = useSelectedStudent();
-  const { data: studentListResponse } = getStudent({ query: searchQuery });
-  const studentList = studentListResponse?.data ?? [];
   const searchInputRef = useRef<HTMLInputElement>(null);
   const session = useAdminSession();
   const navSections = getAccessibleNavSections(session);
   const studentManagementSection = navSections.find((section) => section.title === '학생 관리');
+  const hasStudentSection = !!studentManagementSection;
+  const { data: studentListResponse } = getStudent(
+    { query: searchQuery },
+    { enabled: hasStudentSection }
+  );
+  const studentList = studentListResponse?.data ?? [];
 
   useEffect(() => {
     if (studentSearchOpen && searchInputRef.current) {
@@ -127,93 +131,97 @@ const GNB = () => {
         <nav className='flex min-h-0 flex-1 flex-col px-4 pb-4'>
           <div className='min-h-0 flex-1 overflow-y-auto'>
             {/* Student Management Section */}
-            <div className=''>
-              <SectionTitle isCollapsed={isCollapsed}>학생 관리</SectionTitle>
+            {hasStudentSection && (
+              <div className=''>
+                <SectionTitle isCollapsed={isCollapsed}>학생 관리</SectionTitle>
 
-              {/* Student Selection */}
-              <div className='relative'>
-                <div
-                  onClick={() => {
-                    if (isCollapsed) {
-                      toggleCollapse();
-                    }
-                    setStudentSearchOpen(!studentSearchOpen);
-                  }}
-                  className={`group mb-1.5 flex h-12 w-full cursor-pointer items-center gap-3 rounded-2xl border px-[13px] transition-all duration-300 ${
-                    studentSearchOpen ? 'border-main/30' : 'border-gray-200/80 hover:bg-gray-50/50'
-                  } ${isCollapsed ? 'w-12' : ''}`}>
+                {/* Student Selection */}
+                <div className='relative'>
                   <div
-                    className={`flex h-5 w-5 flex-shrink-0 items-center justify-center transition-transform duration-300 ${studentSearchOpen ? 'text-main' : 'text-gray-600'}`}>
-                    <GraduationCap className='h-5 w-5' />
+                    onClick={() => {
+                      if (isCollapsed) {
+                        toggleCollapse();
+                      }
+                      setStudentSearchOpen(!studentSearchOpen);
+                    }}
+                    className={`group mb-1.5 flex h-12 w-full cursor-pointer items-center gap-3 rounded-2xl border px-[13px] transition-all duration-300 ${
+                      studentSearchOpen
+                        ? 'border-main/30'
+                        : 'border-gray-200/80 hover:bg-gray-50/50'
+                    } ${isCollapsed ? 'w-12' : ''}`}>
+                    <div
+                      className={`flex h-5 w-5 flex-shrink-0 items-center justify-center transition-transform duration-300 ${studentSearchOpen ? 'text-main' : 'text-gray-600'}`}>
+                      <GraduationCap className='h-5 w-5' />
+                    </div>
+                    {!isCollapsed && (
+                      <>
+                        <span
+                          className={`flex-1 truncate text-sm font-semibold tracking-wide ${studentSearchOpen ? 'text-main' : 'text-gray-700'}`}>
+                          {selectedStudent ? selectedStudent.name : '학생 선택'}
+                        </span>
+                        <div
+                          className={`transition-transform duration-300 ${studentSearchOpen ? 'text-main rotate-180' : 'text-gray-500'}`}>
+                          <ChevronDown className='h-4 w-4' />
+                        </div>
+                      </>
+                    )}
                   </div>
-                  {!isCollapsed && (
-                    <>
-                      <span
-                        className={`flex-1 truncate text-sm font-semibold tracking-wide ${studentSearchOpen ? 'text-main' : 'text-gray-700'}`}>
-                        {selectedStudent ? selectedStudent.name : '학생 선택'}
-                      </span>
-                      <div
-                        className={`transition-transform duration-300 ${studentSearchOpen ? 'text-main rotate-180' : 'text-gray-500'}`}>
-                        <ChevronDown className='h-4 w-4' />
+
+                  {/* Student Search Dropdown */}
+                  {studentSearchOpen && !isCollapsed && (
+                    <div className='animate-in fade-in slide-in-from-top-2 absolute top-full right-0 left-0 z-50 mt-1.5 max-h-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl/5 duration-300'>
+                      <div className='border-b border-gray-100'>
+                        <div className='relative'>
+                          <Search className='absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                          <input
+                            ref={searchInputRef}
+                            type='text'
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder='학생 이름 검색...'
+                            className='w-full py-3 pr-4 pl-10 text-sm font-medium transition-all duration-200 focus:ring-0 focus:outline-none'
+                          />
+                        </div>
                       </div>
-                    </>
+                      <div className='max-h-60 overflow-y-auto p-2'>
+                        {studentList.length > 0 ? (
+                          studentList.map((student) => (
+                            <div
+                              key={student.id}
+                              onClick={() => handleStudentSelect(student)}
+                              className={`mb-1 cursor-pointer rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+                                selectedStudent?.id === student.id
+                                  ? 'bg-main text-white'
+                                  : 'text-gray-700 hover:bg-gray-100'
+                              }`}>
+                              {student.name}
+                            </div>
+                          ))
+                        ) : (
+                          <div className='px-4 py-8 text-center text-sm font-medium text-gray-400'>
+                            검색 결과가 없습니다
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                {/* Student Search Dropdown */}
-                {studentSearchOpen && !isCollapsed && (
-                  <div className='animate-in fade-in slide-in-from-top-2 absolute top-full right-0 left-0 z-50 mt-1.5 max-h-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl/5 duration-300'>
-                    <div className='border-b border-gray-100'>
-                      <div className='relative'>
-                        <Search className='absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400' />
-                        <input
-                          ref={searchInputRef}
-                          type='text'
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder='학생 이름 검색...'
-                          className='w-full py-3 pr-4 pl-10 text-sm font-medium transition-all duration-200 focus:ring-0 focus:outline-none'
-                        />
-                      </div>
-                    </div>
-                    <div className='max-h-60 overflow-y-auto p-2'>
-                      {studentList.length > 0 ? (
-                        studentList.map((student) => (
-                          <div
-                            key={student.id}
-                            onClick={() => handleStudentSelect(student)}
-                            className={`mb-1 cursor-pointer rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                              selectedStudent?.id === student.id
-                                ? 'bg-main text-white'
-                                : 'text-gray-700 hover:bg-gray-100'
-                            }`}>
-                            {student.name}
-                          </div>
-                        ))
-                      ) : (
-                        <div className='px-4 py-8 text-center text-sm font-medium text-gray-400'>
-                          검색 결과가 없습니다
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                {studentManagementSection?.items.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <NavItem
+                      key={item.menuName}
+                      to={item.to}
+                      icon={<Icon className='h-5 w-5' />}
+                      label={item.label}
+                      isCollapsed={isCollapsed}
+                    />
+                  );
+                })}
               </div>
-
-              {studentManagementSection?.items.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <NavItem
-                    key={item.menuName}
-                    to={item.to}
-                    icon={<Icon className='h-5 w-5' />}
-                    label={item.label}
-                    isCollapsed={isCollapsed}
-                  />
-                );
-              })}
-            </div>
+            )}
 
             {navSections
               .filter((section) => section.title !== '학생 관리')
