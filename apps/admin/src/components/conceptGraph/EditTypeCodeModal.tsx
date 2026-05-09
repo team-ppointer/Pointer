@@ -15,6 +15,8 @@ import {
 } from '@apis';
 import { useInvalidate } from '@hooks';
 
+import { extractErrorMessage } from './utils';
+
 import type { components } from '@/types/api/schema';
 
 type NodeTypeCodeResp = components['schemas']['NodeTypeCodeResp'];
@@ -44,17 +46,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-const extractErrorMessage = (error: unknown): string => {
-  const fallback = '요청에 실패했습니다';
-  if (!error || typeof error !== 'object') return fallback;
-  const maybeMessage = (error as { message?: unknown }).message;
-  if (typeof maybeMessage === 'string' && maybeMessage.length > 0) return maybeMessage;
-  const responseData = (error as { response?: { data?: { message?: unknown } } }).response?.data
-    ?.message;
-  if (typeof responseData === 'string' && responseData.length > 0) return responseData;
-  return fallback;
-};
 
 const EditTypeCodeModal = ({ kind, target, onClose, onSaved }: Props) => {
   const isEditMode = Boolean(target);

@@ -9,6 +9,9 @@ import { getNodeType, postNode, putNode } from '@apis';
 import { useInvalidate } from '@hooks';
 import { getEmptyContentString } from '@utils';
 
+import { ACTION_NODE_TYPE_CODE } from './constants';
+import { extractErrorMessage } from './utils';
+
 import { EditorField } from '@/components/problem';
 import type { components } from '@/types/api/schema';
 
@@ -19,8 +22,6 @@ interface Props {
   onClose: () => void;
   onSaved: () => void;
 }
-
-const ACTION_NODE_TYPE_CODE = 'Action';
 
 const formSchema = z.object({
   name: z.string().min(1, '이름을 입력해주세요').max(100, '100자 이하로 입력해주세요'),
@@ -42,17 +43,6 @@ const extractPayloadEditorString = (raw: unknown): string => {
     }
   }
   return getEmptyContentString();
-};
-
-const extractErrorMessage = (error: unknown): string => {
-  const fallback = '요청에 실패했습니다';
-  if (!error || typeof error !== 'object') return fallback;
-  const responseData = (error as { response?: { data?: { message?: unknown } } }).response?.data
-    ?.message;
-  if (typeof responseData === 'string' && responseData.length > 0) return responseData;
-  const maybeMessage = (error as { message?: unknown }).message;
-  if (typeof maybeMessage === 'string' && maybeMessage.length > 0) return maybeMessage;
-  return fallback;
 };
 
 const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {

@@ -14,7 +14,12 @@ import {
 import { useInvalidate } from '@hooks';
 
 import type { SheetColumn, TypeCodeKind, TypeCodeTarget } from '@/components/conceptGraph';
-import { EditTypeCodeModal, RowActions, SheetTable } from '@/components/conceptGraph';
+import {
+  EditTypeCodeModal,
+  RowActions,
+  SheetTable,
+  extractErrorMessage,
+} from '@/components/conceptGraph';
 import type { components } from '@/types/api/schema';
 
 type NodeTypeCodeResp = components['schemas']['NodeTypeCodeResp'];
@@ -37,17 +42,6 @@ type DeleteState = {
 export const Route = createFileRoute('/_GNBLayout/concept-graph/types')({
   component: RouteComponent,
 });
-
-const extractErrorMessage = (error: unknown): string => {
-  const fallback = '요청에 실패했습니다';
-  if (!error || typeof error !== 'object') return fallback;
-  const maybeMessage = (error as { message?: unknown }).message;
-  if (typeof maybeMessage === 'string' && maybeMessage.length > 0) return maybeMessage;
-  const responseData = (error as { response?: { data?: { message?: unknown } } }).response?.data
-    ?.message;
-  if (typeof responseData === 'string' && responseData.length > 0) return responseData;
-  return fallback;
-};
 
 interface SectionProps {
   title: string;

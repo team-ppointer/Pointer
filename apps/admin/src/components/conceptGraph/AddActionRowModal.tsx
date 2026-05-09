@@ -9,6 +9,8 @@ import { getActionEdgeType, getNodeType, getSheetNode, putSheetActionEdgeCell } 
 import { useInvalidate } from '@hooks';
 
 import NodeSearchSelect from './NodeSearchSelect';
+import { ACTION_NODE_TYPE_CODE } from './constants';
+import { extractErrorMessage } from './utils';
 
 import type { components } from '@/types/api/schema';
 
@@ -19,25 +21,12 @@ interface Props {
   onSaved: () => void;
 }
 
-const ACTION_NODE_TYPE_CODE = 'Action';
-
 const formSchema = z.object({
   actionNodeId: z.string().min(1, '액션 노드를 선택해주세요'),
   roleId: z.string().min(1, 'role 을 선택해주세요'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-const extractErrorMessage = (error: unknown): string => {
-  const fallback = '요청에 실패했습니다';
-  if (!error || typeof error !== 'object') return fallback;
-  const responseData = (error as { response?: { data?: { message?: unknown } } }).response?.data
-    ?.message;
-  if (typeof responseData === 'string' && responseData.length > 0) return responseData;
-  const maybeMessage = (error as { message?: unknown }).message;
-  if (typeof maybeMessage === 'string' && maybeMessage.length > 0) return maybeMessage;
-  return fallback;
-};
 
 const formatNodeLabel = (node: ConceptNodeResp): string => {
   const name = node.name ?? '';

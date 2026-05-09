@@ -24,3 +24,5 @@ export {
 export type { SheetColumn, SheetSortDirection } from './SheetTable';
 export type { SearchFilterField } from './SearchFilterBar';
 export type { TypeCodeKind, TypeCodeTarget } from './EditTypeCodeModal';
+export { extractErrorMessage } from './utils';
+export { ACTION_NODE_TYPE_CODE } from './constants';

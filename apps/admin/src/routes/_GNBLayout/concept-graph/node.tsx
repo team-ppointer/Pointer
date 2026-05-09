@@ -12,11 +12,13 @@ import '@repo/pointer-editor-v2/style.css';
 
 import type { SearchFilterField, SheetColumn, SheetSortDirection } from '@/components/conceptGraph';
 import {
+  ACTION_NODE_TYPE_CODE,
   EditConceptNodeModal,
   PaginationControls,
   RowActions,
   SearchFilterBar,
   SheetTable,
+  extractErrorMessage,
 } from '@/components/conceptGraph';
 import type { components } from '@/types/api/schema';
 
@@ -38,17 +40,6 @@ const DEFAULT_SEARCH_OPTIONS: ConceptNodeSheetSearchOptions = {
   size: 1000,
   sort: 'NAME',
   direction: 'ASC',
-};
-
-const extractErrorMessage = (error: unknown): string => {
-  const fallback = '요청에 실패했습니다';
-  if (!error || typeof error !== 'object') return fallback;
-  const responseData = (error as { response?: { data?: { message?: unknown } } }).response?.data
-    ?.message;
-  if (typeof responseData === 'string' && responseData.length > 0) return responseData;
-  const maybeMessage = (error as { message?: unknown }).message;
-  if (typeof maybeMessage === 'string' && maybeMessage.length > 0) return maybeMessage;
-  return fallback;
 };
 
 const truncatePayload = (payload: ConceptNodeResp['payload']): string => {
@@ -213,7 +204,7 @@ function RouteComponent() {
       key: 'payload',
       label: 'Payload',
       render: (row) => {
-        if (row.nodeType?.code === 'Action') {
+        if (row.nodeType?.code === ACTION_NODE_TYPE_CODE) {
           const payload = row.payload as
             | { example?: unknown; pointingExample?: unknown }
             | undefined;

@@ -5,6 +5,8 @@ import { Button, Modal, TwoButtonModalTemplate } from '@components';
 import { getSheetNode, putSheetActionEdgeCell } from '@apis';
 import { useInvalidate } from '@hooks';
 
+import { extractErrorMessage } from './utils';
+
 import type { components } from '@/types/api/schema';
 
 type ConceptNodeResp = components['schemas']['ConceptNodeResp'];
@@ -18,17 +20,6 @@ interface CellEditPanelProps {
   onClose: () => void;
   onSaved: () => void;
 }
-
-const extractErrorMessage = (error: unknown): string => {
-  const fallback = '요청에 실패했습니다';
-  if (!error || typeof error !== 'object') return fallback;
-  const responseData = (error as { response?: { data?: { message?: unknown } } }).response?.data
-    ?.message;
-  if (typeof responseData === 'string' && responseData.length > 0) return responseData;
-  const maybeMessage = (error as { message?: unknown }).message;
-  if (typeof maybeMessage === 'string' && maybeMessage.length > 0) return maybeMessage;
-  return fallback;
-};
 
 const sameIdSet = (a: ConceptNodeResp[], b: ConceptNodeResp[]): boolean => {
   if (a.length !== b.length) return false;
