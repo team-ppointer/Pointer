@@ -1,6 +1,5 @@
 import AddActionRowModal from './AddActionRowModal';
 import CellEditPanel from './CellEditPanel';
-import ConceptGraphTabs from './ConceptGraphTabs';
 import EditConceptEdgeModal from './EditConceptEdgeModal';
 import EditConceptNodeModal from './EditConceptNodeModal';
 import EditTypeCodeModal from './EditTypeCodeModal';
@@ -13,7 +12,6 @@ import SheetTable from './SheetTable';
 export {
   AddActionRowModal,
   CellEditPanel,
-  ConceptGraphTabs,
   EditConceptEdgeModal,
   EditConceptNodeModal,
   EditTypeCodeModal,

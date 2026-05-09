@@ -11,7 +11,6 @@ import type { SearchFilterField } from '@/components/conceptGraph';
 import {
   AddActionRowModal,
   CellEditPanel,
-  ConceptGraphTabs,
   PaginationControls,
   SearchFilterBar,
 } from '@/components/conceptGraph';
@@ -269,7 +268,6 @@ function RouteComponent() {
         theme='light'
         transition={Slide}
       />
-      <ConceptGraphTabs />
 
       <div className='space-y-4 p-8'>
         {sheetQuery.isError && (

@@ -9,7 +9,6 @@ import type { ConceptEdgeSheetSearchOptions } from '@types';
 
 import type { SearchFilterField, SheetColumn, SheetSortDirection } from '@/components/conceptGraph';
 import {
-  ConceptGraphTabs,
   EditConceptEdgeModal,
   PaginationControls,
   RowActions,
@@ -207,7 +206,6 @@ function RouteComponent() {
         theme='light'
         transition={Slide}
       />
-      <ConceptGraphTabs />
 
       <div className='space-y-4 p-8'>
         {sheetQuery.isError && (

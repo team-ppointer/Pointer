@@ -14,12 +14,7 @@ import {
 import { useInvalidate } from '@hooks';
 
 import type { SheetColumn, TypeCodeKind, TypeCodeTarget } from '@/components/conceptGraph';
-import {
-  ConceptGraphTabs,
-  EditTypeCodeModal,
-  RowActions,
-  SheetTable,
-} from '@/components/conceptGraph';
+import { EditTypeCodeModal, RowActions, SheetTable } from '@/components/conceptGraph';
 import type { components } from '@/types/api/schema';
 
 type NodeTypeCodeResp = components['schemas']['NodeTypeCodeResp'];
@@ -181,7 +176,6 @@ function RouteComponent() {
         theme='light'
         transition={Slide}
       />
-      <ConceptGraphTabs />
       <div className='space-y-10 p-8'>
         <TypeSection
           title='노드 타입'

@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Slide, ToastContainer, toast } from 'react-toastify';
-import { Button, Modal, Tag, TwoButtonModalTemplate } from '@components';
+import { Button, Modal, TwoButtonModalTemplate } from '@components';
 import { deleteNode, getNodeType, getSheetNode } from '@apis';
 import { useInvalidate } from '@hooks';
 import { InlineProblemViewer } from '@repo/pointer-editor-v2';
@@ -12,7 +12,6 @@ import '@repo/pointer-editor-v2/style.css';
 
 import type { SearchFilterField, SheetColumn, SheetSortDirection } from '@/components/conceptGraph';
 import {
-  ConceptGraphTabs,
   EditConceptNodeModal,
   PaginationControls,
   RowActions,
@@ -189,7 +188,15 @@ function RouteComponent() {
       key: 'NODE_TYPE',
       label: '타입',
       sortable: true,
-      render: (row) => (row.nodeType?.label ? <Tag label={row.nodeType.label} color='dark' /> : ''),
+      width: '120px',
+      render: (row) =>
+        row.nodeType?.label ? (
+          <span className='bg-main/10 text-main inline-block rounded-md px-1.5 py-0.5 text-xs font-medium'>
+            {row.nodeType.label}
+          </span>
+        ) : (
+          ''
+        ),
     },
     {
       key: 'DESCRIPTION',
@@ -238,7 +245,6 @@ function RouteComponent() {
         theme='light'
         transition={Slide}
       />
-      <ConceptGraphTabs />
 
       <div className='space-y-4 p-8'>
         {sheetQuery.isError && (
