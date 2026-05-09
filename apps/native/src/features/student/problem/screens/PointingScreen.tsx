@@ -1,7 +1,7 @@
 import { Alert, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AnswerEventPayload } from '@repo/pointer-content-renderer';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -30,9 +30,6 @@ import {
   toChatScenario,
   toUserAnswers,
 } from '../transforms/contentRendererTransforms';
-
-const bubbleQueueSubscribe = (cb: () => void) => bubbleQuestionPressQueue.subscribe(cb);
-const bubbleQueueGetSnapshot = () => bubbleQuestionPressQueue.snapshot();
 
 const PointingScreen = ({
   navigation,
@@ -76,10 +73,12 @@ const PointingScreen = ({
     return { advanceMessage: undefined, advanceButtonLabel: undefined };
   }, [phase, childIndex, group?.childProblems]);
 
-  const bubbleQueueSnapshot = useSyncExternalStore(bubbleQueueSubscribe, bubbleQueueGetSnapshot);
-  const pressedBubbleIds = useMemo(
-    () => new Set(bubbleQueueSnapshot.map((e) => e.bubbleId)),
-    [bubbleQueueSnapshot]
+  // Mount-time snapshot only — avoids re-injecting init when ? click triggers queue notify.
+  // Plan §3.E4 dedupe: BE response sets isQuestionPressed=true on remount, queue successKeys
+  // dedupes mid-session re-enqueue. Mid-session pressedBubbleIds drift is intentionally invisible
+  // to renderer (one-shot disable already prevents re-fire).
+  const [pressedBubbleIds] = useState<Set<number>>(
+    () => new Set(bubbleQuestionPressQueue.snapshot().map((e) => e.bubbleId))
   );
 
   const chatInitMessage = useMemo(
