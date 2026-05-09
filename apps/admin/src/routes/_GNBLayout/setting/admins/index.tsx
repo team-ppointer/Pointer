@@ -650,18 +650,8 @@ function RouteComponent() {
       },
       {
         onSuccess: () => {
-          queryClient.setQueryData<AdminListResp | undefined>(userListQueryKey, (oldData) => {
-            if (!oldData) {
-              return oldData;
-            }
-
-            return {
-              ...oldData,
-              total: Math.max(0, oldData.total - 1),
-              data: oldData.data.filter((user) => user.id !== deleteTarget.id),
-            };
-          });
           handleCloseDeleteModal();
+          // handleSuccess → refreshUserList 가 invalidateQueries 로 서버 truth 정합성을 복원한다.
           handleSuccess('관리자 계정 삭제가 완료되었습니다.');
         },
         onError: (error) => {
