@@ -77,7 +77,8 @@ const PointingScreen = ({
     () => ({
       type: 'init' as const,
       mode: 'chat' as const,
-      scenario: toChatScenario(pointings),
+      // TODO(Step 5/MAT-646): wire from bubbleQuestionPressQueue.snapshot()
+      scenario: toChatScenario(pointings, new Set<number>(), true),
       userAnswers: toUserAnswers(pointings, pointingFeedbackQueue.snapshot()),
       advanceMessage,
       advanceButtonLabel,

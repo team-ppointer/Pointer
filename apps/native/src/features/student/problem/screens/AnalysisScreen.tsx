@@ -125,6 +125,9 @@ const AnalysisScreen = ({
             problem: group.problem,
             joined,
             pendingQueueEntries: queueSnapshot,
+            // TODO(Step 5/MAT-646): wire from bubbleQuestionPressQueue.snapshot()
+            pressedBubbleIds: new Set<number>(),
+            includeExpand: false,
           })
         : [],
     [group, joined, queueSnapshot]

@@ -5,9 +5,11 @@ import {
   buildAllPointingsRightSections,
   buildAnalysisOverviewSections,
   buildDocumentInit,
+  joinBubblesToDoc,
   joinPointingsForAnalysis,
   parseTipTapDoc,
   toAnswerNodes,
+  toBubbleNodes,
   toChatScenario,
   toPointingData,
   toQuestionNodes,
@@ -19,6 +21,7 @@ import {
 type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'];
 type ProblemWithStudyInfoResp = components['schemas']['ProblemWithStudyInfoResp'];
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
+type PointingBubbleResp = components['schemas']['PointingBubbleResp'];
 
 // ── Fixtures ────────────────────────────────────────────────────────
 
@@ -60,6 +63,13 @@ const docWithEmptyParagraphs = JSON.stringify({
     { type: 'paragraph', content: [{ type: 'text', text: '' }] }, // empty string text
     { type: 'table', content: [] }, // non-paragraph; should pass
   ],
+});
+
+const makeBubble = (overrides: Partial<PointingBubbleResp> = {}): PointingBubbleResp => ({
+  id: 1,
+  no: 1,
+  contentJson: paragraph('bubble content'),
+  ...overrides,
 });
 
 const makePointing = (
@@ -156,11 +166,13 @@ describe('toQuestionNodes', () => {
   });
 });
 
-// ── toAnswerNodes (AC-D2 / AC-D3) ───────────────────────────────────
+// ── toAnswerNodes (AC-D2 / AC-D3 / A1) ─────────────────────────────
+
+const noExpand = { pressedBubbleIds: new Set<number>(), includeExpand: false };
 
 describe('toAnswerNodes', () => {
-  it('splits doc.content[] strict top-level into separate bubbles', () => {
-    const out = toAnswerNodes(multiBlockDoc);
+  it('splits doc.content[] strict top-level into separate bubbles (legacy fallback)', () => {
+    const out = toAnswerNodes({ commentContent: multiBlockDoc, ...noExpand });
     expect(out).toHaveLength(3);
     out.forEach((bubble, i) => {
       expect(bubble.contentNode.type).toBe('doc');
@@ -172,7 +184,7 @@ describe('toAnswerNodes', () => {
   });
 
   it('filters out empty paragraphs (no content / empty content / whitespace-only / empty text)', () => {
-    const out = toAnswerNodes(docWithEmptyParagraphs);
+    const out = toAnswerNodes({ commentContent: docWithEmptyParagraphs, ...noExpand });
     // 'visible' paragraph + 'table' block only
     expect(out).toHaveLength(2);
     expect(out[0].contentNode.content?.[0]?.type).toBe('paragraph');
@@ -180,7 +192,7 @@ describe('toAnswerNodes', () => {
   });
 
   it('passes through non-paragraph nodes (bulletList / table / image / blockquote)', () => {
-    const out = toAnswerNodes(mixedNodeDoc);
+    const out = toAnswerNodes({ commentContent: mixedNodeDoc, ...noExpand });
     expect(out).toHaveLength(5);
     expect(out.map((b) => b.contentNode.content?.[0]?.type)).toEqual([
       'paragraph',
@@ -192,8 +204,29 @@ describe('toAnswerNodes', () => {
   });
 
   it('returns empty array when input has no children', () => {
-    expect(toAnswerNodes('{"type":"doc","content":[]}')).toEqual([]);
-    expect(toAnswerNodes('')).toEqual([]);
+    expect(toAnswerNodes({ commentContent: '{"type":"doc","content":[]}', ...noExpand })).toEqual(
+      []
+    );
+    expect(toAnswerNodes({ commentContent: '', ...noExpand })).toEqual([]);
+  });
+
+  // A1: bubbles path used when bubbles present (D2)
+  it('uses bubbles path when bubbles array is non-empty (A1, D2)', () => {
+    const bubbles = [makeBubble({ id: 1, no: 1 }), makeBubble({ id: 2, no: 2 })];
+    const out = toAnswerNodes({ bubbles, commentContent: multiBlockDoc, ...noExpand });
+    expect(out).toHaveLength(2);
+  });
+
+  // A1: empty bubbles → fallback to commentContent (D2)
+  it('falls back to commentContent when bubbles is empty array (A1, D2)', () => {
+    const out = toAnswerNodes({ bubbles: [], commentContent: multiBlockDoc, ...noExpand });
+    expect(out).toHaveLength(3); // multiBlockDoc has 3 paragraphs
+  });
+
+  // A1: undefined bubbles → fallback to commentContent (D2)
+  it('falls back to commentContent when bubbles is undefined (A1, D2)', () => {
+    const out = toAnswerNodes({ bubbles: undefined, commentContent: multiBlockDoc, ...noExpand });
+    expect(out).toHaveLength(3);
   });
 });
 
@@ -201,7 +234,7 @@ describe('toAnswerNodes', () => {
 
 describe('toPointingData', () => {
   it('maps id to string and sets label', () => {
-    const data = toPointingData(makePointing({ id: 42 }), 'first');
+    const data = toPointingData(makePointing({ id: 42 }), 'first', new Set<number>(), false);
     expect(data.id).toBe('42');
     expect(data.label).toBe('first');
     expect(data.questionNodes).toHaveLength(1);
@@ -211,11 +244,11 @@ describe('toPointingData', () => {
 
 describe('toChatScenario', () => {
   it('labels pointings in order: "1번째 포인팅", "2번째 포인팅", ...', () => {
-    const scenario = toChatScenario([
-      makePointing({ id: 10 }),
-      makePointing({ id: 11 }),
-      makePointing({ id: 12 }),
-    ]);
+    const scenario = toChatScenario(
+      [makePointing({ id: 10 }), makePointing({ id: 11 }), makePointing({ id: 12 })],
+      new Set<number>(),
+      false
+    );
     expect(scenario.pointings.map((p) => p.label)).toEqual([
       '1번째 포인팅',
       '2번째 포인팅',
@@ -225,7 +258,7 @@ describe('toChatScenario', () => {
   });
 
   it('returns empty pointings for empty input', () => {
-    expect(toChatScenario([]).pointings).toEqual([]);
+    expect(toChatScenario([], new Set<number>(), false).pointings).toEqual([]);
   });
 });
 
@@ -430,12 +463,15 @@ describe('buildAllPointingsRightSections', () => {
 
 // ── buildAnalysisOverviewSections ───────────────────────────────────
 
+const analysisOpts = { pressedBubbleIds: new Set<number>(), includeExpand: false };
+
 describe('buildAnalysisOverviewSections', () => {
   it('skips readingTip / oneStepMore when fields are empty/missing', () => {
     const problem = makeProblem();
     const sections = buildAnalysisOverviewSections({
       problem,
       joined: [],
+      ...analysisOpts,
     });
     expect(sections).toEqual([]);
   });
@@ -445,7 +481,7 @@ describe('buildAnalysisOverviewSections', () => {
       readingTipContent: paragraph('reading'),
       oneStepMoreContent: paragraph('one-step-more'),
     } as Partial<ProblemWithStudyInfoResp>);
-    const sections = buildAnalysisOverviewSections({ problem, joined: [] });
+    const sections = buildAnalysisOverviewSections({ problem, joined: [], ...analysisOpts });
     expect(sections.map((s) => s.id)).toEqual(['reading', 'one-step-more']);
     sections.forEach((s) => {
       if (s.display.type !== 'card' || s.display.variant !== 'default') {
@@ -460,7 +496,7 @@ describe('buildAnalysisOverviewSections', () => {
       { pointing: makePointing({ id: 10 }), parentProblemDisplayNo: '1-1' },
       { pointing: makePointing({ id: 20 }), parentProblemDisplayNo: '1-2' },
     ];
-    const sections = buildAnalysisOverviewSections({ problem, joined });
+    const sections = buildAnalysisOverviewSections({ problem, joined, ...analysisOpts });
     expect(sections.map((s) => s.id)).toEqual([
       'pointing-divider-0',
       'pointing-chat-10',
@@ -484,6 +520,7 @@ describe('buildAnalysisOverviewSections', () => {
       problem,
       joined,
       pendingQueueEntries,
+      ...analysisOpts,
     });
     const chatSection = sections.find((s) => s.id === 'pointing-chat-99');
     if (!chatSection || chatSection.display.type !== 'chat') {
@@ -492,5 +529,114 @@ describe('buildAnalysisOverviewSections', () => {
     expect(chatSection.display.userAnswers).toEqual([
       { pointingId: '99', questionResponse: 'yes' },
     ]);
+  });
+});
+
+// ── toBubbleNodes (D1) ──────────────────────────────────────────────
+
+describe('toBubbleNodes', () => {
+  // D1 / A3: no 역순 배열 → 오름차순 정렬
+  it('sorts bubbles by no ascending even when input is reversed (A3, D1)', () => {
+    const bubbles = [
+      makeBubble({ id: 3, no: 3, contentJson: paragraph('c') }),
+      makeBubble({ id: 1, no: 1, contentJson: paragraph('a') }),
+      makeBubble({ id: 2, no: 2, contentJson: paragraph('b') }),
+    ];
+    const result = toBubbleNodes({ bubbles, pressedBubbleIds: new Set(), includeExpand: false });
+    expect(result).toHaveLength(3);
+    expect(result[0].contentNode.content?.[0]?.content?.[0]?.text).toBe('a');
+    expect(result[1].contentNode.content?.[0]?.content?.[0]?.text).toBe('b');
+    expect(result[2].contentNode.content?.[0]?.content?.[0]?.text).toBe('c');
+  });
+
+  // D1: includeExpand:true + isQuestionPressed:true → defaultExpanded:true
+  it('sets defaultExpanded:true when isQuestionPressed is true (D1)', () => {
+    const bubbles = [makeBubble({ id: 10, no: 1, isQuestionPressed: true })];
+    const result = toBubbleNodes({ bubbles, pressedBubbleIds: new Set(), includeExpand: true });
+    expect(result[0].defaultExpanded).toBe(true);
+    expect(result[0].nodeId).toBe('10');
+  });
+
+  // D1: pressedBubbleIds merge — isQuestionPressed:false but id in set → defaultExpanded:true
+  it('sets defaultExpanded:true when bubble id is in pressedBubbleIds (D1, queue merge)', () => {
+    const bubbles = [makeBubble({ id: 42, no: 1, isQuestionPressed: false })];
+    const result = toBubbleNodes({
+      bubbles,
+      pressedBubbleIds: new Set([42]),
+      includeExpand: true,
+    });
+    expect(result[0].defaultExpanded).toBe(true);
+  });
+
+  // R1 / D1: extendContent null → expandContent omitted
+  it('omits expandContent when extendContent is null/undefined (R1, D1)', () => {
+    const bubbles = [makeBubble({ id: 1, no: 1, extendContent: undefined })];
+    const result = toBubbleNodes({ bubbles, pressedBubbleIds: new Set(), includeExpand: true });
+    expect(result[0]).not.toHaveProperty('expandContent');
+  });
+
+  // PD-3 / D1: includeExpand:false → no nodeId / defaultExpanded / expandContent
+  it('omits all expand fields when includeExpand is false (PD-3, D1)', () => {
+    const extendContent = paragraph('extra');
+    const bubbles = [makeBubble({ id: 5, no: 1, isQuestionPressed: true, extendContent })];
+    const result = toBubbleNodes({
+      bubbles,
+      pressedBubbleIds: new Set([5]),
+      includeExpand: false,
+    });
+    expect(result[0]).not.toHaveProperty('nodeId');
+    expect(result[0]).not.toHaveProperty('defaultExpanded');
+    expect(result[0]).not.toHaveProperty('expandContent');
+  });
+});
+
+// ── joinBubblesToDoc (I1) ───────────────────────────────────────────
+
+const inlineMathNode = { type: 'inlineMath', attrs: { content: 'x^2' } };
+
+const docWithTwo = (text: string) =>
+  JSON.stringify({
+    type: 'doc',
+    content: [{ type: 'paragraph', content: [{ type: 'text', text }] }, inlineMathNode],
+  });
+
+describe('joinBubblesToDoc', () => {
+  // I1: 2 bubbles each with 2 nodes → 4 nodes total in order
+  it('flattens all bubble content[] into a single doc (I1)', () => {
+    const bubbles = [
+      makeBubble({ id: 1, no: 1, contentJson: docWithTwo('p1') }),
+      makeBubble({ id: 2, no: 2, contentJson: docWithTwo('p2') }),
+    ];
+    const result = joinBubblesToDoc(bubbles);
+    expect(result.type).toBe('doc');
+    expect(result.content).toHaveLength(4);
+    expect(result.content?.[0]?.content?.[0]?.text).toBe('p1');
+    expect(result.content?.[1]).toMatchObject({ type: 'inlineMath' });
+    expect(result.content?.[2]?.content?.[0]?.text).toBe('p2');
+    expect(result.content?.[3]).toMatchObject({ type: 'inlineMath' });
+  });
+
+  // I1 / BE-3: no 역순 → 오름차순 정렬
+  it('sorts by no ascending before joining (I1, BE-3)', () => {
+    const bubbles = [
+      makeBubble({ id: 2, no: 2, contentJson: paragraph('second') }),
+      makeBubble({ id: 1, no: 1, contentJson: paragraph('first') }),
+    ];
+    const result = joinBubblesToDoc(bubbles);
+    expect(result.content?.[0]?.content?.[0]?.text).toBe('first');
+    expect(result.content?.[1]?.content?.[0]?.text).toBe('second');
+  });
+
+  // A2 / I1: empty/invalid contentJson → EMPTY_DOC → contributes 0 nodes; others remain
+  it('ignores bubbles with empty/invalid contentJson (A2, I1)', () => {
+    const bubbles = [
+      makeBubble({ id: 1, no: 1, contentJson: '' }),
+      makeBubble({ id: 2, no: 2, contentJson: paragraph('valid') }),
+      makeBubble({ id: 3, no: 3, contentJson: 'not-json' }),
+    ];
+    const result = joinBubblesToDoc(bubbles);
+    // Only the 'valid' bubble contributes 1 paragraph node
+    expect(result.content).toHaveLength(1);
+    expect(result.content?.[0]?.content?.[0]?.text).toBe('valid');
   });
 });
