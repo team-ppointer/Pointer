@@ -523,7 +523,8 @@ function RouteComponent() {
   const { data: userListResponse, isLoading } = getUserList();
   const { data: roleListResponse } = getRoles();
   const { mutate: removeUser, isPending: isDeletePending } = deleteUser();
-  const { mutate: assignRole, isPending: isAssignRolePending } = putUserRole();
+  const { mutate: assignRole } = putUserRole();
+  const [pendingUserIds, setPendingUserIds] = useState<Set<number>>(new Set());
 
   const userList = userListResponse?.data ?? [];
   const roleList = roleListResponse?.data ?? [];
@@ -536,11 +537,11 @@ function RouteComponent() {
   };
 
   const handleChangeRole = (userId: number, value: string) => {
+    if (pendingUserIds.has(userId)) return;
+
     const isSuper = value === 'SUPER';
     const newRoleId = isSuper ? null : Number(value);
     const nextRole = isSuper ? null : (roleList.find((role) => role.id === newRoleId) ?? null);
-
-    const previousData = queryClient.getQueryData<AdminListResp>(userListQueryKey);
 
     queryClient.setQueryData<AdminListResp | undefined>(userListQueryKey, (oldData) => {
       if (!oldData) return oldData;
@@ -560,6 +561,7 @@ function RouteComponent() {
     });
 
     setRoleChangeError('');
+    setPendingUserIds((prev) => new Set(prev).add(userId));
 
     assignRole(
       {
@@ -581,9 +583,16 @@ function RouteComponent() {
           }
         },
         onError: (error) => {
-          // 롤백
-          queryClient.setQueryData(userListQueryKey, previousData);
+          // 동시 클릭 시 다른 행의 optimistic 상태를 덮어쓰지 않도록 스냅샷 롤백 대신 서버 정합성 복원
+          queryClient.invalidateQueries({ queryKey: userListQueryKey });
           setRoleChangeError(getCreateOrUpdateErrorMessage(error));
+        },
+        onSettled: () => {
+          setPendingUserIds((prev) => {
+            const next = new Set(prev);
+            next.delete(userId);
+            return next;
+          });
         },
       }
     );
@@ -756,7 +765,7 @@ function RouteComponent() {
                           <select
                             value={user.adminType === 'SUPER' ? 'SUPER' : String(user.roleId ?? '')}
                             onChange={(event) => handleChangeRole(user.id, event.target.value)}
-                            disabled={isAssignRolePending}
+                            disabled={pendingUserIds.has(user.id)}
                             className='focus:border-main focus:ring-main/20 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400'>
                             <option value='SUPER'>슈퍼 관리자</option>
                             {roleList.map((role) => {
