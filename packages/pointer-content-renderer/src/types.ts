@@ -78,6 +78,11 @@ export type WebViewToRNMessage =
       /** Monotonically increasing per-session id used to deduplicate stale results */
       requestId: number;
     }
+  | {
+      /** Fire-and-forget event emitted when a chat bubble's `?` (expand) button transitions from closed to open. RN enqueues to bubbleQuestionPressQueue. */
+      type: 'bubbleQuestionPress';
+      bubbleId: string;
+    }
   | { type: 'advance' };
 
 // ── Chat: Pointing structures ──
@@ -96,6 +101,10 @@ export interface PointingData {
 export interface PointingNode {
   contentNode: JSONNode;
   expandContent?: JSONNode;
+  /** Stable per-bubble identifier. The renderer attaches it to the `?` button so a bridge `bubbleQuestionPress` event can carry it back to RN. Optional — legacy commentContent-derived nodes have no id. */
+  nodeId?: string;
+  /** When true, the bubble renders with its expand area pre-opened (and its `?` button disabled) on mount — used for resume of previously-pressed buttons. */
+  defaultExpanded?: boolean;
 }
 
 export interface UserAnswer {
