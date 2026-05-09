@@ -13,6 +13,8 @@ interface NodeSearchSelectProps {
   placeholder?: string;
   excludeIds?: number[];
   hasError?: boolean;
+  nodeTypeId?: number;
+  disabled?: boolean;
 }
 
 const formatNodeLabel = (node: ConceptNodeResp): string => {
@@ -28,6 +30,8 @@ const NodeSearchSelect = ({
   placeholder = '노드 검색',
   excludeIds,
   hasError,
+  nodeTypeId,
+  disabled,
 }: NodeSearchSelectProps) => {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -46,6 +50,7 @@ const NodeSearchSelect = ({
     page: 0,
     size: 50,
     name: debouncedQuery.length > 0 ? debouncedQuery : undefined,
+    nodeTypeId,
   });
   const candidates: ConceptNodeResp[] = sheetQuery.data?.data ?? [];
 
@@ -116,11 +121,15 @@ const NodeSearchSelect = ({
     hasError
       ? 'border-red-300 focus:border-red-500'
       : 'border-gray-200 hover:border-gray-300 focus:border-main'
-  } ${isOpen ? 'ring-main/20 ring-2' : ''}`;
+  } ${isOpen ? 'ring-main/20 ring-2' : ''} ${disabled ? 'cursor-not-allowed bg-gray-50 opacity-60' : ''}`;
 
   return (
     <div className='relative' ref={containerRef}>
-      <button type='button' className={triggerClassName} onClick={() => setIsOpen((v) => !v)}>
+      <button
+        type='button'
+        className={triggerClassName}
+        disabled={disabled}
+        onClick={() => !disabled && setIsOpen((v) => !v)}>
         <span
           className={`flex-1 truncate text-left ${
             selectedLabel ? 'text-gray-800' : 'text-gray-400'

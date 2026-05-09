@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { toast } from 'react-toastify';
 import { Plus, Search, Sparkles, X } from 'lucide-react';
 import { Button } from '@components';
-import { getActionEdgeType, getSheetNode, putSheetActionEdgeCell } from '@apis';
+import { getActionEdgeType, getNodeType, getSheetNode, putSheetActionEdgeCell } from '@apis';
 import { useInvalidate } from '@hooks';
 
 import NodeSearchSelect from './NodeSearchSelect';
@@ -19,7 +19,10 @@ interface Props {
   onSaved: () => void;
 }
 
+const ACTION_NODE_TYPE_CODE = 'ACTION';
+
 const formSchema = z.object({
+  actionNodeTypeId: z.string().min(1, '액션 노드 타입을 선택해주세요'),
   actionNodeId: z.string().min(1, '액션 노드를 선택해주세요'),
   roleId: z.string().min(1, 'role 을 선택해주세요'),
 });
@@ -49,6 +52,13 @@ const AddActionRowModal = ({ onClose, onSaved }: Props) => {
   const { data: actionEdgeTypeData } = getActionEdgeType();
   const roleOptions = useMemo(() => actionEdgeTypeData?.data ?? [], [actionEdgeTypeData]);
 
+  const { data: nodeTypeData } = getNodeType();
+  const nodeTypeOptions = useMemo(() => nodeTypeData?.data ?? [], [nodeTypeData]);
+  const defaultActionNodeTypeId = useMemo(() => {
+    const match = nodeTypeOptions.find((t) => t.code === ACTION_NODE_TYPE_CODE);
+    return match?.id;
+  }, [nodeTypeOptions]);
+
   const putCellMutation = putSheetActionEdgeCell();
 
   const [actionNodeCache, setActionNodeCache] = useState<ConceptNodeResp | undefined>(undefined);
@@ -65,13 +75,22 @@ const AddActionRowModal = ({ onClose, onSaved }: Props) => {
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      actionNodeTypeId: '',
       actionNodeId: '',
       roleId: '',
     },
   });
 
+  const actionNodeTypeId = watch('actionNodeTypeId');
+  const actionNodeTypeIdNum = actionNodeTypeId ? Number(actionNodeTypeId) : undefined;
   const actionNodeId = watch('actionNodeId');
   const actionValueNum = actionNodeId ? Number(actionNodeId) : undefined;
+
+  useEffect(() => {
+    if (!actionNodeTypeId && defaultActionNodeTypeId !== undefined) {
+      setValue('actionNodeTypeId', String(defaultActionNodeTypeId), { shouldValidate: false });
+    }
+  }, [defaultActionNodeTypeId, actionNodeTypeId, setValue]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query.trim()), 200);
@@ -147,6 +166,40 @@ const AddActionRowModal = ({ onClose, onSaved }: Props) => {
         <input type='hidden' {...register('actionNodeId')} />
 
         <div className='space-y-2'>
+          <label className='text-sm font-semibold text-gray-700'>액션 노드 타입</label>
+          <select
+            {...register('actionNodeTypeId', {
+              onChange: () => {
+                setValue('actionNodeId', '', { shouldValidate: false });
+                setActionNodeCache(undefined);
+              },
+            })}
+            className={`focus:border-main focus:ring-main/20 h-12 w-full rounded-xl border px-4 text-sm transition-all duration-200 focus:bg-white focus:ring-2 focus:outline-none ${
+              errors.actionNodeTypeId ? 'border-red-300 focus:border-red-500' : 'border-gray-200'
+            }`}>
+            <option value=''>액션 노드로 사용할 타입을 선택하세요</option>
+            {nodeTypeOptions.map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.label} ({opt.code})
+              </option>
+            ))}
+          </select>
+          {errors.actionNodeTypeId && (
+            <p className='text-xs font-medium text-red-500'>{errors.actionNodeTypeId.message}</p>
+          )}
+          <p className='text-xs text-gray-500'>
+            선택한 타입의 노드만 아래 액션 노드 후보로 표시됩니다.
+            {defaultActionNodeTypeId === undefined && nodeTypeOptions.length > 0 && (
+              <>
+                {' '}
+                (기본값으로 자동 매칭할 <code>{ACTION_NODE_TYPE_CODE}</code> 코드가 없어 직접
+                선택해주세요.)
+              </>
+            )}
+          </p>
+        </div>
+
+        <div className='space-y-2'>
           <label className='text-sm font-semibold text-gray-700'>액션 노드</label>
           <NodeSearchSelect
             value={actionValueNum}
@@ -157,8 +210,14 @@ const AddActionRowModal = ({ onClose, onSaved }: Props) => {
               setActionNodeCache(node);
             }}
             initialNode={actionNodeCache}
-            placeholder='액션 노드 선택'
+            placeholder={
+              actionNodeTypeIdNum === undefined
+                ? '먼저 액션 노드 타입을 선택하세요'
+                : '액션 노드 선택'
+            }
             hasError={Boolean(errors.actionNodeId)}
+            nodeTypeId={actionNodeTypeIdNum}
+            disabled={actionNodeTypeIdNum === undefined}
           />
           {errors.actionNodeId && (
             <p className='text-xs font-medium text-red-500'>{errors.actionNodeId.message}</p>
