@@ -65,7 +65,6 @@ interface SectionProps {
 }
 
 const TYPE_COLUMNS: SheetColumn<TypeCodeRow>[] = [
-  { key: 'id', label: 'ID', width: '80px', render: (row) => row.id ?? '' },
   { key: 'code', label: '코드', render: (row) => row.code ?? '' },
   { key: 'label', label: '라벨', render: (row) => row.label ?? '' },
   { key: 'description', label: '설명', render: (row) => row.description ?? '' },

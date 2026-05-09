@@ -181,7 +181,6 @@ function RouteComponent() {
   };
 
   const columns: SheetColumn<ConceptNodeResp>[] = [
-    { key: 'id', label: 'ID', width: '80px', render: (row) => row.id ?? '' },
     { key: 'NAME', label: '이름', sortable: true, render: (row) => row.name ?? '' },
     {
       key: 'NODE_TYPE',

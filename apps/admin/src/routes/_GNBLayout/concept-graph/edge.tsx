@@ -168,7 +168,6 @@ function RouteComponent() {
   };
 
   const columns: SheetColumn<ConceptEdgeResp>[] = [
-    { key: 'id', label: 'ID', width: '80px', render: (row) => row.id ?? '' },
     {
       key: 'FROM_NAME',
       label: 'From',
@@ -274,7 +273,7 @@ function RouteComponent() {
         <TwoButtonModalTemplate
           text={
             deleteTarget
-              ? `엣지 #${deleteTarget.id ?? ''} (${deleteTarget.fromNode?.name ?? ''} → ${deleteTarget.toNode?.name ?? ''}) 을 삭제할까요?`
+              ? `엣지 (${deleteTarget.fromNode?.name ?? ''} → ${deleteTarget.toNode?.name ?? ''}) 을 삭제할까요?`
               : ''
           }
           leftButtonText='아니오'
