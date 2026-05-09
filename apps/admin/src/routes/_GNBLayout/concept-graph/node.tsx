@@ -5,7 +5,10 @@ import { Slide, ToastContainer, toast } from 'react-toastify';
 import { Button, Modal, Tag, TwoButtonModalTemplate } from '@components';
 import { deleteNode, getNodeType, getSheetNode } from '@apis';
 import { useInvalidate } from '@hooks';
+import { InlineProblemViewer } from '@repo/pointer-editor-v2';
 import type { ConceptNodeSheetSearchOptions } from '@types';
+
+import '@repo/pointer-editor-v2/style.css';
 
 import type { SearchFilterField, SheetColumn, SheetSortDirection } from '@/components/conceptGraph';
 import {
@@ -192,7 +195,12 @@ function RouteComponent() {
       key: 'DESCRIPTION',
       label: '설명',
       sortable: true,
-      render: (row) => row.description ?? '',
+      render: (row) =>
+        row.description ? (
+          <InlineProblemViewer maxLine={2}>{row.description}</InlineProblemViewer>
+        ) : (
+          ''
+        ),
     },
     {
       key: 'payload',

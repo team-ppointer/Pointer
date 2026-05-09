@@ -7,7 +7,9 @@ import { toast } from 'react-toastify';
 import { Network, X } from 'lucide-react';
 import { getNodeType, postNode, putNode } from '@apis';
 import { useInvalidate } from '@hooks';
+import { getEmptyContentString } from '@utils';
 
+import { EditorField } from '@/components/problem';
 import type { components } from '@/types/api/schema';
 
 type ConceptNodeResp = components['schemas']['ConceptNodeResp'];
@@ -68,7 +70,14 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
     }
   }, [target]);
 
+  const defaultDescription = useMemo(() => {
+    return target?.description && target.description.length > 0
+      ? target.description
+      : getEmptyContentString();
+  }, [target]);
+
   const {
+    control,
     register,
     handleSubmit,
     reset,
@@ -78,7 +87,7 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
     defaultValues: {
       name: target?.name ?? '',
       nodeTypeId: target?.nodeType?.id !== undefined ? String(target.nodeType.id) : '',
-      description: target?.description ?? '',
+      description: defaultDescription,
       payload: defaultPayload,
     },
   });
@@ -87,14 +96,18 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
     reset({
       name: target?.name ?? '',
       nodeTypeId: target?.nodeType?.id !== undefined ? String(target.nodeType.id) : '',
-      description: target?.description ?? '',
+      description: defaultDescription,
       payload: defaultPayload,
     });
-  }, [target, reset, defaultPayload]);
+  }, [target, reset, defaultPayload, defaultDescription]);
 
   const onSubmit = async (values: FormValues) => {
     const trimmedName = values.name.trim();
-    const description = values.description?.trim() ? values.description.trim() : undefined;
+    const rawDescription = values.description ?? '';
+    const description =
+      rawDescription.length > 0 && rawDescription !== getEmptyContentString()
+        ? rawDescription
+        : undefined;
 
     let payload: { [key: string]: Record<string, never> } | undefined;
     if (values.payload && values.payload.trim().length > 0) {
@@ -184,7 +197,9 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
 
         <div className='space-y-2'>
           <label className='text-sm font-semibold text-gray-700'>설명</label>
-          <Input placeholder='설명 (선택)' {...register('description')} />
+          <div className='focus-within:border-main rounded-xl border border-gray-200'>
+            <EditorField control={control} name='description' />
+          </div>
         </div>
 
         <div className='space-y-2'>
