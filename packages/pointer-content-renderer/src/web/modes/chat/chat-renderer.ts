@@ -10,8 +10,8 @@ import { renderMath } from '../../core/math-renderer';
 
 import { scrollToBottom } from './scroll';
 
-const CONFIRM_PROMPT = '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?';
-const DEEPER_LOOK_MESSAGE = '조금 더 자세히 살펴봅시다!';
+export const CONFIRM_PROMPT = '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?';
+export const DEEPER_LOOK_MESSAGE = '조금 더 자세히 살펴봅시다!';
 
 export const EXPAND_BUTTON_INNER_HTML =
   '<span class="chat-expand-btn__circle"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.60352 6.50262C6.8778 5.7229 7.41919 5.06541 8.1318 4.64661C8.8444 4.2278 9.68223 4.07471 10.4969 4.21445C11.3115 4.35418 12.0505 4.77773 12.5828 5.41007C13.1151 6.0424 13.4064 6.84273 13.4052 7.66928C13.4052 10.0026 9.90518 11.1693 9.90518 11.1693" stroke="#3E3F45" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.99805 15.8359H10.0097" stroke="#3E3F45" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';

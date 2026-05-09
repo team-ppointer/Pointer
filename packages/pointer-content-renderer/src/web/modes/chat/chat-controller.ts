@@ -3,6 +3,8 @@ import { serializeNodeToHTML } from '../../core/serializer/index';
 import { renderMath } from '../../core/math-renderer';
 
 import {
+  CONFIRM_PROMPT,
+  DEEPER_LOOK_MESSAGE,
   renderTextBubble,
   renderDivider,
   createYesNoButtons,
@@ -20,9 +22,6 @@ import {
   delay,
 } from './typing-indicator';
 import { scrollToBottom, forceScrollToBottom } from './scroll';
-
-const CONFIRM_PROMPT = '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?';
-const DEEPER_LOOK_MESSAGE = '조금 더 자세히 살펴봅시다!';
 
 export interface AnswerEvent {
   pointingId: string;
