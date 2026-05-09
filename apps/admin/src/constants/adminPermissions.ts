@@ -222,7 +222,15 @@ export const getAccessibleNavSections = (session: AdminSession | null) => {
 };
 
 export const getFirstAccessibleRoute = (session: AdminSession | null) => {
-  return getAccessibleNavSections(session)[0]?.items[0]?.to ?? null;
+  const navRoute = getAccessibleNavSections(session)[0]?.items[0]?.to;
+  if (navRoute) return navRoute;
+
+  // GNB 메뉴에 노출되지 않지만 ADDITIONAL_ROUTE_PERMISSIONS 로만 권한을 가진
+  // 사용자도 첫 접근 가능 경로를 가질 수 있도록 fallback 처리
+  const additional = ADDITIONAL_ROUTE_PERMISSIONS.find((permission) =>
+    hasMenuPermission(session, permission.menuName)
+  );
+  return additional?.routePrefixes[0] ?? null;
 };
 
 export const canAccessPath = (session: AdminSession | null, pathname: string) => {

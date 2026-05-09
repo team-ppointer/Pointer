@@ -29,20 +29,23 @@ export const Route = createRootRoute({
     }
 
     const session = adminSessionStorage.getSession();
+
+    // 현재 경로가 허용되면 즉시 통과. ADDITIONAL_ROUTE_PERMISSIONS 만 가진
+    // 사용자가 firstAccessibleRoute null 판단으로 강제 로그아웃되지 않도록 우선 검사한다.
+    if (canAccessPath(session, location.pathname)) return;
+
     const firstAccessibleRoute = getFirstAccessibleRoute(session);
-
-    if (!firstAccessibleRoute) {
-      silentLogout();
-      throw redirect({
-        to: '/login',
-      });
-    }
-
-    if (!canAccessPath(session, location.pathname)) {
+    if (firstAccessibleRoute) {
       throw redirect({
         to: firstAccessibleRoute,
       });
     }
+
+    // 접근 가능한 경로가 단 하나도 없을 때만 로그아웃 처리
+    silentLogout();
+    throw redirect({
+      to: '/login',
+    });
   },
 
   component: () => {
