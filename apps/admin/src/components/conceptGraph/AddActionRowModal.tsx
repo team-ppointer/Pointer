@@ -19,7 +19,7 @@ interface Props {
   onSaved: () => void;
 }
 
-const ACTION_NODE_TYPE_CODE = 'ACTION';
+const ACTION_NODE_TYPE_CODE = 'Action';
 
 const formSchema = z.object({
   actionNodeId: z.string().min(1, '액션 노드를 선택해주세요'),
