@@ -20,10 +20,14 @@ interface Props {
   onSaved: () => void;
 }
 
+const ACTION_NODE_TYPE_CODE = 'Action';
+
 const formSchema = z.object({
   name: z.string().min(1, '이름을 입력해주세요').max(100, '100자 이하로 입력해주세요'),
   nodeTypeId: z.string().min(1, '타입을 선택해주세요'),
   description: z.string().optional(),
+  example: z.string().optional(),
+  pointingExample: z.string().optional(),
   payload: z
     .string()
     .optional()
@@ -39,6 +43,18 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const extractPayloadEditorString = (raw: unknown): string => {
+  if (typeof raw === 'string' && raw.length > 0) return raw;
+  if (raw && typeof raw === 'object') {
+    try {
+      return JSON.stringify(raw);
+    } catch {
+      return getEmptyContentString();
+    }
+  }
+  return getEmptyContentString();
+};
 
 const extractErrorMessage = (error: unknown): string => {
   const fallback = '요청에 실패했습니다';
@@ -76,11 +92,25 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
       : getEmptyContentString();
   }, [target]);
 
+  const defaultExample = useMemo(
+    () =>
+      extractPayloadEditorString((target?.payload as Record<string, unknown> | undefined)?.example),
+    [target]
+  );
+  const defaultPointingExample = useMemo(
+    () =>
+      extractPayloadEditorString(
+        (target?.payload as Record<string, unknown> | undefined)?.pointingExample
+      ),
+    [target]
+  );
+
   const {
     control,
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -88,6 +118,8 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
       name: target?.name ?? '',
       nodeTypeId: target?.nodeType?.id !== undefined ? String(target.nodeType.id) : '',
       description: defaultDescription,
+      example: defaultExample,
+      pointingExample: defaultPointingExample,
       payload: defaultPayload,
     },
   });
@@ -97,9 +129,18 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
       name: target?.name ?? '',
       nodeTypeId: target?.nodeType?.id !== undefined ? String(target.nodeType.id) : '',
       description: defaultDescription,
+      example: defaultExample,
+      pointingExample: defaultPointingExample,
       payload: defaultPayload,
     });
-  }, [target, reset, defaultPayload, defaultDescription]);
+  }, [target, reset, defaultPayload, defaultDescription, defaultExample, defaultPointingExample]);
+
+  const selectedNodeTypeId = watch('nodeTypeId');
+  const isActionType = useMemo(() => {
+    if (!selectedNodeTypeId) return false;
+    const id = Number(selectedNodeTypeId);
+    return nodeTypeOptions.some((t) => t.id === id && t.code === ACTION_NODE_TYPE_CODE);
+  }, [selectedNodeTypeId, nodeTypeOptions]);
 
   const onSubmit = async (values: FormValues) => {
     const trimmedName = values.name.trim();
@@ -110,7 +151,21 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
         : undefined;
 
     let payload: { [key: string]: Record<string, never> } | undefined;
-    if (values.payload && values.payload.trim().length > 0) {
+    if (isActionType) {
+      const example = values.example ?? '';
+      const pointingExample = values.pointingExample ?? '';
+      const actionPayload: Record<string, string> = {};
+      if (example.length > 0 && example !== getEmptyContentString()) {
+        actionPayload.example = example;
+      }
+      if (pointingExample.length > 0 && pointingExample !== getEmptyContentString()) {
+        actionPayload.pointingExample = pointingExample;
+      }
+      payload =
+        Object.keys(actionPayload).length > 0
+          ? (actionPayload as unknown as { [key: string]: Record<string, never> })
+          : undefined;
+    } else if (values.payload && values.payload.trim().length > 0) {
       try {
         payload = JSON.parse(values.payload);
       } catch (error) {
@@ -202,21 +257,40 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
           </div>
         </div>
 
-        <div className='space-y-2'>
-          <label className='text-sm font-semibold text-gray-700'>Payload (JSON)</label>
-          <textarea
-            placeholder='{"any": "json"}'
-            rows={6}
-            spellCheck={false}
-            {...register('payload')}
-            className={`focus:border-main focus:ring-main/20 w-full resize-y rounded-xl border px-4 py-3 font-mono text-xs transition-all duration-200 placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:outline-none ${
-              errors.payload ? 'border-red-300 focus:border-red-500' : 'border-gray-200'
-            }`}
-          />
-          {errors.payload && (
-            <p className='text-xs font-medium text-red-500'>{errors.payload.message}</p>
-          )}
-        </div>
+        {isActionType ? (
+          <>
+            <div className='space-y-2'>
+              <label className='text-sm font-semibold text-gray-700'>Payload — Example</label>
+              <div className='focus-within:border-main rounded-xl border border-gray-200'>
+                <EditorField control={control} name='example' />
+              </div>
+            </div>
+            <div className='space-y-2'>
+              <label className='text-sm font-semibold text-gray-700'>
+                Payload — Pointing Example
+              </label>
+              <div className='focus-within:border-main rounded-xl border border-gray-200'>
+                <EditorField control={control} name='pointingExample' />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className='space-y-2'>
+            <label className='text-sm font-semibold text-gray-700'>Payload (JSON)</label>
+            <textarea
+              placeholder='{"any": "json"}'
+              rows={6}
+              spellCheck={false}
+              {...register('payload')}
+              className={`focus:border-main focus:ring-main/20 w-full resize-y rounded-xl border px-4 py-3 font-mono text-xs transition-all duration-200 placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:outline-none ${
+                errors.payload ? 'border-red-300 focus:border-red-500' : 'border-gray-200'
+              }`}
+            />
+            {errors.payload && (
+              <p className='text-xs font-medium text-red-500'>{errors.payload.message}</p>
+            )}
+          </div>
+        )}
 
         <div className='flex justify-end gap-3 pt-2'>
           <Button type='button' variant='light' onClick={onClose} disabled={isSubmitting}>
