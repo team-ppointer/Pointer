@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from '@tanstack/react-router';
 import { GraduationCap, Search, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
 import { getStudent } from '@apis';
-import { useSelectedStudent } from '@hooks';
+import { useAdminSession, useSelectedStudent } from '@hooks';
 import { components } from '@schema';
 
 import { getAccessibleNavSections } from '@/constants/adminPermissions';
 import { useSidebar } from '@/contexts/SidebarContext';
-import { adminSessionStorage, logout } from '@/utils';
+import { logout } from '@/utils';
 
 interface NavItemProps {
   to: string;
@@ -64,7 +64,8 @@ const GNB = () => {
   const { data: studentListResponse } = getStudent({ query: searchQuery });
   const studentList = studentListResponse?.data ?? [];
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const navSections = getAccessibleNavSections(adminSessionStorage.getSession());
+  const session = useAdminSession();
+  const navSections = getAccessibleNavSections(session);
   const studentManagementSection = navSections.find((section) => section.title === '학생 관리');
 
   useEffect(() => {
