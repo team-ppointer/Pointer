@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
 import { Header, Input, Modal, OneButtonModalTemplate } from '@components';
@@ -123,6 +123,7 @@ const UserFormModal = ({
   onClose: () => void;
   onSuccess: (message: string) => void;
 }) => {
+  const router = useRouter();
   const [submitError, setSubmitError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const isEditMode = mode === 'edit' && userId !== null;
@@ -224,9 +225,11 @@ const UserFormModal = ({
       },
       {
         onSuccess: async () => {
-          // 본인 계정 수정 시 로컬 세션의 name/email이 stale 상태로 남지 않도록 재발급
+          // 본인 계정 수정 시 로컬 세션의 name/email이 stale 상태로 남지 않도록 재발급하고
+          // 현재 경로의 권한도 다시 평가한다.
           if (userId === adminSessionStorage.getSession()?.id) {
             await refreshSession();
+            await router.invalidate();
           }
           onSuccess('관리자 계정 수정이 완료되었습니다.');
           onClose();
@@ -494,6 +497,7 @@ const DeleteUserModal = ({
 };
 
 function RouteComponent() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -570,9 +574,10 @@ function RouteComponent() {
       },
       {
         onSuccess: async () => {
-          // 본인 역할이 바뀌면 accessibleMenus도 즉시 갱신
+          // 본인 역할이 바뀌면 accessibleMenus 갱신 + 현재 경로 권한 재평가
           if (userId === adminSessionStorage.getSession()?.id) {
             await refreshSession();
+            await router.invalidate();
           }
         },
         onError: (error) => {

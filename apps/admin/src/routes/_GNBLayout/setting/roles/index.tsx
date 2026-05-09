@@ -1,5 +1,5 @@
 import { FormEvent, ReactNode, useMemo, useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { $api, deleteRole, getMenus, getRoles, postRole, putRole } from '@apis';
 import { Button, Header, Input } from '@components';
@@ -58,6 +58,7 @@ const getMenuLabel = (name?: string) => {
 };
 
 function RouteComponent() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { data: roleListResponse } = getRoles();
   const { data: menuListResponse } = getMenus();
@@ -209,9 +210,10 @@ function RouteComponent() {
   };
 
   const refreshSessionIfOwnRole = async (roleId: number) => {
-    // 본인이 바인딩된 role의 권한이 바뀌면 accessibleMenus가 stale 상태로 남음
+    // 본인이 바인딩된 role의 권한이 바뀌면 accessibleMenus 갱신 + 현재 경로 권한 재평가
     if (roleId === adminSessionStorage.getSession()?.roleId) {
       await refreshSession();
+      await router.invalidate();
     }
   };
 
