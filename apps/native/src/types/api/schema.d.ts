@@ -386,6 +386,25 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/user/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 관리자 단건 조회 */
+    get: operations['findById'];
+    /** 관리자 계정 정보 수정 */
+    put: operations['update_3'];
+    post?: never;
+    /** 관리자 계정 삭제 (자기 자신은 불가) */
+    delete: operations['delete_2'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/teacher/{id}': {
     parameters: {
       query?: never;
@@ -395,7 +414,7 @@ export interface paths {
     };
     get?: never;
     /** 수정 */
-    put: operations['update_3'];
+    put: operations['update_4'];
     post?: never;
     delete?: never;
     options?: never;
@@ -415,6 +434,24 @@ export interface paths {
     put: operations['assignStudentsToTeacher'];
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/role/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 역할 수정 */
+    put: operations['update_5'];
+    post?: never;
+    /** 역할 삭제 */
+    delete: operations['delete_3'];
     options?: never;
     head?: never;
     patch?: never;
@@ -484,10 +521,10 @@ export interface paths {
     /** 상세 조회 */
     get: operations['getProblemSet'];
     /** 수정 */
-    put: operations['update_4'];
+    put: operations['update_6'];
     post?: never;
     /** 삭제 */
-    delete: operations['delete_2'];
+    delete: operations['delete_4'];
     options?: never;
     head?: never;
     patch?: never;
@@ -519,10 +556,27 @@ export interface paths {
     };
     get?: never;
     /** 수정 */
-    put: operations['update_5'];
+    put: operations['update_7'];
     post?: never;
     /** 삭제 */
-    delete: operations['delete_3'];
+    delete: operations['delete_5'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/pointing/bubble/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 버블 수정 */
+    put: operations['update_8'];
+    post?: never;
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -537,10 +591,28 @@ export interface paths {
     };
     get?: never;
     /** 수정 */
-    put: operations['update_6'];
+    put: operations['update_9'];
     post?: never;
     /** 삭제 */
-    delete: operations['delete_4'];
+    delete: operations['delete_6'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/mock-exam/types/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 모의고사 타입 수정 */
+    put: operations['updateType'];
+    post?: never;
+    /** 모의고사 타입 삭제 */
+    delete: operations['deleteType'];
     options?: never;
     head?: never;
     patch?: never;
@@ -556,10 +628,28 @@ export interface paths {
     /** 학생 진단 상세보기 */
     get: operations['getById_1'];
     /** 수정 */
-    put: operations['update_7'];
+    put: operations['update_10'];
     post?: never;
     /** 삭제 */
-    delete: operations['delete_5'];
+    delete: operations['delete_7'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/daily-comments/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 데일리 코멘트 수정 */
+    put: operations['update_11'];
+    post?: never;
+    /** 데일리 코멘트 삭제 */
+    delete: operations['delete_8'];
     options?: never;
     head?: never;
     patch?: never;
@@ -574,10 +664,135 @@ export interface paths {
     };
     get?: never;
     /** 개념태그 수정 */
-    put: operations['update_8'];
+    put: operations['update_12'];
     post?: never;
     /** 개념태그 삭제 */
-    delete: operations['delete_6'];
+    delete: operations['delete_9'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/sheet/action-edge/cell': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 액션 그래프 셀 일괄 수정 */
+    put: operations['replaceCell'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/node/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 노드 수정 */
+    put: operations['updateNode'];
+    post?: never;
+    /** 노드 삭제 */
+    delete: operations['deleteNode'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/node-type/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 노드 타입 수정 */
+    put: operations['updateNodeType'];
+    post?: never;
+    /** 노드 타입 삭제 */
+    delete: operations['deleteNodeType'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/edge/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 엣지 수정 */
+    put: operations['updateEdge'];
+    post?: never;
+    /** 엣지 삭제 */
+    delete: operations['deleteEdge'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/edge-type/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 엣지 타입 수정 */
+    put: operations['updateEdgeType'];
+    post?: never;
+    /** 엣지 타입 삭제 */
+    delete: operations['deleteEdgeType'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/action-edge/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 액션 엣지 수정 */
+    put: operations['updateActionEdge'];
+    post?: never;
+    /** 액션 엣지 삭제 */
+    delete: operations['deleteActionEdge'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/action-edge-type/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 액션 엣지 타입 수정 */
+    put: operations['updateActionEdgeType'];
+    post?: never;
+    /** 액션 엣지 타입 삭제 */
+    delete: operations['deleteActionEdgeType'];
     options?: never;
     head?: never;
     patch?: never;
@@ -725,6 +940,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/study/submit/bubble/question': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 버블 ? 버튼 누름 제출 */
+    post: operations['recordBubbleQuestion'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/study/submit/answer': {
     parameters: {
       query?: never;
@@ -736,6 +968,23 @@ export interface paths {
     put?: never;
     /** 답안 제출 */
     post: operations['submit'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/study/problem/{publishId}/{problemId}/handwriting/snapshot': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 필기 스냅샷 저장 (type별 upsert) */
+    post: operations['saveSnapshot'];
     delete?: never;
     options?: never;
     head?: never;
@@ -958,6 +1207,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/oauth/native': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Native OAuth 로그인
+     * @description 클라이언트에서 직접 받은 OAuth 토큰으로 로그인합니다. Kakao는 access_token, Google/Apple은 id_token을 전달합니다.
+     */
+    post: operations['nativeLogin'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/notification/read/{notificationId}': {
     parameters: {
       query?: never;
@@ -986,6 +1255,23 @@ export interface paths {
     put?: never;
     /** 전체 알림 읽음 처리 */
     post: operations['readAllNotifications'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/mock-exam': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 모의고사 정오답/학습 고민 제출 */
+    post: operations['submit_1'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1376,7 +1662,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** 관리자 목록 조회 */
+    get: operations['findAll'];
     put?: never;
     /** 관리자 계정 생성 */
     post: operations['create_2'];
@@ -1421,6 +1708,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 역할 목록 조회 */
+    get: operations['findAll_1'];
+    put?: never;
+    /** 역할 생성 */
+    post: operations['create_4'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/qna/chat': {
     parameters: {
       query?: never;
@@ -1449,7 +1754,7 @@ export interface paths {
     get: operations['search_1'];
     put?: never;
     /** 생성 */
-    post: operations['create_4'];
+    post: operations['create_5'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1521,7 +1826,7 @@ export interface paths {
     get: operations['search_3'];
     put?: never;
     /** 생성 */
-    post: operations['create_5'];
+    post: operations['create_6'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1539,7 +1844,7 @@ export interface paths {
     get: operations['search_4'];
     put?: never;
     /** 생성 */
-    post: operations['create_6'];
+    post: operations['create_7'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1593,7 +1898,43 @@ export interface paths {
     get: operations['getsAll_1'];
     put?: never;
     /** 생성 */
-    post: operations['create_7'];
+    post: operations['create_8'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/mock-exam/types': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 모의고사 타입 전체 조회 */
+    get: operations['getAllTypes'];
+    put?: never;
+    /** 모의고사 타입 생성 */
+    post: operations['createType'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/menu': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 메뉴 목록 조회 */
+    get: operations['findAll_2'];
+    put?: never;
+    /** 메뉴 추가 */
+    post: operations['create_9'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1628,7 +1969,25 @@ export interface paths {
     get: operations['gets_1'];
     put?: never;
     /** 생성 */
-    post: operations['create_8'];
+    post: operations['create_10'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/daily-comments': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생별 특정 일자 데일리 코멘트 조회 */
+    get: operations['getByStudentAndDate'];
+    put?: never;
+    /** 데일리 코멘트 생성 또는 수정 */
+    post: operations['upsert'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1646,7 +2005,115 @@ export interface paths {
     get: operations['search_5'];
     put?: never;
     /** 개념태그 생성 */
-    post: operations['create_9'];
+    post: operations['create_11'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/node': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 노드 목록 조회 */
+    get: operations['getNodes'];
+    put?: never;
+    /** 노드 생성 */
+    post: operations['createNode'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/node-type': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 노드 타입 목록 조회 */
+    get: operations['getNodeTypes'];
+    put?: never;
+    /** 노드 타입 생성 */
+    post: operations['createNodeType'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/edge': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 엣지 목록 조회 */
+    get: operations['getEdges'];
+    put?: never;
+    /** 엣지 생성 */
+    post: operations['createEdge'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/edge-type': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 엣지 타입 목록 조회 */
+    get: operations['getEdgeTypes'];
+    put?: never;
+    /** 엣지 타입 생성 */
+    post: operations['createEdgeType'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/action-edge': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 액션 엣지 목록 조회 */
+    get: operations['getActionEdges'];
+    put?: never;
+    /** 액션 엣지 생성 */
+    post: operations['createActionEdge'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/action-edge-type': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 액션 엣지 타입 목록 조회 */
+    get: operations['getActionEdgeTypes'];
+    put?: never;
+    /** 액션 엣지 타입 생성 */
+    post: operations['createActionEdgeType'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1703,6 +2170,23 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  '/api/admin/user/{id}/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** 관리자에 역할 할당 (roleId=null이면 슈퍼 관리자 전환) */
+    patch: operations['assignRole'];
     trace?: never;
   };
   '/your-redirect-url': {
@@ -2043,6 +2527,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/study/problem/{publishId}/{problemId}/handwriting/snapshot/{type}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 필기 스냅샷 단건 조회 */
+    get: operations['getSnapshot'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/study/problem/entire/{problemId}': {
     parameters: {
       query?: never;
@@ -2319,6 +2820,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/mock-exam/current-type': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 현재 활성 모의고사 타입 조회 */
+    get: operations['getCurrentType'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/diagnosis': {
     parameters: {
       query?: never;
@@ -2362,6 +2880,23 @@ export interface paths {
     };
     /** 학생 진단 상세보기 */
     get: operations['getById_4'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/student/daily-comments': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 특정 일자 데일리 코멘트 조회 */
+    get: operations['getByDate'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2432,22 +2967,6 @@ export interface paths {
      *       - heartbeat: 연결 유지
      */
     get: operations['subscribeStudentQnaList'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/exception/throw': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['throwException'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2536,7 +3055,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_7'];
+    delete: operations['delete_10'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2593,6 +3112,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/mock-exam': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생별 모의고사 정오답/학습 고민 조회 */
+    get: operations['getByStudent'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/fcm/status': {
     parameters: {
       query?: never;
@@ -2602,6 +3138,57 @@ export interface paths {
     };
     /** FCM 초기화 상태 확인 */
     get: operations['getStatus'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/sheet/node': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 노드 시트 조회 (페이징/정렬/필터) */
+    get: operations['getNodeSheet'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/sheet/edge': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 엣지 시트 조회 (페이징/정렬/필터) */
+    get: operations['getEdgeSheet'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/concept/graph/sheet/action-edge': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 액션 그래프 시트 조회 (pivot) */
+    get: operations['getActionGraphSheet'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2754,7 +3341,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_8'];
+    delete: operations['delete_11'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2771,7 +3358,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 선생님 삭제 */
-    delete: operations['delete_9'];
+    delete: operations['delete_12'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2995,7 +3582,9 @@ export interface components {
     };
     StudyHandwritingUpdateRequest: {
       /** @description 필기 데이터 (Base64 인코딩) */
-      data: string;
+      data?: string;
+      /** @description 필기 데이터 (JSON) */
+      dataJson?: string;
     };
     /** @description 학습 필기 데이터 응답 */
     StudyHandwritingResp: {
@@ -3010,7 +3599,9 @@ export interface components {
        */
       problemId: number;
       /** @description 필기 데이터 (Base64 인코딩) */
-      data: string;
+      data?: string;
+      /** @description 필기 데이터 (JSON) */
+      dataJson?: string;
       /**
        * Format: date-time
        * @description 필기 데이터 수정일시 (필기 없으면 null)
@@ -3047,12 +3638,18 @@ export interface components {
       name: string;
       category: components['schemas']['ConceptCategoryResp'];
     };
-    PointingCommentContentResp: {
+    PointingBubbleResp: {
       /** Format: int64 */
       id: number;
       /** Format: int32 */
       no: number;
       contentJson: string;
+      extendContent?: string;
+      /** Format: int64 */
+      actionNodeId?: number;
+      actionNodeName?: string;
+      /** @description ? 버튼 눌렀는지 여부 (학생 컨텍스트에서만 설정됨) */
+      isQuestionPressed?: boolean;
     };
     /** @description 포인팅 목록 */
     PointingResp: {
@@ -3062,7 +3659,7 @@ export interface components {
       no: number;
       questionContent: string;
       commentContent: string;
-      commentContentList?: components['schemas']['PointingCommentContentResp'][];
+      bubbles?: components['schemas']['PointingBubbleResp'][];
       concepts: components['schemas']['ConceptResp'][];
     };
     PracticeTestResp: {
@@ -3224,7 +3821,9 @@ export interface components {
     };
     ScrapHandwritingUpdateRequest: {
       /** @description 필기 데이터 (Base64 인코딩) */
-      data: string;
+      data?: string;
+      /** @description 필기 데이터 (JSON) */
+      dataJson?: string;
     };
     /** @description 필기 데이터 응답 */
     ScrapHandwritingResp: {
@@ -3234,7 +3833,9 @@ export interface components {
        */
       scrapId: number;
       /** @description 필기 데이터 (Base64 인코딩) */
-      data: string;
+      data?: string;
+      /** @description 필기 데이터 (JSON) */
+      dataJson?: string;
       /**
        * Format: date-time
        * @description 필기 데이터 수정일시 (필기 없으면 null)
@@ -3271,6 +3872,7 @@ export interface components {
       targetFolderId?: number;
     };
     ListRespScrapDetailResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['ScrapDetailResp'][];
@@ -3351,6 +3953,13 @@ export interface components {
       /** @description 마케팅 알림 허용 여부 (이벤트 및 업데이트 관련 알림) */
       isAllowMarketingPush?: boolean;
     };
+    AdminUpdateRequest: {
+      /** @description 이름. null/빈문자열이면 기존 값 유지 */
+      name?: string;
+      email: string;
+      /** @description 비밀번호. null/빈문자열이면 기존 값 유지 */
+      password?: string;
+    };
     TeacherUpdateRequest: {
       name: string;
       email: string;
@@ -3367,12 +3976,19 @@ export interface components {
     TeacherStudentAssignReq: {
       students: number[];
     };
-    CommentContentRequest: {
+    AdminRoleUpdateRequest: {
+      name: string;
+      menuIds: number[];
+    };
+    BubbleRequest: {
       /** Format: int64 */
       id?: number;
       /** Format: int32 */
       no?: number;
       contentJson?: string;
+      extendContent?: string;
+      /** Format: int64 */
+      actionNodeId?: number;
     };
     PointingUpdateRequest: {
       /** Format: int64 */
@@ -3381,7 +3997,7 @@ export interface components {
       no?: number;
       questionContent?: string;
       commentContent?: string;
-      commentContentList?: components['schemas']['CommentContentRequest'][];
+      bubbles?: components['schemas']['BubbleRequest'][];
       concepts?: number[];
     };
     ProblemUpdateRequest: {
@@ -3474,7 +4090,7 @@ export interface components {
       firstProblem: components['schemas']['ProblemMetaResp'];
       problems: components['schemas']['ProblemSetItemResp'][];
     };
-    Request: {
+    PracticeTestUpdateRequest: {
       /** Format: int32 */
       year: number;
       /** Format: int32 */
@@ -3482,6 +4098,52 @@ export interface components {
       /** Format: int32 */
       grade: number;
       name: string;
+    };
+    PointingBubbleUpdateRequest: {
+      /** Format: int32 */
+      no?: number;
+      contentJson?: string;
+      extendContent?: string;
+      /** Format: int64 */
+      actionNodeId?: number;
+    };
+    MockExamTypeUpdateRequest: {
+      displayName?: string;
+      /** Format: date */
+      startDate?: string;
+      /** Format: date */
+      endDate?: string;
+    };
+    MockExamTypeResp: {
+      /** Format: int64 */
+      id: number;
+      /**
+       * @description /api/student/mock-exam 제출 요청의 type에 그대로 넣는 값
+       * @example 2026-06
+       */
+      type?: string;
+      /**
+       * @description 모의고사 타입 코드. 학생 제출 요청의 type과 동일한 값
+       * @example 2026-06
+       */
+      code?: string;
+      /**
+       * @description 화면 표시용 모의고사 타입 이름
+       * @example 2026년 6월 모의고사
+       */
+      displayName?: string;
+      /**
+       * Format: date
+       * @description 해당 타입 활성 시작일
+       * @example 2026-06-01
+       */
+      startDate?: string;
+      /**
+       * Format: date
+       * @description 해당 타입 활성 종료일
+       * @example 2026-06-30
+       */
+      endDate?: string;
     };
     DiagnosisUpdateReq: {
       content?: string;
@@ -3495,10 +4157,120 @@ export interface components {
       createdAt?: string;
       content?: string;
     };
+    UpdateRequest: {
+      /**
+       * @description 코멘트 내용
+       * @example 수정된 코멘트입니다.
+       */
+      contentJson?: string;
+    };
+    AdminSummary: {
+      /** Format: int64 */
+      id?: number;
+      name?: string;
+    };
+    DailyCommentResp: {
+      /** Format: int64 */
+      id?: number;
+      author?: components['schemas']['AdminSummary'];
+      contentJson?: string;
+      /** Format: date */
+      commentDate?: string;
+      /** Format: date-time */
+      expiryAt?: string;
+    };
     ConceptUpdateRequest: {
       name: string;
       /** Format: int64 */
       categoryId: number;
+    };
+    ActionGraphCellUpdateRequest: {
+      conceptNodeIds: number[];
+    };
+    ActionEdgeTypeCodeResp: {
+      /** Format: int64 */
+      id?: number;
+      code?: string;
+      label?: string;
+      description?: string;
+    };
+    ConceptActionEdgeResp: {
+      /** Format: int64 */
+      id?: number;
+      actionNode?: components['schemas']['ConceptNodeResp'];
+      role?: components['schemas']['ActionEdgeTypeCodeResp'];
+      conceptNode?: components['schemas']['ConceptNodeResp'];
+    };
+    ConceptNodeResp: {
+      /** Format: int64 */
+      id?: number;
+      name?: string;
+      nodeType?: components['schemas']['NodeTypeCodeResp'];
+      description?: string;
+      payload?: {
+        [key: string]: Record<string, never>;
+      };
+    };
+    NodeTypeCodeResp: {
+      /** Format: int64 */
+      id?: number;
+      code?: string;
+      label?: string;
+      description?: string;
+    };
+    ConceptNodeUpdateRequest: {
+      name: string;
+      /** Format: int64 */
+      nodeTypeId: number;
+      description?: string;
+      payload?: {
+        [key: string]: Record<string, never>;
+      };
+    };
+    NodeTypeCodeUpdateRequest: {
+      code: string;
+      label: string;
+      description?: string;
+    };
+    ConceptEdgeUpdateRequest: {
+      /** Format: int64 */
+      fromNodeId: number;
+      /** Format: int64 */
+      edgeTypeId: number;
+      /** Format: int64 */
+      toNodeId: number;
+    };
+    ConceptEdgeResp: {
+      /** Format: int64 */
+      id?: number;
+      fromNode?: components['schemas']['ConceptNodeResp'];
+      edgeType?: components['schemas']['EdgeTypeCodeResp'];
+      toNode?: components['schemas']['ConceptNodeResp'];
+    };
+    EdgeTypeCodeResp: {
+      /** Format: int64 */
+      id?: number;
+      code?: string;
+      label?: string;
+      description?: string;
+    };
+    EdgeTypeCodeUpdateRequest: {
+      code: string;
+      label: string;
+      description?: string;
+    };
+    ConceptActionEdgeUpdateRequest: {
+      /** Format: int64 */
+      actionNodeId: number;
+      /** Format: int64 */
+      roleId: number;
+      /** Format: int64 */
+      conceptNodeId: number;
+    };
+    ActionEdgeTypeCodeUpdateRequest: {
+      code: string;
+      label: string;
+      description?: string;
     };
     ConceptCategoryUpdateRequest: {
       name: string;
@@ -3570,6 +4342,18 @@ export interface components {
        */
       responseTimeMs?: number;
     };
+    PointingBubbleQuestionRequest: {
+      /** Format: int64 */
+      bubbleId: number;
+      /**
+       * Format: int64
+       * @description 발행(숙제) ID
+       */
+      publishId?: number;
+    };
+    PointingBubbleQuestionResponse: {
+      extendContent?: string;
+    };
     SubmissionRequest: {
       /** Format: int64 */
       publishId: number;
@@ -3595,6 +4379,40 @@ export interface components {
        * @description 제출 횟수
        */
       attemptCount?: number;
+    };
+    StudyHandwritingSnapshotSaveRequest: {
+      /**
+       * @description 스냅샷 시점
+       * @enum {string}
+       */
+      type: 'AFTER_FIRST_SUBMIT' | 'AFTER_RETRY_SUBMIT' | 'AFTER_POINTING';
+      /** @description 필기 데이터 (JSON) */
+      dataJson?: string;
+    };
+    /** @description 학습 필기 스냅샷 응답 */
+    StudyHandwritingSnapshotResp: {
+      /**
+       * Format: int64
+       * @description 발행 ID
+       */
+      publishId: number;
+      /**
+       * Format: int64
+       * @description 문제 ID
+       */
+      problemId: number;
+      /**
+       * @description 스냅샷 시점
+       * @enum {string}
+       */
+      type: 'AFTER_FIRST_SUBMIT' | 'AFTER_RETRY_SUBMIT' | 'AFTER_POINTING';
+      /** @description 필기 데이터 (JSON) */
+      dataJson?: string;
+      /**
+       * Format: date-time
+       * @description 스냅샷 갱신일시 (없으면 null)
+       */
+      updatedAt?: string;
     };
     ScrapCreateRequest: {
       /**
@@ -3779,6 +4597,80 @@ export interface components {
       id: number;
       isExist: boolean;
     };
+    /** @description Native OAuth 로그인 요청 */
+    NativeOAuthReq: {
+      /**
+       * @description OAuth 제공자
+       * @example KAKAO
+       * @enum {string}
+       */
+      provider: 'KAKAO' | 'GOOGLE' | 'APPLE';
+      /** @description OAuth 토큰 (Kakao: access_token, Google/Apple: id_token) */
+      token: string;
+    };
+    /** @description Native OAuth 로그인 응답 */
+    NativeOAuthResp: {
+      /** @description 로그인 성공 여부 */
+      success?: boolean;
+      /** @description 응답 메시지 */
+      message?: string;
+      /** @description JWT Access Token */
+      accessToken?: string;
+      /** @description JWT Refresh Token */
+      refreshToken?: string;
+      user?: components['schemas']['NativeOAuthResp.StudentInfo'];
+    };
+    /** @description 학생 프로필 정보 */
+    'NativeOAuthResp.StudentInfo': {
+      /**
+       * Format: int64
+       * @description 학생 ID
+       */
+      id?: number;
+      /** @description 이메일 */
+      email?: string;
+      /** @description 이름 */
+      name?: string;
+      /** @description 닉네임 */
+      nickname?: string;
+      /**
+       * Format: date
+       * @description 생년월일
+       */
+      birth?: string;
+      /**
+       * @description 성별
+       * @enum {string}
+       */
+      gender?: 'MALE' | 'FEMALE';
+      /**
+       * @description 학년
+       * @enum {string}
+       */
+      grade?: 'ONE' | 'TWO' | 'THREE' | 'N_TIME';
+      /**
+       * @description 선택과목
+       * @enum {string}
+       */
+      selectSubject?: 'MIJUKBUN' | 'HWAKTONG' | 'KEEHA';
+      /**
+       * Format: int32
+       * @description 수능 등급
+       */
+      level?: number;
+      /**
+       * @description OAuth 제공자
+       * @enum {string}
+       */
+      provider?: 'KAKAO' | 'GOOGLE' | 'APPLE';
+      /** @description 최초 로그인 여부 (프로필 미완성) */
+      isFirstLogin?: boolean;
+      /**
+       * Format: int64
+       * @description 연결된 선생님 ID
+       */
+      teacherId?: number;
+    };
     NotificationResp: {
       /** Format: int64 */
       id: number;
@@ -3794,6 +4686,38 @@ export interface components {
       isRead: boolean;
       /** Format: date-time */
       createdAt: string;
+    };
+    MockExamResultSubmitRequest: {
+      /**
+       * @description GET /api/student/mock-exam/current-type 응답의 type 값을 그대로 전달
+       * @example 2026-06
+       */
+      type: string;
+      /**
+       * @description 틀린 문항 번호 목록
+       * @example [
+       *       1,
+       *       2,
+       *       3
+       *     ]
+       */
+      incorrects: number[];
+      /**
+       * @description 학습 고민 JSON 문자열
+       * @example {"text":"문제 풀이 시간이 부족해요"}
+       */
+      question?: string;
+    };
+    MockExamResultResp: {
+      /** Format: int64 */
+      id: number;
+      type?: string;
+      incorrects?: number[];
+      question?: string;
+      /** Format: date-time */
+      createdAt?: string;
+      /** Format: date-time */
+      updatedAt?: string;
     };
     'StudentPushDTO.UpdateTokenRequest': {
       fcmToken: string;
@@ -3999,20 +4923,15 @@ export interface components {
        */
       occurredAt: string;
       /**
-       * @description 이벤트 추가 데이터. 이벤트 타입별 권장 필드는 API 설명을 참고하세요.
-       * @example {
-       *       "screenName": "Problem",
-       *       "dwellTimeMs": 120000,
-       *       "exitReason": "navigation"
-       *     }
+       * @description 이벤트 추가 데이터 JSON 문자열. 이벤트 타입별 권장 필드는 API 설명을 참고하세요.
+       * @example {"screenName":"Problem","dwellTimeMs":120000,"exitReason":"navigation"}
        */
-      metadata?: {
-        [key: string]: Record<string, never>;
-      };
+      metadata?: string;
       /** @description 클라이언트에서 생성한 이벤트 고유 ID (중복 방지용) */
       clientEventId?: string;
     };
     AdminCreateRequest: {
+      name: string;
       email: string;
       password: string;
     };
@@ -4024,6 +4943,10 @@ export interface components {
     SchoolSaveRespDTO: {
       /** Format: int32 */
       count?: number;
+    };
+    AdminRoleCreateRequest: {
+      name: string;
+      menuIds: number[];
     };
     PublishCreateRequest: {
       /** Format: int64 */
@@ -4085,7 +5008,7 @@ export interface components {
       no: number;
       questionContent: string;
       commentContent: string;
-      commentContentList?: components['schemas']['PointingCommentContentResp'][];
+      bubbles?: components['schemas']['PointingBubbleResp'][];
       concepts: components['schemas']['ConceptResp'][];
       isQuestionUnderstood?: boolean;
       isCommentUnderstood?: boolean;
@@ -4227,7 +5150,7 @@ export interface components {
       no?: number;
       questionContent?: string;
       commentContent?: string;
-      commentContentList?: components['schemas']['CommentContentRequest'][];
+      bubbles?: components['schemas']['BubbleRequest'][];
       concepts?: number[];
     };
     ProblemCreateRequest: {
@@ -4316,6 +5239,22 @@ export interface components {
       /** @description FCM 지원 여부 */
       fcmSupported: boolean;
     };
+    MockExamTypeCreateRequest: {
+      code: string;
+      displayName: string;
+      /** Format: date */
+      startDate: string;
+      /** Format: date */
+      endDate: string;
+    };
+    AdminMenuCreateRequest: {
+      name: string;
+      /**
+       * Format: int64
+       * @description 상위 메뉴 ID. null이면 최상위 메뉴로 생성
+       */
+      parentId?: number;
+    };
     /** @description FCM 테스트 발송 요청 */
     FcmTestReq: {
       /**
@@ -4353,25 +5292,133 @@ export interface components {
       studentId?: number;
       content?: string;
     };
+    UpsertRequest: {
+      /**
+       * @description 학생 ID 목록
+       * @example [
+       *       1,
+       *       2,
+       *       3
+       *     ]
+       */
+      studentIds?: number[];
+      /**
+       * Format: date
+       * @description 코멘트 기준 일자
+       * @example 2026-05-05
+       */
+      commentDate?: string;
+      /**
+       * @description 코멘트 내용
+       * @example 오늘도 학습을 잘 진행했습니다.
+       */
+      contentJson?: string;
+    };
     ConceptCreateRequest: {
       name: string;
       /** Format: int64 */
       categoryId: number;
     };
+    ConceptNodeCreateRequest: {
+      name: string;
+      /** Format: int64 */
+      nodeTypeId: number;
+      description?: string;
+      payload?: {
+        [key: string]: Record<string, never>;
+      };
+    };
+    NodeTypeCodeCreateRequest: {
+      code: string;
+      label: string;
+      description?: string;
+    };
+    ConceptEdgeCreateRequest: {
+      /** Format: int64 */
+      fromNodeId: number;
+      /** Format: int64 */
+      edgeTypeId: number;
+      /** Format: int64 */
+      toNodeId: number;
+    };
+    EdgeTypeCodeCreateRequest: {
+      code: string;
+      label: string;
+      description?: string;
+    };
+    ConceptActionEdgeCreateRequest: {
+      /** Format: int64 */
+      actionNodeId: number;
+      /** Format: int64 */
+      roleId: number;
+      /** Format: int64 */
+      conceptNodeId: number;
+    };
+    ActionEdgeTypeCodeCreateRequest: {
+      code: string;
+      label: string;
+      description?: string;
+    };
     ConceptCategoryCreateRequest: {
       name: string;
+    };
+    /** @description 접근 가능 메뉴 목록 */
+    AdminMenuResp: {
+      /** Format: int64 */
+      id?: number;
+      name?: string;
+      /**
+       * Format: int64
+       * @description 상위 메뉴 ID. null이면 최상위 메뉴
+       */
+      parentId?: number;
+    };
+    AdminResp: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      email: string;
+      /** @enum {string} */
+      adminType: 'SUPER' | 'ROLE_BASED';
+      /**
+       * Format: int64
+       * @description 역할 ID. adminType=SUPER이면 null
+       */
+      roleId?: number;
+      /** @description 역할 이름. adminType=SUPER이면 null */
+      roleName?: string;
     };
     AdminTokenResp: {
       /** Format: int64 */
       id: number;
+      name: string;
       email: string;
+      /** @enum {string} */
+      adminType: 'SUPER' | 'ROLE_BASED';
+      /**
+       * Format: int64
+       * @description 역할 ID. adminType=SUPER이면 null
+       */
+      roleId?: number;
+      /** @description 역할 이름. adminType=SUPER이면 null */
+      roleName?: string;
       token: components['schemas']['JwtResp'];
+      /** @description 접근 가능 메뉴 목록 */
+      accessibleMenus?: components['schemas']['AdminMenuResp'][];
     };
     AdminLoginReq: {
       email: string;
       password: string;
     };
+    AdminRoleAssignRequest: {
+      /**
+       * Format: int64
+       * @description 역할 ID. null이면 역할 해제 (슈퍼 관리자 전환)
+       */
+      roleId?: number;
+    };
     ListRespPublishResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['PublishResp'][];
@@ -4381,11 +5428,13 @@ export interface components {
       progress: number;
     };
     ListRespStudentResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['StudentResp'][];
     };
     PageRespNotListQnAGroupByWeekResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4429,6 +5478,7 @@ export interface components {
       matchedChatPreview?: string;
     };
     PageRespNotListListChatSearchResultResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4442,11 +5492,13 @@ export interface components {
       chatResults?: components['schemas']['PageRespNotListListChatSearchResultResp'];
     };
     ListRespNoticeResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['NoticeResp'][];
     };
     ListRespProblemEntireResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['ProblemEntireResp'][];
@@ -4490,6 +5542,7 @@ export interface components {
       oneStepMoreContent: string;
     };
     ListRespPointingEntireResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['PointingEntireResp'][];
@@ -4508,13 +5561,14 @@ export interface components {
       no: number;
       questionContent: string;
       commentContent: string;
-      commentContentList?: components['schemas']['PointingCommentContentResp'][];
+      bubbles?: components['schemas']['PointingBubbleResp'][];
       concepts: components['schemas']['ConceptResp'][];
       isQuestionUnderstood?: boolean;
       isCommentUnderstood?: boolean;
       isScrapped?: boolean;
     };
     ListRespTrashItemResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['TrashItemResp'][];
@@ -4595,26 +5649,31 @@ export interface components {
       scraps: components['schemas']['ScrapListItemResp'][];
     };
     ListRespScrapFolderResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['ScrapFolderResp'][];
     };
     ListRespScrapListItemResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['ScrapListItemResp'][];
     };
     ListRespSchoolResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['SchoolResp'][];
     };
     ListRespUploadFileResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['UploadFileResp'][];
     };
     ListRespQnaFileResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['QnaFileResp'][];
@@ -4630,6 +5689,7 @@ export interface components {
       isScrapped: boolean;
     };
     ListRespNotificationResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['NotificationResp'][];
@@ -4648,6 +5708,7 @@ export interface components {
       latestNotification?: components['schemas']['NotificationResp'];
     };
     PageRespNoticeResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4664,6 +5725,7 @@ export interface components {
       latestNotice?: components['schemas']['NoticeResp'];
     };
     ListRespDiagnosisResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['DiagnosisResp'][];
@@ -4781,6 +5843,7 @@ export interface components {
       timestamp?: string;
     };
     PageRespTeacherResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4790,6 +5853,7 @@ export interface components {
       data: components['schemas']['TeacherResp'][];
     };
     PageRespStudentResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4798,7 +5862,14 @@ export interface components {
       lastPage: number;
       data: components['schemas']['StudentResp'][];
     };
+    AdminRoleResp: {
+      /** Format: int64 */
+      id?: number;
+      name?: string;
+      menus?: components['schemas']['AdminMenuResp'][];
+    };
     PageRespProblemMetaResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4808,6 +5879,7 @@ export interface components {
       data: components['schemas']['ProblemMetaResp'][];
     };
     ListRespProblemInfoResp: {
+      requestId: string;
       /** Format: int32 */
       total: number;
       data: components['schemas']['ProblemInfoResp'][];
@@ -4816,6 +5888,7 @@ export interface components {
       customId?: string;
     };
     PageRespProblemSetResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4825,6 +5898,7 @@ export interface components {
       data: components['schemas']['ProblemSetResp'][];
     };
     PageRespPracticeTestResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4833,12 +5907,25 @@ export interface components {
       lastPage: number;
       data: components['schemas']['PracticeTestResp'][];
     };
+    ListRespMockExamResultResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['MockExamResultResp'][];
+    };
+    ListRespMockExamTypeResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['MockExamTypeResp'][];
+    };
     /** @description FCM 상태 응답 */
     FcmStatusResp: {
       /** @description Firebase 초기화 상태 */
       initialized?: boolean;
     };
     PageRespConceptResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -4847,7 +5934,86 @@ export interface components {
       lastPage: number;
       data: components['schemas']['ConceptResp'][];
     };
+    PageRespConceptNodeResp: {
+      requestId: string;
+      /** Format: int32 */
+      page: number;
+      /** Format: int32 */
+      size: number;
+      /** Format: int32 */
+      lastPage: number;
+      data: components['schemas']['ConceptNodeResp'][];
+    };
+    PageRespConceptEdgeResp: {
+      requestId: string;
+      /** Format: int32 */
+      page: number;
+      /** Format: int32 */
+      size: number;
+      /** Format: int32 */
+      lastPage: number;
+      data: components['schemas']['ConceptEdgeResp'][];
+    };
+    ActionGraphSheetResp: {
+      columns?: components['schemas']['ActionEdgeTypeCodeResp'][];
+      rows?: components['schemas']['Row'][];
+    };
+    Cell: {
+      roleCode?: string;
+      conceptNodes?: components['schemas']['ConceptNodeResp'][];
+    };
+    PageRespNotListActionGraphSheetResp: {
+      requestId: string;
+      /** Format: int32 */
+      page: number;
+      /** Format: int32 */
+      size: number;
+      /** Format: int32 */
+      lastPage: number;
+      data: components['schemas']['ActionGraphSheetResp'];
+    };
+    Row: {
+      actionNode?: components['schemas']['ConceptNodeResp'];
+      cells?: components['schemas']['Cell'][];
+    };
+    ListRespConceptNodeResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ConceptNodeResp'][];
+    };
+    ListRespNodeTypeCodeResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['NodeTypeCodeResp'][];
+    };
+    ListRespConceptEdgeResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ConceptEdgeResp'][];
+    };
+    ListRespEdgeTypeCodeResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['EdgeTypeCodeResp'][];
+    };
+    ListRespConceptActionEdgeResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ConceptActionEdgeResp'][];
+    };
+    ListRespActionEdgeTypeCodeResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ActionEdgeTypeCodeResp'][];
+    };
     PageRespConceptCategoryResp: {
+      requestId: string;
       /** Format: int32 */
       page: number;
       /** Format: int32 */
@@ -5901,7 +7067,73 @@ export interface operations {
       };
     };
   };
+  findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AdminResp'];
+        };
+      };
+    };
+  };
   update_3: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  delete_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_4: {
     parameters: {
       query?: never;
       header?: never;
@@ -5950,6 +7182,50 @@ export interface operations {
         content: {
           '*/*': components['schemas']['TeacherResp'];
         };
+      };
+    };
+  };
+  update_5: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminRoleUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  delete_3: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -6117,7 +7393,7 @@ export interface operations {
       };
     };
   };
-  update_4: {
+  update_6: {
     parameters: {
       query?: never;
       header?: never;
@@ -6143,7 +7419,7 @@ export interface operations {
       };
     };
   };
-  delete_2: {
+  delete_4: {
     parameters: {
       query?: never;
       header?: never;
@@ -6185,7 +7461,7 @@ export interface operations {
       };
     };
   };
-  update_5: {
+  update_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -6196,7 +7472,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['Request'];
+        'application/json': components['schemas']['PracticeTestUpdateRequest'];
       };
     };
     responses: {
@@ -6211,7 +7487,7 @@ export interface operations {
       };
     };
   };
-  delete_3: {
+  delete_5: {
     parameters: {
       query?: never;
       header?: never;
@@ -6231,7 +7507,33 @@ export interface operations {
       };
     };
   };
-  update_6: {
+  update_8: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PointingBubbleUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PointingBubbleResp'];
+        };
+      };
+    };
+  };
+  update_9: {
     parameters: {
       query?: never;
       header?: never;
@@ -6257,7 +7559,53 @@ export interface operations {
       };
     };
   };
-  delete_4: {
+  delete_6: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  updateType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MockExamTypeUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['MockExamTypeResp'];
+        };
+      };
+    };
+  };
+  deleteType: {
     parameters: {
       query?: never;
       header?: never;
@@ -6299,7 +7647,7 @@ export interface operations {
       };
     };
   };
-  update_7: {
+  update_10: {
     parameters: {
       query?: never;
       header?: never;
@@ -6325,7 +7673,7 @@ export interface operations {
       };
     };
   };
-  delete_5: {
+  delete_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -6345,7 +7693,53 @@ export interface operations {
       };
     };
   };
-  update_8: {
+  update_11: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DailyCommentResp'];
+        };
+      };
+    };
+  };
+  delete_8: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_12: {
     parameters: {
       query?: never;
       header?: never;
@@ -6371,7 +7765,7 @@ export interface operations {
       };
     };
   };
-  delete_6: {
+  delete_9: {
     parameters: {
       query?: never;
       header?: never;
@@ -6397,6 +7791,309 @@ export interface operations {
         content: {
           '*/*': components['schemas']['ErrorResp'];
         };
+      };
+    };
+  };
+  replaceCell: {
+    parameters: {
+      query: {
+        actionNodeId: number;
+        roleId: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ActionGraphCellUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ConceptActionEdgeResp'][];
+        };
+      };
+    };
+  };
+  updateNode: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConceptNodeUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ConceptNodeResp'];
+        };
+      };
+    };
+  };
+  deleteNode: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  updateNodeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['NodeTypeCodeUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['NodeTypeCodeResp'];
+        };
+      };
+    };
+  };
+  deleteNodeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  updateEdge: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConceptEdgeUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ConceptEdgeResp'];
+        };
+      };
+    };
+  };
+  deleteEdge: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  updateEdgeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EdgeTypeCodeUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['EdgeTypeCodeResp'];
+        };
+      };
+    };
+  };
+  deleteEdgeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  updateActionEdge: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConceptActionEdgeUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ConceptActionEdgeResp'];
+        };
+      };
+    };
+  };
+  deleteActionEdge: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  updateActionEdgeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ActionEdgeTypeCodeUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ActionEdgeTypeCodeResp'];
+        };
+      };
+    };
+  };
+  deleteActionEdgeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -6639,6 +8336,30 @@ export interface operations {
       };
     };
   };
+  recordBubbleQuestion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PointingBubbleQuestionRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PointingBubbleQuestionResponse'];
+        };
+      };
+    };
+  };
   submit: {
     parameters: {
       query?: never;
@@ -6659,6 +8380,33 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['SubmissionResp'];
+        };
+      };
+    };
+  };
+  saveSnapshot: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+        problemId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudyHandwritingSnapshotSaveRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudyHandwritingSnapshotResp'];
         };
       };
     };
@@ -7081,6 +8829,48 @@ export interface operations {
       };
     };
   };
+  nativeLogin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['NativeOAuthReq'];
+      };
+    };
+    responses: {
+      /** @description 로그인 성공 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['NativeOAuthResp'];
+        };
+      };
+      /** @description 유효하지 않은 토큰 (OAUTH_001) 또는 유효성 검증 실패 */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['NativeOAuthResp'];
+        };
+      };
+      /** @description OAuth 제공자 API 오류 (OAUTH_002) */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['NativeOAuthResp'];
+        };
+      };
+    };
+  };
   readNotification: {
     parameters: {
       query?: never;
@@ -7118,6 +8908,30 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  submit_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MockExamResultSubmitRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['MockExamResultResp'];
+        };
       };
     };
   };
@@ -7570,6 +9384,26 @@ export interface operations {
       };
     };
   };
+  findAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AdminResp'][];
+        };
+      };
+    };
+  };
   create_2: {
     parameters: {
       query?: never;
@@ -7667,6 +9501,48 @@ export interface operations {
       };
     };
   };
+  findAll_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AdminRoleResp'][];
+        };
+      };
+    };
+  };
+  create_4: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminRoleCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   addChat_2: {
     parameters: {
       query?: never;
@@ -7715,7 +9591,7 @@ export interface operations {
       };
     };
   };
-  create_4: {
+  create_5: {
     parameters: {
       query?: never;
       header?: never;
@@ -7909,7 +9785,7 @@ export interface operations {
       };
     };
   };
-  create_5: {
+  create_6: {
     parameters: {
       query?: never;
       header?: never;
@@ -7960,7 +9836,7 @@ export interface operations {
       };
     };
   };
-  create_6: {
+  create_7: {
     parameters: {
       query?: never;
       header?: never;
@@ -8054,7 +9930,7 @@ export interface operations {
       };
     };
   };
-  create_7: {
+  create_8: {
     parameters: {
       query?: never;
       header?: never;
@@ -8075,6 +9951,92 @@ export interface operations {
         content: {
           '*/*': components['schemas']['NoticeResp'];
         };
+      };
+    };
+  };
+  getAllTypes: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespMockExamTypeResp'];
+        };
+      };
+    };
+  };
+  createType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MockExamTypeCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['MockExamTypeResp'];
+        };
+      };
+    };
+  };
+  findAll_2: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['AdminMenuResp'][];
+        };
+      };
+    };
+  };
+  create_9: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminMenuCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -8124,7 +10086,7 @@ export interface operations {
       };
     };
   };
-  create_8: {
+  create_10: {
     parameters: {
       query?: never;
       header?: never;
@@ -8144,6 +10106,61 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
+  getByStudentAndDate: {
+    parameters: {
+      query?: {
+        /**
+         * @description 학생 ID
+         * @example 1
+         */
+        studentId?: number;
+        /**
+         * @description 조회 기준 일자
+         * @example 2026-05-05
+         */
+        commentDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DailyCommentResp'][];
+        };
+      };
+    };
+  };
+  upsert: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpsertRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DailyCommentResp'][];
         };
       };
     };
@@ -8173,7 +10190,7 @@ export interface operations {
       };
     };
   };
-  create_9: {
+  create_11: {
     parameters: {
       query?: never;
       header?: never;
@@ -8193,6 +10210,270 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['ConceptResp'];
+        };
+      };
+    };
+  };
+  getNodes: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespConceptNodeResp'];
+        };
+      };
+    };
+  };
+  createNode: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConceptNodeCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ConceptNodeResp'];
+        };
+      };
+    };
+  };
+  getNodeTypes: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespNodeTypeCodeResp'];
+        };
+      };
+    };
+  };
+  createNodeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['NodeTypeCodeCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['NodeTypeCodeResp'];
+        };
+      };
+    };
+  };
+  getEdges: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespConceptEdgeResp'];
+        };
+      };
+    };
+  };
+  createEdge: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConceptEdgeCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ConceptEdgeResp'];
+        };
+      };
+    };
+  };
+  getEdgeTypes: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespEdgeTypeCodeResp'];
+        };
+      };
+    };
+  };
+  createEdgeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EdgeTypeCodeCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['EdgeTypeCodeResp'];
+        };
+      };
+    };
+  };
+  getActionEdges: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespConceptActionEdgeResp'];
+        };
+      };
+    };
+  };
+  createActionEdge: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConceptActionEdgeCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ConceptActionEdgeResp'];
+        };
+      };
+    };
+  };
+  getActionEdgeTypes: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespActionEdgeTypeCodeResp'];
+        };
+      };
+    };
+  };
+  createActionEdgeType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ActionEdgeTypeCodeCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ActionEdgeTypeCodeResp'];
         };
       };
     };
@@ -8290,6 +10571,30 @@ export interface operations {
         content: {
           '*/*': components['schemas']['AdminTokenResp'];
         };
+      };
+    };
+  };
+  assignRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminRoleAssignRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -8734,6 +11039,30 @@ export interface operations {
       };
     };
   };
+  getSnapshot: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+        problemId: number;
+        type: 'AFTER_FIRST_SUBMIT' | 'AFTER_RETRY_SUBMIT' | 'AFTER_POINTING';
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['StudyHandwritingSnapshotResp'];
+        };
+      };
+    };
+  };
   getEntireProblems: {
     parameters: {
       query?: never;
@@ -9162,6 +11491,26 @@ export interface operations {
       };
     };
   };
+  getCurrentType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['MockExamTypeResp'];
+        };
+      };
+    };
+  };
   gets_3: {
     parameters: {
       query?: never;
@@ -9220,6 +11569,32 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['DiagnosisResp'];
+        };
+      };
+    };
+  };
+  getByDate: {
+    parameters: {
+      query?: {
+        /**
+         * @description 조회 기준 일자
+         * @example 2026-05-05
+         */
+        commentDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DailyCommentResp'][];
         };
       };
     };
@@ -9300,26 +11675,6 @@ export interface operations {
       };
       /** @description 토큰 검증 실패 */
       401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  throwException: {
-    parameters: {
-      query?: {
-        message?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
         headers: {
           [name: string]: unknown;
         };
@@ -9437,7 +11792,7 @@ export interface operations {
       };
     };
   };
-  delete_7: {
+  delete_10: {
     parameters: {
       query?: never;
       header?: never;
@@ -9522,6 +11877,28 @@ export interface operations {
       };
     };
   };
+  getByStudent: {
+    parameters: {
+      query: {
+        studentId: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespMockExamResultResp'];
+        };
+      };
+    };
+  };
   getStatus: {
     parameters: {
       query?: never;
@@ -9538,6 +11915,87 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['FcmStatusResp'];
+        };
+      };
+    };
+  };
+  getNodeSheet: {
+    parameters: {
+      query?: {
+        name?: string;
+        nodeTypeId?: number;
+        description?: string;
+        sort?: 'NAME' | 'NODE_TYPE' | 'DESCRIPTION';
+        direction?: 'ASC' | 'DESC';
+        page?: number;
+        size?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PageRespConceptNodeResp'];
+        };
+      };
+    };
+  };
+  getEdgeSheet: {
+    parameters: {
+      query?: {
+        fromNodeName?: string;
+        edgeTypeId?: number;
+        toNodeName?: string;
+        sort?: 'FROM_NAME' | 'EDGE_TYPE' | 'TO_NAME';
+        direction?: 'ASC' | 'DESC';
+        page?: number;
+        size?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PageRespConceptEdgeResp'];
+        };
+      };
+    };
+  };
+  getActionGraphSheet: {
+    parameters: {
+      query?: {
+        actionNodeName?: string;
+        direction?: 'ASC' | 'DESC';
+        page?: number;
+        size?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PageRespNotListActionGraphSheetResp'];
         };
       };
     };
@@ -9752,7 +12210,7 @@ export interface operations {
       };
     };
   };
-  delete_8: {
+  delete_11: {
     parameters: {
       query?: never;
       header?: never;
@@ -9772,7 +12230,7 @@ export interface operations {
       };
     };
   };
-  delete_9: {
+  delete_12: {
     parameters: {
       query?: never;
       header?: never;
