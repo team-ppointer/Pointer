@@ -90,22 +90,22 @@ const useInvalidate = () => {
   const invalidateConceptGraphSheets = useCallback(() => {
     return Promise.all([
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/sheet/node'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/node').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/sheet/edge'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/edge').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/sheet/action-edge'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/action-edge').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/node-type'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/node-type').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/edge-type'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/edge-type').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/action-edge-type'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/action-edge-type').queryKey,
       }),
     ]);
   }, [queryClient]);
@@ -113,16 +113,16 @@ const useInvalidate = () => {
   const invalidateConceptGraphNodes = useCallback(() => {
     return Promise.all([
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/sheet/node'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/node').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/node'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/node').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/sheet/edge'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/edge').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/sheet/action-edge'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/action-edge').queryKey,
       }),
     ]);
   }, [queryClient]);
@@ -130,10 +130,10 @@ const useInvalidate = () => {
   const invalidateConceptGraphEdges = useCallback(() => {
     return Promise.all([
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/sheet/edge'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/edge').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/edge'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/edge').queryKey,
       }),
     ]);
   }, [queryClient]);
@@ -141,10 +141,10 @@ const useInvalidate = () => {
   const invalidateConceptGraphActionEdges = useCallback(() => {
     return Promise.all([
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/sheet/action-edge'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/action-edge').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/action-edge'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/action-edge').queryKey,
       }),
     ]);
   }, [queryClient]);
@@ -152,13 +152,13 @@ const useInvalidate = () => {
   const invalidateConceptGraphTypes = useCallback(() => {
     return Promise.all([
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/node-type'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/node-type').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/edge-type'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/edge-type').queryKey,
       }),
       queryClient.invalidateQueries({
-        queryKey: ['get', '/api/admin/concept/graph/action-edge-type'],
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/action-edge-type').queryKey,
       }),
     ]);
   }, [queryClient]);
