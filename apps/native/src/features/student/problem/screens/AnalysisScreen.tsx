@@ -125,7 +125,7 @@ const AnalysisScreen = ({
             problem: group.problem,
             joined,
             pendingQueueEntries: queueSnapshot,
-            // TODO(Step 5/MAT-646): wire from bubbleQuestionPressQueue.snapshot()
+            // PD-3: AnalysisScreen 은 ? 버튼 비노출 (includeExpand:false) → pressedBubbleIds 미사용.
             pressedBubbleIds: new Set<number>(),
             includeExpand: false,
           })

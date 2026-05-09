@@ -15,6 +15,7 @@ import { Text, TextInput } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/features/student/scrap/components/Notification/Toast';
 import { PointingFeedbackQueueWiring } from '@/features/student/problem/services/PointingFeedbackQueueWiring';
+import { BubbleQuestionPressQueueWiring } from '@features/student/problem/services/BubbleQuestionPressQueueWiring';
 import { env } from '@utils';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
 import {
@@ -54,6 +55,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <PointingFeedbackQueueWiring />
+      <BubbleQuestionPressQueueWiring />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           {isReady && (

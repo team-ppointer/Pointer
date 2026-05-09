@@ -1,7 +1,7 @@
 import { Alert, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { AnswerEventPayload } from '@repo/pointer-content-renderer';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -24,12 +24,15 @@ import {
 import { useInvalidateStudyData } from '@hooks';
 
 import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
-import { pointingFeedbackQueue } from '../services';
+import { bubbleQuestionPressQueue, pointingFeedbackQueue } from '../services';
 import {
   buildDocumentInit,
   toChatScenario,
   toUserAnswers,
 } from '../transforms/contentRendererTransforms';
+
+const bubbleQueueSubscribe = (cb: () => void) => bubbleQuestionPressQueue.subscribe(cb);
+const bubbleQueueGetSnapshot = () => bubbleQuestionPressQueue.snapshot();
 
 const PointingScreen = ({
   navigation,
@@ -73,17 +76,22 @@ const PointingScreen = ({
     return { advanceMessage: undefined, advanceButtonLabel: undefined };
   }, [phase, childIndex, group?.childProblems]);
 
+  const bubbleQueueSnapshot = useSyncExternalStore(bubbleQueueSubscribe, bubbleQueueGetSnapshot);
+  const pressedBubbleIds = useMemo(
+    () => new Set(bubbleQueueSnapshot.map((e) => e.bubbleId)),
+    [bubbleQueueSnapshot]
+  );
+
   const chatInitMessage = useMemo(
     () => ({
       type: 'init' as const,
       mode: 'chat' as const,
-      // TODO(Step 5/MAT-646): wire from bubbleQuestionPressQueue.snapshot()
-      scenario: toChatScenario(pointings, new Set<number>(), true),
+      scenario: toChatScenario(pointings, pressedBubbleIds, true),
       userAnswers: toUserAnswers(pointings, pointingFeedbackQueue.snapshot()),
       advanceMessage,
       advanceButtonLabel,
     }),
-    [pointings, advanceMessage, advanceButtonLabel]
+    [pointings, pressedBubbleIds, advanceMessage, advanceButtonLabel]
   );
 
   const documentInitMessage = useMemo(
@@ -103,6 +111,17 @@ const PointingScreen = ({
         pointingId: Number(e.pointingId),
         step: e.step,
         value: e.response === 'yes',
+      });
+    },
+    [publishId]
+  );
+
+  const handleBubbleQuestionPress = useCallback(
+    (e: { bubbleId: string }) => {
+      if (publishId == null) return;
+      bubbleQuestionPressQueue.enqueue({
+        publishId,
+        bubbleId: Number(e.bubbleId),
       });
     },
     [publishId]
@@ -203,6 +222,7 @@ const PointingScreen = ({
               initMessage={chatInitMessage}
               onAnswer={handleAnswer}
               onAdvance={handleAdvance}
+              onBubbleQuestionPress={handleBubbleQuestionPress}
             />
           </View>
         </View>
