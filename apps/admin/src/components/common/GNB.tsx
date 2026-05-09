@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from '@tanstack/react-router';
-import { GraduationCap, Search, ChevronDown, ChevronRight } from 'lucide-react';
+import { GraduationCap, Search, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
 import { getStudent } from '@apis';
 import { useSelectedStudent } from '@hooks';
 import { components } from '@schema';
 
 import { getAccessibleNavSections } from '@/constants/adminPermissions';
 import { useSidebar } from '@/contexts/SidebarContext';
-import { adminSessionStorage } from '@/utils';
+import { adminSessionStorage, logout } from '@/utils';
 
 interface NavItemProps {
   to: string;
@@ -90,7 +90,7 @@ const GNB = () => {
       className={`fixed top-0 left-0 z-40 h-screen bg-white shadow-xl shadow-gray-200/50 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-80'}`}>
       <div className='flex h-full min-h-0 flex-col'>
         {/* Header */}
-        <div className='mb-3.5 flex items-center justify-between pt-4 pl-4'>
+        <div className='mb-3.5 flex items-center justify-between pt-4 pr-4 pl-4'>
           <div className='flex items-center gap-3'>
             <div
               className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100/80 transition-all duration-300`}>
@@ -110,11 +110,21 @@ const GNB = () => {
               </svg>
             </div>
           </div>
+          {!isCollapsed && (
+            <button
+              type='button'
+              onClick={logout}
+              title='로그아웃'
+              aria-label='로그아웃'
+              className='flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700'>
+              <LogOut className='h-5 w-5' />
+            </button>
+          )}
         </div>
 
         {/* Navigation */}
         <nav className='flex min-h-0 flex-1 flex-col px-4 pb-4'>
-          <div className='min-h-0 flex-1 overflow-y-auto pr-1'>
+          <div className='min-h-0 flex-1 overflow-y-auto'>
             {/* Student Management Section */}
             <div className=''>
               <SectionTitle isCollapsed={isCollapsed}>학생 관리</SectionTitle>
