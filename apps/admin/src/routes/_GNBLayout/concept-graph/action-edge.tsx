@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { Slide, ToastContainer, toast } from 'react-toastify';
-import { Button, Modal, TwoButtonModalTemplate } from '@components';
+import { Button, Header, Modal, TwoButtonModalTemplate } from '@components';
 import { getSheetActionEdge, putSheetActionEdgeCell } from '@apis';
 import { useInvalidate } from '@hooks';
 import type { ActionGraphSheetSearchOptions } from '@types';
@@ -269,7 +269,13 @@ function RouteComponent() {
         transition={Slide}
       />
 
-      <div className='space-y-4 p-8'>
+      <Header title='액션 그래프'>
+        <Header.Button Icon={Plus} color='main' onClick={() => setIsAddRowOpen(true)}>
+          액션 노드 행 추가
+        </Header.Button>
+      </Header>
+
+      <div className='mx-auto max-w-7xl space-y-4 px-8 py-8'>
         {sheetQuery.isError && (
           <div className='flex items-center justify-between rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700'>
             <span>데이터를 불러오지 못했습니다. 새로고침해주세요.</span>
@@ -283,33 +289,27 @@ function RouteComponent() {
           </div>
         )}
 
-        <div className='flex items-end justify-between gap-3'>
-          <div className='flex flex-1 items-end gap-3'>
-            <div className='flex-1'>
-              <SearchFilterBar
-                fields={filterFields}
-                values={filterValues}
-                onChange={handleSearchChange}
-                onReset={handleSearchReset}
-              />
-            </div>
-            <button
-              type='button'
-              onClick={toggleDirection}
-              className='focus:border-main flex h-10 items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none'
-              aria-label='정렬 방향 토글'>
-              {direction === 'ASC' ? (
-                <ArrowUp className='h-4 w-4' />
-              ) : (
-                <ArrowDown className='h-4 w-4' />
-              )}
-              <span>이름 {direction}</span>
-            </button>
+        <div className='flex items-end gap-3'>
+          <div className='flex-1'>
+            <SearchFilterBar
+              fields={filterFields}
+              values={filterValues}
+              onChange={handleSearchChange}
+              onReset={handleSearchReset}
+            />
           </div>
-          <Button type='button' variant='dark' sizeType='sm' onClick={() => setIsAddRowOpen(true)}>
-            <Plus className='h-4 w-4' />
-            액션 노드 행 추가
-          </Button>
+          <button
+            type='button'
+            onClick={toggleDirection}
+            className='focus:border-main flex h-10 items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none'
+            aria-label='정렬 방향 토글'>
+            {direction === 'ASC' ? (
+              <ArrowUp className='h-4 w-4' />
+            ) : (
+              <ArrowDown className='h-4 w-4' />
+            )}
+            <span>이름 {direction}</span>
+          </button>
         </div>
 
         <div className='overflow-hidden rounded-2xl border border-gray-200 bg-white'>

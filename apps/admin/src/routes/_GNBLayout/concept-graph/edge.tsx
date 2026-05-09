@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Slide, ToastContainer, toast } from 'react-toastify';
-import { Button, Modal, Tag, TwoButtonModalTemplate } from '@components';
+import { Button, Header, Modal, Tag, TwoButtonModalTemplate } from '@components';
 import { deleteEdge, getEdgeType, getSheetEdge } from '@apis';
 import { useInvalidate } from '@hooks';
 import type { ConceptEdgeSheetSearchOptions } from '@types';
@@ -207,7 +207,13 @@ function RouteComponent() {
         transition={Slide}
       />
 
-      <div className='space-y-4 p-8'>
+      <Header title='개념 그래프'>
+        <Header.Button Icon={Plus} color='main' onClick={openCreate}>
+          엣지 추가
+        </Header.Button>
+      </Header>
+
+      <div className='mx-auto max-w-7xl space-y-4 px-8 py-8'>
         {sheetQuery.isError && (
           <div className='flex items-center justify-between rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700'>
             <span>데이터를 불러오지 못했습니다. 새로고침해주세요.</span>
@@ -221,19 +227,12 @@ function RouteComponent() {
           </div>
         )}
 
-        <div className='flex items-end justify-between gap-3'>
-          <div className='flex-1'>
-            <SearchFilterBar
-              fields={filterFields}
-              values={filterValues}
-              onChange={handleSearchChange}
-              onReset={handleSearchReset}
-            />
-          </div>
-          <Button type='button' variant='dark' sizeType='sm' onClick={openCreate}>
-            <Plus className='h-4 w-4' />행 추가
-          </Button>
-        </div>
+        <SearchFilterBar
+          fields={filterFields}
+          values={filterValues}
+          onChange={handleSearchChange}
+          onReset={handleSearchReset}
+        />
 
         <SheetTable<ConceptEdgeResp>
           columns={columns}

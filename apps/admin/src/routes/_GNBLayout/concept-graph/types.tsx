@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Slide, ToastContainer, toast } from 'react-toastify';
-import { Button, Modal, TwoButtonModalTemplate } from '@components';
+import { Button, Header, Modal, TwoButtonModalTemplate } from '@components';
 import {
   deleteActionEdgeType,
   deleteEdgeType,
@@ -176,7 +176,11 @@ function RouteComponent() {
         theme='light'
         transition={Slide}
       />
-      <div className='space-y-10 p-8'>
+      <Header title='타입 관리'>
+        <></>
+      </Header>
+
+      <div className='mx-auto max-w-7xl space-y-10 px-8 py-8'>
         <TypeSection
           title='노드 타입'
           rows={nodeTypes}
