@@ -3,6 +3,12 @@ import { enforceSession, tokenStorage } from '@utils';
 
 const UNPROTECTED_ROUTES = ['/api/admin/auth/login/local'];
 
+const redirectToLogin = () => {
+  if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+    window.location.href = '/login';
+  }
+};
+
 const authMiddleware: Middleware = {
   async onRequest({ schemaPath, request }: { schemaPath: string; request: Request }) {
     if (UNPROTECTED_ROUTES.some((pathname) => schemaPath.startsWith(pathname))) {
@@ -12,15 +18,10 @@ const authMiddleware: Middleware = {
     let accessToken = tokenStorage.getToken();
 
     if (!accessToken) {
-      try {
-        accessToken = await enforceSession();
-
-        if (!accessToken) {
-          console.error('Access token reissue failed. User needs to login again.');
-          return request;
-        }
-      } catch (error) {
-        console.error('Error during token reissue in middleware:', error);
+      accessToken = await enforceSession();
+      if (!accessToken) {
+        console.warn('Access token reissue failed. Redirecting to login.');
+        redirectToLogin();
         return request;
       }
     }
@@ -33,20 +34,16 @@ const authMiddleware: Middleware = {
     if (response.status === 401) {
       console.warn('Access token expired. Attempting reissue...');
 
-      try {
-        const newAccessToken = await enforceSession();
+      const newAccessToken = await enforceSession();
 
-        if (!newAccessToken) {
-          console.error('Token reissue failed. User needs to login again.');
-          return response;
-        }
-
-        request.headers.set('Authorization', `Bearer ${newAccessToken}`);
-        return fetch(request);
-      } catch (error) {
-        console.error('Error during token reissue in response handler:', error);
+      if (!newAccessToken) {
+        console.warn('Token reissue failed. Redirecting to login.');
+        redirectToLogin();
         return response;
       }
+
+      request.headers.set('Authorization', `Bearer ${newAccessToken}`);
+      return fetch(request);
     }
     return response;
   },
