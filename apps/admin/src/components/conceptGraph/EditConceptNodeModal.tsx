@@ -202,7 +202,7 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
   const title = isEditMode ? '노드 수정' : '노드 추가';
 
   return (
-    <div className='w-[560px] rounded-2xl bg-white p-8'>
+    <div className='w-[860px] rounded-2xl bg-white p-8'>
       <div className='mb-6 flex items-center justify-between'>
         <div className='flex items-center gap-3'>
           <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/30'>
@@ -260,15 +260,13 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
         {isActionType ? (
           <>
             <div className='space-y-2'>
-              <label className='text-sm font-semibold text-gray-700'>Payload — Example</label>
+              <label className='text-sm font-semibold text-gray-700'>예시</label>
               <div className='focus-within:border-main rounded-xl border border-gray-200'>
                 <EditorField control={control} name='example' />
               </div>
             </div>
             <div className='space-y-2'>
-              <label className='text-sm font-semibold text-gray-700'>
-                Payload — Pointing Example
-              </label>
+              <label className='text-sm font-semibold text-gray-700'>포인팅 예시</label>
               <div className='focus-within:border-main rounded-xl border border-gray-200'>
                 <EditorField control={control} name='pointingExample' />
               </div>
