@@ -189,4 +189,42 @@ describe('BubbleQuestionPressQueue', () => {
     q.enqueue(basePayload);
     expect(q.snapshot()).toHaveLength(1);
   });
+
+  // pressedBubbleIds() — mount-time merge source. Includes both in-flight + successKeys.
+  it('pressedBubbleIds() returns empty Set when nothing enqueued', () => {
+    expect(q.pressedBubbleIds()).toEqual(new Set());
+  });
+
+  it('pressedBubbleIds() includes in-flight bubbleIds from entries', () => {
+    const poster = makePoster('retry'); // keep entry in queue
+    q = new BubbleQuestionPressQueue(poster);
+    q.enqueue({ publishId: 1, bubbleId: 100 });
+    q.enqueue({ publishId: 1, bubbleId: 200 });
+    expect(q.pressedBubbleIds()).toEqual(new Set([100, 200]));
+  });
+
+  it('pressedBubbleIds() retains succeeded bubbleIds even after entries cleared (race fix)', async () => {
+    const poster = makePoster('success');
+    q = new BubbleQuestionPressQueue(poster);
+    q.enqueue({ publishId: 1, bubbleId: 100 });
+    await jest.advanceTimersByTimeAsync(0);
+    // entries 비었지만 successKeys 에 100 남아있어야 함
+    expect(q.snapshot()).toHaveLength(0);
+    expect(q.pressedBubbleIds()).toEqual(new Set([100]));
+  });
+
+  it('pressedBubbleIds() merges in-flight + succeeded ids in same instance', async () => {
+    // bubbleId 별로 다른 outcome 반환하는 poster.
+    const poster = jest
+      .fn<Promise<BubbleQuestionFlushOutcome>, [BubbleQuestionPressEntry]>()
+      .mockImplementation(async (entry) => (entry.bubbleId === 100 ? 'success' : 'retry'));
+    q = new BubbleQuestionPressQueue(poster);
+
+    q.enqueue({ publishId: 1, bubbleId: 100 }); // → success
+    q.enqueue({ publishId: 1, bubbleId: 200 }); // → retry (in-flight 유지)
+    await jest.advanceTimersByTimeAsync(0);
+
+    expect(q.snapshot().map((e) => e.bubbleId)).toEqual([200]); // 100 은 success 로 dequeue, 200 만 in-flight
+    expect(q.pressedBubbleIds()).toEqual(new Set([100, 200])); // union: successKeys + entries
+  });
 });

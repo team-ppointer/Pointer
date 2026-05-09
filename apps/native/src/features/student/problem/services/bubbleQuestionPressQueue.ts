@@ -83,6 +83,24 @@ export class BubbleQuestionPressQueue {
     return this.snapshotCache;
   }
 
+  /**
+   * 세션 내에서 누른 적이 있는 (in-flight + 성공한) 모든 bubbleId Set.
+   * mount-time merge 용. snapshot() 은 in-flight 만 노출하므로 성공 후 재마운트 시
+   * 이미 펼쳤어야 할 ? 가 닫혀 보이는 race 를 막기 위해 별도 제공한다.
+   * BE-2 (bubble.id globally unique) 라 publishId 필터 없이 전체 합쳐도 false positive 없음.
+   */
+  pressedBubbleIds(): Set<number> {
+    const ids = new Set<number>();
+    for (const entry of this.entries.values()) {
+      ids.add(entry.bubbleId);
+    }
+    for (const key of this.successKeys) {
+      const idx = key.indexOf(':');
+      if (idx > 0) ids.add(Number(key.slice(idx + 1)));
+    }
+    return ids;
+  }
+
   /** 큐 변화 구독. 반환 함수 호출로 해제. */
   subscribe(fn: () => void): () => void {
     this.listeners.add(fn);

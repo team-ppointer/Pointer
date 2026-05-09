@@ -73,12 +73,13 @@ const PointingScreen = ({
     return { advanceMessage: undefined, advanceButtonLabel: undefined };
   }, [phase, childIndex, group?.childProblems]);
 
-  // Mount-time snapshot only — avoids re-injecting init when ? click triggers queue notify.
-  // Plan §3.E4 dedupe: BE response sets isQuestionPressed=true on remount, queue successKeys
-  // dedupes mid-session re-enqueue. Mid-session pressedBubbleIds drift is intentionally invisible
-  // to renderer (one-shot disable already prevents re-fire).
-  const [pressedBubbleIds] = useState<Set<number>>(
-    () => new Set(bubbleQuestionPressQueue.snapshot().map((e) => e.bubbleId))
+  // Mount-time read only — avoids re-injecting init when ? click triggers queue notify.
+  // Mid-session pressedBubbleIds drift is intentionally invisible to renderer (one-shot
+  // disable already prevents re-fire).
+  // pressedBubbleIds() merges in-flight entries + successKeys 라서 성공 후 재마운트 race
+  // (BE refetch 가 store 에 도착 전에 mount) 에서도 펼친 상태가 유지됨.
+  const [pressedBubbleIds] = useState<Set<number>>(() =>
+    bubbleQuestionPressQueue.pressedBubbleIds()
   );
 
   const chatInitMessage = useMemo(
