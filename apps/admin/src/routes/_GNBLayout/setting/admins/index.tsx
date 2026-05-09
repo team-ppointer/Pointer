@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
@@ -526,7 +526,7 @@ function RouteComponent() {
 
   const userList = userListResponse?.data ?? [];
   const roleList = roleListResponse?.data ?? [];
-  const userListQueryKey = $api.queryOptions('get', '/api/admin/user').queryKey;
+  const userListQueryKey = useMemo(() => $api.queryOptions('get', '/api/admin/user').queryKey, []);
 
   const refreshUserList = () => {
     queryClient.invalidateQueries({
