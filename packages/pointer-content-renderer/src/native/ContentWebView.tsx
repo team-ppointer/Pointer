@@ -88,12 +88,23 @@ interface ContentWebViewProps {
   onAnswer?: (event: AnswerEventPayload) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
   onAdvance?: () => void;
+  onBubbleQuestionPress?: (event: { bubbleId: string }) => void;
   style?: StyleProp<ViewStyle>;
 }
 
 export const ContentWebView = forwardRef<ContentWebViewHandle, ContentWebViewProps>(
   function ContentWebView(
-    { htmlSource, initMessage, onReady, onComplete, onAnswer, onBookmark, onAdvance, style },
+    {
+      htmlSource,
+      initMessage,
+      onReady,
+      onComplete,
+      onAnswer,
+      onBookmark,
+      onAdvance,
+      onBubbleQuestionPress,
+      style,
+    },
     ref
   ) {
     const mode = initMessage.mode;
@@ -112,6 +123,7 @@ export const ContentWebView = forwardRef<ContentWebViewHandle, ContentWebViewPro
       onAnswer,
       onBookmark,
       onAdvance,
+      onBubbleQuestionPress,
     });
 
     useImperativeHandle(

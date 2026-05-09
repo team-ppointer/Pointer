@@ -125,6 +125,9 @@ const AnalysisScreen = ({
             problem: group.problem,
             joined,
             pendingQueueEntries: queueSnapshot,
+            // PD-3: AnalysisScreen 은 ? 버튼 비노출 (includeExpand:false) → pressedBubbleIds 미사용.
+            pressedBubbleIds: new Set<number>(),
+            includeExpand: false,
           })
         : [],
     [group, joined, queueSnapshot]

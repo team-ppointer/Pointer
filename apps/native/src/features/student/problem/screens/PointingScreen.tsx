@@ -1,7 +1,7 @@
 import { Alert, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AnswerEventPayload } from '@repo/pointer-content-renderer';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -24,7 +24,7 @@ import {
 import { useInvalidateStudyData } from '@hooks';
 
 import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
-import { pointingFeedbackQueue } from '../services';
+import { bubbleQuestionPressQueue, pointingFeedbackQueue } from '../services';
 import {
   buildDocumentInit,
   toChatScenario,
@@ -73,16 +73,25 @@ const PointingScreen = ({
     return { advanceMessage: undefined, advanceButtonLabel: undefined };
   }, [phase, childIndex, group?.childProblems]);
 
+  // Mount-time read only — avoids re-injecting init when ? click triggers queue notify.
+  // Mid-session pressedBubbleIds drift is intentionally invisible to renderer (one-shot
+  // disable already prevents re-fire).
+  // pressedBubbleIds() merges in-flight entries + successKeys 라서 성공 후 재마운트 race
+  // (BE refetch 가 store 에 도착 전에 mount) 에서도 펼친 상태가 유지됨.
+  const [pressedBubbleIds] = useState<Set<number>>(() =>
+    bubbleQuestionPressQueue.pressedBubbleIds()
+  );
+
   const chatInitMessage = useMemo(
     () => ({
       type: 'init' as const,
       mode: 'chat' as const,
-      scenario: toChatScenario(pointings),
+      scenario: toChatScenario(pointings, pressedBubbleIds, true),
       userAnswers: toUserAnswers(pointings, pointingFeedbackQueue.snapshot()),
       advanceMessage,
       advanceButtonLabel,
     }),
-    [pointings, advanceMessage, advanceButtonLabel]
+    [pointings, pressedBubbleIds, advanceMessage, advanceButtonLabel]
   );
 
   const documentInitMessage = useMemo(
@@ -102,6 +111,17 @@ const PointingScreen = ({
         pointingId: Number(e.pointingId),
         step: e.step,
         value: e.response === 'yes',
+      });
+    },
+    [publishId]
+  );
+
+  const handleBubbleQuestionPress = useCallback(
+    (e: { bubbleId: string }) => {
+      if (publishId == null) return;
+      bubbleQuestionPressQueue.enqueue({
+        publishId,
+        bubbleId: Number(e.bubbleId),
       });
     },
     [publishId]
@@ -202,6 +222,7 @@ const PointingScreen = ({
               initMessage={chatInitMessage}
               onAnswer={handleAnswer}
               onAdvance={handleAdvance}
+              onBubbleQuestionPress={handleBubbleQuestionPress}
             />
           </View>
         </View>

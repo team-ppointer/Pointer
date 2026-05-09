@@ -17,6 +17,7 @@ interface ContentBridgeOptions {
   onAnswer?: (event: AnswerEventPayload) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
   onAdvance?: () => void;
+  onBubbleQuestionPress?: (event: { bubbleId: string }) => void;
 }
 
 export function useContentBridge(options: ContentBridgeOptions) {
@@ -80,6 +81,9 @@ export function useContentBridge(options: ContentBridgeOptions) {
             break;
           case 'advance':
             opts.onAdvance?.();
+            break;
+          case 'bubbleQuestionPress':
+            opts.onBubbleQuestionPress?.({ bubbleId: msg.bubbleId });
             break;
         }
       } catch {

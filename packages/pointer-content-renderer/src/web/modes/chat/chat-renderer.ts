@@ -13,6 +13,9 @@ import { scrollToBottom } from './scroll';
 const CONFIRM_PROMPT = '방금 문제를 풀이하며 설명한 흐름대로 생각했나요?';
 const DEEPER_LOOK_MESSAGE = '조금 더 자세히 살펴봅시다!';
 
+export const EXPAND_BUTTON_INNER_HTML =
+  '<span class="chat-expand-btn__circle"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.60352 6.50262C6.8778 5.7229 7.41919 5.06541 8.1318 4.64661C8.8444 4.2278 9.68223 4.07471 10.4969 4.21445C11.3115 4.35418 12.0505 4.77773 12.5828 5.41007C13.1151 6.0424 13.4064 6.84273 13.4052 7.66928C13.4052 10.0026 9.90518 11.1693 9.90518 11.1693" stroke="#3E3F45" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.99805 15.8359H10.0097" stroke="#3E3F45" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+
 function createBubbleElement(
   html: string,
   side: 'system' | 'user',
@@ -21,43 +24,118 @@ function createBubbleElement(
   const el = document.createElement('div');
   el.className = `chat-bubble chat-bubble--${side}`;
   if (animated) el.style.animation = 'bubbleIn 300ms ease-out';
-  el.innerHTML = html;
+
+  const main = document.createElement('div');
+  main.className = 'chat-bubble__main';
+  main.innerHTML = html;
+  el.appendChild(main);
+
   return el;
 }
 
-function createExpandButton(expandNode: JSONNode): {
+/** Returns the inner `.chat-bubble__main` wrapper that holds text + interactive controls. */
+export function getBubbleMain(bubble: HTMLElement): HTMLElement {
+  return bubble.firstElementChild as HTMLElement;
+}
+
+export interface ExpandButtonOptions {
+  /** Bridge identifier — when present and the user opens the bubble, `onOpen(nodeId)` fires once. */
+  nodeId?: string;
+  /** Render pre-opened with the button disabled. Used for resume of previously-pressed buttons. */
+  defaultExpanded?: boolean;
+  /** Fires once on the first (and only) closed→open transition. */
+  onOpen?: (nodeId: string) => void;
+}
+
+export function createExpandButton(
+  expandNode: JSONNode,
+  options?: ExpandButtonOptions
+): {
   btn: HTMLButtonElement;
   content: HTMLElement;
 } {
   const btn = document.createElement('button');
   btn.className = 'chat-expand-btn';
-  btn.textContent = '?';
+  btn.innerHTML = EXPAND_BUTTON_INNER_HTML;
 
   const content = document.createElement('div');
   content.className = 'chat-expand-content';
-  content.innerHTML = serializeNodeToHTML(expandNode);
+  const inner = document.createElement('div');
+  inner.className = 'chat-expand-content__inner';
+  inner.innerHTML = serializeNodeToHTML(expandNode);
+  content.appendChild(inner);
 
-  btn.addEventListener('click', () => {
-    content.classList.toggle('chat-expand-content--visible');
-  });
+  if (options?.defaultExpanded) {
+    // Resume path (PD-2): start opened + disabled, no transition, no onOpen fire.
+    content.classList.add('chat-expand-content--visible');
+    content.style.height = 'auto';
+    btn.disabled = true;
+    return { btn, content };
+  }
+
+  btn.addEventListener(
+    'click',
+    () => {
+      // One-shot reveal (PD-1): open + disable. No close path. Renderer does no dedupe (Principle 2);
+      // first-press tracking lives in the RN bubbleQuestionPressQueue.
+      const target = content.scrollHeight;
+      content.style.height = `${target}px`;
+      content.classList.add('chat-expand-content--visible');
+      btn.disabled = true;
+
+      const onEnd = (e: TransitionEvent) => {
+        if (e.propertyName !== 'height') return;
+        content.removeEventListener('transitionend', onEnd);
+        content.style.height = 'auto';
+      };
+      content.addEventListener('transitionend', onEnd);
+
+      if (options?.nodeId && options.onOpen) {
+        options.onOpen(options.nodeId);
+      }
+    },
+    { once: true }
+  );
 
   return { btn, content };
+}
+
+/** Wraps `bubble` + `btn` in a flex row so the bubble can keep overflow:hidden without clipping the button. */
+export function wrapWithExpandButton(bubble: HTMLElement, btn: HTMLButtonElement): HTMLElement {
+  const row = document.createElement('div');
+  row.className = 'chat-bubble-row';
+  row.appendChild(bubble);
+  row.appendChild(btn);
+  return row;
+}
+
+function expandOptionsFor(
+  node: PointingNode,
+  onOpen?: (nodeId: string) => void
+): ExpandButtonOptions {
+  return {
+    nodeId: node.nodeId,
+    defaultExpanded: node.defaultExpanded,
+    onOpen,
+  };
 }
 
 /** Render a single pointing node as a static (non-animated) system bubble. */
 async function appendStaticPointingNodeBubble(
   container: HTMLElement,
-  node: PointingNode
+  node: PointingNode,
+  onOpen?: (nodeId: string) => void
 ): Promise<HTMLElement> {
   const html = serializeNodeToHTML(node.contentNode);
   const bubble = createBubbleElement(html, 'system', false);
   if (node.expandContent) {
-    const { btn, content } = createExpandButton(node.expandContent);
-    bubble.appendChild(btn);
+    const { btn, content } = createExpandButton(node.expandContent, expandOptionsFor(node, onOpen));
     bubble.appendChild(content);
+    container.appendChild(wrapWithExpandButton(bubble, btn));
     await renderMath(content);
+  } else {
+    container.appendChild(bubble);
   }
-  container.appendChild(bubble);
   await renderMath(bubble);
   return bubble;
 }
@@ -65,19 +143,21 @@ async function appendStaticPointingNodeBubble(
 export async function renderBubble(
   container: HTMLElement,
   node: PointingNode,
-  side: 'system' | 'user'
+  side: 'system' | 'user',
+  onOpen?: (nodeId: string) => void
 ): Promise<HTMLElement> {
   const html = serializeNodeToHTML(node.contentNode);
   const bubble = createBubbleElement(html, side, true);
 
   if (node.expandContent) {
-    const { btn, content } = createExpandButton(node.expandContent);
-    bubble.appendChild(btn);
+    const { btn, content } = createExpandButton(node.expandContent, expandOptionsFor(node, onOpen));
     bubble.appendChild(content);
+    container.appendChild(wrapWithExpandButton(bubble, btn));
     await renderMath(content);
+  } else {
+    container.appendChild(bubble);
   }
 
-  container.appendChild(bubble);
   await renderMath(bubble);
   scrollToBottom();
   return bubble;
@@ -92,7 +172,7 @@ export function renderTextBubble(
   const bubble = createBubbleElement('', side, animated);
   const p = document.createElement('p');
   p.textContent = text;
-  bubble.appendChild(p);
+  getBubbleMain(bubble).appendChild(p);
   container.appendChild(bubble);
   if (animated) scrollToBottom();
   return bubble;
@@ -141,7 +221,7 @@ export function createYesNoButtons(
 
   wrapper.appendChild(yesBtn);
   wrapper.appendChild(noBtn);
-  bubble.appendChild(wrapper);
+  getBubbleMain(bubble).appendChild(wrapper);
   scrollToBottom();
   return wrapper;
 }
@@ -173,7 +253,7 @@ export function renderStaticYesNo(bubble: HTMLElement, answer: 'yes' | 'no'): vo
 
   wrapper.appendChild(yesBtn);
   wrapper.appendChild(noBtn);
-  bubble.appendChild(wrapper);
+  getBubbleMain(bubble).appendChild(wrapper);
 }
 
 /**
@@ -183,11 +263,12 @@ export function renderStaticYesNo(bubble: HTMLElement, answer: 'yes' | 'no'): vo
 export async function renderStaticQuestionPhase(
   container: HTMLElement,
   pointing: PointingData,
-  response: 'yes' | 'no'
+  response: 'yes' | 'no',
+  onOpen?: (nodeId: string) => void
 ): Promise<void> {
   let lastQuestionBubble: HTMLElement | null = null;
   for (const node of pointing.questionNodes) {
-    lastQuestionBubble = await appendStaticPointingNodeBubble(container, node);
+    lastQuestionBubble = await appendStaticPointingNodeBubble(container, node, onOpen);
   }
   if (lastQuestionBubble) {
     renderStaticYesNo(lastQuestionBubble, response);
@@ -202,12 +283,13 @@ export async function renderStaticQuestionPhase(
 export async function renderStaticConfirmPhase(
   container: HTMLElement,
   pointing: PointingData,
-  response: 'yes' | 'no'
+  response: 'yes' | 'no',
+  onOpen?: (nodeId: string) => void
 ): Promise<void> {
   renderTextBubble(container, DEEPER_LOOK_MESSAGE, 'system', false);
 
   for (const node of pointing.answerNodes) {
-    await appendStaticPointingNodeBubble(container, node);
+    await appendStaticPointingNodeBubble(container, node, onOpen);
   }
 
   const confirmBubble = renderTextBubble(container, CONFIRM_PROMPT, 'system', false);
@@ -225,14 +307,13 @@ export function renderActionBubble(
   onAction: () => void,
   message?: string
 ): HTMLElement {
-  const bubble = document.createElement('div');
-  bubble.className = 'chat-bubble chat-bubble--system';
-  bubble.style.animation = 'bubbleIn 300ms ease-out';
+  const bubble = createBubbleElement('', 'system', true);
+  const main = getBubbleMain(bubble);
 
   if (message) {
     const p = document.createElement('p');
     p.textContent = message;
-    bubble.appendChild(p);
+    main.appendChild(p);
   }
 
   const wrapper = document.createElement('div');
@@ -251,7 +332,7 @@ export function renderActionBubble(
   );
 
   wrapper.appendChild(btn);
-  bubble.appendChild(wrapper);
+  main.appendChild(wrapper);
   container.appendChild(bubble);
   scrollToBottom();
   return bubble;
@@ -260,7 +341,8 @@ export function renderActionBubble(
 export async function renderAllBubbles(
   container: HTMLElement,
   scenario: ChatScenario,
-  userAnswers?: UserAnswer[]
+  userAnswers?: UserAnswer[],
+  onOpen?: (nodeId: string) => void
 ): Promise<void> {
   const answerMap = new Map<string, UserAnswer>();
   for (const a of userAnswers ?? []) {
@@ -279,7 +361,7 @@ export async function renderAllBubbles(
     // Question nodes
     let lastQuestionBubble: HTMLElement | null = null;
     for (const node of pointing.questionNodes) {
-      lastQuestionBubble = await appendStaticPointingNodeBubble(container, node);
+      lastQuestionBubble = await appendStaticPointingNodeBubble(container, node, onOpen);
     }
 
     // Yes/No inside last question bubble + user response
@@ -298,7 +380,7 @@ export async function renderAllBubbles(
 
     // Answer nodes
     for (const node of pointing.answerNodes) {
-      await appendStaticPointingNodeBubble(container, node);
+      await appendStaticPointingNodeBubble(container, node, onOpen);
     }
 
     // Confirm prompt

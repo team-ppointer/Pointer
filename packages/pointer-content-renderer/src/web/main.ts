@@ -109,6 +109,10 @@ onMessage(async (msg) => {
           {
             advanceMessage: msg.advanceMessage,
             advanceButtonLabel: msg.advanceButtonLabel,
+          },
+          ({ bubbleId }) => {
+            if (!isCurrent()) return;
+            sendToRN({ type: 'bubbleQuestionPress', bubbleId });
           }
         );
         if (!isCurrent()) return;

@@ -9,6 +9,8 @@ import {
   renderStaticQuestionPhase,
   renderStaticConfirmPhase,
   renderActionBubble,
+  createExpandButton,
+  wrapWithExpandButton,
 } from './chat-renderer';
 import {
   getTypingTiming,
@@ -38,7 +40,8 @@ export interface ChatConfig {
 async function showWithTypingIndicator(
   container: HTMLElement,
   node: PointingNode,
-  signal: AbortSignal
+  signal: AbortSignal,
+  onOpen?: (nodeId: string) => void
 ): Promise<HTMLElement> {
   const timing = getTypingTiming(node.contentNode);
 
@@ -52,27 +55,24 @@ async function showWithTypingIndicator(
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
-  bubble.innerHTML = html;
+  const main = document.createElement('div');
+  main.className = 'chat-bubble__main';
+  main.innerHTML = html;
+  bubble.appendChild(main);
 
+  let outerEl: HTMLElement = bubble;
   if (node.expandContent) {
-    const expandBtn = document.createElement('button');
-    expandBtn.className = 'chat-expand-btn';
-    expandBtn.textContent = '?';
-
-    const expandContent = document.createElement('div');
-    expandContent.className = 'chat-expand-content';
-    expandContent.innerHTML = serializeNodeToHTML(node.expandContent);
-
-    expandBtn.addEventListener('click', () => {
-      expandContent.classList.toggle('chat-expand-content--visible');
+    const { btn, content } = createExpandButton(node.expandContent, {
+      nodeId: node.nodeId,
+      defaultExpanded: node.defaultExpanded,
+      onOpen,
     });
-
-    bubble.appendChild(expandBtn);
-    bubble.appendChild(expandContent);
-    await renderMath(expandContent);
+    bubble.appendChild(content);
+    outerEl = wrapWithExpandButton(bubble, btn);
+    await renderMath(content);
   }
 
-  replaceWithBubble(indicator, bubble);
+  replaceWithBubble(indicator, outerEl);
   await renderMath(bubble);
   scrollToBottom();
   return bubble;
@@ -90,9 +90,12 @@ async function showFixedMessage(
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
+  const main = document.createElement('div');
+  main.className = 'chat-bubble__main';
+  bubble.appendChild(main);
   const p = document.createElement('p');
   p.textContent = text;
-  bubble.appendChild(p);
+  main.appendChild(p);
   replaceWithBubble(indicator, bubble);
   return bubble;
 }
@@ -100,7 +103,8 @@ async function showFixedMessage(
 async function showInstantly(
   container: HTMLElement,
   node: PointingNode,
-  signal: AbortSignal
+  signal: AbortSignal,
+  onOpen?: (nodeId: string) => void
 ): Promise<HTMLElement> {
   if (signal.aborted) throw signal.reason;
 
@@ -108,28 +112,25 @@ async function showInstantly(
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
-  bubble.innerHTML = html;
+  const main = document.createElement('div');
+  main.className = 'chat-bubble__main';
+  main.innerHTML = html;
+  bubble.appendChild(main);
 
+  let outerEl: HTMLElement = bubble;
   if (node.expandContent) {
-    const expandBtn = document.createElement('button');
-    expandBtn.className = 'chat-expand-btn';
-    expandBtn.textContent = '?';
-
-    const expandContent = document.createElement('div');
-    expandContent.className = 'chat-expand-content';
-    expandContent.innerHTML = serializeNodeToHTML(node.expandContent);
-
-    expandBtn.addEventListener('click', () => {
-      expandContent.classList.toggle('chat-expand-content--visible');
+    const { btn, content } = createExpandButton(node.expandContent, {
+      nodeId: node.nodeId,
+      defaultExpanded: node.defaultExpanded,
+      onOpen,
     });
-
-    bubble.appendChild(expandBtn);
-    bubble.appendChild(expandContent);
-    await renderMath(expandContent);
+    bubble.appendChild(content);
+    outerEl = wrapWithExpandButton(bubble, btn);
+    await renderMath(content);
     if (signal.aborted) throw signal.reason;
   }
 
-  container.appendChild(bubble);
+  container.appendChild(outerEl);
   await renderMath(bubble);
   if (signal.aborted) throw signal.reason;
   scrollToBottom();
@@ -184,8 +185,12 @@ export async function runChatScenario(
   userAnswers: UserAnswer[] | undefined,
   signal: AbortSignal,
   onAnswer: (ev: AnswerEvent) => void,
-  config?: ChatConfig
+  config?: ChatConfig,
+  onBubbleQuestionPress?: (msg: { bubbleId: string }) => void
 ): Promise<UserAnswer[]> {
+  const onOpen = onBubbleQuestionPress
+    ? (nodeId: string) => onBubbleQuestionPress({ bubbleId: nodeId })
+    : undefined;
   const answerMap = new Map<string, UserAnswer>();
   for (const a of userAnswers ?? []) {
     answerMap.set(a.pointingId, a);
@@ -223,7 +228,7 @@ export async function runChatScenario(
     // ── Question phase ──
     let questionResponse: 'yes' | 'no';
     if (existing?.questionResponse) {
-      await renderStaticQuestionPhase(container, pointing, existing.questionResponse);
+      await renderStaticQuestionPhase(container, pointing, existing.questionResponse, onOpen);
       questionResponse = existing.questionResponse;
     } else {
       // Entering interactive — if any preceding static content was rendered,
@@ -232,7 +237,7 @@ export async function runChatScenario(
 
       let lastBubble: HTMLElement | null = null;
       for (const node of pointing.questionNodes) {
-        lastBubble = await showInstantly(container, node, signal);
+        lastBubble = await showInstantly(container, node, signal, onOpen);
       }
       if (!lastBubble) continue; // defensive
 
@@ -244,7 +249,7 @@ export async function runChatScenario(
     // ── Confirm phase ──
     let confirmResponse: 'yes' | 'no';
     if (existing?.confirmResponse) {
-      await renderStaticConfirmPhase(container, pointing, existing.confirmResponse);
+      await renderStaticConfirmPhase(container, pointing, existing.confirmResponse, onOpen);
       confirmResponse = existing.confirmResponse;
     } else {
       scrollToCursorIfFirstInteractive();
@@ -252,7 +257,7 @@ export async function runChatScenario(
       await showFixedMessage(container, DEEPER_LOOK_MESSAGE, signal);
 
       for (const node of pointing.answerNodes) {
-        await showWithTypingIndicator(container, node, signal);
+        await showWithTypingIndicator(container, node, signal, onOpen);
       }
 
       const confirmBubble = await showFixedMessage(container, CONFIRM_PROMPT, signal);

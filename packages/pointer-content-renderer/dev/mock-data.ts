@@ -303,8 +303,12 @@ export const mockDocumentContent: JSONNode = {
 
 // ── Chat mode mock ──
 
-function makeNode(content: JSONNode, expand?: JSONNode) {
-  return expand ? { contentNode: content, expandContent: expand } : { contentNode: content };
+function makeNode(content: JSONNode, expand?: JSONNode, defaultExpanded?: boolean) {
+  return {
+    contentNode: content,
+    ...(expand && { expandContent: expand }),
+    ...(defaultExpanded && { defaultExpanded: true }),
+  };
 }
 
 export const mockChatScenario: ChatScenario = {
@@ -362,178 +366,216 @@ export const mockChatScenario: ChatScenario = {
         }),
       ],
       answerNodes: [
-        makeNode({
-          type: 'doc',
-          content: [
-            {
-              type: 'paragraph',
-              attrs: {
-                textAlign: null,
+        makeNode(
+          {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                attrs: {
+                  textAlign: null,
+                },
+                content: [
+                  {
+                    type: 'text',
+                    text: '문제에서 합성함수 ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: '(f \\circ g)(x)',
+                    },
+                  },
+                  {
+                    type: 'text',
+                    text: ', 즉 ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: 'f(g(x))',
+                    },
+                  },
+                  {
+                    type: 'text',
+                    text: ' 가 ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: 'x = 1',
+                    },
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-blue)',
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    type: 'text',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-blue)',
+                        },
+                      },
+                    ],
+                    text: ' 이라는 특정점에서의 연속 조건이 주어졌으므로',
+                  },
+                  {
+                    type: 'text',
+                    text: ', ',
+                  },
+                  {
+                    type: 'text',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-purple)',
+                        },
+                      },
+                    ],
+                    text: '연속의 정의',
+                  },
+                  {
+                    type: 'text',
+                    text: '를 이용해 해결해보자.',
+                  },
+                ],
               },
-              content: [
-                {
-                  type: 'text',
-                  text: '문제에서 합성함수 ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: '(f \\circ g)(x)',
-                  },
-                },
-                {
-                  type: 'text',
-                  text: ', 즉 ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: 'f(g(x))',
-                  },
-                },
-                {
-                  type: 'text',
-                  text: ' 가 ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: 'x = 1',
-                  },
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-blue)',
-                      },
-                    },
-                  ],
-                },
-                {
-                  type: 'text',
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-blue)',
-                      },
-                    },
-                  ],
-                  text: ' 이라는 특정점에서의 연속 조건이 주어졌으므로',
-                },
-                {
-                  type: 'text',
-                  text: ', ',
-                },
-                {
-                  type: 'text',
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-purple)',
-                      },
-                    },
-                  ],
-                  text: '연속의 정의',
-                },
-                {
-                  type: 'text',
-                  text: '를 이용해 해결해보자.',
-                },
-              ],
-            },
-          ],
-        }),
-        makeNode({
-          type: 'doc',
-          content: [
-            {
-              type: 'paragraph',
-              attrs: {
-                textAlign: null,
+            ],
+          },
+          {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                attrs: { textAlign: null },
+                content: [
+                  { type: 'text', text: '연속의 정의: 함수 ' },
+                  { type: 'inlineMath', attrs: { latex: 'f' } },
+                  { type: 'text', text: ' 가 ' },
+                  { type: 'inlineMath', attrs: { latex: 'x = c' } },
+                  { type: 'text', text: ' 에서 연속이려면 ' },
+                  { type: 'inlineMath', attrs: { latex: '\\lim_{x \\to c} f(x) = f(c)' } },
+                  { type: 'text', text: ' 가 성립해야 합니다.' },
+                ],
               },
-              content: [
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: 'x=1',
+            ],
+          },
+          true
+        ),
+        makeNode(
+          {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                attrs: {
+                  textAlign: null,
+                },
+                content: [
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: 'x=1',
+                    },
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-green)',
+                        },
+                      },
+                    ],
                   },
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-green)',
+                  {
+                    type: 'text',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-green)',
+                        },
                       },
-                    },
-                  ],
-                },
-                {
-                  type: 'text',
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-green)',
-                      },
-                    },
-                  ],
-                  text: ' 에서 연속이기 위해서는',
-                },
-                {
-                  type: 'text',
-                  text: ' ',
-                },
-                {
-                  type: 'text',
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-yellow)',
-                      },
-                    },
-                  ],
-                  text: '연속의 정의에 따라 극한값과 함숫값이 같아야 하므로',
-                },
-                {
-                  type: 'text',
-                  text: ' ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: '\\lim_{x \\to 1} f(g(x)) = f(g(1))',
+                    ],
+                    text: ' 에서 연속이기 위해서는',
                   },
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-yellow)',
+                  {
+                    type: 'text',
+                    text: ' ',
+                  },
+                  {
+                    type: 'text',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-yellow)',
+                        },
                       },
+                    ],
+                    text: '연속의 정의에 따라 극한값과 함숫값이 같아야 하므로',
+                  },
+                  {
+                    type: 'text',
+                    text: ' ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: '\\lim_{x \\to 1} f(g(x)) = f(g(1))',
                     },
-                  ],
-                },
-                {
-                  type: 'text',
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-yellow)',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-yellow)',
+                        },
                       },
-                    },
-                  ],
-                  text: ' ',
-                },
-                {
-                  type: 'text',
-                  text: '이 성립해야 한다. .',
-                },
-              ],
-            },
-          ],
-        }),
+                    ],
+                  },
+                  {
+                    type: 'text',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-yellow)',
+                        },
+                      },
+                    ],
+                    text: ' ',
+                  },
+                  {
+                    type: 'text',
+                    text: '이 성립해야 한다. .',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                attrs: { textAlign: null },
+                content: [
+                  {
+                    type: 'text',
+                    text: '극한값과 함숫값이 일치하는지 좌극한, 우극한, 함숫값 세 가지를 각각 확인해보세요.',
+                  },
+                ],
+              },
+            ],
+          }
+        ),
         makeNode({
           type: 'doc',
           content: [
@@ -1247,121 +1289,133 @@ export const mockChatScenario: ChatScenario = {
         }),
       ],
       answerNodes: [
-        makeNode({
-          type: 'doc',
-          content: [
-            {
-              type: 'paragraph',
-              attrs: {
-                textAlign: null,
+        makeNode(
+          {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                attrs: {
+                  textAlign: null,
+                },
+                content: [
+                  {
+                    type: 'text',
+                    text: '먼저 주어진 구간 ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: '(-1, 1]',
+                    },
+                  },
+                  {
+                    type: 'text',
+                    text: ' 에서 ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: 'f(x) = 0',
+                    },
+                  },
+                  {
+                    type: 'text',
+                    text: ' 을 만족시키는 실수 ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: 'x',
+                    },
+                  },
+                  {
+                    type: 'text',
+                    text: ' 를  찾으면',
+                  },
+                  {
+                    type: 'text',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-yellow)',
+                        },
+                      },
+                    ],
+                    text: ' ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: 'x=\\frac{1}{2}',
+                    },
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-yellow)',
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    type: 'text',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-yellow)',
+                        },
+                      },
+                    ],
+                    text: ', ',
+                  },
+                  {
+                    type: 'inlineMath',
+                    attrs: {
+                      latex: '1',
+                    },
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-yellow)',
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    type: 'text',
+                    marks: [
+                      {
+                        type: 'highlight',
+                        attrs: {
+                          color: 'var(--tt-color-highlight-yellow)',
+                        },
+                      },
+                    ],
+                    text: ' ',
+                  },
+                  {
+                    type: 'text',
+                    text: '이다. ',
+                  },
+                ],
               },
-              content: [
-                {
-                  type: 'text',
-                  text: '먼저 주어진 구간 ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: '(-1, 1]',
-                  },
-                },
-                {
-                  type: 'text',
-                  text: ' 에서 ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: 'f(x) = 0',
-                  },
-                },
-                {
-                  type: 'text',
-                  text: ' 을 만족시키는 실수 ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: 'x',
-                  },
-                },
-                {
-                  type: 'text',
-                  text: ' 를  찾으면',
-                },
-                {
-                  type: 'text',
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-yellow)',
-                      },
-                    },
-                  ],
-                  text: ' ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: 'x=\\frac{1}{2}',
-                  },
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-yellow)',
-                      },
-                    },
-                  ],
-                },
-                {
-                  type: 'text',
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-yellow)',
-                      },
-                    },
-                  ],
-                  text: ', ',
-                },
-                {
-                  type: 'inlineMath',
-                  attrs: {
-                    latex: '1',
-                  },
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-yellow)',
-                      },
-                    },
-                  ],
-                },
-                {
-                  type: 'text',
-                  marks: [
-                    {
-                      type: 'highlight',
-                      attrs: {
-                        color: 'var(--tt-color-highlight-yellow)',
-                      },
-                    },
-                  ],
-                  text: ' ',
-                },
-                {
-                  type: 'text',
-                  text: '이다. ',
-                },
-              ],
-            },
-          ],
-        }),
+            ],
+          },
+          {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                attrs: { textAlign: null },
+                content: [{ type: 'text', text: '주기를 이용해 구간을 확장해보세요.' }],
+              },
+            ],
+          }
+        ),
         makeNode({
           type: 'doc',
           content: [
