@@ -9,6 +9,8 @@ import {
   renderStaticQuestionPhase,
   renderStaticConfirmPhase,
   renderActionBubble,
+  createExpandButton,
+  wrapWithExpandButton,
 } from './chat-renderer';
 import {
   getTypingTiming,
@@ -52,27 +54,20 @@ async function showWithTypingIndicator(
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
-  bubble.innerHTML = html;
+  const main = document.createElement('div');
+  main.className = 'chat-bubble__main';
+  main.innerHTML = html;
+  bubble.appendChild(main);
 
+  let outerEl: HTMLElement = bubble;
   if (node.expandContent) {
-    const expandBtn = document.createElement('button');
-    expandBtn.className = 'chat-expand-btn';
-    expandBtn.textContent = '?';
-
-    const expandContent = document.createElement('div');
-    expandContent.className = 'chat-expand-content';
-    expandContent.innerHTML = serializeNodeToHTML(node.expandContent);
-
-    expandBtn.addEventListener('click', () => {
-      expandContent.classList.toggle('chat-expand-content--visible');
-    });
-
-    bubble.appendChild(expandBtn);
-    bubble.appendChild(expandContent);
-    await renderMath(expandContent);
+    const { btn, content } = createExpandButton(node.expandContent);
+    bubble.appendChild(content);
+    outerEl = wrapWithExpandButton(bubble, btn);
+    await renderMath(content);
   }
 
-  replaceWithBubble(indicator, bubble);
+  replaceWithBubble(indicator, outerEl);
   await renderMath(bubble);
   scrollToBottom();
   return bubble;
@@ -90,9 +85,12 @@ async function showFixedMessage(
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
+  const main = document.createElement('div');
+  main.className = 'chat-bubble__main';
+  bubble.appendChild(main);
   const p = document.createElement('p');
   p.textContent = text;
-  bubble.appendChild(p);
+  main.appendChild(p);
   replaceWithBubble(indicator, bubble);
   return bubble;
 }
@@ -108,28 +106,21 @@ async function showInstantly(
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble chat-bubble--system';
   bubble.style.animation = 'bubbleIn 300ms ease-out';
-  bubble.innerHTML = html;
+  const main = document.createElement('div');
+  main.className = 'chat-bubble__main';
+  main.innerHTML = html;
+  bubble.appendChild(main);
 
+  let outerEl: HTMLElement = bubble;
   if (node.expandContent) {
-    const expandBtn = document.createElement('button');
-    expandBtn.className = 'chat-expand-btn';
-    expandBtn.textContent = '?';
-
-    const expandContent = document.createElement('div');
-    expandContent.className = 'chat-expand-content';
-    expandContent.innerHTML = serializeNodeToHTML(node.expandContent);
-
-    expandBtn.addEventListener('click', () => {
-      expandContent.classList.toggle('chat-expand-content--visible');
-    });
-
-    bubble.appendChild(expandBtn);
-    bubble.appendChild(expandContent);
-    await renderMath(expandContent);
+    const { btn, content } = createExpandButton(node.expandContent);
+    bubble.appendChild(content);
+    outerEl = wrapWithExpandButton(bubble, btn);
+    await renderMath(content);
     if (signal.aborted) throw signal.reason;
   }
 
-  container.appendChild(bubble);
+  container.appendChild(outerEl);
   await renderMath(bubble);
   if (signal.aborted) throw signal.reason;
   scrollToBottom();

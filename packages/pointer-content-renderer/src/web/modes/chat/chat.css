@@ -4,16 +4,34 @@
   padding: 0 20px 12px 20px;
 }
 
-/* Bubble base */
+/* Bubble base — padding moved to .chat-bubble__main so .chat-expand-content can sit flush against bubble bottom edge without negative-margin transitions. overflow:hidden clips inner content (math overflow, expand corner artifacts) to bubble's rounded corners; button sits OUTSIDE bubble via .chat-bubble-row sibling, so it isn't clipped. */
 .chat-bubble {
   width: fit-content;
   max-width: 85%;
-  padding: 12px;
   border-radius: 12px;
   margin-bottom: 8px;
   word-break: break-all;
   overflow: hidden;
+  color: var(--color-gray-900);
   animation: bubbleIn 300ms ease-out;
+}
+
+/* Row wrapper used only when a bubble has an external expand button. Holds bubble + button as flex siblings so bubble can keep overflow:hidden without clipping the button. */
+.chat-bubble-row {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 85%;
+  margin-bottom: 8px;
+  margin-right: auto;
+}
+
+.chat-bubble-row .chat-bubble {
+  margin-right: 0;
+  margin-bottom: 0;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .chat-bubble--system {
@@ -28,6 +46,14 @@
   align-self: flex-end;
   margin-left: auto;
   border-radius: 20px;
+}
+
+/* Inner wrapper: holds text + interactive controls (yes/no, action). Padding lives here. */
+.chat-bubble__main {
+  padding: 12px;
+}
+
+.chat-bubble--user .chat-bubble__main {
   padding: 8px 16px;
 }
 
@@ -135,30 +161,54 @@
   color: var(--color-white) !important;
 }
 
-/* Expand button */
+/* Expand button — 28x28 circle inside 44x44 touch area. Sits as flex sibling to bubble inside .chat-bubble-row, vertically centered by row's align-items. 8px padding gives the visual 8px gap between bubble and circle. */
 .chat-expand-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  padding: 8px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.chat-expand-btn:disabled {
+  cursor: default;
+}
+
+.chat-expand-btn__circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba(30, 30, 33, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-expand-btn__circle svg {
   width: 20px;
   height: 20px;
-  border: 1px solid var(--color-gray-500);
-  border-radius: 50%;
-  font-size: 12px;
-  cursor: pointer;
-  margin-left: 4px;
-  background-color: transparent;
-  vertical-align: middle;
-}
-
-.chat-expand-content {
-  display: none;
-  margin-top: 8px;
-}
-
-.chat-expand-content--visible {
   display: block;
-  animation: fadeIn 300ms ease;
+}
+
+/* Outer: height-transitioning shell. No padding/bg here so `height: 0` truly collapses to 0px (border-box would otherwise clamp height to padding sum). */
+.chat-expand-content {
+  height: 0;
+  overflow: hidden;
+  transition: height 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Inner: visual layer with padding, bg, and rounded bottom corners. */
+.chat-expand-content__inner {
+  padding: 12px;
+  background-color: var(--color-primary-200);
+  color: var(--color-gray-900);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 /* Typing indicator */
