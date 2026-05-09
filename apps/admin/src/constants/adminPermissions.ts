@@ -18,6 +18,7 @@ export type AdminMenuName =
   | 'NOTICE'
   | 'NOTIFICATION'
   | 'DIAGNOSIS'
+  | 'GRAPH'
   | 'QNA'
   | 'PROBLEM'
   | 'PROBLEM_ITEM'
@@ -51,6 +52,11 @@ export type AdminNavSection = {
   title: string;
   menuName?: AdminMenuName;
   items: AdminNavItem[];
+};
+
+type AdditionalRoutePermission = {
+  menuName: AdminMenuName | AdminMenuName[];
+  routePrefixes: string[];
 };
 
 export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
@@ -167,12 +173,22 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   },
 ];
 
-const ALL_MENU_NAMES = new Set(
-  ADMIN_NAV_SECTIONS.flatMap((section) => [
+const ADDITIONAL_ROUTE_PERMISSIONS: AdditionalRoutePermission[] = [
+  {
+    menuName: 'GRAPH',
+    routePrefixes: ['/concept-graph'],
+  },
+];
+
+const ALL_MENU_NAMES = new Set([
+  ...ADMIN_NAV_SECTIONS.flatMap((section) => [
     ...(section.menuName ? [section.menuName] : []),
     ...section.items.map((item) => item.menuName),
-  ])
-);
+  ]),
+  ...ADDITIONAL_ROUTE_PERMISSIONS.flatMap((permission) =>
+    Array.isArray(permission.menuName) ? permission.menuName : [permission.menuName]
+  ),
+]);
 
 const getAllowedMenuNames = (item: AdminNavItem, section?: AdminNavSection) => {
   return section?.menuName ? [item.menuName, section.menuName] : [item.menuName];
@@ -212,11 +228,20 @@ export const getFirstAccessibleRoute = (session: AdminSession | null) => {
 export const canAccessPath = (session: AdminSession | null, pathname: string) => {
   if (pathname === '/') return true;
 
-  return ADMIN_NAV_SECTIONS.some((section) =>
-    section.items.some((item) => {
-      if (!hasMenuPermission(session, getAllowedMenuNames(item, section))) return false;
+  return (
+    ADMIN_NAV_SECTIONS.some((section) =>
+      section.items.some((item) => {
+        if (!hasMenuPermission(session, getAllowedMenuNames(item, section))) return false;
 
-      return item.routePrefixes.some(
+        return item.routePrefixes.some(
+          (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+        );
+      })
+    ) ||
+    ADDITIONAL_ROUTE_PERMISSIONS.some((permission) => {
+      if (!hasMenuPermission(session, permission.menuName)) return false;
+
+      return permission.routePrefixes.some(
         (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
       );
     })
