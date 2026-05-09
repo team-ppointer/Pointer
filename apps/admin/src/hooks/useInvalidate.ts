@@ -51,6 +51,21 @@ const useInvalidate = () => {
     });
   }, [queryClient]);
 
+  const invalidateNotification = useCallback(
+    (studentId: number) => {
+      queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/admin/notification', {
+          params: {
+            query: {
+              studentId,
+            },
+          },
+        }).queryKey,
+      });
+    },
+    [queryClient]
+  );
+
   const invalidateQna = useCallback(
     (qnaId?: number) => {
       const promises: Promise<void>[] = [
@@ -77,6 +92,7 @@ const useInvalidate = () => {
     invalidateProblemSet,
     invalidatePublish,
     invalidateNotice,
+    invalidateNotification,
     invalidateQna,
   };
 };

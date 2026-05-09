@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { Header, Modal, Input, SegmentedControl, ErrorModalTemplate } from '@components';
 import { getNotification, postNotification, getStudent } from '@apis';
-import { useModal, useSelectedStudent } from '@hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { useInvalidate, useModal, useSelectedStudent } from '@hooks';
 import {
   Bell,
   Send,
@@ -113,7 +112,7 @@ export const Route = createFileRoute('/_GNBLayout/notification/')({
 
 function RouteComponent() {
   const { selectedStudent } = useSelectedStudent();
-  const queryClient = useQueryClient();
+  const { invalidateNotification } = useInvalidate();
 
   // Send modal state
   const {
@@ -185,7 +184,7 @@ function RouteComponent() {
       setErrorMessage(message);
       openErrorModal();
     } finally {
-      queryClient.invalidateQueries();
+      invalidateNotification(selectedStudent?.id || 0);
     }
   };
 
