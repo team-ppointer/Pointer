@@ -217,14 +217,16 @@ function RouteComponent() {
     onChange: (menuIds: number[]) => void
   ) => {
     if (typeof menu.id !== 'number') return null;
+    // 콜백 안에서 narrowing 이 풀리지 않도록 로컬 const 로 고정
+    const menuId = menu.id;
 
-    const isChecked = form.menuIds.includes(menu.id);
+    const isChecked = form.menuIds.includes(menuId);
     const parentMenu = typeof menu.parentId === 'number' ? menuMap.get(menu.parentId) : undefined;
     const parentName = parentMenu ? getMenuLabel(parentMenu.name) : '최상위';
 
     return (
       <label
-        key={menu.id}
+        key={menuId}
         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
           isChecked
             ? 'border-main/30 bg-main/10 text-main'
@@ -233,7 +235,7 @@ function RouteComponent() {
         <input
           type='checkbox'
           checked={isChecked}
-          onChange={() => onChange(toggleMenuIds(form.menuIds, menu.id))}
+          onChange={() => onChange(toggleMenuIds(form.menuIds, menuId))}
           className='accent-main h-4 w-4'
         />
         <div className='min-w-0 flex-1'>

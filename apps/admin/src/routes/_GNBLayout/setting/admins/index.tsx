@@ -570,9 +570,11 @@ function RouteComponent() {
             id: userId,
           },
         },
+        // OpenAPI 스키마에 nullable 표기가 누락되어 있으나 백엔드는 roleId=null 을
+        // "역할 해제 (슈퍼 관리자 전환)" 로 받는다. 백엔드 스키마 수정 전까지 캐스트로 우회.
         body: {
           roleId: newRoleId,
-        },
+        } as components['schemas']['AdminRoleAssignRequest'],
       },
       {
         onSuccess: async () => {
