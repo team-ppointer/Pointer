@@ -51,12 +51,11 @@ const EditTypeCodeModal = ({ kind, target, onClose, onSaved }: Props) => {
   const isEditMode = Boolean(target);
   const { invalidateConceptGraphTypes } = useInvalidate();
 
-  const postNodeTypeMutation = postNodeType();
-  const putNodeTypeMutation = putNodeType();
-  const postEdgeTypeMutation = postEdgeType();
-  const putEdgeTypeMutation = putEdgeType();
-  const postActionEdgeTypeMutation = postActionEdgeType();
-  const putActionEdgeTypeMutation = putActionEdgeType();
+  const mutationsByKind = {
+    node: { post: postNodeType(), put: putNodeType() },
+    edge: { post: postEdgeType(), put: putEdgeType() },
+    actionEdge: { post: postActionEdgeType(), put: putActionEdgeType() },
+  } as const;
 
   const {
     register,
@@ -99,33 +98,11 @@ const EditTypeCodeModal = ({ kind, target, onClose, onSaved }: Props) => {
     };
 
     try {
-      if (kind === 'node') {
-        if (target?.id !== undefined) {
-          await putNodeTypeMutation.mutateAsync({
-            params: { path: { id: target.id } },
-            body,
-          });
-        } else {
-          await postNodeTypeMutation.mutateAsync({ body });
-        }
-      } else if (kind === 'edge') {
-        if (target?.id !== undefined) {
-          await putEdgeTypeMutation.mutateAsync({
-            params: { path: { id: target.id } },
-            body,
-          });
-        } else {
-          await postEdgeTypeMutation.mutateAsync({ body });
-        }
+      const { post, put } = mutationsByKind[kind];
+      if (target?.id !== undefined) {
+        await put.mutateAsync({ params: { path: { id: target.id } }, body });
       } else {
-        if (target?.id !== undefined) {
-          await putActionEdgeTypeMutation.mutateAsync({
-            params: { path: { id: target.id } },
-            body,
-          });
-        } else {
-          await postActionEdgeTypeMutation.mutateAsync({ body });
-        }
+        await post.mutateAsync({ body });
       }
       await handleSuccess();
     } catch (error) {
