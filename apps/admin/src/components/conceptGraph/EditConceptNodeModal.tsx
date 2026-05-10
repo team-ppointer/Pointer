@@ -58,8 +58,12 @@ const toEditorString = (raw?: string | null): string => {
 const extractPayloadEditorString = (raw: unknown): string => {
   if (typeof raw === 'string') return toEditorString(raw);
   if (raw && typeof raw === 'object') {
+    // EditorField 가 정상 파싱하려면 TipTap 의 doc 노드 모양이어야 한다.
+    // 그 외 모양의 객체는 invalid 한 레거시 데이터로 보고 plain text 로 wrap.
+    const obj = raw as { type?: string };
     try {
-      return JSON.stringify(raw);
+      if (obj.type === 'doc') return JSON.stringify(raw);
+      return wrapPlainTextAsEditorString(JSON.stringify(raw));
     } catch {
       return getEmptyContentString();
     }
