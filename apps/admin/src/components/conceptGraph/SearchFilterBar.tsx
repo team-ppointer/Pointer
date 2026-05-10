@@ -37,28 +37,39 @@ const SearchFilterBar = ({
     defaultValues,
   });
 
-  const watchedValues = watch();
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
   const lastEmittedRef = useRef<string>(JSON.stringify(defaultValues));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const serialized = JSON.stringify(watchedValues);
-      if (serialized === lastEmittedRef.current) return;
-      lastEmittedRef.current = serialized;
-      onChangeRef.current(watchedValues);
-    }, debounceMs);
-    return () => clearTimeout(timer);
-  }, [watchedValues, debounceMs]);
+    lastEmittedRef.current = JSON.stringify(defaultValues);
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const subscription = watch((next) => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        const serialized = JSON.stringify(next);
+        if (serialized === lastEmittedRef.current) return;
+        lastEmittedRef.current = serialized;
+        onChangeRef.current(next as Record<string, unknown>);
+      }, debounceMs);
+    });
+    return () => {
+      if (timer) clearTimeout(timer);
+      subscription.unsubscribe();
+    };
+  }, [watch, debounceMs]);
 
   const handleReset = () => {
     const empty: Record<string, unknown> = {};
     fields.forEach((f) => {
       empty[f.name] = '';
     });
-    reset(empty);
     lastEmittedRef.current = JSON.stringify(empty);
+    reset(empty);
     onReset();
   };
 
