@@ -141,8 +141,6 @@ const AddActionRowModal = ({ onClose, onSaved }: Props) => {
       </div>
 
       <form className='space-y-5' onSubmit={handleSubmit(onSubmit)}>
-        <input type='hidden' {...register('actionNodeId')} />
-
         {nodeTypeData && actionNodeTypeId === undefined && (
           <div className='rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800'>
             <code className='font-mono'>{ACTION_NODE_TYPE_CODE}</code> 코드의 노드 타입이 없습니다.
