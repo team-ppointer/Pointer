@@ -97,7 +97,9 @@ const TypeFormModal = ({ mode, target, onClose }: Props) => {
       onClose();
     } catch (error) {
       const message = extractErrorMessage(error);
-      if (!isEditMode) {
+      const errorCode = (error as { response?: { data?: { code?: unknown } } }).response?.data
+        ?.code;
+      if (!isEditMode && errorCode === 'MOCK_EXAM_001') {
         setError('code', { type: 'server', message });
       } else {
         toast.error(message);
