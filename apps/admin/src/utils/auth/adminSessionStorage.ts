@@ -39,6 +39,17 @@ const createAdminSessionStorage = () => {
 
   const notify = () => listeners.forEach((listener) => listener());
 
+  // 다른 탭에서 세션이 바뀌면 (로그아웃 / 다른 계정 로그인) 캐시 무효화 후 알림.
+  // event.key === null 은 localStorage.clear() 를 의미하므로 같이 처리한다.
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (event) => {
+      if (event.storageArea !== localStorage) return;
+      if (event.key !== null && event.key !== ADMIN_SESSION_KEY) return;
+      isCached = false;
+      notify();
+    });
+  }
+
   return {
     getSession: computeSnapshot,
     setSession: (session: AdminSession | null): void => {
