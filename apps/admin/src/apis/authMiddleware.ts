@@ -3,8 +3,13 @@ import { enforceSession, tokenStorage } from '@utils';
 
 const UNPROTECTED_ROUTES = ['/api/admin/auth/login/local'];
 
+// 동시 요청들이 동시에 401 을 받아도 navigation 은 한 번만 일어나게 한다.
+let hasRedirected = false;
+
 const redirectToLogin = () => {
+  if (hasRedirected) return;
   if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+    hasRedirected = true;
     window.location.href = '/login';
   }
 };

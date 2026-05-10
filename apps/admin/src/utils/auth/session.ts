@@ -6,10 +6,10 @@ import { tokenStorage } from './tokenStorage';
 
 import { toAdminSession } from '@/constants/adminPermissions';
 
-// 리프레시 쿠키로 세션을 새로 받아 로컬 상태를 갱신한다.
-// - 401 (refresh token 만료 등 명확한 인증 실패): 로컬 세션을 비우고 null 반환
-// - 그 외 실패 (네트워크/5xx 등 transient): 로컬 상태 유지하고 null 반환 (graceful)
-export const refreshSession = async (): Promise<string | null> => {
+// 동시 요청들이 각자 refresh API 를 호출하지 않도록 in-flight promise 를 공유한다.
+let inflightRefresh: Promise<string | null> | null = null;
+
+const doRefreshSession = async (): Promise<string | null> => {
   let response: Response;
   try {
     response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/auth/refresh`, {
@@ -47,6 +47,18 @@ export const refreshSession = async (): Promise<string | null> => {
     console.warn('Session refresh response parse error:', error);
     return null;
   }
+};
+
+// 리프레시 쿠키로 세션을 새로 받아 로컬 상태를 갱신한다.
+// - 401 (refresh token 만료 등 명확한 인증 실패): 로컬 세션을 비우고 null 반환
+// - 그 외 실패 (네트워크/5xx 등 transient): 로컬 상태 유지하고 null 반환 (graceful)
+// 동일 시점에 여러 요청이 호출하면 한 번의 네트워크 호출 결과를 공유한다.
+export const refreshSession = (): Promise<string | null> => {
+  if (inflightRefresh) return inflightRefresh;
+  inflightRefresh = doRefreshSession().finally(() => {
+    inflightRefresh = null;
+  });
+  return inflightRefresh;
 };
 
 // 세션을 강제 갱신하고, 실패 시 silentLogout 으로 로컬 상태까지 비운다.
