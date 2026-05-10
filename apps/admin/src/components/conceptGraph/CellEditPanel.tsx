@@ -96,13 +96,16 @@ const CellEditPanel = ({
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        requestClose();
+      if (e.key !== 'Escape') return;
+      if (isDirty) {
+        setConfirmCloseOpen(true);
+      } else {
+        onClose();
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [open, isDirty]);
+  }, [open, isDirty, onClose]);
 
   const handleAdd = (node: ConceptNodeResp) => {
     if (node.id === undefined) return;
