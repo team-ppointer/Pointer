@@ -126,9 +126,6 @@ const EditConceptEdgeModal = ({ target, onClose, onSaved }: Props) => {
       </div>
 
       <form className='space-y-5' onSubmit={handleSubmit(onSubmit)}>
-        <input type='hidden' {...register('fromNodeId')} />
-        <input type='hidden' {...register('toNodeId')} />
-
         <div className='space-y-2'>
           <label className='text-sm font-semibold text-gray-700'>From 노드</label>
           <NodeSearchSelect
