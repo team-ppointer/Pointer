@@ -6,10 +6,18 @@ import { tokenStorage } from './tokenStorage';
 
 import { toAdminSession } from '@/constants/adminPermissions';
 
-// 리프레시 쿠키로 세션을 새로 받아 로컬 상태를 갱신한다.
-// - 401 (refresh token 만료 등 명확한 인증 실패): 로컬 세션을 비우고 null 반환
-// - 그 외 실패 (네트워크/5xx 등 transient): 로컬 상태 유지하고 null 반환 (graceful)
-export const refreshSession = async (): Promise<string | null> => {
+// refreshSession 결과의 의미를 caller 가 구분할 수 있도록 discriminated union 으로 표현.
+// 'unauthorized' 는 명시적인 인증 실패라 caller 가 silentLogout 을 결정하고,
+// 'transient' 는 네트워크/5xx 처럼 일시적 실패라 로컬 상태를 보존한다.
+export type RefreshResult =
+  | { kind: 'ok'; accessToken: string }
+  | { kind: 'unauthorized' }
+  | { kind: 'transient' };
+
+// 동시 요청들이 각자 refresh API 를 호출하지 않도록 in-flight promise 를 공유한다.
+let inflightRefresh: Promise<RefreshResult> | null = null;
+
+const doRefreshSession = async (): Promise<RefreshResult> => {
   let response: Response;
   try {
     response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/auth/refresh`, {
@@ -21,17 +29,16 @@ export const refreshSession = async (): Promise<string | null> => {
     });
   } catch (error) {
     console.warn('Session refresh network error:', error);
-    return null;
+    return { kind: 'transient' };
   }
 
   if (!response.ok) {
     if (response.status === 401) {
-      console.warn('Refresh token expired, clearing local session');
-      silentLogout();
-    } else {
-      console.warn(`Session refresh failed with status: ${response.status}`);
+      console.warn('Refresh token expired');
+      return { kind: 'unauthorized' };
     }
-    return null;
+    console.warn(`Session refresh failed with status: ${response.status}`);
+    return { kind: 'transient' };
   }
 
   try {
@@ -42,17 +49,29 @@ export const refreshSession = async (): Promise<string | null> => {
     }
     tokenStorage.setToken(accessToken);
     adminSessionStorage.setSession(toAdminSession(data));
-    return accessToken;
+    return { kind: 'ok', accessToken };
   } catch (error) {
     console.warn('Session refresh response parse error:', error);
-    return null;
+    return { kind: 'transient' };
   }
 };
 
-// 세션을 강제 갱신하고, 실패 시 silentLogout 으로 로컬 상태까지 비운다.
-// 인증이 반드시 유효해야 하는 경로(라우트 가드, 미들웨어)에서 사용.
+// 리프레시 쿠키로 세션을 새로 받는다. 동일 시점 여러 요청이 호출하면 한 번의
+// 네트워크 호출 결과를 공유하며, 결과 분기 책임은 caller 에게 둔다.
+export const refreshSession = (): Promise<RefreshResult> => {
+  if (inflightRefresh) return inflightRefresh;
+  inflightRefresh = doRefreshSession().finally(() => {
+    inflightRefresh = null;
+  });
+  return inflightRefresh;
+};
+
+// 인증이 반드시 유효해야 하는 경로에서 사용. unauthorized 인 경우에만 silentLogout 을
+// 호출한다 — transient 실패에서는 로컬 상태를 보존해 일시적 네트워크 장애로
+// 사용자가 강제 로그아웃되지 않게 한다.
 export const enforceSession = async (): Promise<string | null> => {
-  const accessToken = await refreshSession();
-  if (!accessToken) silentLogout();
-  return accessToken;
+  const result = await refreshSession();
+  if (result.kind === 'ok') return result.accessToken;
+  if (result.kind === 'unauthorized') silentLogout();
+  return null;
 };

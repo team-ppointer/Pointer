@@ -1778,6 +1778,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/publishes/{publishId}/focus-card-links': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 발행의 집중학습 카드 링크 목록 조회 */
+    get: operations['list'];
+    put?: never;
+    /** 발행에 집중학습 카드 링크 추가 */
+    post: operations['add'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/publish': {
     parameters: {
       query?: never;
@@ -1886,6 +1904,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/pointing/bubble/migrate-from-comment': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 기존 commentContentJson을 버블로 분리 마이그레이션 */
+    post: operations['migrateFromComment'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/ocr': {
     parameters: {
       query?: never;
@@ -1976,6 +2011,76 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/focus-card': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 카드 템플릿 목록 조회 */
+    get: operations['list_1'];
+    put?: never;
+    /** 카드 템플릿 생성 */
+    post: operations['create_10'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/focus-card/{id}/content': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 카드 내용 수정 */
+    post: operations['editContent'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/focus-card/issuance': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생별 발급 이력 조회 (기간 범위) */
+    get: operations['issuanceHistory'];
+    put?: never;
+    /** 학생에게 카드 발급 (Action 단위) */
+    post: operations['issue'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/focus-card/auto-issue': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 한 학생 강제 자동발급 트리거 */
+    post: operations['autoIssue'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/fcm/test': {
     parameters: {
       query?: never;
@@ -2004,7 +2109,7 @@ export interface paths {
     get: operations['gets_1'];
     put?: never;
     /** 생성 */
-    post: operations['create_10'];
+    post: operations['create_11'];
     delete?: never;
     options?: never;
     head?: never;
@@ -2040,7 +2145,7 @@ export interface paths {
     get: operations['search_5'];
     put?: never;
     /** 개념태그 생성 */
-    post: operations['create_11'];
+    post: operations['create_12'];
     delete?: never;
     options?: never;
     head?: never;
@@ -2855,6 +2960,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/student/focus-card': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 특정 날짜에 발급된 집중학습 카드 조회 (date 미지정 시 오늘) */
+    get: operations['getCards'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/student/diagnosis': {
     parameters: {
       query?: never;
@@ -3147,6 +3269,41 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/focus-card/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 카드 단건 조회 */
+    get: operations['get'];
+    put?: never;
+    post?: never;
+    /** 카드 삭제 */
+    delete: operations['delete_12'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/focus-card/issuance/by-date': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생의 특정 일자 발급 카드 조회 (발행 생성 시 카드 선택용) */
+    get: operations['issuanceByDate'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/fcm/status': {
     parameters: {
       query?: never;
@@ -3359,7 +3516,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** 삭제 */
-    delete: operations['delete_12'];
+    delete: operations['delete_13'];
     options?: never;
     head?: never;
     patch?: never;
@@ -3376,7 +3533,24 @@ export interface paths {
     put?: never;
     post?: never;
     /** 선생님 삭제 */
-    delete: operations['delete_13'];
+    delete: operations['delete_14'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/publish-focus-card-links/{linkId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** 집중학습 카드 링크 삭제 */
+    delete: operations['remove'];
     options?: never;
     head?: never;
     patch?: never;
@@ -3394,6 +3568,23 @@ export interface paths {
     post?: never;
     /** 문제 세트에서 문제 삭제 */
     delete: operations['deleteItem'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/focus-card/issuance/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** 발급 취소 */
+    delete: operations['revokeIssuance'];
     options?: never;
     head?: never;
     patch?: never;
@@ -4054,6 +4245,27 @@ export interface components {
       readingTipContent?: string;
       oneStepMoreContent?: string;
     };
+    AdminPointingBubbleResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      contentJson: string;
+      extendContent?: string;
+      /** Format: int64 */
+      actionNodeId?: number;
+      actionNodeName?: string;
+    };
+    AdminPointingResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int32 */
+      no: number;
+      questionContent: string;
+      commentContent: string;
+      bubbles?: components['schemas']['AdminPointingBubbleResp'][];
+      concepts: components['schemas']['ConceptResp'][];
+    };
     ProblemInfoResp: {
       /** Format: int64 */
       id: number;
@@ -4084,7 +4296,7 @@ export interface components {
       mainHandAnalysisImage: components['schemas']['UploadFileResp'];
       readingTipContent: string;
       oneStepMoreContent: string;
-      pointings: components['schemas']['PointingResp'][];
+      pointings: components['schemas']['AdminPointingResp'][];
       childProblems: components['schemas']['ProblemInfoResp'][];
     };
     ProblemSetItemRequest: {
@@ -4987,6 +5199,45 @@ export interface components {
       name: string;
       menuIds: number[];
     };
+    PublishFocusCardLinkSpec: {
+      /** Format: int64 */
+      problemSetItemId: number;
+      /** Format: int64 */
+      focusCardIssuanceId: number;
+    };
+    ActionNodeSummary: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+    };
+    FocusCardIssuanceResp: {
+      /** Format: int64 */
+      id: number;
+      card: components['schemas']['FocusCardResp'];
+      /** Format: date */
+      issuedDate: string;
+      /** @enum {string} */
+      issuedType: 'SYSTEM' | 'ADMIN';
+      /** Format: int64 */
+      issuedByAdminId?: number;
+    };
+    FocusCardResp: {
+      /** Format: int64 */
+      id: number;
+      actionNode: components['schemas']['ActionNodeSummary'];
+      title: string;
+      description: string;
+      content: string;
+    };
+    PublishFocusCardLinkResp: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int64 */
+      publishId: number;
+      /** Format: int64 */
+      problemSetItemId: number;
+      focusCardIssuance: components['schemas']['FocusCardIssuanceResp'];
+    };
     PublishCreateRequest: {
       /** Format: int64 */
       problemSetId: number;
@@ -4994,6 +5245,7 @@ export interface components {
       studentId: number;
       /** Format: date */
       publishAt: string;
+      focusCardLinks?: components['schemas']['PublishFocusCardLinkSpec'][];
     };
     /** @description 마지막 진행 상태 정보 */
     LastProgressInfo: {
@@ -5173,6 +5425,8 @@ export interface components {
        * @description 메인 문제 제출 횟수
        */
       attemptCount?: number;
+      /** @description 출제 근거 집중학습 카드 목록 (없으면 빈 배열) */
+      focusCards?: components['schemas']['PublishFocusCardLinkResp'][];
     };
     PublishResp: {
       /** Format: int64 */
@@ -5238,6 +5492,18 @@ export interface components {
       /** Format: int32 */
       grade: number;
       name: string;
+    };
+    FailedProblemInfo: {
+      /** Format: int64 */
+      problemId?: number;
+      customId?: string;
+      title?: string;
+      reason?: string;
+    };
+    PointingBubbleMigrateResp: {
+      /** Format: int32 */
+      migratedCount?: number;
+      failed?: components['schemas']['FailedProblemInfo'][];
     };
     NotificationSendRequest: {
       /**
@@ -5314,6 +5580,32 @@ export interface components {
        * @description 상위 메뉴 ID. null이면 최상위 메뉴로 생성
        */
       parentId?: number;
+    };
+    FocusCardCreateRequest: {
+      /** Format: int64 */
+      actionNodeId: number;
+      title: string;
+      description: string;
+      content: string;
+    };
+    FocusCardEditContentRequest: {
+      title?: string;
+      description?: string;
+      content?: string;
+    };
+    FocusCardIssueByAdminRequest: {
+      /** Format: int64 */
+      studentId: number;
+      /** Format: int64 */
+      actionNodeId: number;
+      /** Format: date */
+      issuedDate?: string;
+    };
+    ListRespFocusCardIssuanceResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['FocusCardIssuanceResp'][];
     };
     /** @description FCM 테스트 발송 요청 */
     FcmTestReq: {
@@ -5939,6 +6231,12 @@ export interface components {
       total: number;
       data: components['schemas']['AdminRoleResp'][];
     };
+    ListRespPublishFocusCardLinkResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['PublishFocusCardLinkResp'][];
+    };
     PageRespProblemMetaResp: {
       requestId: string;
       /** Format: int32 */
@@ -5995,6 +6293,12 @@ export interface components {
       /** Format: int32 */
       total: number;
       data: components['schemas']['AdminMenuResp'][];
+    };
+    ListRespFocusCardResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['FocusCardResp'][];
     };
     /** @description FCM 상태 응답 */
     FcmStatusResp: {
@@ -7623,7 +7927,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          '*/*': components['schemas']['PointingBubbleResp'];
+          '*/*': components['schemas']['AdminPointingBubbleResp'];
         };
       };
     };
@@ -9706,6 +10010,54 @@ export interface operations {
       };
     };
   };
+  list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespPublishFocusCardLinkResp'];
+        };
+      };
+    };
+  };
+  add: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        publishId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PublishFocusCardLinkSpec'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PublishFocusCardLinkResp'];
+        };
+      };
+    };
+  };
   search_1: {
     parameters: {
       query?: {
@@ -9999,6 +10351,26 @@ export interface operations {
       };
     };
   };
+  migrateFromComment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PointingBubbleMigrateResp'];
+        };
+      };
+    };
+  };
   redirect: {
     parameters: {
       query?: never;
@@ -10179,6 +10551,146 @@ export interface operations {
       };
     };
   };
+  list_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespFocusCardResp'];
+        };
+      };
+    };
+  };
+  create_10: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FocusCardCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FocusCardResp'];
+        };
+      };
+    };
+  };
+  editContent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FocusCardEditContentRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FocusCardResp'];
+        };
+      };
+    };
+  };
+  issuanceHistory: {
+    parameters: {
+      query: {
+        studentId: number;
+        from: string;
+        to: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespFocusCardIssuanceResp'];
+        };
+      };
+    };
+  };
+  issue: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FocusCardIssueByAdminRequest'];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FocusCardIssuanceResp'];
+        };
+      };
+    };
+  };
+  autoIssue: {
+    parameters: {
+      query: {
+        studentId: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespFocusCardIssuanceResp'];
+        };
+      };
+    };
+  };
   sendTestPush: {
     parameters: {
       query?: never;
@@ -10225,7 +10737,7 @@ export interface operations {
       };
     };
   };
-  create_10: {
+  create_11: {
     parameters: {
       query?: never;
       header?: never;
@@ -10329,7 +10841,7 @@ export interface operations {
       };
     };
   };
-  create_11: {
+  create_12: {
     parameters: {
       query?: never;
       header?: never;
@@ -11626,6 +12138,28 @@ export interface operations {
       };
     };
   };
+  getCards: {
+    parameters: {
+      query?: {
+        date?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespFocusCardIssuanceResp'];
+        };
+      };
+    };
+  };
   gets_3: {
     parameters: {
       query?: never;
@@ -12014,6 +12548,71 @@ export interface operations {
       };
     };
   };
+  get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['FocusCardResp'];
+        };
+      };
+    };
+  };
+  delete_12: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  issuanceByDate: {
+    parameters: {
+      query: {
+        studentId: number;
+        issuedDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespFocusCardIssuanceResp'];
+        };
+      };
+    };
+  };
   getStatus: {
     parameters: {
       query?: never;
@@ -12325,7 +12924,7 @@ export interface operations {
       };
     };
   };
-  delete_12: {
+  delete_13: {
     parameters: {
       query?: never;
       header?: never;
@@ -12345,7 +12944,7 @@ export interface operations {
       };
     };
   };
-  delete_13: {
+  delete_14: {
     parameters: {
       query?: never;
       header?: never;
@@ -12358,6 +12957,26 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        linkId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
         headers: {
           [name: string]: unknown;
         };
@@ -12385,6 +13004,26 @@ export interface operations {
         content: {
           '*/*': components['schemas']['ProblemSetResp'];
         };
+      };
+    };
+  };
+  revokeIssuance: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

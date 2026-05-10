@@ -1,9 +1,9 @@
 import { adminSessionStorage } from './adminSessionStorage';
 import { isBootRefreshed, markBootRefreshed } from './bootRefresh';
 import { enforceSession, refreshSession } from './session';
+import { silentLogout } from './logout';
 import { tokenStorage } from './tokenStorage';
 
-// 로그인 상태를 확인하는 함수
 export const checkIsLoggedIn = async (): Promise<boolean> => {
   const accessToken = tokenStorage.getToken();
   const session = adminSessionStorage.getSession();
@@ -19,12 +19,17 @@ export const checkIsLoggedIn = async (): Promise<boolean> => {
   }
 
   // 로컬 세션이 살아 있더라도 부팅 시 1회 서버에 세션을 재확인.
-  // 일시적인 네트워크 오류로 사용자를 즉시 로그아웃시키지 않기 위해
-  // refreshSession (graceful) 을 사용한다.
+  // - ok: 정상 진입
+  // - unauthorized: refresh 토큰이 만료된 케이스이므로 즉시 로컬 상태 정리
+  // - transient: 네트워크/5xx 일 수 있어 기존 로컬 토큰 유지하고 진입 허용
   if (!isBootRefreshed()) {
     markBootRefreshed();
-    const refreshed = await refreshSession();
-    if (refreshed) return true;
+    const result = await refreshSession();
+    if (result.kind === 'ok') return true;
+    if (result.kind === 'unauthorized') {
+      silentLogout();
+      return false;
+    }
     return !!tokenStorage.getToken();
   }
 
