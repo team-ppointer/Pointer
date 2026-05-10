@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Gesture } from 'react-native-gesture-handler';
 import { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -18,6 +18,7 @@ export function useFloatingToolbarSnap({
   initialCorner = 'bottom-left',
 }: UseFloatingToolbarSnapOptions) {
   const [corner, setCorner] = useState<Corner>(initialCorner);
+  const isFirstMount = useRef(true);
 
   const translateX = useSharedValue(SCREEN_MARGIN);
   const translateY = useSharedValue(SCREEN_MARGIN);
@@ -25,11 +26,18 @@ export function useFloatingToolbarSnap({
   const dragStartY = useSharedValue(0);
   const dragged = useSharedValue(false);
 
+  // 첫 measure 시 즉시 위치 (좌상단 → corner spring 비행 방지). 이후 corner / size 변경 시에만 spring.
   useEffect(() => {
     if (containerWidth <= 0 || containerHeight <= 0) return;
     const { x, y } = cornerXY(corner, toolbarWidth, containerWidth, containerHeight);
-    translateX.value = withSpring(x, SPRING);
-    translateY.value = withSpring(y, SPRING);
+    if (isFirstMount.current) {
+      translateX.value = x;
+      translateY.value = y;
+      isFirstMount.current = false;
+    } else {
+      translateX.value = withSpring(x, SPRING);
+      translateY.value = withSpring(y, SPRING);
+    }
   }, [corner, toolbarWidth, containerWidth, containerHeight, translateX, translateY]);
 
   const snapToCorner = useCallback(
@@ -50,10 +58,15 @@ export function useFloatingToolbarSnap({
         next = `${vertical}-${horizontal}` as Corner;
       }
 
-      const { x: tx, y: ty } = cornerXY(next, toolbarWidth, containerWidth, containerHeight);
-      translateX.value = withSpring(tx, SPRING);
-      translateY.value = withSpring(ty, SPRING);
-      setCorner(next);
+      if (next === corner) {
+        // 같은 corner zone 으로 release: setCorner 가 effect 트리거 못 하므로 직접 spring 으로 복귀.
+        const { x: tx, y: ty } = cornerXY(next, toolbarWidth, containerWidth, containerHeight);
+        translateX.value = withSpring(tx, SPRING);
+        translateY.value = withSpring(ty, SPRING);
+      } else {
+        // 다른 corner: setCorner 만 호출 → effect 가 spring 담당 (중복 spring 방지).
+        setCorner(next);
+      }
     },
     [containerWidth, containerHeight, toolbarWidth, corner, translateX, translateY]
   );
