@@ -7,16 +7,19 @@ import { colors } from '@theme/tokens';
 import { IncorrectGrid, OnboardingLayout } from '../../components';
 import useFinishOnboarding from '../../hooks/useFinishOnboarding';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
+import { getOnboardingTotal } from '../../utils';
 import type { OnboardingScreenProps } from '../types';
 
 const QUESTION_MAX_LENGTH = 1000;
 
 const MockExamStep = (_props: OnboardingScreenProps<'MockExam'>) => {
+  const grade = useOnboardingStore((state) => state.grade);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
   const incorrects = useOnboardingStore((state) => state.mockExamIncorrects);
   const toggleMockExamIncorrect = useOnboardingStore((state) => state.toggleMockExamIncorrect);
   const question = useOnboardingStore((state) => state.mockExamQuestion);
   const setMockExamQuestion = useOnboardingStore((state) => state.setMockExamQuestion);
+  const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
 
   useFocusEffect(
     useCallback(() => {
@@ -26,6 +29,8 @@ const MockExamStep = (_props: OnboardingScreenProps<'MockExam'>) => {
 
   const { submit, isPending } = useFinishOnboarding({ incorrects, question });
 
+  const total = getOnboardingTotal(grade, currentMockExamType !== null);
+
   return (
     <OnboardingLayout
       title='6월 모의고사에서 틀린 문항 번호를 입력해 주세요'
@@ -33,7 +38,8 @@ const MockExamStep = (_props: OnboardingScreenProps<'MockExam'>) => {
       onPressCTA={() => {
         submit();
       }}
-      ctaDisabled={isPending}>
+      ctaDisabled={isPending}
+      progress={{ current: total, total }}>
       <View className='gap-[24px]'>
         <IncorrectGrid selected={incorrects} onToggle={toggleMockExamIncorrect} />
         <View>

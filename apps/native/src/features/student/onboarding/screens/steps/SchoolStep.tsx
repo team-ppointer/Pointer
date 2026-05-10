@@ -12,8 +12,10 @@ import type { OnboardingScreenProps } from '../types';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import useFinishOnboarding from '../../hooks/useFinishOnboarding';
+import { getOnboardingTotal } from '../../utils';
 
 const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
+  const grade = useOnboardingStore((state) => state.grade);
   const schoolId = useOnboardingStore((state) => state.schoolId);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
@@ -72,6 +74,9 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
     await goNext();
   };
 
+  const total = getOnboardingTotal(grade, currentMockExamType !== null);
+  const current = grade === 'THREE' ? 3 : 2;
+
   return (
     <OnboardingLayout
       title='현재 재학중인 학교명을 입력해 주세요.'
@@ -79,7 +84,8 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
       onPressCTA={handleNext}
       ctaDisabled={ctaDisabled}
       skipLabel='건너뛰기'
-      onSkip={handleSkip}>
+      onSkip={handleSkip}
+      progress={{ current, total }}>
       <View>
         <OnboardingInput
           label='학교'

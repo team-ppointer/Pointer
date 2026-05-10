@@ -6,6 +6,7 @@ import { mathSubjectOptions } from '../../constants';
 import { OnboardingLayout, OptionButton } from '../../components';
 import useFinishOnboarding from '../../hooks/useFinishOnboarding';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
+import { getOnboardingTotal } from '../../utils';
 import type { OnboardingScreenProps } from '../types';
 
 const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) => {
@@ -55,12 +56,15 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
     submit,
   ]);
 
+  const total = getOnboardingTotal(grade, currentMockExamType !== null);
+
   return (
     <OnboardingLayout
       title='수능 수학 선택과목을 1개 선택해 주세요.'
       description='2026년 11월 19일에 예정된 수능에서 응시할 선택과목을 선택해 주세요.'
       onPressCTA={handleNext}
-      ctaDisabled={ctaDisabled}>
+      ctaDisabled={ctaDisabled}
+      progress={{ current: 2, total }}>
       <View className='gap-[20px]'>
         {mathSubjectOptions.map((option) => (
           <OptionButton

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, ContentInset, Header } from '@components/common';
 
@@ -27,6 +28,7 @@ type Props = {
   contentClassName?: string;
   bottomSlot?: ReactNode;
   isScrollable?: boolean;
+  progress?: { current: number; total: number };
 };
 
 const OnboardingLayout = ({
@@ -43,6 +45,7 @@ const OnboardingLayout = ({
   contentClassName = '',
   bottomSlot,
   isScrollable = true,
+  progress,
 }: Props) => {
   const navigation = useNavigation();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -98,6 +101,13 @@ const OnboardingLayout = ({
           }
         />
       </View>
+      {progress ? (
+        <View className='items-center pb-[8px] pt-[4px]'>
+          <Text className='typo-caption-regular text-gray-700'>
+            {progress.current} / {progress.total}
+          </Text>
+        </View>
+      ) : null}
       <ContentInset className='flex-1 pt-[6px]'>
         {isScrollable ? (
           <ScrollView

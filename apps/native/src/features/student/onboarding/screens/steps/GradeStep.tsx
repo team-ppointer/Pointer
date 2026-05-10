@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { gradeOptions } from '../../constants';
 import { OnboardingLayout, OptionButton } from '../../components';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
+import { getOnboardingTotal } from '../../utils';
 import type { OnboardingScreenProps } from '../types';
 
 const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
@@ -12,12 +13,15 @@ const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
   const setGrade = useOnboardingStore((state) => state.setGrade);
   const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+  const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
 
   useFocusEffect(
     useCallback(() => {
       setCurrentStep('Grade');
     }, [setCurrentStep])
   );
+
+  const total = getOnboardingTotal(grade, currentMockExamType !== null);
 
   const handleNext = useCallback(() => {
     if (!grade) return;
@@ -38,7 +42,8 @@ const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
       description='학년을 입력해 교육과정이 고려된 맞춤형 문제를 제공받아요.'
       onPressCTA={handleNext}
       ctaDisabled={!grade}
-      showBackButton={false}>
+      showBackButton={false}
+      progress={{ current: 1, total }}>
       <View className='gap-[20px]'>
         {gradeOptions.map((option) => (
           <OptionButton
