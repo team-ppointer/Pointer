@@ -40,7 +40,7 @@ import BottomActionBar from '../components/BottomActionBar';
 import { buildDocumentInit } from '../transforms/contentRendererTransforms';
 import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
-import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
+import { ProblemDrawingToolbar } from '../components/floating-toolbar';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 
 type ProblemScreenProps = Partial<NativeStackScreenProps<StudentRootStackParamList, 'Problem'>>;
@@ -473,6 +473,27 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
 
   const canvasRef = useRef<DrawingCanvasRef>(null);
   const drawingState = useDrawingState();
+  const [toolbarCollapsed, setToolbarCollapsed] = useState(false);
+  const [toolbarArea, setToolbarArea] = useState({ width: 0, height: 0 });
+
+  const handleToolbarAreaLayout = useCallback(({ nativeEvent }: LayoutChangeEvent) => {
+    const { width, height } = nativeEvent.layout;
+    setToolbarArea((prev) =>
+      prev.width === width && prev.height === height ? prev : { width, height }
+    );
+  }, []);
+
+  const handlePenModePress = useCallback(() => {
+    drawingState.setPenMode();
+  }, [drawingState]);
+
+  const handleEraserModePress = useCallback(() => {
+    if (drawingState.isEraserMode) {
+      drawingState.setPenMode();
+    } else {
+      drawingState.setEraserMode();
+    }
+  }, [drawingState]);
 
   const screenHeight = Dimensions.get('window').height;
 
@@ -486,65 +507,56 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
           right={<Header.IconButton icon={XIcon} onPress={() => setIsCloseVisible(true)} />}
         />
 
-        <View
-          style={{
-            position: 'absolute',
-            left: 16,
-            top: 0,
-            bottom: 0,
-            justifyContent: 'center',
-            zIndex: 100,
-          }}
-          pointerEvents='box-none'>
-          <View pointerEvents='auto'>
+        <View style={{ flex: 1 }} onLayout={handleToolbarAreaLayout}>
+          <ScrollView>
+            <ContentInset className='flex-1'>
+              {/* Problem */}
+              <View
+                className='my-[12px] overflow-hidden rounded-[8px]'
+                style={{ position: 'relative', height: screenHeight - 200 }}>
+                <PointerContentView
+                  initMessage={problemInitMessage}
+                  minHeight={200}
+                  style={{ maxWidth: 720 }}
+                />
+
+                {/* 위층: DrawingCanvas - ProblemViewer 위에 겹쳐짐 */}
+                <View
+                  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                  pointerEvents='box-none'>
+                  <View style={{ flex: 1 }} pointerEvents='auto'>
+                    <DrawingCanvas
+                      ref={canvasRef}
+                      strokeColor='#1E1E21'
+                      strokeWidth={2}
+                      eraserMode={drawingState.isEraserMode}
+                      eraserSize={12}
+                      onHistoryChange={drawingState.setHistoryState}
+                      onStrokeStart={() => setToolbarCollapsed(true)}
+                    />
+                  </View>
+                </View>
+              </View>
+            </ContentInset>
+          </ScrollView>
+
+          <View style={StyleSheet.absoluteFillObject} pointerEvents='box-none'>
             <ProblemDrawingToolbar
               canUndo={drawingState.canUndo}
               canRedo={drawingState.canRedo}
               onUndo={() => canvasRef.current?.undo()}
               onRedo={() => canvasRef.current?.redo()}
               isEraserMode={drawingState.isEraserMode}
-              onPenModePress={drawingState.setPenMode}
-              onEraserModePress={() => {
-                if (drawingState.isEraserMode) {
-                  drawingState.setPenMode();
-                } else {
-                  drawingState.setEraserMode();
-                }
-              }}
+              onPenModePress={handlePenModePress}
+              onEraserModePress={handleEraserModePress}
+              collapsed={toolbarCollapsed}
+              onCollapsedChange={setToolbarCollapsed}
+              containerWidth={toolbarArea.width}
+              containerHeight={toolbarArea.height}
             />
           </View>
         </View>
 
-        <ScrollView>
-          <ContentInset className='flex-1'>
-            {/* Problem */}
-            <View
-              className='my-[12px] overflow-hidden rounded-[8px]'
-              style={{ position: 'relative', height: screenHeight - 200 }}>
-              <PointerContentView
-                initMessage={problemInitMessage}
-                minHeight={200}
-                style={{ maxWidth: 720 }}
-              />
-
-              {/* 위층: DrawingCanvas - ProblemViewer 위에 겹쳐짐 */}
-              <View
-                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-                pointerEvents='box-none'>
-                <View style={{ flex: 1 }} pointerEvents='auto'>
-                  <DrawingCanvas
-                    ref={canvasRef}
-                    strokeColor='#1E1E21'
-                    strokeWidth={2}
-                    eraserMode={drawingState.isEraserMode}
-                    eraserSize={12}
-                    onHistoryChange={drawingState.setHistoryState}
-                  />
-                </View>
-              </View>
-            </View>
-          </ContentInset>
-        </ScrollView>
         <AnswerKeyboardSheet
           ref={bottomSheetRef}
           bottomInset={bottomBarHeight}
