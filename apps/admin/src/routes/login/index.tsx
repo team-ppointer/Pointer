@@ -121,6 +121,7 @@ function RouteComponent() {
                   autoComplete='username'
                   {...register('email', {
                     required: '이메일을 입력해주세요',
+                    onChange: () => setSubmitError(null),
                   })}
                   className={errors.email ? 'border-red-600 focus:border-red-600' : ''}
                 />
@@ -148,6 +149,7 @@ function RouteComponent() {
                   inputMode='text'
                   {...register('password', {
                     required: '비밀번호를 입력해주세요',
+                    onChange: () => setSubmitError(null),
                   })}
                   className={errors.password ? 'border-red-600 focus:border-red-600' : ''}
                 />
