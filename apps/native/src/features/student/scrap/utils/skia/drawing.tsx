@@ -60,6 +60,7 @@ type Props = {
   strokeWidth?: number;
   onChange?: (strokes: Stroke[]) => void;
   onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
+  onStrokeStart?: () => void;
   eraserMode?: boolean;
   eraserSize?: number;
   textMode?: boolean;
@@ -85,6 +86,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       strokeWidth = 3,
       onChange,
       onHistoryChange,
+      onStrokeStart,
       eraserMode = false,
       eraserSize = 20,
       textMode = false,
@@ -966,6 +968,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
             isActiveGesture.value = true;
             showHover.value = false; // 그리기 시작 시 호버 숨김
             if (textMode) return; // 텍스트 모드에서는 그리기 비활성화
+            if (onStrokeStart) {
+              runOnJS(onStrokeStart)();
+            }
             if (eraserMode) {
               runOnJS(startEraser)(e.x, e.y);
             } else {
@@ -1001,6 +1006,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, Props>(
       [
         textMode,
         eraserMode,
+        onStrokeStart,
         startStroke,
         addPoint,
         finalizeStroke,
