@@ -10,7 +10,7 @@ const useAdminSession = (): AdminSession | null => {
   return useSyncExternalStore(
     adminSessionStorage.subscribe,
     adminSessionStorage.getSession,
-    adminSessionStorage.getSession
+    () => null
   );
 };
 
