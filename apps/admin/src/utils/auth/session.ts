@@ -7,35 +7,44 @@ import { tokenStorage } from './tokenStorage';
 import { toAdminSession } from '@/constants/adminPermissions';
 
 // 리프레시 쿠키로 세션을 새로 받아 로컬 상태를 갱신한다.
-// 실패 시 로컬 상태는 건드리지 않고 null만 반환한다 (graceful refresh 용도).
+// - 401 (refresh token 만료 등 명확한 인증 실패): 로컬 세션을 비우고 null 반환
+// - 그 외 실패 (네트워크/5xx 등 transient): 로컬 상태 유지하고 null 반환 (graceful)
 export const refreshSession = async (): Promise<string | null> => {
+  let response: Response;
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/auth/refresh`, {
+    response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
     });
+  } catch (error) {
+    console.warn('Session refresh network error:', error);
+    return null;
+  }
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        console.warn('Refresh token expired, user needs to login again');
-      }
-      throw new Error(`Session refresh failed with status: ${response.status}`);
+  if (!response.ok) {
+    if (response.status === 401) {
+      console.warn('Refresh token expired, clearing local session');
+      silentLogout();
+    } else {
+      console.warn(`Session refresh failed with status: ${response.status}`);
     }
+    return null;
+  }
 
+  try {
     const data = (await response.json()) as components['schemas']['AdminTokenResp'];
     const accessToken = data?.token?.accessToken;
     if (typeof accessToken !== 'string' || accessToken.length === 0) {
       throw new Error('Malformed session refresh response');
     }
-
     tokenStorage.setToken(accessToken);
     adminSessionStorage.setSession(toAdminSession(data));
     return accessToken;
   } catch (error) {
-    console.warn('Session refresh failed:', error);
+    console.warn('Session refresh response parse error:', error);
     return null;
   }
 };
