@@ -43,6 +43,7 @@ function RouteComponent() {
     const map = new Map<string, MockExamTypeResp>();
     typesData?.data?.forEach((type) => {
       if (type.code) map.set(type.code, type);
+      if (type.type && type.type !== type.code) map.set(type.type, type);
     });
     return map;
   }, [typesData]);

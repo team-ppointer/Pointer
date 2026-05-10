@@ -51,7 +51,7 @@ const TypeFormModal = ({ mode, target, onClose }: Props) => {
     resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
-      code: target?.code ?? '',
+      code: target?.code ?? target?.type ?? '',
       displayName: target?.displayName ?? '',
       startDate: target?.startDate ?? '',
       endDate: target?.endDate ?? '',
@@ -60,7 +60,7 @@ const TypeFormModal = ({ mode, target, onClose }: Props) => {
 
   useEffect(() => {
     reset({
-      code: target?.code ?? '',
+      code: target?.code ?? target?.type ?? '',
       displayName: target?.displayName ?? '',
       startDate: target?.startDate ?? '',
       endDate: target?.endDate ?? '',

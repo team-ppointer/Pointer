@@ -64,7 +64,9 @@ const GNB = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const session = useAdminSession();
   const navSections = getAccessibleNavSections(session);
-  const studentManagementSection = navSections.find((section) => section.title === '학생 관리');
+  const studentManagementSection = navSections.find(
+    (section) => section.title === '개별 학생 관리'
+  );
   const hasStudentSection = !!studentManagementSection;
   const { data: studentListResponse } = getStudent(
     { query: searchQuery },
@@ -131,9 +133,11 @@ const GNB = () => {
         <nav className='flex min-h-0 flex-1 flex-col px-4 pb-4'>
           <div className='min-h-0 flex-1 overflow-y-auto'>
             {/* Student Management Section */}
-            {hasStudentSection && (
+            {hasStudentSection && studentManagementSection && (
               <div className=''>
-                <SectionTitle isCollapsed={isCollapsed}>학생 관리</SectionTitle>
+                <SectionTitle isCollapsed={isCollapsed}>
+                  {studentManagementSection.title}
+                </SectionTitle>
 
                 {/* Student Selection */}
                 <div className='relative'>
@@ -224,7 +228,7 @@ const GNB = () => {
             )}
 
             {navSections
-              .filter((section) => section.title !== '학생 관리')
+              .filter((section) => section.title !== '개별 학생 관리')
               .map((section) => (
                 <div key={section.title} className='space-y-1'>
                   <SectionTitle isCollapsed={isCollapsed}>{section.title}</SectionTitle>

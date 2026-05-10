@@ -34,7 +34,7 @@ const StudentSearchModal = ({ selectedStudents, setSelectedStudents, onApply }: 
   const availableStudents =
     studentList?.data
       .filter((student) => !selectedStudents.some((s) => s.id === student.id))
-      .filter((student) => student.name.includes(searchValue)) || [];
+      .filter((student) => student.name?.includes(searchValue) ?? false) || [];
 
   // 학생 선택 핸들러
   const handleSelectStudent = (student: components['schemas']['StudentResp']) => {

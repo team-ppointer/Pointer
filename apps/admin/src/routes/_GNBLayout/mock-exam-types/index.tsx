@@ -99,7 +99,9 @@ function RouteComponent() {
       key: 'code',
       label: '코드',
       width: '160px',
-      render: (row) => <span className='font-mono text-xs text-gray-500'>{row.code ?? ''}</span>,
+      render: (row) => (
+        <span className='font-mono text-xs text-gray-500'>{row.code ?? row.type ?? '-'}</span>
+      ),
     },
     {
       key: 'displayName',

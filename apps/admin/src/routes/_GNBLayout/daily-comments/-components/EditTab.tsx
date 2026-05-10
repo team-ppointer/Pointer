@@ -353,9 +353,9 @@ const EditTab = () => {
         <TwoButtonModalTemplate
           text={`${record?.author?.name ?? '-'}님이 작성한 코멘트입니다. 삭제하시겠습니까?`}
           leftButtonText='아니오'
-          rightButtonText='예'
+          rightButtonText={deleteMutation.isPending ? '삭제 중...' : '예'}
           handleClickLeftButton={closeDeleteModal}
-          handleClickRightButton={handleDelete}
+          handleClickRightButton={deleteMutation.isPending ? () => undefined : handleDelete}
           variant='danger'
         />
       </Modal>
