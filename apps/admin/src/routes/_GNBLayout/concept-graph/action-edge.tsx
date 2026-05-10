@@ -144,7 +144,7 @@ function RouteComponent() {
         toast.error(extractErrorMessage(failed[0]?.reason));
       } else {
         toast.warn(
-          `일부 셀(${failed.length}/${results.length}) 삭제에 실패했습니다. 새로고침 후 확인해주세요.`
+          `일부 셀(${failed.length}/${results.length}) 삭제에 실패했습니다. 화면이 갱신되었으니 다시 시도해주세요.`
         );
       }
       setDeleteRowTarget(null);
