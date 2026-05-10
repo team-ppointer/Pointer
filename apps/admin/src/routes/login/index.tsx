@@ -1,16 +1,19 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { postLogin } from '@apis';
 import { Input } from '@components';
-import { useNavigation } from '@hooks';
-import { createFileRoute, redirect } from '@tanstack/react-router';
-import { tokenStorage } from '@utils';
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
+import { adminSessionStorage, tokenStorage } from '@utils';
 import { Mail, Lock, LogIn } from 'lucide-react';
+
+import { getFirstAccessibleRoute, toAdminSession } from '@/constants/adminPermissions';
 
 export const Route = createFileRoute('/login/')({
   beforeLoad: async () => {
-    if (tokenStorage.getToken()) {
+    if (tokenStorage.getToken() && adminSessionStorage.getSession()) {
+      const firstAccessibleRoute = getFirstAccessibleRoute(adminSessionStorage.getSession());
+
       throw redirect({
-        to: '/publish',
+        to: firstAccessibleRoute ?? '/no-access',
       });
     }
   },
@@ -24,7 +27,7 @@ interface LoginType {
 
 function RouteComponent() {
   const { mutate, isPending } = postLogin();
-  const { goPublish } = useNavigation();
+  const router = useRouter();
 
   const {
     register,
@@ -44,8 +47,13 @@ function RouteComponent() {
         onSuccess: (data) => {
           const { accessToken } = data.token;
           if (accessToken) {
+            const adminSession = toAdminSession(data);
+            const firstAccessibleRoute = getFirstAccessibleRoute(adminSession);
+
             tokenStorage.setToken(accessToken);
-            goPublish();
+            adminSessionStorage.setSession(adminSession);
+            // 권한이 하나도 없는 계정도 로그인 자체는 성공시키고 안내 페이지로 보낸다.
+            router.navigate({ to: firstAccessibleRoute ?? '/no-access' });
           }
         },
       }
@@ -99,10 +107,6 @@ function RouteComponent() {
                   autoComplete='username'
                   {...register('email', {
                     required: '이메일을 입력해주세요',
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: '올바른 이메일 형식을 입력해주세요',
-                    },
                   })}
                   className={errors.email ? 'border-red-600 focus:border-red-600' : ''}
                 />
@@ -130,10 +134,6 @@ function RouteComponent() {
                   inputMode='text'
                   {...register('password', {
                     required: '비밀번호를 입력해주세요',
-                    pattern: {
-                      value: /^[A-Za-z0-9]*$/,
-                      message: '비밀번호는 영문자와 숫자만 입력 가능합니다',
-                    },
                   })}
                   className={errors.password ? 'border-red-600 focus:border-red-600' : ''}
                 />
