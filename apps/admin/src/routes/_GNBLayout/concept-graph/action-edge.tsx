@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { Slide, ToastContainer, toast } from 'react-toastify';
 import { Button, Header, Modal, TwoButtonModalTemplate } from '@components';
@@ -108,7 +108,8 @@ function RouteComponent() {
   ) => {
     setEditingCell({ actionNode, role, currentNodes });
   };
-  const closeCellEdit = () => setEditingCell(null);
+  // CellEditPanel 의 keydown effect deps 에 들어가므로 식별자를 안정화한다.
+  const closeCellEdit = useCallback(() => setEditingCell(null), []);
 
   const openDeleteRow = (row: Row) => setDeleteRowTarget(row);
   const closeDeleteRow = () => {
