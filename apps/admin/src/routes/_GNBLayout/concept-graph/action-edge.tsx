@@ -125,7 +125,7 @@ function RouteComponent() {
     }
     setIsDeletingRow(true);
     try {
-      await Promise.all(
+      const results = await Promise.allSettled(
         columns
           .filter((col) => col.id !== undefined)
           .map((col) =>
@@ -137,12 +137,19 @@ function RouteComponent() {
             })
           )
       );
-      await invalidateConceptGraphActionEdges();
-      toast.success('삭제되었습니다');
+      const failed = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
+      if (failed.length === 0) {
+        toast.success('삭제되었습니다');
+      } else if (failed.length === results.length) {
+        toast.error(extractErrorMessage(failed[0]?.reason));
+      } else {
+        toast.warn(
+          `일부 셀(${failed.length}/${results.length}) 삭제에 실패했습니다. 새로고침 후 확인해주세요.`
+        );
+      }
       setDeleteRowTarget(null);
-    } catch (error) {
-      toast.error(extractErrorMessage(error));
     } finally {
+      await invalidateConceptGraphActionEdges();
       setIsDeletingRow(false);
     }
   };
