@@ -33,8 +33,30 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// 레거시 plain text 를 TipTap doc JSON 문자열로 감싼다. 줄바꿈은 paragraph 단위로 보존.
+const wrapPlainTextAsEditorString = (raw: string): string =>
+  JSON.stringify({
+    type: 'doc',
+    content: raw.split('\n').map((line) => ({
+      type: 'paragraph',
+      ...(line.length > 0 ? { content: [{ type: 'text', text: line }] } : {}),
+    })),
+  });
+
+// EditorField 는 TipTap JSON 직렬화 문자열만 정상 파싱한다. plain text 는 빈 문서로
+// fallback 되어 저장 시 데이터가 유실될 수 있으므로 사전에 정규화한다.
+const toEditorString = (raw?: string | null): string => {
+  if (!raw || raw.length === 0) return getEmptyContentString();
+  try {
+    JSON.parse(raw);
+    return raw;
+  } catch {
+    return wrapPlainTextAsEditorString(raw);
+  }
+};
+
 const extractPayloadEditorString = (raw: unknown): string => {
-  if (typeof raw === 'string' && raw.length > 0) return raw;
+  if (typeof raw === 'string') return toEditorString(raw);
   if (raw && typeof raw === 'object') {
     try {
       return JSON.stringify(raw);
@@ -55,11 +77,7 @@ const EditConceptNodeModal = ({ target, onClose, onSaved }: Props) => {
   const postNodeMutation = postNode();
   const putNodeMutation = putNode();
 
-  const defaultDescription = useMemo(() => {
-    return target?.description && target.description.length > 0
-      ? target.description
-      : getEmptyContentString();
-  }, [target]);
+  const defaultDescription = useMemo(() => toEditorString(target?.description), [target]);
 
   const defaultExample = useMemo(
     () =>
