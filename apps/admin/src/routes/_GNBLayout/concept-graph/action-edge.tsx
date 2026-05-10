@@ -177,6 +177,12 @@ function RouteComponent() {
     const cells = row.cells ?? [];
     const rowKey = actionNode?.id ?? idx;
 
+    // 백엔드 응답의 cells 순서나 신규 컬럼 추가에 의존하지 않도록 roleCode 로 lookup.
+    const cellByRoleCode = new Map<string, (typeof cells)[number]>();
+    cells.forEach((cell) => {
+      if (cell.roleCode !== undefined) cellByRoleCode.set(cell.roleCode, cell);
+    });
+
     return (
       <tr key={rowKey} className='group hover:bg-main/5 transition-colors'>
         <td className='group-hover:bg-main/5 sticky left-0 z-10 max-w-[240px] truncate border-r border-gray-100 bg-white px-4 py-3 align-middle text-sm font-medium text-gray-800'>
@@ -195,22 +201,7 @@ function RouteComponent() {
           </div>
         </td>
         {columns.map((col, colIdx) => {
-          const cell = cells[colIdx];
-          const cellRoleCode = cell?.roleCode;
-          const colCode = col.code;
-          if (cell && colCode !== undefined && cellRoleCode !== colCode) {
-            console.warn(
-              `[action-edge sheet] roleCode mismatch at row ${rowKey} col ${colIdx}: cell.roleCode=${cellRoleCode} columns.code=${colCode}`
-            );
-            return (
-              <td
-                key={col.id ?? colIdx}
-                className='border-l border-gray-100 px-4 py-3 align-middle text-sm text-gray-300'>
-                ⚠
-              </td>
-            );
-          }
-
+          const cell = col.code !== undefined ? cellByRoleCode.get(col.code) : undefined;
           const conceptNodes = cell?.conceptNodes ?? [];
           const visible = conceptNodes.slice(0, MAX_VISIBLE_CHIPS);
           const overflow = conceptNodes.length - visible.length;
