@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { postLogin } from '@apis';
 import { Input } from '@components';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { adminSessionStorage, tokenStorage } from '@utils';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 
 import { getFirstAccessibleRoute, toAdminSession } from '@/constants/adminPermissions';
 
@@ -28,6 +29,7 @@ interface LoginType {
 function RouteComponent() {
   const { mutate, isPending } = postLogin();
   const router = useRouter();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -36,6 +38,7 @@ function RouteComponent() {
   } = useForm<LoginType>();
 
   const onSubmitLogin: SubmitHandler<LoginType> = async (formData) => {
+    setSubmitError(null);
     mutate(
       {
         body: {
@@ -55,6 +58,9 @@ function RouteComponent() {
             // 권한이 하나도 없는 계정도 로그인 자체는 성공시키고 안내 페이지로 보낸다.
             router.navigate({ to: firstAccessibleRoute ?? '/no-access' });
           }
+        },
+        onError: () => {
+          setSubmitError('이메일 또는 비밀번호가 올바르지 않습니다.');
         },
       }
     );
@@ -92,6 +98,14 @@ function RouteComponent() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmitLogin)} className='flex flex-col gap-6'>
+              {submitError && (
+                <div
+                  role='alert'
+                  className='flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700'>
+                  <AlertCircle className='mt-0.5 h-4 w-4 shrink-0' />
+                  <span>{submitError}</span>
+                </div>
+              )}
               {/* 이메일 입력 */}
               <div className='flex flex-col gap-2'>
                 <label
