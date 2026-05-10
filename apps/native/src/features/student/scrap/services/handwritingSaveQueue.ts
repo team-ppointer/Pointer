@@ -46,7 +46,8 @@ export function backoffDelayMs(attempt: number): number {
 export class HandwritingSaveQueue {
   private readonly entries = new Map<number, HandwritingQueueEntry>();
   private readonly waiters = new Map<number, (result: ExplicitFlushResult) => void>();
-  private readonly versionCounter = new Map<number, number>();
+  // 큐 lifetime 동안 globally unique. scrapId 별 분리 시 동일 version 충돌 → waiter mis-resolve 가능.
+  private versionCounter = 0;
   private callbacks: QueueCallbacks = {};
   private flushLock = false;
   private timer: ReturnType<typeof setTimeout> | null = null;
@@ -66,7 +67,7 @@ export class HandwritingSaveQueue {
     if (existing?.source === 'explicit' && this.waiters.has(existing.version)) {
       return;
     }
-    const version = this.nextVersion(scrapId);
+    const version = this.nextVersion();
     this.entries.set(scrapId, {
       scrapId,
       data,
@@ -83,7 +84,7 @@ export class HandwritingSaveQueue {
    * 5s timeout. retry/hold 모두 즉시 dequeue + waiter 통보 (autosave 와 달리 backoff 안 함).
    */
   flushExplicit(scrapId: number, data: string): Promise<ExplicitFlushResult> {
-    const version = this.nextVersion(scrapId);
+    const version = this.nextVersion();
     this.entries.set(scrapId, {
       scrapId,
       data,
@@ -128,7 +129,7 @@ export class HandwritingSaveQueue {
   _reset(): void {
     this.entries.clear();
     this.waiters.clear();
-    this.versionCounter.clear();
+    this.versionCounter = 0;
     this.callbacks = {};
     this.flushLock = false;
     if (this.timer) {
@@ -137,10 +138,8 @@ export class HandwritingSaveQueue {
     }
   }
 
-  private nextVersion(scrapId: number): number {
-    const next = (this.versionCounter.get(scrapId) ?? 0) + 1;
-    this.versionCounter.set(scrapId, next);
-    return next;
+  private nextVersion(): number {
+    return ++this.versionCounter;
   }
 
   private scheduleFlush(ms: number): void {

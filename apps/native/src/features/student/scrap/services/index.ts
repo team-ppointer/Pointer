@@ -1,6 +1,3 @@
-import { HandwritingSaveQueue } from './handwritingSaveQueue';
-import { postHandwritingSave } from './handwritingSavePoster';
-
 export {
   HandwritingSaveQueue,
   backoffDelayMs,
@@ -12,7 +9,5 @@ export {
   type QueueCallbacks,
 } from './handwritingSaveQueue';
 export { postHandwritingSave } from './handwritingSavePoster';
+export { handwritingSaveQueue } from './handwritingSaveQueueSingleton';
 export { HandwritingSaveQueueWiring } from './HandwritingSaveQueueWiring';
-
-/** 앱 전역 singleton. 실제 서버 호출 poster 와 바인딩. */
-export const handwritingSaveQueue = new HandwritingSaveQueue(postHandwritingSave);

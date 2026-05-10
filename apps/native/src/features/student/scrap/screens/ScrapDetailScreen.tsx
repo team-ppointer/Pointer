@@ -262,18 +262,21 @@ const ScrapDetailScreen = () => {
     scrapDetail?.pointings && scrapDetail.pointings.some((pointing) => pointing.commentContent)
   );
 
-  // 화면 떠나는 모든 경로 (swipe back / hardware back / programmatic pop) 통제 — flushPending 강제
+  // 화면 떠나는 모든 경로 (swipe back / hardware back / programmatic pop) 통제 — flushPending 강제.
+  // hook return 전체를 deps 에 넣으면 매 렌더 새 reference 라 effect 재구독 반복.
+  // 매니저 내부 useCallback 으로 stable 한 콜백만 분해해서 사용.
+  const { flushPending: flushHandwriting, hasUnsavedChanges: hasUnsavedHandwriting } = handwriting;
   useEffect(() => {
     const unsub = navigation.addListener('beforeRemove', (e) => {
-      if (!handwritingSaveQueue.has(scrapId) && !handwriting.hasUnsavedChanges()) return;
+      if (!handwritingSaveQueue.has(scrapId) && !hasUnsavedHandwriting()) return;
       e.preventDefault();
       void (async () => {
-        await handwriting.flushPending();
+        await flushHandwriting();
         navigation.dispatch(e.data.action);
       })();
     });
     return unsub;
-  }, [navigation, scrapId, handwriting]);
+  }, [navigation, scrapId, flushHandwriting, hasUnsavedHandwriting]);
 
   // Handlers
   const handleViewAllPointings = useCallback(async () => {

@@ -93,6 +93,9 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
 
   const markNeedsSave = useCallback(() => {
     if (pendingLoadRef.current) return;
+    // load 적용 후에만 dirty. drawing.tsx 의 mount useEffect 가 1회 notifyHistoryChange 발화하는데
+    // 그 시점에 reset effect 의 pendingLoadRef=true 윈도우가 이미 끝나있어서 이 가드가 없으면
+    // needsSaveRef=true 잘못 set → 이후 load effect 가 needsSaveRef 가드로 server data skip → 빈 캔버스.
     if (appliedScrapIdRef.current !== scrapId) return;
     if (decodeError) return;
     needsSaveRef.current = true;
@@ -146,11 +149,23 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
     return () => sub.remove();
   }, [enqueueAutosave]);
 
-  // explicit flush — onBack/swipe/탭/onTabClose/AllPointings 등 사용자 명시 의도
+  // explicit flush — onBack/swipe/탭/onTabClose/AllPointings 등 사용자 명시 의도.
+  // 로컬 dirty 가 없어도 큐에 잔존 entry (autosave retry/hold) 가 있으면 명시 PUT 으로 끌고 간다.
+  // autosave 실패 후 사용자가 떠나려고 할 때 silent loss 를 막고, 실패 시 Alert 로 사용자 결정 받음.
   const flushPending = useCallback(async (): Promise<void> => {
-    if (!canFlush()) return;
+    const queueHasEntry = handwritingSaveQueue.has(scrapId);
+    if (!queueHasEntry && !canFlush()) return;
+
+    // PUT 못 만드는 케이스 — decode 실패 / canvas unmount → 큐만 정리
+    if (decodeError || !canvasRef.current) {
+      handwritingSaveQueue.dequeue(scrapId);
+      return;
+    }
     const dataJson = buildDataJson();
-    if (dataJson === null) return;
+    if (dataJson === null) {
+      handwritingSaveQueue.dequeue(scrapId);
+      return;
+    }
 
     await runExplicitFlushLoop({
       scrapId,
@@ -168,7 +183,7 @@ export function useHandwritingManager({ scrapId }: UseHandwritingManagerProps) {
       },
     });
     needsSaveRef.current = false;
-  }, [scrapId, canFlush, buildDataJson, handwritingQueryKey, queryClient]);
+  }, [scrapId, canFlush, buildDataJson, decodeError, handwritingQueryKey, queryClient]);
 
   const hasUnsavedChanges = useCallback(() => needsSaveRef.current, []);
 

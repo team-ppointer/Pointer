@@ -15,7 +15,7 @@ import { type paths } from '@schema';
 
 import { showToast } from '../components/Notification/Toast';
 
-import { handwritingSaveQueue } from './index';
+import { handwritingSaveQueue } from './handwritingSaveQueueSingleton';
 
 type ScrapHandwritingResp =
   paths['/api/student/scrap/{scrapId}/handwriting']['get']['responses']['200']['content']['*/*'];
