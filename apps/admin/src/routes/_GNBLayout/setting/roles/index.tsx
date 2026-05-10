@@ -7,7 +7,7 @@ import { components } from '@schema';
 import { adminSessionStorage, refreshSession } from '@utils';
 import { AlertCircle, CheckSquare, Pencil, Plus, Trash2 } from 'lucide-react';
 
-import { ADMIN_NAV_SECTIONS } from '@/constants/adminPermissions';
+import { ADMIN_NAV_SECTIONS, AdminNavItem } from '@/constants/adminPermissions';
 
 export const Route = createFileRoute('/_GNBLayout/setting/roles/')({
   component: RouteComponent,
@@ -37,16 +37,21 @@ const getRoleMutationErrorMessage = (error: unknown): string => {
   return typed.message ?? typed.error?.message ?? typed.data?.message ?? fallback;
 };
 
-type RenderableMenu = {
-  id: number;
-  menuName: string;
-  label: string;
-  icon: (typeof ADMIN_NAV_SECTIONS)[number]['items'][number]['icon'];
-};
+type RenderableMenu = Pick<AdminNavItem, 'menuName' | 'label' | 'icon'> & { id: number };
 
 type MenuSection = {
   title: string;
   menus: RenderableMenu[];
+};
+
+const toggleMenuId = (menuIds: number[], menuId: number) => {
+  const selectedIds = new Set(menuIds);
+  if (selectedIds.has(menuId)) {
+    selectedIds.delete(menuId);
+  } else {
+    selectedIds.add(menuId);
+  }
+  return Array.from(selectedIds);
 };
 
 // FE 의 ADMIN_NAV_SECTIONS 정의(권한의 source of truth)를 forward 로 순회하면서
@@ -57,6 +62,18 @@ const buildMenuSections = (menus: AdminMenuResp[]): MenuSection[] => {
   for (const menu of menus) {
     if (typeof menu.id === 'number' && menu.name) {
       menuIdByName.set(menu.name, menu.id);
+    }
+  }
+
+  // dev 모드에서 FE/BE menu seed 동기화 누락을 조기 발견할 수 있도록
+  // FE 가 모르는 backend 메뉴 이름을 알린다.
+  if (import.meta.env.DEV) {
+    const knownNames = new Set(
+      ADMIN_NAV_SECTIONS.flatMap((section) => section.items.map((item) => item.menuName as string))
+    );
+    const unknown = [...menuIdByName.keys()].filter((name) => !knownNames.has(name));
+    if (unknown.length > 0) {
+      console.warn('[role-form] backend menu not in ADMIN_NAV_SECTIONS:', unknown);
     }
   }
 
@@ -89,16 +106,6 @@ function RouteComponent() {
 
   const invalidateRoles = () => {
     queryClient.invalidateQueries({ queryKey: roleQueryKey });
-  };
-
-  const toggleMenuId = (menuIds: number[], menuId: number) => {
-    const set = new Set(menuIds);
-    if (set.has(menuId)) {
-      set.delete(menuId);
-    } else {
-      set.add(menuId);
-    }
-    return Array.from(set);
   };
 
   const handleCreateSubmit = (event: FormEvent) => {
