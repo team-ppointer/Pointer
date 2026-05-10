@@ -46,16 +46,16 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
 
   const handleNext = () => {
     if (!schoolId) return;
-    setCurrentStep('Score');
-    navigation.navigate('Score');
+    setCurrentStep('Welcome');
+    navigation.navigate('Welcome');
   };
 
   const handleSkip = () => {
     setSchoolId(null);
     setQuery('');
     setSelectedLabel('');
-    setCurrentStep('Score');
-    navigation.navigate('Score');
+    setCurrentStep('Welcome');
+    navigation.navigate('Welcome');
   };
 
   return (

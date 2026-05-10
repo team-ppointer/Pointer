@@ -25,8 +25,8 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
 
     if (grade === 'N_TIME') {
       setSchoolId(null);
-      setCurrentStep('Score');
-      navigation.navigate('Score');
+      setCurrentStep('Welcome');
+      navigation.navigate('Welcome');
     } else {
       setCurrentStep('School');
       navigation.navigate('School');

@@ -6,7 +6,6 @@ import type { OnboardingStackParamList } from './types';
 import GradeStep from './steps/GradeStep';
 import MathSubjectStep from './steps/MathSubjectStep';
 import SchoolStep from './steps/SchoolStep';
-import ScoreStep from './steps/ScoreStep';
 import WelcomeStep from './steps/WelcomeStep';
 
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();
@@ -21,7 +20,6 @@ const OnboardingScreen = () => {
       <Stack.Screen name='Grade' component={GradeStep} />
       <Stack.Screen name='MathSubject' component={MathSubjectStep} />
       <Stack.Screen name='School' component={SchoolStep} />
-      <Stack.Screen name='Score' component={ScoreStep} />
       <Stack.Screen name='Welcome' component={WelcomeStep} />
     </Stack.Navigator>
   );

@@ -2,11 +2,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import type { components } from '@schema';
+
 import type { GradeValue, MathSubjectValue } from '../constants';
 
-type OnboardingStep = 'Grade' | 'MathSubject' | 'School' | 'Score' | 'Welcome';
+type MockExamTypeResp = components['schemas']['MockExamTypeResp'];
+
+type OnboardingStep = 'Grade' | 'MathSubject' | 'School' | 'MockExam' | 'Welcome';
 
 type OnboardingStatus = 'idle' | 'in-progress' | 'completed';
+
+type CurrentTypeStatus = 'idle' | 'loading' | 'resolved';
 
 type OnboardingState = {
   status: OnboardingStatus;
@@ -14,10 +20,13 @@ type OnboardingState = {
   grade: GradeValue | null;
   selectSubject: MathSubjectValue | null;
   schoolId: number | null;
-  level: number | null;
+  currentMockExamType: MockExamTypeResp | null;
+  currentTypeStatus: CurrentTypeStatus;
+  mockExamIncorrects: number[];
+  mockExamQuestion: string;
 };
 
-export type OnboardingPayload = Omit<OnboardingState, 'status' | 'currentStep'>;
+export type OnboardingPayload = Pick<OnboardingState, 'grade' | 'selectSubject' | 'schoolId'>;
 
 type OnboardingActions = {
   start: () => void;
@@ -27,8 +36,19 @@ type OnboardingActions = {
   setGrade: (grade: GradeValue) => void;
   setSelectSubject: (subject: MathSubjectValue | null) => void;
   setSchoolId: (schoolId: number | null) => void;
-  setLevel: (level: number | null) => void;
+  setCurrentMockExamType: (type: MockExamTypeResp | null) => void;
+  setCurrentTypeStatus: (status: CurrentTypeStatus) => void;
+  toggleMockExamIncorrect: (n: number) => void;
+  setMockExamQuestion: (question: string) => void;
+  resetMockExam: () => void;
   getPayload: () => OnboardingPayload;
+};
+
+const initialMockExamState = {
+  currentMockExamType: null,
+  currentTypeStatus: 'idle' as CurrentTypeStatus,
+  mockExamIncorrects: [] as number[],
+  mockExamQuestion: '',
 };
 
 const initialState: OnboardingState = {
@@ -37,7 +57,7 @@ const initialState: OnboardingState = {
   grade: null,
   selectSubject: null,
   schoolId: null,
-  level: null,
+  ...initialMockExamState,
 };
 
 export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
@@ -64,16 +84,32 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
       setGrade: (grade) => set({ grade }),
       setSelectSubject: (selectSubject) => set({ selectSubject }),
       setSchoolId: (schoolId) => set({ schoolId }),
-      setLevel: (level) => set({ level }),
+
+      setCurrentMockExamType: (currentMockExamType) => set({ currentMockExamType }),
+      setCurrentTypeStatus: (currentTypeStatus) => set({ currentTypeStatus }),
+      toggleMockExamIncorrect: (n) =>
+        set((state) => ({
+          mockExamIncorrects: state.mockExamIncorrects.includes(n)
+            ? state.mockExamIncorrects.filter((v) => v !== n)
+            : [...state.mockExamIncorrects, n],
+        })),
+      setMockExamQuestion: (mockExamQuestion) => set({ mockExamQuestion }),
+      resetMockExam: () => set(initialMockExamState),
 
       getPayload: () => {
-        const { grade, selectSubject, schoolId, level } = get();
-        return { grade, selectSubject, schoolId, level };
+        const { grade, selectSubject, schoolId } = get();
+        return { grade, selectSubject, schoolId };
       },
     }),
     {
       name: 'onboarding-store',
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        grade: state.grade,
+        selectSubject: state.selectSubject,
+        schoolId: state.schoolId,
+        currentStep: state.currentStep,
+      }),
     }
   )
 );

@@ -33,7 +33,6 @@ const WelcomeStep = (_props: OnboardingScreenProps<'Welcome'>) => {
       grade: onboardingPayload.grade ?? 'ONE',
       selectSubject: onboardingPayload.selectSubject ?? undefined,
       schoolId: onboardingPayload.schoolId ?? undefined,
-      level: onboardingPayload.level ?? undefined,
     };
 
     try {
