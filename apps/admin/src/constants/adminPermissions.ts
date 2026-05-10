@@ -1,12 +1,14 @@
 import {
+  Activity,
   Bell,
   Calendar,
   ChartNoAxesCombined,
+  Circle,
   FileText,
   Megaphone,
   MessageCircle,
+  Network,
   Package,
-  PanelsTopLeft,
   Settings,
   Tags,
   Users,
@@ -18,17 +20,17 @@ export type AdminMenuName =
   | 'NOTICE'
   | 'NOTIFICATION'
   | 'DIAGNOSIS'
-  | 'GRAPH'
   | 'QNA'
-  | 'PROBLEM'
   | 'PROBLEM_ITEM'
   | 'PROBLEM_SET'
   | 'CONCEPT_TAG'
+  | 'GRAPH_NODE'
+  | 'GRAPH_EDGE'
+  | 'GRAPH_ACTION'
+  | 'GRAPH_TYPE'
   | 'TEACHER'
-  | 'SETTING'
   | 'ADMIN_ACCOUNT'
-  | 'ADMIN_ROLE'
-  | 'ADMIN_MENU';
+  | 'ADMIN_ROLE';
 
 export type AdminSession = {
   id: number;
@@ -50,13 +52,7 @@ export type AdminNavItem = {
 
 export type AdminNavSection = {
   title: string;
-  menuName?: AdminMenuName;
   items: AdminNavItem[];
-};
-
-type AdditionalRoutePermission = {
-  menuName: AdminMenuName | AdminMenuName[];
-  routePrefixes: string[];
 };
 
 export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
@@ -107,7 +103,6 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   },
   {
     title: '문제 관리',
-    menuName: 'PROBLEM',
     items: [
       {
         menuName: 'PROBLEM_ITEM',
@@ -133,6 +128,39 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     ],
   },
   {
+    title: '개념 그래프',
+    items: [
+      {
+        menuName: 'GRAPH_NODE',
+        to: '/concept-graph/node',
+        label: '개념 노드',
+        icon: Circle,
+        routePrefixes: ['/concept-graph/node'],
+      },
+      {
+        menuName: 'GRAPH_EDGE',
+        to: '/concept-graph/edge',
+        label: '개념 그래프',
+        icon: Network,
+        routePrefixes: ['/concept-graph/edge'],
+      },
+      {
+        menuName: 'GRAPH_ACTION',
+        to: '/concept-graph/action-edge',
+        label: '액션 그래프',
+        icon: Activity,
+        routePrefixes: ['/concept-graph/action-edge'],
+      },
+      {
+        menuName: 'GRAPH_TYPE',
+        to: '/concept-graph/types',
+        label: '타입 관리',
+        icon: Settings,
+        routePrefixes: ['/concept-graph/types'],
+      },
+    ],
+  },
+  {
     title: '선생님 관리',
     items: [
       {
@@ -146,7 +174,6 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   },
   {
     title: '설정',
-    menuName: 'SETTING',
     items: [
       {
         menuName: 'ADMIN_ACCOUNT',
@@ -162,37 +189,34 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
         icon: Settings,
         routePrefixes: ['/setting/roles'],
       },
-      {
-        menuName: 'ADMIN_MENU',
-        to: '/setting/menus',
-        label: '메뉴 관리',
-        icon: PanelsTopLeft,
-        routePrefixes: ['/setting/menus'],
-      },
     ],
   },
 ];
 
-const ADDITIONAL_ROUTE_PERMISSIONS: AdditionalRoutePermission[] = [
-  {
-    menuName: 'GRAPH',
-    routePrefixes: ['/concept-graph'],
-  },
-];
+const ALL_MENU_NAMES = new Set<AdminMenuName>(
+  ADMIN_NAV_SECTIONS.flatMap((section) => section.items.map((item) => item.menuName))
+);
 
-const ALL_MENU_NAMES = new Set([
-  ...ADMIN_NAV_SECTIONS.flatMap((section) => [
-    ...(section.menuName ? [section.menuName] : []),
-    ...section.items.map((item) => item.menuName),
-  ]),
-  ...ADDITIONAL_ROUTE_PERMISSIONS.flatMap((permission) =>
-    Array.isArray(permission.menuName) ? permission.menuName : [permission.menuName]
-  ),
-]);
-
-const getAllowedMenuNames = (item: AdminNavItem, section?: AdminNavSection) => {
-  return section?.menuName ? [item.menuName, section.menuName] : [item.menuName];
+// 역할 폼 등 menu name 단위로 메타정보(label, icon, 소속 섹션)를 조회할 때 사용한다.
+export type AdminMenuMeta = {
+  sectionTitle: string;
+  label: string;
+  icon: typeof Calendar;
 };
+
+export const ADMIN_MENU_META: Record<AdminMenuName, AdminMenuMeta> = (() => {
+  const map = {} as Record<AdminMenuName, AdminMenuMeta>;
+  for (const section of ADMIN_NAV_SECTIONS) {
+    for (const item of section.items) {
+      map[item.menuName] = {
+        sectionTitle: section.title,
+        label: item.label,
+        icon: item.icon,
+      };
+    }
+  }
+  return map;
+})();
 
 export const isAdminMenuName = (name?: string): name is AdminMenuName => {
   return !!name && ALL_MENU_NAMES.has(name as AdminMenuName);
@@ -215,41 +239,22 @@ export const hasMenuPermission = (
 export const getAccessibleNavSections = (session: AdminSession | null) => {
   return ADMIN_NAV_SECTIONS.map((section) => ({
     ...section,
-    items: section.items.filter((item) =>
-      hasMenuPermission(session, getAllowedMenuNames(item, section))
-    ),
+    items: section.items.filter((item) => hasMenuPermission(session, item.menuName)),
   })).filter((section) => section.items.length > 0);
 };
 
 export const getFirstAccessibleRoute = (session: AdminSession | null) => {
-  const navRoute = getAccessibleNavSections(session)[0]?.items[0]?.to;
-  if (navRoute) return navRoute;
-
-  // GNB 메뉴에 노출되지 않지만 ADDITIONAL_ROUTE_PERMISSIONS 로만 권한을 가진
-  // 사용자도 첫 접근 가능 경로를 가질 수 있도록 fallback 처리
-  const additional = ADDITIONAL_ROUTE_PERMISSIONS.find((permission) =>
-    hasMenuPermission(session, permission.menuName)
-  );
-  return additional?.routePrefixes[0] ?? null;
+  return getAccessibleNavSections(session)[0]?.items[0]?.to ?? null;
 };
 
 export const canAccessPath = (session: AdminSession | null, pathname: string) => {
   if (pathname === '/') return true;
 
-  return (
-    ADMIN_NAV_SECTIONS.some((section) =>
-      section.items.some((item) => {
-        if (!hasMenuPermission(session, getAllowedMenuNames(item, section))) return false;
+  return ADMIN_NAV_SECTIONS.some((section) =>
+    section.items.some((item) => {
+      if (!hasMenuPermission(session, item.menuName)) return false;
 
-        return item.routePrefixes.some(
-          (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-        );
-      })
-    ) ||
-    ADDITIONAL_ROUTE_PERMISSIONS.some((permission) => {
-      if (!hasMenuPermission(session, permission.menuName)) return false;
-
-      return permission.routePrefixes.some(
+      return item.routePrefixes.some(
         (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
       );
     })
