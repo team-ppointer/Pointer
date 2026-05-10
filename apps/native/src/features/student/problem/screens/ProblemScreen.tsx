@@ -40,7 +40,7 @@ import BottomActionBar from '../components/BottomActionBar';
 import { buildDocumentInit } from '../transforms/contentRendererTransforms';
 import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
-import { ProblemDrawingToolbar } from '../components/ProblemDrawingToolbar';
+import { ProblemDrawingToolbar } from '../components/floating-toolbar';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 
 type ProblemScreenProps = Partial<NativeStackScreenProps<StudentRootStackParamList, 'Problem'>>;
