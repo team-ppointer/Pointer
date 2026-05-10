@@ -27,7 +27,9 @@ const authMiddleware: Middleware = {
       if (!accessToken) {
         console.warn('Access token reissue failed. Redirecting to login.');
         redirectToLogin();
-        return request;
+        // 인증 헤더 없이 요청을 보내면 서버가 401 을 또 주고 onResponse 가
+        // 다시 enforceSession 을 시도하게 된다. 명시적으로 throw 해 호출 자체를 abort.
+        throw new Error('Authentication required');
       }
     }
 
