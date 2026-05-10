@@ -34,6 +34,8 @@ import { POINTING_BRUSH_COLORS, PointingDrawingToolbar } from '../components/flo
 import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
 import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 
+const CONTENT_MAX_WIDTH = 720;
+
 const PointingScreen = ({
   navigation,
 }: Partial<NativeStackScreenProps<StudentRootStackParamList, 'Pointing'>>) => {
@@ -273,12 +275,12 @@ const PointingScreen = ({
             paddingHorizontal={0}
           />
           <View
-            style={{ flex: 1, marginTop: 20, position: 'relative' }}
+            style={{ flex: 1, marginTop: 20, maxWidth: CONTENT_MAX_WIDTH, position: 'relative' }}
             onLayout={handleToolbarAreaLayout}>
             <PointerContentView
               initMessage={documentInitMessage}
               minHeight={200}
-              style={{ maxWidth: 720 }}
+              style={{ maxWidth: CONTENT_MAX_WIDTH }}
             />
 
             <View style={StyleSheet.absoluteFillObject} pointerEvents='box-none'>

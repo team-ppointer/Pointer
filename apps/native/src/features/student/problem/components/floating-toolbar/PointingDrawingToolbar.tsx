@@ -91,6 +91,7 @@ export const PointingDrawingToolbar = ({
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View
+        pointerEvents={ready ? 'auto' : 'none'}
         style={[
           { position: 'absolute', top: 0, left: 0, opacity: ready ? 1 : 0, ...SHADOW },
           animatedStyle,
