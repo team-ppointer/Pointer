@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AppState, Text, View } from 'react-native';
+import type { TextInput } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { AnimatedPressable } from '@components/common';
@@ -35,6 +36,7 @@ const SignupIdentityScreen = ({ navigation }: Props) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const deadlineRef = useRef<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const otpRef = useRef<TextInput>(null);
 
   const clearCountdownInterval = useCallback(() => {
     if (intervalRef.current) {
@@ -113,6 +115,7 @@ const SignupIdentityScreen = ({ navigation }: Props) => {
     }
     setIsSent(true);
     startCountdown(180);
+    requestAnimationFrame(() => otpRef.current?.focus());
   };
 
   const handleResend = async () => {
@@ -207,6 +210,7 @@ const SignupIdentityScreen = ({ navigation }: Props) => {
       </View>
       {isSent && (
         <OnboardingInput
+          ref={otpRef}
           label='인증번호'
           placeholder='000000'
           keyboardType='number-pad'
