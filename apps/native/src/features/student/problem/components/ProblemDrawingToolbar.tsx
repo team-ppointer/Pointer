@@ -112,13 +112,9 @@ export const ProblemDrawingToolbar = ({
 
       let next: Corner = corner;
       if ((inLeft || inRight) && (inTop || inBottom)) {
-        next = inTop
-          ? inLeft
-            ? 'top-left'
-            : 'top-right'
-          : inLeft
-            ? 'bottom-left'
-            : 'bottom-right';
+        const vertical = inTop ? 'top' : 'bottom';
+        const horizontal = inLeft ? 'left' : 'right';
+        next = `${vertical}-${horizontal}` as Corner;
       }
 
       const { x: tx, y: ty } = cornerXY(next, width, containerWidth, containerHeight);
@@ -154,8 +150,7 @@ export const ProblemDrawingToolbar = ({
 
   return (
     <GestureDetector gesture={composedGesture}>
-      <Animated.View
-        style={[{ position: 'absolute', top: 0, left: 0, ...SHADOW }, animatedStyle]}>
+      <Animated.View style={[{ position: 'absolute', top: 0, left: 0, ...SHADOW }, animatedStyle]}>
         {collapsed ? (
           <CollapsedToolbar isEraserMode={isEraserMode} onPress={() => onCollapsedChange(false)} />
         ) : (

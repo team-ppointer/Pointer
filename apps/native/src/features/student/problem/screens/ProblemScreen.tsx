@@ -476,15 +476,12 @@ const ProblemScreen = ({ navigation }: ProblemScreenProps) => {
   const [toolbarCollapsed, setToolbarCollapsed] = useState(false);
   const [toolbarArea, setToolbarArea] = useState({ width: 0, height: 0 });
 
-  const handleToolbarAreaLayout = useCallback(
-    ({ nativeEvent }: LayoutChangeEvent) => {
-      const { width, height } = nativeEvent.layout;
-      setToolbarArea((prev) =>
-        prev.width === width && prev.height === height ? prev : { width, height }
-      );
-    },
-    []
-  );
+  const handleToolbarAreaLayout = useCallback(({ nativeEvent }: LayoutChangeEvent) => {
+    const { width, height } = nativeEvent.layout;
+    setToolbarArea((prev) =>
+      prev.width === width && prev.height === height ? prev : { width, height }
+    );
+  }, []);
 
   const handlePenModePress = useCallback(() => {
     drawingState.setPenMode();
