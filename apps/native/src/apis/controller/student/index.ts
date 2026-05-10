@@ -1,6 +1,7 @@
 export * from './auth';
 export * from './diagnosis';
 export * from './me';
+export * from './mockExam';
 export * from './notice';
 export * from './notification';
 export * from './qna';
