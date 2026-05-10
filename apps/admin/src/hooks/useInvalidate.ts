@@ -160,6 +160,17 @@ const useInvalidate = () => {
       queryClient.invalidateQueries({
         queryKey: $api.queryOptions('get', '/api/admin/concept/graph/action-edge-type').queryKey,
       }),
+      // 노드/엣지 시트의 row 라벨, 액션 그래프 pivot 컬럼이 type 의 label/code 를
+      // 직접 임베드하므로 type 변경 시 시트 캐시도 함께 무효화한다.
+      queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/node').queryKey,
+      }),
+      queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/edge').queryKey,
+      }),
+      queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/admin/concept/graph/sheet/action-edge').queryKey,
+      }),
     ]);
   }, [queryClient]);
 
