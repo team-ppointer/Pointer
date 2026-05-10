@@ -2,6 +2,10 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { RotateCcw } from 'lucide-react';
 
+// dedup 키가 fields 의 keys 정렬에 의존해 흔들리지 않도록 정렬된 직렬화를 사용한다.
+const stableStringify = (obj: Record<string, unknown>): string =>
+  JSON.stringify(Object.fromEntries(Object.entries(obj).sort()));
+
 export interface SearchFilterField {
   name: string;
   label: string;
@@ -26,17 +30,21 @@ const SearchFilterBar = ({
   debounceMs = 300,
 }: SearchFilterBarProps) => {
   // 부모가 매 렌더 새 객체로 fields/values 를 넘겨도 값이 같으면 effect 가 발화하지
-  // 않도록 직렬화된 키로 비교한다. valuesKey 가 바뀔 때만 reset 이 호출된다.
+  // 않도록 정렬된 직렬화 키로 비교한다. valuesKey 가 바뀔 때만 reset 이 호출된다.
   const valuesKey = useMemo(() => {
     const dv: Record<string, unknown> = {};
     fields.forEach((f) => {
       dv[f.name] = values[f.name] ?? '';
     });
-    return JSON.stringify(dv);
+    return stableStringify(dv);
   }, [fields, values]);
 
+  // useForm 의 defaultValues 는 마운트 시점에만 사용되므로 ref 로 1회만 캡처.
+  // 이후 값 변경은 아래 effect 의 reset() 으로만 반영된다.
+  const initialDefaultsRef = useRef<Record<string, unknown>>(JSON.parse(valuesKey));
+
   const { register, watch, reset } = useForm<Record<string, unknown>>({
-    defaultValues: useMemo(() => JSON.parse(valuesKey), [valuesKey]),
+    defaultValues: initialDefaultsRef.current,
   });
 
   const onChangeRef = useRef(onChange);
@@ -53,7 +61,7 @@ const SearchFilterBar = ({
     const subscription = watch((next) => {
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => {
-        const serialized = JSON.stringify(next);
+        const serialized = stableStringify(next as Record<string, unknown>);
         if (serialized === lastEmittedRef.current) return;
         lastEmittedRef.current = serialized;
         onChangeRef.current(next as Record<string, unknown>);
@@ -70,7 +78,7 @@ const SearchFilterBar = ({
     fields.forEach((f) => {
       empty[f.name] = '';
     });
-    lastEmittedRef.current = JSON.stringify(empty);
+    lastEmittedRef.current = stableStringify(empty);
     reset(empty);
     onReset();
   };
