@@ -7,18 +7,13 @@ import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
 
 interface Props {
-  teacher: components['schemas']['TeacherResp'];
+  teacher?: components['schemas']['TeacherResp'];
   selectedStudents: components['schemas']['StudentResp'][];
   setSelectedStudents: React.Dispatch<React.SetStateAction<components['schemas']['StudentResp'][]>>;
   onApply: () => void;
 }
 
-const StudentSearchModal = ({
-  teacher: _teacher,
-  selectedStudents,
-  setSelectedStudents,
-  onApply,
-}: Props) => {
+const StudentSearchModal = ({ selectedStudents, setSelectedStudents, onApply }: Props) => {
   const [searchValue, setSearchValue] = useState('');
   const { data: studentList } = getStudent({ query: '' });
   const { register, watch } = useForm({ defaultValues: { searchInput: '' } });
