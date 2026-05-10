@@ -91,7 +91,7 @@ function RouteComponent() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: roleListResponse } = getRoles();
-  const { data: menuListResponse } = getMenus();
+  const { data: menuListResponse, isLoading: isLoadingMenus, isError: isMenusError } = getMenus();
   const { mutate: createRole, isPending: isCreating } = postRole();
   const { mutate: updateRole, isPending: isUpdating } = putRole();
   const { mutate: removeRole, isPending: isDeleting } = deleteRole();
@@ -103,6 +103,33 @@ function RouteComponent() {
   const roles = roleListResponse?.data ?? [];
   const menus = menuListResponse?.data ?? [];
   const menuSections = useMemo(() => buildMenuSections(menus), [menus]);
+  const visibleMenuIds = useMemo(
+    () => new Set(menuSections.flatMap((section) => section.menus.map((menu) => menu.id))),
+    [menuSections]
+  );
+  // visibleMenuIds 가 비어 있는 동안 toVisibleMenuIds 를 호출하면 기존 권한이 모두
+  // 제거된 것처럼 보이므로, menu 응답이 도착하기 전에는 편집/생성 자체를 막는다.
+  const menusReady = !isLoadingMenus && !isMenusError;
+
+  // role 응답의 menu id 들 중 폼에서 토글 가능한(=visible) 것만 추린다.
+  // 백엔드에 남아 있지만 FE 가 모르는 권한이 submit 시 silent 하게 보존되는 회귀 차단.
+  const toVisibleMenuIds = (role: AdminRoleResp): number[] => {
+    const allIds =
+      role.menus?.map((menu) => menu.id).filter((id): id is number => typeof id === 'number') ?? [];
+    const visible = allIds.filter((id) => visibleMenuIds.has(id));
+
+    if (import.meta.env.DEV && visible.length !== allIds.length) {
+      const dropped = allIds.filter((id) => !visibleMenuIds.has(id));
+      console.warn(
+        '[role-form] dropping role menu ids not visible in form:',
+        dropped,
+        'role:',
+        role.name
+      );
+    }
+
+    return visible;
+  };
 
   const invalidateRoles = () => {
     queryClient.invalidateQueries({ queryKey: roleQueryKey });
@@ -110,6 +137,7 @@ function RouteComponent() {
 
   const handleCreateSubmit = (event: FormEvent) => {
     event.preventDefault();
+    if (!menusReady) return;
     setMutationError('');
 
     createRole(
@@ -129,12 +157,11 @@ function RouteComponent() {
   };
 
   const handleEditStart = (role: AdminRoleResp) => {
+    if (!menusReady) return;
     setEditingRoleId(role.id ?? null);
     setEditForm({
       name: role.name ?? '',
-      menuIds:
-        role.menus?.map((menu) => menu.id).filter((id): id is number => typeof id === 'number') ??
-        [],
+      menuIds: toVisibleMenuIds(role),
     });
   };
 
@@ -301,6 +328,17 @@ function RouteComponent() {
           </div>
         )}
 
+        {!menusReady && (
+          <div className='mb-4 flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700'>
+            <AlertCircle className='mt-0.5 h-4 w-4 flex-shrink-0' />
+            <span className='flex-1'>
+              {isMenusError
+                ? '메뉴 목록을 불러오지 못해 역할을 편집할 수 없습니다. 새로고침 후 다시 시도해주세요.'
+                : '메뉴 목록을 불러오는 중입니다.'}
+            </span>
+          </div>
+        )}
+
         <div className='mb-6 rounded-2xl border border-gray-200 bg-white p-6'>
           <h2 className='text-xl font-bold text-gray-900'>역할 생성</h2>
           <p className='mt-2 text-sm text-gray-500'>역할별 접근 메뉴를 체크박스로 관리합니다.</p>
@@ -315,7 +353,7 @@ function RouteComponent() {
                 }
                 required
               />
-              <Button type='submit' disabled={isCreating}>
+              <Button type='submit' disabled={isCreating || !menusReady}>
                 <Plus className='h-4 w-4' />
                 역할 생성
               </Button>
@@ -333,10 +371,7 @@ function RouteComponent() {
               ? editForm
               : {
                   name: role.name ?? '',
-                  menuIds:
-                    role.menus
-                      ?.map((menu) => menu.id)
-                      .filter((id): id is number => typeof id === 'number') ?? [],
+                  menuIds: toVisibleMenuIds(role),
                 };
 
             return (
@@ -387,6 +422,7 @@ function RouteComponent() {
                           type='button'
                           sizeType='sm'
                           variant='light'
+                          disabled={!menusReady}
                           onClick={() => handleEditStart(role)}>
                           <Pencil className='h-4 w-4' />
                         </Button>
