@@ -48,9 +48,11 @@ const NodeSearchSelect = ({
 
   // 부모가 같은 컴포넌트 인스턴스에 다른 initialNode 를 넘기는 경우(모달 재오픈 / 행 전환 등)
   // cachedNode 를 동기화해 stale 라벨이 잠깐 보이는 회귀를 방지한다.
+  // - initialNode 가 undefined 로 비워지는 경우도 그대로 반영해 cachedNode 누수를 막는다.
+  // - 같은 id 인데 name/typeLabel 만 갱신된 경우(인플레이스 rename 등)도 반영한다.
   useEffect(() => {
-    if (initialNode) setCachedNode(initialNode);
-  }, [initialNode?.id]);
+    setCachedNode(initialNode);
+  }, [initialNode?.id, initialNode?.name, initialNode?.nodeType?.label]);
 
   const sheetQuery = getSheetNode({
     page: 0,
