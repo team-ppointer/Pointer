@@ -171,9 +171,11 @@ const BroadcastTab = () => {
           <TwoButtonModalTemplate
             text={`선택한 ${selectedStudents.length}명에게 ${commentDate} 코멘트를 발송합니다. 기존 코멘트가 있다면 덮어씁니다.`}
             leftButtonText='취소'
-            rightButtonText='발송'
+            rightButtonText={upsertMutation.isPending ? '발송 중...' : '발송'}
             handleClickLeftButton={closeConfirmModal}
             handleClickRightButton={handleSend}
+            leftButtonDisabled={upsertMutation.isPending}
+            rightButtonDisabled={upsertMutation.isPending}
           />
         </div>
       </Modal>

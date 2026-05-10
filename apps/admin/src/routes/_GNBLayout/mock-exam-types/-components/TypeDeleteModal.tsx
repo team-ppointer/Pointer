@@ -46,7 +46,8 @@ const TypeDeleteModal = ({ isOpen, target, onClose }: Props) => {
           rightButtonText={deleteMutation.isPending ? '삭제 중...' : '삭제'}
           variant='danger'
           handleClickLeftButton={onClose}
-          handleClickRightButton={deleteMutation.isPending ? () => undefined : handleConfirm}
+          handleClickRightButton={handleConfirm}
+          rightButtonDisabled={deleteMutation.isPending}
         />
       )}
     </Modal>

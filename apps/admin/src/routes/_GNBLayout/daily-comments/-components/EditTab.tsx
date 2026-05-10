@@ -348,7 +348,8 @@ const EditTab = () => {
           leftButtonText='아니오'
           rightButtonText={deleteMutation.isPending ? '삭제 중...' : '예'}
           handleClickLeftButton={closeDeleteModal}
-          handleClickRightButton={deleteMutation.isPending ? () => undefined : handleDelete}
+          handleClickRightButton={handleDelete}
+          rightButtonDisabled={deleteMutation.isPending}
           variant='danger'
         />
       </Modal>

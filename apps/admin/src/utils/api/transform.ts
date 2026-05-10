@@ -76,7 +76,13 @@ export const getEmptyContentString = () => EMPTY_TIPTAP_STRING;
 
 type TiptapNode = { content?: TiptapNode[]; text?: string };
 
+const hasNonEmptyTextDeep = (node: TiptapNode | undefined): boolean => {
+  if (!node) return false;
+  if (node.text && node.text.trim().length > 0) return true;
+  return !!node.content?.some(hasNonEmptyTextDeep);
+};
+
 export const hasEditorContent = (serialized: string): boolean => {
-  const parsed = parseEditorContent(serialized) as { content?: TiptapNode[] };
-  return !!parsed?.content?.some((node) => node.content?.some((c) => c.text?.trim()));
+  const parsed = parseEditorContent(serialized) as TiptapNode;
+  return hasNonEmptyTextDeep(parsed);
 };
