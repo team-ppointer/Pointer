@@ -106,6 +106,13 @@ const AddActionRowModal = ({ onClose, onSaved }: Props) => {
       .map((n) => n.id)
       .filter((id): id is number => id !== undefined);
 
+    // 빈 conceptNodeIds 는 replace-cell API 에서 셀 비우기로 동작하므로,
+    // 기존 (actionNode, role) 셀이 있던 경우 의도치 않게 데이터가 삭제될 수 있다.
+    if (conceptNodeIds.length === 0) {
+      toast.warn('최소 1개 이상의 conceptNode 를 선택해주세요.');
+      return;
+    }
+
     try {
       await putCellMutation.mutateAsync({
         params: {
@@ -274,7 +281,7 @@ const AddActionRowModal = ({ onClose, onSaved }: Props) => {
           <Button
             type='submit'
             variant='dark'
-            disabled={isSubmitting || actionNodeTypeId === undefined}>
+            disabled={isSubmitting || actionNodeTypeId === undefined || selectedNodes.length === 0}>
             등록하기
           </Button>
         </div>
