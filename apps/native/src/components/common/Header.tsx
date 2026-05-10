@@ -64,7 +64,7 @@ const HeaderIconButton = ({
   onPress?: () => void;
   color?: string;
 }) => (
-  <AnimatedPressable className='p-[12px]' onPress={onPress}>
+  <AnimatedPressable className='items-center justify-center p-[12px]' onPress={onPress}>
     <Icon size={24} {...(color && { color })} />
   </AnimatedPressable>
 );
