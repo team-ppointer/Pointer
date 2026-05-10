@@ -8,7 +8,6 @@ export interface DrawingState {
   eraserSize: number;
   canUndo: boolean;
   canRedo: boolean;
-  hasUnsavedChanges: boolean;
 }
 
 type DrawingAction =
@@ -16,8 +15,6 @@ type DrawingAction =
   | { type: 'SET_STROKE_WIDTH'; width: number }
   | { type: 'SET_ERASER_SIZE'; size: number }
   | { type: 'SET_HISTORY_STATE'; canUndo: boolean; canRedo: boolean }
-  | { type: 'SET_UNSAVED_CHANGES'; hasChanges: boolean }
-  | { type: 'MARK_AS_SAVED' }
   | { type: 'RESET' };
 
 const initialState: DrawingState = {
@@ -26,7 +23,6 @@ const initialState: DrawingState = {
   eraserSize: 22,
   canUndo: false,
   canRedo: false,
-  hasUnsavedChanges: false,
 };
 
 function drawingReducer(state: DrawingState, action: DrawingAction): DrawingState {
@@ -38,16 +34,7 @@ function drawingReducer(state: DrawingState, action: DrawingAction): DrawingStat
     case 'SET_ERASER_SIZE':
       return { ...state, eraserSize: action.size };
     case 'SET_HISTORY_STATE':
-      return {
-        ...state,
-        canUndo: action.canUndo,
-        canRedo: action.canRedo,
-        hasUnsavedChanges: true,
-      };
-    case 'SET_UNSAVED_CHANGES':
-      return { ...state, hasUnsavedChanges: action.hasChanges };
-    case 'MARK_AS_SAVED':
-      return { ...state, hasUnsavedChanges: false };
+      return { ...state, canUndo: action.canUndo, canRedo: action.canRedo };
     case 'RESET':
       return initialState;
     default:
@@ -82,10 +69,6 @@ export function useDrawingState() {
     dispatch({ type: 'SET_HISTORY_STATE', canUndo, canRedo });
   }, []);
 
-  const markAsSaved = useCallback(() => {
-    dispatch({ type: 'MARK_AS_SAVED' });
-  }, []);
-
   const reset = useCallback(() => {
     dispatch({ type: 'RESET' });
   }, []);
@@ -100,7 +83,6 @@ export function useDrawingState() {
     eraserSize: state.eraserSize,
     canUndo: state.canUndo,
     canRedo: state.canRedo,
-    hasUnsavedChanges: state.hasUnsavedChanges,
 
     // Actions
     setPenMode,
@@ -109,7 +91,6 @@ export function useDrawingState() {
     setStrokeWidth,
     setEraserSize,
     setHistoryState,
-    markAsSaved,
     reset,
   };
 }

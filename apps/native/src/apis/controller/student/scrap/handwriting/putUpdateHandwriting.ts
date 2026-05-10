@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { type paths } from '@schema';
-import { client, TanstackQueryClient } from '@/apis/client';
+import { client } from '@/apis/client';
 
 type UpdateHandwritingRequest =
   paths['/api/student/scrap/{scrapId}/handwriting']['put']['requestBody']['content']['application/json'];
@@ -14,28 +14,21 @@ interface UpdateHandwritingParams {
 }
 
 export const useUpdateHandwriting = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       scrapId,
       request,
     }: UpdateHandwritingParams): Promise<UpdateHandwritingResponse> => {
-      const { data } = await client.PUT('/api/student/scrap/{scrapId}/handwriting', {
+      const { data, response } = await client.PUT('/api/student/scrap/{scrapId}/handwriting', {
         params: {
           path: { scrapId },
         },
         body: request,
       });
+      if (!response.ok) {
+        throw new Error(`handwriting PUT failed: ${response.status}`);
+      }
       return data as UpdateHandwritingResponse;
-    },
-    onSuccess: (response, { scrapId }) => {
-      queryClient.setQueryData(
-        TanstackQueryClient.queryOptions('get', '/api/student/scrap/{scrapId}/handwriting', {
-          params: { path: { scrapId } },
-        }).queryKey,
-        response
-      );
     },
   });
 };
