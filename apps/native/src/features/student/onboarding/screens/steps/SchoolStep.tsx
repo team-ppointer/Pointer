@@ -11,11 +11,14 @@ import useGetSchool from '@apis/controller/student/school/useGetSchool';
 import type { OnboardingScreenProps } from '../types';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { OnboardingLayout, OnboardingInput } from '../../components';
+import useFinishOnboarding from '../../hooks/useFinishOnboarding';
 
 const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   const schoolId = useOnboardingStore((state) => state.schoolId);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+  const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
+  const currentTypeStatus = useOnboardingStore((state) => state.currentTypeStatus);
 
   useFocusEffect(
     useCallback(() => {
@@ -31,6 +34,10 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
 
   const results = data?.data ?? [];
 
+  const { submit, isPending } = useFinishOnboarding();
+
+  const ctaDisabled = !schoolId || isPending || currentTypeStatus !== 'resolved';
+
   const handleSelect = (id: number, name: string, sido: string) => {
     const label = `${name}(${sido})`;
     setSchoolId(id);
@@ -44,18 +51,25 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
     setSelectedLabel('');
   };
 
-  const handleNext = () => {
-    if (!schoolId) return;
-    setCurrentStep('Welcome');
-    navigation.navigate('Welcome');
+  const goNext = async () => {
+    if (currentMockExamType !== null) {
+      setCurrentStep('MockExam');
+      navigation.navigate('MockExam');
+      return;
+    }
+    await submit();
   };
 
-  const handleSkip = () => {
+  const handleNext = async () => {
+    if (!schoolId) return;
+    await goNext();
+  };
+
+  const handleSkip = async () => {
     setSchoolId(null);
     setQuery('');
     setSelectedLabel('');
-    setCurrentStep('Welcome');
-    navigation.navigate('Welcome');
+    await goNext();
   };
 
   return (
@@ -63,7 +77,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
       title='현재 재학중인 학교명을 입력해 주세요.'
       description='학교를 입력해 맞춤형 문제를 제공받아요.'
       onPressCTA={handleNext}
-      ctaDisabled={!schoolId}
+      ctaDisabled={ctaDisabled}
       skipLabel='건너뛰기'
       onSkip={handleSkip}>
       <View>
