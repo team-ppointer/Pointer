@@ -55,22 +55,6 @@ const NodeSearchSelect = ({
   const candidates: ConceptNodeResp[] = sheetQuery.data?.data ?? [];
 
   useEffect(() => {
-    if (value === undefined) {
-      setCachedNode(undefined);
-      return;
-    }
-    if (cachedNode?.id === value) return;
-    if (initialNode?.id === value) {
-      setCachedNode(initialNode);
-      return;
-    }
-    const fromList = candidates.find((n) => n.id === value);
-    if (fromList) {
-      setCachedNode(fromList);
-    }
-  }, [value, initialNode, candidates, cachedNode]);
-
-  useEffect(() => {
     if (!isOpen) return;
     const handler = (e: MouseEvent) => {
       if (!containerRef.current) return;
@@ -174,11 +158,11 @@ const NodeSearchSelect = ({
                 일치하는 노드가 없습니다.
               </div>
             ) : (
-              filtered.map((node) => {
+              filtered.map((node, idx) => {
                 const isSelected = node.id !== undefined && node.id === value;
                 return (
                   <div
-                    key={node.id ?? Math.random()}
+                    key={node.id ?? `idx-${idx}`}
                     onClick={() => handleSelect(node)}
                     className={`mb-1 cursor-pointer rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
                       isSelected ? 'bg-main text-white' : 'text-gray-700 hover:bg-gray-100'
