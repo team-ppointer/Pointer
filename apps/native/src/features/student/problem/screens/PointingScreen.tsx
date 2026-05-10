@@ -1,7 +1,7 @@
-import { Alert, View } from 'react-native';
+import { Alert, type LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AnswerEventPayload } from '@repo/pointer-content-renderer';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -30,6 +30,9 @@ import {
   toChatScenario,
   toUserAnswers,
 } from '../transforms/contentRendererTransforms';
+import { POINTING_BRUSH_COLORS, PointingDrawingToolbar } from '../components/floating-toolbar';
+import { DrawingCanvas, type DrawingCanvasRef } from '../../scrap/utils/skia';
+import { useDrawingState } from '../../scrap/hooks/useDrawingState';
 
 const PointingScreen = ({
   navigation,
@@ -158,6 +161,41 @@ const PointingScreen = ({
 
   const { leftWidth, rightWidth } = useSplitPanelLayout();
 
+  const canvasRef = useRef<DrawingCanvasRef>(null);
+  const drawingState = useDrawingState();
+  const [toolbarCollapsed, setToolbarCollapsed] = useState(false);
+  const [toolbarArea, setToolbarArea] = useState({ width: 0, height: 0 });
+  const [brushColor, setBrushColor] = useState<string>(POINTING_BRUSH_COLORS[0]);
+
+  const handleToolbarAreaLayout = useCallback(({ nativeEvent }: LayoutChangeEvent) => {
+    const { width, height } = nativeEvent.layout;
+    setToolbarArea((prev) =>
+      prev.width === width && prev.height === height ? prev : { width, height }
+    );
+  }, []);
+
+  const handlePenModePress = useCallback(() => {
+    drawingState.setPenMode();
+  }, [drawingState]);
+
+  const handleEraserModePress = useCallback(() => {
+    if (drawingState.isEraserMode) {
+      drawingState.setPenMode();
+    } else {
+      drawingState.setEraserMode();
+    }
+  }, [drawingState]);
+
+  const handleSelectBrushColor = useCallback(
+    (color: string) => {
+      setBrushColor(color);
+      if (drawingState.isEraserMode) {
+        drawingState.setPenMode();
+      }
+    },
+    [drawingState]
+  );
+
   const redirectToHome = useCallback(() => {
     resetSession();
     navigation?.navigate('StudentTabs', { screen: 'Home' });
@@ -234,11 +272,47 @@ const PointingScreen = ({
             badge={badgeStatus}
             paddingHorizontal={0}
           />
-          <PointerContentView
-            initMessage={documentInitMessage}
-            minHeight={200}
-            style={{ marginTop: 20, maxWidth: 720 }}
-          />
+          <View
+            style={{ flex: 1, marginTop: 20, position: 'relative' }}
+            onLayout={handleToolbarAreaLayout}>
+            <PointerContentView
+              initMessage={documentInitMessage}
+              minHeight={200}
+              style={{ maxWidth: 720 }}
+            />
+
+            <View style={StyleSheet.absoluteFillObject} pointerEvents='box-none'>
+              <View style={{ flex: 1 }} pointerEvents='auto'>
+                <DrawingCanvas
+                  ref={canvasRef}
+                  strokeColor={brushColor}
+                  strokeWidth={2}
+                  eraserMode={drawingState.isEraserMode}
+                  eraserSize={12}
+                  onHistoryChange={drawingState.setHistoryState}
+                  onStrokeStart={() => setToolbarCollapsed(true)}
+                />
+              </View>
+            </View>
+
+            <View style={StyleSheet.absoluteFillObject} pointerEvents='box-none'>
+              <PointingDrawingToolbar
+                canUndo={drawingState.canUndo}
+                canRedo={drawingState.canRedo}
+                onUndo={() => canvasRef.current?.undo()}
+                onRedo={() => canvasRef.current?.redo()}
+                isEraserMode={drawingState.isEraserMode}
+                onPenModePress={handlePenModePress}
+                onEraserModePress={handleEraserModePress}
+                collapsed={toolbarCollapsed}
+                onCollapsedChange={setToolbarCollapsed}
+                containerWidth={toolbarArea.width}
+                containerHeight={toolbarArea.height}
+                selectedBrushColor={brushColor}
+                onSelectBrushColor={handleSelectBrushColor}
+              />
+            </View>
+          </View>
         </View>
       </View>
     </View>
