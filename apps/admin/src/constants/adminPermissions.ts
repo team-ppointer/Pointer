@@ -193,35 +193,6 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   },
 ];
 
-const ALL_MENU_NAMES = new Set<AdminMenuName>(
-  ADMIN_NAV_SECTIONS.flatMap((section) => section.items.map((item) => item.menuName))
-);
-
-// 역할 폼 등 menu name 단위로 메타정보(label, icon, 소속 섹션)를 조회할 때 사용한다.
-export type AdminMenuMeta = {
-  sectionTitle: string;
-  label: string;
-  icon: typeof Calendar;
-};
-
-export const ADMIN_MENU_META: Record<AdminMenuName, AdminMenuMeta> = (() => {
-  const map = {} as Record<AdminMenuName, AdminMenuMeta>;
-  for (const section of ADMIN_NAV_SECTIONS) {
-    for (const item of section.items) {
-      map[item.menuName] = {
-        sectionTitle: section.title,
-        label: item.label,
-        icon: item.icon,
-      };
-    }
-  }
-  return map;
-})();
-
-export const isAdminMenuName = (name?: string): name is AdminMenuName => {
-  return !!name && ALL_MENU_NAMES.has(name as AdminMenuName);
-};
-
 export const hasMenuPermission = (
   session: AdminSession | null,
   menuName: AdminMenuName | AdminMenuName[]

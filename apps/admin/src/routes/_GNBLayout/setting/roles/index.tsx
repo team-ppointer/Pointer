@@ -1,11 +1,13 @@
-import { FormEvent, ReactNode, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { $api, deleteRole, getMenus, getRoles, postRole, putRole } from '@apis';
 import { Button, Header, Input } from '@components';
 import { components } from '@schema';
 import { adminSessionStorage, refreshSession } from '@utils';
-import { AlertCircle, CheckSquare, FolderTree, Pencil, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, CheckSquare, Pencil, Plus, Trash2 } from 'lucide-react';
+
+import { ADMIN_NAV_SECTIONS } from '@/constants/adminPermissions';
 
 export const Route = createFileRoute('/_GNBLayout/setting/roles/')({
   component: RouteComponent,
@@ -35,26 +37,37 @@ const getRoleMutationErrorMessage = (error: unknown): string => {
   return typed.message ?? typed.error?.message ?? typed.data?.message ?? fallback;
 };
 
-const getMenuLabel = (name?: string) => {
-  const labels: Record<string, string> = {
-    PUBLISH: '발행',
-    NOTICE: '공지',
-    NOTIFICATION: '알림',
-    DIAGNOSIS: '학생 진단',
-    GRAPH: '그래프 관리',
-    QNA: 'Q&A',
-    PROBLEM: '문제 관리',
-    PROBLEM_ITEM: '문제',
-    PROBLEM_SET: '세트',
-    CONCEPT_TAG: '개념 태그',
-    TEACHER: '선생님 관리',
-    SETTING: '설정',
-    ADMIN_ACCOUNT: '관리자 계정',
-    ADMIN_ROLE: '역할 관리',
-    ADMIN_MENU: '메뉴 관리',
-  };
+type RenderableMenu = {
+  id: number;
+  menuName: string;
+  label: string;
+  icon: (typeof ADMIN_NAV_SECTIONS)[number]['items'][number]['icon'];
+};
 
-  return name ? (labels[name] ?? name) : '이름 없음';
+type MenuSection = {
+  title: string;
+  menus: RenderableMenu[];
+};
+
+// FE 의 ADMIN_NAV_SECTIONS 정의(권한의 source of truth)를 forward 로 순회하면서
+// 백엔드 메뉴 응답에 같은 name 이 있는 경우만 렌더한다. 백엔드에만 존재하는 row 는
+// FE 가 모르는 권한이라 grant UI 에 노출하지 않는다.
+const buildMenuSections = (menus: AdminMenuResp[]): MenuSection[] => {
+  const menuIdByName = new Map<string, number>();
+  for (const menu of menus) {
+    if (typeof menu.id === 'number' && menu.name) {
+      menuIdByName.set(menu.name, menu.id);
+    }
+  }
+
+  return ADMIN_NAV_SECTIONS.map((section) => ({
+    title: section.title,
+    menus: section.items.flatMap((item) => {
+      const id = menuIdByName.get(item.menuName);
+      if (id === undefined) return [];
+      return [{ id, menuName: item.menuName, label: item.label, icon: item.icon }];
+    }),
+  })).filter((section) => section.menus.length > 0);
 };
 
 function RouteComponent() {
@@ -72,54 +85,20 @@ function RouteComponent() {
   const roleQueryKey = useMemo(() => $api.queryOptions('get', '/api/admin/role').queryKey, []);
   const roles = roleListResponse?.data ?? [];
   const menus = menuListResponse?.data ?? [];
-  const menuMap = useMemo(() => {
-    return new Map(
-      menus
-        .filter((menu): menu is AdminMenuResp & { id: number } => typeof menu.id === 'number')
-        .map((menu) => [menu.id, menu])
-    );
-  }, [menus]);
-  const childrenMap = useMemo(() => {
-    const map = new Map<number | null, AdminMenuResp[]>();
-
-    menus.forEach((menu) => {
-      const id = typeof menu.id === 'number' ? menu.id : null;
-      if (id === null) return;
-
-      const rawParentId = typeof menu.parentId === 'number' ? menu.parentId : null;
-      const parentId = rawParentId !== null && menuMap.has(rawParentId) ? rawParentId : null;
-      const bucket = map.get(parentId) ?? [];
-      bucket.push(menu);
-      map.set(parentId, bucket);
-    });
-
-    for (const bucket of map.values()) {
-      bucket.sort((a, b) => {
-        const labelCompare = getMenuLabel(a.name).localeCompare(getMenuLabel(b.name), 'ko');
-        if (labelCompare !== 0) return labelCompare;
-
-        return (a.id ?? 0) - (b.id ?? 0);
-      });
-    }
-
-    return map;
-  }, [menus]);
-  const rootMenus = childrenMap.get(null) ?? [];
+  const menuSections = useMemo(() => buildMenuSections(menus), [menus]);
 
   const invalidateRoles = () => {
     queryClient.invalidateQueries({ queryKey: roleQueryKey });
   };
 
-  // 자식 선택 시 부모를 자동 주입하면
-  // sibling 자식 메뉴까지 의도치 않게 열리므로, 메뉴 토글은 항상 독립적으로 동작한다.
-  const toggleMenuIds = (menuIds: number[], menuId: number) => {
-    const selectedMenuIds = new Set(menuIds);
-    if (selectedMenuIds.has(menuId)) {
-      selectedMenuIds.delete(menuId);
+  const toggleMenuId = (menuIds: number[], menuId: number) => {
+    const set = new Set(menuIds);
+    if (set.has(menuId)) {
+      set.delete(menuId);
     } else {
-      selectedMenuIds.add(menuId);
+      set.add(menuId);
     }
-    return Array.from(selectedMenuIds);
+    return Array.from(set);
   };
 
   const handleCreateSubmit = (event: FormEvent) => {
@@ -211,122 +190,57 @@ function RouteComponent() {
     );
   };
 
-  const renderMenuOption = (
-    menu: AdminMenuResp,
-    form: RoleFormState,
-    onChange: (menuIds: number[]) => void
-  ) => {
-    if (typeof menu.id !== 'number') return null;
-    // 콜백 안에서 narrowing 이 풀리지 않도록 로컬 const 로 고정
-    const menuId = menu.id;
-
-    const isChecked = form.menuIds.includes(menuId);
-    const parentMenu = typeof menu.parentId === 'number' ? menuMap.get(menu.parentId) : undefined;
-    const parentName = parentMenu ? getMenuLabel(parentMenu.name) : '최상위';
-
-    return (
-      <label
-        key={menuId}
-        className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
-          isChecked
-            ? 'border-main/30 bg-main/10 text-main'
-            : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-        }`}>
-        <input
-          type='checkbox'
-          checked={isChecked}
-          onChange={() => onChange(toggleMenuIds(form.menuIds, menuId))}
-          className='accent-main h-4 w-4'
-        />
-        <div className='min-w-0 flex-1'>
-          <div className='flex items-center gap-2'>
-            <FolderTree className='text-main h-4 w-4 flex-shrink-0' />
-            <span className='truncate'>{getMenuLabel(menu.name)}</span>
-          </div>
-          <p className='mt-1 text-xs font-medium text-gray-400'>
-            {menu.name} · 부모 메뉴 {parentName}
-          </p>
-        </div>
-      </label>
-    );
-  };
-
-  const renderMenuTree = (
-    menu: AdminMenuResp,
-    form: RoleFormState,
-    onChange: (menuIds: number[]) => void,
-    depth = 0
-  ): ReactNode => {
-    const id = typeof menu.id === 'number' ? menu.id : null;
-    if (id === null) return null;
-
-    const children = childrenMap.get(id) ?? [];
-
-    return (
-      <div key={id} className={`${depth > 0 ? 'ml-6 border-l border-gray-100 pl-4' : ''}`}>
-        {renderMenuOption(menu, form, onChange)}
-        {children.length > 0 && (
-          <div className='mt-3 flex flex-col gap-3'>
-            {children.map((child) => renderMenuTree(child, form, onChange, depth + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const renderMenuCheckboxes = (form: RoleFormState, onChange: (menuIds: number[]) => void) => (
-    <div className='flex flex-col gap-3'>
-      {rootMenus.map((menu) => renderMenuTree(menu, form, onChange))}
+    <div className='flex flex-col gap-5'>
+      {menuSections.map((section) => (
+        <div key={section.title} className='flex flex-col gap-2'>
+          <div className='text-xs font-bold tracking-widest text-gray-500 uppercase'>
+            {section.title}
+          </div>
+          <div className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
+            {section.menus.map((menu) => {
+              const isChecked = form.menuIds.includes(menu.id);
+              const Icon = menu.icon;
+
+              return (
+                <label
+                  key={menu.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
+                    isChecked
+                      ? 'border-main/30 bg-main/10 text-main'
+                      : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}>
+                  <input
+                    type='checkbox'
+                    checked={isChecked}
+                    onChange={() => onChange(toggleMenuId(form.menuIds, menu.id))}
+                    className='accent-main h-4 w-4'
+                  />
+                  <div className='flex min-w-0 flex-1 items-center gap-2'>
+                    <Icon
+                      className={`h-4 w-4 flex-shrink-0 ${isChecked ? 'text-main' : 'text-gray-500'}`}
+                    />
+                    <span className='truncate'>{menu.label}</span>
+                  </div>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 
-  const renderSelectedMenuTree = (
-    menu: AdminMenuResp,
-    selectedMenuIds: number[],
-    depth = 0
-  ): ReactNode => {
-    const id = typeof menu.id === 'number' ? menu.id : null;
-    if (id === null) return null;
-
-    const isSelected = selectedMenuIds.includes(id);
-
-    const childDepth = isSelected ? depth + 1 : depth;
-    const children = (childrenMap.get(id) ?? [])
-      .map((child) => renderSelectedMenuTree(child, selectedMenuIds, childDepth))
-      .filter(Boolean);
-
-    if (!isSelected && children.length === 0) {
-      return null;
-    }
-
-    if (!isSelected) {
-      return (
-        <div key={id} className='flex flex-col gap-3'>
-          {children}
-        </div>
-      );
-    }
-
-    return (
-      <div key={id} className={`${depth > 0 ? 'ml-6 border-l border-gray-100 pl-4' : ''}`}>
-        <div className='rounded-xl border border-gray-200 bg-gray-50/70 px-4 py-3'>
-          <div className='flex items-center gap-2'>
-            <FolderTree className='text-main h-4 w-4 flex-shrink-0' />
-            <span className='text-sm font-semibold text-gray-800'>{getMenuLabel(menu.name)}</span>
-          </div>
-          <p className='mt-1 text-xs font-medium text-gray-400'>{menu.name}</p>
-        </div>
-        {children.length > 0 && <div className='mt-3 flex flex-col gap-3'>{children}</div>}
-      </div>
-    );
-  };
-
   const renderSelectedMenus = (selectedMenuIds: number[]) => {
-    const selectedTrees = rootMenus
-      .map((menu) => renderSelectedMenuTree(menu, selectedMenuIds))
-      .filter(Boolean);
+    const selectedSet = new Set(selectedMenuIds);
+    const visibleSections = menuSections
+      .map((section) => ({
+        ...section,
+        menus: section.menus.filter((menu) => selectedSet.has(menu.id)),
+      }))
+      .filter((section) => section.menus.length > 0);
 
-    if (selectedTrees.length === 0) {
+    if (visibleSections.length === 0) {
       return (
         <div className='rounded-xl border border-gray-100 bg-gray-50/70 px-4 py-3 text-sm text-gray-600'>
           선택된 메뉴가 없습니다.
@@ -334,7 +248,30 @@ function RouteComponent() {
       );
     }
 
-    return <div className='flex flex-col gap-3'>{selectedTrees}</div>;
+    return (
+      <div className='flex flex-col gap-4'>
+        {visibleSections.map((section) => (
+          <div key={section.title} className='flex flex-col gap-2'>
+            <div className='text-xs font-bold tracking-widest text-gray-500 uppercase'>
+              {section.title}
+            </div>
+            <div className='flex flex-wrap gap-2'>
+              {section.menus.map((menu) => {
+                const Icon = menu.icon;
+                return (
+                  <span
+                    key={menu.id}
+                    className='border-main/20 bg-main/5 text-main inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold'>
+                    <Icon className='h-3.5 w-3.5' />
+                    {menu.label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -361,7 +298,7 @@ function RouteComponent() {
           <h2 className='text-xl font-bold text-gray-900'>역할 생성</h2>
           <p className='mt-2 text-sm text-gray-500'>역할별 접근 메뉴를 체크박스로 관리합니다.</p>
 
-          <form onSubmit={handleCreateSubmit} className='mt-6 flex flex-col gap-4'>
+          <form onSubmit={handleCreateSubmit} className='mt-6 flex flex-col gap-6'>
             <div className='flex flex-col gap-3 lg:flex-row'>
               <Input
                 placeholder='역할 이름'
