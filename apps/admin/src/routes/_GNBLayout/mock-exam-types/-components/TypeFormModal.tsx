@@ -8,8 +8,8 @@ import { ListChecks, X } from 'lucide-react';
 import { Button, Input } from '@components';
 import { createMockExamType, updateMockExamType } from '@apis';
 import { useInvalidate } from '@hooks';
+import { extractErrorMessage, getErrorCode } from '@utils';
 
-import { extractErrorMessage } from '@/components/conceptGraph/utils';
 import type { components } from '@/types/api/schema';
 
 type MockExamType = components['schemas']['MockExamTypeResp'];
@@ -97,9 +97,7 @@ const TypeFormModal = ({ mode, target, onClose }: Props) => {
       onClose();
     } catch (error) {
       const message = extractErrorMessage(error);
-      const errorCode = (error as { response?: { data?: { code?: unknown } } }).response?.data
-        ?.code;
-      if (!isEditMode && errorCode === 'MOCK_EXAM_001') {
+      if (!isEditMode && getErrorCode(error) === 'MOCK_EXAM_001') {
         setError('code', { type: 'server', message });
       } else {
         toast.error(message);

@@ -73,3 +73,10 @@ export const serializeEditorPayload = (payload?: TiptapPayload | null): string =
 };
 
 export const getEmptyContentString = () => EMPTY_TIPTAP_STRING;
+
+type TiptapNode = { content?: TiptapNode[]; text?: string };
+
+export const hasEditorContent = (serialized: string): boolean => {
+  const parsed = parseEditorContent(serialized) as { content?: TiptapNode[] };
+  return !!parsed?.content?.some((node) => node.content?.some((c) => c.text?.trim()));
+};

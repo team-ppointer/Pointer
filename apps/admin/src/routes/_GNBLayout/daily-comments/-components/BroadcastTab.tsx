@@ -6,25 +6,18 @@ import { upsertDailyComment } from '@apis';
 import { Modal, StudentSearchModal, Tag, TwoButtonModalTemplate } from '@components';
 import { useInvalidate, useModal } from '@hooks';
 import { components } from '@schema';
-import { getEmptyContentString, parseEditorContent, serializeEditorPayload } from '@utils';
+import {
+  extractErrorMessage,
+  getEmptyContentString,
+  hasEditorContent,
+  parseEditorContent,
+  serializeEditorPayload,
+} from '@utils';
 import { toast } from 'react-toastify';
-
-import { extractErrorMessage } from '@/components/conceptGraph/utils';
 
 type StudentResp = components['schemas']['StudentResp'];
 
 const todayString = () => dayjs().format('YYYY-MM-DD');
-
-const hasEditorContent = (serialized: string): boolean => {
-  const parsed = parseEditorContent(serialized);
-  return (
-    parsed?.content?.length > 0 &&
-    parsed.content.some(
-      (node: { content?: { text?: string }[] }) =>
-        node.content && node.content.some((c) => c.text && c.text.trim())
-    )
-  );
-};
 
 const BroadcastTab = () => {
   const [selectedStudents, setSelectedStudents] = useState<StudentResp[]>([]);

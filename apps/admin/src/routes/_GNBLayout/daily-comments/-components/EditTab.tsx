@@ -16,27 +16,20 @@ import { deleteDailyComment, getDailyComment, putDailyComment, upsertDailyCommen
 import { Modal, TwoButtonModalTemplate } from '@components';
 import { useInvalidate, useModal, useSelectedStudent } from '@hooks';
 import { components } from '@schema';
-import { getEmptyContentString, parseEditorContent, serializeEditorPayload } from '@utils';
+import {
+  extractErrorMessage,
+  getEmptyContentString,
+  hasEditorContent,
+  parseEditorContent,
+  serializeEditorPayload,
+} from '@utils';
 import { toast } from 'react-toastify';
 
 import ExpiryBadge from './ExpiryBadge';
 
-import { extractErrorMessage } from '@/components/conceptGraph/utils';
-
 type DailyCommentResp = components['schemas']['DailyCommentResp'];
 
 const todayString = () => dayjs().format('YYYY-MM-DD');
-
-const hasEditorContent = (serialized: string): boolean => {
-  const parsed = parseEditorContent(serialized);
-  return (
-    parsed?.content?.length > 0 &&
-    parsed.content.some(
-      (node: { content?: { text?: string }[] }) =>
-        node.content && node.content.some((c) => c.text && c.text.trim())
-    )
-  );
-};
 
 const EditTab = () => {
   const { selectedStudent } = useSelectedStudent();

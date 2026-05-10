@@ -2,8 +2,8 @@ import { toast } from 'react-toastify';
 import { Modal, TwoButtonModalTemplate } from '@components';
 import { deleteMockExamType } from '@apis';
 import { useInvalidate } from '@hooks';
+import { extractErrorMessage } from '@utils';
 
-import { extractErrorMessage } from '@/components/conceptGraph/utils';
 import type { components } from '@/types/api/schema';
 
 type MockExamType = components['schemas']['MockExamTypeResp'];
