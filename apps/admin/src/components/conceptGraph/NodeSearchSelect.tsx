@@ -46,6 +46,12 @@ const NodeSearchSelect = ({
     return () => clearTimeout(timer);
   }, [query]);
 
+  // 부모가 같은 컴포넌트 인스턴스에 다른 initialNode 를 넘기는 경우(모달 재오픈 / 행 전환 등)
+  // cachedNode 를 동기화해 stale 라벨이 잠깐 보이는 회귀를 방지한다.
+  useEffect(() => {
+    if (initialNode) setCachedNode(initialNode);
+  }, [initialNode?.id]);
+
   const sheetQuery = getSheetNode({
     page: 0,
     size: 50,
