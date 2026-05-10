@@ -40,7 +40,6 @@ const ROUTE_TO_SCREEN_MAP: Record<string, ScreenName> = {
   EditNickname: 'Profile',
   EditSchool: 'Profile',
   EditGrade: 'Profile',
-  EditScore: 'Profile',
   EditMathSubject: 'Profile',
   EditPhoneNumber: 'Profile',
 };
