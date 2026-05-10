@@ -8,4 +8,4 @@ export { QnaScreen, ChatRoomScreen, SearchScreen };
 export * from './types';
 
 // Re-export hooks
-export { useIsTablet } from './hooks/useIsTablet';
+export { useIsTablet } from '@hooks/useIsTablet';

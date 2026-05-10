@@ -17,7 +17,7 @@ import { useGetNotice, putReadNotice, useInvalidateNoticeData, getPublishDetailB
 import { parseDeepLinkUrl, isValidDeepLink } from '@utils/deepLink';
 import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
 import useInvalidateNotificationData from '@apis/controller/student/notification/useIncalidateNotificationData';
-import { useIsTablet } from '@features/student/qna/hooks/useIsTablet';
+import { useIsTablet } from '@hooks/useIsTablet';
 import { formatNoticeDate, formatNotificationDate } from '@utils/dateFormatter';
 
 const getNotificationIcon = (type: string): 'megaphone' | 'message' | 'book' => {
