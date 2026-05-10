@@ -25,26 +25,28 @@ const SearchFilterBar = ({
   onReset,
   debounceMs = 300,
 }: SearchFilterBarProps) => {
-  const defaultValues = useMemo(() => {
+  // 부모가 매 렌더 새 객체로 fields/values 를 넘겨도 값이 같으면 effect 가 발화하지
+  // 않도록 직렬화된 키로 비교한다. valuesKey 가 바뀔 때만 reset 이 호출된다.
+  const valuesKey = useMemo(() => {
     const dv: Record<string, unknown> = {};
     fields.forEach((f) => {
       dv[f.name] = values[f.name] ?? '';
     });
-    return dv;
+    return JSON.stringify(dv);
   }, [fields, values]);
 
   const { register, watch, reset } = useForm<Record<string, unknown>>({
-    defaultValues,
+    defaultValues: useMemo(() => JSON.parse(valuesKey), [valuesKey]),
   });
 
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
-  const lastEmittedRef = useRef<string>(JSON.stringify(defaultValues));
+  const lastEmittedRef = useRef<string>(valuesKey);
 
   useEffect(() => {
-    lastEmittedRef.current = JSON.stringify(defaultValues);
-    reset(defaultValues);
-  }, [defaultValues, reset]);
+    lastEmittedRef.current = valuesKey;
+    reset(JSON.parse(valuesKey));
+  }, [valuesKey, reset]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
