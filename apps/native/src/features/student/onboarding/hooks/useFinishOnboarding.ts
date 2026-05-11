@@ -1,9 +1,13 @@
 import { useRef, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 
 import postRegister from '@apis/controller/student/auth/postRegister';
-import { TanstackQueryClient } from '@apis/client';
-import { postMockExam } from '@apis/controller/student/mockExam';
+import {
+  CURRENT_MOCK_EXAM_TYPE_QUERY_KEY,
+  getCurrentMockExamType,
+  postMockExam,
+} from '@apis/controller/student/mockExam';
 import type { components } from '@schema';
 import { useAuthStore } from '@stores';
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
@@ -37,16 +41,13 @@ const useFinishOnboarding = (args?: FinishArgs) => {
   const step1Data = useSignupStore((state) => state.step1Data);
   const updateStudentProfile = useAuthStore((state) => state.updateStudentProfile);
 
-  const { refetch: refetchCurrentMockExamType } = TanstackQueryClient.useQuery(
-    'get',
-    '/api/student/mock-exam/current-type',
-    {},
-    {
-      staleTime: Infinity,
-      refetchOnWindowFocus: false,
-      enabled: false,
-    }
-  );
+  const { refetch: refetchCurrentMockExamType } = useQuery({
+    queryKey: CURRENT_MOCK_EXAM_TYPE_QUERY_KEY,
+    queryFn: getCurrentMockExamType,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    enabled: false,
+  });
 
   const submit = async (): Promise<{ ok: boolean }> => {
     if (submitLockRef.current) return { ok: false };

@@ -1,7 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
 import { Alert } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
 
-import { TanstackQueryClient } from '@apis/client';
+import {
+  CURRENT_MOCK_EXAM_TYPE_QUERY_KEY,
+  getCurrentMockExamType,
+} from '@apis/controller/student/mockExam';
 import type { components } from '@schema';
 
 import { useOnboardingStore } from '../store/useOnboardingStore';
@@ -24,17 +28,14 @@ const useResolveCurrentMockExamType = () => {
   const setCurrentMockExamType = useOnboardingStore((state) => state.setCurrentMockExamType);
   const setCurrentTypeStatus = useOnboardingStore((state) => state.setCurrentTypeStatus);
 
-  const { refetch } = TanstackQueryClient.useQuery(
-    'get',
-    '/api/student/mock-exam/current-type',
-    {},
-    {
-      staleTime: Infinity,
-      refetchOnWindowFocus: false,
-      enabled: false,
-      retry: false,
-    }
-  );
+  const { refetch } = useQuery({
+    queryKey: CURRENT_MOCK_EXAM_TYPE_QUERY_KEY,
+    queryFn: getCurrentMockExamType,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    enabled: false,
+    retry: false,
+  });
 
   const resolveCurrentMockExamType = useCallback(async (): Promise<ResolveCurrentTypeResult> => {
     if (resolveLockRef.current) return { ok: false };
@@ -48,10 +49,23 @@ const useResolveCurrentMockExamType = () => {
         const result = await refetch();
 
         if (!result.isError) {
-          const currentMockExamType = result.data?.type ? result.data : null;
+          const currentMockExamType = result.data ?? null;
+          if (__DEV__) {
+            console.log('[Onboarding][MockExam] current-type retry resolved:', {
+              attempt: attempt + 1,
+              normalized: currentMockExamType,
+            });
+          }
           setCurrentMockExamType(currentMockExamType);
           setCurrentTypeStatus('resolved');
           return { ok: true, currentMockExamType };
+        }
+
+        if (__DEV__) {
+          console.log('[Onboarding][MockExam] current-type retry failed:', {
+            attempt: attempt + 1,
+            error: result.error,
+          });
         }
       }
     } catch (error) {
