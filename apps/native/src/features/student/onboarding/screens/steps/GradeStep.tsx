@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { gradeOptions } from '../../constants';
 import { OnboardingLayout, OptionButton } from '../../components';
+import useOnboardingResume from '../../hooks/useOnboardingResume';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { getOnboardingTotal } from '../../utils';
 import type { OnboardingScreenProps } from '../types';
@@ -14,6 +15,8 @@ const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
   const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
   const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
+
+  useOnboardingResume();
 
   useFocusEffect(
     useCallback(() => {

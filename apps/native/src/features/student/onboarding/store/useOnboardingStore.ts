@@ -5,10 +5,9 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { components } from '@schema';
 
 import type { GradeValue, MathSubjectValue } from '../constants';
+import type { OnboardingStep } from '../screens/types';
 
 type MockExamTypeResp = components['schemas']['MockExamTypeResp'];
-
-type OnboardingStep = 'Grade' | 'MathSubject' | 'School' | 'MockExam' | 'Welcome';
 
 type OnboardingStatus = 'idle' | 'in-progress' | 'completed';
 
@@ -30,6 +29,7 @@ export type OnboardingPayload = Pick<OnboardingState, 'grade' | 'selectSubject' 
 
 type OnboardingActions = {
   start: () => void;
+  markStarted: () => void;
   complete: () => void;
   reset: () => void;
   setCurrentStep: (step: OnboardingStep) => void;
@@ -70,6 +70,9 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
           ...initialState,
           status: 'in-progress',
         }),
+
+      markStarted: () =>
+        set((state) => (state.status === 'idle' ? { ...state, status: 'in-progress' } : state)),
 
       complete: () =>
         set((state) => ({

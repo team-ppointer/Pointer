@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { useCallback, useRef } from 'react';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { colors } from '@theme/tokens';
@@ -21,6 +21,8 @@ const MockExamStep = (_props: OnboardingScreenProps<'MockExam'>) => {
   const setMockExamQuestion = useOnboardingStore((state) => state.setMockExamQuestion);
   const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
 
+  const questionInputRef = useRef<TextInput>(null);
+
   useFocusEffect(
     useCallback(() => {
       setCurrentStep('MockExam');
@@ -34,37 +36,48 @@ const MockExamStep = (_props: OnboardingScreenProps<'MockExam'>) => {
   return (
     <OnboardingLayout
       title='6월 모의고사에서 틀린 문항 번호를 입력해 주세요'
-      description='응시한 시험을 선택하고 오답 문항을 입력해 개인별 약점 보완과 상담을 받아보세요'
+      description='오답 문항과 수학 학습 고민을 입력해 개인별 약점 보완과 상담을 받아보세요'
       onPressCTA={() => {
         submit();
       }}
       ctaDisabled={isPending}
       progress={{ current: total, total }}>
-      <View className='gap-[24px]'>
-        <IncorrectGrid selected={incorrects} onToggle={toggleMockExamIncorrect} />
+      <View className='gap-[32px]'>
+        <View className='md:mr-[148px]'>
+          <Text className='typo-body-1-medium mb-[8px] ml-[4px] text-gray-900'>오답 문항</Text>
+          <IncorrectGrid selected={incorrects} onToggle={toggleMockExamIncorrect} />
+        </View>
         <View>
-          <Text className='typo-label-medium mb-[6px] text-gray-900'>수학 학습 고민 (선택)</Text>
-          <View
-            className='rounded-[10px] bg-white px-[16px] py-[12px]'
+          <View className='mb-[8px] ml-[4px] flex-row'>
+            <Text className='typo-body-1-medium text-gray-900'>수학 학습 고민 </Text>
+            <Text className='typo-body-1-medium text-gray-600'>(선택)</Text>
+          </View>
+          <Pressable
+            onPress={() => questionInputRef.current?.focus()}
+            className='rounded-[10px] bg-white px-[16px] py-[11px]'
             style={{ borderColor: colors['gray-300'], borderWidth: 1 }}>
             <TextInput
+              ref={questionInputRef}
               value={question}
               onChangeText={setMockExamQuestion}
               maxLength={QUESTION_MAX_LENGTH}
               multiline
-              placeholder='수학 학습에서의 고민을 자유롭게 입력해 주세요.'
+              placeholder='평소 수학 공부를 하며 고민이었던 점을 자유롭게 남겨주세요.'
               placeholderTextColor={colors['gray-600']}
               style={{
-                minHeight: 120,
+                fontSize: 16,
+                padding: 0,
+                includeFontPadding: false,
                 textAlignVertical: 'top',
-                color: '#000',
+                color: colors['gray-900'],
+                minHeight: 200,
               }}
             />
-            <View className='mt-[8px] flex-row justify-end'>
-              <Text className='typo-caption-regular text-gray-600'>
-                {question.length}/{QUESTION_MAX_LENGTH}
-              </Text>
-            </View>
+          </Pressable>
+          <View className='mt-[8px] flex-row justify-end'>
+            <Text className='typo-label-regular text-gray-600'>
+              {question.length}/{QUESTION_MAX_LENGTH}
+            </Text>
           </View>
         </View>
       </View>

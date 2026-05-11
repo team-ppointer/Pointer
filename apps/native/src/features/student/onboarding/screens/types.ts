@@ -8,5 +8,7 @@ export type OnboardingStackParamList = {
   Welcome: undefined;
 };
 
+export type OnboardingStep = keyof OnboardingStackParamList;
+
 export type OnboardingScreenProps<T extends keyof OnboardingStackParamList> =
   NativeStackScreenProps<OnboardingStackParamList, T>;

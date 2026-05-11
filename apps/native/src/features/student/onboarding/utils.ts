@@ -1,6 +1,16 @@
 import type { GradeValue } from './constants';
+import type { OnboardingStep } from './screens/types';
 
-export const getOnboardingTotal = (grade: GradeValue | null, hasActiveType: boolean): number => {
-  if (grade === 'THREE') return hasActiveType ? 4 : 3;
-  return hasActiveType ? 3 : 2;
+export const getStepSequence = (
+  grade: GradeValue | null,
+  hasActiveType: boolean
+): OnboardingStep[] => {
+  const sequence: OnboardingStep[] = ['Grade'];
+  if (grade === 'THREE' || grade === 'N_TIME') sequence.push('MathSubject');
+  if (grade !== 'N_TIME') sequence.push('School');
+  if (hasActiveType) sequence.push('MockExam');
+  return sequence;
 };
+
+export const getOnboardingTotal = (grade: GradeValue | null, hasActiveType: boolean): number =>
+  getStepSequence(grade, hasActiveType).length;
