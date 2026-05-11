@@ -184,7 +184,7 @@ const EditTab = () => {
   return (
     <div className='space-y-6'>
       {/* Top control row */}
-      <div className='flex flex-wrap items-end gap-4 rounded-2xl border border-gray-200 bg-white p-6'>
+      <div className='rounded-2xl border border-gray-200 bg-white p-6'>
         <div className='flex items-center gap-3'>
           <div className='bg-main flex h-10 w-10 items-center justify-center rounded-2xl'>
             <User className='h-5 w-5 text-white' />
@@ -195,7 +195,7 @@ const EditTab = () => {
           </div>
         </div>
 
-        <div>
+        <div className='mt-6'>
           <label className='mb-2 block text-xs font-semibold text-gray-700'>
             <div className='flex items-center gap-2'>
               <CalendarIcon className='h-3.5 w-3.5 text-gray-500' />
