@@ -34,9 +34,7 @@ const useOnboardingResume = () => {
       currentTypeStatus === 'resolved' && Boolean(currentMockExamType?.type);
     const sequence = getStepSequence(grade, hasActiveMockExam);
     const targetStep =
-      resumeStep === 'MockExam' && currentTypeStatus === 'error'
-        ? sequence[sequence.length - 1]
-        : resumeStep;
+      resumeStep === 'MockExam' && !hasActiveMockExam ? sequence[sequence.length - 1] : resumeStep;
     const idx = sequence.indexOf(targetStep);
     if (idx <= 0) return;
 
