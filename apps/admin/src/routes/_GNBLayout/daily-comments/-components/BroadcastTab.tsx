@@ -24,6 +24,7 @@ const BroadcastTab = () => {
   const [commentDate, setCommentDate] = useState(() => todayString());
   const [editorContent, setEditorContent] = useState<string>(() => getEmptyContentString());
   const editorKeyRef = useRef(0);
+  const isSendingRef = useRef(false);
 
   const { invalidateDailyComment } = useInvalidate();
   const upsertMutation = upsertDailyComment();
@@ -52,9 +53,11 @@ const BroadcastTab = () => {
     selectedStudents.length > 0 && isBodyValid && !!commentDate && !upsertMutation.isPending;
 
   const handleSend = async () => {
+    if (isSendingRef.current) return;
     if (!canSend) return;
 
     try {
+      isSendingRef.current = true;
       await upsertMutation.mutateAsync({
         body: {
           studentIds: selectedStudents.map((s) => s.id),
@@ -73,6 +76,8 @@ const BroadcastTab = () => {
     } catch (error) {
       closeConfirmModal();
       toast.error(extractErrorMessage(error));
+    } finally {
+      isSendingRef.current = false;
     }
   };
 

@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { toast } from 'react-toastify';
 import { Modal, TwoButtonModalTemplate } from '@components';
 import { deleteMockExamType } from '@apis';
@@ -17,8 +18,10 @@ interface Props {
 const TypeDeleteModal = ({ isOpen, target, onClose }: Props) => {
   const { invalidateMockExamTypes, invalidateMockExamResults } = useInvalidate();
   const deleteMutation = deleteMockExamType();
+  const isDeletingRef = useRef(false);
 
   const handleConfirm = async () => {
+    if (isDeletingRef.current) return;
     if (!target || target.id === undefined) {
       onClose();
       return;
@@ -26,12 +29,15 @@ const TypeDeleteModal = ({ isOpen, target, onClose }: Props) => {
 
     const codeLabel = target.code ?? target.type ?? '';
     try {
+      isDeletingRef.current = true;
       await deleteMutation.mutateAsync({ params: { path: { id: target.id } } });
       await Promise.all([invalidateMockExamTypes(), invalidateMockExamResults()]);
       toast.success(`${target.displayName ?? codeLabel ?? ''} 삭제됨`);
       onClose();
     } catch (error) {
       toast.error(extractErrorMessage(error));
+    } finally {
+      isDeletingRef.current = false;
     }
   };
 
@@ -47,6 +53,7 @@ const TypeDeleteModal = ({ isOpen, target, onClose }: Props) => {
           variant='danger'
           handleClickLeftButton={onClose}
           handleClickRightButton={handleConfirm}
+          leftButtonDisabled={deleteMutation.isPending}
           rightButtonDisabled={deleteMutation.isPending}
         />
       )}

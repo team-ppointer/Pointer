@@ -38,6 +38,7 @@ const EditTab = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editorContent, setEditorContent] = useState<string>(() => getEmptyContentString());
   const editorKeyRef = useRef(0);
+  const isDeletingRef = useRef(false);
 
   const { invalidateDailyComment } = useInvalidate();
   const {
@@ -144,9 +145,11 @@ const EditTab = () => {
   };
 
   const handleDelete = async () => {
+    if (isDeletingRef.current) return;
     if (!record?.id) return;
 
     try {
+      isDeletingRef.current = true;
       await deleteMutation.mutateAsync({
         params: { path: { id: record.id } },
       });
@@ -156,6 +159,8 @@ const EditTab = () => {
       toast.success('코멘트가 삭제되었습니다.');
     } catch (error) {
       toast.error(extractErrorMessage(error));
+    } finally {
+      isDeletingRef.current = false;
     }
   };
 
@@ -349,6 +354,7 @@ const EditTab = () => {
           rightButtonText={deleteMutation.isPending ? '삭제 중...' : '예'}
           handleClickLeftButton={closeDeleteModal}
           handleClickRightButton={handleDelete}
+          leftButtonDisabled={deleteMutation.isPending}
           rightButtonDisabled={deleteMutation.isPending}
           variant='danger'
         />

@@ -74,15 +74,39 @@ export const serializeEditorPayload = (payload?: TiptapPayload | null): string =
 
 export const getEmptyContentString = () => EMPTY_TIPTAP_STRING;
 
-type TiptapNode = { content?: TiptapNode[]; text?: string };
+type TiptapNode = {
+  type?: string;
+  attrs?: Record<string, unknown> | null;
+  content?: TiptapNode[];
+  text?: string;
+};
 
-const hasNonEmptyTextDeep = (node: TiptapNode | undefined): boolean => {
+const NON_TEXT_CONTENT_TYPES = new Set([
+  'image',
+  'imageUpload',
+  'imageOCR',
+  'inlineMath',
+  'blockMath',
+  'horizontalRule',
+]);
+
+const hasMeaningfulNonTextContent = (node: TiptapNode): boolean => {
+  if (!node.type || !NON_TEXT_CONTENT_TYPES.has(node.type)) return false;
+  if (!node.attrs) return true;
+
+  return Object.values(node.attrs).some((value) => {
+    return typeof value !== 'string' || value.trim().length > 0;
+  });
+};
+
+const hasEditorContentDeep = (node: TiptapNode | undefined): boolean => {
   if (!node) return false;
   if (node.text && node.text.trim().length > 0) return true;
-  return !!node.content?.some(hasNonEmptyTextDeep);
+  if (hasMeaningfulNonTextContent(node)) return true;
+  return !!node.content?.some(hasEditorContentDeep);
 };
 
 export const hasEditorContent = (serialized: string): boolean => {
   const parsed = parseEditorContent(serialized) as TiptapNode;
-  return hasNonEmptyTextDeep(parsed);
+  return hasEditorContentDeep(parsed);
 };
