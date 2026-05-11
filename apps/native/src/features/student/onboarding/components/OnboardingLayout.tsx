@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import {
   BackHandler,
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -10,6 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, ContentInset, Header } from '@components/common';
 
@@ -19,14 +21,17 @@ type Props = {
   children: ReactNode;
   ctaLabel?: string;
   ctaDisabled?: boolean;
+  ctaLoading?: boolean;
   onPressCTA: () => void;
   showBackButton?: boolean;
   onPressBack?: () => void;
   skipLabel?: string;
   onSkip?: () => void;
+  skipDisabled?: boolean;
   contentClassName?: string;
   bottomSlot?: ReactNode;
   isScrollable?: boolean;
+  progress?: { current: number; total: number };
 };
 
 const OnboardingLayout = ({
@@ -35,14 +40,17 @@ const OnboardingLayout = ({
   children,
   ctaLabel = '다음',
   ctaDisabled,
+  ctaLoading,
   onPressCTA,
   showBackButton = true,
   onPressBack,
   skipLabel,
   onSkip,
+  skipDisabled,
   contentClassName = '',
   bottomSlot,
   isScrollable = true,
+  progress,
 }: Props) => {
   const navigation = useNavigation();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -91,13 +99,25 @@ const OnboardingLayout = ({
           onPressBack={handleBack}
           right={
             skipLabel && onSkip ? (
-              <Header.TextButton onPress={onSkip} color={colors['primary-600']}>
+              <Header.TextButton
+                onPress={onSkip}
+                color={colors['primary-600']}
+                disabled={skipDisabled}>
                 {skipLabel}
               </Header.TextButton>
             ) : undefined
           }
         />
       </View>
+      {progress ? (
+        <View
+          className='absolute top-[16px] left-1/2 -translate-x-1/2'
+          style={{ marginTop: inset.top }}>
+          <Text className='typo-heading-2-semibold text-gray-700'>
+            {progress.current} / {progress.total}
+          </Text>
+        </View>
+      ) : null}
       <ContentInset className='flex-1 pt-[6px]'>
         {isScrollable ? (
           <ScrollView
@@ -121,12 +141,16 @@ const OnboardingLayout = ({
         <AnimatedPressable
           accessibilityRole='button'
           onPress={onPressCTA}
-          disabled={ctaDisabled}
+          disabled={ctaDisabled || ctaLoading}
           className={`mt-[10px] h-[48px] items-center justify-center rounded-[8px] px-[20px] ${
-            ctaDisabled ? 'bg-primary-200' : 'bg-primary-600'
+            ctaDisabled || ctaLoading ? 'bg-primary-200' : 'bg-primary-600'
           }`}
           containerStyle={{ marginBottom: isKeyboardVisible ? 18 : inset.bottom + 18 }}>
-          <Text className='typo-body-1-medium text-center text-white'>{ctaLabel}</Text>
+          {ctaLoading ? (
+            <ActivityIndicator size='small' color='#FFFFFF' />
+          ) : (
+            <Text className='typo-body-1-medium text-center text-white'>{ctaLabel}</Text>
+          )}
         </AnimatedPressable>
       </ContentInset>
     </KeyboardAvoidingView>

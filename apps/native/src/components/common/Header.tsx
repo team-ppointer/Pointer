@@ -59,12 +59,16 @@ const HeaderIconButton = ({
   icon: Icon,
   onPress,
   color,
+  alignLeft = false,
 }: {
   icon: LucideIcon;
   onPress?: () => void;
   color?: string;
+  alignLeft?: boolean;
 }) => (
-  <AnimatedPressable className='p-[12px]' onPress={onPress}>
+  <AnimatedPressable
+    className={`${alignLeft ? 'items-start' : 'items-center'} size-[48px] justify-center`}
+    onPress={onPress}>
     <Icon size={24} {...(color && { color })} />
   </AnimatedPressable>
 );
@@ -116,8 +120,8 @@ const HeaderRoot = ({
 
   const inner = (
     <>
-      <View className='flex-row items-center gap-[4px]'>
-        {showBackButton && <HeaderIconButton icon={ChevronLeft} onPress={handleBack} />}
+      <View className='flex-row items-center'>
+        {showBackButton && <HeaderIconButton icon={ChevronLeft} onPress={handleBack} alignLeft />}
         {(title || subtitle || badge) && (
           <View className='flex-row items-center gap-[12px]'>
             {title && <Text className='typo-title-1-bold text-gray-900'>{title}</Text>}

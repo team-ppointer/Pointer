@@ -9,6 +9,7 @@ import { TanstackQueryClient, useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
 import { ContentInset, Header } from '@components/common';
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
+import { useIsTablet } from '@hooks/useIsTablet';
 
 import {
   UserProfileCard,
@@ -19,7 +20,6 @@ import {
 } from '../components';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 import { showToast } from '../../scrap/components/Notification';
-import useIsTablet from '../../qna/hooks/useIsTablet';
 
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();

@@ -8,12 +8,12 @@ import { useGetQnaList, useGetQnaById, useInvalidateQnaData } from '@apis/contro
 import useSubscribeQnaList from '@apis/controller/common/qna/useGetSubscribeQnaList';
 import type { QnAListEvent } from '@apis/controller/common/qna/useGetSubscribeQnaList';
 import { getAccessToken } from '@utils/auth';
+import { useIsTablet } from '@hooks/useIsTablet';
 
 import type { ChatRoom as ChatRoomType } from '../types';
 import { mapQnAMetaToChatRoom } from '../types';
 import { ChatRoomList } from '../components/ChatRoomList';
 import { ChatRoom } from '../components/ChatRoom';
-import { useIsTablet } from '../hooks/useIsTablet';
 
 type QnaScreenNavigationProp = NativeStackNavigationProp<StudentRootStackParamList>;
 type QnaScreenRouteProp = RouteProp<StudentTabParamList, 'Qna'>;

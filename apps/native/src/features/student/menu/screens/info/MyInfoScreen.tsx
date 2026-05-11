@@ -15,13 +15,12 @@ import { useGetMe, usePutMe, TanstackQueryClient } from '@apis';
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
 import {
   gradeOptions,
-  levelOptions,
   mathSubjectOptions,
   type GradeValue,
   type MathSubjectValue,
 } from '@features/student/onboarding/constants';
 import { showToast } from '@features/student/scrap/components/Notification';
-import { ConfirmationModal } from '@/features/student/scrap/components/Dialog/ConfirmationModal';
+import { ConfirmationModal } from '@features/student/scrap/components/Dialog/ConfirmationModal';
 
 import { InfoSection, ScreenLayout } from '../../components';
 
@@ -33,7 +32,6 @@ type LocalData = {
   schoolId?: number;
   schoolName?: string;
   sido?: string;
-  level?: number;
   selectSubject?: MathSubjectValue;
 };
 
@@ -69,7 +67,6 @@ const MyInfoScreen = () => {
         schoolId: data.school?.id,
         schoolName: data.school?.name,
         sido: data.school?.sido,
-        level: data.level,
         selectSubject: data.selectSubject,
       };
       persistedLocalData = initialData;
@@ -96,7 +93,6 @@ const MyInfoScreen = () => {
               schoolId: data?.school?.id,
               schoolName: data?.school?.name,
               sido: data?.school?.sido,
-              level: data?.level,
               selectSubject: data?.selectSubject,
             };
 
@@ -142,7 +138,7 @@ const MyInfoScreen = () => {
     isInitialized.current = false;
     hasLocalChanges.current = false;
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   const handleSaveAll = useCallback(() => {
     const updateData: {
@@ -152,7 +148,6 @@ const MyInfoScreen = () => {
       schoolId?: number;
       schoolName?: string;
       sido?: string;
-      level?: number;
       selectSubject?: 'MIJUKBUN' | 'HWAKTONG' | 'KEEHA';
     } = {};
 
@@ -173,9 +168,6 @@ const MyInfoScreen = () => {
     }
     if (localData.sido) {
       updateData.sido = localData.sido;
-    }
-    if (localData.level) {
-      updateData.level = localData.level;
     }
     if (localData.selectSubject) {
       updateData.selectSubject = localData.selectSubject;
@@ -201,7 +193,7 @@ const MyInfoScreen = () => {
         showToast('error', error.message || '정보 저장에 실패했습니다.');
       },
     });
-  }, [localData, putMeMutate, queryClient]);
+  }, [localData, navigation, putMeMutate, queryClient]);
 
   // 변경사항이 있는지 확인
   const hasChanges = useMemo(() => {
@@ -219,7 +211,6 @@ const MyInfoScreen = () => {
     const hasSchoolNameChange =
       localData.schoolName !== undefined && localData.schoolName !== data?.school?.name;
     const hasSidoChange = localData.sido !== undefined && localData.sido !== data?.school?.sido;
-    const hasLevelChange = localData.level !== undefined && localData.level !== data?.level;
     const hasSubjectChange =
       localData.selectSubject !== undefined && localData.selectSubject !== data?.selectSubject;
 
@@ -230,7 +221,6 @@ const MyInfoScreen = () => {
       hasSchoolIdChange ||
       hasSchoolNameChange ||
       hasSidoChange ||
-      hasLevelChange ||
       hasSubjectChange
     );
   }, [localData, data]);
@@ -252,7 +242,6 @@ const MyInfoScreen = () => {
     schoolId: localData.schoolId ?? data?.school?.id ?? undefined,
     schoolName: localData.schoolName ?? data?.school?.name ?? '',
     sido: localData.sido ?? data?.school?.sido ?? '',
-    level: localData.level ?? data?.level,
     selectSubject: localData.selectSubject ?? data?.selectSubject,
   };
 
@@ -323,13 +312,6 @@ const MyInfoScreen = () => {
                           }
                         : undefined,
                     }),
-                },
-                {
-                  label: '수학등급',
-                  value:
-                    levelOptions.find((option) => option.value === displayData.level)?.label || '',
-                  onPress: () =>
-                    navigation.navigate('EditScore', { initialScore: displayData.level }),
                 },
                 {
                   label: '선택과목',
