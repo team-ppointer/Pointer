@@ -213,28 +213,52 @@
 
 /* Typing indicator */
 .typing-indicator {
+  width: 60px;
+  height: 36px;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 16px 16px;
+  align-items: flex-start;
+  padding: 8px 16px;
   border-radius: 20px;
 }
 
+.typing-dots {
+  --typing-dot-size: 5.95px;
+  --typing-dot-rest-top: 7.53px;
+  --typing-dot-pre-rise: -1.89px;
+  --typing-dot-rise: -7.07px;
+
+  position: relative;
+  width: 28px;
+  height: 20px;
+  flex: 0 0 28px;
+}
+
 .typing-dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
+  position: absolute;
+  top: var(--typing-dot-rest-top);
+  width: var(--typing-dot-size);
+  height: var(--typing-dot-size);
   border-radius: 50%;
   background-color: var(--color-gray-600);
-  animation: dotBounce 1s infinite;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.typing-dot:nth-child(1) {
+  left: 0;
+  animation-name: typingDot1;
 }
 
 .typing-dot:nth-child(2) {
-  animation-delay: 0.15s;
+  left: 11.03px;
+  animation-name: typingDot2;
 }
 
 .typing-dot:nth-child(3) {
-  animation-delay: 0.3s;
+  left: 22.05px;
+  animation-name: typingDot3;
 }
 
 /* Animations */
@@ -258,13 +282,55 @@
   }
 }
 
-@keyframes dotBounce {
-  0%,
-  80%,
+@keyframes typingDot1 {
+  0% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+  }
+  20% {
+    transform: translateY(var(--typing-dot-rise));
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+  }
+  40%,
   100% {
     transform: translateY(0);
   }
-  40% {
-    transform: translateY(-6px);
+}
+
+@keyframes typingDot2 {
+  0% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.167, 0.167, 0.833, 0.833);
+  }
+  8.33% {
+    transform: translateY(var(--typing-dot-pre-rise));
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+  }
+  28.33% {
+    transform: translateY(var(--typing-dot-rise));
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+  }
+  48.33%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes typingDot3 {
+  0% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.167, 0.167, 0.833, 0.833);
+  }
+  16.67% {
+    transform: translateY(var(--typing-dot-pre-rise));
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+  }
+  36.67% {
+    transform: translateY(var(--typing-dot-rise));
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+  }
+  56.67%,
+  100% {
+    transform: translateY(0);
   }
 }

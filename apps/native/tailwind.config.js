@@ -7,6 +7,7 @@ import { colors, fontFamily, fontSize, screens } from './src/theme/tokens';
  */
 const typoTokenMap = [
   ['display-1-bold', 'display-1-bold-tablet'],
+  ['display-1-semibold', 'display-1-semibold-tablet'],
   ['title-1-bold', 'title-1-bold-tablet'],
   ['title-1-semibold', 'title-1-semibold-tablet'],
   ['title-2-bold', 'title-2-bold-tablet'],

@@ -41,6 +41,7 @@ import {
   buildAnalysisOverviewSections,
   joinPointingsForAnalysis,
 } from '../transforms/contentRendererTransforms';
+import CompleteIcon from '../components/icons/CompleteIcon';
 
 // Module-level stable references for useSyncExternalStore — passing inline
 // closures here would defeat React's identity check and re-subscribe on
@@ -292,10 +293,10 @@ const AnalysisScreen = ({
         />
         <View className='flex-1 items-center px-[28px]' style={{ paddingBottom: insets.bottom }}>
           <View className='mb-auto flex-1 items-center justify-center pb-[40px]'>
-            <View className='mb-[40px] size-[120px] bg-gray-400' />
-            <View className='mb-[8px] flex-row'>
-              <Text className='typo-display-1-bold'>{problemSubtitle} </Text>
-              <Text className='typo-display-1-bold text-primary-600'>완료!</Text>
+            <CompleteIcon />
+            <View className='mt-[20px] mb-[8px] flex-row'>
+              <Text className='typo-display-1-semibold'>{problemSubtitle} </Text>
+              <Text className='typo-display-1-semibold text-primary-600'>완료!</Text>
             </View>
             <Text className='typo-body-1-medium text-center text-gray-700'>
               {problemSubtitle} 학습을 완료하셨습니다.{'\n'}
