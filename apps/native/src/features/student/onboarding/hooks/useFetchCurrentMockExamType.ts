@@ -18,16 +18,21 @@ const useFetchCurrentMockExamType = () => {
     }
   );
 
-  const { data, isPending, isFetching, refetch } = query;
+  const { data, isPending, isFetching, isError, refetch } = query;
 
   useEffect(() => {
     if (isPending || isFetching) {
       setCurrentTypeStatus('loading');
       return;
     }
+    if (isError) {
+      setCurrentMockExamType(null);
+      setCurrentTypeStatus('error');
+      return;
+    }
     setCurrentMockExamType(data ?? null);
     setCurrentTypeStatus('resolved');
-  }, [data, isPending, isFetching, setCurrentMockExamType, setCurrentTypeStatus]);
+  }, [data, isError, isPending, isFetching, setCurrentMockExamType, setCurrentTypeStatus]);
 
   return { refetch };
 };

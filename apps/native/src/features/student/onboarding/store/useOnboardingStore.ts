@@ -11,7 +11,7 @@ type MockExamTypeResp = components['schemas']['MockExamTypeResp'];
 
 type OnboardingStatus = 'idle' | 'in-progress' | 'completed';
 
-type CurrentTypeStatus = 'idle' | 'loading' | 'resolved';
+type CurrentTypeStatus = 'idle' | 'loading' | 'resolved' | 'error';
 
 type OnboardingState = {
   status: OnboardingStatus;
@@ -19,6 +19,7 @@ type OnboardingState = {
   grade: GradeValue | null;
   selectSubject: MathSubjectValue | null;
   schoolId: number | null;
+  isRegistered: boolean;
   currentMockExamType: MockExamTypeResp | null;
   currentTypeStatus: CurrentTypeStatus;
   mockExamIncorrects: number[];
@@ -36,6 +37,7 @@ type OnboardingActions = {
   setGrade: (grade: GradeValue) => void;
   setSelectSubject: (subject: MathSubjectValue | null) => void;
   setSchoolId: (schoolId: number | null) => void;
+  markRegistered: () => void;
   setCurrentMockExamType: (type: MockExamTypeResp | null) => void;
   setCurrentTypeStatus: (status: CurrentTypeStatus) => void;
   toggleMockExamIncorrect: (n: number) => void;
@@ -57,6 +59,7 @@ const initialState: OnboardingState = {
   grade: null,
   selectSubject: null,
   schoolId: null,
+  isRegistered: false,
   ...initialMockExamState,
 };
 
@@ -87,6 +90,7 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
       setGrade: (grade) => set({ grade }),
       setSelectSubject: (selectSubject) => set({ selectSubject }),
       setSchoolId: (schoolId) => set({ schoolId }),
+      markRegistered: () => set({ isRegistered: true }),
 
       setCurrentMockExamType: (currentMockExamType) => set({ currentMockExamType }),
       setCurrentTypeStatus: (currentTypeStatus) => set({ currentTypeStatus }),
@@ -108,9 +112,11 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
       name: 'onboarding-store',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
+        status: state.status,
         grade: state.grade,
         selectSubject: state.selectSubject,
         schoolId: state.schoolId,
+        isRegistered: state.isRegistered,
         currentStep: state.currentStep,
       }),
     }

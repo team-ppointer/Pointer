@@ -15,6 +15,7 @@ const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
   const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
   const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
+  const currentTypeStatus = useOnboardingStore((state) => state.currentTypeStatus);
 
   useOnboardingResume();
 
@@ -24,7 +25,8 @@ const GradeStep = ({ navigation }: OnboardingScreenProps<'Grade'>) => {
     }, [setCurrentStep])
   );
 
-  const total = getOnboardingTotal(grade, currentMockExamType !== null);
+  const hasActiveMockExam = currentTypeStatus === 'resolved' && Boolean(currentMockExamType?.type);
+  const total = getOnboardingTotal(grade, hasActiveMockExam);
 
   const handleNext = useCallback(() => {
     if (!grade) return;

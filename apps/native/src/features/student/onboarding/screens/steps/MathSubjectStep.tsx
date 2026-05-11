@@ -27,15 +27,18 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
   const { submit, isPending } = useFinishOnboarding();
 
   const isNTime = grade === 'N_TIME';
-  const ctaDisabled =
-    !selectSubject || (isNTime && (isPending || currentTypeStatus !== 'resolved'));
+  const isCurrentTypeReady = currentTypeStatus === 'resolved';
+  const hasActiveMockExam = isCurrentTypeReady && Boolean(currentMockExamType?.type);
+  const ctaDisabled = !selectSubject || (isNTime && (isPending || !isCurrentTypeReady));
 
   const handleNext = useCallback(async () => {
     if (!selectSubject) return;
 
     if (isNTime) {
+      if (!isCurrentTypeReady) return;
+
       setSchoolId(null);
-      if (currentMockExamType !== null) {
+      if (hasActiveMockExam) {
         setCurrentStep('MockExam');
         navigation.navigate('MockExam');
         return;
@@ -52,11 +55,12 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
     navigation,
     setSchoolId,
     setCurrentStep,
-    currentMockExamType,
+    isCurrentTypeReady,
+    hasActiveMockExam,
     submit,
   ]);
 
-  const total = getOnboardingTotal(grade, currentMockExamType !== null);
+  const total = getOnboardingTotal(grade, hasActiveMockExam);
 
   return (
     <OnboardingLayout

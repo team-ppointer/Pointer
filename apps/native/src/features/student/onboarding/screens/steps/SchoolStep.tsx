@@ -38,7 +38,10 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
 
   const { submit, isPending } = useFinishOnboarding();
 
-  const ctaDisabled = !schoolId || isPending || currentTypeStatus !== 'resolved';
+  const isCurrentTypeReady = currentTypeStatus === 'resolved';
+  const hasActiveMockExam = isCurrentTypeReady && Boolean(currentMockExamType?.type);
+  const ctaDisabled = !schoolId || isPending || !isCurrentTypeReady;
+  const skipDisabled = isPending || !isCurrentTypeReady;
 
   const handleSelect = (id: number, name: string, sido: string) => {
     const label = `${name}(${sido})`;
@@ -54,7 +57,9 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   };
 
   const goNext = async () => {
-    if (currentMockExamType !== null) {
+    if (!isCurrentTypeReady) return;
+
+    if (hasActiveMockExam) {
       setCurrentStep('MockExam');
       navigation.navigate('MockExam');
       return;
@@ -68,13 +73,14 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   };
 
   const handleSkip = async () => {
+    if (skipDisabled) return;
     setSchoolId(null);
     setQuery('');
     setSelectedLabel('');
     await goNext();
   };
 
-  const total = getOnboardingTotal(grade, currentMockExamType !== null);
+  const total = getOnboardingTotal(grade, hasActiveMockExam);
   const current = grade === 'THREE' ? 3 : 2;
 
   return (
@@ -85,6 +91,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
       ctaDisabled={ctaDisabled}
       skipLabel='건너뛰기'
       onSkip={handleSkip}
+      skipDisabled={skipDisabled}
       progress={{ current, total }}>
       <View>
         <OnboardingInput

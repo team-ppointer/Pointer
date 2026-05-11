@@ -25,6 +25,7 @@ type Props = {
   onPressBack?: () => void;
   skipLabel?: string;
   onSkip?: () => void;
+  skipDisabled?: boolean;
   contentClassName?: string;
   bottomSlot?: ReactNode;
   isScrollable?: boolean;
@@ -42,6 +43,7 @@ const OnboardingLayout = ({
   onPressBack,
   skipLabel,
   onSkip,
+  skipDisabled,
   contentClassName = '',
   bottomSlot,
   isScrollable = true,
@@ -94,7 +96,10 @@ const OnboardingLayout = ({
           onPressBack={handleBack}
           right={
             skipLabel && onSkip ? (
-              <Header.TextButton onPress={onSkip} color={colors['primary-600']}>
+              <Header.TextButton
+                onPress={onSkip}
+                color={colors['primary-600']}
+                disabled={skipDisabled}>
                 {skipLabel}
               </Header.TextButton>
             ) : undefined
@@ -103,7 +108,7 @@ const OnboardingLayout = ({
       </View>
       {progress ? (
         <View
-          className='absolute top-[16px] left-1/2 -translate-x-1/2'
+          className='absolute left-1/2 top-[16px] -translate-x-1/2'
           style={{ marginTop: inset.top }}>
           <Text className='typo-heading-2-semibold text-gray-700'>
             {progress.current} / {progress.total}

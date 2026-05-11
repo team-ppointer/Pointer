@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import postRegister from '@apis/controller/student/auth/postRegister';
@@ -21,13 +21,18 @@ type FinishArgs = {
 const REGISTER_FAIL_MESSAGE = '회원가입 처리에 실패했어요. 잠시 후 다시 시도해 주세요';
 const TYPE_NULL_MESSAGE = '모의고사 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요';
 const MOCK_EXAM_FAIL_MESSAGE = '모의고사 정보 저장에 실패했어요. 잠시 후 다시 시도해 주세요';
+const FINISH_FAIL_MESSAGE = '온보딩 처리에 실패했어요. 잠시 후 다시 시도해 주세요';
 
 const useFinishOnboarding = (args?: FinishArgs) => {
   const navigation = useNavigation();
   const [isPending, setIsPending] = useState(false);
+  const submitLockRef = useRef(false);
 
   const getPayload = useOnboardingStore((state) => state.getPayload);
+  const isRegistered = useOnboardingStore((state) => state.isRegistered);
+  const markRegistered = useOnboardingStore((state) => state.markRegistered);
   const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
+  const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
 
   const step1Data = useSignupStore((state) => state.step1Data);
   const updateStudentProfile = useAuthStore((state) => state.updateStudentProfile);
@@ -44,7 +49,8 @@ const useFinishOnboarding = (args?: FinishArgs) => {
   );
 
   const submit = async (): Promise<{ ok: boolean }> => {
-    if (isPending) return { ok: false };
+    if (submitLockRef.current) return { ok: false };
+    submitLockRef.current = true;
     setIsPending(true);
     try {
       const onboardingPayload = getPayload();
@@ -62,17 +68,20 @@ const useFinishOnboarding = (args?: FinishArgs) => {
         schoolId: onboardingPayload.schoolId ?? undefined,
       };
 
-      const { data: regData, error: regErr } = await postRegister(registerData);
+      if (!isRegistered) {
+        const { data: regData, error: regErr } = await postRegister(registerData);
 
-      if (regErr || !regData) {
-        showToast('error', REGISTER_FAIL_MESSAGE);
-        return { ok: false };
+        if (regErr || !regData) {
+          showToast('error', REGISTER_FAIL_MESSAGE);
+          return { ok: false };
+        }
+
+        await updateStudentProfile({
+          name: step1Data.name || null,
+          grade: onboardingPayload.grade,
+        });
+        markRegistered();
       }
-
-      await updateStudentProfile({
-        name: step1Data.name || null,
-        grade: onboardingPayload.grade,
-      });
 
       if (args) {
         if (!currentMockExamType?.type) {
@@ -93,6 +102,7 @@ const useFinishOnboarding = (args?: FinishArgs) => {
         }
       }
 
+      setCurrentStep('Welcome');
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -100,7 +110,12 @@ const useFinishOnboarding = (args?: FinishArgs) => {
         })
       );
       return { ok: true };
+    } catch (error) {
+      console.error('[useFinishOnboarding] finish failed:', error);
+      showToast('error', FINISH_FAIL_MESSAGE);
+      return { ok: false };
     } finally {
+      submitLockRef.current = false;
       setIsPending(false);
     }
   };

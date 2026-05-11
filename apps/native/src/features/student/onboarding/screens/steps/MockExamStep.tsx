@@ -20,6 +20,7 @@ const MockExamStep = (_props: OnboardingScreenProps<'MockExam'>) => {
   const question = useOnboardingStore((state) => state.mockExamQuestion);
   const setMockExamQuestion = useOnboardingStore((state) => state.setMockExamQuestion);
   const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
+  const currentTypeStatus = useOnboardingStore((state) => state.currentTypeStatus);
 
   const questionInputRef = useRef<TextInput>(null);
 
@@ -31,7 +32,8 @@ const MockExamStep = (_props: OnboardingScreenProps<'MockExam'>) => {
 
   const { submit, isPending } = useFinishOnboarding({ incorrects, question });
 
-  const total = getOnboardingTotal(grade, currentMockExamType !== null);
+  const hasActiveMockExam = currentTypeStatus === 'resolved' && Boolean(currentMockExamType?.type);
+  const total = getOnboardingTotal(grade, hasActiveMockExam);
 
   return (
     <OnboardingLayout

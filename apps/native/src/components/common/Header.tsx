@@ -67,7 +67,7 @@ const HeaderIconButton = ({
   alignLeft?: boolean;
 }) => (
   <AnimatedPressable
-    className={`${alignLeft ? 'items-left' : 'items-center'} size-[48px] justify-center`}
+    className={`${alignLeft ? 'items-start' : 'items-center'} size-[48px] justify-center`}
     onPress={onPress}>
     <Icon size={24} {...(color && { color })} />
   </AnimatedPressable>

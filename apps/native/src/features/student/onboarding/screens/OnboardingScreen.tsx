@@ -26,9 +26,11 @@ const OnboardingScreen = () => {
     if (status === 'idle') markStarted();
   }, [status, markStarted]);
 
+  const initialRouteName = currentStep === 'Welcome' ? 'Welcome' : 'Grade';
+
   return (
     <Stack.Navigator
-      initialRouteName={currentStep}
+      initialRouteName={initialRouteName}
       screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <Stack.Screen name='Grade' component={GradeStep} />
       <Stack.Screen name='MathSubject' component={MathSubjectStep} />
