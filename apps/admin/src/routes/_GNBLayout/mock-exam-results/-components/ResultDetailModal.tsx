@@ -1,12 +1,17 @@
 import { Modal } from '@components';
-import { ProblemViewer } from '@repo/pointer-editor-v2';
-import { parseEditorContent } from '@utils';
 import { ClipboardList, X } from 'lucide-react';
 import { components } from '@schema';
 
-import '@repo/pointer-editor-v2/style.css';
-
 type MockExamResultResp = components['schemas']['MockExamResultResp'];
+
+const parseQuestionText = (question: string): string => {
+  try {
+    const parsed = JSON.parse(question) as { data?: unknown };
+    return typeof parsed.data === 'string' ? parsed.data : '';
+  } catch {
+    return question;
+  }
+};
 
 interface ResultDetailModalProps {
   isOpen: boolean;
@@ -21,6 +26,7 @@ const ResultDetailModal = ({ isOpen, onClose, result, displayName }: ResultDetai
   const code = result.type ?? '';
   const incorrects = result.incorrects ?? [];
   const question = result.question ?? null;
+  const questionText = question === null ? null : parseQuestionText(question);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -58,7 +64,9 @@ const ResultDetailModal = ({ isOpen, onClose, result, displayName }: ResultDetai
             <p className='text-sm text-gray-400'>학습 고민 미제출</p>
           ) : (
             <div className='max-h-[40rem] overflow-y-auto rounded-xl border border-gray-200 bg-white p-6'>
-              <ProblemViewer content={parseEditorContent(question)} padding={0} />
+              <p className='whitespace-pre-wrap break-words text-sm leading-6 text-gray-700'>
+                {questionText}
+              </p>
             </div>
           )}
         </section>

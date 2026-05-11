@@ -1,16 +1,41 @@
+type ErrorPayload = {
+  message?: unknown;
+  code?: unknown;
+  error?: unknown;
+  response?: {
+    data?: unknown;
+  };
+};
+
+const isRecord = (value: unknown): value is ErrorPayload => {
+  return !!value && typeof value === 'object';
+};
+
+const getErrorPayload = (error: unknown): unknown => {
+  if (!isRecord(error)) return error;
+  return error.response?.data ?? error;
+};
+
+const getNestedErrorPayload = (payload: unknown): unknown => {
+  if (!isRecord(payload)) return payload;
+  return payload.error ?? payload;
+};
+
 export const extractErrorMessage = (error: unknown): string => {
   const fallback = '요청에 실패했습니다';
-  if (!error || typeof error !== 'object') return fallback;
-  const responseData = (error as { response?: { data?: { message?: unknown } } }).response?.data
-    ?.message;
-  if (typeof responseData === 'string' && responseData.length > 0) return responseData;
-  const maybeMessage = (error as { message?: unknown }).message;
+
+  const payload = getNestedErrorPayload(getErrorPayload(error));
+  if (!isRecord(payload)) return fallback;
+
+  const maybeMessage = payload.message;
   if (typeof maybeMessage === 'string' && maybeMessage.length > 0) return maybeMessage;
   return fallback;
 };
 
 export const getErrorCode = (error: unknown): string | undefined => {
-  if (!error || typeof error !== 'object') return undefined;
-  const code = (error as { response?: { data?: { code?: unknown } } }).response?.data?.code;
+  const payload = getNestedErrorPayload(getErrorPayload(error));
+  if (!isRecord(payload)) return undefined;
+
+  const code = payload.code;
   return typeof code === 'string' ? code : undefined;
 };
