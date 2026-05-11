@@ -84,10 +84,7 @@ const useFinishOnboarding = (args?: FinishArgs) => {
         const { error: mockExamErr } = await postMockExam({
           type: currentMockExamType.type,
           incorrects: args.incorrects,
-          question:
-            args.question.length > 0
-              ? JSON.stringify({ ops: [{ insert: args.question }] })
-              : undefined,
+          question: args.question.length > 0 ? JSON.stringify({ data: args.question }) : undefined,
         });
 
         if (mockExamErr) {
