@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+
 import { colors } from '@theme/tokens';
 import { AnimatedPressable, ContentInset, Header } from '@components/common';
 
