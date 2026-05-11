@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -40,6 +40,7 @@ const TypeFormModal = ({ mode, target, onClose }: Props) => {
 
   const createMutation = createMockExamType();
   const updateMutation = updateMockExamType();
+  const isSubmittingRef = useRef(false);
 
   const {
     register,
@@ -70,7 +71,10 @@ const TypeFormModal = ({ mode, target, onClose }: Props) => {
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = async (values: FormValues) => {
+    if (isSubmittingRef.current) return;
+
     try {
+      isSubmittingRef.current = true;
       if (isEditMode && target?.id !== undefined) {
         await updateMutation.mutateAsync({
           params: { path: { id: target.id } },
@@ -102,6 +106,8 @@ const TypeFormModal = ({ mode, target, onClose }: Props) => {
       } else {
         toast.error(message);
       }
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 

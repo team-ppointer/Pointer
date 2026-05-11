@@ -2,16 +2,9 @@ import { Modal } from '@components';
 import { ClipboardList, X } from 'lucide-react';
 import { components } from '@schema';
 
-type MockExamResultResp = components['schemas']['MockExamResultResp'];
+import { getQuestionDisplayText } from '../-utils/question';
 
-const parseQuestionText = (question: string): string => {
-  try {
-    const parsed = JSON.parse(question) as { data?: unknown };
-    return typeof parsed.data === 'string' ? parsed.data : '';
-  } catch {
-    return question;
-  }
-};
+type MockExamResultResp = components['schemas']['MockExamResultResp'];
 
 interface ResultDetailModalProps {
   isOpen: boolean;
@@ -25,8 +18,7 @@ const ResultDetailModal = ({ isOpen, onClose, result, displayName }: ResultDetai
 
   const code = result.type ?? '';
   const incorrects = result.incorrects ?? [];
-  const question = result.question ?? null;
-  const questionText = question === null ? null : parseQuestionText(question);
+  const questionText = getQuestionDisplayText(result.question);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -60,11 +52,11 @@ const ResultDetailModal = ({ isOpen, onClose, result, displayName }: ResultDetai
 
         <section>
           <h4 className='mb-2 text-sm font-bold text-gray-900'>학습 고민</h4>
-          {question === null ? (
+          {questionText === null ? (
             <p className='text-sm text-gray-400'>학습 고민 미제출</p>
           ) : (
             <p className='text-sm leading-6 break-words whitespace-pre-wrap text-gray-700'>
-              {questionText!.length > 0 ? questionText : question}
+              {questionText}
             </p>
           )}
         </section>

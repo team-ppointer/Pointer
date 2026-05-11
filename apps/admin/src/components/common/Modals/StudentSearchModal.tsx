@@ -15,7 +15,7 @@ interface Props {
 
 const StudentSearchModal = ({ selectedStudents, setSelectedStudents, onApply }: Props) => {
   const [searchValue, setSearchValue] = useState('');
-  const { data: studentList } = getStudent({ query: '' });
+  const { data: studentList } = getStudent({ query: searchValue, size: 100 });
   const { register, watch } = useForm({ defaultValues: { searchInput: '' } });
   const searchInput = watch('searchInput');
 
@@ -34,7 +34,7 @@ const StudentSearchModal = ({ selectedStudents, setSelectedStudents, onApply }: 
   const availableStudents =
     studentList?.data
       .filter((student) => !selectedStudents.some((s) => s.id === student.id))
-      .filter((student) => student.name?.includes(searchValue) ?? false) || [];
+      .filter((student) => student.name) || [];
 
   // 학생 선택 핸들러
   const handleSelectStudent = (student: components['schemas']['StudentResp']) => {

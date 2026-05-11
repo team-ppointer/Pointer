@@ -88,6 +88,7 @@ const NON_TEXT_CONTENT_TYPES = new Set([
   'inlineMath',
   'blockMath',
   'horizontalRule',
+  'table',
 ]);
 
 const hasMeaningfulNonTextContent = (node: TiptapNode): boolean => {

@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import { components } from '@schema';
 
 import ResultDetailModal from './-components/ResultDetailModal';
+import { getQuestionDisplayText } from './-utils/question';
 
 import { SheetTable, type SheetColumn } from '@/components/conceptGraph';
 
@@ -99,11 +100,9 @@ function RouteComponent() {
       key: 'question',
       label: '학습 고민',
       render: (row) => {
-        const submitted = row.question !== null && row.question !== undefined;
-        return submitted ? (
-          <span className='text-sm text-gray-700'>
-            {JSON.parse(row.question!).data ?? row.question}
-          </span>
+        const questionText = getQuestionDisplayText(row.question);
+        return questionText !== null ? (
+          <span className='text-sm text-gray-700'>{questionText}</span>
         ) : (
           <span className='inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-500'>
             미제출
