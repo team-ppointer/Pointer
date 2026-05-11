@@ -24,7 +24,6 @@ const UNPROTECTED_ROUTES = [
   '/api/student/auth/login/social',
   '/api/student/auth/login/local',
   '/api/student/auth/signup/local',
-  '/api/student/auth/register',
   '/api/student/auth/refresh',
   '/api/student/auth/password/reset',
   '/api/student/auth/password/reset/send-code',
