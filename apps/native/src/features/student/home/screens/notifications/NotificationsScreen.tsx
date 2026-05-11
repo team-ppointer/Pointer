@@ -5,7 +5,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react-native';
 
 import { AnimatedPressable, ContentInset, Header, NotificationItem } from '@components/common';
-import { NoNotificationBellIcon } from '@components/system/icons';
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import {
   useGetNotification,
@@ -19,6 +18,9 @@ import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
 import useInvalidateNotificationData from '@apis/controller/student/notification/useIncalidateNotificationData';
 import { useIsTablet } from '@features/student/qna/hooks/useIsTablet';
 import { formatNoticeDate, formatNotificationDate } from '@utils/dateFormatter';
+
+import NoNotificationIcon from '../../components/icons/NoNotificationIcon';
+import NoNoticeIcon from '../../components/icons/NoNoticeIcon';
 
 const getNotificationIcon = (type: string): 'megaphone' | 'message' | 'book' => {
   switch (type) {
@@ -171,8 +173,9 @@ const NotificationScreen = () => {
               />
             ))}
             {notices.length === 0 && (
-              <View className='flex-col items-center gap-[10px] py-[30px]'>
-                <Text className='typo-body-1-medium text-gray-600'>공지사항이 없어요.</Text>
+              <View className='flex-col items-center gap-[10px]'>
+                <NoNoticeIcon />
+                <Text className='typo-heading-1-semibold text-gray-700'>공지가 없어요</Text>
               </View>
             )}
           </ContentInset>
@@ -214,9 +217,9 @@ const NotificationScreen = () => {
                   </NotificationItem>
                 ))
               ) : (
-                <View className='flex-col items-center gap-[10px] py-[10px]'>
-                  <NoNotificationBellIcon />
-                  <Text className='text-20b text-gray-800'>받은 알림이 없어요.</Text>
+                <View className='flex-col items-center gap-[10px]'>
+                  <NoNotificationIcon />
+                  <Text className='typo-heading-1-semibold text-gray-700'>받은 알림이 없어요</Text>
                 </View>
               )}
             </View>
