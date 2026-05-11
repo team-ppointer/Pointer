@@ -136,28 +136,10 @@ const HomeScreen = () => {
             </View>
           </View>
           <View className='flex-1 flex-col'>
-            <View className='mb-[16px] w-full flex-row items-center gap-[8px]'>
-              <View className='bg-primary-200 size-[48px] items-center justify-center rounded-full'>
-                <BookOpenTextIcon size={24} color={colors['primary-600']} />
-              </View>
-              <View className='flex-1 flex-col'>
-                <Text className='typo-heading-1-bold line-clamp-1 truncate text-black'>
-                  {publishDetailData?.problemSet?.title ?? '미출제'}
-                </Text>
-
-                <Text className='typo-label-medium text-gray-700'>
-                  {`${String(selectedDate.getMonth() + 1).padStart(2, '0')}월 ${String(selectedDate.getDate()).padStart(2, '0')}일`}
-                  {publishDetailData?.publishAt &&
-                    ` · ${publishDetailData?.problemSet?.problems?.length ?? 0}문제`}
-                </Text>
-              </View>
-              <AnimatedPressable
-                onPress={() => setIsCalendarModalVisible(true)}
-                className='items-center justify-center rounded-[8px] p-[8px]'>
-                <CalendarIcon size={20} color={colors['gray-700']} />
-              </AnimatedPressable>
-            </View>
-            <ProblemSet publishDetail={publishDetailData ?? undefined} />
+            <ProblemSet
+              publishDetail={publishDetailData ?? undefined}
+              onPressDate={() => setIsCalendarModalVisible(true)}
+            />
           </View>
         </ContentInset>
 
