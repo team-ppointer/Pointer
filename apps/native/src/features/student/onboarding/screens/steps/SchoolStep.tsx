@@ -12,6 +12,7 @@ import type { OnboardingScreenProps } from '../types';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { OnboardingLayout, OnboardingInput } from '../../components';
 import useFinishOnboarding from '../../hooks/useFinishOnboarding';
+import useResolveCurrentMockExamType from '../../hooks/useResolveCurrentMockExamType';
 import { getOnboardingTotal } from '../../utils';
 
 const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
@@ -37,11 +38,15 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   const results = data?.data ?? [];
 
   const { submit, isPending } = useFinishOnboarding();
+  const { resolveCurrentMockExamType, isResolvingCurrentType } = useResolveCurrentMockExamType();
 
   const isCurrentTypeReady = currentTypeStatus === 'resolved';
+  const isCurrentTypeRetryable = currentTypeStatus === 'error';
+  const isCurrentTypeBlocked = currentTypeStatus !== 'resolved' && currentTypeStatus !== 'error';
   const hasActiveMockExam = isCurrentTypeReady && Boolean(currentMockExamType?.type);
-  const ctaDisabled = !schoolId || isPending || !isCurrentTypeReady;
-  const skipDisabled = isPending || !isCurrentTypeReady;
+  const isProcessing = isPending || isResolvingCurrentType;
+  const ctaDisabled = !schoolId || isProcessing || isCurrentTypeBlocked;
+  const skipDisabled = isProcessing || isCurrentTypeBlocked;
 
   const handleSelect = (id: number, name: string, sido: string) => {
     const label = `${name}(${sido})`;
@@ -57,9 +62,17 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
   };
 
   const goNext = async () => {
-    if (!isCurrentTypeReady) return;
+    let nextMockExamType = currentMockExamType;
 
-    if (hasActiveMockExam) {
+    if (isCurrentTypeRetryable) {
+      const result = await resolveCurrentMockExamType();
+      if (!result.ok) return;
+      nextMockExamType = result.currentMockExamType;
+    } else if (!isCurrentTypeReady) {
+      return;
+    }
+
+    if (nextMockExamType?.type) {
       setCurrentStep('MockExam');
       navigation.navigate('MockExam');
       return;
@@ -89,6 +102,7 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
       description='학교를 입력해 맞춤형 문제를 제공받아요.'
       onPressCTA={handleNext}
       ctaDisabled={ctaDisabled}
+      ctaLoading={isProcessing}
       skipLabel='건너뛰기'
       onSkip={handleSkip}
       skipDisabled={skipDisabled}

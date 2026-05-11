@@ -30,7 +30,7 @@ const useFetchCurrentMockExamType = () => {
       setCurrentTypeStatus('error');
       return;
     }
-    setCurrentMockExamType(data ?? null);
+    setCurrentMockExamType(data?.type ? data : null);
     setCurrentTypeStatus('resolved');
   }, [data, isError, isPending, isFetching, setCurrentMockExamType, setCurrentTypeStatus]);
 

@@ -43,6 +43,7 @@ const MockExamStep = (_props: OnboardingScreenProps<'MockExam'>) => {
         submit();
       }}
       ctaDisabled={isPending}
+      ctaLoading={isPending}
       progress={{ current: total, total }}>
       <View className='gap-[32px]'>
         <View className='md:mr-[148px]'>

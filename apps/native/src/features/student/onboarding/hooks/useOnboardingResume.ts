@@ -10,8 +10,8 @@ import { getStepSequence } from '../utils';
  * 앱 종료 후 재진입 시, persist된 currentStep까지의 stack을 복원하여
  * 사용자가 뒤로가기로 이전 step에 돌아갈 수 있게 한다.
  *
- * GradeStep(resume route) mount 시 호출되어, currentTypeStatus가 'resolved'된
- * 직후 한 번만 `navigation.reset`을 발화한다.
+ * GradeStep(resume route) mount 시 호출되어, currentTypeStatus가 'resolved' 또는
+ * 'error'로 판정된 직후 한 번만 `navigation.reset`을 발화한다.
  */
 const useOnboardingResume = () => {
   const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList>>();
@@ -28,11 +28,16 @@ const useOnboardingResume = () => {
     if (status !== 'in-progress') return;
     const resumeStep = resumeStepRef.current;
     if (resumeStep === 'Grade' || resumeStep === 'Welcome') return;
-    if (currentTypeStatus !== 'resolved') return;
+    if (currentTypeStatus !== 'resolved' && currentTypeStatus !== 'error') return;
 
-    const hasActiveMockExam = Boolean(currentMockExamType?.type);
+    const hasActiveMockExam =
+      currentTypeStatus === 'resolved' && Boolean(currentMockExamType?.type);
     const sequence = getStepSequence(grade, hasActiveMockExam);
-    const idx = sequence.indexOf(resumeStep);
+    const targetStep =
+      resumeStep === 'MockExam' && currentTypeStatus === 'error'
+        ? sequence[sequence.length - 1]
+        : resumeStep;
+    const idx = sequence.indexOf(targetStep);
     if (idx <= 0) return;
 
     restoredRef.current = true;

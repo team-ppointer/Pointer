@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import {
   BackHandler,
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -20,6 +21,7 @@ type Props = {
   children: ReactNode;
   ctaLabel?: string;
   ctaDisabled?: boolean;
+  ctaLoading?: boolean;
   onPressCTA: () => void;
   showBackButton?: boolean;
   onPressBack?: () => void;
@@ -38,6 +40,7 @@ const OnboardingLayout = ({
   children,
   ctaLabel = '다음',
   ctaDisabled,
+  ctaLoading,
   onPressCTA,
   showBackButton = true,
   onPressBack,
@@ -138,12 +141,16 @@ const OnboardingLayout = ({
         <AnimatedPressable
           accessibilityRole='button'
           onPress={onPressCTA}
-          disabled={ctaDisabled}
+          disabled={ctaDisabled || ctaLoading}
           className={`mt-[10px] h-[48px] items-center justify-center rounded-[8px] px-[20px] ${
-            ctaDisabled ? 'bg-primary-200' : 'bg-primary-600'
+            ctaDisabled || ctaLoading ? 'bg-primary-200' : 'bg-primary-600'
           }`}
           containerStyle={{ marginBottom: isKeyboardVisible ? 18 : inset.bottom + 18 }}>
-          <Text className='typo-body-1-medium text-center text-white'>{ctaLabel}</Text>
+          {ctaLoading ? (
+            <ActivityIndicator size='small' color='#FFFFFF' />
+          ) : (
+            <Text className='typo-body-1-medium text-center text-white'>{ctaLabel}</Text>
+          )}
         </AnimatedPressable>
       </ContentInset>
     </KeyboardAvoidingView>
