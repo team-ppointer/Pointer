@@ -17,7 +17,7 @@
     "test": "jest",
     "sync-webview-html": "pnpm --filter @repo/pointer-content-renderer build && mkdir -p ./assets/webview && cp ../../packages/pointer-content-renderer/dist/index.html ./assets/webview/content.html",
     "eas-build-post-install": "pnpm sync-webview-html",
-    "openapi": "pnpm dlx openapi-typescript https://dev.api.math-pointer.com/v3/api-docs --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts"
+    "openapi": "sh -c 'set -a; [ -f .env ] && . ./.env; set +a; test -n \"$OPENAPI_BASIC_AUTH_USERNAME\" && test -n \"$OPENAPI_BASIC_AUTH_PASSWORD\" && curl -fsS -u \"$OPENAPI_BASIC_AUTH_USERNAME:$OPENAPI_BASIC_AUTH_PASSWORD\" https://dev.api.math-pointer.com/v3/api-docs -o /tmp/native-openapi.json && pnpm dlx openapi-typescript /tmp/native-openapi.json --output ./src/types/api/schema.d.ts && prettier --write ./src/types/api/schema.d.ts'"
   },
   "dependencies": {
     "@expo/ngrok": "^4.1.3",
