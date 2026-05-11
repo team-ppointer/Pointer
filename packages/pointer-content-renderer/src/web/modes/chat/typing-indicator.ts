@@ -24,7 +24,7 @@ export function createTypingIndicator(): HTMLElement {
   const el = document.createElement('div');
   el.className = 'chat-bubble chat-bubble--system typing-indicator';
   el.innerHTML =
-    '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+    '<span class="typing-dots" aria-hidden="true"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
   return el;
 }
 
