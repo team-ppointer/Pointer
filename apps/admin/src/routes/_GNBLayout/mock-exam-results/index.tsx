@@ -75,39 +75,34 @@ function RouteComponent() {
     {
       key: 'displayName',
       label: '모의고사',
+      width: '10rem',
       render: (row) => (
         <span className='font-medium text-gray-900'>{getDisplayName(row.type)}</span>
       ),
     },
     {
-      key: 'incorrectCount',
-      label: '오답 개수',
-      width: '8rem',
+      key: 'incorrects',
+      label: '오답',
       render: (row) => {
         const count = row.incorrects?.length ?? 0;
         return (
-          <span className='inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-700'>
-            {count}
+          <span className='text-sm text-gray-700'>
+            <span className='mr-2 inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-700'>
+              {count}개
+            </span>
+            {formatIncorrects(row.incorrects ?? [])}
           </span>
         );
       },
     },
     {
-      key: 'incorrects',
-      label: '오답 문항',
-      render: (row) => (
-        <span className='text-sm text-gray-700'>{formatIncorrects(row.incorrects ?? [])}</span>
-      ),
-    },
-    {
       key: 'question',
       label: '학습 고민',
-      width: '8rem',
       render: (row) => {
         const submitted = row.question !== null && row.question !== undefined;
         return submitted ? (
-          <span className='bg-main/10 text-main inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold'>
-            제출
+          <span className='text-sm text-gray-700'>
+            {JSON.parse(row.question!).data ?? row.question}
           </span>
         ) : (
           <span className='inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-500'>
@@ -119,7 +114,7 @@ function RouteComponent() {
     {
       key: 'createdAt',
       label: '제출',
-      width: '12rem',
+      width: '10rem',
       render: (row) => (
         <span className='text-sm text-gray-600'>{formatDateTime(row.createdAt)}</span>
       ),
@@ -127,7 +122,7 @@ function RouteComponent() {
     {
       key: 'updatedAt',
       label: '수정',
-      width: '12rem',
+      width: '10rem',
       render: (row) => (
         <span className='text-sm text-gray-600'>{formatDateTime(row.updatedAt)}</span>
       ),

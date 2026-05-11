@@ -63,11 +63,9 @@ const ResultDetailModal = ({ isOpen, onClose, result, displayName }: ResultDetai
           {question === null ? (
             <p className='text-sm text-gray-400'>학습 고민 미제출</p>
           ) : (
-            <div className='max-h-[40rem] overflow-y-auto rounded-xl border border-gray-200 bg-white p-6'>
-              <p className='whitespace-pre-wrap break-words text-sm leading-6 text-gray-700'>
-                {questionText}
-              </p>
-            </div>
+            <p className='text-sm leading-6 break-words whitespace-pre-wrap text-gray-700'>
+              {questionText!.length > 0 ? questionText : question}
+            </p>
           )}
         </section>
       </div>
