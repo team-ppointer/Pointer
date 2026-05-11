@@ -271,7 +271,7 @@ const MyInfoScreen = () => {
           navigation.goBack();
         }}>
         <ScrollView className='flex-1 bg-blue-100 pt-[10px]' contentContainerClassName='flex-grow'>
-          <ContentInset className='-mt-[100%] gap-[28px] bg-gray-100 pb-[24px] pt-[100%]'>
+          <ContentInset className='-mt-[100%] gap-[28px] bg-gray-100 pt-[100%] pb-[24px]'>
             <InfoSection
               icon={<ProfileBasicIcon />}
               title='기본 정보'

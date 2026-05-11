@@ -108,7 +108,7 @@ const OnboardingLayout = ({
       </View>
       {progress ? (
         <View
-          className='absolute left-1/2 top-[16px] -translate-x-1/2'
+          className='absolute top-[16px] left-1/2 -translate-x-1/2'
           style={{ marginTop: inset.top }}>
           <Text className='typo-heading-2-semibold text-gray-700'>
             {progress.current} / {progress.total}
