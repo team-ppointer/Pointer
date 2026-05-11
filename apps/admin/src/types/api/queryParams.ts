@@ -98,3 +98,12 @@ export interface GetDiagnosisByIdParams {
 export interface GetDiagnosisParams {
   studentId: number;
 }
+
+export interface GetDailyCommentParams {
+  studentId: number;
+  commentDate: string;
+}
+
+export interface GetMockExamByStudentParams {
+  studentId: number;
+}

@@ -4,10 +4,13 @@ import {
   Calendar,
   ChartNoAxesCombined,
   Circle,
+  ClipboardList,
   FileText,
+  ListChecks,
   Megaphone,
   MessageCircle,
   Network,
+  NotebookPen,
   Package,
   Settings,
   Tags,
@@ -20,7 +23,10 @@ export type AdminMenuName =
   | 'NOTICE'
   | 'NOTIFICATION'
   | 'DIAGNOSIS'
+  | 'MOCK_EXAM_RESULT'
+  | 'MOCK_EXAM_TYPE'
   | 'QNA'
+  | 'DAILY_COMMENT'
   | 'PROBLEM_ITEM'
   | 'PROBLEM_SET'
   | 'CONCEPT_TAG'
@@ -57,7 +63,7 @@ export type AdminNavSection = {
 
 export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   {
-    title: '학생 관리',
+    title: '개별 학생 관리',
     items: [
       {
         menuName: 'PUBLISH',
@@ -87,10 +93,24 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
         icon: ChartNoAxesCombined,
         routePrefixes: ['/diagnosis'],
       },
+      {
+        menuName: 'MOCK_EXAM_RESULT',
+        to: '/mock-exam-results',
+        label: '모의고사 정오답 및 질문',
+        icon: ClipboardList,
+        routePrefixes: ['/mock-exam-results'],
+      },
+      {
+        menuName: 'MOCK_EXAM_TYPE',
+        to: '/mock-exam-types',
+        label: '모의고사 타입 관리',
+        icon: ListChecks,
+        routePrefixes: ['/mock-exam-types'],
+      },
     ],
   },
   {
-    title: 'Q&A',
+    title: '전체 학생 관리',
     items: [
       {
         menuName: 'QNA',
@@ -98,6 +118,13 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
         label: 'Q&A',
         icon: MessageCircle,
         routePrefixes: ['/qna'],
+      },
+      {
+        menuName: 'DAILY_COMMENT',
+        to: '/daily-comments',
+        label: '당신만을 위한 코멘트',
+        icon: NotebookPen,
+        routePrefixes: ['/daily-comments'],
       },
     ],
   },

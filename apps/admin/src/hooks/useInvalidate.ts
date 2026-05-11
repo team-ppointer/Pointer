@@ -87,6 +87,24 @@ const useInvalidate = () => {
     [queryClient]
   );
 
+  const invalidateDailyComment = useCallback(() => {
+    return queryClient.invalidateQueries({
+      queryKey: $api.queryOptions('get', '/api/admin/daily-comments').queryKey,
+    });
+  }, [queryClient]);
+
+  const invalidateMockExamResults = useCallback(() => {
+    return queryClient.invalidateQueries({
+      queryKey: $api.queryOptions('get', '/api/admin/mock-exam').queryKey,
+    });
+  }, [queryClient]);
+
+  const invalidateMockExamTypes = useCallback(() => {
+    return queryClient.invalidateQueries({
+      queryKey: $api.queryOptions('get', '/api/admin/mock-exam/types').queryKey,
+    });
+  }, [queryClient]);
+
   const invalidateConceptGraphSheets = useCallback(() => {
     return Promise.all([
       queryClient.invalidateQueries({
@@ -181,6 +199,9 @@ const useInvalidate = () => {
     invalidateNotice,
     invalidateNotification,
     invalidateQna,
+    invalidateDailyComment,
+    invalidateMockExamResults,
+    invalidateMockExamTypes,
     invalidateConceptGraphSheets,
     invalidateConceptGraphNodes,
     invalidateConceptGraphEdges,
