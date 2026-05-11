@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, { useCallback } from 'react';
+import React from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
@@ -53,10 +53,10 @@ export default function App() {
   useDeepLinkHandler();
 
   // NavigationContainer가 완전히 마운트된 후 native splash 제거
-  const handleNavigationContainerReady = useCallback(() => {
+  const handleNavigationContainerReady = () => {
     handleNavigationReady();
     SplashScreen.hideAsync().catch(() => {});
-  }, []);
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
