@@ -54,6 +54,7 @@ const useFinishOnboarding = (args?: FinishArgs) => {
     setIsPending(true);
     try {
       const onboardingPayload = getPayload();
+      const resolvedGrade = onboardingPayload.grade ?? 'ONE';
 
       const registerData: StudentInitialRegisterReq = {
         isGteFourteen: step1Data.terms.isGteFourteen,
@@ -63,7 +64,7 @@ const useFinishOnboarding = (args?: FinishArgs) => {
         email: step1Data.email || undefined,
         name: step1Data.name,
         phoneNumber: step1Data.phoneNumber || undefined,
-        grade: onboardingPayload.grade ?? 'ONE',
+        grade: resolvedGrade,
         selectSubject: onboardingPayload.selectSubject ?? undefined,
         schoolId: onboardingPayload.schoolId ?? undefined,
       };
@@ -76,12 +77,13 @@ const useFinishOnboarding = (args?: FinishArgs) => {
           return { ok: false };
         }
 
-        await updateStudentProfile({
-          name: step1Data.name || null,
-          grade: onboardingPayload.grade,
-        });
         markRegistered();
       }
+
+      await updateStudentProfile({
+        name: step1Data.name || null,
+        grade: resolvedGrade,
+      });
 
       if (args) {
         if (!currentMockExamType?.type) {

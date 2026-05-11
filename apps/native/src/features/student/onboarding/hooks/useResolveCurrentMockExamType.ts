@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 
 import { TanstackQueryClient } from '@apis/client';
@@ -19,6 +19,7 @@ const CURRENT_TYPE_RETRY_FAIL_MESSAGE = '네트워크 상태를 확인한 뒤 �
 
 const useResolveCurrentMockExamType = () => {
   const [isResolvingCurrentType, setIsResolvingCurrentType] = useState(false);
+  const resolveLockRef = useRef(false);
 
   const setCurrentMockExamType = useOnboardingStore((state) => state.setCurrentMockExamType);
   const setCurrentTypeStatus = useOnboardingStore((state) => state.setCurrentTypeStatus);
@@ -36,8 +37,9 @@ const useResolveCurrentMockExamType = () => {
   );
 
   const resolveCurrentMockExamType = useCallback(async (): Promise<ResolveCurrentTypeResult> => {
-    if (isResolvingCurrentType) return { ok: false };
+    if (resolveLockRef.current) return { ok: false };
 
+    resolveLockRef.current = true;
     setIsResolvingCurrentType(true);
     setCurrentTypeStatus('loading');
 
@@ -54,13 +56,16 @@ const useResolveCurrentMockExamType = () => {
       }
     } catch (error) {
       console.error('[useResolveCurrentMockExamType] current-type retry failed:', error);
+    } finally {
+      resolveLockRef.current = false;
+      setIsResolvingCurrentType(false);
     }
 
     setCurrentMockExamType(null);
     setCurrentTypeStatus('error');
     Alert.alert(CURRENT_TYPE_RETRY_FAIL_TITLE, CURRENT_TYPE_RETRY_FAIL_MESSAGE);
     return { ok: false };
-  }, [isResolvingCurrentType, refetch, setCurrentMockExamType, setCurrentTypeStatus]);
+  }, [refetch, setCurrentMockExamType, setCurrentTypeStatus]);
 
   return { resolveCurrentMockExamType, isResolvingCurrentType };
 };
