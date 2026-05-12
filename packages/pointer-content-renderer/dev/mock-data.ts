@@ -1,4 +1,4 @@
-import type { JSONNode, ChatScenario, OverviewSection, UserAnswer } from '../src/types';
+import type { JSONNode, ChatScenario, OverviewSection, UserAnswer, HomeCard } from '../src/types';
 
 // ── Helper: create a text node ──
 function text(t: string, marks?: JSONNode['marks']): JSONNode {
@@ -3286,3 +3286,109 @@ export const mockAllRightSections: OverviewSection[] = [
     },
   },
 ];
+
+// ── Home mode mock ──
+
+export const mockHomeCards: HomeCard[] = [
+  {
+    type: 'comment',
+    timeRemainingInHours: 24,
+    content: {
+      type: 'doc',
+      content: [
+        paragraph(
+          text(
+            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다. '
+          )
+        ),
+        paragraph(
+          text(
+            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다. '
+          )
+        ),
+        paragraph(
+          text('함수 '),
+          inlineMath('f(x) = x^2 + 3x - 5'),
+          text(' 의 극솟값을 구하면 '),
+          inlineMath('f\\left(-\\frac{3}{2}\\right) = -\\frac{29}{4}'),
+          text(' 이다.')
+        ),
+        paragraph(
+          text(
+            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다.'
+          )
+        ),
+      ],
+    },
+  },
+  {
+    type: 'study-summary',
+    groups: [
+      {
+        label: '오늘의 학습',
+        highlighted: true,
+        items: [
+          {
+            badges: [{ text: '집중학습', variant: 'orange' }],
+            headerText: '어드민 헤드라인/권장 15글자/선택',
+            content: {
+              type: 'doc',
+              content: [
+                paragraph(
+                  text(
+                    '어드민에 등록된 Title 영역입니다. 권장길이 공백 포함 26~38자, 최대 공백포함 60자.'
+                  )
+                ),
+              ],
+            },
+          },
+        ],
+      },
+      {
+        label: '다가오는 학습',
+        highlighted: false,
+        items: [
+          {
+            badges: [{ text: '집중학습', variant: 'green' }],
+            headerText: '어드민 헤드라인/권장 15글자/선택',
+            content: {
+              type: 'doc',
+              content: [
+                paragraph(
+                  text(
+                    '어드민에 등록된 Title 영역입니다. 권장길이 공백 포함 26~38자, 최대 공백포함 60자.'
+                  )
+                ),
+                paragraph(
+                  text('함수 '),
+                  inlineMath('g(x) = \\int_0^x f(t) dt'),
+                  text(' 에서 '),
+                  inlineMath("g'(x) = f(x)"),
+                  text(' 이므로, '),
+                  inlineMath("g'(2) = f(2) = 4 + 6 - 5 = 5"),
+                  text(' 이다.')
+                ),
+              ],
+            },
+          },
+          {
+            badges: [{ text: '집중학습', variant: 'green' }],
+            headerText: '어드민 헤드라인/권장 15글자/선택',
+            content: {
+              type: 'doc',
+              content: [
+                paragraph(
+                  text(
+                    '어드민에 등록된 Title 영역입니다. 권장길이 공백 포함 26~38자, 최대 공백포함 60자.'
+                  )
+                ),
+              ],
+            },
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const mockHomeName = '테스트';

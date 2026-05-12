@@ -12,7 +12,7 @@ export type JSONNode = {
 
 // ── Content modes ──
 
-export type ContentMode = 'document' | 'chat' | 'overview';
+export type ContentMode = 'document' | 'chat' | 'overview' | 'home';
 
 // ── Bridge messages: RN → WebView ──
 
@@ -42,6 +42,13 @@ export type RNToWebViewMessage =
       mode: 'overview';
       variant?: 'summary' | 'pointing';
       sections: OverviewSection[];
+    }
+  | {
+      type: 'init';
+      mode: 'home';
+      /** 학생 이름 — 카드 타이틀에 삽입 */
+      name: string;
+      cards: HomeCard[];
     }
   | {
       type: 'bookmarkResult';
@@ -146,4 +153,39 @@ export interface OverviewSection {
     | { type: 'plain'; content: JSONNode }
     | { type: 'chat'; scenario: ChatScenario; userAnswers?: UserAnswer[] }
     | { type: 'divider'; text?: string };
+}
+
+// ── Home card types ──
+
+export type HomeCard = HomeCommentCard | HomeStudySummaryCard;
+
+export interface HomeCommentCard {
+  type: 'comment';
+  /** 남은 시간 (시). ≤4 이면 빨간색 표시 */
+  timeRemainingInHours: number;
+  content: JSONNode;
+}
+
+export interface HomeStudySummaryCard {
+  type: 'study-summary';
+  groups: HomeStudyGroup[];
+}
+
+export interface HomeStudyGroup {
+  label: string;
+  /** true = 파란 채워진 도트, false/undefined = 회색 빈 도트 */
+  highlighted?: boolean;
+  items: HomeStudyItem[];
+}
+
+export interface HomeStudyItem {
+  badges: HomeStudyBadge[];
+  headerText: string;
+  /** LaTeX 포함 가능한 TipTap JSON 본문 */
+  content: JSONNode;
+}
+
+export interface HomeStudyBadge {
+  text: string;
+  variant: 'orange' | 'green' | 'purple' | 'pink' | 'blue';
 }

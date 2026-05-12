@@ -1,5 +1,7 @@
 export * from './auth';
+export * from './dailyComment';
 export * from './diagnosis';
+export * from './focusCard';
 export * from './me';
 export * from './mockExam';
 export * from './notice';
