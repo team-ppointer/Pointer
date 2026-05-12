@@ -75,7 +75,8 @@ async function renderCommentCard(
 
   const headerLeft = el('div', 'home-card-header-left');
   const icon = el('div', 'home-card-header-icon', commentIconSvg);
-  const title = el('div', 'home-card-title', `${name}을(를) 위한 1:1 코멘트`);
+  const title = el('div', 'home-card-title');
+  title.textContent = `${name}을(를) 위한 1:1 코멘트`;
   headerLeft.append(icon, title);
 
   // 시간 뱃지
