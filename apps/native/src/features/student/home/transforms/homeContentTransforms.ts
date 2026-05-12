@@ -55,7 +55,8 @@ function toStudySummaryCard(issuances: FocusCardIssuanceResp[]): HomeStudySummar
           variant: issuance.issuedDate === todayStr ? 'orange' : 'green',
         },
       ],
-      headerText: issuance.card.description || '',
+      title: parseTipTapDoc(issuance.card.title),
+      description: parseTipTapDoc(issuance.card.description),
       content: parseTipTapDoc(issuance.card.content),
     };
 

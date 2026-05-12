@@ -287,18 +287,14 @@ async function renderStudyItem(
     headline.appendChild(b);
   }
 
-  if (item.headerText) {
-    const headlineText = el('div', 'home-study-item-headline-text');
-    headlineText.textContent = item.headerText;
-    headline.appendChild(headlineText);
-  }
+  const title = el('div', 'home-study-item-headline-text');
+  title.innerHTML = serializeJSONToHTML(item.title);
+  headline.appendChild(title);
 
-  const title = el('div', 'home-study-item-title');
-  // title은 content의 첫 paragraph 또는 전체를 사용
-  const titleHtml = serializeJSONToHTML(item.content);
-  title.innerHTML = titleHtml;
+  const description = el('div', 'home-study-item-title');
+  description.innerHTML = serializeJSONToHTML(item.description);
 
-  headerSection.append(headline, title);
+  headerSection.append(headline, description);
 
   // ─ 펼칠 콘텐츠 (LaTeX 포함)
   const contentEl = el('div', 'home-study-item-content home-study-item-content--collapsed');
@@ -314,6 +310,7 @@ async function renderStudyItem(
   // math 렌더
   if (!isCurrent()) return () => {};
   await renderMath(title);
+  await renderMath(description);
   await renderMath(contentEl);
 
   // ─ collapsible 설정

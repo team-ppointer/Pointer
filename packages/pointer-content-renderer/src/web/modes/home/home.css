@@ -290,7 +290,7 @@
   letter-spacing: 0.13px;
   white-space: nowrap;
   flex-shrink: 0;
-  align-self: stretch;
+  align-self: center;
 }
 
 .home-study-badge--orange {

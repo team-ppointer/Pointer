@@ -180,8 +180,9 @@ export interface HomeStudyGroup {
 
 export interface HomeStudyItem {
   badges: HomeStudyBadge[];
-  headerText: string;
-  /** LaTeX 포함 가능한 TipTap JSON 본문 */
+  /** LaTeX 포함 가능한 TipTap JSON */
+  title: JSONNode;
+  description: JSONNode;
   content: JSONNode;
 }
 
