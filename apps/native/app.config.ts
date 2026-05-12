@@ -84,7 +84,7 @@ const config: ExpoConfig = {
     url: 'https://u.expo.dev/76a68921-8c65-4e50-98b0-fb5ef457ab7e',
     enabled: true,
     fallbackToCacheTimeout: 0,
-    checkAutomatically: 'ON_LOAD',
+    checkAutomatically: 'NEVER',
   },
   icon: './assets/images/icon.png',
   scheme: 'pointer',

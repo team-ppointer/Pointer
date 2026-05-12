@@ -107,7 +107,7 @@ const MenuScreen = () => {
               <MenuListItem icon={History} title='앱 버전' showChevron={false}>
                 <View className='justify-center'>
                   <Text className='text-16m text-blue-500'>
-                    {Constants.expoConfig?.version ?? '1.2.0'}
+                    {Constants.nativeAppVersion ?? Constants.expoConfig?.version ?? 'unknown'}
                   </Text>
                 </View>
               </MenuListItem>
