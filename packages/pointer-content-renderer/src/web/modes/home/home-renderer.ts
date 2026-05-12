@@ -2,7 +2,6 @@
 
 import { serializeJSONToHTML } from '../../core/serializer/index';
 import { renderMath } from '../../core/math-renderer';
-import { sendToRN } from '../../bridge';
 import type {
   HomeCard,
   HomeCommentCard,
@@ -32,13 +31,6 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return e;
 }
 
-function reportHeight(): void {
-  sendToRN({
-    type: 'height',
-    value: document.documentElement.scrollHeight,
-  });
-}
-
 // ── 메인 ──
 
 export async function renderHome(
@@ -61,9 +53,6 @@ export async function renderHome(
         break;
     }
   }
-
-  // 렌더 완료 후 초기 높이 보고
-  requestAnimationFrame(() => reportHeight());
 
   return () => disposers.forEach((d) => d());
 }
@@ -183,14 +172,10 @@ function setupCommentCollapsible(
       const onEnd = () => {
         bodyContainer.style.maxHeight = '';
         bodyContainer.removeEventListener('transitionend', onEnd);
-        reportHeight();
       };
       bodyContainer.addEventListener('transitionend', onEnd, { once: true });
     }
     isOpen = !isOpen;
-
-    // 높이 재보고
-    setTimeout(() => reportHeight(), 350);
   };
 
   toggle.addEventListener('click', handler);
@@ -222,7 +207,7 @@ async function renderStudySummaryCard(
   desc.append(
     document.createTextNode(`${name}님의 학습을 분석해 취약점을 도출했어요.`),
     document.createElement('br'),
-    document.createTextNode('지금 바로 출제진의 문제 접근법을 배워봐요.'),
+    document.createTextNode('지금 바로 출제진의 문제 접근법을 배워봐요.')
   );
 
   // ─ groups
@@ -359,12 +344,10 @@ function setupStudyItemCollapsible(contentEl: HTMLElement, toggle: HTMLButtonEle
       const onEnd = () => {
         contentEl.style.maxHeight = '';
         contentEl.removeEventListener('transitionend', onEnd);
-        reportHeight();
       };
       contentEl.addEventListener('transitionend', onEnd, { once: true });
     }
     isOpen = !isOpen;
-    setTimeout(() => reportHeight(), 350);
   };
 
   toggle.addEventListener('click', handler);
