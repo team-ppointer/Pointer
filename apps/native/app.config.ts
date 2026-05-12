@@ -75,8 +75,17 @@ const isDev =
 const config: ExpoConfig = {
   name: 'Pointer',
   slug: 'pointer',
-  version: '1.0.0',
+  version: '1.2.0',
   orientation: 'portrait',
+  runtimeVersion: {
+    policy: 'fingerprint',
+  },
+  updates: {
+    url: 'https://u.expo.dev/76a68921-8c65-4e50-98b0-fb5ef457ab7e',
+    enabled: true,
+    fallbackToCacheTimeout: 0,
+    checkAutomatically: 'ON_LOAD',
+  },
   icon: './assets/images/icon.png',
   scheme: 'pointer',
   userInterfaceStyle: 'automatic',
@@ -128,6 +137,7 @@ const config: ExpoConfig = {
         backgroundColor: '#F8F9FC',
       },
     ],
+    'expo-updates',
     [
       '@react-native-google-signin/google-signin',
       {

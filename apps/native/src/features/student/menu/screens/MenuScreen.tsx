@@ -4,6 +4,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
+import Constants from 'expo-constants';
 
 import { TanstackQueryClient, useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
@@ -105,7 +106,9 @@ const MenuScreen = () => {
               />
               <MenuListItem icon={History} title='앱 버전' showChevron={false}>
                 <View className='justify-center'>
-                  <Text className='text-16m text-blue-500'>1.0.1 최신 버전</Text>
+                  <Text className='text-16m text-blue-500'>
+                    {Constants.expoConfig?.version ?? '1.2.0'}
+                  </Text>
                 </View>
               </MenuListItem>
             </MenuSection>
