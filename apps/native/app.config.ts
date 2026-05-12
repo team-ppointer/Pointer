@@ -163,8 +163,6 @@ const config: ExpoConfig = {
   extra: {
     apiBaseUrl: process.env.NATIVE_API_BASE_URL,
     authRedirectUri: process.env.NATIVE_AUTH_REDIRECT_URI,
-    devAccessToken: process.env.NATIVE_DEV_ACCESS_TOKEN,
-    devRefreshToken: process.env.NATIVE_DEV_REFRESH_TOKEN,
     googleWebClientId: process.env.GOOGLE_WEB_CLIENT_ID,
     googleIosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
     kakaoNativeAppKey: process.env.KAKAO_NATIVE_APP_KEY,
