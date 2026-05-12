@@ -179,7 +179,7 @@ const ProblemSet = ({ publishDetail, onPressDate }: ProblemSetProps) => {
   }, [groups, allDone, firstIncompleteInfo]);
 
   return (
-    <View className='bg-primary-100 gap-[20px] rounded-[20px] p-[16px] md:flex-1 md:basis-1/2'>
+    <View className='bg-primary-100 gap-[20px] rounded-[20px] p-[16px]'>
       <View className='flex-col gap-[10px]'>
         {/* 날짜 헤더 */}
         <View className='flex-row items-center justify-between'>
