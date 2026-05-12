@@ -8,42 +8,36 @@ import type {
   HomeStudySummaryCard,
   HomeStudyGroup,
   HomeStudyItem,
-  HomeStudyBadge,
-  JSONNode,
 } from '@repo/pointer-content-renderer';
 
 import type { components } from '@schema';
-import { parseTipTapDoc } from '@features/student/problem/transforms/contentRendererTransforms';
+import { parseTipTapDoc } from '@utils/tiptap';
 
 type DailyCommentResp = components['schemas']['DailyCommentResp'];
 type FocusCardIssuanceResp = components['schemas']['FocusCardIssuanceResp'];
-type ListRespFocusCardIssuanceResp = components['schemas']['ListRespFocusCardIssuanceResp'];
 
 /**
  * 데일리 코멘트 → HomeCommentCard 변환.
- * expiryAt 로부터 남은 시간 계산.
  */
-function toCommentCard(comment: DailyCommentResp): HomeCommentCard {
-  const now = Date.now();
-  const expiry = comment.expiryAt ? new Date(comment.expiryAt).getTime() : now;
-  const remainingMs = Math.max(0, expiry - now);
-  const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
-
+function toCommentCard(comment: DailyCommentResp, name: string): HomeCommentCard {
   return {
     type: 'comment',
-    timeRemainingInHours: remainingHours,
+    title: `${name}님을 위한 1:1 코멘트`,
+    subtitle: '출제진이 직접 작성한 코멘트에요.',
+    expiryAt: comment.expiryAt ? new Date(comment.expiryAt).getTime() : null,
     content: parseTipTapDoc(comment.contentJson),
   };
 }
 
 /**
  * 집중학습 카드 목록 → HomeStudySummaryCard 변환.
- * 발급일 기준으로 오늘/다가오는 학습 그룹 분리.
+ * 발급일이 `todayStr` 인 항목은 "오늘의 학습", 그 외는 "다가오는 학습" 그룹으로 분리.
  */
-function toStudySummaryCard(issuances: FocusCardIssuanceResp[]): HomeStudySummaryCard {
-  const today = new Date();
-  const todayStr = formatLocalDate(today);
-
+function toStudySummaryCard(
+  issuances: FocusCardIssuanceResp[],
+  name: string,
+  todayStr: string
+): HomeStudySummaryCard {
   const todayItems: HomeStudyItem[] = [];
   const upcomingItems: HomeStudyItem[] = [];
 
@@ -77,35 +71,33 @@ function toStudySummaryCard(issuances: FocusCardIssuanceResp[]): HomeStudySummar
 
   return {
     type: 'study-summary',
+    title: `${name}님을 위한 학습 내용 정리`,
+    subtitle: `${name}님의 학습을 분석해 취약점을 도출했어요.\n지금 바로 출제진의 문제 접근법을 배워봐요.`,
     groups,
   };
 }
 
-function formatLocalDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
 /**
  * Home mode init 메시지 구성.
+ *
+ * @param todayStr "오늘" 판정 기준. 호출자(스크린)가 단일 source-of-truth로 보유 및 전달.
  */
 export function buildHomeInit(opts: {
   name: string;
+  todayStr: string;
   comments?: DailyCommentResp[];
-  focusCards?: ListRespFocusCardIssuanceResp | null;
+  focusCardItems?: FocusCardIssuanceResp[];
 }): (RNToWebViewMessage & { type: 'init'; mode: 'home' }) | null {
   const cards: HomeCard[] = [];
 
-  // 1:1 코멘트 (첫 번째만)
+  // 1:1 코멘트 (첫 번째만 표시 — 현재 기획상 동시 노출 1건)
   if (opts.comments && opts.comments.length > 0) {
-    cards.push(toCommentCard(opts.comments[0]));
+    cards.push(toCommentCard(opts.comments[0], opts.name));
   }
 
   // 학습 내용 정리
-  if (opts.focusCards?.data && opts.focusCards.data.length > 0) {
-    cards.push(toStudySummaryCard(opts.focusCards.data));
+  if (opts.focusCardItems && opts.focusCardItems.length > 0) {
+    cards.push(toStudySummaryCard(opts.focusCardItems, opts.name, opts.todayStr));
   }
 
   if (cards.length === 0) return null;
@@ -113,7 +105,6 @@ export function buildHomeInit(opts: {
   return {
     type: 'init',
     mode: 'home',
-    name: opts.name,
     cards,
   };
 }
