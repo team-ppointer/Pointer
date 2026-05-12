@@ -219,7 +219,11 @@ async function renderStudySummaryCard(
 
   // ─ 설명
   const desc = el('div', 'home-card-subtitle');
-  desc.innerHTML = `${name}님의 학습을 분석해 취약점을 도출했어요.<br>지금 바로 출제진의 문제 접근법을 배워봐요.`;
+  desc.append(
+    document.createTextNode(`${name}님의 학습을 분석해 취약점을 도출했어요.`),
+    document.createElement('br'),
+    document.createTextNode('지금 바로 출제진의 문제 접근법을 배워봐요.'),
+  );
 
   // ─ groups
   const groupsContainer = el('div', 'home-study-groups');
