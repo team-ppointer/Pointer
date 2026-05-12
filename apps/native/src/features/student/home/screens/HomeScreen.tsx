@@ -1,12 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Text, RefreshControl } from 'react-native';
+import { View } from 'react-native';
 // import { useNavigation } from '@react-navigation/native';
 // import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BellIcon, BookOpenTextIcon, CalendarIcon, ChevronRightIcon } from 'lucide-react-native';
 
 import { useAuthStore, useHomeStore } from '@stores';
 import {
-  useGetLastDiagnosis,
   useGetMonthlyPublish,
   useGetPublishDetail,
   useGetDailyComments,
@@ -15,10 +13,9 @@ import {
   // useGetNoticeCount,
 } from '@apis';
 // import { type StudentRootStackParamList } from '@navigation/student/types';
-import { colors, shadow } from '@theme/tokens';
-import { AlertBellButtonIcon, PointerLogo, PointerSymbol } from '@components/system/icons';
-import { AnimatedPressable, ContentInset, Header, PointerContentView } from '@components/common';
-import { useInvalidateAll } from '@hooks';
+import { PointerLogo } from '@components/system/icons';
+import { ContentInset, PointerContentView } from '@components/common';
+// import { useInvalidateAll } from '@hooks';
 import { formatDateKey } from '@utils/date';
 
 import { buildHomeInit } from '../transforms/homeContentTransforms';
@@ -37,7 +34,7 @@ const HomeScreen = () => {
   });
 
   // ── 홈 카드 API ──
-  const todayStr = useMemo(() => formatDateKey(new Date()), []);
+  const todayStr = formatDateKey(new Date());
   const { data: dailyComments } = useGetDailyComments(todayStr);
   const { data: focusCards } = useGetFocusCards(todayStr);
 
@@ -73,14 +70,14 @@ const HomeScreen = () => {
     }
   };
 
-  const { invalidateAll } = useInvalidateAll();
-  const [refreshing, setRefreshing] = useState(false);
+  // const { invalidateAll } = useInvalidateAll();
+  // const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await invalidateAll();
-    setRefreshing(false);
-  };
+  // const onRefresh = async () => {
+  //   setRefreshing(true);
+  //   await invalidateAll();
+  //   setRefreshing(false);
+  // };
 
   return (
     <View className='flex-1'>

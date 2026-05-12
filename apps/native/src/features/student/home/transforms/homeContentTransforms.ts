@@ -13,30 +13,11 @@ import type {
 } from '@repo/pointer-content-renderer';
 
 import type { components } from '@schema';
+import { parseTipTapDoc } from '@features/student/problem/transforms/contentRendererTransforms';
 
 type DailyCommentResp = components['schemas']['DailyCommentResp'];
 type FocusCardIssuanceResp = components['schemas']['FocusCardIssuanceResp'];
 type ListRespFocusCardIssuanceResp = components['schemas']['ListRespFocusCardIssuanceResp'];
-
-const EMPTY_DOC: JSONNode = { type: 'doc', content: [] };
-
-function parseTipTapDoc(raw?: string | null): JSONNode {
-  if (raw == null || raw === '') return EMPTY_DOC;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (
-      parsed != null &&
-      typeof parsed === 'object' &&
-      'type' in parsed &&
-      typeof (parsed as { type: unknown }).type === 'string'
-    ) {
-      return parsed as JSONNode;
-    }
-    return EMPTY_DOC;
-  } catch {
-    return EMPTY_DOC;
-  }
-}
 
 /**
  * 데일리 코멘트 → HomeCommentCard 변환.

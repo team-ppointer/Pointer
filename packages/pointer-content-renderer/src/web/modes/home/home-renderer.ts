@@ -142,7 +142,7 @@ function setupCommentCollapsible(
   fade: HTMLElement,
   toggle: HTMLButtonElement
 ): () => void {
-  const COLLAPSED_MAX_HEIGHT = 104; // 24px line-height × 4줄 + 8px padding
+  const COLLAPSED_MAX_HEIGHT = 126; // 24px line-height × 4줄 + 8px padding
   let isOpen = false;
 
   // 1프레임 뒤에 높이 비교
