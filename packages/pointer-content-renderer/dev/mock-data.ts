@@ -104,7 +104,7 @@ export const mockDocumentContent: JSONNode = {
         {
           type: 'inlineMath',
           attrs: {
-            latex: 'g(x) = \\begin{cases} x & (x \\neq 1) \\ a & (x = 1) \\end{cases}',
+            latex: 'g(x) = \\begin{cases} x & (x \\neq 1) \\\\ a & (x = 1) \\end{cases}',
           },
         },
         {
@@ -3292,18 +3292,16 @@ export const mockAllRightSections: OverviewSection[] = [
 export const mockHomeCards: HomeCard[] = [
   {
     type: 'comment',
-    timeRemainingInHours: 24,
+    title: '테스트님을 위한 1:1 코멘트',
+    subtitle: '출제진이 직접 작성한 코멘트에요.',
+    // 24시간 뒤 만료
+    expiryAt: Date.now() + 24 * 60 * 60 * 1000,
     content: {
       type: 'doc',
       content: [
         paragraph(
           text(
-            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다. '
-          )
-        ),
-        paragraph(
-          text(
-            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다. '
+            '출제진이 직접 작성한 내용(Content)이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다.'
           )
         ),
         paragraph(
@@ -3313,16 +3311,14 @@ export const mockHomeCards: HomeCard[] = [
           inlineMath('f\\left(-\\frac{3}{2}\\right) = -\\frac{29}{4}'),
           text(' 이다.')
         ),
-        paragraph(
-          text(
-            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다.'
-          )
-        ),
       ],
     },
   },
   {
     type: 'study-summary',
+    title: '테스트님을 위한 학습 내용 정리',
+    subtitle:
+      '테스트님의 학습을 분석해 취약점을 도출했어요.\n지금 바로 출제진의 문제 접근법을 배워봐요.',
     groups: [
       {
         label: '오늘의 학습',
@@ -3352,11 +3348,9 @@ export const mockHomeCards: HomeCard[] = [
                   content: [
                     {
                       type: 'inlineMath',
-                      attrs: {
-                        latex: '\\frac{\\mathrm{d}}{\\mathrm{d}x}\\sin x = \\cos x',
-                      },
+                      attrs: { latex: '\\frac{\\mathrm{d}}{\\mathrm{d}x}\\sin x = \\cos x' },
                     },
-                    { text: ' 이므로, ', type: 'text' },
+                    { text: ' 이므로, ', type: 'text' },
                     { type: 'inlineMath', attrs: { latex: '\\sin x' } },
                     { text: '의 미분계수는 ', type: 'text' },
                     { type: 'inlineMath', attrs: { latex: '\\cos x' } },
@@ -3368,115 +3362,20 @@ export const mockHomeCards: HomeCard[] = [
             content: {
               type: 'doc',
               content: [
-                {
-                  type: 'paragraph',
-                  attrs: { textAlign: null },
-                  content: [
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\left| \\frac{ \\displaystyle \\sum_{k=1}^{n} \\left(   \\frac{k^2-3k+2}{k^2+k}   -   \\frac{k-1}{k+1} \\right) }{ \\displaystyle \\sqrt{   \\left(     \\sum_{k=1}^{n} k   \\right)^2   -   \\sum_{k=1}^{n} k^2 } } \\right| = \\frac{ \\displaystyle \\left| \\sum_{k=1}^{n} \\frac{2(1-k)}{k(k+1)} \\right| }{ \\displaystyle \\sqrt{ \\frac{n^2(n+1)^2}{4} - \\frac{n(n+1)(2n+1)}{6} } }',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\int_{0}^{2} \\left| x^3-3x^2+2x \\right|\\,dx = \\int_{0}^{1} \\left(x^3-3x^2+2x\\right)\\,dx - \\int_{1}^{2} \\left(x^3-3x^2+2x\\right)\\,dx',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\left\\{ \\begin{array}{ll} \\displaystyle f(x)=x^2-2ax+a^2-1, & x<a \\\\[0.8em] \\displaystyle f(x)= \\frac{x^2-a^2}{x-a}, & x>a \\\\[0.8em] \\displaystyle \\lim_{x\\to a-}f(x) = \\lim_{x\\to a+}f(x) = f(a) \\end{array} \\right.',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\frac{ \\displaystyle \\binom{n}{0} - 2\\binom{n}{1} + 3\\binom{n}{2} - \\cdots + (-1)^n(n+1)\\binom{n}{n} }{ \\displaystyle \\sum_{k=0}^{n} \\binom{n}{k}2^{n-k}(-1)^k } = \\frac{ \\displaystyle \\sum_{k=0}^{n} (-1)^k(k+1)\\binom{n}{k} }{ \\displaystyle (2-1)^n }',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\left( \\frac{ \\displaystyle \\sqrt{x+2\\sqrt{x-1}} - \\sqrt{x-2\\sqrt{x-1}} }{ \\displaystyle \\sqrt{x+2\\sqrt{x-1}} + \\sqrt{x-2\\sqrt{x-1}} } \\right)^2 = \\frac{ \\displaystyle x-\\sqrt{x^2-4x+4} }{ \\displaystyle x+\\sqrt{x^2-4x+4} }',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\sum_{k=1}^{n} \\frac{ \\displaystyle 1 }{ \\displaystyle \\sqrt{k+1}+\\sqrt{k} } = \\sum_{k=1}^{n} \\left( \\sqrt{k+1}-\\sqrt{k} \\right) = \\sqrt{n+1}-1',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\left\\{ \\begin{array}{rcl} \\displaystyle a_{n+1} &=& \\displaystyle \\frac{ 2a_n+3 }{ a_n+2 } \\\\[1em] \\displaystyle b_n &=& \\displaystyle \\frac{ a_n-3 }{ a_n+1 } \\\\[1em] \\displaystyle b_{n+1} &=& \\displaystyle -\\frac{1}{4}b_n \\end{array} \\right.',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\left[ \\begin{array}{c} \\displaystyle \\lim_{x\\to 0} \\frac{ \\sqrt{1+ax}-\\sqrt{1-bx} }{ x } \\\\[1.2em] \\displaystyle = \\lim_{x\\to 0} \\frac{ (a+b)x }{ x\\left(\\sqrt{1+ax}+\\sqrt{1-bx}\\right) } \\\\[1.2em] \\displaystyle = \\frac{a+b}{2} \\end{array} \\right]',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\left| \\begin{array}{cc} \\displaystyle \\frac{x^2-1}{x-1} & \\displaystyle \\sqrt{x^2-2x+1} \\\\[1em] \\displaystyle \\int_{0}^{x}(t^2-2t+1)\\,dt & \\displaystyle \\sum_{k=1}^{x} \\left(2k-1\\right) \\end{array} \\right| = \\left| \\begin{array}{cc} \\displaystyle x+1 & \\displaystyle |x-1| \\\\[1em] \\displaystyle \\frac{x^3}{3}-x^2+x & \\displaystyle x^2 \\end{array} \\right|',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\frac{ \\displaystyle \\int_{0}^{1} \\left(   ax^2+bx+c \\right)\\,dx }{ \\displaystyle \\int_{0}^{1} \\left(   x^2+x+1 \\right)\\,dx } = \\frac{ \\displaystyle \\frac{a}{3}+\\frac{b}{2}+c }{ \\displaystyle \\frac{11}{6} } = \\frac{2a+3b+6c}{11}',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          "\\left\\{ \\begin{array}{l} \\displaystyle f(x)=x^3-3ax^2+\\left(a^2+2a\\right)x-1 \\\\[0.8em] \\displaystyle f\'(x)=3x^2-6ax+\\left(a^2+2a\\right) \\\\[0.8em] \\displaystyle f\'(\\alpha)=0,\\quad f\'(\\beta)=0,\\quad \\alpha<\\beta \\\\[0.8em] \\displaystyle \\int_{\\alpha}^{\\beta} f\'(x)\\,dx = f(\\beta)-f(\\alpha) \\\\[0.8em] \\displaystyle \\left|f(\\alpha)\\right|+\\left|f(\\beta)\\right|=10 \\end{array} \\right.",
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\left\\{ \\begin{array}{l} \\displaystyle a_1=1,\\qquad a_{n+1}=a_n+2n+1 \\\\[0.8em] \\displaystyle S_n=\\sum_{k=1}^{n}a_k \\\\[0.8em] \\displaystyle S_n = \\sum_{k=1}^{n} \\left( 1+\\sum_{j=1}^{k-1}(2j+1) \\right) \\\\[0.8em] \\displaystyle = \\sum_{k=1}^{n}k^2 = \\frac{n(n+1)(2n+1)}{6} \\end{array} \\right.',
-                      },
-                    },
-                    { text: '  ', type: 'text' },
-                    {
-                      type: 'inlineMath',
-                      attrs: {
-                        latex:
-                          '\\left\\{ \\begin{array}{l} \\displaystyle g(x)= \\left| x^2-4x+3 \\right| \\\\[0.8em] \\displaystyle \\int_{0}^{4}g(x)\\,dx = \\int_{0}^{1}(x^2-4x+3)\\,dx - \\int_{1}^{3}(x^2-4x+3)\\,dx + \\int_{3}^{4}(x^2-4x+3)\\,dx \\\\[0.8em] \\displaystyle = \\left[\\frac{x^3}{3}-2x^2+3x\\right]_{0}^{1} - \\left[\\frac{x^3}{3}-2x^2+3x\\right]_{1}^{3} + \\left[\\frac{x^3}{3}-2x^2+3x\\right]_{3}^{4} \\end{array} \\right.',
-                      },
-                    },
-                  ],
-                },
+                paragraph(
+                  text('삼각함수의 도함수는 '),
+                  inlineMath("(\\sin x)' = \\cos x"),
+                  text(', '),
+                  inlineMath("(\\cos x)' = -\\sin x"),
+                  text(' 이다.')
+                ),
+                paragraph(
+                  text('예를 들어 '),
+                  inlineMath('y = \\sin(2x)'),
+                  text(' 의 미분계수는 연쇄법칙으로 '),
+                  inlineMath("y' = 2\\cos(2x)"),
+                  text(' 가 된다.')
+                ),
               ],
             },
           },
@@ -3490,15 +3389,24 @@ export const mockHomeCards: HomeCard[] = [
             badges: [{ text: '집중학습', variant: 'green' }],
             title: {
               type: 'doc',
-              content: [paragraph(text('어드민 헤드라인/권장 15글자/선택'))],
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: { textAlign: null },
+                  content: [
+                    { type: 'inlineMath', attrs: { latex: '\\int x^n \\,dx' } },
+                    { text: '의 일반형', type: 'text' },
+                  ],
+                },
+              ],
             },
             description: {
               type: 'doc',
               content: [
                 paragraph(
-                  text(
-                    '어드민에 등록된 Title 영역입니다. 권장길이 공백 포함 26~38자, 최대 공백포함 60자.'
-                  )
+                  text('지수가 '),
+                  inlineMath('n \\neq -1'),
+                  text('일 때 부정적분의 일반형을 익혀봐요.')
                 ),
               ],
             },
@@ -3506,36 +3414,16 @@ export const mockHomeCards: HomeCard[] = [
               type: 'doc',
               content: [
                 paragraph(
-                  text(
-                    'asdfasdfasdfsadfasdfasdfaasdfasdfasdfasdfsadfsdfsdfsdfsdfsdfdsfdsfsdfsdfsdfsdfdssdfsdfsdfasdfasdfasdfsadfasdfasdfaasdfasdfasdfasdfsadfsdfsdfsdfsdfsdfdsfdsfsdfsdfsdfsdfdssdfsdfsdfasdfasdfasdfsadfasdfasdfaasdfasdfasdfasdfsadfsdfsdfsdfsdfsdfdsfdsfsdfsdfsdfsdfdssdfsdfsdf'
-                  )
+                  inlineMath('\\int x^n \\,dx = \\frac{x^{n+1}}{n+1} + C'),
+                  text(' 단, '),
+                  inlineMath('n \\neq -1'),
+                  text('.')
                 ),
-              ],
-            },
-          },
-          {
-            badges: [{ text: '집중학습', variant: 'green' }],
-            title: {
-              type: 'doc',
-              content: [paragraph(text('어드민 헤드라인/권장 15글자/선택'))],
-            },
-            description: {
-              type: 'doc',
-              content: [
                 paragraph(
-                  text(
-                    '어드민에 등록된 Title 영역입니다. 권장길이 공백 포함 26~38자, 최대 공백포함 60자.'
-                  )
-                ),
-              ],
-            },
-            content: {
-              type: 'doc',
-              content: [
-                paragraph(
-                  text(
-                    'asdfasdfasdfsadfasdfasdfaasdfasdfasdfasdfsadfsdfsdfsdfsdfsdfdsfdsfsdfsdfsdfsdfdssdfsdfsdfasdfasdfasdfsadfasdfasdfaasdfasdfasdfasdfsadfsdfsdfsdfsdfsdfdsfdsfsdfsdfsdfsdfdssdfsdfsdfasdfasdfasdfsadfasdfasdfaasdfasdfasdfasdfsadfsdfsdfsdfsdfsdfdsfdsfsdfsdfsdfsdfdssdfsdfsdf'
-                  )
+                  inlineMath('n = -1'),
+                  text(' 인 경우는 '),
+                  inlineMath('\\int \\frac{1}{x} \\,dx = \\ln |x| + C'),
+                  text(' 가 된다.')
                 ),
               ],
             },
@@ -3545,5 +3433,3 @@ export const mockHomeCards: HomeCard[] = [
     ],
   },
 ];
-
-export const mockHomeName = '테스트';

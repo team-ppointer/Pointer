@@ -147,7 +147,7 @@ onMessage(async (msg) => {
 
     case 'home': {
       try {
-        const dispose = await renderHome(container, msg.cards, msg.name, isCurrent);
+        const dispose = await renderHome(container, msg.cards, isCurrent);
         if (!isCurrent()) return;
         activeDispose = dispose;
       } catch (e) {
