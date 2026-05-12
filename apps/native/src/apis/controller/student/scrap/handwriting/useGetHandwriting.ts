@@ -11,6 +11,8 @@ export const useGetHandwriting = (scrapId: number, enabled = true) => {
     },
     {
       enabled,
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
     }
   );
 };
