@@ -31,12 +31,22 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return e;
 }
 
+/**
+ * 줄바꿈(`\n`) 포함 문자열을 안전하게 <br>로 분리해 element 에 채운다.
+ */
+function appendMultilineText(parent: HTMLElement, text: string): void {
+  const lines = text.split('\n');
+  lines.forEach((line, idx) => {
+    if (idx > 0) parent.appendChild(document.createElement('br'));
+    parent.appendChild(document.createTextNode(line));
+  });
+}
+
 // ── 메인 ──
 
 export async function renderHome(
   container: HTMLElement,
   cards: HomeCard[],
-  name: string,
   isCurrent: () => boolean
 ): Promise<() => void> {
   container.classList.add('home-mode');
@@ -46,10 +56,10 @@ export async function renderHome(
     if (!isCurrent()) return () => {};
     switch (card.type) {
       case 'comment':
-        disposers.push(await renderCommentCard(container, name, card, isCurrent));
+        disposers.push(await renderCommentCard(container, card, isCurrent));
         break;
       case 'study-summary':
-        disposers.push(await renderStudySummaryCard(container, name, card, isCurrent));
+        disposers.push(await renderStudySummaryCard(container, card, isCurrent));
         break;
     }
   }
@@ -61,13 +71,10 @@ export async function renderHome(
 
 async function renderCommentCard(
   parent: HTMLElement,
-  name: string,
   card: HomeCommentCard,
   isCurrent: () => boolean
 ): Promise<() => void> {
   const root = el('div', 'home-card');
-
-  // 카드 내부 컨테이너
   const inner = el('div', 'home-card-inner');
 
   // ─ 헤더 (title + time)
@@ -76,30 +83,29 @@ async function renderCommentCard(
   const headerLeft = el('div', 'home-card-header-left');
   const icon = el('div', 'home-card-header-icon', commentIconSvg);
   const title = el('div', 'home-card-title');
-  title.textContent = `${name}을(를) 위한 1:1 코멘트`;
+  title.textContent = card.title;
   headerLeft.append(icon, title);
 
-  // 시간 뱃지
-  const urgent = card.timeRemainingInHours <= 4;
-  const timeBadge = el(
-    'div',
-    `home-comment-time${urgent ? ' home-comment-time--urgent' : ''}`,
-    `${hourglassSvg(urgent)}${card.timeRemainingInHours}h`
-  );
-
-  header.append(headerLeft, timeBadge);
+  // 시간 뱃지 (1분 간격으로 자동 갱신). expiryAt 이 null 이면 뱃지 자체를 생략.
+  let timeDisposer: () => void = () => {};
+  if (card.expiryAt !== null) {
+    const timeBadge = el('div');
+    timeDisposer = setupTimeBadgeTick(timeBadge, card.expiryAt);
+    header.append(headerLeft, timeBadge);
+  } else {
+    header.append(headerLeft);
+  }
 
   // ─ 부제
-  const subtitle = el('div', 'home-card-subtitle', '출제진이 직접 작성한 코멘트에요.');
+  const subtitle = el('div', 'home-card-subtitle');
+  appendMultilineText(subtitle, card.subtitle);
 
   // ─ 코멘트 body (gray box)
   const body = el('div', 'home-comment-body');
   const bodyContainer = el('div', 'home-comment-body-container');
   const bodyContent = el('div', 'home-comment-body-content');
 
-  // content 렌더
-  const contentHtml = serializeJSONToHTML(card.content);
-  bodyContent.innerHTML = contentHtml;
+  bodyContent.innerHTML = serializeJSONToHTML(card.content);
   bodyContainer.appendChild(bodyContent);
 
   // fade gradient
@@ -118,13 +124,37 @@ async function renderCommentCard(
   parent.appendChild(root);
 
   // math 렌더
-  if (!isCurrent()) return () => {};
+  if (!isCurrent()) {
+    timeDisposer();
+    return () => {};
+  }
   await renderMath(bodyContent);
 
   // ─ collapsible 설정 (렌더 후 높이 비교)
-  const disposer = setupCommentCollapsible(bodyContainer, fade, toggle);
+  const collapseDisposer = setupCommentCollapsible(bodyContainer, fade, toggle);
 
-  return disposer;
+  return () => {
+    timeDisposer();
+    collapseDisposer();
+  };
+}
+
+/**
+ * 만료 시각으로부터 남은 시간(시간 단위, 올림)을 계산해 뱃지를 갱신.
+ * 1분 간격으로 자동 갱신. urgent (≤4h) 시 빨간색.
+ */
+function setupTimeBadgeTick(badge: HTMLElement, expiryAt: number): () => void {
+  const update = () => {
+    const now = Date.now();
+    const remainingMs = Math.max(0, expiryAt - now);
+    const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
+    const urgent = remainingHours > 0 && remainingHours <= 4;
+    badge.className = `home-comment-time${urgent ? ' home-comment-time--urgent' : ''}`;
+    badge.innerHTML = `${hourglassSvg(urgent)}${remainingHours}h`;
+  };
+  update();
+  const interval = setInterval(update, 60_000);
+  return () => clearInterval(interval);
 }
 
 function setupCommentCollapsible(
@@ -187,7 +217,6 @@ function setupCommentCollapsible(
 
 async function renderStudySummaryCard(
   parent: HTMLElement,
-  name: string,
   card: HomeStudySummaryCard,
   isCurrent: () => boolean
 ): Promise<() => void> {
@@ -199,17 +228,13 @@ async function renderStudySummaryCard(
   const headerLeft = el('div', 'home-card-header-left');
   const icon = el('div', 'home-card-header-icon', studyIconSvg);
   const title = el('div', 'home-card-title home-card-title--primary');
-  title.textContent = `${name}에게 꼭 필요한 학습 내용 정리`;
+  title.textContent = card.title;
   headerLeft.append(icon, title);
   header.appendChild(headerLeft);
 
   // ─ 설명
   const desc = el('div', 'home-card-subtitle');
-  desc.append(
-    document.createTextNode(`${name}님의 학습을 분석해 취약점을 도출했어요.`),
-    document.createElement('br'),
-    document.createTextNode('지금 바로 출제진의 문제 접근법을 배워봐요.')
-  );
+  appendMultilineText(desc, card.subtitle);
 
   // ─ groups
   const groupsContainer = el('div', 'home-study-groups');
@@ -277,7 +302,7 @@ async function renderStudyItem(
 ): Promise<() => void> {
   const root = el('div', 'home-study-item');
 
-  // ─ 헤더 (badges + headline + title)
+  // ─ 헤더 (badges + title + description)
   const headerSection = el('div', 'home-study-item-header');
   const headline = el('div', 'home-study-item-headline');
 
@@ -287,63 +312,78 @@ async function renderStudyItem(
     headline.appendChild(b);
   }
 
-  const title = el('div', 'home-study-item-headline-text');
-  title.innerHTML = serializeJSONToHTML(item.title);
-  headline.appendChild(title);
+  // title — 빈 doc이면 element 자체를 생략
+  const titleHtml = serializeJSONToHTML(item.title);
+  let titleEl: HTMLElement | null = null;
+  if (titleHtml.trim()) {
+    titleEl = el('div', 'home-study-item-title');
+    titleEl.innerHTML = titleHtml;
+    headline.appendChild(titleEl);
+  }
 
-  const description = el('div', 'home-study-item-title');
-  description.innerHTML = serializeJSONToHTML(item.description);
+  headerSection.appendChild(headline);
 
-  headerSection.append(headline, description);
+  // description — 빈 doc이면 element 자체를 생략
+  const descHtml = serializeJSONToHTML(item.description);
+  let descEl: HTMLElement | null = null;
+  if (descHtml.trim()) {
+    descEl = el('div', 'home-study-item-description');
+    descEl.innerHTML = descHtml;
+    headerSection.appendChild(descEl);
+  }
 
-  // ─ 펼칠 콘텐츠 (LaTeX 포함)
-  const contentEl = el('div', 'home-study-item-content home-study-item-content--collapsed');
-  const contentHtml = serializeJSONToHTML(item.content);
-  contentEl.innerHTML = contentHtml;
+  // ─ 펼칠 콘텐츠 (LaTeX 포함) — outer(height transition) + inner(padding 고정) 분리
+  const contentOuter = el('div', 'home-study-item-content');
+  const contentInner = el('div', 'home-study-item-content-inner');
+  contentInner.innerHTML = serializeJSONToHTML(item.content);
+  contentOuter.appendChild(contentInner);
 
   // ─ 토글 버튼
   const toggle = el('button', 'home-collapsible-toggle', `펼치기${chevronDownSvg}`);
 
-  root.append(headerSection, contentEl, toggle);
+  root.append(headerSection, contentOuter, toggle);
   parent.appendChild(root);
 
   // math 렌더
   if (!isCurrent()) return () => {};
-  await renderMath(title);
-  await renderMath(description);
-  await renderMath(contentEl);
+  if (titleEl) await renderMath(titleEl);
+  if (descEl) await renderMath(descEl);
+  await renderMath(contentInner);
 
   // ─ collapsible 설정
-  const disposer = setupStudyItemCollapsible(contentEl, toggle);
-  return disposer;
+  return setupStudyItemCollapsible(contentOuter, contentInner, toggle);
 }
 
-function setupStudyItemCollapsible(contentEl: HTMLElement, toggle: HTMLButtonElement): () => void {
+/**
+ * Height-기반 collapsible. outer 는 `height: 0` 시작 + transition,
+ * inner 는 padding 고정. 펼침 후 `height: auto` 로 해제해 동적 컨텐츠 변화 자동 대응.
+ */
+function setupStudyItemCollapsible(
+  outer: HTMLElement,
+  inner: HTMLElement,
+  toggle: HTMLButtonElement
+): () => void {
   let isOpen = false;
 
   const handler = () => {
     if (isOpen) {
-      // 접기
-      contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
+      // 접기: 현재 높이 명시 → 다음 프레임에 0 → transition
+      outer.style.height = `${inner.scrollHeight}px`;
       requestAnimationFrame(() => {
-        contentEl.style.maxHeight = '0';
-        contentEl.classList.remove('home-study-item-content--expanded');
-        contentEl.classList.add('home-study-item-content--collapsed');
+        outer.style.height = '0';
         toggle.innerHTML = `펼치기${chevronDownSvg}`;
       });
     } else {
-      // 펼치기
-      contentEl.classList.remove('home-study-item-content--collapsed');
-      contentEl.classList.add('home-study-item-content--expanded');
-      const fullHeight = contentEl.scrollHeight;
-      contentEl.style.maxHeight = `${fullHeight}px`;
+      // 펼치기: 측정된 높이로 set → transitionend 후 'auto' 로 해제
+      outer.style.height = `${inner.scrollHeight}px`;
       toggle.innerHTML = `접기${chevronUpSvg}`;
 
-      const onEnd = () => {
-        contentEl.style.maxHeight = '';
-        contentEl.removeEventListener('transitionend', onEnd);
+      const onEnd = (e: TransitionEvent) => {
+        if (e.propertyName !== 'height') return;
+        outer.removeEventListener('transitionend', onEnd);
+        outer.style.height = 'auto';
       };
-      contentEl.addEventListener('transitionend', onEnd, { once: true });
+      outer.addEventListener('transitionend', onEnd);
     }
     isOpen = !isOpen;
   };
