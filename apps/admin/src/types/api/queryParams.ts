@@ -107,3 +107,20 @@ export interface GetDailyCommentParams {
 export interface GetMockExamByStudentParams {
   studentId: number;
 }
+
+export interface GetFocusCardIssuanceByDateParams {
+  studentId: number;
+  issuedDate?: string;
+}
+
+export interface GetFocusCardIssuanceCandidatesParams {
+  studentId: number;
+  problemId: number;
+  targetDate?: string;
+}
+
+export interface PostPublishFocusCardLinkCandidatesParams {
+  studentId: number;
+  problemSetId: number;
+  targetDate?: string;
+}

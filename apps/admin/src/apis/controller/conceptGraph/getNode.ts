@@ -1,7 +1,15 @@
 import { $api } from '@apis';
 
-const getNode = () => {
-  return $api.useQuery('get', '/api/admin/concept/graph/node');
+interface GetNodeParams {
+  onlyFocusCardCandidates?: boolean;
+}
+
+const getNode = (params: GetNodeParams = {}) => {
+  return $api.useQuery('get', '/api/admin/concept/graph/node', {
+    params: {
+      query: params,
+    },
+  });
 };
 
 export default getNode;
