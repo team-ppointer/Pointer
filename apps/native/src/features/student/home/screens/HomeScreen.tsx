@@ -34,9 +34,25 @@ const HomeScreen = () => {
   });
 
   // ── 홈 카드 API ──
-  const todayStr = formatDateKey(new Date());
+  const today = new Date();
+  const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  const todayStr = formatDateKey(today);
+  const tomorrowStr = formatDateKey(tomorrow);
   const { data: dailyComments } = useGetDailyComments(todayStr);
-  const { data: focusCards } = useGetFocusCards(todayStr);
+  const { data: todayFocusCards } = useGetFocusCards(todayStr);
+  const { data: tomorrowFocusCards } = useGetFocusCards(tomorrowStr);
+
+  const focusCards = useMemo(() => {
+    if (!todayFocusCards && !tomorrowFocusCards) return null;
+    const todayData = todayFocusCards?.data ?? [];
+    const tomorrowData = tomorrowFocusCards?.data ?? [];
+    const data = [...todayData, ...tomorrowData];
+    return {
+      requestId: todayFocusCards?.requestId ?? tomorrowFocusCards?.requestId ?? '',
+      total: data.length,
+      data,
+    };
+  }, [todayFocusCards, tomorrowFocusCards]);
 
   const homeInit = useMemo(() => {
     if (!studentName) return null;
