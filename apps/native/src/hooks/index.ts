@@ -4,4 +4,5 @@ export { default as useFcmToken } from './useFcmToken';
 export { default as useInvalidateStudyData } from './useInvalidateStudyData';
 export { default as useIsTablet } from './useIsTablet';
 export { default as useLoadAssets } from './useLoadAssets';
+export { default as useOTAUpdate } from './useOTAUpdate';
 export { default as useInvalidateAll } from './useInvalidateAll';

@@ -10,7 +10,7 @@ import { colors } from '@theme/tokens';
 import '@/app/providers/global.css';
 import '@/app/providers/api';
 
-import { useLoadAssets, useDeepLinkHandler } from '@hooks';
+import { useLoadAssets, useDeepLinkHandler, useOTAUpdate } from '@hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Text, TextInput } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -48,6 +48,7 @@ if ((TextInput as any).defaultProps == null) (TextInput as any).defaultProps = {
 
 export default function App() {
   const { isReady } = useLoadAssets();
+  useOTAUpdate();
 
   // FCM 푸시 알림 딥링크 핸들러
   useDeepLinkHandler();
