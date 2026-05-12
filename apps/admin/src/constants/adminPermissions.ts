@@ -6,6 +6,7 @@ import {
   Circle,
   ClipboardList,
   FileText,
+  Layers,
   ListChecks,
   Megaphone,
   MessageCircle,
@@ -13,6 +14,7 @@ import {
   NotebookPen,
   Package,
   Settings,
+  Sparkles,
   Tags,
   Users,
 } from 'lucide-react';
@@ -25,11 +27,13 @@ export type AdminMenuName =
   | 'DIAGNOSIS'
   | 'MOCK_EXAM_RESULT'
   | 'MOCK_EXAM_TYPE'
+  | 'FOCUS_CARD_ISSUANCE'
   | 'QNA'
   | 'DAILY_COMMENT'
   | 'PROBLEM_ITEM'
   | 'PROBLEM_SET'
   | 'CONCEPT_TAG'
+  | 'FOCUS_CARD'
   | 'GRAPH_NODE'
   | 'GRAPH_EDGE'
   | 'GRAPH_ACTION'
@@ -155,6 +159,25 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     ],
   },
   {
+    title: '집중학습',
+    items: [
+      {
+        menuName: 'FOCUS_CARD',
+        to: '/focus-card',
+        label: '집중학습 카드',
+        icon: Sparkles,
+        routePrefixes: ['/focus-card'],
+      },
+      {
+        menuName: 'FOCUS_CARD_ISSUANCE',
+        to: '/focus-card/issuance',
+        label: '집중학습 카드 발급',
+        icon: Layers,
+        routePrefixes: ['/focus-card/issuance'],
+      },
+    ],
+  },
+  {
     title: '개념 그래프',
     items: [
       {
@@ -245,18 +268,31 @@ export const getFirstAccessibleRoute = (session: AdminSession | null) => {
   return getAccessibleNavSections(session)[0]?.items[0]?.to ?? null;
 };
 
+// 현재 pathname 에 대해 가장 구체적(prefix 가 가장 긴) routePrefix 를 가진 nav item 을 반환.
+// 그렇지 않으면 `/focus-card` 가 `/focus-card/issuance` 까지 흡수해 권한 누수/active 표시 중복이 발생한다.
+export const getMostSpecificNavItem = (pathname: string): AdminNavItem | null => {
+  const matches: { item: AdminNavItem; prefix: string }[] = [];
+  ADMIN_NAV_SECTIONS.forEach((section) => {
+    section.items.forEach((item) => {
+      item.routePrefixes.forEach((prefix) => {
+        if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+          matches.push({ item, prefix });
+        }
+      });
+    });
+  });
+
+  if (matches.length === 0) return null;
+
+  matches.sort((a, b) => b.prefix.length - a.prefix.length);
+  return matches[0].item;
+};
+
 export const canAccessPath = (session: AdminSession | null, pathname: string) => {
   if (pathname === '/') return true;
-
-  return ADMIN_NAV_SECTIONS.some((section) =>
-    section.items.some((item) => {
-      if (!hasMenuPermission(session, item.menuName)) return false;
-
-      return item.routePrefixes.some(
-        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-      );
-    })
-  );
+  const item = getMostSpecificNavItem(pathname);
+  if (!item) return false;
+  return hasMenuPermission(session, item.menuName);
 };
 
 export const toAdminSession = (data: components['schemas']['AdminTokenResp']): AdminSession => ({

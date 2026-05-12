@@ -1,9 +1,11 @@
-import { getProblemSetSearch, postPublish } from '@apis';
+import { getProblemSetSearch, getPublishFocusCardLinkCandidates, postPublish } from '@apis';
+import { components } from '@schema';
 import { Header, Input, ProblemPreview } from '@components';
 import { useInvalidate } from '@hooks';
+import { InlineProblemViewer } from '@repo/pointer-editor-v2';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { GetProblemSetSearchParams } from '@types';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import {
@@ -16,7 +18,10 @@ import {
   Pencil,
   Circle,
   CircleCheck,
+  Sparkles,
 } from 'lucide-react';
+
+import '@repo/pointer-editor-v2/style.css';
 
 export const Route = createFileRoute('/_GNBLayout/publish/register/$publishDate/$studentId/')({
   component: RouteComponent,
@@ -58,10 +63,34 @@ function RouteComponent() {
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState<GetProblemSetSearchParams>({});
   const [expandedSets, setExpandedSets] = useState<Set<number>>(new Set());
+  // problemSetItemId -> Set<focusCardIssuanceId>
+  const [linkMap, setLinkMap] = useState<Record<number, Set<number>>>({});
 
   // api
   const { data: problemSetList } = getProblemSetSearch(searchQuery);
   const { mutate: mutatePostPublish } = postPublish();
+  const numericStudentId = Number(studentId);
+
+  // problemSet 선택 시 BE에 일괄 후보 조회 — 응답은 problemSetItemId 별로 매칭된 카드 발급만 포함.
+  // BE 가 POST 로 노출하지만 read-only 조회이므로 useQuery 사용. 빈 응답(매칭 없음)도 정상 케이스.
+  const isCandidatesQueryEnabled =
+    !!selectedSetId && Number.isFinite(numericStudentId) && numericStudentId > 0;
+  const { data: candidatesResp } = getPublishFocusCardLinkCandidates(
+    {
+      studentId: numericStudentId,
+      problemSetId: selectedSetId ?? 0,
+      targetDate: publishDate,
+    },
+    { enabled: isCandidatesQueryEnabled }
+  );
+  type CandidatesByItem = Map<number, components['schemas']['FocusCardIssuanceResp'][]>;
+  const candidatesByItem: CandidatesByItem = useMemo(() => {
+    const map: CandidatesByItem = new Map();
+    candidatesResp?.data?.forEach((entry) => {
+      map.set(entry.problemSetItemId, entry.candidates);
+    });
+    return map;
+  }, [candidatesResp]);
 
   const { register, handleSubmit, reset, watch } = useForm<GetProblemSetSearchParams>();
 
@@ -92,6 +121,21 @@ function RouteComponent() {
     return () => clearTimeout(debounceTimer);
   }, [watchedSetTitle, watchedProblemTitle]);
 
+  // 선택된 세트의 아이템 펼침 자동 유지
+  useEffect(() => {
+    if (selectedSetId == null) return;
+    setExpandedSets((prev) => {
+      if (prev.has(selectedSetId)) return prev;
+      const next = new Set(prev);
+      next.add(selectedSetId);
+      return next;
+    });
+  }, [selectedSetId]);
+
+  // linkMap 은 problemSetItemId 키를 사용하므로 세트가 바뀌어도 키가 충돌하지 않는다.
+  // 발행 시점에 현재 선택된 세트의 item 만 필터링해 BE 검증 통과를 보장한다.
+  // 따라서 세트 전환 시에도 상태를 보존해 작업 손실을 방지한다.
+
   const handleClickSearch = (data: GetProblemSetSearchParams) => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => Boolean(value))
@@ -117,12 +161,45 @@ function RouteComponent() {
     });
   };
 
+  const toggleLink = (problemSetItemId: number, focusCardIssuanceId: number) => {
+    setLinkMap((prev) => {
+      const next = { ...prev };
+      const set = new Set(next[problemSetItemId] ?? []);
+      if (set.has(focusCardIssuanceId)) {
+        set.delete(focusCardIssuanceId);
+      } else {
+        set.add(focusCardIssuanceId);
+      }
+      if (set.size === 0) {
+        delete next[problemSetItemId];
+      } else {
+        next[problemSetItemId] = set;
+      }
+      return next;
+    });
+  };
+
+  const selectedSet = useMemo(
+    () => problemSetList?.data?.find((s) => s.id === selectedSetId),
+    [problemSetList, selectedSetId]
+  );
+
+  const focusCardLinks = useMemo(() => {
+    if (!selectedSet) return [];
+    const allowedItemIds = new Set(selectedSet.problems.map((p) => p.id));
+    const links: { problemSetItemId: number; focusCardIssuanceId: number }[] = [];
+    Object.entries(linkMap).forEach(([itemIdStr, ids]) => {
+      const problemSetItemId = Number(itemIdStr);
+      if (!allowedItemIds.has(problemSetItemId)) return;
+      ids.forEach((focusCardIssuanceId) => {
+        links.push({ problemSetItemId, focusCardIssuanceId });
+      });
+    });
+    return links;
+  }, [linkMap, selectedSet]);
+
   const handleClickPublish = () => {
     if (!selectedSetId || !studentId) return;
-
-    console.log(studentId);
-    console.log(publishDate);
-    console.log(selectedSetId);
 
     mutatePostPublish(
       {
@@ -130,6 +207,7 @@ function RouteComponent() {
           publishAt: publishDate,
           problemSetId: selectedSetId,
           studentId: Number(studentId),
+          ...(focusCardLinks.length > 0 ? { focusCardLinks } : {}),
         },
       },
       {
@@ -265,7 +343,7 @@ function RouteComponent() {
                       </div>
                     </div>
                     {expandedSets.has(problemSet.id) && (
-                      <div className='px-6 py-6'>
+                      <div className='space-y-6 px-6 py-6'>
                         {problemCount === 0 ? (
                           <div className='flex flex-col items-center justify-center py-12 text-center'>
                             <FileText className='mb-3 h-12 w-12 text-gray-300' />
@@ -287,6 +365,81 @@ function RouteComponent() {
                                 />
                               );
                             })}
+                          </div>
+                        )}
+
+                        {isSelected && (
+                          <div className='space-y-4 rounded-2xl border border-gray-200 bg-gray-50/60 p-5'>
+                            <div className='flex items-center gap-2'>
+                              <div className='bg-main/10 text-main flex h-8 w-8 items-center justify-center rounded-xl'>
+                                <Sparkles className='h-4 w-4' />
+                              </div>
+                              <h4 className='text-base font-bold text-gray-900'>
+                                출제근거 카드 매핑
+                              </h4>
+                              <span className='text-xs text-gray-500'>
+                                ({publishDate} · 문제별 매칭 카드만 표시)
+                              </span>
+                            </div>
+
+                            {problemCount === 0 ? (
+                              <p className='py-4 text-center text-sm text-gray-500'>
+                                세트에 문제가 없어 매핑할 수 없습니다.
+                              </p>
+                            ) : (
+                              <div className='space-y-3'>
+                                {problemSet.problems.map((item) => {
+                                  const linked = linkMap[item.id] ?? new Set();
+                                  const candidates = candidatesByItem.get(item.id) ?? [];
+                                  return (
+                                    <div
+                                      key={`map-${item.id}`}
+                                      className='rounded-xl border border-gray-200 bg-white p-4'>
+                                      <div className='mb-3 flex items-center gap-2'>
+                                        <span className='inline-flex h-6 min-w-6 items-center justify-center rounded-md bg-gray-100 px-2 text-xs font-bold text-gray-700'>
+                                          {item.no}
+                                        </span>
+                                        <p className='truncate text-sm font-semibold text-gray-800'>
+                                          {item.problem.title ?? '제목 없음'}
+                                        </p>
+                                      </div>
+                                      {candidates.length === 0 ? (
+                                        <p className='text-xs text-gray-400'>
+                                          이 문제와 매칭되는 발급 카드가 없습니다.
+                                        </p>
+                                      ) : (
+                                        <div className='flex flex-wrap gap-2'>
+                                          {candidates.map((iss) => {
+                                            const isOn = linked.has(iss.id);
+                                            return (
+                                              <button
+                                                key={`${item.id}-${iss.id}`}
+                                                type='button'
+                                                onClick={() => toggleLink(item.id, iss.id)}
+                                                className={`flex max-w-full items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all duration-150 ${
+                                                  isOn
+                                                    ? 'border-main bg-main text-white'
+                                                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                                                }`}>
+                                                <span className='shrink-0'>
+                                                  {iss.card.actionNode.name}
+                                                </span>
+                                                <span
+                                                  className={`max-w-[200px] truncate font-normal ${isOn ? 'text-white/90' : 'text-gray-500'}`}>
+                                                  <InlineProblemViewer maxLine={1}>
+                                                    {iss.card.title}
+                                                  </InlineProblemViewer>
+                                                </span>
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

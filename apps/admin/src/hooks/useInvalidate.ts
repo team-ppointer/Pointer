@@ -167,6 +167,55 @@ const useInvalidate = () => {
     ]);
   }, [queryClient]);
 
+  const invalidateFocusCardList = useCallback(() => {
+    return queryClient.invalidateQueries({
+      queryKey: $api.queryOptions('get', '/api/admin/focus-card').queryKey,
+    });
+  }, [queryClient]);
+
+  const invalidateFocusCard = useCallback(
+    (id: number) => {
+      return Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: $api.queryOptions('get', '/api/admin/focus-card/{id}', {
+            params: { path: { id } },
+          }).queryKey,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: $api.queryOptions('get', '/api/admin/focus-card').queryKey,
+        }),
+      ]);
+    },
+    [queryClient]
+  );
+
+  const invalidateFocusCardIssuanceByDate = useCallback(
+    (studentId: number, issuedDate?: string) => {
+      return queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/admin/focus-card/issuance/by-date', {
+          params: {
+            query: {
+              studentId,
+              ...(issuedDate ? { issuedDate } : {}),
+            },
+          },
+        }).queryKey,
+      });
+    },
+    [queryClient]
+  );
+
+  const invalidatePublishDetail = useCallback(
+    (publishId: number) => {
+      return queryClient.invalidateQueries({
+        queryKey: $api.queryOptions('get', '/api/admin/publish/{id}', {
+          params: { path: { id: publishId } },
+        }).queryKey,
+      });
+    },
+    [queryClient]
+  );
+
   const invalidateConceptGraphTypes = useCallback(() => {
     return Promise.all([
       queryClient.invalidateQueries({
@@ -207,6 +256,10 @@ const useInvalidate = () => {
     invalidateConceptGraphEdges,
     invalidateConceptGraphActionEdges,
     invalidateConceptGraphTypes,
+    invalidateFocusCardList,
+    invalidateFocusCard,
+    invalidateFocusCardIssuanceByDate,
+    invalidatePublishDetail,
   };
 };
 
