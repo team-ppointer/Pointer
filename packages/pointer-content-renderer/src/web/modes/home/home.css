@@ -2,7 +2,7 @@
 
 /* Mode 레이아웃 — shadow 잘림 방지 여유 */
 .home-mode {
-  background: transparent;
+  background: var(--color-gray-100);
   padding: 20px;
   display: flex !important;
   flex-direction: column;
