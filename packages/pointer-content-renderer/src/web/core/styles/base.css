@@ -70,6 +70,10 @@
   --tt-color-highlight-red: #ffe4e6;
 
   --horizontal-rule-color: rgba(37, 39, 45, 0.1);
+
+  /* Motion — iOS-style ease-out for reveal/collapsible interactions */
+  --motion-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-duration: 350ms;
 }
 
 * {

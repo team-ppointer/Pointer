@@ -46,8 +46,6 @@ export type RNToWebViewMessage =
   | {
       type: 'init';
       mode: 'home';
-      /** 학생 이름 — 카드 타이틀에 삽입 */
-      name: string;
       cards: HomeCard[];
     }
   | {
@@ -161,13 +159,21 @@ export type HomeCard = HomeCommentCard | HomeStudySummaryCard;
 
 export interface HomeCommentCard {
   type: 'comment';
-  /** 남은 시간 (시). ≤4 이면 빨간색 표시 */
-  timeRemainingInHours: number;
+  /** 카드 헤더 타이틀 (예: "{이름}님을 위한 1:1 코멘트") */
+  title: string;
+  /** 카드 부제 */
+  subtitle: string;
+  /** 만료 시각 (epoch ms). `null` 이면 시간 뱃지를 표시하지 않음. */
+  expiryAt: number | null;
   content: JSONNode;
 }
 
 export interface HomeStudySummaryCard {
   type: 'study-summary';
+  /** 카드 헤더 타이틀 (primary 색상) */
+  title: string;
+  /** 카드 부제. 줄바꿈은 '\n'. */
+  subtitle: string;
   groups: HomeStudyGroup[];
 }
 
@@ -180,8 +186,9 @@ export interface HomeStudyGroup {
 
 export interface HomeStudyItem {
   badges: HomeStudyBadge[];
-  headerText: string;
-  /** LaTeX 포함 가능한 TipTap JSON 본문 */
+  /** LaTeX 포함 가능한 TipTap JSON */
+  title: JSONNode;
+  description: JSONNode;
   content: JSONNode;
 }
 

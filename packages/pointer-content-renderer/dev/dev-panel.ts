@@ -12,7 +12,6 @@ import {
   mockChatResumeMidSecond,
   mockChatResumeAllComplete,
   mockHomeCards,
-  mockHomeName,
 } from './mock-data';
 
 function sendMockMessage(msg: RNToWebViewMessage): void {
@@ -121,7 +120,6 @@ function createDevPanel(): void {
         sendMockMessage({
           type: 'init',
           mode: 'home',
-          name: mockHomeName,
           cards: mockHomeCards,
         }),
     },

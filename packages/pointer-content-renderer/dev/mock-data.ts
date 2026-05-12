@@ -3292,18 +3292,16 @@ export const mockAllRightSections: OverviewSection[] = [
 export const mockHomeCards: HomeCard[] = [
   {
     type: 'comment',
-    timeRemainingInHours: 24,
+    title: '테스트님을 위한 1:1 코멘트',
+    subtitle: '출제진이 직접 작성한 코멘트에요.',
+    // 24시간 뒤 만료
+    expiryAt: Date.now() + 24 * 60 * 60 * 1000,
     content: {
       type: 'doc',
       content: [
         paragraph(
           text(
-            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다. '
-          )
-        ),
-        paragraph(
-          text(
-            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다. '
+            '출제진이 직접 작성한 내용(Content)이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다.'
           )
         ),
         paragraph(
@@ -3313,16 +3311,14 @@ export const mockHomeCards: HomeCard[] = [
           inlineMath('f\\left(-\\frac{3}{2}\\right) = -\\frac{29}{4}'),
           text(' 이다.')
         ),
-        paragraph(
-          text(
-            '출제진이 직접 작성한 내용(Content이 나타나는 영역입니다. LaTex, 수식, Markup이 포함됩니다.'
-          )
-        ),
       ],
     },
   },
   {
     type: 'study-summary',
+    title: '테스트님을 위한 학습 내용 정리',
+    subtitle:
+      '테스트님의 학습을 분석해 취약점을 도출했어요.\n지금 바로 출제진의 문제 접근법을 배워봐요.',
     groups: [
       {
         label: '오늘의 학습',
@@ -3330,14 +3326,55 @@ export const mockHomeCards: HomeCard[] = [
         items: [
           {
             badges: [{ text: '집중학습', variant: 'orange' }],
-            headerText: '어드민 헤드라인/권장 15글자/선택',
+            title: {
+              type: 'doc',
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: { textAlign: null },
+                  content: [
+                    { type: 'inlineMath', attrs: { latex: 'y=\\sin x' } },
+                    { text: '의 미분계수', type: 'text' },
+                  ],
+                },
+              ],
+            },
+            description: {
+              type: 'doc',
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: { textAlign: null },
+                  content: [
+                    {
+                      type: 'inlineMath',
+                      attrs: { latex: '\\frac{\\mathrm{d}}{\\mathrm{d}x}\\sin x = \\cos x' },
+                    },
+                    { text: ' 이므로, ', type: 'text' },
+                    { type: 'inlineMath', attrs: { latex: '\\sin x' } },
+                    { text: '의 미분계수는 ', type: 'text' },
+                    { type: 'inlineMath', attrs: { latex: '\\cos x' } },
+                    { text: '이다.', type: 'text' },
+                  ],
+                },
+              ],
+            },
             content: {
               type: 'doc',
               content: [
                 paragraph(
-                  text(
-                    '어드민에 등록된 Title 영역입니다. 권장길이 공백 포함 26~38자, 최대 공백포함 60자.'
-                  )
+                  text('삼각함수의 도함수는 '),
+                  inlineMath("(\\sin x)' = \\cos x"),
+                  text(', '),
+                  inlineMath("(\\cos x)' = -\\sin x"),
+                  text(' 이다.')
+                ),
+                paragraph(
+                  text('예를 들어 '),
+                  inlineMath('y = \\sin(2x)'),
+                  text(' 의 미분계수는 연쇄법칙으로 '),
+                  inlineMath("y' = 2\\cos(2x)"),
+                  text(' 가 된다.')
                 ),
               ],
             },
@@ -3350,37 +3387,43 @@ export const mockHomeCards: HomeCard[] = [
         items: [
           {
             badges: [{ text: '집중학습', variant: 'green' }],
-            headerText: '어드민 헤드라인/권장 15글자/선택',
-            content: {
+            title: {
+              type: 'doc',
+              content: [
+                {
+                  type: 'paragraph',
+                  attrs: { textAlign: null },
+                  content: [
+                    { type: 'inlineMath', attrs: { latex: '\\int x^n \\,dx' } },
+                    { text: '의 일반형', type: 'text' },
+                  ],
+                },
+              ],
+            },
+            description: {
               type: 'doc',
               content: [
                 paragraph(
-                  text(
-                    '어드민에 등록된 Title 영역입니다. 권장길이 공백 포함 26~38자, 최대 공백포함 60자.'
-                  )
-                ),
-                paragraph(
-                  text('함수 '),
-                  inlineMath('g(x) = \\int_0^x f(t) dt'),
-                  text(' 에서 '),
-                  inlineMath("g'(x) = f(x)"),
-                  text(' 이므로, '),
-                  inlineMath("g'(2) = f(2) = 4 + 6 - 5 = 5"),
-                  text(' 이다.')
+                  text('지수가 '),
+                  inlineMath('n \\neq -1'),
+                  text('일 때 부정적분의 일반형을 익혀봐요.')
                 ),
               ],
             },
-          },
-          {
-            badges: [{ text: '집중학습', variant: 'green' }],
-            headerText: '어드민 헤드라인/권장 15글자/선택',
             content: {
               type: 'doc',
               content: [
                 paragraph(
-                  text(
-                    '어드민에 등록된 Title 영역입니다. 권장길이 공백 포함 26~38자, 최대 공백포함 60자.'
-                  )
+                  inlineMath('\\int x^n \\,dx = \\frac{x^{n+1}}{n+1} + C'),
+                  text(' 단, '),
+                  inlineMath('n \\neq -1'),
+                  text('.')
+                ),
+                paragraph(
+                  inlineMath('n = -1'),
+                  text(' 인 경우는 '),
+                  inlineMath('\\int \\frac{1}{x} \\,dx = \\ln |x| + C'),
+                  text(' 가 된다.')
                 ),
               ],
             },
@@ -3390,5 +3433,3 @@ export const mockHomeCards: HomeCard[] = [
     ],
   },
 ];
-
-export const mockHomeName = '테스트';
