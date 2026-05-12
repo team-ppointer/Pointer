@@ -61,7 +61,7 @@ function toCommentCard(comment: DailyCommentResp): HomeCommentCard {
  */
 function toStudySummaryCard(
   issuances: FocusCardIssuanceResp[],
-  name: string,
+  name: string
 ): HomeStudySummaryCard {
   const today = new Date();
   const todayStr = formatLocalDate(today);

@@ -130,11 +130,7 @@
   left: 0;
   right: 0;
   height: 32px;
-  background: linear-gradient(
-    to bottom,
-    rgba(248, 249, 252, 0),
-    rgba(248, 249, 252, 1)
-  );
+  background: linear-gradient(to bottom, rgba(248, 249, 252, 0), rgba(248, 249, 252, 1));
   pointer-events: none;
   transition: opacity 300ms ease;
 }
@@ -297,11 +293,26 @@
   align-self: stretch;
 }
 
-.home-study-badge--orange { background: #ffefe0; color: #b85600; }
-.home-study-badge--green  { background: #e5f4e1; color: #1a6714; }
-.home-study-badge--purple { background: #eee9ff; color: #5b2ea6; }
-.home-study-badge--pink   { background: #fce8f3; color: #9b2c6e; }
-.home-study-badge--blue   { background: #e8f0ff; color: #0055cc; }
+.home-study-badge--orange {
+  background: #ffefe0;
+  color: #b85600;
+}
+.home-study-badge--green {
+  background: #e5f4e1;
+  color: #1a6714;
+}
+.home-study-badge--purple {
+  background: #eee9ff;
+  color: #5b2ea6;
+}
+.home-study-badge--pink {
+  background: #fce8f3;
+  color: #9b2c6e;
+}
+.home-study-badge--blue {
+  background: #e8f0ff;
+  color: #0055cc;
+}
 
 .home-study-item-headline-text {
   font-size: 13px;
