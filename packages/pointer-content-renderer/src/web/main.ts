@@ -2,6 +2,7 @@ import './core/styles/base.css';
 import './modes/document/document.css';
 import './modes/chat/chat.css';
 import './modes/overview/overview.css';
+import './modes/home/home.css';
 
 import type { RNToWebViewMessage } from '../types';
 
@@ -10,6 +11,7 @@ import { renderDocument } from './modes/document/document-renderer';
 import { runChatScenario } from './modes/chat/chat-controller';
 import { destroyChatScroll, initChatScroll } from './modes/chat/scroll';
 import { renderOverview } from './modes/overview/overview-renderer';
+import { renderHome } from './modes/home/home-renderer';
 import {
   initOverviewController,
   handleBookmarkResult,
@@ -140,6 +142,20 @@ onMessage(async (msg) => {
         renderFallback();
       }
       sendToRN({ type: 'ready', mode: 'overview' });
+      break;
+    }
+
+    case 'home': {
+      try {
+        const dispose = await renderHome(container, msg.cards, msg.name, isCurrent);
+        if (!isCurrent()) return;
+        activeDispose = dispose;
+      } catch (e) {
+        if (!isCurrent()) return;
+        console.error('[content-renderer] home render error:', e);
+        renderFallback();
+      }
+      sendToRN({ type: 'ready', mode: 'home' });
       break;
     }
   }
