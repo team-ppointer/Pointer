@@ -1,4 +1,5 @@
 import type { components } from '@schema';
+import { parseTipTapDoc } from '@utils/tiptap';
 
 import {
   buildAllPointingsLeftSections,
@@ -7,7 +8,6 @@ import {
   buildDocumentInit,
   joinBubblesToDoc,
   joinPointingsForAnalysis,
-  parseTipTapDoc,
   toAnswerNodes,
   toBubbleNodes,
   toChatScenario,
