@@ -59,10 +59,7 @@ function toCommentCard(comment: DailyCommentResp): HomeCommentCard {
  * 집중학습 카드 목록 → HomeStudySummaryCard 변환.
  * 발급일 기준으로 오늘/다가오는 학습 그룹 분리.
  */
-function toStudySummaryCard(
-  issuances: FocusCardIssuanceResp[],
-  name: string
-): HomeStudySummaryCard {
+function toStudySummaryCard(issuances: FocusCardIssuanceResp[]): HomeStudySummaryCard {
   const today = new Date();
   const todayStr = formatLocalDate(today);
 
@@ -98,7 +95,6 @@ function toStudySummaryCard(
 
   return {
     type: 'study-summary',
-    name,
     groups,
   };
 }
@@ -127,7 +123,7 @@ export function buildHomeInit(opts: {
 
   // 학습 내용 정리
   if (opts.focusCards?.data && opts.focusCards.data.length > 0) {
-    cards.push(toStudySummaryCard(opts.focusCards.data, opts.name));
+    cards.push(toStudySummaryCard(opts.focusCards.data));
   }
 
   if (cards.length === 0) return null;
