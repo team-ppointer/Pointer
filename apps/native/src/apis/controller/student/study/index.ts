@@ -10,6 +10,12 @@ import useGetEntireProblemPointing from './useGetEntireProblemPointing';
 import useGetEntireProblem from './useGetEntireProblem';
 
 export {
+  useGetStudyHandwritingSnapshot,
+  type StudyHandwritingSnapshotType,
+} from './handwriting/useGetStudyHandwritingSnapshot';
+export { usePostStudyHandwritingSnapshot } from './handwriting/usePostStudyHandwritingSnapshot';
+
+export {
   getPublishDetailById,
   postAnswer,
   postPointing,
