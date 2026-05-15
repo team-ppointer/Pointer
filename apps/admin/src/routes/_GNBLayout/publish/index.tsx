@@ -14,6 +14,7 @@ import {
   ChevronRight,
   AlertCircle,
   Package,
+  Eye,
 } from 'lucide-react';
 
 import 'dayjs/locale/ko';
@@ -95,6 +96,14 @@ const Day = ({ fullDate, day, dayOfWeek, publishId, title, setId, selectedStuden
           {/* Action Buttons */}
           {title && selectedStudent && (
             <div className='flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
+              {publishId && (
+                <Link
+                  to='/publish/$publishId'
+                  params={{ publishId: String(publishId) }}
+                  className='flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50'>
+                  <Eye className='h-3.5 w-3.5' />
+                </Link>
+              )}
               <button
                 type='button'
                 onClick={openProgressModal}

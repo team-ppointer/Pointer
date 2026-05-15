@@ -386,6 +386,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/vulnerability/config': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 취약도 가중치 조회 */
+    get: operations['getConfig'];
+    /** 취약도 가중치 수정 */
+    put: operations['updateConfig'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/user/{id}': {
     parameters: {
       query?: never;
@@ -1814,6 +1832,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/publish/validate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 발행 드라이런 검증 (저장 없이 매핑 규칙 검사) */
+    post: operations['validate'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/publish/focus-card-link-candidates': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** ProblemSet 단위 부착 가능한 카드 발급 후보 일괄 조회 */
+    post: operations['candidatesForProblemSet'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/problem': {
     parameters: {
       query?: never;
@@ -1898,6 +1950,23 @@ export interface paths {
     put?: never;
     /** 생성 */
     post: operations['create_7'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/pointing/bubble/{id}/auto-attach-action': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 버블에 Action 타입 ConceptNode 1개를 LLM 으로 자동 부착 (단건) */
+    post: operations['autoAttachAction'];
     delete?: never;
     options?: never;
     head?: never;
@@ -2159,7 +2228,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** 노드 목록 조회 */
+    /**
+     * 노드 목록 조회
+     * @description onlyFocusCardCandidates=true 면 활성 집중학습카드가 없는 Action 노드만 반환한다.
+     */
     get: operations['getNodes'];
     put?: never;
     /** 노드 생성 */
@@ -2306,6 +2378,57 @@ export interface paths {
     put?: never;
     /** 이메일 로그인 */
     post: operations['login_2'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/_debug/tiptap/to-text': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** tiptap doc JSON → plain text 평문화 */
+    post: operations['toText'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/_debug/tiptap/to-doc': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** plain text → tiptap doc JSON 변환 */
+    post: operations['toDoc'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/_debug/llm/chat': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** OpenRouter 호출 즉시 응답 확인 */
+    post: operations['chat'];
     delete?: never;
     options?: never;
     head?: never;
@@ -3132,6 +3255,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/admin/vulnerability/students/{studentId}/weak-actions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생 약점 액션 전체 조회 (vulnerability 내림차순) */
+    get: operations['getWeakActions'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/vulnerability/students/{studentId}/history/{conceptNodeId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 학생-액션 일별 취약도 추이 */
+    get: operations['getHistory'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/admin/student': {
     parameters: {
       query?: never;
@@ -3282,6 +3439,26 @@ export interface paths {
     post?: never;
     /** 카드 삭제 */
     delete: operations['delete_12'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/focus-card/issuance/candidates': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Problem 단위 부착 가능한 카드 발급 후보 조회
+     * @description studentId 학생에게 targetDate(생략 시 오늘) 에 발급된 카드 중, 지정 problem 의 pointing bubble 액션과 매칭되는 발급만 반환한다.
+     */
+    get: operations['candidatesForProblem'];
+    put?: never;
+    post?: never;
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -3480,6 +3657,23 @@ export interface paths {
      * @description 날짜별/요일별 서비스 접속 통계를 조회합니다
      */
     get: operations['getAccessStats'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/admin/_debug/tiptap/format-guide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** LLM 응답용 plain text 포맷 가이드 반환 */
+    get: operations['formatGuide'];
     put?: never;
     post?: never;
     delete?: never;
@@ -4162,6 +4356,13 @@ export interface components {
       /** @description 마케팅 알림 허용 여부 (이벤트 및 업데이트 관련 알림) */
       isAllowMarketingPush?: boolean;
     };
+    VulnerabilityConfigUpdateRequest: {
+      lambda: number;
+      wA: number;
+      wB: number;
+      wC: number;
+      wD: number;
+    };
     AdminUpdateRequest: {
       /** @description 이름. null/빈문자열이면 기존 값 유지 */
       name?: string;
@@ -4317,6 +4518,7 @@ export interface components {
       /** Format: int32 */
       no: number;
       problem: components['schemas']['ProblemMetaResp'];
+      actionNodeIds?: number[];
     };
     ProblemSetResp: {
       /** Format: int64 */
@@ -4945,7 +5147,7 @@ export interface components {
        */
       type: string;
       /**
-       * @description 틀린 문항 번호 목록
+       * @description 틀린 문항 번호 목록. 모두 정답인 경우 빈 배열을 전달
        * @example [
        *       1,
        *       2,
@@ -5438,6 +5640,39 @@ export interface components {
       problemSet: components['schemas']['ProblemSetResp'];
       data: components['schemas']['PublishProblemGroupResp'][];
     };
+    LinkValidationError: {
+      /** Format: int64 */
+      problemSetItemId?: number;
+      /** Format: int64 */
+      focusCardIssuanceId?: number;
+      code?: string;
+      message?: string;
+    };
+    PublishValidateResp: {
+      ok: boolean;
+      errors: components['schemas']['LinkValidationError'][];
+    };
+    FocusCardLinkCandidatesReq: {
+      /** Format: int64 */
+      studentId: number;
+      /** Format: int64 */
+      problemSetId: number;
+      /** Format: date */
+      targetDate?: string;
+    };
+    ListRespProblemFocusCardCandidateResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['ProblemFocusCardCandidateResp'][];
+    };
+    ProblemFocusCardCandidateResp: {
+      /** Format: int64 */
+      problemSetItemId: number;
+      /** Format: int64 */
+      problemId: number;
+      candidates: components['schemas']['FocusCardIssuanceResp'][];
+    };
     PointingCreateRequest: {
       /** Format: int32 */
       no?: number;
@@ -5492,6 +5727,56 @@ export interface components {
       /** Format: int32 */
       grade: number;
       name: string;
+    };
+    /** @description 부착된 Action 노드 요약. attached=false 이면 null */
+    ActionNodeRef: {
+      /**
+       * Format: int64
+       * @description ConceptNode id
+       */
+      id: number;
+      /** @description ConceptNode 이름 */
+      name: string;
+    };
+    /** @description 후보별 평가 (score 내림차순) */
+    CandidateDetail: {
+      /**
+       * Format: int64
+       * @description 후보 ConceptNode id
+       */
+      nodeId: number;
+      /**
+       * Format: double
+       * @description 0.0 ~ 1.0 부합도
+       */
+      score?: number;
+      /** @description 이 후보에 대한 평가 사유 */
+      reason?: string;
+    };
+    /** @description LLM 응답 상세 (운영 디버깅용) */
+    LlmDetail: {
+      /**
+       * Format: int64
+       * @description LLM 이 선택한 nodeId. 보류 시 null
+       */
+      selectedNodeId?: number;
+      /** @description 선택 또는 보류 사유 */
+      reason: string;
+      /** @description 후보별 평가 (score 내림차순) */
+      candidates: components['schemas']['CandidateDetail'][];
+      /** @description LLM 원본 응답 JSON 문자열 */
+      raw: string;
+    };
+    PointingBubbleAutoAttachResp: {
+      /**
+       * Format: int64
+       * @description 대상 PointingBubble id
+       */
+      pointingBubbleId: number;
+      /** @description Action 부착 여부. false 이면 skip 되었거나 부착 실패 */
+      attached: boolean;
+      actionNode?: components['schemas']['ActionNodeRef'];
+      llm: components['schemas']['LlmDetail'];
     };
     FailedProblemInfo: {
       /** Format: int64 */
@@ -5767,6 +6052,40 @@ export interface components {
     AdminLoginReq: {
       email: string;
       password: string;
+    };
+    DebugTiptapToTextReq: {
+      /** @description 평문화할 tiptap doc JSON 문자열 */
+      docJson: string;
+    };
+    DebugTiptapToTextResp: {
+      text?: string;
+    };
+    DebugTiptapToDocReq: {
+      /** @description tiptap doc 으로 변환할 plain text (FORMAT_GUIDE 규약) */
+      text: string;
+    };
+    DebugTiptapToDocResp: {
+      docJson?: string;
+    };
+    DebugLlmChatReq: {
+      /** @description 사용자 메시지 */
+      message: string;
+      /** @description 시스템 프롬프트(선택) */
+      system?: string;
+      /**
+       * @description OpenRouter 모델 (기본 GPT_4O_MINI)
+       * @enum {string}
+       */
+      model?: 'GPT_4O_MINI';
+      /**
+       * Format: int32
+       * @description 최대 토큰 (기본 500)
+       */
+      maxTokens?: number;
+    };
+    DebugLlmChatResp: {
+      model?: string;
+      content?: string;
     };
     ListRespPublishResp: {
       requestId: string;
@@ -6192,6 +6511,44 @@ export interface components {
        * @description 이벤트 발생 시간
        */
       timestamp?: string;
+    };
+    ListRespStudentVulnerabilityResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['StudentVulnerabilityResp'][];
+    };
+    StudentVulnerabilityResp: {
+      /** Format: int64 */
+      conceptNodeId?: number;
+      conceptNodeName?: string;
+      /** @enum {string} */
+      difficultyLevel?: 'LOW' | 'MEDIUM' | 'HIGH';
+      vulnerability?: number;
+      /** Format: int32 */
+      problemCount?: number;
+      /** Format: date-time */
+      lastCalculatedAt?: string;
+    };
+    ListRespVulnerabilityHistoryResp: {
+      requestId: string;
+      /** Format: int32 */
+      total: number;
+      data: components['schemas']['VulnerabilityHistoryResp'][];
+    };
+    VulnerabilityHistoryResp: {
+      vulnerability?: number;
+      /** Format: int32 */
+      problemCount?: number;
+      /** Format: date */
+      snapshotDate?: string;
+    };
+    VulnerabilityConfigResp: {
+      lambda?: number;
+      wA?: number;
+      wB?: number;
+      wC?: number;
+      wD?: number;
     };
     ListRespAdminResp: {
       requestId: string;
@@ -7439,6 +7796,48 @@ export interface operations {
         content: {
           '*/*': components['schemas']['StudentPushDTO.SettingsResponse'];
         };
+      };
+    };
+  };
+  getConfig: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['VulnerabilityConfigResp'];
+        };
+      };
+    };
+  };
+  updateConfig: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['VulnerabilityConfigUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -10106,6 +10505,54 @@ export interface operations {
       };
     };
   };
+  validate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PublishCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PublishValidateResp'];
+        };
+      };
+    };
+  };
+  candidatesForProblemSet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FocusCardLinkCandidatesReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespProblemFocusCardCandidateResp'];
+        };
+      };
+    };
+  };
   search_2: {
     parameters: {
       query?: {
@@ -10113,6 +10560,8 @@ export interface operations {
         title?: string;
         concepts?: number[];
         problemType?: 'MAIN_PROBLEM' | 'CHILD_PROBLEM';
+        actionNodeIds?: number[];
+        actionMatchMode?: 'ANY' | 'ALL';
         page?: number;
         size?: number;
       };
@@ -10256,6 +10705,9 @@ export interface operations {
       query?: {
         setTitle?: string;
         problemTitle?: string;
+        status?: 'CONFIRMED' | 'DOING';
+        actionNodeIds?: number[];
+        actionMatchMode?: 'ANY' | 'ALL';
         page?: number;
         size?: number;
       };
@@ -10347,6 +10799,30 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['PracticeTestResp'];
+        };
+      };
+    };
+  };
+  autoAttachAction: {
+    parameters: {
+      query?: {
+        overrideExisting?: boolean;
+      };
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['PointingBubbleAutoAttachResp'];
         };
       };
     };
@@ -10867,7 +11343,10 @@ export interface operations {
   };
   getNodes: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description true 면 활성 집중학습카드가 없는 Action 노드만 반환 (기본 false) */
+        onlyFocusCardCandidates?: boolean;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -11221,6 +11700,78 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['AdminTokenResp'];
+        };
+      };
+    };
+  };
+  toText: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DebugTiptapToTextReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DebugTiptapToTextResp'];
+        };
+      };
+    };
+  };
+  toDoc: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DebugTiptapToDocReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DebugTiptapToDocResp'];
+        };
+      };
+    };
+  };
+  chat: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DebugLlmChatReq'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['DebugLlmChatResp'];
         };
       };
     };
@@ -12351,6 +12902,54 @@ export interface operations {
       };
     };
   };
+  getWeakActions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespStudentVulnerabilityResp'];
+        };
+      };
+    };
+  };
+  getHistory: {
+    parameters: {
+      query: {
+        from: string;
+        to: string;
+      };
+      header?: never;
+      path: {
+        studentId: number;
+        conceptNodeId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespVulnerabilityHistoryResp'];
+        };
+      };
+    };
+  };
   search_11: {
     parameters: {
       query?: {
@@ -12587,6 +13186,30 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  candidatesForProblem: {
+    parameters: {
+      query: {
+        studentId: number;
+        problemId: number;
+        targetDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ListRespFocusCardIssuanceResp'];
+        };
       };
     };
   };
@@ -12902,6 +13525,26 @@ export interface operations {
         };
         content: {
           '*/*': components['schemas']['AccessStatResp'];
+        };
+      };
+    };
+  };
+  formatGuide: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': string;
         };
       };
     };

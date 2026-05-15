@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useLocation } from '@tanstack/react-router';
 import { GraduationCap, Search, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
 import { getStudent } from '@apis';
 import { useAdminSession, useSelectedStudent } from '@hooks';
 import { components } from '@schema';
 
-import { getAccessibleNavSections } from '@/constants/adminPermissions';
+import { getAccessibleNavSections, getMostSpecificNavItem } from '@/constants/adminPermissions';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { logout } from '@/utils';
 
@@ -14,27 +14,22 @@ interface NavItemProps {
   icon: React.ReactNode;
   label: string;
   isCollapsed: boolean;
+  isActive: boolean;
 }
 
-const NavItem = ({ to, icon, label, isCollapsed }: NavItemProps) => {
+const NavItem = ({ to, icon, label, isCollapsed, isActive }: NavItemProps) => {
   return (
-    <Link
-      to={to}
-      activeProps={{
-        className: 'active',
-      }}>
-      {({ isActive }) => (
+    <Link to={to}>
+      <div
+        className={`relative mb-1 flex h-12 w-full cursor-pointer items-center gap-3.5 overflow-hidden rounded-2xl px-3.5 transition-all duration-300 ${
+          isActive ? 'bg-main/10 text-main' : 'text-gray-700 hover:bg-black/5'
+        } ${isCollapsed ? 'w-12 px-3.5' : ''}`}>
         <div
-          className={`relative mb-1 flex h-12 w-full cursor-pointer items-center gap-3.5 overflow-hidden rounded-2xl px-3.5 transition-all duration-300 ${
-            isActive ? 'bg-main/10 text-main' : 'text-gray-700 hover:bg-black/5'
-          } ${isCollapsed ? 'w-12 px-3.5' : ''}`}>
-          <div
-            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center transition-transform duration-300`}>
-            {icon}
-          </div>
-          <span className='text-sm font-semibold tracking-wide whitespace-nowrap'>{label}</span>
+          className={`flex h-5 w-5 flex-shrink-0 items-center justify-center transition-transform duration-300`}>
+          {icon}
         </div>
-      )}
+        <span className='text-sm font-semibold tracking-wide whitespace-nowrap'>{label}</span>
+      </div>
     </Link>
   );
 };
@@ -64,6 +59,8 @@ const GNB = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const session = useAdminSession();
   const navSections = getAccessibleNavSections(session);
+  const { pathname } = useLocation();
+  const activeNavMenuName = getMostSpecificNavItem(pathname)?.menuName ?? null;
   const studentManagementSection = navSections.find(
     (section) => section.title === '개별 학생 관리'
   );
@@ -221,6 +218,7 @@ const GNB = () => {
                       icon={<Icon className='h-5 w-5' />}
                       label={item.label}
                       isCollapsed={isCollapsed}
+                      isActive={activeNavMenuName === item.menuName}
                     />
                   );
                 })}
@@ -242,6 +240,7 @@ const GNB = () => {
                         icon={<Icon className='h-5 w-5' />}
                         label={item.label}
                         isCollapsed={isCollapsed}
+                        isActive={activeNavMenuName === item.menuName}
                       />
                     );
                   })}

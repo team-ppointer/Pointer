@@ -2,12 +2,14 @@
 export { $api } from './client';
 
 // controllers
+export * from './controller/analytics';
 export * from './controller/auth';
 export * from './controller/concept';
 export * from './controller/conceptGraph';
 export * from './controller/dailyComment';
 export * from './controller/diagnosis';
 export * from './controller/file';
+export * from './controller/focusCard';
 export * from './controller/menu';
 export * from './controller/mockExam';
 export * from './controller/notice';
