@@ -4,7 +4,10 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { mathSubjectOptions } from '../../constants';
 import { OnboardingLayout, OptionButton } from '../../components';
+import useFinishOnboarding from '../../hooks/useFinishOnboarding';
+import useResolveCurrentMockExamType from '../../hooks/useResolveCurrentMockExamType';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
+import { getOnboardingTotal } from '../../utils';
 import type { OnboardingScreenProps } from '../types';
 
 const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) => {
@@ -13,6 +16,8 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
   const setSelectSubject = useOnboardingStore((state) => state.setSelectSubject);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+  const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
+  const currentTypeStatus = useOnboardingStore((state) => state.currentTypeStatus);
 
   useFocusEffect(
     useCallback(() => {
@@ -20,25 +25,66 @@ const MathSubjectStep = ({ navigation }: OnboardingScreenProps<'MathSubject'>) =
     }, [setCurrentStep])
   );
 
-  const handleNext = useCallback(() => {
+  const { submit, isPending } = useFinishOnboarding();
+  const { resolveCurrentMockExamType, isResolvingCurrentType } = useResolveCurrentMockExamType();
+
+  const isNTime = grade === 'N_TIME';
+  const isCurrentTypeReady = currentTypeStatus === 'resolved';
+  const isCurrentTypeRetryable = currentTypeStatus === 'error';
+  const isCurrentTypeBlocked = currentTypeStatus !== 'resolved' && currentTypeStatus !== 'error';
+  const hasActiveMockExam = isCurrentTypeReady && Boolean(currentMockExamType?.type);
+  const isProcessing = isPending || isResolvingCurrentType;
+  const ctaDisabled = !selectSubject || (isNTime && (isProcessing || isCurrentTypeBlocked));
+
+  const handleNext = useCallback(async () => {
     if (!selectSubject) return;
 
-    if (grade === 'N_TIME') {
+    if (isNTime) {
+      let nextMockExamType = currentMockExamType;
+
+      if (isCurrentTypeRetryable) {
+        const result = await resolveCurrentMockExamType();
+        if (!result.ok) return;
+        nextMockExamType = result.currentMockExamType;
+      } else if (!isCurrentTypeReady) {
+        return;
+      }
+
       setSchoolId(null);
-      setCurrentStep('Score');
-      navigation.navigate('Score');
-    } else {
-      setCurrentStep('School');
-      navigation.navigate('School');
+      if (nextMockExamType?.type) {
+        setCurrentStep('MockExam');
+        navigation.navigate('MockExam');
+        return;
+      }
+      await submit();
+      return;
     }
-  }, [grade, selectSubject, navigation, setSchoolId, setCurrentStep]);
+
+    setCurrentStep('School');
+    navigation.navigate('School');
+  }, [
+    isNTime,
+    selectSubject,
+    navigation,
+    setSchoolId,
+    setCurrentStep,
+    isCurrentTypeReady,
+    isCurrentTypeRetryable,
+    currentMockExamType,
+    resolveCurrentMockExamType,
+    submit,
+  ]);
+
+  const total = getOnboardingTotal(grade, hasActiveMockExam);
 
   return (
     <OnboardingLayout
       title='수능 수학 선택과목을 1개 선택해 주세요.'
       description='2026년 11월 19일에 예정된 수능에서 응시할 선택과목을 선택해 주세요.'
       onPressCTA={handleNext}
-      ctaDisabled={!selectSubject}>
+      ctaDisabled={ctaDisabled}
+      ctaLoading={isNTime && isProcessing}
+      progress={{ current: 2, total }}>
       <View className='gap-[20px]'>
         {mathSubjectOptions.map((option) => (
           <OptionButton

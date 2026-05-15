@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { Header, Modal, Input, SegmentedControl } from '@components';
+import { Header, Modal, Input, SegmentedControl, ErrorModalTemplate } from '@components';
 import { getNotification, postNotification, getStudent } from '@apis';
-import { useModal, useSelectedStudent } from '@hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { useInvalidate, useModal, useSelectedStudent } from '@hooks';
 import {
   Bell,
   Send,
@@ -113,7 +112,7 @@ export const Route = createFileRoute('/_GNBLayout/notification/')({
 
 function RouteComponent() {
   const { selectedStudent } = useSelectedStudent();
-  const queryClient = useQueryClient();
+  const { invalidateNotification } = useInvalidate();
 
   // Send modal state
   const {
@@ -121,6 +120,14 @@ function RouteComponent() {
     openModal: openSendModal,
     closeModal: closeSendModal,
   } = useModal();
+
+  // Error modal state
+  const {
+    isOpen: isErrorModalOpen,
+    openModal: openErrorModal,
+    closeModal: closeErrorModal,
+  } = useModal();
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Form state for sending notification
   const [sendMode, setSendMode] = useState<'selected' | 'all' | 'search'>('selected');
@@ -171,9 +178,14 @@ function RouteComponent() {
       setNotificationUrl('');
       setSelectedStudentIds([]);
       closeSendModal();
-      queryClient.invalidateQueries();
     } catch (error) {
       console.error('Failed to send notification:', error);
+      const message = (error as { message?: string })?.message || '알림 발송에 실패했습니다.';
+      setErrorMessage(message);
+      closeSendModal();
+      openErrorModal();
+    } finally {
+      invalidateNotification(selectedStudent?.id || 0);
     }
   };
 
@@ -522,6 +534,15 @@ function RouteComponent() {
             </button>
           </div>
         </div>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal isOpen={isErrorModalOpen} onClose={closeErrorModal}>
+        <ErrorModalTemplate
+          text={errorMessage}
+          buttonText='닫기'
+          handleClickButton={closeErrorModal}
+        />
       </Modal>
     </div>
   );

@@ -4,11 +4,13 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bell, Headset, Megaphone, ThumbsUp, History } from 'lucide-react-native';
+import Constants from 'expo-constants';
 
 import { TanstackQueryClient, useGetMe, useGetNoticeCount } from '@apis';
 import { useAuthStore } from '@stores';
 import { ContentInset, Header } from '@components/common';
 import { type MenuStackParamList } from '@navigation/student/MenuNavigator';
+import { useIsTablet } from '@hooks/useIsTablet';
 
 import {
   UserProfileCard,
@@ -19,7 +21,6 @@ import {
 } from '../components';
 import { ConfirmationModal } from '../../scrap/components/Dialog';
 import { showToast } from '../../scrap/components/Notification';
-import useIsTablet from '../../qna/hooks/useIsTablet';
 
 const MenuScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -105,7 +106,9 @@ const MenuScreen = () => {
               />
               <MenuListItem icon={History} title='앱 버전' showChevron={false}>
                 <View className='justify-center'>
-                  <Text className='text-16m text-blue-500'>1.0.1 최신 버전</Text>
+                  <Text className='text-16m text-blue-500'>
+                    {Constants.nativeAppVersion ?? Constants.expoConfig?.version ?? 'unknown'}
+                  </Text>
                 </View>
               </MenuListItem>
             </MenuSection>

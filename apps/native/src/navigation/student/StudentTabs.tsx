@@ -2,8 +2,9 @@ import React from 'react';
 import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
 import { HomeScreen } from '@features/student/home';
-import { ScrapScreen } from '@features/student/scrap';
-import { QnaScreen } from '@features/student/qna';
+// import { ScrapScreen } from '@features/student/scrap';
+// import { QnaScreen } from '@features/student/qna';
+import NotificationScreen from '@features/student/home/screens/notifications/NotificationsScreen';
 
 import { type StudentTabParamList } from './types';
 import MenuNavigator from './MenuNavigator';
@@ -18,20 +19,26 @@ const HomeWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Home'>) 
   </TabScreen>
 );
 
-const ScrapWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Scrap'>) => (
-  <TabScreen index={1}>
-    <ScrapScreen />
-  </TabScreen>
-);
+// const ScrapWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Scrap'>) => (
+//   <TabScreen index={1}>
+//     <ScrapScreen />
+//   </TabScreen>
+// );
 
-const QnaWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Qna'>) => (
-  <TabScreen index={2}>
-    <QnaScreen />
+// const QnaWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Qna'>) => (
+//   <TabScreen index={2}>
+//     <QnaScreen />
+//   </TabScreen>
+// );
+
+const NotificationWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'Notification'>) => (
+  <TabScreen index={1}>
+    <NotificationScreen />
   </TabScreen>
 );
 
 const MenuWrapped = (_props: BottomTabScreenProps<StudentTabParamList, 'AllMenu'>) => (
-  <TabScreen index={3}>
+  <TabScreen index={2}>
     <MenuNavigator />
   </TabScreen>
 );
@@ -53,8 +60,9 @@ const StudentTabs = () => {
             headerShown: false, // We render header inside the wrapper
           }}
         />
-        <Tab.Screen name='Scrap' component={ScrapWrapped} />
-        <Tab.Screen name='Qna' component={QnaWrapped} />
+        {/*<Tab.Screen name='Scrap' component={ScrapWrapped} />
+        <Tab.Screen name='Qna' component={QnaWrapped} />*/}
+        <Tab.Screen name='Notification' component={NotificationWrapped} />
         <Tab.Screen name='AllMenu' component={MenuWrapped} />
       </Tab.Navigator>
     </TabTransitionProvider>

@@ -1,0 +1,346 @@
+/* ── Home mode 스타일 ── */
+
+/* Mode 레이아웃 — shadow 잘림 방지 여유 */
+.home-mode {
+  background: var(--color-gray-100);
+  padding: 20px;
+  display: flex !important;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── 카드 공통 ── */
+
+.home-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-300);
+  border-radius: 16px;
+  box-shadow: 0px 1px 6px 0px rgba(12, 12, 13, 0.05);
+  overflow: hidden;
+}
+
+.home-card-inner {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 카드 헤더 ── */
+
+.home-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.home-card-header-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.18px;
+  color: var(--color-gray-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-card-title--primary {
+  color: var(--color-primary-600);
+}
+
+.home-card-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.07px;
+  color: var(--color-gray-700);
+  margin-top: 4px;
+}
+
+/* ── 시간 뱃지 (RemainTime) ── */
+
+.home-comment-time {
+  display: flex;
+  align-items: center;
+  padding: 2px 6px 2px 4px;
+  border-radius: 100px;
+  gap: 0;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.13px;
+  color: var(--color-gray-600);
+  white-space: nowrap;
+}
+
+.home-comment-time--urgent {
+  color: var(--color-red-400);
+}
+
+/* ── 코멘트 body ── */
+
+.home-comment-body {
+  background: var(--color-gray-100);
+  border-radius: 8px;
+  position: relative;
+  margin-top: 10px;
+}
+
+.home-comment-body-container {
+  padding: 16px 16px 8px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: max-height var(--motion-duration) var(--motion-ease);
+}
+
+.home-comment-body-content {
+  color: var(--color-gray-800);
+}
+
+/* 접힌 상태: 16px × 1.6 × 4줄 + 상하 padding 여백 = 126.4px */
+.home-comment-body-container--collapsed {
+  max-height: 126px;
+}
+
+.home-comment-body-container--expanded {
+  max-height: none;
+}
+
+/* 하단 gradient fade (32px) — 접힌 상태에서만 */
+.home-comment-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(to bottom, rgba(248, 249, 252, 0), rgba(248, 249, 252, 1));
+  pointer-events: none;
+  transition: opacity var(--motion-duration) var(--motion-ease);
+}
+
+.home-comment-fade--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── 펼치기/접기 토글 ── */
+
+.home-collapsible-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 12px 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  gap: 0;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0.18px;
+  color: var(--color-gray-700);
+}
+
+.home-collapsible-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.home-collapsible-toggle--hidden {
+  display: none;
+}
+
+/* ── Study summary — timeline 연결선 ── */
+
+.home-study-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.home-study-group {
+  position: relative;
+}
+
+.home-study-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 8px;
+}
+
+/* 도트 컨테이너 (26×26) */
+.home-study-group-dot {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-study-group-dot-inner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.home-study-group-dot-inner--active {
+  background: var(--color-primary-600);
+}
+
+.home-study-group-dot-inner--muted {
+  background: var(--color-gray-400);
+}
+
+.home-study-group-label {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 26px;
+  color: var(--color-gray-900);
+}
+
+/* 카드 영역 — 도트 너비만큼 왼쪽 들여쓰기 */
+.home-study-group-cards {
+  padding-left: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 세로 연결선 — 도트 중앙 기준, gradient fade */
+.home-study-group-line {
+  position: absolute;
+  left: 0;
+  top: 20px;
+  bottom: -18px;
+  width: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.home-study-group-line-inner {
+  width: 2px;
+  height: 100%;
+  /*background: linear-gradient(
+    to bottom,
+    var(--color-gray-400) 50%,
+    var(--color-white) 100%
+  );*/
+  background: var(--color-gray-400);
+}
+
+/* 마지막 group에는 line 숨김 */
+.home-study-group:last-child .home-study-group-line {
+  display: none;
+}
+
+/* ── 집중학습 카드 (Study item) ── */
+
+.home-study-item {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-400);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.home-study-item-header {
+  padding: 16px 16px 8px 16px;
+}
+
+.home-study-item-headline {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+/* badge */
+.home-study-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.home-study-badge--orange {
+  background: #ffefe0;
+  color: #b85600;
+}
+.home-study-badge--green {
+  background: #e5f4e1;
+  color: #1a6714;
+}
+.home-study-badge--purple {
+  background: #eee9ff;
+  color: #5b2ea6;
+}
+.home-study-badge--pink {
+  background: #fce8f3;
+  color: #9b2c6e;
+}
+.home-study-badge--blue {
+  background: #e8f0ff;
+  color: #0055cc;
+}
+
+.home-study-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.13px;
+  color: var(--color-primary-600);
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.home-study-item-description {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 26px;
+  color: var(--color-gray-900);
+}
+
+/* Outer: height-transitioning shell. padding/bg 없음 → height: 0 으로 완전 접힘. */
+.home-study-item-content {
+  height: 0;
+  overflow: hidden;
+  transition: height var(--motion-duration) var(--motion-ease);
+}
+
+/* Inner: padding 고정. transition 영향 없음 → padding 점프 없음. */
+.home-study-item-content-inner {
+  padding: 8px 16px;
+  color: var(--color-gray-800);
+}

@@ -26,15 +26,3 @@ export const carrierOptions: { value: CarrierValue; label: string }[] = [
   { value: 'LG', label: 'LG U+' },
   { value: 'SKT_MVNO', label: '알뜰폰' },
 ];
-
-export const levelOptions: { value: number; label: string }[] = [
-  { value: 1, label: '1등급' },
-  { value: 2, label: '2등급' },
-  { value: 3, label: '3등급' },
-  { value: 4, label: '4등급' },
-  { value: 5, label: '5등급' },
-  { value: 6, label: '6등급' },
-  { value: 7, label: '7등급' },
-  { value: 8, label: '8등급' },
-  { value: 9, label: '9등급' },
-];

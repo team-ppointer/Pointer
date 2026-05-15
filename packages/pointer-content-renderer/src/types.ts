@@ -12,7 +12,7 @@ export type JSONNode = {
 
 // ── Content modes ──
 
-export type ContentMode = 'document' | 'chat' | 'overview';
+export type ContentMode = 'document' | 'chat' | 'overview' | 'home';
 
 // ── Bridge messages: RN → WebView ──
 
@@ -42,6 +42,11 @@ export type RNToWebViewMessage =
       mode: 'overview';
       variant?: 'summary' | 'pointing';
       sections: OverviewSection[];
+    }
+  | {
+      type: 'init';
+      mode: 'home';
+      cards: HomeCard[];
     }
   | {
       type: 'bookmarkResult';
@@ -78,6 +83,11 @@ export type WebViewToRNMessage =
       /** Monotonically increasing per-session id used to deduplicate stale results */
       requestId: number;
     }
+  | {
+      /** Fire-and-forget event emitted when a chat bubble's `?` (expand) button transitions from closed to open. RN enqueues to bubbleQuestionPressQueue. */
+      type: 'bubbleQuestionPress';
+      bubbleId: string;
+    }
   | { type: 'advance' };
 
 // ── Chat: Pointing structures ──
@@ -96,6 +106,10 @@ export interface PointingData {
 export interface PointingNode {
   contentNode: JSONNode;
   expandContent?: JSONNode;
+  /** Stable per-bubble identifier. The renderer attaches it to the `?` button so a bridge `bubbleQuestionPress` event can carry it back to RN. Optional — legacy commentContent-derived nodes have no id. */
+  nodeId?: string;
+  /** When true, the bubble renders with its expand area pre-opened (and its `?` button disabled) on mount — used for resume of previously-pressed buttons. */
+  defaultExpanded?: boolean;
 }
 
 export interface UserAnswer {
@@ -137,4 +151,48 @@ export interface OverviewSection {
     | { type: 'plain'; content: JSONNode }
     | { type: 'chat'; scenario: ChatScenario; userAnswers?: UserAnswer[] }
     | { type: 'divider'; text?: string };
+}
+
+// ── Home card types ──
+
+export type HomeCard = HomeCommentCard | HomeStudySummaryCard;
+
+export interface HomeCommentCard {
+  type: 'comment';
+  /** 카드 헤더 타이틀 (예: "{이름}님을 위한 1:1 코멘트") */
+  title: string;
+  /** 카드 부제 */
+  subtitle: string;
+  /** 만료 시각 (epoch ms). `null` 이면 시간 뱃지를 표시하지 않음. */
+  expiryAt: number | null;
+  content: JSONNode;
+}
+
+export interface HomeStudySummaryCard {
+  type: 'study-summary';
+  /** 카드 헤더 타이틀 (primary 색상) */
+  title: string;
+  /** 카드 부제. 줄바꿈은 '\n'. */
+  subtitle: string;
+  groups: HomeStudyGroup[];
+}
+
+export interface HomeStudyGroup {
+  label: string;
+  /** true = 파란 채워진 도트, false/undefined = 회색 빈 도트 */
+  highlighted?: boolean;
+  items: HomeStudyItem[];
+}
+
+export interface HomeStudyItem {
+  badges: HomeStudyBadge[];
+  /** LaTeX 포함 가능한 TipTap JSON */
+  title: JSONNode;
+  description: JSONNode;
+  content: JSONNode;
+}
+
+export interface HomeStudyBadge {
+  text: string;
+  variant: 'orange' | 'green' | 'purple' | 'pink' | 'blue';
 }

@@ -7,7 +7,6 @@ import StudentNavigator from '@navigation/student/StudentNavigator';
 import AuthNavigator from '@navigation/auth/AuthNavigator';
 import { useAuthStore } from '@stores';
 import { LoadingScreen } from '@components/common';
-import { useSocialLoginCallback } from '@hooks';
 import { useSignupStore } from '@features/auth/signup/store/useSignupStore';
 import { useOnboardingStore } from '@features/student/onboarding/store/useOnboardingStore';
 
@@ -24,8 +23,6 @@ const RootNavigator = () => {
   const sessionStatus = useAuthStore((s) => s.sessionStatus);
   const step1Completed = useSignupStore((s) => s.step1Completed);
   const onboardingStatus = useOnboardingStore((s) => s.status);
-
-  useSocialLoginCallback();
 
   const getActiveScreen = () => {
     if (

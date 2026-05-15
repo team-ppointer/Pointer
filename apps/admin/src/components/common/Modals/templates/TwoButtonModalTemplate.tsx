@@ -9,6 +9,8 @@ interface TwoButtonModalTemplateProps {
   handleClickLeftButton: () => void;
   handleClickRightButton: () => void;
   variant?: 'default' | 'danger';
+  leftButtonDisabled?: boolean;
+  rightButtonDisabled?: boolean;
 }
 
 const TwoButtonModalTemplate = ({
@@ -18,6 +20,8 @@ const TwoButtonModalTemplate = ({
   handleClickLeftButton,
   handleClickRightButton,
   variant = 'default',
+  leftButtonDisabled = false,
+  rightButtonDisabled = false,
 }: TwoButtonModalTemplateProps) => {
   const isDanger = variant === 'danger';
 
@@ -30,12 +34,16 @@ const TwoButtonModalTemplate = ({
         <p className='text-lg font-semibold text-gray-900'>{text}</p>
       </BaseModalTemplate.Content>
       <BaseModalTemplate.ButtonSection>
-        <BaseModalTemplate.Button onClick={handleClickLeftButton} variant='light'>
+        <BaseModalTemplate.Button
+          onClick={handleClickLeftButton}
+          variant='light'
+          disabled={leftButtonDisabled}>
           {leftButtonText}
         </BaseModalTemplate.Button>
         <BaseModalTemplate.Button
           onClick={handleClickRightButton}
-          variant={isDanger ? 'light' : 'dark'}>
+          variant={isDanger ? 'light' : 'dark'}
+          disabled={rightButtonDisabled}>
           {rightButtonText}
         </BaseModalTemplate.Button>
       </BaseModalTemplate.ButtonSection>

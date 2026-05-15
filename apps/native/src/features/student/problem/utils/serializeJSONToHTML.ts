@@ -16,7 +16,20 @@ function escapeHtml(text: string): string {
 }
 
 function escapeAttr(text: string): string {
-  return escapeHtml(text).replace(/"/g, '&quot;');
+  return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+const HIGHLIGHT_COLOR_VAR_RE = /^var\(--tt-color-highlight-[a-z][a-z0-9-]*\)$/;
+
+function isSafeHighlightColor(value: string): boolean {
+  if (value.length > 64) return false;
+  return HIGHLIGHT_COLOR_VAR_RE.test(value);
+}
+
+function toSafeSpan(value: unknown): number {
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n < 1 || n > 1000) return 1;
+  return n;
 }
 
 function renderMarks(text: string, marks?: JSONMark[]): string {
@@ -35,7 +48,9 @@ function renderMarks(text: string, marks?: JSONMark[]): string {
       case 'highlight': {
         const color = mark.attrs?.color;
         if (!color) return acc;
-        const escColor = escapeAttr(String(color));
+        const colorStr = String(color);
+        if (!isSafeHighlightColor(colorStr)) return acc;
+        const escColor = escapeAttr(colorStr);
         return `<mark data-color="${escColor}" style="background-color: ${escColor}; color: inherit;">${acc}</mark>`;
       }
       default:
@@ -140,12 +155,21 @@ function serializeBulletList(node: JSONNode): string {
   return `<ul>${items}</ul>`;
 }
 
+const ORDERED_LIST_TYPES = new Set(['1', 'a', 'A', 'i', 'I']);
+
+function toSafeStart(value: unknown): number {
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n < 1 || n > 9999) return 1;
+  return n;
+}
+
 function serializeOrderedList(node: JSONNode): string {
   const attrs = node.attrs ?? {};
-  const start = attrs.start ?? 1;
-  const type = attrs.type ?? null;
+  const start = toSafeStart(attrs.start);
+  const typeRaw = attrs.type != null ? String(attrs.type) : '';
+  const type = ORDERED_LIST_TYPES.has(typeRaw) ? typeRaw : '';
 
-  const typeAttr = type ? ` type="${escapeAttr(String(type))}"` : '';
+  const typeAttr = type ? ` type="${type}"` : '';
   const startAttr = start !== 1 ? ` start="${start}"` : '';
 
   const items = (node.content ?? []).map(serializeListItem).join('');
@@ -153,9 +177,11 @@ function serializeOrderedList(node: JSONNode): string {
   return `<ol${startAttr}${typeAttr}>${items}</ol>`;
 }
 
+const MAX_TABLE_COLS = 200;
+
 function countTableColumns(row: JSONNode): number {
   return (row.content ?? []).reduce((sum, cell) => {
-    const colspan = Number(cell.attrs?.colspan ?? 1);
+    const colspan = toSafeSpan(cell.attrs?.colspan);
     return sum + colspan;
   }, 0);
 }
@@ -164,9 +190,10 @@ function serializeTable(node: JSONNode): string {
   const rows = node.content ?? [];
   const firstRow = rows[0];
   const cols = firstRow ? countTableColumns(firstRow) : 1;
-  const minWidth = cols * 25;
+  const safeCols = Math.min(Math.max(1, cols), MAX_TABLE_COLS);
+  const minWidth = safeCols * 25;
 
-  const colgroup = `<colgroup>${Array.from({ length: cols })
+  const colgroup = `<colgroup>${Array.from({ length: safeCols })
     .map(() => `<col style="min-width: 25px;"></col>`)
     .join('')}</colgroup>`;
 
@@ -174,8 +201,8 @@ function serializeTable(node: JSONNode): string {
     .map((row) => {
       const cells = (row.content ?? [])
         .map((cell) => {
-          const colspan = cell.attrs?.colspan ?? 1;
-          const rowspan = cell.attrs?.rowspan ?? 1;
+          const colspan = toSafeSpan(cell.attrs?.colspan);
+          const rowspan = toSafeSpan(cell.attrs?.rowspan);
           const colSpanAttr = ` colspan="${colspan}"`;
           const rowSpanAttr = ` rowspan="${rowspan}"`;
 
@@ -240,8 +267,16 @@ function serializeNode(node: JSONNode): string {
 
 export function serializeJSONToHTML(doc: JSONNode | string): string {
   let json: JSONNode;
-  if (typeof doc === 'string') json = JSON.parse(doc);
-  else json = doc;
+  if (typeof doc === 'string') {
+    try {
+      json = JSON.parse(doc);
+    } catch (e) {
+      const detail = e instanceof Error ? e.message : String(e);
+      throw new Error(`serializeJSONToHTML: invalid JSON input — ${detail}`);
+    }
+  } else {
+    json = doc;
+  }
 
   if (json.type !== 'doc') {
     throw new Error('root node must be type=doc');

@@ -59,6 +59,7 @@
   --color-secondary-500: #e59c00;
 
   --color-red-100: #fce4e4;
+  --color-red-200: #f9aaa9;
   --color-red-400: #ff3b30;
 
   /* TipTap highlight colors (referenced in JSON mark attrs) */
@@ -69,6 +70,10 @@
   --tt-color-highlight-red: #ffe4e6;
 
   --horizontal-rule-color: rgba(37, 39, 45, 0.1);
+
+  /* Motion — iOS-style ease-out for reveal/collapsible interactions */
+  --motion-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-duration: 350ms;
 }
 
 * {
@@ -77,6 +82,10 @@
   box-sizing: border-box;
   border: 0 solid;
   word-break: keep-all;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #content {
@@ -309,6 +318,14 @@ table:has(> tbody > tr:first-child > td:nth-child(5):last-child)
   > td:nth-child(5)::before {
   top: 50%;
   transform: translateY(-50%);
+}
+
+/* Render-failure fallback (main.ts renderFallback) */
+.content-error {
+  padding: 2.5em 1.25em;
+  text-align: center;
+  color: var(--color-gray-700);
+  font-size: 0.9375rem;
 }
 
 /* Inline math */

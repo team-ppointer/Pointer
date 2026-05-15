@@ -4,13 +4,15 @@ import {
   getAccessToken,
   getGrade,
   getName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
   getTeacherAccessToken,
   getTeacherName,
-  setAccessToken,
   setGrade,
   setName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
   setTeacherAccessToken,
   setTeacherName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teacher 트랙 복원 시 사용
   setTeacherRefreshToken,
 } from '@utils/auth';
 import { bareClient } from '@apis/bareClient';
@@ -20,7 +22,13 @@ import { useAuthStore } from '@stores';
 
 const UNPROTECTED_ROUTES = [
   '/api/student/auth/login/social',
+  '/api/student/auth/login/local',
+  '/api/student/auth/signup/local',
   '/api/student/auth/refresh',
+  '/api/student/auth/password/reset',
+  '/api/student/auth/password/reset/send-code',
+  '/api/student/auth/password/reset/verify-code',
+  '/api/student/auth/email/exists',
   '/api/common/upload-file',
 ];
 const TEACHER_UNPROTECTED_ROUTES = [
@@ -33,33 +41,92 @@ const isTeacherRoute = (schemaPath: string) => {
   return schemaPath.startsWith('/api/teacher/') || schemaPath.includes('teacher');
 };
 
+const isUnprotectedRoute = (schemaPath: string, isTeacher: boolean) => {
+  const routes = isTeacher ? TEACHER_UNPROTECTED_ROUTES : UNPROTECTED_ROUTES;
+  // 인증 우회는 실패 시 영향이 크므로 정확 매칭 또는 명시적 하위 경로(`/`)
+  // 매칭만 허용한다. prefix-only 매칭은 미래 라우트와 우발 충돌 가능.
+  return routes.some(
+    (pathname) => schemaPath === pathname || schemaPath.startsWith(`${pathname}/`)
+  );
+};
+
+// 401 재시도 시 body가 이미 소비된 원본 대신 사용할 clone을 보관한다.
+const retryRequestClones = new WeakMap<Request, Request>();
+
+let studentRefreshPromise: Promise<string | null> | null = null;
+let studentMePromise: Promise<void> | null = null;
+
+const ensureStudentProfile = async (accessToken: string): Promise<void> => {
+  // 한쪽 필드(name 또는 grade)만 캐시되고 다른 한쪽이 비어 있으면 보충해야 한다.
+  // 둘 다 null 이 아닐 때만 fetch 를 생략한다.
+  if (getName() !== null && getGrade() !== null) return;
+  if (studentMePromise) return studentMePromise;
+
+  studentMePromise = (async () => {
+    try {
+      const { data } = await bareClient.GET('/api/student/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (data) {
+        if (data.name !== undefined) await setName(data.name ?? null);
+        if (data.grade !== undefined) await setGrade(data.grade ?? null);
+      }
+    } finally {
+      studentMePromise = null;
+    }
+  })();
+
+  return studentMePromise;
+};
+
 const reissueStudentToken = async ({ forceRefresh = false } = {}) => {
-  const accessToken = getAccessToken();
-
-  if (accessToken && !forceRefresh) {
-    return accessToken;
+  if (!forceRefresh) {
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      return accessToken;
+    }
   }
 
-  if (forceRefresh) {
-    await setAccessToken(null);
+  if (studentRefreshPromise) {
+    return studentRefreshPromise;
   }
 
-  const result = await refreshAndPersistTokens();
+  studentRefreshPromise = (async () => {
+    try {
+      // 기존 access token 은 refresh 결과가 확정될 때까지 보존한다.
+      // 성공 시 refreshAndPersistTokens 내부에서 새 토큰으로 교체되고,
+      // 명시적 실패 시 signOut 이 자격증명 전체를 정리한다. transient
+      // 실패에서는 기존 토큰을 유지해 5xx/네트워크 장애가 짧게 지나가면
+      // 그대로 복구되도록 한다.
+      const result = await refreshAndPersistTokens();
 
-  if (!result.success) {
-    console.warn('Student token refresh failed, clearing credentials.');
-    await useAuthStore.getState().signOut();
-    return null;
-  }
+      if (!result.success) {
+        if (result.transient) {
+          // 서버 5xx/네트워크 장애. refresh token 자체가 무효라고 단정할 수 없으므로
+          // 자격증명을 보존한다. 실패한 호출은 401 그대로 caller 에 전달되어
+          // 사용자 메시징/재시도로 이어진다.
+          console.warn('Student token refresh transient failure; keeping credentials.');
+          return null;
+        }
+        console.warn('Student token refresh failed (token invalid), clearing credentials.');
+        await useAuthStore.getState().signOut();
+        return null;
+      }
 
-  if (result.data.name !== undefined) {
-    await setName(result.data.name);
-  }
-  if (result.data.grade !== undefined) {
-    await setGrade(result.data.grade);
-  }
+      if (result.data.name !== undefined) {
+        await setName(result.data.name);
+      }
+      if (result.data.grade !== undefined) {
+        await setGrade(result.data.grade);
+      }
 
-  return result.data.token.accessToken;
+      return result.data.token.accessToken;
+    } finally {
+      studentRefreshPromise = null;
+    }
+  })();
+
+  return studentRefreshPromise;
 };
 
 const reissueTeacherToken = async () => {
@@ -89,8 +156,7 @@ const authMiddleware: Middleware = {
     const isTeacher = false;
 
     // 보호되지 않은 라우트 체크
-    const unprotectedRoutes = isTeacher ? TEACHER_UNPROTECTED_ROUTES : UNPROTECTED_ROUTES;
-    if (unprotectedRoutes.some((pathname) => schemaPath.startsWith(pathname))) {
+    if (isUnprotectedRoute(schemaPath, isTeacher)) {
       return;
     }
 
@@ -101,14 +167,8 @@ const authMiddleware: Middleware = {
       request.headers.set('Authorization', `Bearer ${accessToken}`);
     }
 
-    if (accessToken && !isTeacher && !getName() && !getGrade()) {
-      const { data } = await bareClient.GET('/api/student/me', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (data) {
-        setName(data.name);
-        setGrade(data.grade);
-      }
+    if (accessToken && !isTeacher) {
+      await ensureStudentProfile(accessToken);
     }
 
     if (accessToken && isTeacher && !getTeacherName()) {
@@ -120,12 +180,28 @@ const authMiddleware: Middleware = {
       }
     }
 
+    // body 있는 요청에 한해 retry용 clone을 확보한다. body-less 요청
+    // (GET/HEAD 등)은 onResponse에서 원본 request를 그대로 fetch해도
+    // 안전하므로 clone 비용을 들이지 않는다.
+    if (request.body !== null) {
+      retryRequestClones.set(request, request.clone());
+    }
+
     return request;
   },
 
   async onResponse({ request, response, schemaPath }) {
     if (response.status === 401) {
       const isTeacher = isTeacherRoute(schemaPath);
+
+      // 로그인/refresh/회원가입 같은 unprotected 라우트의 401은 토큰 만료가
+      // 아니라 자격 검증 실패다. refresh/retry를 시도하면 불필요한 signOut
+      // 또는 body 소비된 원본 재전송으로 이어지므로 그대로 전달한다.
+      if (isUnprotectedRoute(schemaPath, isTeacher)) {
+        retryRequestClones.delete(request);
+        return response;
+      }
+
       console.warn(`${isTeacher ? '선생님' : '학생'} Access token expired. Attempting reissue...`);
 
       const newAccessToken = isTeacher
@@ -133,13 +209,17 @@ const authMiddleware: Middleware = {
         : await reissueStudentToken({ forceRefresh: true });
 
       if (!newAccessToken) {
+        retryRequestClones.delete(request);
         console.warn('Reissue failed, redirecting to login page.');
         return response;
       }
 
-      request.headers.set('Authorization', `Bearer ${newAccessToken}`);
-      return fetch(request);
+      const retryRequest = retryRequestClones.get(request) ?? request;
+      retryRequestClones.delete(request);
+      retryRequest.headers.set('Authorization', `Bearer ${newAccessToken}`);
+      return fetch(retryRequest);
     }
+    retryRequestClones.delete(request);
     return response;
   },
 };

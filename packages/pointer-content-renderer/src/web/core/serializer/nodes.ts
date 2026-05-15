@@ -5,8 +5,14 @@ import { serializeInlineList, serializeImage } from './inline';
 
 const ORDERED_LIST_TYPES = new Set(['1', 'a', 'A', 'i', 'I']);
 
-// Forward declaration — will be set by index.ts to break circular dependency
-let _serializeNode: (node: JSONNode) => string;
+// Forward declaration — set by index.ts to break circular dependency.
+// Default throws so accidental use before wiring is loud, not a silent
+// "undefined is not a function" deep in the call stack.
+let _serializeNode: (node: JSONNode) => string = () => {
+  throw new Error(
+    'serializer/nodes: _serializeNode not initialized. Ensure serializer/index.ts is imported before invoking node serializers.'
+  );
+};
 export function setSerializeNode(fn: (node: JSONNode) => string): void {
   _serializeNode = fn;
 }
@@ -46,13 +52,16 @@ function countTableColumns(row: JSONNode): number {
   }, 0);
 }
 
+const MAX_TABLE_COLS = 200;
+
 export function serializeTable(node: JSONNode): string {
   const rows = node.content ?? [];
   const firstRow = rows[0];
   const cols = firstRow ? countTableColumns(firstRow) : 1;
-  const minWidth = cols * 25;
+  const safeCols = Math.min(Math.max(1, cols), MAX_TABLE_COLS);
+  const minWidth = safeCols * 25;
 
-  const colgroup = `<colgroup>${Array.from({ length: cols })
+  const colgroup = `<colgroup>${Array.from({ length: safeCols })
     .map(() => `<col style="min-width: 25px;"></col>`)
     .join('')}</colgroup>`;
 

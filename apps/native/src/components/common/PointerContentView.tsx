@@ -31,6 +31,7 @@ interface Props {
   onAnswer?: (event: AnswerEventPayload) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
   onAdvance?: () => void;
+  onBubbleQuestionPress?: (event: { bubbleId: string }) => void;
   style?: StyleProp<ViewStyle>;
   /** Document mode 한정 최소 높이 (px). 그 외 mode 에서는 무시됨. */
   minHeight?: number;
@@ -69,6 +70,7 @@ export const PointerContentView = forwardRef<PointerContentViewHandle, Props>(
         onComplete={props.onComplete}
         onBookmark={props.onBookmark}
         onAdvance={props.onAdvance}
+        onBubbleQuestionPress={props.onBubbleQuestionPress}
         style={[defaultStyle, props.style]}
       />
     );

@@ -7,7 +7,6 @@ import {
   EditNicknameScreen,
   EditSchoolScreen,
   EditGradeScreen,
-  EditScoreScreen,
   EditMathSubjectScreen,
   EditPhoneNumberScreen,
 } from '@features/student/menu/screens/info';
@@ -17,7 +16,7 @@ import FeedbackScreen from '@features/student/menu/screens/FeedbackScreen';
 import TermsScreen from '@features/student/menu/screens/TermsScreen';
 import WithdrawalScreen from '@features/student/menu/screens/WithdrawalScreen';
 import { type GradeValue, type MathSubjectValue } from '@features/student/onboarding/constants';
-import { type components } from '@/types/api/schema';
+import { type components } from '@schema';
 
 export type MenuStackParamList = {
   MenuMain: undefined;
@@ -30,7 +29,6 @@ export type MenuStackParamList = {
       school?: components['schemas']['SchoolResp'];
       schoolName?: string;
       sido?: string;
-      level?: number;
       selectSubject?: MathSubjectValue;
     };
   };
@@ -43,7 +41,6 @@ export type MenuStackParamList = {
   EditNickname: { initialNickname?: string };
   EditGrade: { initialGrade?: GradeValue; initialSchool?: components['schemas']['SchoolResp'] };
   EditSchool: { initialSchool?: components['schemas']['SchoolResp']; initialGrade?: GradeValue };
-  EditScore: { initialScore?: number };
   EditMathSubject: { initialMathSubject?: MathSubjectValue };
 };
 
@@ -213,22 +210,6 @@ const MenuNavigator = () => {
       <MenuStack.Screen
         name='EditGrade'
         component={EditGradeScreen}
-        listeners={({ navigation }) => ({
-          focus: () => {
-            navigation.getParent()?.setOptions({
-              tabBarStyle: { display: 'none' },
-            });
-          },
-          blur: () => {
-            navigation.getParent()?.setOptions({
-              tabBarStyle: undefined,
-            });
-          },
-        })}
-      />
-      <MenuStack.Screen
-        name='EditScore'
-        component={EditScoreScreen}
         listeners={({ navigation }) => ({
           focus: () => {
             navigation.getParent()?.setOptions({

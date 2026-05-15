@@ -103,7 +103,7 @@ async function renderCardPointing(
   titleGroup.appendChild(subtitleSpan);
   header.appendChild(titleGroup);
 
-  if (display.bookmarkable) {
+  if (false && display.bookmarkable) {
     const btn = document.createElement('button');
     btn.className = 'bookmark-btn';
     setBookmarkButtonState(btn, !!display.bookmarked);
@@ -172,17 +172,38 @@ async function renderCardCollapsible(
   el.appendChild(contentEl);
   await renderMath(innerEl);
 
+  // CSS: `.section-card-collapsible-content` transitions max-height 300ms.
+  // Fallback timeout has a 50ms safety margin so we recover when
+  // `transitionend` is preempted (rapid toggle, prefers-reduced-motion,
+  // CSS transition disabled in WebView dev tools, etc.) and the header
+  // would otherwise stay stuck with `transitioning = true`.
+  const COLLAPSIBLE_TRANSITION_MS = 350;
+
   let isOpen = false;
   let transitioning = false;
+
+  // Run `cb` on first of {transitionend, timeout}, then unregister both.
+  const runOnceOnTransitionEnd = (target: HTMLElement, cb: () => void): void => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      target.removeEventListener('transitionend', onTransitionEnd);
+      window.clearTimeout(timer);
+      cb();
+    };
+    const onTransitionEnd = () => finish();
+    target.addEventListener('transitionend', onTransitionEnd);
+    const timer = window.setTimeout(finish, COLLAPSIBLE_TRANSITION_MS);
+  };
+
   header.addEventListener('click', () => {
     if (transitioning) return;
     transitioning = true;
 
-    const onEnd = () => {
+    runOnceOnTransitionEnd(contentEl, () => {
       transitioning = false;
-      contentEl.removeEventListener('transitionend', onEnd);
-    };
-    contentEl.addEventListener('transitionend', onEnd);
+    });
 
     if (isOpen) {
       contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
@@ -195,11 +216,9 @@ async function renderCardCollapsible(
       contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
       el.classList.add('section-card--collapsible-open');
       isOpen = true;
-      const onOpenEnd = () => {
+      runOnceOnTransitionEnd(contentEl, () => {
         contentEl.style.maxHeight = 'none';
-        contentEl.removeEventListener('transitionend', onOpenEnd);
-      };
-      contentEl.addEventListener('transitionend', onOpenEnd);
+      });
     }
   });
 }

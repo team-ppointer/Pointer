@@ -15,10 +15,12 @@ import type {
 } from '@repo/pointer-content-renderer';
 
 import type { components } from '@schema';
+import { parseTipTapDoc } from '@utils/tiptap';
 
 type PointingWithFeedbackResp = components['schemas']['PointingWithFeedbackResp'];
 type ProblemWithStudyInfoResp = components['schemas']['ProblemWithStudyInfoResp'];
 type PublishProblemGroupResp = components['schemas']['PublishProblemGroupResp'];
+type PointingBubbleResp = components['schemas']['PointingBubbleResp'];
 
 // ── Shared types ────────────────────────────────────────────────────
 
@@ -42,32 +44,6 @@ export interface JoinedPointing {
   parentProblemDisplayNo: string;
 }
 
-// ── JSON parsing ────────────────────────────────────────────────────
-
-const EMPTY_DOC: JSONNode = { type: 'doc', content: [] };
-
-/**
- * 서버의 JSON string 을 안전하게 `JSONNode` 로 파싱. 실패/빈 입력 시
- * `{ type: 'doc', content: [] }` 반환 (절대 throw 하지 않음).
- */
-export function parseTipTapDoc(raw?: string | null): JSONNode {
-  if (raw == null || raw === '') return EMPTY_DOC;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (
-      parsed != null &&
-      typeof parsed === 'object' &&
-      'type' in parsed &&
-      typeof (parsed as { type: unknown }).type === 'string'
-    ) {
-      return parsed as JSONNode;
-    }
-    return EMPTY_DOC;
-  } catch {
-    return EMPTY_DOC;
-  }
-}
-
 // ── Chat scenario construction ──────────────────────────────────────
 
 /** paragraph 이면서 content 가 비었거나 모든 text 가 공백뿐인 경우 true. */
@@ -87,11 +63,48 @@ export function toQuestionNodes(questionContent: string): PointingNode[] {
 }
 
 /**
- * answer 는 `doc.content[]` top-level node 단위로 strict 분해 (paragraph/list/
- * table/image/blockquote 등 모두 그대로 허용). 빈 paragraph 는 필터링.
+ * `bubbles[]` 를 `PointingNode[]` 로 변환. `no` 오름차순 정렬(BE-3: 순서 섞일 수 있음).
+ * `includeExpand: true` 이면 expand 관련 3 필드(nodeId/defaultExpanded/expandContent) 포함.
+ * `includeExpand: false` 이면 expand 필드 전부 omit — renderer 가 `?` 버튼 자체를 렌더하지 않음(PD-3).
+ */
+export function toBubbleNodes(args: {
+  bubbles: PointingBubbleResp[];
+  pressedBubbleIds: Set<number>;
+  includeExpand: boolean;
+}): PointingNode[] {
+  const { bubbles, pressedBubbleIds, includeExpand } = args;
+  return [...bubbles]
+    .sort((a, b) => a.no - b.no)
+    .map((bubble) => {
+      const contentNode = parseTipTapDoc(bubble.contentJson);
+      if (!includeExpand) {
+        return { contentNode };
+      }
+      return {
+        contentNode,
+        nodeId: String(bubble.id),
+        defaultExpanded: bubble.isQuestionPressed === true || pressedBubbleIds.has(bubble.id),
+        ...(bubble.extendContent ? { expandContent: parseTipTapDoc(bubble.extendContent) } : {}),
+      };
+    });
+}
+
+/**
+ * answer 는 `bubbles[]` 우선 사용. 비어있거나 undefined 이면 `commentContent` top-level
+ * node 단위로 분해(legacy fallback). 빈 paragraph 는 필터링.
  * 각 자식은 `{ type: 'doc', content: [child] }` 로 래핑해 단일 버블용 doc 형태로.
  */
-export function toAnswerNodes(commentContent: string): PointingNode[] {
+export function toAnswerNodes(args: {
+  bubbles?: PointingBubbleResp[];
+  commentContent: string;
+  pressedBubbleIds: Set<number>;
+  includeExpand: boolean;
+}): PointingNode[] {
+  const { bubbles, commentContent, pressedBubbleIds, includeExpand } = args;
+  if (bubbles && bubbles.length > 0) {
+    return toBubbleNodes({ bubbles, pressedBubbleIds, includeExpand });
+  }
+  // TODO(MAT-649): drop fallback when server removes commentContent. Single revertable commit.
   const doc = parseTipTapDoc(commentContent);
   const children = doc.content ?? [];
   return children
@@ -99,18 +112,34 @@ export function toAnswerNodes(commentContent: string): PointingNode[] {
     .map((c) => ({ contentNode: { type: 'doc', content: [c] } }));
 }
 
-export function toPointingData(pointing: PointingWithFeedbackResp, label: string): PointingData {
+export function toPointingData(
+  pointing: PointingWithFeedbackResp,
+  label: string,
+  pressedBubbleIds: Set<number>,
+  includeExpand: boolean
+): PointingData {
   return {
     id: String(pointing.id),
     label,
     questionNodes: toQuestionNodes(pointing.questionContent),
-    answerNodes: toAnswerNodes(pointing.commentContent),
+    answerNodes: toAnswerNodes({
+      bubbles: pointing.bubbles,
+      commentContent: pointing.commentContent,
+      pressedBubbleIds,
+      includeExpand,
+    }),
   };
 }
 
-export function toChatScenario(pointings: PointingWithFeedbackResp[]): ChatScenario {
+export function toChatScenario(
+  pointings: PointingWithFeedbackResp[],
+  pressedBubbleIds: Set<number>,
+  includeExpand: boolean
+): ChatScenario {
   return {
-    pointings: pointings.map((p, i) => toPointingData(p, `${i + 1}번째 포인팅`)),
+    pointings: pointings.map((p, i) =>
+      toPointingData(p, `${i + 1}번째 포인팅`, pressedBubbleIds, includeExpand)
+    ),
   };
 }
 
@@ -205,8 +234,10 @@ export function buildAnalysisOverviewSections(opts: {
   problem: ProblemWithStudyInfoResp;
   joined: JoinedPointing[];
   pendingQueueEntries?: PendingPointingAnswer[];
+  pressedBubbleIds: Set<number>;
+  includeExpand: boolean;
 }): OverviewSection[] {
-  const { problem, joined, pendingQueueEntries = [] } = opts;
+  const { problem, joined, pendingQueueEntries = [], pressedBubbleIds, includeExpand } = opts;
   const sections: OverviewSection[] = [];
 
   if (problem.readingTipContent) {
@@ -246,7 +277,7 @@ export function buildAnalysisOverviewSections(opts: {
       id: `pointing-chat-${pointing.id}`,
       display: {
         type: 'chat',
-        scenario: toChatScenario([pointing]),
+        scenario: toChatScenario([pointing], pressedBubbleIds, includeExpand),
         userAnswers: toUserAnswers([pointing], pendingQueueEntries),
       },
     });
@@ -304,6 +335,20 @@ export function buildAllPointingsLeftSections(group: PublishProblemGroupResp): O
   return sections;
 }
 
+// ── AllPointings helpers ─────────────────────────────────────────────
+
+/**
+ * `bubbles[]` 의 각 `contentJson` content[] 를 평탄화해 단일 TipTap doc 을 생성.
+ * AllPointingsScreen 우측 정적 요약 뷰용 — chat 의 `?` 인터랙션이 없는 뷰이므로
+ * `extendContent` 는 의도적으로 포함하지 않음(사용자 결정 — A안, §3.I2).
+ * `no` 오름차순 정렬(BE-3: 순서 섞일 수 있음).
+ */
+export function joinBubblesToDoc(bubbles: PointingBubbleResp[]): JSONNode {
+  const sorted = [...bubbles].sort((a, b) => a.no - b.no);
+  const content = sorted.flatMap((bubble) => parseTipTapDoc(bubble.contentJson).content ?? []);
+  return { type: 'doc', content };
+}
+
 // ── AllPointingsScreen right sections (joined pointings + bookmark state) ──
 
 export function buildAllPointingsRightSections(opts: {
@@ -322,7 +367,11 @@ export function buildAllPointingsRightSections(opts: {
         title: `${index}번째 포인팅`,
         subtitle: `${parentProblemDisplayNo}번`,
         question: parseTipTapDoc(pointing.questionContent),
-        answer: parseTipTapDoc(pointing.commentContent),
+        // TODO(MAT-649): drop fallback when server removes commentContent. Single revertable commit.
+        answer:
+          pointing.bubbles && pointing.bubbles.length > 0
+            ? joinBubblesToDoc(pointing.bubbles)
+            : parseTipTapDoc(pointing.commentContent),
         bookmarkable: true,
         bookmarked: scrappedPointingIds.has(pointing.id),
       },

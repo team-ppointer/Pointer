@@ -2,8 +2,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView, Text, View } from 'react-native';
 import { XIcon } from 'lucide-react-native';
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
+// TODO: scrap 기능 복구 시 활성화
+// import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { type StudentRootStackParamList } from '@navigation/student/types';
 import {
@@ -23,22 +24,32 @@ import {
   useProblemSessionStore,
 } from '@stores/problemSessionStore';
 import useInvalidateStudyData from '@hooks/useInvalidateStudyData';
-import {
-  useGetScrapStatusById,
-  useToggleScrapFromProblem,
-  useToggleScrapFromReadingTip,
-  useToggleScrapFromOneStepMore,
-  useToggleScrapFromPointing,
-} from '@apis/student';
-import { client } from '@apis/client';
+// TODO: scrap 기능 복구 시 활성화
+// import {
+//   useGetScrapStatusById,
+//   useToggleScrapFromProblem,
+//   useToggleScrapFromReadingTip,
+//   useToggleScrapFromOneStepMore,
+//   useToggleScrapFromPointing,
+// } from '@apis/student';
+// import { client } from '@apis/client';
 
-import ScrapItem from '../components/ScrapItem';
+// import ScrapItem from '../components/ScrapItem';
 import { useSplitPanelLayout } from '../hooks/useSplitPanelLayout';
 import { pointingFeedbackQueue } from '../services';
 import {
   buildAnalysisOverviewSections,
   joinPointingsForAnalysis,
 } from '../transforms/contentRendererTransforms';
+import CompleteIcon from '../components/icons/CompleteIcon';
+
+// Module-level stable references for useSyncExternalStore — passing inline
+// closures here would defeat React's identity check and re-subscribe on
+// every render. Snapshot itself is referentially stable thanks to the
+// queue's internal cache (cleared on notify), so consecutive calls return
+// the same array until entries actually change.
+const queueSubscribe = (cb: () => void) => pointingFeedbackQueue.subscribe(cb);
+const queueGetSnapshot = () => pointingFeedbackQueue.snapshot();
 
 const AnalysisScreen = ({
   navigation,
@@ -106,7 +117,7 @@ const AnalysisScreen = ({
     }
   }, [hasNextProblem, invalidateStudyData, publishId, publishAt, goToNextProblem, goHome]);
 
-  const queueSnapshot = pointingFeedbackQueue.snapshot();
+  const queueSnapshot = useSyncExternalStore(queueSubscribe, queueGetSnapshot);
   const joined = useMemo(() => (group ? joinPointingsForAnalysis(group) : []), [group]);
   const sections = useMemo(
     () =>
@@ -115,6 +126,9 @@ const AnalysisScreen = ({
             problem: group.problem,
             joined,
             pendingQueueEntries: queueSnapshot,
+            // PD-3: AnalysisScreen 은 ? 버튼 비노출 (includeExpand:false) → pressedBubbleIds 미사용.
+            pressedBubbleIds: new Set<number>(),
+            includeExpand: false,
           })
         : [],
     [group, joined, queueSnapshot]
@@ -126,6 +140,7 @@ const AnalysisScreen = ({
 
   const contentViewRef = useRef<PointerContentViewHandle>(null);
 
+  /* TODO: scrap 기능 복구 시 활성화
   const scrapSections = useMemo(
     () =>
       sections.filter(
@@ -251,6 +266,7 @@ const AnalysisScreen = ({
     },
     [toggleProblem, invalidateScrapStatus]
   );
+  */
 
   const { leftWidth, rightWidth } = useSplitPanelLayout();
 
@@ -276,16 +292,17 @@ const AnalysisScreen = ({
           paddingHorizontal={28}
         />
         <View className='flex-1 items-center px-[28px]' style={{ paddingBottom: insets.bottom }}>
-          <View className='my-[12px] size-[120px] bg-gray-400' />
-          <View className='mb-[8px] flex-row'>
-            <Text className='typo-display-1-bold'>{problemSubtitle} </Text>
-            <Text className='typo-display-1-bold text-primary-600'>완료!</Text>
-          </View>
-          <Text className='typo-body-1-medium mb-[40px] text-center text-gray-700'>
-            {problemSubtitle} 학습을 완료하셨습니다.{'\n'}
-            아래 스크랩을 통해 나만의 수학노트를 만들어봐요!
-          </Text>
-          <ScrollView
+          <View className='mb-auto flex-1 items-center justify-center pb-[40px]'>
+            <CompleteIcon />
+            <View className='mt-[20px] mb-[8px] flex-row'>
+              <Text className='typo-display-1-semibold'>{problemSubtitle} </Text>
+              <Text className='typo-display-1-semibold text-primary-600'>완료!</Text>
+            </View>
+            <Text className='typo-body-1-medium text-center text-gray-700'>
+              {problemSubtitle} 학습을 완료하셨습니다.{'\n'}
+              아래 스크랩을 통해 나만의 수학노트를 만들어봐요!
+            </Text>
+            {/*<ScrollView
             className='mb-auto max-h-[180px] w-[320px] rounded-[18px] border border-gray-200 bg-gray-100'
             contentContainerClassName='gap-[8px] p-[16px]'>
             {problemScrapItems.map((item) => (
@@ -305,7 +322,8 @@ const AnalysisScreen = ({
                 onBookmark={() => handleBookmark(section.id)}
               />
             ))}
-          </ScrollView>
+          </ScrollView>*/}
+          </View>
           <AnimatedPressable
             containerStyle={{ width: '100%', maxWidth: 420 }}
             className='mb-[8px] flex h-[48px] w-full items-center justify-center rounded-[8px] border border-gray-500 bg-gray-100'

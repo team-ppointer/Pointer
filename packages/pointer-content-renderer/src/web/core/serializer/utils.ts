@@ -21,7 +21,20 @@ export function escapeHtml(text: string): string {
 }
 
 export function escapeAttr(text: string): string {
-  return escapeHtml(text).replace(/"/g, '&quot;');
+  return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+const HIGHLIGHT_COLOR_VAR_RE = /^var\(--tt-color-highlight-[a-z][a-z0-9-]*\)$/;
+
+/**
+ * highlight mark 의 색상 값으로 허용할 형식.
+ * 콘텐츠는 항상 `var(--tt-color-highlight-<name>)` 으로 들어오며,
+ * 실제 색상은 CSS 변수에서 결정된다. `;` `:` 등 CSS 문장 주입 시도를
+ * 차단하기 위해 형식 자체를 좁힌다.
+ */
+export function isSafeHighlightColor(value: string): boolean {
+  if (value.length > 64) return false;
+  return HIGHLIGHT_COLOR_VAR_RE.test(value);
 }
 
 export function areAttrsEqual(a?: Record<string, unknown>, b?: Record<string, unknown>): boolean {

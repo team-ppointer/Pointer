@@ -1,20 +1,12 @@
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 
+import { queryClient } from './queryClient';
 import { routeTree } from './routeTree.gen';
 
 import './styles/globals.css';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Infinity,
-      gcTime: Infinity,
-    },
-  },
-});
 
 // Set up a Router instance
 const router = createRouter({

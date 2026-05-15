@@ -75,8 +75,17 @@ const isDev =
 const config: ExpoConfig = {
   name: 'Pointer',
   slug: 'pointer',
-  version: '1.0.0',
+  version: '1.2.0',
   orientation: 'portrait',
+  runtimeVersion: {
+    policy: 'fingerprint',
+  },
+  updates: {
+    url: 'https://u.expo.dev/76a68921-8c65-4e50-98b0-fb5ef457ab7e',
+    enabled: true,
+    fallbackToCacheTimeout: 0,
+    checkAutomatically: 'NEVER',
+  },
   icon: './assets/images/icon.png',
   scheme: 'pointer',
   userInterfaceStyle: 'automatic',
@@ -123,14 +132,12 @@ const config: ExpoConfig = {
       'expo-splash-screen',
       {
         image: './assets/images/splash-icon.png',
-        imageWidth: 200,
+        imageWidth: 140,
         resizeMode: 'contain',
-        backgroundColor: '#ffffff',
-        dark: {
-          backgroundColor: '#000000',
-        },
+        backgroundColor: '#F8F9FC',
       },
     ],
+    'expo-updates',
     [
       '@react-native-google-signin/google-signin',
       {
@@ -156,8 +163,6 @@ const config: ExpoConfig = {
   extra: {
     apiBaseUrl: process.env.NATIVE_API_BASE_URL,
     authRedirectUri: process.env.NATIVE_AUTH_REDIRECT_URI,
-    devAccessToken: process.env.NATIVE_DEV_ACCESS_TOKEN,
-    devRefreshToken: process.env.NATIVE_DEV_REFRESH_TOKEN,
     googleWebClientId: process.env.GOOGLE_WEB_CLIENT_ID,
     googleIosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
     kakaoNativeAppKey: process.env.KAKAO_NATIVE_APP_KEY,

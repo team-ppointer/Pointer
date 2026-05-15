@@ -13,11 +13,19 @@ export const colors = {
   'gray-900': '#222224', // 기존 darkgray200
 
   // Colors
-  'green-100': '#E7F6E5', // 기존 light green
-  'green-500': '#0C9200', // 기존 green
-  'red-100': '#FCE4E4', // 기존 light red
-  'red-400': '#FF3B30', // 기존 red-delete
-  'red-500': '#D20000', // 기존 red
+  'green-100': '#E1F5DF',
+  'green-500': '#0FB700',
+
+  'orange-100': '#FFE5CC',
+  'orange-500': '#F68300',
+
+  'red-100': '#FCE4E4',
+  'red-200': '#F8ABAA',
+  'red-300': '#FB736F',
+  'red-400': '#FF3B30',
+  'red-500': '#E02010',
+  'red-600': '#D20000',
+
   'blue-100': '#ECF0FB', // 기존 light blue 100
   'blue-200': '#D6E1FF', // 기존 light blue 200
   'blue-500': '#3A67EE', // 기존 blue100
@@ -103,6 +111,10 @@ export const fontSize = {
 
   // Display 1
   'display-1-bold': ['24px', { fontWeight: '700', lineHeight: '32px', letterSpacing: '-0.72px' }],
+  'display-1-semibold': [
+    '24px',
+    { fontWeight: '600', lineHeight: '32px', letterSpacing: '-0.72px' },
+  ],
 
   // Title 1
   'title-1-bold': ['22px', { fontWeight: '700', lineHeight: '30px', letterSpacing: '-0.55px' }],
@@ -148,6 +160,10 @@ export const fontSize = {
     '28px',
     { fontWeight: '700', lineHeight: '36px', letterSpacing: '-0.84px' },
   ],
+  'display-1-semibold-tablet': [
+    '28px',
+    { fontWeight: '600', lineHeight: '36px', letterSpacing: '-0.84px' },
+  ],
 
   // Title 1
   'title-1-bold-tablet': [
@@ -180,8 +196,14 @@ export const fontSize = {
   ],
 
   // Heading 2 (same size as Body 1 tablet)
-  'heading-2-bold-tablet': ['16px', { fontWeight: '700', lineHeight: '26px' }],
-  'heading-2-semibold-tablet': ['16px', { fontWeight: '600', lineHeight: '26px' }],
+  'heading-2-bold-tablet': [
+    '16px',
+    { fontWeight: '700', lineHeight: '26px', letterSpacing: '-0.08px' },
+  ],
+  'heading-2-semibold-tablet': [
+    '16px',
+    { fontWeight: '600', lineHeight: '26px', letterSpacing: '-0.08px' },
+  ],
 
   // Body 1
   'body-1-medium-tablet': ['16px', { fontWeight: '500', lineHeight: '26px' }],

@@ -6,20 +6,9 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ContentInset, NotificationItem } from '@components/common';
 import { putReadNotice, useGetNotice, useInvalidateNoticeData } from '@apis';
 import { type StudentRootStackParamList } from '@/navigation/student/types';
+import { formatNoticeDate } from '@utils/dateFormatter';
 
 import { ScreenLayout } from '../components';
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const isToday = date.toDateString() === now.toDateString();
-
-  if (isToday) {
-    return `오늘 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-  }
-
-  return `${date.getMonth() + 1}월 ${date.getDate()}일`;
-};
 
 const PAGE_SIZE = 20;
 const NOTICE_LIST_CONTENT_STYLE = { gap: 10, paddingTop: 16, flexGrow: 1 } as const;
@@ -66,7 +55,7 @@ const NoticeScreen = () => {
       <NotificationItem
         icon='megaphone'
         title={notice.title}
-        time={formatDate(notice.startAt)}
+        time={formatNoticeDate(notice.startAt)}
         hasBadge={!notice.isRead}>
         <NotificationItem.Button
           variant='ghost'

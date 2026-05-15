@@ -5,5 +5,4 @@ export {
   EditNicknameScreen,
   EditPhoneNumberScreen,
   EditSchoolScreen,
-  EditScoreScreen,
 } from './edit';

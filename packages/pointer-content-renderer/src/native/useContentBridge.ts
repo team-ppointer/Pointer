@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import type WebView from 'react-native-webview';
 
 import type { RNToWebViewMessage, WebViewToRNMessage, UserAnswer, ContentMode } from '../types';
@@ -17,12 +17,24 @@ interface ContentBridgeOptions {
   onAnswer?: (event: AnswerEventPayload) => void;
   onBookmark?: (sectionId: string, bookmarked: boolean, requestId: number) => void;
   onAdvance?: () => void;
+  onBubbleQuestionPress?: (event: { bubbleId: string }) => void;
 }
 
 export function useContentBridge(options: ContentBridgeOptions) {
   const webViewRef = useRef<WebView>(null);
   const bridgeReadyRef = useRef(false);
   const initMessageRef = useRef(options.initMessage);
+  // Hold the latest callbacks in a ref so `handleMessage` can stay stable
+  // across renders. Without this, callers passing inline arrows (typical)
+  // would rebuild `handleMessage` every render and risk WebView reload via
+  // the `onMessage` prop changing identity.
+  // useLayoutEffect to close the post-commit/pre-effect window where a
+  // WebView message arriving between render and effect would otherwise read
+  // a stale callback (RN has no SSR concerns).
+  const optionsRef = useRef(options);
+  useLayoutEffect(() => {
+    optionsRef.current = options;
+  });
 
   const injectMessage = useCallback((msg: RNToWebViewMessage) => {
     const js = `window.dispatchEvent(new MessageEvent('message',{data:${JSON.stringify(JSON.stringify(msg))}}));true;`;
@@ -41,6 +53,7 @@ export function useContentBridge(options: ContentBridgeOptions) {
     (event: { nativeEvent: { data: string } }) => {
       try {
         const msg: WebViewToRNMessage = JSON.parse(event.nativeEvent.data);
+        const opts = optionsRef.current;
 
         switch (msg.type) {
           case 'bridgeReady':
@@ -48,41 +61,36 @@ export function useContentBridge(options: ContentBridgeOptions) {
             injectMessage(initMessageRef.current);
             break;
           case 'ready':
-            options.onReady?.(msg.mode);
+            opts.onReady?.(msg.mode);
             break;
           case 'height':
-            options.onHeight?.(msg.value);
+            opts.onHeight?.(msg.value);
             break;
           case 'complete':
-            options.onComplete?.(msg.answers);
+            opts.onComplete?.(msg.answers);
             break;
           case 'answer':
-            options.onAnswer?.({
+            opts.onAnswer?.({
               pointingId: msg.pointingId,
               step: msg.step,
               response: msg.response,
             });
             break;
           case 'bookmark':
-            options.onBookmark?.(msg.sectionId, msg.bookmarked, msg.requestId);
+            opts.onBookmark?.(msg.sectionId, msg.bookmarked, msg.requestId);
             break;
           case 'advance':
-            options.onAdvance?.();
+            opts.onAdvance?.();
+            break;
+          case 'bubbleQuestionPress':
+            opts.onBubbleQuestionPress?.({ bubbleId: msg.bubbleId });
             break;
         }
       } catch {
         // ignore non-JSON messages
       }
     },
-    [
-      options.onReady,
-      options.onHeight,
-      options.onComplete,
-      options.onAnswer,
-      options.onBookmark,
-      options.onAdvance,
-      injectMessage,
-    ]
+    [injectMessage]
   );
 
   const sendToWebView = useCallback(

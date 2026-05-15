@@ -9,7 +9,6 @@ import ChevronDownFilledIcon from './ChevronDownFilledIcon';
 import HomeFilledIcon from './HomeFilledIcon';
 import MessageCircleMoreFilledIcon from './MessageCircleMoreFilledIcon';
 import MessageSquareWarningFilledIcon from './MessageSquareWarningFilledIcon';
-import NoNotificationBellIcon from './NoNotificationBellIcon';
 import TeacherIcon from './TeacherIcon';
 import PointerSymbol from './PointerSymbol';
 import ProfileBasicIcon from './ProfileBasicIcon';
@@ -39,7 +38,6 @@ export {
   HomeFilledIcon,
   MessageCircleMoreFilledIcon,
   MessageSquareWarningFilledIcon,
-  NoNotificationBellIcon,
   TeacherIcon,
   PointerSymbol,
   ProfileBasicIcon,

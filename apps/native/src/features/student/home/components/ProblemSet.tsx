@@ -1,28 +1,23 @@
 import React, { useCallback, useMemo } from 'react';
-import { CircleIcon, MinusIcon, TriangleIcon, XIcon } from 'lucide-react-native';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react-native';
 import { Alert, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { TextButton } from '@components/common';
+import { AnimatedPressable, TextButton } from '@components/common';
 import { type components } from '@schema';
 import { colors, shadow } from '@theme/tokens';
 import type { StudentRootStackParamList } from '@navigation/student/types';
-import { useProblemSessionStore, getInitialScreenForPhase } from '@stores';
+import { useProblemSessionStore, getInitialScreenForPhase, useHomeStore } from '@stores';
 import { TrackedAnimatedPressable } from '@features/student/analytics';
 
 type PublishDetail = components['schemas']['PublishResp'];
 type PublishGroup = components['schemas']['PublishProblemGroupResp'];
 type GroupProgress = PublishGroup['progress'];
-type ProblemProgress = NonNullable<components['schemas']['ProblemWithStudyInfoResp']['progress']>;
 
 interface ProblemSetProps {
   publishDetail?: PublishDetail;
-}
-
-interface ProblemItemProps {
-  title: string;
-  status?: ProblemProgress;
+  onPressDate?: () => void;
 }
 
 interface ProblemListProps {
@@ -32,19 +27,9 @@ interface ProblemListProps {
   onActionPress?: (group: PublishGroup) => void;
 }
 
-const Divider = () => {
-  return <View className='h-px bg-gray-400' />;
-};
-
-const ProblemStatusIcon: Record<
-  ProblemProgress,
-  { Icon: typeof CircleIcon; color: string; bgColor: string }
-> = {
-  CORRECT: { Icon: CircleIcon, color: colors['green-500'], bgColor: 'bg-green-100' },
-  SEMI_CORRECT: { Icon: TriangleIcon, color: colors['secondary-500'], bgColor: 'bg-secondary-100' },
-  INCORRECT: { Icon: XIcon, color: colors['red-500'], bgColor: 'bg-red-100' },
-  NONE: { Icon: MinusIcon, color: colors['gray-700'], bgColor: 'bg-gray-300' },
-};
+interface FocusBadgeProps {
+  variant: 'orange' | 'green' | 'purple' | 'pink' | 'blue';
+}
 
 const groupStatusMeta: Record<
   GroupProgress,
@@ -67,64 +52,72 @@ const groupStatusMeta: Record<
   },
 };
 
-const ProblemItem = ({ title, status = 'NONE' }: ProblemItemProps) => {
-  const { Icon, color, bgColor } = ProblemStatusIcon[status];
-
-  return (
-    <View className='flex-row items-center gap-[8px]'>
-      <Text className='typo-body-2-medium text-black'>{title}</Text>
-      <View className={`rounded-[4px] p-[4px] ${bgColor}`}>
-        <Icon color={color} size={14} strokeWidth={2.5} />
-      </View>
-    </View>
-  );
+const focusBadgeColors: Record<FocusBadgeProps['variant'], { background: string; text: string }> = {
+  orange: { background: '#FFEFE0', text: '#B85600' },
+  green: { background: '#E5F4E1', text: '#1A6714' },
+  purple: { background: '#EEE9FF', text: '#5B2EA6' },
+  pink: { background: '#FCE8F3', text: '#9B2C6E' },
+  blue: { background: '#E8F0FF', text: '#0055CC' },
 };
 
-const ProblemList = ({ group, index, onActionPress, unitTitle }: ProblemListProps) => {
+const FocusBadge = ({ variant }: FocusBadgeProps) => (
+  <View
+    className='rounded-[4px] px-[4px] py-[2px]'
+    style={{ backgroundColor: focusBadgeColors[variant].background }}>
+    <Text className='typo-label-medium' style={{ color: focusBadgeColors[variant].text }}>
+      집중학습
+    </Text>
+  </View>
+);
+
+const ProblemItem = ({ group, index, onActionPress }: ProblemListProps) => {
   const statusMeta = groupStatusMeta[group.progress];
   const handlePress = useCallback(() => {
     onActionPress?.(group);
   }, [group, onActionPress]);
-  const problems = useMemo(() => {
-    const childProblems = group.childProblems ?? [];
-    return childProblems.map((child, childIndex) => ({
-      key: `child-${child.id}-${childIndex}`,
-      title: `${index + 1}-${childIndex + 1}번`,
-      status: child.progress ?? 'NONE',
-    }));
-  }, [group, index]);
-
-  const { Icon, color, bgColor } = ProblemStatusIcon[group.problem.progress ?? 'NONE'];
 
   return (
     <View
-      className='flex-col gap-[12px] rounded-[10px] bg-white px-[14px] py-[10px]'
+      className='flex-row items-center justify-between gap-[8px] rounded-[10px] bg-white p-[12px]'
       style={shadow[100]}>
-      <View className='flex-row items-center justify-between gap-[8px]'>
-        <View className='flex-1 flex-col'>
-          <View className='flex-row items-center'>
-            <Text className='typo-heading-2-bold mr-[8px] text-black'>{`문제 ${index + 1}번`}</Text>
-            <View className={`rounded-[4px] p-[4px] ${bgColor}`}>
-              <Icon color={color} size={14} strokeWidth={2.5} />
-            </View>
-          </View>
-          <Text className='typo-label-medium line-clamp-1 text-gray-700'>{unitTitle}</Text>
-        </View>
-        <TextButton variant={statusMeta.buttonVariant} onPress={handlePress} buttonId='start_study'>
-          {statusMeta.buttonLabel}
-        </TextButton>
+      <View className='flex-1 flex-row items-center gap-[8px]'>
+        <FocusBadge variant='orange' />
+        <Text className='typo-body-1-medium mr-[8px] text-black'>{`문제 ${index + 1}번`}</Text>
       </View>
-      {group.problem.progress === 'INCORRECT' && problems.length > 0 && <Divider />}
-      {group.problem.progress === 'INCORRECT' &&
-        problems.map((problem) => (
-          <ProblemItem key={problem.key} title={problem.title} status={problem.status} />
-        ))}
+      <TextButton variant={statusMeta.buttonVariant} onPress={handlePress} buttonId='start_study'>
+        {statusMeta.buttonLabel}
+      </TextButton>
     </View>
   );
 };
 
-const ProblemSet = ({ publishDetail }: ProblemSetProps) => {
+const ProblemSet = ({ publishDetail, onPressDate }: ProblemSetProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<StudentRootStackParamList>>();
+  const { selectedMonth, selectedDate, setSelectedMonth, setSelectedDate } = useHomeStore();
+
+  const handlePrevDay = useCallback(() => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() - 1);
+    setSelectedDate(newDate);
+    if (
+      newDate.getMonth() !== selectedMonth.getMonth() ||
+      newDate.getFullYear() !== selectedMonth.getFullYear()
+    ) {
+      setSelectedMonth(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
+    }
+  }, [selectedDate, selectedMonth, setSelectedDate, setSelectedMonth]);
+
+  const handleNextDay = useCallback(() => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() + 1);
+    setSelectedDate(newDate);
+    if (
+      newDate.getMonth() !== selectedMonth.getMonth() ||
+      newDate.getFullYear() !== selectedMonth.getFullYear()
+    ) {
+      setSelectedMonth(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
+    }
+  }, [selectedDate, selectedMonth, setSelectedDate, setSelectedMonth]);
   const groups = publishDetail?.data ?? [];
   const title = publishDetail?.problemSet?.title ?? '미출제';
   const publishAt = publishDetail?.publishAt;
@@ -182,31 +175,58 @@ const ProblemSet = ({ publishDetail }: ProblemSetProps) => {
   // 버튼 레이블 결정 (allDone이면 버튼 숨김)
   const startButtonLabel = useMemo(() => {
     if (groups.length === 0 || allDone) return null;
-    return `${firstIncompleteInfo.index + 1}번부터 풀기`;
+    return `문제 ${firstIncompleteInfo.index + 1}번부터 풀기`;
   }, [groups, allDone, firstIncompleteInfo]);
 
   return (
-    <View className='bg-primary-100 gap-[10px] rounded-[20px] p-[16px] md:flex-1 md:basis-1/2'>
+    <View className='bg-primary-100 gap-[20px] rounded-[20px] p-[16px]'>
+      <View className='flex-col gap-[10px]'>
+        {/* 날짜 헤더 */}
+        <View className='flex-row items-center justify-between'>
+          <AnimatedPressable
+            className='size-[40px] items-start justify-center'
+            onPress={handlePrevDay}>
+            <ChevronLeftIcon size={20} color={colors['gray-700']} style={{ margin: 4 }} />
+          </AnimatedPressable>
+          <AnimatedPressable className='flex-row' onPress={onPressDate}>
+            <Text className='typo-title-2-semibold text-gray-900'>
+              {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일{' '}
+            </Text>
+            <Text className='typo-title-2-semibold text-gray-700'>
+              {['일', '월', '화', '수', '목', '금', '토'][selectedDate.getDay()]}요일
+            </Text>
+          </AnimatedPressable>
+          <AnimatedPressable
+            className='size-[40px] items-end justify-center'
+            onPress={handleNextDay}>
+            <ChevronRightIcon size={20} color={colors['gray-700']} style={{ margin: 4 }} />
+          </AnimatedPressable>
+        </View>
+        {/* CTA */}
+        {startButtonLabel && (
+          <TrackedAnimatedPressable
+            buttonId='start_study'
+            className='bg-primary-600 h-[50px] flex-row items-center justify-between rounded-[8px] px-[20px]'
+            onPress={handleStartFromFirst}>
+            <Text className='typo-body-1-medium text-white'>{startButtonLabel}</Text>
+            <ChevronRightIcon size={20} color='white' />
+          </TrackedAnimatedPressable>
+        )}
+      </View>
+      {/* 문제 리스트 */}
       {groups.length === 0 ? (
-        <View className='h-full items-center justify-center'>
+        <View className='items-center justify-center'>
           <Text className='typo-body-1-regular text-center text-gray-700'>
             표시할 문제가 없어요
           </Text>
         </View>
       ) : (
-        <>
-          {startButtonLabel && (
-            <TrackedAnimatedPressable
-              buttonId='start_study'
-              className='bg-primary-600 mb-[6px] h-[48px] items-center justify-center rounded-[8px] px-[20px]'
-              onPress={handleStartFromFirst}>
-              <Text className='typo-body-1-medium text-white'>{startButtonLabel}</Text>
-            </TrackedAnimatedPressable>
-          )}
+        <View className='flex-col gap-[12px] pb-[20px]'>
+          <Text className='typo-heading-1-bold'>{title}</Text>
           {groups.map((group, index) => {
             const key = group.problemId ?? index;
             return (
-              <ProblemList
+              <ProblemItem
                 group={group}
                 index={index}
                 unitTitle={title}
@@ -215,7 +235,7 @@ const ProblemSet = ({ publishDetail }: ProblemSetProps) => {
               />
             );
           })}
-        </>
+        </View>
       )}
     </View>
   );

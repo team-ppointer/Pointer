@@ -11,6 +11,7 @@ import {
   mockChatResumeAfterFirstPointing,
   mockChatResumeMidSecond,
   mockChatResumeAllComplete,
+  mockHomeCards,
 } from './mock-data';
 
 function sendMockMessage(msg: RNToWebViewMessage): void {
@@ -111,6 +112,15 @@ function createDevPanel(): void {
           mode: 'overview',
           variant: 'pointing',
           sections: mockAllRightSections,
+        }),
+    },
+    {
+      label: '홈 카드(home)',
+      action: () =>
+        sendMockMessage({
+          type: 'init',
+          mode: 'home',
+          cards: mockHomeCards,
         }),
     },
   ] as const;

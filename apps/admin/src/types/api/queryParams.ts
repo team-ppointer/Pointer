@@ -1,8 +1,22 @@
+import type { paths } from '@schema';
+
 export interface GetConceptParams {
   query?: string;
   page?: number;
   size?: number;
 }
+
+export type ConceptNodeSheetSearchOptions = NonNullable<
+  paths['/api/admin/concept/graph/sheet/node']['get']['parameters']['query']
+>;
+
+export type ConceptEdgeSheetSearchOptions = NonNullable<
+  paths['/api/admin/concept/graph/sheet/edge']['get']['parameters']['query']
+>;
+
+export type ActionGraphSheetSearchOptions = NonNullable<
+  paths['/api/admin/concept/graph/sheet/action-edge']['get']['parameters']['query']
+>;
 
 export interface GetConceptCategoryParams {
   query?: string;
@@ -83,4 +97,30 @@ export interface GetDiagnosisByIdParams {
 
 export interface GetDiagnosisParams {
   studentId: number;
+}
+
+export interface GetDailyCommentParams {
+  studentId: number;
+  commentDate: string;
+}
+
+export interface GetMockExamByStudentParams {
+  studentId: number;
+}
+
+export interface GetFocusCardIssuanceByDateParams {
+  studentId: number;
+  issuedDate?: string;
+}
+
+export interface GetFocusCardIssuanceCandidatesParams {
+  studentId: number;
+  problemId: number;
+  targetDate?: string;
+}
+
+export interface PostPublishFocusCardLinkCandidatesParams {
+  studentId: number;
+  problemSetId: number;
+  targetDate?: string;
 }

@@ -11,11 +11,17 @@ import useGetSchool from '@apis/controller/student/school/useGetSchool';
 import type { OnboardingScreenProps } from '../types';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { OnboardingLayout, OnboardingInput } from '../../components';
+import useFinishOnboarding from '../../hooks/useFinishOnboarding';
+import useResolveCurrentMockExamType from '../../hooks/useResolveCurrentMockExamType';
+import { getOnboardingTotal } from '../../utils';
 
 const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
+  const grade = useOnboardingStore((state) => state.grade);
   const schoolId = useOnboardingStore((state) => state.schoolId);
   const setSchoolId = useOnboardingStore((state) => state.setSchoolId);
   const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep);
+  const currentMockExamType = useOnboardingStore((state) => state.currentMockExamType);
+  const currentTypeStatus = useOnboardingStore((state) => state.currentTypeStatus);
 
   useFocusEffect(
     useCallback(() => {
@@ -31,6 +37,17 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
 
   const results = data?.data ?? [];
 
+  const { submit, isPending } = useFinishOnboarding();
+  const { resolveCurrentMockExamType, isResolvingCurrentType } = useResolveCurrentMockExamType();
+
+  const isCurrentTypeReady = currentTypeStatus === 'resolved';
+  const isCurrentTypeRetryable = currentTypeStatus === 'error';
+  const isCurrentTypeBlocked = currentTypeStatus !== 'resolved' && currentTypeStatus !== 'error';
+  const hasActiveMockExam = isCurrentTypeReady && Boolean(currentMockExamType?.type);
+  const isProcessing = isPending || isResolvingCurrentType;
+  const ctaDisabled = !schoolId || isProcessing || isCurrentTypeBlocked;
+  const skipDisabled = isProcessing || isCurrentTypeBlocked;
+
   const handleSelect = (id: number, name: string, sido: string) => {
     const label = `${name}(${sido})`;
     setSchoolId(id);
@@ -44,28 +61,52 @@ const SchoolStep = ({ navigation }: OnboardingScreenProps<'School'>) => {
     setSelectedLabel('');
   };
 
-  const handleNext = () => {
-    if (!schoolId) return;
-    setCurrentStep('Score');
-    navigation.navigate('Score');
+  const goNext = async () => {
+    let nextMockExamType = currentMockExamType;
+
+    if (isCurrentTypeRetryable) {
+      const result = await resolveCurrentMockExamType();
+      if (!result.ok) return;
+      nextMockExamType = result.currentMockExamType;
+    } else if (!isCurrentTypeReady) {
+      return;
+    }
+
+    if (nextMockExamType?.type) {
+      setCurrentStep('MockExam');
+      navigation.navigate('MockExam');
+      return;
+    }
+    await submit();
   };
 
-  const handleSkip = () => {
+  const handleNext = async () => {
+    if (!schoolId) return;
+    await goNext();
+  };
+
+  const handleSkip = async () => {
+    if (skipDisabled) return;
     setSchoolId(null);
     setQuery('');
     setSelectedLabel('');
-    setCurrentStep('Score');
-    navigation.navigate('Score');
+    await goNext();
   };
+
+  const total = getOnboardingTotal(grade, hasActiveMockExam);
+  const current = grade === 'THREE' ? 3 : 2;
 
   return (
     <OnboardingLayout
       title='현재 재학중인 학교명을 입력해 주세요.'
       description='학교를 입력해 맞춤형 문제를 제공받아요.'
       onPressCTA={handleNext}
-      ctaDisabled={!schoolId}
+      ctaDisabled={ctaDisabled}
+      ctaLoading={isProcessing}
       skipLabel='건너뛰기'
-      onSkip={handleSkip}>
+      onSkip={handleSkip}
+      skipDisabled={skipDisabled}
+      progress={{ current, total }}>
       <View>
         <OnboardingInput
           label='학교'
